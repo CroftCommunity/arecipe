@@ -8,6 +8,7 @@ import { resolveDidDoc } from '../identity/did.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
 import { createRecipeCache, type CachedRecipe } from '../recipes/cache.js';
+import { createExclusions } from '../recipes/exclusions.js';
 import { createRecordReader } from '../recipes/read.js';
 import { renderRecipeDetail } from '../recipes/view.js';
 import { registerServiceWorker } from '../sw-register.js';
@@ -67,6 +68,20 @@ const main = async (): Promise<void> => {
     const name = (entry.value as { name?: string }).name;
     if (name !== undefined) document.title = `${name} — arecipe`;
     content.replaceChildren(renderRecipeDetail(entry, { author }));
+    // Exclusion (mute-lite): quiet, reversible in Settings.
+    const exclusions = createExclusions();
+    const hideButton = document.createElement('button');
+    hideButton.type = 'button';
+    hideButton.className = 'button';
+    hideButton.dataset['testid'] = 'hide-recipe';
+    hideButton.textContent = exclusions.isHidden(uri) ? 'Unhide this recipe' : 'Hide this recipe';
+    hideButton.addEventListener('click', () => {
+      if (exclusions.isHidden(uri)) exclusions.unhide(uri);
+      else exclusions.hide(uri);
+      hideButton.textContent = exclusions.isHidden(uri) ? 'Unhide this recipe' : 'Hide this recipe';
+      log.info('exclusions', 'toggled', { uri, hidden: exclusions.isHidden(uri) });
+    });
+    content.append(hideButton);
     log.debug('shell', 'mounted', { page: 'recipe', uri });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);

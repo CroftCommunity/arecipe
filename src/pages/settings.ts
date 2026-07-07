@@ -5,6 +5,7 @@
 import { formatBuildStamp, mountBuildStamp, type BuildInfo } from '../build-stamp.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
+import { createExclusions } from '../recipes/exclusions.js';
 import { createStarterPrefs, STARTER_AUTHORS } from '../recipes/starter.js';
 import { registerServiceWorker } from '../sw-register.js';
 
@@ -87,6 +88,39 @@ const main = async (): Promise<void> => {
     starter.append(row);
   }
 
+  const hiddenSection = section('Hidden recipes', 'hidden-recipes');
+  hiddenSection.append(
+    el('p', 'status', 'Recipes you (or the built-in baseline) hid from feeds. Unhide to restore.'),
+  );
+  const exclusions = createExclusions();
+  const hiddenList = el('div');
+  hiddenSection.append(hiddenList);
+  const renderHidden = (): void => {
+    hiddenList.replaceChildren();
+    const all = exclusions.all();
+    if (all.length === 0) {
+      hiddenList.append(el('p', 'status', 'nothing hidden'));
+      return;
+    }
+    for (const uri of all) {
+      const row = el('div', 'draft-row');
+      row.dataset['testid'] = 'hidden-row';
+      const link = el('a', 'draft-link', uri.split('/').slice(-1)[0] ?? uri) as HTMLAnchorElement;
+      link.href = `./recipe.html?u=${encodeURIComponent(uri)}`;
+      link.title = uri;
+      const unhide = el('button', 'button', 'Unhide') as HTMLButtonElement;
+      unhide.type = 'button';
+      unhide.dataset['testid'] = 'unhide';
+      unhide.addEventListener('click', () => {
+        exclusions.unhide(uri);
+        renderHidden();
+      });
+      row.append(link, unhide);
+      hiddenList.append(row);
+    }
+  };
+  renderHidden();
+
   const about = section('About', 'about');
   about.append(
     el(
@@ -99,7 +133,7 @@ const main = async (): Promise<void> => {
     ),
   );
 
-  content.append(build, starter, integrity, about);
+  content.append(build, starter, hiddenSection, integrity, about);
   mountShell(app, content);
   void mountBuildStamp(app);
   log.debug('shell', 'mounted', { page: 'settings' });

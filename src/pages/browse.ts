@@ -7,6 +7,7 @@ import { createResolver, type ResolvedIdentity } from '../identity/resolve.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
 import { createRecipeCache, type CachedRecipe } from '../recipes/cache.js';
+import { createExclusions } from '../recipes/exclusions.js';
 import { createStarterPrefs, loadStarterFeed } from '../recipes/starter.js';
 import { createRecipeReader } from '../recipes/read.js';
 import { renderRecipeList } from '../recipes/view.js';
@@ -67,10 +68,18 @@ const main = (): void => {
   // renderer checks its generation before touching the DOM.
   let generation = 0;
 
+  const exclusions = createExclusions();
+  const withoutHidden = (entries: CachedRecipe[]): { kept: CachedRecipe[]; hidden: number } => {
+    const kept = entries.filter((e) => !exclusions.isHidden(e.uri));
+    return { kept, hidden: entries.length - kept.length };
+  };
+  const hiddenNote = (hidden: number): string => (hidden === 0 ? '' : ` · ${hidden} hidden`);
+
   const showEntries = (entries: CachedRecipe[], author: string, fetchedCount?: number): void => {
-    const verified = entries.filter((e) => e.verified).length;
-    recipesStatus.textContent = `${fetchedCount ?? entries.length} recipes cached (${verified} verified)`;
-    listContainer.replaceChildren(renderRecipeList(entries, { author }));
+    const { kept, hidden } = withoutHidden(entries);
+    const verified = kept.filter((e) => e.verified).length;
+    recipesStatus.textContent = `${fetchedCount ?? entries.length} recipes cached (${verified} verified)${hiddenNote(hidden)}`;
+    listContainer.replaceChildren(renderRecipeList(kept, { author }));
   };
 
   form.addEventListener('submit', (event) => {
@@ -101,13 +110,12 @@ const main = (): void => {
     recipesStatus.textContent = 'loading your starter pack…';
     const feed = await loadStarterFeed(enabled);
     if (gen !== generation) return; // the user searched while we loaded
-    const verified = feed.entries.filter((e) => e.verified).length;
+    const { kept, hidden } = withoutHidden(feed.entries);
+    const verified = kept.filter((e) => e.verified).length;
     const failed =
       feed.failedAuthors.length === 0 ? '' : ` — ${feed.failedAuthors.join(', ')} unavailable`;
-    recipesStatus.textContent = `${feed.entries.length} starter pack recipes (${verified} verified)${failed}`;
-    listContainer.replaceChildren(
-      renderRecipeList(feed.entries, { authorsByDid: feed.authorsByDid }),
-    );
+    recipesStatus.textContent = `${kept.length} starter pack recipes (${verified} verified)${failed}${hiddenNote(hidden)}`;
+    listContainer.replaceChildren(renderRecipeList(kept, { authorsByDid: feed.authorsByDid }));
   };
 
   const last = readLastFind();

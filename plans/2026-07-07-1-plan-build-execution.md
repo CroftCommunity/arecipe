@@ -1192,6 +1192,22 @@ is user-editable in settings; author names link out to Bluesky profiles.
 
 ---
 
+### Phase 5f: Exclusions, lite — ✅ SHIPPED (2026-07-07, with the Phase 6 batch)
+
+**User-requested** on finding junk in the default feed (daffl.xyz "Test
+Recipe": "Love" / "Do the things"). The client-side forerunner of
+`app.arecipe.mute.recipe` (spec Layer 8 → Phase 10), using the overlay model
+the real mute system will need: **a curated hidden-by-default baseline the
+user can override in either direction** (that junk URI is baked entry #1).
+Hide/unhide button on the recipe detail page; feeds and search filter hidden
+URIs with a quiet "· N hidden" status note; Settings § Hidden recipes lists
+everything hidden with unhide. TDD (RED observed): baseline hides out of the
+box; hide persists; unhiding a baked default works; broken storage degrades
+to the baseline. When Phase 10 arrives, this local list is the seed for
+published mute records.
+
+---
+
 ### Phase 6: Recipe authoring (create/edit) → visible on recipe.exchange — ✅ SHIPPED (2026-07-07, Phase 6 close-out commit)
 
 **Delivered:** the MLP's core. `editor.html` (name/description/ingredients/
