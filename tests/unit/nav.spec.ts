@@ -8,6 +8,17 @@ import { describe, expect, it } from 'vitest';
 import { renderTabs, renderTopbar } from '../../src/nav.js';
 
 describe('renderTopbar', () => {
+  it('carries the butterfly-spatula logo (decorative, theme-variant pair)', () => {
+    const bar = renderTopbar();
+    const light = bar.querySelector<HTMLImageElement>('img.logo--light');
+    const dark = bar.querySelector<HTMLImageElement>('img.logo--dark');
+    expect(light?.getAttribute('src')).toBe('./assets/logo-light.png');
+    expect(dark?.getAttribute('src')).toBe('./assets/logo-dark.png');
+    // Decorative: the wordmark right beside it carries the name.
+    expect(light?.getAttribute('alt')).toBe('');
+    expect(dark?.getAttribute('alt')).toBe('');
+  });
+
   it('wordmark links home and keeps the differentiated "a"', () => {
     const bar = renderTopbar();
     const home = bar.querySelector<HTMLAnchorElement>('a.wordmark-link');

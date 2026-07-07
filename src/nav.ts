@@ -13,12 +13,26 @@ const el = (tag: string, className?: string, text?: string): HTMLElement => {
   return node;
 };
 
+const logoImg = (variant: 'light' | 'dark'): HTMLImageElement => {
+  const img = document.createElement('img');
+  img.className = `logo logo--${variant}`;
+  img.src = `./assets/logo-${variant}.png`;
+  img.alt = ''; // decorative — the wordmark beside it carries the name
+  return img;
+};
+
 export const renderTopbar = (): HTMLElement => {
   const bar = el('header', 'topbar');
   const wordmark = el('h1', 'wordmark');
   const home = el('a', 'wordmark-link') as HTMLAnchorElement;
   home.href = './index.html';
-  home.append(el('span', 'wordmark-a', 'a'), document.createTextNode('recipe'));
+  // Butterfly-spatula mark: theme-variant pair, CSS shows the right one.
+  home.append(
+    logoImg('light'),
+    logoImg('dark'),
+    el('span', 'wordmark-a', 'a'),
+    document.createTextNode('recipe'),
+  );
   wordmark.append(home);
   const controls = el('div', 'auth-area');
   const themeToggle = el('button', 'nav-gear') as HTMLButtonElement;

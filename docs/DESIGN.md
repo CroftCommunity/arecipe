@@ -41,6 +41,15 @@ cycle in the top bar, persisted; auto follows `prefers-color-scheme`).
 | `--card` / `--line` | `#182622` / `#2B3B36` | |
 | `--stamp-veil` | `#101B18D9` | The ALTERED? stamp's backing veil. |
 
+## The mark
+
+The butterfly-spatula (wings as line-art outlines, a slotted spatula for the
+body, one gold dot on the handle — the same warm accent as the wordmark's
+"a"). Enamel-palette theme pair in `assets/logo-{light,dark}.png`, shown
+beside the wordmark (which reads **a recipe**) and as the favicon. The blue
+`assets/brand/arecipe-app-lockup-blue.png` is sticker/splash source material
+(Phase 8b splash candidate), not app UI.
+
 ## Type roles
 
 | Role | Face | Usage |

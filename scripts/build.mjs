@@ -3,7 +3,7 @@
 // emit dist/build-info.json so the running app can show which build it is
 // and how big (see src/build-stamp.ts). Version = UTC date + short git SHA.
 import { execSync } from 'node:child_process';
-import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { copyFileSync, cpSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { gzipSync } from 'node:zlib';
 import { buildSync } from 'esbuild';
 
@@ -20,6 +20,7 @@ buildSync({
 });
 buildSync({ entryPoints: ['src/sw.ts'], bundle: true, minify: true, outfile: 'dist/sw.js' });
 for (const file of [...HTML, 'styles.css']) copyFileSync(file, `dist/${file}`);
+cpSync('assets', 'dist/assets', { recursive: true });
 
 const sha = execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim();
 const now = new Date();
