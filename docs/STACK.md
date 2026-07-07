@@ -168,14 +168,24 @@ The trust anchor is the **offline signing key**, not any origin.
 
 These are real decisions, tracked here so they are not silently defaulted:
 
-- **Frontend framework.** The spec is framework-agnostic. Candidates worth weighing:
-  a minimal reactive framework (Svelte/Solid) for small bundle size, or plain TS with
-  Web Components. Decision criteria: bundle size (the whole app must be a small signed
-  static bundle), no server-side runtime, testability.
+- **Frontend framework — DECIDED (2026-07-07): none.** Plain HTML5 + CSS + JS
+  (vanilla, optionally TS for type safety). No reactive framework. Rationale: the app
+  is small enough to be excellent without one, and a framework-free bundle is the
+  smallest and most auditable signed artifact (which is a trust-surface benefit, not
+  just a size one). Web platform primitives (Web Components / templates, `fetch`,
+  IndexedDB, WebCrypto, service worker) carry the app. Revisit only if complexity
+  genuinely outgrows vanilla — a deliberate change, not a drift.
 
-- **Build + signing toolchain.** How the deterministic, reproducible signed bundle is
-  produced and how per-file SHA-256 + Ed25519 signing wire into CI while keeping the
-  key offline.
+- **OAuth client registration — DECIDED (2026-07-07):** loopback/localhost client for
+  TDD and local iteration (atproto's loopback client exception); a real hosted
+  client-metadata document is a separate, explicit plan item for milestone/staging
+  testing (see the build plan's milestone map). Do not block local TDD on the hosted
+  client.
+
+- **Build + signing toolchain.** With a vanilla stack the build can be minimal
+  (esbuild/plain bundling, or none). Still open: how the deterministic, reproducible
+  signed bundle is produced and how per-file SHA-256 + Ed25519 signing wire into CI
+  while keeping the key offline.
 
 - **Server-rendered public recipe views.** For shareable links with Schema.org
   JSON-LD and for LLM/crawler discoverability, `/recipes/{did}/{rkey}` likely needs
