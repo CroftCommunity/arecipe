@@ -88,6 +88,23 @@ body {
   color: var(--enamel);
 }
 
+.wordmark-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.nav-gear {
+  font-size: 1.25rem;
+  text-decoration: none;
+  color: var(--enamel);
+  opacity: 0.75;
+  padding: var(--s-1) var(--s-2);
+}
+
+.nav-gear:hover {
+  opacity: 1;
+}
+
 /* The differentiated "a": the wordmark reads "a recipe". */
 .wordmark-a {
   color: var(--yolk-deep);
@@ -138,6 +155,82 @@ body {
   opacity: 1;
   border-bottom-color: var(--enamel);
   font-weight: 700;
+}
+
+.tab {
+  text-decoration: none;
+  display: inline-block;
+}
+
+/* Mobile: primary destinations move to a bottom bar (thumb reach). */
+@media (max-width: 40rem) {
+  .tabs {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    display: flex;
+    justify-content: space-around;
+    background: var(--card);
+    border-top: var(--stroke) solid var(--line);
+    border-bottom: 0;
+    padding: var(--s-1) 0 calc(var(--s-1) + env(safe-area-inset-bottom));
+    z-index: 10;
+  }
+
+  .tab {
+    border-bottom: 0;
+    margin-bottom: 0;
+    padding: var(--s-2) var(--s-4);
+  }
+
+  .tab--active {
+    color: var(--enamel);
+    border-bottom: 0;
+  }
+
+  #app {
+    padding-bottom: var(--s-7);
+  }
+}
+
+/* ---- settings sections ---- */
+
+.page-title {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.5rem;
+  margin: 0 0 var(--s-4);
+}
+
+.settings-section {
+  background: var(--card);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-l);
+  padding: var(--s-4) var(--s-4) var(--s-4);
+  margin-bottom: var(--s-4);
+  max-width: 44rem;
+}
+
+.settings-section h3 {
+  font-family: var(--display);
+  font-weight: 600;
+  color: var(--enamel);
+  margin: 0 0 var(--s-2);
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--s-1) var(--s-4);
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  margin: 0;
+}
+
+.facts dd {
+  margin: 0;
 }
 
 /* ---- lookup row + controls ---- */

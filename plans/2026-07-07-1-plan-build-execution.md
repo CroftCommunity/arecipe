@@ -22,7 +22,8 @@ feasibility amendment on 2026-07-07 (see Review Log).
 | 4a Read + verified cache | ✅ | `e10901e` | Public read + Tier 2 CID verify (TDD); live: 3/3 verified vs real PDS; SW fetch-handler/route-interception gotcha found+fixed |
 | 4b Render (M1 exit) | ✅ | `5084e4b` | Recipes render; interop confirmed BOTH ways (arecipe + recipe.exchange render the same record). M1 checkpoint held same day |
 | 5 Two-device read (M2 exit) | ✅ | Phase 5 close-out commit | Two contexts + two engines (Chrome/Firefox), same account, same recipes; independent refresh pinned. **M2 REACHED** |
-| 5b–8c (M3 set) | planned | | Re-planned 2026-07-07: 5b pages+nav → 5c theming → 6 authoring (draft-before-publish) → 7 blobs → 8 draft-sync/versioning → 8b offline PWA → 8c hosted client + physical two-device demo (M3 exit) |
+| 5b Pages + nav shell | ✅ | Phase 5b close-out commit | 4 documents, native back, bottom tab bar mobile; browse.js −98% (44 KB / 15 KB gz); @live 3/3 incl. mine.html callback |
+| 5c–8c (M3 set) | planned | | 5c theming → 6 authoring (draft-before-publish) → 7 blobs → 8 draft-sync/versioning → 8b offline PWA → 8c hosted client + physical two-device demo (M3 exit) |
 | 9–12 | roadmap | | re-plan before execution |
 
 ---
@@ -953,7 +954,21 @@ evidence; the physical two-device demo is the first item of the M3 exit.
 
 ---
 
-### Phase 5b: Page-per-destination restructure + nav shell (M2/M3 re-plan, 2026-07-07)
+### Phase 5b: Page-per-destination restructure + nav shell — ✅ SHIPPED (2026-07-07, Phase 5b close-out commit)
+
+**Delivered:** as specced. Four documents (index/mine/settings/account) with
+`src/pages/*` entries, shared `src/nav.ts` (wordmark-home link, gear, tab
+links with pathname-derived active state) + `src/auth/boot.ts` (shared
+session bootstrap for auth pages) + `src/sw-register.ts`; `main.ts` retired.
+**Bundle split delivered the budget win: browse.js 916 KB → 44 KB
+(15 KB gz), −98% on the landing page**; auth weight isolated to mine/account
+(879 KB each); settings 5 KB; per-page sizes now in build-info.json and the
+settings page. Native back verified (real Chrome: / → mine.html → back → /);
+bottom tab bar on mobile confirmed by screenshot; OAuth callback round-trips
+to /mine.html exactly as the loopback metadata derivation predicted (@live
+3/3). Bundle-split enforced by e2e (browse.js contains no oauth, <200 KB).
+
+*(Original spec below.)*
 
 **Goal:** Restructure the SPA into separate documents per destination
 (blockdoku pattern, user-DECIDED): `index.html` (Browse), `mine.html`
@@ -1431,12 +1446,13 @@ prerender-without-a-backend question (`docs/STACK.md` §7) — then executed.
   synced draft is publicly readable — folded into Phase 8's scope (a disclosure
   line in the editor, not a modal).
 
-- [RECOMMENDED: ADVISORY] **Dark palette hues** (added at the M2/M3 re-plan):
+- [CONFIRMED: ADVISORY — user, 2026-07-07 ("sure lets try it out")] **Dark
+  palette hues** (added at the M2/M3 re-plan):
   the dark enamelware token values are designed inside Phase 5c via
   screenshot iteration against the contrast floors — no upfront decision
   needed. *Rationale: pure design-time iteration, same loop as the skeleton.*
 
-- [RECOMMENDED: ADVISORY] **Client identity moves with the domain** (added at
+- [CONFIRMED: ADVISORY — user, 2026-07-07] **Client identity moves with the domain** (added at
   the M2/M3 re-plan): the hosted OAuth client_id is the metadata URL, so the
   arecipe.app cutover (Phase 12 territory) mints a new client identity and
   existing sessions re-consent once. *Rationale: acceptable pre-launch;

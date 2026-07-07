@@ -23,14 +23,14 @@ test('@live two tabs survive a forced refresh (single-use refresh token hazard)'
 
   // Tab 1: interactive login. Debug flag via localStorage — the URL flag
   // would be lost across the OAuth redirect round-trip.
-  await page.goto('/');
+  await page.goto('/mine.html');
   await page.evaluate(() => window.localStorage.setItem('debug', '1'));
   await signIn(page, { handle: HANDLE, password: PASSWORD, origin });
   await expect(page.getByTestId('signed-in-did')).toContainText('did:plc:', { timeout: 30_000 });
 
   // Tab 2: restores the same session from the shared store, no login.
   const page2 = await context.newPage();
-  await page2.goto('/'); // same context → same localStorage, debug flag inherited
+  await page2.goto('/mine.html'); // same context → same localStorage, debug flag inherited
   await expect(page2.getByTestId('signed-in-did')).toContainText('did:plc:', { timeout: 30_000 });
 
   // Force a refresh in tab 1 — the single-use refresh token rotates.

@@ -15,6 +15,7 @@ const PASSWORD = env['BSKY_TEST_PASSWORD'] ?? '';
 const AUTHOR = 'rdur.dev';
 
 const findRecipes = async (page: Page): Promise<string[]> => {
+  await page.goto('/'); // browsing lives on the Browse document (5b)
   await page.getByTestId('handle-input').fill(AUTHOR);
   await page.getByTestId('find-recipes').click();
   await expect(page.getByTestId('recipes-status')).toContainText('recipes cached', {
@@ -33,7 +34,7 @@ test('@live two devices: same account, independent sessions, same recipes', asyn
   const origin = baseURL ?? 'http://127.0.0.1:4173';
 
   // Device 1: full interactive login (default context).
-  await page.goto('/');
+  await page.goto('/mine.html');
   await page.evaluate(() => window.localStorage.setItem('debug', '1'));
   await signIn(page, { handle: HANDLE, password: PASSWORD, origin });
   await expect(page.getByTestId('signed-in-did')).toContainText('did:plc:', { timeout: 30_000 });
@@ -54,7 +55,10 @@ test('@live two devices: same account, independent sessions, same recipes', asyn
   );
 
   // Independent refresh (D1 risk): rotating device 1's single-use refresh
-  // token must not disturb device 2's session.
+  // token must not disturb device 2's session. The debug hook lives on
+  // auth-aware pages (5b), so return to mine.html first.
+  await page.goto('/mine.html');
+  await page2.goto('/mine.html');
   const refreshed = await page.evaluate(async () => {
     const dbg = (window as Window & { arecipeDebug?: { forceRefresh: () => Promise<unknown> } })
       .arecipeDebug;

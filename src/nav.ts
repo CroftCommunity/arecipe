@@ -1,0 +1,50 @@
+// Shared nav shell (Phase 5b). Page-per-destination: these are real links
+// between real documents — native back button, no router, no tab state.
+// Top bar: wordmark = home, settings gear. Tab bar: primary destinations,
+// rendered at the bottom on small screens (thumb reach), top on wide.
+
+const el = (tag: string, className?: string, text?: string): HTMLElement => {
+  const node = document.createElement(tag);
+  if (className !== undefined) node.className = className;
+  if (text !== undefined) node.textContent = text;
+  return node;
+};
+
+export const renderTopbar = (): HTMLElement => {
+  const bar = el('header', 'topbar');
+  const wordmark = el('h1', 'wordmark');
+  const home = el('a', 'wordmark-link') as HTMLAnchorElement;
+  home.href = './index.html';
+  home.append(el('span', 'wordmark-a', 'a'), document.createTextNode('recipe'));
+  wordmark.append(home);
+  const controls = el('div', 'auth-area');
+  const gear = el('a', 'nav-gear', '⚙') as HTMLAnchorElement;
+  gear.href = './settings.html';
+  gear.dataset['testid'] = 'nav-settings';
+  gear.setAttribute('aria-label', 'Settings');
+  controls.append(gear);
+  bar.append(wordmark, controls);
+  return bar;
+};
+
+const DESTINATIONS = [
+  { label: 'Browse', href: './index.html', testid: 'tab-browse', match: /(^|\/)(index\.html)?$/ },
+  { label: 'My recipes', href: './mine.html', testid: 'tab-mine', match: /\/mine\.html$/ },
+] as const;
+
+export const renderTabs = (pathname: string): HTMLElement => {
+  const tabs = el('nav', 'tabs');
+  for (const dest of DESTINATIONS) {
+    const link = el('a', 'tab', dest.label) as HTMLAnchorElement;
+    link.href = dest.href;
+    link.dataset['testid'] = dest.testid;
+    if (dest.match.test(pathname)) link.classList.add('tab--active');
+    tabs.append(link);
+  }
+  return tabs;
+};
+
+/** Mount the shared shell chrome around a page's own content element. */
+export const mountShell = (app: HTMLElement, content: HTMLElement): void => {
+  app.replaceChildren(renderTopbar(), renderTabs(window.location.pathname), content);
+};

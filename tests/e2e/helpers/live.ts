@@ -49,12 +49,13 @@ export const walkAuthPages = async (
   }
 };
 
-/** Full interactive login on the given page: handle → consent walk → signed in. */
+/** Full interactive login: sign-in lives on mine.html (5b); the OAuth
+ * callback round-trips back there. */
 export const signIn = async (
   page: Page,
   opts: { handle: string; password: string; origin: string },
 ): Promise<void> => {
-  await page.goto('/');
+  await page.goto('/mine.html');
   await page.getByTestId('handle-input').fill(opts.handle);
   await page.getByTestId('oauth-signin').click();
   await page.waitForURL(/bsky\.social/, { timeout: 30_000 });
