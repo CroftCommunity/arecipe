@@ -5,8 +5,10 @@
 import type { Agent } from '@atproto/api';
 import { createOAuthClient } from './auth/oauth-client.js';
 import { createOAuthSessionProvider, type SessionProvider } from './auth/session-provider.js';
-import { createResolver } from './identity/resolve.js';
+import { createResolver, type ResolvedIdentity } from './identity/resolve.js';
 import { isDebugEnabled, log } from './log.js';
+import { createRecipeCache } from './recipes/cache.js';
+import { createRecipeReader } from './recipes/read.js';
 import { shellTitle } from './shell.js';
 
 const registerServiceWorker = async (): Promise<void> => {
@@ -42,20 +44,49 @@ const mountSignIn = (app: HTMLElement, provider: SessionProvider): void => {
   signInButton.dataset['testid'] = 'oauth-signin';
   const status = document.createElement('p');
   status.dataset['testid'] = 'resolved-pds';
+  const loadButton = document.createElement('button');
+  loadButton.type = 'button';
+  loadButton.textContent = 'Load recipes';
+  loadButton.dataset['testid'] = 'load-recipes';
+  loadButton.hidden = true;
+  const recipesStatus = document.createElement('p');
+  recipesStatus.dataset['testid'] = 'recipes-status';
   form.append(input, resolveButton, signInButton);
-  app.append(form, status);
+  app.append(form, status, loadButton, recipesStatus);
 
   const resolve = createResolver();
+  let resolved: ResolvedIdentity | null = null;
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     status.textContent = 'resolving…';
+    loadButton.hidden = true;
     void resolve(input.value.trim())
       .then((identity) => {
+        resolved = identity;
         status.textContent = `PDS: ${identity.pds}`;
+        loadButton.hidden = false;
       })
       .catch((err: unknown) => {
         status.textContent = err instanceof Error ? err.message : String(err);
       });
+  });
+
+  const readRecipes = createRecipeReader();
+  const cache = createRecipeCache();
+  loadButton.addEventListener('click', () => {
+    if (resolved === null) return;
+    const target = resolved;
+    recipesStatus.textContent = 'loading…';
+    void (async () => {
+      const records = await readRecipes({ pds: target.pds, did: target.did });
+      const entries = await Promise.all(records.map((r) => cache.put(r)));
+      const verified = entries.filter((e) => e.verified).length;
+      recipesStatus.textContent = `${records.length} recipes cached (${verified} verified)`;
+    })().catch((err: unknown) => {
+      const message = err instanceof Error ? err.message : String(err);
+      log.error('recipes', 'load failed', { error: message });
+      recipesStatus.textContent = `load failed: ${message}`;
+    });
   });
   signInButton.addEventListener('click', () => {
     status.textContent = 'redirecting to sign-in…';

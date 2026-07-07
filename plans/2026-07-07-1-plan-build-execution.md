@@ -18,8 +18,9 @@ feasibility amendment on 2026-07-07 (see Review Log).
 | 1 Scaffold + logger + CI | ✅ | `a42375d` | Shell + `src/log.ts` (TDD), hermetic CI, docs; real-Chrome validation passed |
 | 2 Identity resolution | ✅ | `0b9c32c` | handle→DID→PDS via resolver service (TDD, fixtures); live validation vs well-known curl |
 | 3 OAuth login + persistence | ✅ | `12c9e0f` | session-provider port (TDD); @live tier landed; real login + reload-resume passed; bundle 174 KB gz flagged for M1 |
-| 3b Cross-tab coordination | ✅ | Phase 3b close-out commit | Collapsed: library already coordinates (navigator.locks + BroadcastChannel, source-verified); forceRefresh API + two-tab @live regression pin it |
-| 4–8 | pending | | |
+| 3b Cross-tab coordination | ✅ | `27561a3` | Collapsed: library already coordinates (navigator.locks + BroadcastChannel, source-verified); forceRefresh API + two-tab @live regression pin it |
+| 4a Read + verified cache | ✅ | Phase 4a close-out commit | Public read + Tier 2 CID verify (TDD); live: 3/3 verified vs real PDS; SW fetch-handler/route-interception gotcha found+fixed |
+| 4b Render, 5–8 | pending | | 4b closes M1 → UI/UX checkpoint |
 | 9–12 | roadmap | | re-plan before execution |
 
 ---
@@ -802,7 +803,23 @@ authenticated), not on exact call ordering, to avoid flakiness.
 
 ---
 
-### Phase 4: Read + render `exchange.recipe.recipe` with verified cache
+### Phase 4: Read + render `exchange.recipe.recipe` with verified cache — 🚧 4a SHIPPED (2026-07-07, read+cache; 4b render pending)
+
+**Delivered (4a):** executed as the plan's anticipated split (4a read+cache,
+4b RecipeView). `src/recipes/read.ts` (public listRecords, open-world
+boundary validation — unknown fields preserved, missing required fields fail
+loud naming field+uri) and `src/recipes/cache.ts` (IndexedDB keyed by AT-URI,
+**Tier 2 CID recompute** per D6 — `verified` never set by trusting the PDS;
+mismatch stored `verified:false` + warn). Wiring: resolve → Load recipes →
+"N recipes cached (M verified)" in the shell; hermetic e2e over D2 fixtures
+(all 3 real records verify in-browser). Live validation: real author
+(`rdur.dev`) → real PDS → "3 recipes cached (3 verified)", zero warn/error.
+Discovery: the spike SW's passthrough fetch handler routed page requests
+through the SW and **bypassed Playwright route interception** — removed (no
+fetch handler until a real caching SW lands; hermetic-fixture strategy must
+be revisited alongside M1-offline/Phase 11 SW work). Unit cache tests use
+fake-indexeddb. **4b (RecipeView render + recipe.exchange interop
+comparison + M1 exit) is the remaining half.**
 
 **Goal:** Cold-start fetch and render real recipe records, cached in IndexedDB with
 CID verification (the credible-exit proof made visible).

@@ -15,6 +15,8 @@ sw.addEventListener('activate', (event) => {
   event.waitUntil(sw.clients.claim());
 });
 
-sw.addEventListener('fetch', (event) => {
-  event.respondWith(fetch(event.request));
-});
+// Deliberately NO fetch handler: a passthrough respondWith adds nothing and
+// routes page requests through the SW, which bypasses Playwright's route
+// interception and breaks the hermetic test tier. When a real caching /
+// verify-before-install fetch handler lands (M1 decision / Phase 11), the
+// hermetic-fixture strategy must be revisited alongside it.

@@ -19,6 +19,7 @@
     "@types/node": "^26.1.0",
     "esbuild": "^0.28.1",
     "eslint": "^10.6.0",
+    "fake-indexeddb": "^6.2.5",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.63.0",
     "vitest": "^4.1.10"
@@ -26,6 +27,8 @@
   "dependencies": {
     "@atproto/api": "^0.20.26",
     "@atproto/oauth-client-browser": "^0.4.6",
-    "@atproto/oauth-types": "^0.7.4"
+    "@atproto/oauth-types": "^0.7.4",
+    "@ipld/dag-cbor": "^10.0.1",
+    "multiformats": "^14.0.4"
   }
 }
