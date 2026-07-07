@@ -22,7 +22,7 @@ feasibility amendment on 2026-07-07 (see Review Log).
 | 4a Read + verified cache | ✅ | `e10901e` | Public read + Tier 2 CID verify (TDD); live: 3/3 verified vs real PDS; SW fetch-handler/route-interception gotcha found+fixed |
 | 4b Render (M1 exit) | ✅ | `5084e4b` | Recipes render; interop confirmed BOTH ways (arecipe + recipe.exchange render the same record). M1 checkpoint held same day |
 | 5 Two-device read (M2 exit) | ✅ | Phase 5 close-out commit | Two contexts + two engines (Chrome/Firefox), same account, same recipes; independent refresh pinned. **M2 REACHED** |
-| 6–8, 8b | pending | | M2/M3 re-plan next (page-per-destination DECIDED; authoring w/ draft-before-publish; offline 8b; hosted OAuth client) |
+| 5b–8c (M3 set) | planned | | Re-planned 2026-07-07: 5b pages+nav → 5c theming → 6 authoring (draft-before-publish) → 7 blobs → 8 draft-sync/versioning → 8b offline PWA → 8c hosted client + physical two-device demo (M3 exit) |
 | 9–12 | roadmap | | re-plan before execution |
 
 ---
@@ -309,8 +309,14 @@ This is a decision the maintainer should make, gated before the scaffold phase.
 
 ## Concurrency Map
 
-Sequential spine (implementation):
-Phase 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → [9, 10] → 11 → 12
+Sequential spine (implementation; M3 phases inserted at the M2/M3 re-plan):
+Phase 1 → 2 → 3 → 3b → 4 → 5 → 5b → 5c → 6 → 7 → 8 → 8b → 8c → [9, 10] → 11 → 12
+
+- M3 additions are sequential: 5b rewrites the document/nav structure every
+  later phase builds on; 5c touches the same nav/styles files as 5b; 6–8
+  build on the pages; 8b caches the finished authoring surface; 8c flips the
+  deployed origin live. No disjoint write-sets worth parallelizing — 5c/6
+  both write `styles.css`/nav and stay sequential (hard rule).
 
 - Each implementation phase reads or builds on what the prior phase wrote
   (scaffold → resolution → auth → read → two-device → write → blobs → drafts). The
@@ -366,10 +372,14 @@ and an explicit go/adjust decision before the next milestone starts.
      (+ UI/UX checkpoint)                    recipe; DISCUSS structure/UI/UX here,
                                              grounded against mealplanner
  M2  Read MLP           Phase 5            → two-device same-user read (spec milestone)
- M3  Authoring MLP      Phases 6–8         → THE Minimum Lovable Product: a small
-     (the MLP)                               group can author + share recipes that
-                                             also appear on recipe.exchange; hosted
-                                             OAuth client planned here for staging
+ M3  Authoring MLP      Phases 5b,5c,6,7,  → THE Minimum Lovable Product: a small
+     (the MLP)          8, 8b, 8c            group can author + share recipes that
+                                             also appear on recipe.exchange —
+                                             page-per-destination + theming +
+                                             authoring (draft-before-publish) +
+                                             photos + drafts/versioning + offline
+                                             PWA + hosted OAuth client; exits with
+                                             the physical two-device demo
  M4  Social layer       Phases 9–10        → friends, comments, client moderation
  M5  Trust + launch     Phases 11–12       → signed delivery (hard gate) + public
                                              launch + durability pledge
@@ -943,6 +953,90 @@ evidence; the physical two-device demo is the first item of the M3 exit.
 
 ---
 
+### Phase 5b: Page-per-destination restructure + nav shell (M2/M3 re-plan, 2026-07-07)
+
+**Goal:** Restructure the SPA into separate documents per destination
+(blockdoku pattern, user-DECIDED): `index.html` (Browse), `mine.html`
+(My recipes + sign-in), `settings.html` (App management + About),
+`account.html` (domain settings). Shared top bar (wordmark = home link,
+theme-toggle slot, settings gear) + primary destinations as a **bottom tab
+bar on mobile**, top tabs on wide screens. Native back button everywhere.
+Free code-splitting: **the Browse page ships zero auth code.**
+
+**Changes:**
+- [ ] `scripts/build.mjs` → multi-entry (`src/pages/browse.ts`, `mine.ts`,
+  `settings.ts`, `account.ts`; one HTML file each at root, copied to dist).
+  `main.ts` retires; shared modules stay put.
+- [ ] `src/nav.ts` — top bar + tab bar components (plain links; active state
+  from `location.pathname`); responsive placement in `styles.css`
+  (bottom ≤ 40rem).
+- [ ] `src/pages/browse.ts` — the current find-flow, minus every auth import.
+- [ ] `src/pages/mine.ts` — sign-in form + signed-in state + empty-state
+  (authoring arrives Phase 6). OAuth callback returns here:
+  `buildLoopbackMetadata` already derives redirect_uri from
+  `location.pathname`, so initiating sign-in on `/mine.html` round-trips
+  back to `/mine.html`.
+- [ ] `src/pages/settings.ts` — App management v1: build stamp details
+  (version/sizes/builtAt from build-info.json), the integrity explainer
+  (the "fingerprint matches" teaching text lives here permanently), About +
+  source link. Update-check button arrives with Phase 8b.
+- [ ] `src/pages/account.ts` — sign-out + session facts (did/handle);
+  placeholder-free: only what exists.
+- [ ] e2e: tab tests become navigation tests; existing browse testids keep
+  their meaning.
+
+**Call chain:** any page → nav link → destination document → its page module
+mounts.
+**Wiring test:** Playwright: from Browse, tap "My recipes" → `mine.html`
+loads with its panel; **browser back returns to Browse (native)**; the
+Browse find-flow still passes unchanged. Plus a bundle assertion: the built
+browse bundle contains no `oauth` module (metafile or string check).
+**Depends on:** Phase 5.
+**Write-set:** `index.html`, `mine.html`, `settings.html`, `account.html`,
+`src/pages/*`, `src/nav.ts`, `styles.css`, `scripts/build.mjs`,
+`tests/e2e/*`, removal of `src/main.ts`.
+**Shared-state contract:** No shared mutable state beyond files; e2e binds
+the one ephemeral serve port.
+**Diagnostic logging:** each page logs `shell mounted {page}` at debug;
+sign-in flow logging unchanged.
+**Risks:** OAuth callback lands on `/mine.html` — verify with the @live
+login test (update its start page); per-page relative paths for
+`build-info.json`/`sw.js` (all pages live at root, so `./` works).
+**Done when:**
+1. **Behavioral:** four documents served; nav + native back work; sign-in
+   works from `mine.html` (@live); Browse loads visibly less JS.
+2. **Verification:** full hermetic gate + `test:live` green; per-page bundle
+   sizes recorded in the build stamp/README.
+**Validation:** Moderate+ — real-browser click-through (incl. back gesture),
+per-page bundle split measured and recorded.
+
+---
+
+### Phase 5c: Theming — native light/dark (M2/M3 re-plan, 2026-07-07)
+
+**Goal:** `prefers-color-scheme` respected by default; one-tap override in
+the top bar (auto → light → dark, persisted in localStorage); a designed
+dark enamelware palette (deep green-black tile, enamel/yolk/rust re-tuned
+for contrast floors).
+**Changes:**
+- [ ] `styles.css` — dark token set under `[data-theme='dark']` + media
+  query for auto; palette documented in `docs/DESIGN.md` (same table format).
+- [ ] `src/theme.ts` — pure cycle/resolve logic (unit-tested) + applier;
+  toggle button in `src/nav.ts` top bar.
+**Wiring test:** e2e: tap the toggle → `html[data-theme]` flips and the
+rendered background color changes; the choice survives a reload.
+**Depends on:** Phase 5b (top bar exists).
+**Write-set:** `styles.css`, `src/theme.ts`, `src/nav.ts`,
+`docs/DESIGN.md`, tests.
+**Diagnostic logging:** theme changes at debug.
+**Risks:** dark-mode contrast (rust/yolk on dark tile) — hold the DESIGN.md
+floors; ALTERED? stamp must stay loud in dark.
+**Done when:** toggle + auto detection work and persist; dark palette passes
+the contrast floors. **Validation:** Moderate — screenshots of both themes
+reviewed (incl. the tampered-state stamp in dark).
+
+---
+
 ### Phase 6: Recipe authoring (create/edit) → visible on recipe.exchange
 
 **Goal:** Write a valid `exchange.recipe.recipe` to the user's PDS and confirm it
@@ -954,6 +1048,18 @@ PDS-synced drafts (eviction survival, accepted-public) layer on top of this
 local-first flow, they don't replace it. Ingredients stay free-text lines per
 the lexicon (`string[]`, no structure — verified against the D4 capture at the
 M1 checkpoint).
+**Re-plan update (2026-07-07):** the editor is its own document
+(`editor.html` + `src/pages/editor.ts`) per the page-per-destination
+architecture, reached from `mine.html` ("New recipe" / edit links with the
+rkey in the query string). Write-set becomes `editor.html`,
+`src/pages/editor.ts`, `src/recipes/write.ts`, `src/recipes/drafts-local.ts`
+(the local-first draft store), tests. The wiring test starts at
+`mine.html` → New recipe → author → **Save draft** (survives reload without
+publishing, nothing on the PDS) → **Publish** → record on the PDS → appears
+in the user's own list. Publishing uses the session-provider Agent; the
+`@live` variant covers OAuth, the hermetic variant runs over route fixtures
+with an injected app-password-style fake at the port seam only if
+unavoidable — prefer @live for the write path per the original spec.
 
 **Changes:**
 - [ ] `src/recipes/write.ts` — construct + `createRecord`/`putRecord` a valid record
@@ -1080,17 +1186,120 @@ rather than relying on real eviction. Added by the feasibility amendment:
 
 ---
 
-### Phase 8b: Offline shell — cache-first SW + PWA manifest (M3 scope; spec before executing)
+### Phase 8b: Offline shell — cache-first SW + PWA manifest (spec'd at the M2/M3 re-plan, 2026-07-07)
 
-**Goal (M1-checkpoint decision, 2026-07-07):** arecipe.app is a fully
-offline-capable PWA — cache-first service worker for the app shell, cached
-recipes readable offline (IndexedDB already holds them from Phase 4), web app
-manifest + installability. **Depends on:** Phases 6–8 shape; spec'd in a short
-phase-plan pass alongside the M2/M3 re-plan. **Constraints already known:**
-the SW fetch handler bypasses Playwright route interception — hermetic
-fixture-routed specs need `serviceWorkers: 'block'` (or a request-path split);
-the Phase 11 verify-before-install worker extends this one, so keep the
-update-flow seam clean.
+**Goal:** arecipe.app is a fully offline-capable, installable PWA: the app
+shell loads with no network, previously found recipes render from IndexedDB,
+and updates ask before applying (blockdoku toast). Encodes the peadoubleueh
+cache-busting lessons.
+
+**Changes:**
+- [ ] `scripts/build.mjs` — content-hash the bundles (`browse-<hash>.js`,
+  `styles-<hash>.css`, …) and inject the hashed names into each HTML page;
+  `build-info.json` and the HTML stay stable-named (never cached long).
+- [ ] `src/sw.ts` — the real worker: versioned cache names derived from
+  `build-info.json`'s version; pre-cache the stable shell (HTML, manifest,
+  icons) with per-asset failure tolerance; cache-first for **same-origin
+  hashed assets only**; network-first-with-cache-fallback for navigations.
+  **Cross-origin requests are untouched (no respondWith)** — this keeps
+  Playwright route fixtures working, resolving the Phase 4a interception
+  gotcha by construction. `activate` deletes old-version caches.
+- [ ] Update flow: `updatefound` → "Update available → Update now" toast
+  (user-controlled skipWaiting + reload). Toast is an in-flow element, not
+  a modal.
+- [ ] `manifest.webmanifest` + icon set (incl. maskable) + install metadata.
+- [ ] **Self-host the fonts** (subset Fraunces + Atkinson into the repo) —
+  removes the Google Fonts dependency flagged at the skeleton; cached like
+  any hashed asset.
+- [ ] Settings (App management) gains the update-check button + storage
+  facts.
+
+**Call chain:** page load → SW serves shell from cache → page module renders
+cached recipes from IndexedDB.
+**Wiring test:** Playwright: load Browse, find recipes, then
+`context.setOffline(true)` → reload → the shell renders AND the previously
+cached recipes are still on screen. Second test: a new build's version
+change surfaces the update toast (simulate by re-registering with a bumped
+version).
+**Depends on:** Phase 5b (pages), 5c (tokens for the toast), ideally after
+6–8 so the whole authoring surface gets cached.
+**Write-set:** `scripts/build.mjs`, `src/sw.ts`, `manifest.webmanifest`,
+`assets/` (icons, fonts), all HTML pages (hashed refs + manifest link),
+`src/nav.ts` (toast host), settings page, tests.
+**Diagnostic logging:** SW lifecycle at info (already), cache
+hits/misses at debug, cache-version transitions at info, update-toast
+events at info.
+**Risks:** offline + OAuth token expiry (reads work signed-out — fine;
+authoring offline is out of scope, drafts are local anyway); iOS SW quirks
+(validate on a real phone at the M3 demo); hashed-asset e2e paths.
+**Done when:**
+1. **Behavioral:** airplane-mode reload shows the app with cached recipes;
+   install prompt available; a new deploy surfaces the toast and applies on
+   consent.
+2. **Verification:** offline wiring test green; manual airplane-mode check
+   on a real device at the M3 demo.
+**Validation:** Broad — real-device offline + install check; Lighthouse PWA
+pass recorded.
+
+**Reference: `github.com/chasemp/peadoubleueh`** (maintainer's prior PWA
+best-practices repo — inspect for ideas, don't adopt outright; added at the
+M1 checkpoint). The cache-busting/upgrade lessons it encodes, learned the
+hard way there:
+- **Content-hashed asset filenames** (`main-<hash>.js`) referenced from a
+  never-cached `index.html` — the fundamental buster; a deploy changes URLs,
+  so stale JS is structurally impossible.
+- **Versioned cache names** (`static-${CACHE_VERSION}`) with old-cache
+  deletion on `activate`; never pre-cache hashed files (they're cached on
+  fetch); per-asset `cache.add` failure tolerance so one miss doesn't brick
+  install.
+- **`build-info.json`** — peadoubleueh had the same artifact; arecipe's
+  version (date+sha+sizes, already shipped) is the single source of truth:
+  footer stamp, SW cache version, and later the Phase 11 signed manifest
+  all derive from it.
+- The testing pain that motivated all this: you could never tell which build
+  you were looking at — solved in arecipe by the always-visible build stamp.
+
+---
+
+### Phase 8c: Hosted OAuth client → deployed sign-in + physical two-device demo (M3 exit) (M2/M3 re-plan, 2026-07-07)
+
+**Goal:** The deployed app becomes fully functional: a static
+`client-metadata.json` served from the deployed origin acts as the OAuth
+client identity (no registration authority in atproto — the client_id IS the
+metadata URL), sign-in un-hides on non-loopback origins, and the M3 exit
+demo runs on two physical devices.
+
+**Changes:**
+- [ ] `client-metadata.json` in the repo (deployed by Pages):
+  `client_id = https://croftcommunity.github.io/arecipe/client-metadata.json`,
+  `redirect_uris = [https://croftcommunity.github.io/arecipe/mine.html]`,
+  `scope = "atproto transition:generic"`, `token_endpoint_auth_method:
+  "none"`, `dpop_bound_access_tokens: true`, `application_type: "web"`.
+- [ ] `src/auth/oauth-client.ts` — non-loopback origins construct the client
+  from the hosted metadata instead of returning null; the loopback path is
+  unchanged for local TDD. Sign-in un-hidden on deployed origins.
+**Call chain:** deployed `mine.html` → sign in → bsky.social fetches the
+metadata URL → consent → redirect back to deployed `mine.html`.
+**Wiring test:** hermetic unit: metadata-selection logic (loopback vs hosted
+by hostname, exact client_id/redirect derivation). Live wiring is manual by
+nature (the deployed origin can't run from the local harness): sign in on
+the live URL, then **the M3 exit demo — two physical devices (laptop +
+phone), same account, same recipes** (the deferred Phase 5 validation item).
+**Depends on:** Phase 5b (mine.html), Pages deployment (done).
+**Write-set:** `client-metadata.json`, `src/auth/oauth-client.ts`, tests,
+README note.
+**Diagnostic logging:** client selection (loopback vs hosted) at info.
+**Risks:** auth server must fetch the metadata URL (Pages serves .json with
+correct content-type — verify with curl first); redirect_uri exactness;
+**domain move to arecipe.app changes the client identity** (client_id is the
+URL) — existing sessions re-consent at cutover; acceptable pre-launch,
+flagged for Phase 12 planning.
+**Done when:**
+1. **Behavioral:** sign-in works on https://croftcommunity.github.io/arecipe/;
+   two physical devices show the same account's recipes.
+2. **Verification:** unit tests green; the two-device demo performed and
+   recorded (photo or note in the Review Log).
+**Validation:** Broad — the demo IS the milestone exit.
 **Reference: `github.com/chasemp/peadoubleueh`** (maintainer's prior PWA
 best-practices repo — inspect for ideas, don't adopt outright; added at the
 M1 checkpoint). The cache-busting/upgrade lessons it encodes, learned the
@@ -1221,6 +1430,17 @@ prerender-without-a-backend question (`docs/STACK.md` §7) — then executed.
   the draft collection; (b) for real users the authoring UI should disclose that a
   synced draft is publicly readable — folded into Phase 8's scope (a disclosure
   line in the editor, not a modal).
+
+- [RECOMMENDED: ADVISORY] **Dark palette hues** (added at the M2/M3 re-plan):
+  the dark enamelware token values are designed inside Phase 5c via
+  screenshot iteration against the contrast floors — no upfront decision
+  needed. *Rationale: pure design-time iteration, same loop as the skeleton.*
+
+- [RECOMMENDED: ADVISORY] **Client identity moves with the domain** (added at
+  the M2/M3 re-plan): the hosted OAuth client_id is the metadata URL, so the
+  arecipe.app cutover (Phase 12 territory) mints a new client identity and
+  existing sessions re-consent once. *Rationale: acceptable pre-launch;
+  just needs remembering at Phase 12 planning.*
 
 - [RESOLVED 2026-07-07] **NSID namespace authority → rename to `app.arecipe.*`.**
   The maintainer owns **`arecipe.app`** ("bought and paid for"; `arecipe.fyi` was a
@@ -1511,7 +1731,31 @@ Assumptions (five new/updated entries) and inline on the D-tasks. Highlights:
 Verified Assumptions reflect firsthand evidence ✓ (9 probe-backed entries);
 D3 produced a concrete toolchain ✓; no phase invalidated ✓.
 
-### M1 checkpoint — 2026-07-07
+### M2/M3 re-plan — 2026-07-07
+Planning pass (analysis only) turning the M1/M2-checkpoint decisions into
+executable M3 phases. Additive: existing Phases 6–8 specs stand with re-plan
+notes; new phases inserted with full field sets.
+**Structure:** M3 = 5b (page-per-destination + nav shell: 4 documents,
+top bar with wordmark-home + gear, bottom tab bar on mobile, Browse ships
+zero auth code) → 5c (native light/dark: prefers-color-scheme + one-tap
+override, dark enamelware palette designed in-phase) → 6 (authoring on its
+own `editor.html`, draft-before-publish local-first) → 7 (blobs + EXIF
+strip) → 8 (PDS draft sync + versioning) → 8b (offline PWA: hashed assets,
+versioned SW caches, same-origin-only fetch handling — resolves the route-
+interception gotcha by construction — update toast, manifest + icons,
+self-hosted fonts) → 8c (hosted `client-metadata.json` on the deployed
+origin, sign-in un-hidden there, **M3 exits with the physical two-device
+demo**).
+**Gates applied inline** (the plan's cross-phase conventions govern):
+every new phase carries wiring test, write-set, diagnostic logging,
+calibrated validation (8b/8c Broad — real device / live origin). Concurrency
+Map extended: all sequential (5c/6 share styles/nav write-sets — hard rule).
+**Settings architecture** per the blockdoku/mealplanner references: App
+management (`settings.html`, owns the build stamp details + integrity
+explainer + About + update check) vs domain settings (`account.html`).
+**New open questions:** two ADVISORY (dark palette in-phase; client_id
+changes at the arecipe.app cutover — Phase 12 reminder). No BLOCKING items;
+Phase 5b is ready to start on approval.
 Held per the milestone plan: walking-skeleton demo (live render of rdur.dev's
 verified recipes in real Chrome), mealplanner review, bundle-budget analysis,
 UI-pattern research. Outcomes:
