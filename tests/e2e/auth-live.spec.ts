@@ -9,12 +9,22 @@
 import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
 
-const env = Object.fromEntries(
-  readFileSync(new URL('../../.env', import.meta.url), 'utf8')
-    .split('\n')
-    .filter(Boolean)
-    .map((l) => l.split(/=(.*)/s).slice(0, 2)),
-) as Record<string, string>;
+// Tolerant read: .env is absent in CI, where the @live tier never runs —
+// but Playwright still loads this module to list tests. The test.skip guard
+// below handles the empty case.
+const readEnv = (): Record<string, string> => {
+  try {
+    return Object.fromEntries(
+      readFileSync(new URL('../../.env', import.meta.url), 'utf8')
+        .split('\n')
+        .filter(Boolean)
+        .map((l) => l.split(/=(.*)/s).slice(0, 2)),
+    ) as Record<string, string>;
+  } catch {
+    return {};
+  }
+};
+const env = readEnv();
 
 const HANDLE = env['BSKY_TEST_HANDLE'] ?? '';
 const PASSWORD = env['BSKY_TEST_PASSWORD'] ?? '';
