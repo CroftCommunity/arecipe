@@ -53,3 +53,16 @@ test('resolve → load recipes → verified cache count in the shell (wiring)', 
     timeout: 15_000,
   });
 });
+
+test('loaded recipes render titles from real records (4b wiring)', async ({ page }) => {
+  await routeFixtures(page);
+  await page.goto('/');
+  await page.getByTestId('handle-input').fill('somechef.example.com');
+  await page.getByTestId('resolve-submit').click();
+  await page.getByTestId('load-recipes').click();
+  await expect(page.getByTestId('recipe-item').first()).toContainText(
+    'White Chocolate Strawberry Sourdough Sweet Bread',
+    { timeout: 15_000 },
+  );
+  await expect(page.getByTestId('recipe-item')).toHaveCount(3);
+});

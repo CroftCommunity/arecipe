@@ -19,8 +19,9 @@ feasibility amendment on 2026-07-07 (see Review Log).
 | 2 Identity resolution | ✅ | `0b9c32c` | handle→DID→PDS via resolver service (TDD, fixtures); live validation vs well-known curl |
 | 3 OAuth login + persistence | ✅ | `12c9e0f` | session-provider port (TDD); @live tier landed; real login + reload-resume passed; bundle 174 KB gz flagged for M1 |
 | 3b Cross-tab coordination | ✅ | `27561a3` | Collapsed: library already coordinates (navigator.locks + BroadcastChannel, source-verified); forceRefresh API + two-tab @live regression pin it |
-| 4a Read + verified cache | ✅ | Phase 4a close-out commit | Public read + Tier 2 CID verify (TDD); live: 3/3 verified vs real PDS; SW fetch-handler/route-interception gotcha found+fixed |
-| 4b Render, 5–8 | pending | | 4b closes M1 → UI/UX checkpoint |
+| 4a Read + verified cache | ✅ | `e10901e` | Public read + Tier 2 CID verify (TDD); live: 3/3 verified vs real PDS; SW fetch-handler/route-interception gotcha found+fixed |
+| 4b Render (M1 exit) | ✅ | Phase 4b close-out commit | Recipes render w/ verified badges; interop confirmed BOTH ways (arecipe + recipe.exchange render the same record). **M1 checkpoint is now due** |
+| 5–8 | pending | | M1 UI/UX check-in (mealplanner review) gates the path onward |
 | 9–12 | roadmap | | re-plan before execution |
 
 ---
@@ -803,7 +804,21 @@ authenticated), not on exact call ordering, to avoid flakiness.
 
 ---
 
-### Phase 4: Read + render `exchange.recipe.recipe` with verified cache — 🚧 4a SHIPPED (2026-07-07, read+cache; 4b render pending)
+### Phase 4: Read + render `exchange.recipe.recipe` with verified cache — ✅ SHIPPED (2026-07-07; 4a `e10901e`, 4b in the Phase 4b close-out commit) — **M1 REACHED**
+
+**Delivered (4b):** `src/recipes/view.ts` renders cached recipes as an
+unstyled expandable list (deliberately — structure/UI/UX decisions belong to
+the M1 checkpoint): title + verified/unverified badge (both sides asserted —
+mutation resistance), description, ingredients, instructions. Unit layer runs
+under happy-dom. Wiring e2e: fixture titles render through the full
+resolve→read→cache→render chain. **Broad validation (interop, both halves):**
+(a) live in real Chrome — `rdur.dev`'s three real recipes render with
+✓ verified badges from the live PDS; (b) the same record
+(`.../01JQJ5RW51ZVEW72XN6GSRWC8D`) confirmed rendering on recipe.exchange
+(HTTP 200, title present ×4) — a recipe is readable identically through both
+consumers with zero coordination. Gotcha: happy-dom's URL global is not a
+node file: URL — fixture reads in DOM-environment specs use cwd-relative
+paths.
 
 **Delivered (4a):** executed as the plan's anticipated split (4a read+cache,
 4b RecipeView). `src/recipes/read.ts` (public listRecords, open-world

@@ -9,6 +9,7 @@ import { createResolver, type ResolvedIdentity } from './identity/resolve.js';
 import { isDebugEnabled, log } from './log.js';
 import { createRecipeCache } from './recipes/cache.js';
 import { createRecipeReader } from './recipes/read.js';
+import { renderRecipeList } from './recipes/view.js';
 import { shellTitle } from './shell.js';
 
 const registerServiceWorker = async (): Promise<void> => {
@@ -73,6 +74,8 @@ const mountSignIn = (app: HTMLElement, provider: SessionProvider): void => {
 
   const readRecipes = createRecipeReader();
   const cache = createRecipeCache();
+  const listContainer = document.createElement('div');
+  app.append(listContainer);
   loadButton.addEventListener('click', () => {
     if (resolved === null) return;
     const target = resolved;
@@ -82,6 +85,7 @@ const mountSignIn = (app: HTMLElement, provider: SessionProvider): void => {
       const entries = await Promise.all(records.map((r) => cache.put(r)));
       const verified = entries.filter((e) => e.verified).length;
       recipesStatus.textContent = `${records.length} recipes cached (${verified} verified)`;
+      listContainer.replaceChildren(renderRecipeList(entries));
     })().catch((err: unknown) => {
       const message = err instanceof Error ? err.message : String(err);
       log.error('recipes', 'load failed', { error: message });
