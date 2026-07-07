@@ -7,6 +7,7 @@ import { createResolver, type ResolvedIdentity } from '../identity/resolve.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
 import { createRecipeCache, type CachedRecipe } from '../recipes/cache.js';
+import { createStarterPrefs, loadStarterFeed } from '../recipes/starter.js';
 import { createRecipeReader } from '../recipes/read.js';
 import { renderRecipeList } from '../recipes/view.js';
 import { registerServiceWorker } from '../sw-register.js';
@@ -83,6 +84,23 @@ const main = (): void => {
     });
   });
 
+  const showStarterFeed = async (): Promise<void> => {
+    const enabled = createStarterPrefs().enabledAuthors();
+    if (enabled.length === 0) {
+      recipesStatus.textContent = 'starter pack is off — search a cook above';
+      return;
+    }
+    recipesStatus.textContent = 'loading your starter pack…';
+    const feed = await loadStarterFeed(enabled);
+    const verified = feed.entries.filter((e) => e.verified).length;
+    const failed =
+      feed.failedAuthors.length === 0 ? '' : ` — ${feed.failedAuthors.join(', ')} unavailable`;
+    recipesStatus.textContent = `${feed.entries.length} starter pack recipes (${verified} verified)${failed}`;
+    listContainer.replaceChildren(
+      renderRecipeList(feed.entries, { authorsByDid: feed.authorsByDid }),
+    );
+  };
+
   const last = readLastFind();
   if (last !== null) {
     input.value = last.handle;
@@ -91,8 +109,14 @@ const main = (): void => {
         (e): e is NonNullable<typeof e> => e !== undefined,
       );
       if (entries.length > 0) showEntries(entries, last.handle);
+      else await showStarterFeed();
     })().catch((err: unknown) => {
       log.warn('recipes', 'last-search restore failed', { error: String(err) });
+    });
+  } else {
+    void showStarterFeed().catch((err: unknown) => {
+      log.warn('starter', 'starter feed failed', { error: String(err) });
+      recipesStatus.textContent = 'starter pack unavailable — search a cook above';
     });
   }
 

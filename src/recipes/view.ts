@@ -72,10 +72,14 @@ const chipsEl = (value: RecipeValue): HTMLElement | null => {
 export type RenderOptions = {
   /** Human label for whose recipes these are (the handle the user typed). */
   author?: string;
+  /** Mixed-author grids (starter feed): per-card author by DID. */
+  authorsByDid?: Record<string, string>;
 };
 
 const recipePageHref = (entry: CachedRecipe, options: RenderOptions): string => {
-  const by = options.author === undefined ? '' : `&by=${encodeURIComponent(options.author)}`;
+  const did = entry.uri.split('/')[2] ?? '';
+  const author = options.authorsByDid?.[did] ?? options.author;
+  const by = author === undefined ? '' : `&by=${encodeURIComponent(author)}`;
   return `./recipe.html?u=${encodeURIComponent(entry.uri)}${by}`;
 };
 
@@ -134,16 +138,20 @@ export const renderRecipeDetail = (
   article.append(cols);
 
   if (entry.verified) {
-    const author = options.author ?? did;
+    const author = options.authorsByDid?.[did] ?? options.author ?? did;
     const date = formatPublishedDate(value.updatedAt);
-    const provenance = el(
-      'p',
-      'provenance',
-      `as published by ${author} · fingerprint matches${date === null ? '' : ` · ${date}`}`,
-    );
+    const provenance = el('p', 'provenance');
     provenance.dataset['testid'] = 'provenance';
     provenance.title =
       'The recipe content re-hashes to the exact fingerprint it was published under — nothing altered it in storage or transit.';
+    const authorLink = el('a', 'provenance-author', author) as HTMLAnchorElement;
+    authorLink.href = `https://bsky.app/profile/${encodeURIComponent(author)}`;
+    authorLink.rel = 'noopener';
+    provenance.append(
+      document.createTextNode('as published by '),
+      authorLink,
+      document.createTextNode(` · fingerprint matches${date === null ? '' : ` · ${date}`}`),
+    );
     article.append(provenance);
   }
   return article;

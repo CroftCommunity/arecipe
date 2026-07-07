@@ -24,7 +24,8 @@ feasibility amendment on 2026-07-07 (see Review Log).
 | 5 Two-device read (M2 exit) | ✅ | Phase 5 close-out commit | Two contexts + two engines (Chrome/Firefox), same account, same recipes; independent refresh pinned. **M2 REACHED** |
 | 5b Pages + nav shell | ✅ | Phase 5b close-out commit | 4 documents, native back, bottom tab bar mobile; browse.js −98% (44 KB / 15 KB gz); @live 3/3 incl. mine.html callback |
 | 5c Theming (light/dark) | ✅ | Phase 5c close-out commit | Auto + one-tap cycle, pre-paint script, dark enamelware palette; ALTERED? verified loud in dark |
-| 5d Recipe detail page | ✅ | Phase 5d close-out commit | Shareable recipe URLs; cold links verified in fresh profile; back restores results; ALTERED on both surfaces |
+| 5d Recipe detail page | ✅ | `d80424a` | Shareable recipe URLs; cold links verified in fresh profile; back restores results; ALTERED on both surfaces |
+| 5e Starter packs (lite) | ✅ | Phase 5e close-out commit | Zero-input feed: 72 verified recipes from 4 curated authors (incl. official arecipe.bsky.social); settings toggles + profile links; seeding pending creds |
 | 6–8c (M3 set) | planned | | 6 authoring (draft-before-publish) → 7 blobs → 8 draft-sync/versioning → 8b offline PWA → 8c hosted client + physical two-device demo (M3 exit) |
 | 9–12 | roadmap | | re-plan before execution |
 
@@ -1117,6 +1118,65 @@ fallback).
 browse results, ALTERED renders on the detail page too.
 **Validation:** Moderate — real-browser click-through incl. a cold link in a
 fresh profile.
+
+---
+
+### Phase 5e: Starter packs, lite — ✅ SHIPPED (2026-07-07, Phase 5e close-out commit)
+
+**Delivered:** as specced, plus the **official application account**:
+the maintainer created `arecipe.bsky.social`
+(`did:plc:spfl4xaktvvchr2cqp2r2xvp`) as a general data store on its PDS —
+the early form of the spec's application account (lexicon mirror / canary /
+Phase 11 keys land there later). It is starter-pack member #1 (contributes
+zero cards until seeded — the feed loader tolerates empty authors by
+design). Live validation: **72 starter-pack recipes (72 verified)** on a
+zero-input first load from three real authors, incl. 37 from a self-hosted
+PDS. Settings section with per-author toggles + Bluesky profile links;
+provenance author on the detail page links out too. Seeding script
+(`spike/seed-greek-salad.mjs`, non-production ops tooling) prepared for the
+first official recipe: Greek Cucumber Tomato Feta Salad with
+`attributionWebsite` credit to Erin Lives Whole (source URL verified; our
+own description text; field formats copied from observed wild records —
+plain-word category, token-ref `cookingMethodNoCook`). **Pending:**
+`BSKY_ARECIPE_*` credentials in `.env`, then run the seeder.
+
+*(Original spec below.)*
+
+**Goal:** Browse shows content by default: a curated, toggleable set of
+starter authors (settings section, all on by default — user asked for
+rdur.dev + at least 2 more with real content). Client-side-only for now;
+this is the lite forerunner of the `app.arecipe.starterpack` record idea
+(parked at Phase 9) — if it earns its keep, it graduates to published
+records.
+
+**Curated set (probed live 2026-07-07):** `rdur.dev` (3 recipes),
+`recipe.exchange` (32 — the lexicon maintainer's own account), `daffl.xyz`
+(37 — on a self-hosted PDS, a live credible-exit demonstration in the
+default feed).
+
+**Changes:**
+- [ ] `src/recipes/starter.ts` — the curated list (handle + did baked; PDS
+  resolved fresh from plc.directory) + prefs (injectable storage, defensive;
+  default all-enabled) + the multi-author feed loader (per-author failure
+  logged + surfaced in the status, not page-fatal — a multi-source feed
+  degrades, it doesn't blank).
+- [ ] `settings.html` — "Starter pack" section: per-author checkbox row,
+  the **name links to the Bluesky profile**
+  (`https://bsky.app/profile/<handle>`), toggles persist immediately.
+- [ ] `src/pages/browse.ts` — no last-search? Load the enabled starter
+  authors' recipes (cache-first semantics via cache.put) and render the
+  merged grid; per-card `by=` from an authors-by-did map.
+- [ ] `src/recipes/view.ts` — `RenderOptions.authorsByDid` for mixed-author
+  grids; the detail provenance author name links to the Bluesky profile.
+**Wiring test:** fresh Browse (no search) renders starter cards from routed
+fixtures; unchecking an author in settings removes their cards from Browse.
+Settings rows carry the profile links and persist across reload.
+**Write-set:** `src/recipes/starter.ts`, `src/pages/browse.ts`,
+`src/pages/settings.ts`, `src/recipes/view.ts`, tests.
+**Done when:** a first-time visitor sees recipes with zero input; the pack
+is user-editable in settings; author names link out to Bluesky profiles.
+**Validation:** Moderate — live load of all three real authors (72 records)
++ screenshot.
 
 ---
 

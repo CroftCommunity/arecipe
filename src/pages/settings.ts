@@ -5,6 +5,7 @@
 import { formatBuildStamp, mountBuildStamp, type BuildInfo } from '../build-stamp.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
+import { createStarterPrefs, STARTER_AUTHORS } from '../recipes/starter.js';
 import { registerServiceWorker } from '../sw-register.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -60,6 +61,32 @@ const main = async (): Promise<void> => {
     ),
   );
 
+  const starter = section('Starter pack', 'starter-pack');
+  starter.append(
+    el(
+      'p',
+      'status',
+      'Cooks whose recipes fill Browse by default. Uncheck to hide; names open their Bluesky profile.',
+    ),
+  );
+  const prefs = createStarterPrefs();
+  for (const author of STARTER_AUTHORS) {
+    const row = el('label', 'starter-row');
+    row.dataset['testid'] = 'starter-row';
+    const box = document.createElement('input');
+    box.type = 'checkbox';
+    box.checked = prefs.isEnabled(author.handle);
+    box.addEventListener('change', () => {
+      prefs.setEnabled(author.handle, box.checked);
+      log.debug('starter', 'toggled', { handle: author.handle, enabled: box.checked });
+    });
+    const link = el('a', 'starter-author', author.handle) as HTMLAnchorElement;
+    link.href = `https://bsky.app/profile/${encodeURIComponent(author.handle)}`;
+    link.rel = 'noopener';
+    row.append(box, link);
+    starter.append(row);
+  }
+
   const about = section('About', 'about');
   about.append(
     el(
@@ -72,7 +99,7 @@ const main = async (): Promise<void> => {
     ),
   );
 
-  content.append(build, integrity, about);
+  content.append(build, starter, integrity, about);
   mountShell(app, content);
   void mountBuildStamp(app);
   log.debug('shell', 'mounted', { page: 'settings' });

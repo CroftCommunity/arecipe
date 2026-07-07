@@ -31,6 +31,21 @@ describe('renderRecipeList (link cards)', () => {
     );
   });
 
+  it('mixed-author grids resolve by= per card from authorsByDid (5e)', () => {
+    const other = entry({ uri: 'at://did:plc:other123/exchange.recipe.recipe/abc' });
+    const el = renderRecipeList([entry(), other], {
+      authorsByDid: {
+        'did:plc:26tsx5juuss4yealylyfbj4h': 'rdur.dev',
+        'did:plc:other123': 'daffl.xyz',
+      },
+    });
+    const hrefs = Array.from(el.querySelectorAll<HTMLAnchorElement>('[data-testid=recipe-item]')).map(
+      (a) => a.getAttribute('href'),
+    );
+    expect(hrefs[0]).toContain('by=rdur.dev');
+    expect(hrefs[1]).toContain('by=daffl.xyz');
+  });
+
   it('an intact card is clean; a tampered card is stamped and warned', () => {
     const el = renderRecipeList([entry(), entry({ uri: 'at://x/y/z', verified: false })]);
     const cards = Array.from(el.querySelectorAll('[data-testid=recipe-item]'));
