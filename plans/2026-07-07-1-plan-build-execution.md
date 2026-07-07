@@ -1076,6 +1076,25 @@ the SW fetch handler bypasses Playwright route interception — hermetic
 fixture-routed specs need `serviceWorkers: 'block'` (or a request-path split);
 the Phase 11 verify-before-install worker extends this one, so keep the
 update-flow seam clean.
+**Reference: `github.com/chasemp/peadoubleueh`** (maintainer's prior PWA
+best-practices repo — inspect for ideas, don't adopt outright; added at the
+M1 checkpoint). The cache-busting/upgrade lessons it encodes, learned the
+hard way there:
+- **Content-hashed asset filenames** (`main-<hash>.js`) referenced from a
+  never-cached `index.html` — the fundamental buster; a deploy changes URLs,
+  so stale JS is structurally impossible. arecipe's build script should adopt
+  this at 8b (hash `main.js`/`styles.css`, inject into index.html).
+- **Versioned cache names** (`static-${CACHE_VERSION}`) with old-cache
+  deletion on `activate`; never pre-cache hashed files (they're cached on
+  fetch); per-asset `cache.add` failure tolerance so one miss doesn't brick
+  install.
+- **`build-info.json`** — peadoubleueh had the same artifact; arecipe's
+  version (date+sha+sizes, already shipped) becomes the single source of
+  truth: footer stamp, SW cache version, and later the Phase 11 signed
+  manifest should all derive from it.
+- Icon set incl. **maskable icons** + manifest — 8b scope.
+- The testing pain that motivated all this: you could never tell which build
+  you were looking at — solved in arecipe by the always-visible build stamp.
 
 ---
 
