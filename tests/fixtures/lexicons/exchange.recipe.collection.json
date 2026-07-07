@@ -1,0 +1,45 @@
+{
+  "lexicon": 1,
+  "id": "exchange.recipe.collection",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["name", "createdAt", "updatedAt"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "langs": {
+            "type": "array",
+            "description": "BCP 47 language tags for the collection's textual content (name, text). Mirrors app.bsky.feed.post.langs.",
+            "maxLength": 3,
+            "items": { "type": "string", "format": "language" }
+          },
+          "recipes": {
+            "type": "array",
+            "items": {
+              "type": "ref",
+              "ref": "com.atproto.repo.strongRef"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "datetime"
+          }
+        }
+      }
+    }
+  }
+}

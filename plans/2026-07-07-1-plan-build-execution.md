@@ -173,10 +173,44 @@ This is a decision the maintainer should make, gated before the scaffold phase.
   execution time) and is never stored in-repo. D1 should mint a scoped app-password
   from it for the automated probes rather than using the main password directly.
 
-- **NOT yet verified (deferred to Phase 0, do not plan around as fact):** that
-  `com.atproto.repo.getRecord`/`listRecords` and `com.atproto.sync.*` serve records
-  unauthenticated (the XRPC spec explicitly says there is "not yet a consistent way
-  to enumerate which endpoints do or do not" require auth) → D2.
+- **The public read path is unauthenticated AND CORS-open — VERIFIED (D2,
+  2026-07-07).** Probed live against real recipe.exchange authors' Bluesky-hosted
+  PDSs with no auth header and `Origin: http://127.0.0.1:8080`:
+  `repo.listRecords`, `repo.getRecord`, `sync.getRecord` (CAR), `sync.getRepo`,
+  `sync.getBlob` all HTTP 200 with `access-control-allow-origin: *`;
+  `plc.directory` DID docs likewise. Captured responses in
+  `tests/fixtures/atproto/` (see `PROBE-NOTES.md` there for endpoints/DIDs).
+  Cold-start public reads from the browser work exactly as Phase 4 assumes.
+
+- **Tier 2 CID verification works in JS and is cheap — VERIFIED (D6, 2026-07-07).**
+  Recomputed a real `exchange.recipe.recipe` record's CID from its `getRecord`
+  lex-JSON (`$link`→CID / `$bytes`→bytes conversion → canonical DAG-CBOR → sha-256
+  → CIDv1): exact match with the PDS-reported CID
+  (`bafyreicjd6v75ykac2ky2ccafulnag6ca47enezqm3kp7be5bhubsdchki`). Browser bundle
+  cost of `@ipld/dag-cbor` + `multiformats`: **38.5 KB minified / 12.2 KB gzip**.
+  **Tier decision: Tier 2 for Phase 4** (recompute-on-receipt); Tier 3 (sync CAR +
+  MST proof + commit signature) deferred as a named hardening item.
+
+- **The vanilla toolchain is confirmed — VERIFIED (D3, 2026-07-07).** Vanilla
+  TS (strict) + esbuild + Vitest + Playwright: typecheck, 2 unit tests, build, and
+  3 Playwright e2e (shell render, IndexedDB round-trip, **service worker
+  registered + active**) all green; e2e suite runs in 2.4 s; `esbuild --servedir`
+  serves the bundle for e2e (one ephemeral port, as the Phase 1 contract states).
+  **Baseline bundle: 2,713 bytes total (~1.3 KB gzip)** — main.js 1,978 B +
+  sw.js 324 B + index.html 411 B. Playwright verdict: zero friction with SW and
+  IndexedDB — **go** (harness question was ADVISORY; this is the D3 report).
+
+- **`exchange.recipe.recipe` field map captured — VERIFIED (D4, 2026-07-07).**
+  Lexicon JSON served at `recipe.exchange/lexicons/<nsid>.json` (recipe,
+  collection, defs, profile captured to `tests/fixtures/lexicons/`). Canonical
+  resolution also works: `_lexicon.recipe.exchange` DNS TXT →
+  `did:plc:4cx7ts7lqgjtsfquo53qo3sz` → `com.atproto.lexicon.schema` record
+  (captured). Required fields: name, text, ingredients, instructions, createdAt,
+  updatedAt. Two spec-vs-practice discrepancies recorded in the fixtures'
+  `PROBE-NOTES.md`: (a) website lexicon adds optional `langs` not yet in the
+  canonical record (harmless under open-world validation); (b) lexicon declares
+  `key: tid` but real recipe.exchange records use **26-char ULID rkeys** —
+  Phase 6 must choose a format (note added there).
 
 ## Documentation Impact
 
@@ -355,7 +389,9 @@ back into Verified Assumptions and declares a disposition for probe code.
     `client_id` / redirect-URI format (IP-literal constraints, port handling).
   - **Disposition:** `throwaway` (findings recorded; sandbox archived).
 
-- [ ] **D2: Is the public read path unauthenticated?**
+- [x] **D2: Is the public read path unauthenticated?** ✅ DONE 2026-07-07 — yes,
+  and CORS-open (`*`), incl. blobs and plc.directory. Fixtures in
+  `tests/fixtures/atproto/`. See Verified Assumptions.
   - **Probe:** `curl` `com.atproto.repo.getRecord` and `listRecords` against a known
     recipe.exchange author's PDS for `exchange.recipe.recipe`, with no auth header.
     Repeat for a `com.atproto.sync.*` read. Record status codes and whether records
@@ -365,7 +401,10 @@ back into Verified Assumptions and declares a disposition for probe code.
   - **Disposition:** `keep-as-fixture` (captured responses become read-path test
     fixtures in Phase 4).
 
-- [ ] **D3: Confirm the vanilla toolchain + test harness (framework already decided).**
+- [x] **D3: Confirm the vanilla toolchain + test harness (framework already decided).**
+  ✅ DONE 2026-07-07 — vanilla TS + esbuild + Vitest + Playwright all green incl.
+  SW + IndexedDB e2e; baseline bundle 2,713 B (~1.3 KB gz); Playwright: **go**.
+  Scaffold promoted in-repo, flagged SPIKE. See Verified Assumptions.
   - **Probe:** Stand up a minimal vanilla HTML5+CSS+JS "hello" (optionally TS), with a
     trivial build (esbuild or none), and confirm Vitest (unit) + the **candidate**
     e2e harness (Playwright) (service-worker/OAuth-redirect/IndexedDB) run against it.
@@ -378,7 +417,10 @@ back into Verified Assumptions and declares a disposition for probe code.
   - **Disposition:** `promote` — the scaffold becomes the Phase 1 base (TDD applies to
     code added in Phase 1, not to the spike).
 
-- [ ] **D4: `exchange.recipe.recipe` field-level schema.**
+- [x] **D4: `exchange.recipe.recipe` field-level schema.** ✅ DONE 2026-07-07 —
+  all four lexicons + canonical `lexicon.schema` record captured to
+  `tests/fixtures/lexicons/`; field map + two spec-vs-practice discrepancies
+  recorded (optional `langs` skew; ULID-not-TID rkeys). See Verified Assumptions.
   - **Probe:** Fetch the raw lexicon JSON from `recipe.exchange/lexicons/` (or the
     canonical `com.atproto.lexicon.schema` record) and record the exact field names,
     types, and required/optional status for `recipe`, plus `collection`.
@@ -407,7 +449,10 @@ back into Verified Assumptions and declares a disposition for probe code.
   - **Disposition:** `promote` — the port lands in Phase 3's auth module (TDD applies
     there); the test-tier split it implies lands in Phase 1's CI setup.
 
-- [ ] **D6: What does `verified` mean — how deep does client-side CID verification go?**
+- [x] **D6: What does `verified` mean — how deep does client-side CID verification go?**
+  ✅ DONE 2026-07-07 — Tier 2 recompute reproduces a real record's CID exactly;
+  deps cost 38.5 KB min / 12.2 KB gz. **Decision: Tier 2 in Phase 4; Tier 3
+  deferred as named hardening.** See Verified Assumptions.
   *(Added by feasibility amendment. Phase 4's headline claim — cache entries marked
   `verified` after "CID check" — is currently undefined: verify what, against what?)*
   - **Probe:** In browser JS, re-derive the CID of a known `exchange.recipe.recipe`
@@ -750,6 +795,10 @@ per-run rkey prefix, and (b) each `@live` run *starts* with a pre-run purge
 Phases 6–8.
 **Risks:** Writing to a real repo in tests. Isolate to a throwaway test account and
 delete records after. Never run write tests against a personal account.
+**Rkey format (D4 finding):** the lexicon declares `key: tid` but real
+recipe.exchange records use 26-char ULIDs — PDSs don't enforce the declared key
+type. Decide at this phase: match practice (ULID, what recipe.exchange itself
+writes) or spec (TID). Either renders on recipe.exchange; pick one and record it.
 **Done when:**
 1. **Behavioral:** A recipe authored in arecipe is retrievable from the PDS and
    renders on recipe.exchange.
@@ -787,6 +836,10 @@ observed vs allowed size.
 retains an uploaded blob once a record references it (unreferenced blobs are
 garbage-collected) — commit the record embedding the returned blob ref promptly
 after `uploadBlob`, and treat upload-then-crash as self-cleaning, not a leak.
+**Privacy (D2 finding):** a real recipe.exchange blob in the wild was a ~1 MB
+iPhone photo with intact GPS EXIF. The canvas-thumbnail path strips EXIF as a
+side effect; ensure the FULL-SIZE upload path strips EXIF too (re-encode via
+canvas or explicit strip) — location data in a public recipe photo is a footgun.
 **Done when:**
 1. **Behavioral:** An authored recipe carries a working photo that renders.
 2. **Verification:** Playwright upload-and-render test green.
@@ -1166,3 +1219,25 @@ to M3 instead.
 **Confirmed ready:** Yes — unchanged from Pass 3. No BLOCKING items; one
 PHASE-GATED item (offline shell, decided at the M1 checkpoint) and one ADVISORY
 (Playwright harness, from Pass 3). Execution starts at Phase 0.
+
+### Phase 0 execution — 2026-07-07 (D2/D3/D4/D6 done; D1/D5 pending credential)
+Public-read probes and the toolchain spike ran first per the Concurrency Map;
+D1→D5 wait on the out-of-band credential. Findings recorded in Verified
+Assumptions (five new/updated entries) and inline on the D-tasks. Highlights:
+- **D2:** public read path unauthenticated AND CORS-open (`*`) end to end,
+  including `sync.getBlob` and plc.directory — better than assumed (CORS was the
+  open risk for a browser app). Fixtures: `tests/fixtures/atproto/`.
+- **D4:** lexicons captured (website + canonical `lexicon.schema` record, which
+  also proves the canonical mirror path works). Two spec-vs-practice
+  discrepancies: optional `langs` skew; **ULID rkeys despite `key: tid`** —
+  decision note added to Phase 6.
+- **D3:** vanilla TS + esbuild + Vitest + Playwright green including SW +
+  IndexedDB e2e in 2.4 s; **baseline bundle 2,713 B (~1.3 KB gz)**; Playwright
+  verdict **go**. Scaffold promoted in-repo (flagged SPIKE), `.gitignore` added
+  (`.env` ignored ahead of D1).
+- **D6:** Tier 2 CID recompute exact-matches a real record; deps 12.2 KB gz.
+  **Decision: Tier 2 in Phase 4, Tier 3 deferred as named hardening.**
+- New risk note on Phase 7 from a D2 observation: real-world blobs carry GPS
+  EXIF; full-size upload path must strip EXIF, not just the thumbnail path.
+- Probe hygiene: the fetched third-party blob (personal photo w/ GPS EXIF) was
+  deleted, not kept as a fixture.

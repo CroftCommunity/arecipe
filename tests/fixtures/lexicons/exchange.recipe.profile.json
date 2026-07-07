@@ -1,0 +1,106 @@
+{
+  "lexicon": 1,
+  "id": "exchange.recipe.profile",
+  "description": "Profile information for recipe.exchange users",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "literal:self",
+      "record": {
+        "type": "object",
+        "required": ["createdAt", "profileType"],
+        "properties": {
+          "profileType": {
+            "type": "union",
+            "refs": [
+              "exchange.recipe.defs#profileTypePersonal",
+              "exchange.recipe.defs#profileTypeBusiness"
+            ]
+          },
+          "businessType": {
+            "type": "union",
+            "refs": [
+              "exchange.recipe.defs#businessTypeRestaurant",
+              "exchange.recipe.defs#businessTypeCafe",
+              "exchange.recipe.defs#businessTypeFoodTruck",
+              "exchange.recipe.defs#businessTypeCatering",
+              "exchange.recipe.defs#businessTypePersonalChef",
+              "exchange.recipe.defs#businessTypeMealService",
+              "exchange.recipe.defs#businessTypeProducer",
+              "exchange.recipe.defs#businessTypeRetailer",
+              "exchange.recipe.defs#businessTypeMarketVendor",
+              "exchange.recipe.defs#businessTypeFarm",
+              "exchange.recipe.defs#businessTypeEducator",
+              "exchange.recipe.defs#businessTypeNutritionist",
+              "exchange.recipe.defs#businessTypeContentCreator",
+              "exchange.recipe.defs#businessTypeConsultant",
+              "exchange.recipe.defs#businessTypeEquipmentManufacturer",
+              "exchange.recipe.defs#businessTypeSupplier",
+              "exchange.recipe.defs#businessTypeInstitution",
+              "exchange.recipe.defs#businessTypeNonprofit",
+              "exchange.recipe.defs#businessTypeCommunityOrg",
+              "exchange.recipe.defs#businessTypeHomeCook",
+              "exchange.recipe.defs#businessTypeProfessional"
+            ]
+          },
+          "about": {
+            "type": "string",
+            "maxLength": 2000,
+            "description": "Biography or description of the profile"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 255
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 20
+          },
+          "address": {
+            "type": "object",
+            "properties": {
+              "street1": { "type": "string" },
+              "street2": { "type": "string" },
+              "city": { "type": "string" },
+              "state": { "type": "string" },
+              "postalCode": { "type": "string" },
+              "country": { "type": "string" },
+              "latitude": { "type": "number" },
+              "longitude": { "type": "number" }
+            }
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["title", "url"],
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                "url": {
+                  "type": "string",
+                  "format": "uri",
+                  "maxLength": 2048
+                }
+              }
+            },
+            "maxLength": 5
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Timestamp when the profile was created"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Timestamp when this recipe was last updated"
+          }
+        }
+      }
+    }
+  }
+}

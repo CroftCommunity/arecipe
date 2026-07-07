@@ -1,0 +1,215 @@
+{
+  "lexicon": 1,
+  "id": "exchange.recipe.recipe",
+  "description": "A recipe shared on recipe.exchange",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "A complete recipe with all its components.",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": [
+          "name",
+          "text",
+          "ingredients",
+          "instructions",
+          "createdAt",
+          "updatedAt"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "description": "The name of the recipe"
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 3000,
+            "description": "A description of the recipe"
+          },
+          "attribution": {
+            "type": "union",
+            "refs": [
+              "exchange.recipe.defs#attributionOriginal",
+              "exchange.recipe.defs#attributionPerson",
+              "exchange.recipe.defs#attributionPublication",
+              "exchange.recipe.defs#attributionWebsite",
+              "exchange.recipe.defs#attributionShow",
+              "exchange.recipe.defs#attributionProduct"
+            ]
+          },
+          "ingredients": {
+            "type": "array",
+            "description": "List of ingredients and their measurements",
+            "items": {
+              "type": "string",
+              "maxLength": 500
+            }
+          },
+          "instructions": {
+            "type": "array",
+            "description": "Step by step cooking instructions",
+            "items": {
+              "type": "string",
+              "maxLength": 1000
+            }
+          },
+          "langs": {
+            "type": "array",
+            "description": "BCP 47 language tags for the recipe's textual content (name, text, ingredients, instructions). Mirrors app.bsky.feed.post.langs.",
+            "maxLength": 3,
+            "items": { "type": "string", "format": "language" }
+          },
+          "embed": {
+            "type": "ref",
+            "ref": "#imagesEmbed"
+          },
+          "prepTime": {
+            "type": "string",
+            "format": "duration",
+            "description": "Time required for preparation"
+          },
+          "cookTime": {
+            "type": "string",
+            "format": "duration",
+            "description": "Time required for cooking"
+          },
+          "totalTime": {
+            "type": "string",
+            "format": "duration",
+            "description": "Total time required"
+          },
+          "recipeYield": {
+            "type": "string",
+            "description": "Number of servings or yield"
+          },
+          "recipeCategory": {
+            "type": "string",
+            "description": "Category of recipe (e.g., appetizer, main course)",
+            "knownValues": [
+              "exchange.recipe.defs#recipeCategory"
+            ]
+          },
+          "recipeCuisine": {
+            "type": "string",
+            "description": "Cuisine type (e.g., Italian, Mexican)",
+            "knownValues": [
+              "exchange.recipe.defs#recipeCuisine"
+            ]
+          },
+          "cookingMethod": {
+            "type": "string",
+            "description": "Method of cooking (e.g., baking, grilling)",
+            "knownValues": [
+              "exchange.recipe.defs#cookingMethod"
+            ]
+          },
+          "nutrition": {
+            "type": "object",
+            "description": "Nutritional information",
+            "properties": {
+              "calories": { "type": "integer" },
+              "fatContent": { "type": "number" },
+              "proteinContent": { "type": "number" },
+              "carbohydrateContent": { "type": "number" }
+            }
+          },
+          "suitableForDiet": {
+            "type": "array",
+            "description": "Dietary restrictions this recipe is suitable for",
+            "items": {
+              "type": "string",
+              "knownValues": [
+                "exchange.recipe.defs#diet"
+              ]
+            }
+          },
+          "keywords": {
+            "type": "array",
+            "description": "Tags describing the recipe",
+            "items": {
+              "type": "string",
+              "maxLength": 64
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Timestamp when this recipe was created"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Timestamp when this recipe was last updated"
+          }
+        }
+      }
+    },
+    "imagesEmbed": {
+      "type": "object",
+      "required": ["images"],
+      "properties": {
+        "images": {
+          "type": "array",
+          "items": { "type": "ref", "ref": "#image" },
+          "maxLength": 4
+        }
+      }
+    },
+    "image": {
+      "type": "object",
+      "required": ["image", "alt"],
+      "properties": {
+        "image": {
+          "type": "blob",
+          "accept": ["image/*"],
+          "maxSize": 1000000
+        },
+        "alt": {
+          "type": "string",
+          "description": "Alt text description of the image, for accessibility."
+        },
+        "aspectRatio": {
+          "type": "ref",
+          "ref": "app.bsky.embed.defs#aspectRatio"
+        }
+      }
+    },
+    "view": {
+      "type": "object",
+      "required": ["images"],
+      "properties": {
+        "images": {
+          "type": "array",
+          "items": { "type": "ref", "ref": "#viewImage" },
+          "maxLength": 4
+        }
+      }
+    },
+    "viewImage": {
+      "type": "object",
+      "required": ["thumb", "fullsize", "alt"],
+      "properties": {
+        "thumb": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL for thumbnail version of the image. CDN location provided by recipe.exchange."
+        },
+        "fullsize": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL for full size version of the image. CDN location provided by recipe.exchange."
+        },
+        "alt": {
+          "type": "string",
+          "description": "Alt text description of the image, for accessibility."
+        },
+        "aspectRatio": {
+          "type": "ref",
+          "ref": "app.bsky.embed.defs#aspectRatio"
+        }
+      }
+    }
+  }
+}
