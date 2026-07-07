@@ -7,7 +7,8 @@ to fine phases here; `docs/sources/arecipe-spec.md` remains the technical source
 of truth.
 
 Passes run: Pass 1 (base) + Pass 2 (gap analysis) combined in one context on
-2026-07-07; Pass 3 (quality gates) in a fresh context on 2026-07-07.
+2026-07-07; Pass 3 (quality gates) in a fresh context on 2026-07-07; post-Pass-3
+feasibility amendment on 2026-07-07 (see Review Log).
 
 ---
 
@@ -126,6 +127,31 @@ This is a decision the maintainer should make, gated before the scaffold phase.
   github.com/bluesky-social/atproto/blob/main/packages/api/OAUTH.md). End-to-end
   reliability (refresh, resume, PDS migration) still needs a firsthand probe → D1.
 
+- **`BrowserOAuthClient` owns session persistence and restore.** The client "keeps
+  track of all the sessions that it manages through an internal store" and
+  `client.init()` restores the last used session. Multi-tab coordination is NOT
+  documented (absence of docs ≠ absence of behavior — D1 probes it empirically).
+  Confirmed 2026-07-07 (oauth-client-browser README, bluesky-social/atproto@main).
+  Consequence: Phase 3 must not rebuild persistence; its store module is at most a
+  thin wrapper over the library's own store.
+
+- **Browsers cannot resolve handles natively; `handleResolver` is required.** DNS
+  TXT lookup "is not available in the browser"; the client requires a
+  `handleResolver` (a PDS/entryway URL, a service exposing
+  `com.atproto.identity.resolveHandle`, or a DNS-over-HTTPS resolver). Confirmed
+  2026-07-07 (same README). Consequence: Phase 2's resolution path goes through a
+  resolver service — not DNS TXT, and not raw `https://<handle>/.well-known/atproto-did`
+  fetches (CORS-blocked for most handle domains). The spec's Layer 1 wording
+  describes the protocol view, not the browser-feasible path → errata recorded in
+  Documentation Impact.
+
+- **Loopback clients get ~1-day refresh tokens.** Loopback/public clients have
+  "very limited" refresh validity, "typically 1 day," vs longer-lived tokens for
+  registered clients. Confirmed 2026-07-07 (same README). Consequence: Phase 3's
+  session-persistence criterion is bounded to the loopback token lifetime until the
+  hosted client-metadata document lands (locked M3 item); daily re-login in local
+  dev is expected behavior, not a bug. D1 records the observed lifetimes.
+
 - **`exchange.recipe.*` NSIDs** (`recipe`, `collection`, `defs`, `profile`) are
   maintained by Josh Huckabee at `recipe.exchange/lexicons/`, corroborated in
   `docs/sources/` (novelty assessment + gradient). Field-level schema of
@@ -133,6 +159,12 @@ This is a decision the maintainer should make, gated before the scaffold phase.
 
 - **The repo is greenfield.** Only `README.md`, `LICENSE`, `docs/` present
   (confirmed 2026-07-07). No test infra, no build tooling yet — we choose it (D3).
+
+- **Canonical domain: `arecipe.app`** — owned ("bought and paid for"), stated by
+  the maintainer 2026-07-07. `arecipe.fyi` was an early idea, not the real domain;
+  `recipe.fyi` was never controlled. Consequence: app-scoped NSIDs are
+  `app.arecipe.*` (see the NSID resolution in Open Questions), and DNS-authority
+  planning (Phase 11) targets arecipe.app.
 
 - **Test account:** `@ngvalidation2112.bsky.social` (`did:plc:xyfhcaweaeyew3zrgk6jaln7`,
   repo PDS `stropharia.us-west.host.bsky.network`, entryway `bsky.social`, email
@@ -165,6 +197,20 @@ This is a decision the maintainer should make, gated before the scaffold phase.
 - New: `plans/` directory (this file). No references elsewhere yet — grepped repo
   for "plans/" , none found outside this file.
 
+- `docs/sources/arecipe-spec.md` — **errata recorded, not edited by this plan**
+  (spec is v0.3, "status: draft, for discussion"; upstream edits are the
+  maintainer's call): (1) Layer 1 describes handle resolution via DNS TXT /
+  `.well-known` — the protocol view, not browser-feasible; the browser path goes
+  through a `handleResolver` service (see Verified Assumptions). (2) Layer 4's
+  drafts-synced-to-PDS does not note that PDS records are world-readable (see the
+  drafts-privacy resolution: accepted, with an editor disclosure line). (3) NSID
+  namespace: the spec's `fyi.recipe.*` implies authority over `recipe.fyi`, which
+  nobody controls; **resolved 2026-07-07 — the owned canonical domain is
+  `arecipe.app`, so all app-scoped NSIDs become `app.arecipe.*`**, and the spec's
+  `arecipe.fyi` DNS-authority mentions should converge on `arecipe.app` (the spec's
+  Layer 3 already uses it). Spec is v0.3 draft; upstream edits are the maintainer's
+  call — tracked here so they aren't lost.
+
 - No `agents.md`/`CLAUDE.md` equivalents exist in this repo (those live in the
   coding-agents repo, not here). No cross-references to update there.
 
@@ -177,20 +223,26 @@ Phase 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → [9, 10] → 11 → 12
   (scaffold → resolution → auth → read → two-device → write → blobs → drafts). The
   spine is inherently sequential; parallelism is not safe across it.
 
-- **Phase 0 discovery tasks {D1, D2, D4} are independent probes** and may run
-  concurrently (disjoint: D1 exercises OAuth, D2 exercises public reads, D4 fetches
-  a record schema). D3 (toolchain decision) depends on nothing but should conclude
-  before Phase 1.
+- **Phase 0 discovery tasks {D2, D4, D6} are independent public-read probes** and
+  may run concurrently (disjoint: D2 exercises public record reads, D4 fetches a
+  lexicon schema, D6 recomputes a CID from a public record). **D1 → D5 run
+  serialized with each other** (both mutate test-account session state: D1 logs in
+  via OAuth and mints the app-password, D5 consumes that app-password via
+  `createSession`) but may run concurrently with the public-read set. D3 (toolchain
+  decision) depends on nothing but should conclude before Phase 1.
+  *(Membership updated by the feasibility amendment: D5/D6 added; D1‖D2/D4
+  reasoning below unchanged.)*
   - **Shared-state contract (parallel probe set):** Each probe runs in its own
     sandbox directory with disjoint tmp paths; none binds a port. Two shared ambient
     surfaces exist and are handled explicitly: (1) **this plan doc** — the only place
     findings are written; serialize the plan-doc edits (one writer at a time). (2)
     **the test account** `@ngvalidation2112.bsky.social` — D1 *mutates* it by minting
-    a scoped app-password and running a real login/refresh; D2 and D4 touch only
-    *public, unauthenticated* reads and do not mutate the account. Because only D1
-    writes account state and it writes its own dedicated app-password, the mutation is
-    disjoint from D2/D4's reads — safe to parallelize. Do not run a second
-    account-mutating probe concurrently with D1.
+    a scoped app-password and running a real login/refresh, and D5 consumes that
+    app-password (a second account-state mutation — hence D1 → D5 serialized); D2,
+    D4, and D6 touch only *public, unauthenticated* reads and do not mutate the
+    account. Because only the D1→D5 chain writes account state, the mutation is
+    disjoint from the public reads — safe to parallelize across the two groups. Do
+    not run any other account-mutating probe concurrently with D1 or D5.
   - **Re-entry verification (after the probe set returns):** (a) each finding is
     recorded in Verified Assumptions with evidence; (b) no probe left a running
     process or dev server; (c) D1's minted app-password is recorded for later reuse
@@ -237,6 +289,12 @@ Notes:
   build fast and real enough to anchor a structure/UI/UX conversation. The mealplanner
   review happens here (see the Reference section). No UI/UX decisions are pre-committed
   before this checkpoint.
+
+- **M2 scope note (feasibility amendment):** "two devices" at M2 means two isolated
+  sessions/browsers on one machine — the loopback OAuth client can't serve a second
+  physical device. The physical two-device demo lands at the start of M3, when the
+  hosted OAuth client exists. M3 also unlocks long-lived sessions (loopback refresh
+  tokens are ~1 day).
 
 - **M3 is the MLP (Minimum Lovable Product):** the first milestone that is genuinely
   useful and lovable to a real small group — you can put a recipe in and your people
@@ -289,7 +347,12 @@ back into Verified Assumptions and declares a disposition for probe code.
     confirm the session resumes. Note DPoP behavior and any PWA-redirect quirks.
   - **Success criteria:** A real authenticated read returns data; a refresh cycle
     succeeds without manual re-login; the exact API surface (method names, session
-    shape) is recorded.
+    shape) is recorded. Additionally (added by feasibility amendment): the library's
+    persistence surface (what it stores in IndexedDB, what `init()` restores — so
+    Phase 3 doesn't rebuild it); observed multi-tab behavior (two tabs open, force a
+    refresh — does the library coordinate natively? feeds Phase 3b's verify-then-build);
+    observed loopback access/refresh token lifetimes; and the exact loopback
+    `client_id` / redirect-URI format (IP-literal constraints, port handling).
   - **Disposition:** `throwaway` (findings recorded; sandbox archived).
 
 - [ ] **D2: Is the public read path unauthenticated?**
@@ -324,6 +387,45 @@ back into Verified Assumptions and declares a disposition for probe code.
   - **Disposition:** `keep-as-fixture` (schema snapshot becomes a test fixture and
     the basis for the lexicon mirror in a later phase).
 
+- [ ] **D5: Where is the injectable session seam for auth-dependent wiring tests?**
+  *(Added by feasibility amendment. Motivation: Phases 4–8 wiring tests must not
+  depend on Playwright driving bsky.social's login/consent pages — a third-party UI
+  that can change, rate-limit, captcha, or demand email-2FA. The interactive OAuth
+  flow is tested where it IS the feature (Phase 3, `@live` tier); everything
+  downstream runs over a real-but-injectable session.)*
+  - **Probe:** In the D1 sandbox, mint the scoped app-password and construct an
+    `Agent` via `com.atproto.server.createSession`; run the same authenticated read
+    (plus a scratch write + delete) through it that the OAuth Agent ran. Confirm the
+    repo/blob-facing API surface is identical from the caller's side.
+  - **Success criteria:** A named **session-provider port** shape (the interface the
+    app codes against, returning an authenticated `Agent`) with two implementations
+    proven equivalent for repo/blob calls: OAuth + DPoP (production) and app-password
+    Bearer (test). Plus an explicit caveat list of where the two differ (DPoP nonce
+    retries, token lifetimes, headers) so it is written down what the `@live` OAuth
+    tier alone covers. Note: the app-password Agent is **not a mock** — it talks to
+    the same real PDS; only the interactive consent hop is bypassed.
+  - **Disposition:** `promote` — the port lands in Phase 3's auth module (TDD applies
+    there); the test-tier split it implies lands in Phase 1's CI setup.
+
+- [ ] **D6: What does `verified` mean — how deep does client-side CID verification go?**
+  *(Added by feasibility amendment. Phase 4's headline claim — cache entries marked
+  `verified` after "CID check" — is currently undefined: verify what, against what?)*
+  - **Probe:** In browser JS, re-derive the CID of a known `exchange.recipe.recipe`
+    record from its `getRecord` JSON (lex-JSON → canonical DAG-CBOR → sha-256 →
+    CIDv1) and match the PDS-reported CID. Measure the bundle weight the encoding
+    dependencies add (`@ipld/dag-cbor` + `multiformats`, or the relevant `@atproto/*`
+    subset) — bundle size is a trust-surface concern for the vanilla stack.
+  - **Success criteria:** A tier decision for Phase 4 with evidence. Tier 1 = store
+    the PDS-reported CID without checking (rejected as the meaning of `verified` —
+    it would make the flag dishonest). Tier 2 = recompute the CID from the received
+    record (proves integrity of what we received and cached). Tier 3 =
+    `com.atproto.sync.getRecord` CAR with MST proof + commit signature checked
+    against the DID document key (proves the record is in the account's signed repo
+    — the full credible-exit property). Default recommendation: Tier 2 in Phase 4,
+    Tier 3 as a named later hardening item, unless the probe shows Tier 3 is cheap.
+  - **Disposition:** `promote` — the recompute path becomes Phase 4's cache verify
+    step (TDD applies in Phase 4).
+
 **Done when:** All BLOCKING open questions resolved, Verified Assumptions updated
 with firsthand evidence, D3 has produced a concrete toolchain choice, and any
 phase whose shape a finding invalidates is updated here with a Review Log entry.
@@ -347,7 +449,15 @@ command, and CI, so every later phase has a home and a gate.
   flag is set; `error` always emits).
 - [ ] Test harness config (Vitest + Playwright) with one passing unit test and one
   Playwright test that loads the built bundle and asserts the shell renders.
-- [ ] CI workflow running lint + typecheck + `test` on push.
+- [ ] CI workflow running lint + typecheck + the **hermetic tiers** on push:
+  `test:unit` (Vitest) and `test:e2e` (Playwright against the built bundle;
+  network stubbed via Playwright route fixtures where a phase's journey would
+  otherwise need the live PDS; no credentials). A separate **`test:live` tier**
+  (real-PDS suites, Phase 2's live-resolution variant and everything from Phase 3
+  onward that needs the out-of-band credential) is explicitly **not** in push CI:
+  it runs locally as each phase's gate, and later on a manual/nightly trigger.
+  Without this split, push CI goes permanently red the day Phase 3 lands — the
+  interactive OAuth login cannot be hermetic (see D5's motivation).
 - [ ] `README.md` "Building / development" section; `docs/BUILD-PLAN.md` pointer to
   this plan; fix the stale `docs/STACK.md` §2 line ("Frontend framework / build
   tooling: OPEN") to point at the §7 DECIDED entry (the §7 decision itself was
@@ -364,8 +474,12 @@ tests green).
 `src/log.ts`, `tests/shell.spec.*`, `tests/log.spec.*`, CI workflow, `README.md`,
 `docs/BUILD-PLAN.md`, `docs/STACK.md`. (Config-heavy scaffold; the logic surface is
 two small files — split further only if D3 reveals more than a trivial entry.)
-**Shared-state contract:** No shared mutable state beyond the file write-set. CI
-binds no local ports; tests use ephemeral Playwright browser contexts.
+**Shared-state contract:** No shared mutable state beyond the file write-set.
+Playwright's web server binds one ephemeral localhost port per run to serve the
+built bundle (released on teardown; corrected by the feasibility amendment — the
+earlier "CI binds no local ports" claim was wrong, e2e cannot serve a bundle
+portlessly); nothing else binds ports; tests use ephemeral Playwright browser
+contexts.
 **Diagnostic logging:** This phase *builds* the logger (`src/log.ts`). Verify a
 service-worker registration/update event is logged at `info` (the SW update flow is
 a flagged risky boundary; make it observable from the first phase that can register
@@ -375,7 +489,7 @@ this phase doesn't discover it late.
 **Done when:**
 1. **Behavioral:** `npm run build` produces a static bundle that renders the shell
    in a browser; `npm test` runs unit + e2e and passes.
-2. **Verification:** `npm test` green in CI on push.
+2. **Verification:** `npm test` (hermetic tiers) green in CI on push.
 **Validation:** Moderate — run the built bundle in a real browser, confirm the
 shell renders outside the test harness.
 
@@ -387,8 +501,16 @@ shell renders outside the test harness.
 any auth or read.
 
 **Changes:**
-- [ ] `src/identity/resolve.ts` — handle → DID (DNS TXT / `.well-known/atproto-did`)
-  → DID document → PDS endpoint + public keys.
+- [ ] `src/identity/resolve.ts` — handle → DID **via a configured handle-resolver
+  service** (XRPC `com.atproto.identity.resolveHandle` against a public
+  entryway/AppView, default `https://public.api.bsky.app`, or a DNS-over-HTTPS
+  resolver) — corrected by the feasibility amendment: browsers cannot read DNS TXT,
+  and cross-origin `.well-known/atproto-did` fetches are CORS-blocked for most
+  handle domains (see Verified Assumptions). Then DID → DID document
+  (`plc.directory` serves CORS; `did:web` fetched best-effort) → PDS endpoint +
+  public keys. The resolver is a deliberate, recorded third-party dependency — make
+  it configurable so it isn't a hard coupling to Bluesky infrastructure (a
+  durability-story point, not just a style one).
 - [ ] `tests/identity/resolve.spec.ts` — unit tests over recorded fixtures
   (well-known and DID-doc JSON), including the failure path (unresolvable handle).
 
@@ -421,19 +543,28 @@ opens (default path: plaintext refresh token + OS device lock).
   client** (localhost `clientId` per atproto's loopback exception) + handleResolver;
   login initiation, callback handling, `oauthSession` → `Agent`. Hosted
   client-metadata is deferred to M3; do not block local TDD on it.
-- [ ] `src/auth/session-store.ts` — persist/restore refresh token + DPoP key in
-  IndexedDB (default plaintext; DPoP key `extractable: false` via WebCrypto).
-- [ ] `tests/auth/*.spec.ts` — session store round-trip unit tests; Playwright
-  login-and-resume e2e against the test account.
+- [ ] `src/auth/session-provider.ts` — rescoped by the feasibility amendment (was
+  `session-store.ts` rebuilding persistence): `BrowserOAuthClient` already persists
+  sessions and restores them via `init()` (Verified Assumptions), so this module is
+  the **D5 session-provider port** instead — the interface the app consumes an
+  authenticated `Agent` through, with the OAuth implementation wrapping the
+  library's own store/restore (DPoP key stays `extractable: false`; encrypted
+  refresh-token opt-in remains a later item) and the app-password implementation
+  living in test support. This is the seam that keeps Phases 4–8 wiring tests off
+  the third-party consent screen. Do not rebuild what the library persists.
+- [ ] `tests/auth/*.spec.ts` — session-provider round-trip unit tests (save/restore
+  through the port over the library store); Playwright login-and-resume e2e against
+  the test account.
 
 **Call chain:** Shell "sign in" → `oauthClient.signIn(handle)` → redirect →
-callback → `session-store.save` → app shows signed-in state; reopen →
-`session-store.restore` → signed-in without re-login.
+callback → session persisted (library store, behind the provider port) → app shows
+signed-in state; reopen → `sessionProvider` restores via `client.init()` →
+signed-in without re-login.
 **Wiring test:** Playwright completes login, reloads the page, and asserts the app
 is still signed in (proves persistence is wired to the entry point).
 **Depends on:** Phase 2, Phase 0 (D1).
 **Read-set:** `src/identity/resolve.ts`, `src/main.*`, D1 findings.
-**Write-set:** `src/auth/oauth-client.ts`, `src/auth/session-store.ts`,
+**Write-set:** `src/auth/oauth-client.ts`, `src/auth/session-provider.ts`,
 `tests/auth/*`, wiring in `src/main.*`. (3 source files + tests — at the limit;
 cross-tab coordination is deliberately deferred to Phase 3b to stay within it.)
 **Shared-state contract:** IndexedDB (origin-scoped); no ports; OAuth redirect uses
@@ -448,11 +579,18 @@ without a log trail a silent-reauth or lost-session bug is undebuggable. Log
 `error` on any auth failure with the DPoP/nonce error class (never the token
 value or app-password).
 **Risks:** PWA/installed-context redirect quirks (spec §4) — exercise the redirect
-return path explicitly; D1 should have surfaced the shape.
+return path explicitly; D1 should have surfaced the shape. Auth-server token
+endpoints are per-account rate-limited — `@live` runs reuse cached sessions rather
+than performing a fresh interactive login per test, or repeated runs will hit caps.
 **Done when:**
-1. **Behavioral:** A user logs in with a handle and stays logged in across a reload.
-2. **Verification:** Playwright login-and-resume test green; session-store unit
-   tests green.
+1. **Behavioral:** A user logs in with a handle and stays logged in across a reload
+   (within the loopback token lifetime — ~1 day for loopback clients per Verified
+   Assumptions; long-lived persistence is validated at M3 once the hosted client
+   exists).
+2. **Verification:** Playwright login-and-resume test green (**`@live` tier** — this
+   phase's wiring test drives the real bsky.social login/consent pages because the
+   interactive OAuth flow *is* the feature under test here; it runs locally as the
+   phase gate, not in push CI); session-provider unit tests green (hermetic).
 **Validation:** Broad — run against a real PDS, confirm a refresh cycle resumes
 the session (not just initial login), check for silent-reauth on expiry.
 
@@ -464,6 +602,12 @@ the session (not just initial login), check for silent-reauth on expiry.
 single-use token.
 
 **Changes:**
+- [ ] **Verify-then-build** (added by the feasibility amendment): first, a two-tab
+  Playwright probe of `BrowserOAuthClient`'s native behavior (two tabs open, force
+  a refresh) — the README documents no multi-tab coordination, but absence of docs
+  is not absence of behavior, and D1 should already have recorded the answer. Build
+  the module below only for what the probe shows is missing; if the library already
+  coordinates, this phase collapses to the two-tab regression test.
 - [ ] `src/auth/tab-coordination.ts` — leader election via `navigator.locks`;
   leader refreshes; broadcast new access token via `BroadcastChannel`.
 - [ ] `tests/auth/tab-coordination.spec.ts` — Playwright with two contexts/tabs
@@ -474,7 +618,7 @@ followers update in-memory token.
 **Wiring test:** Two-tab Playwright test: force a refresh, assert both tabs remain
 authenticated and exactly one refresh call was made.
 **Depends on:** Phase 3.
-**Read-set:** `src/auth/oauth-client.ts`, `src/auth/session-store.ts`.
+**Read-set:** `src/auth/oauth-client.ts`, `src/auth/session-provider.ts`.
 **Write-set:** `src/auth/tab-coordination.ts`, its test, minimal wiring in the auth
 bootstrap.
 **Shared-state contract:** `BroadcastChannel` + Web Locks are origin-scoped; tests
@@ -497,14 +641,19 @@ CID verification (the credible-exit proof made visible).
 - [ ] `src/recipes/read.ts` — `listRecords`/`getRecord` against an author's PDS
   (public path per D2), returning typed records validated against the D4 schema.
 - [ ] `src/recipes/cache.ts` — IndexedDB store keyed by AT-URI, tagging each record
-  with CID + a `verified` boolean.
+  with CID + a `verified` boolean. Verification depth per the **D6 tier decision**
+  (default Tier 2: recompute the CID from the received record); `verified` is never
+  set by merely trusting the PDS-reported CID — that would make the flag, and the
+  credible-exit story it fronts, dishonest.
 - [ ] `src/recipes/RecipeView.*` + `tests/recipes/*.spec.ts` — render a recipe;
   unit tests over D2/D4 fixtures; Playwright render-from-real-PDS e2e.
 
 **Call chain:** Signed-in shell → `readRecipes(did)` → `cache.put` → `RecipeView`
 renders the list.
-**Wiring test:** Playwright signs in, loads a known author's recipes, and asserts a
-real recipe title from recipe.exchange renders on screen.
+**Wiring test:** Playwright loads a known author's recipes over an injected test
+session (app-password through the D5 session-provider port — real PDS, no consent
+screen) and asserts a real recipe title from recipe.exchange renders on screen.
+The full OAuth-login variant of this journey lives in the `@live` tier.
 **Depends on:** Phase 3, Phase 0 (D2, D4).
 **Read-set:** `src/auth/*`, D2/D4 fixtures.
 **Write-set:** `src/recipes/read.ts`, `src/recipes/cache.ts`, `src/recipes/RecipeView.*`,
@@ -518,14 +667,21 @@ credible-exit proof made visible; a mismatch is a trust-surface event and must b
 traceable, not silent. Log `error` on a schema-validation failure (the fail-loud
 boundary) with the offending field.
 **Risks:** Record schema drift vs D4 fixture; validate at the boundary and fail
-loud on unexpected shape (per coding guidance: no silent fallback).
+loud on unexpected shape (per coding guidance: no silent fallback). **Fail-loud
+calibration (feasibility amendment):** atproto is an open-world data model —
+unknown/extra fields are normal, must be tolerated, and must be preserved
+round-trip; fail loud only on missing or mistyped *required* fields per the D4
+schema. Failing on unknown fields would break against every future lexicon
+addition by recipe.exchange.
 **Done when:**
 1. **Behavioral:** A recipe authored on recipe.exchange renders in arecipe, and its
    cache entry is marked `verified` after CID check.
 2. **Verification:** Playwright render-from-real-PDS test green; cache CID-verify
    unit test green.
 **Validation:** Broad — confirm the same record renders identically on
-recipe.exchange (the interop claim), and that a CID mismatch marks `verified:false`.
+recipe.exchange (the interop claim; recipe.exchange indexes via the firehose, so
+allow for indexing lag — this comparison stays manual/generously-timed and never
+becomes a tight automated poll), and that a CID mismatch marks `verified:false`.
 **Milestone (M1) exit:** this phase closes the walking-skeleton slice. Before starting
 M2, hold the structure/UI/UX check-in: demo the sign-in→render slice, review
 `github.com/chasemp/mealplanner` + `mealplanner.523.life` for patterns to adopt/avoid,
@@ -556,8 +712,13 @@ remote account (read-only, so no write contention).
 **Done when:**
 1. **Behavioral:** Two devices show the same account's recipes, both verified.
 2. **Verification:** `two-device-read` Playwright test green.
-**Validation:** Broad — run on two real browsers/devices, not just two contexts, at
-least once manually.
+**Validation:** Broad — automated: two isolated browser contexts (distinct DPoP
+keys / IndexedDB). Manual: two different real browsers on the dev machine.
+**Recalibrated by the feasibility amendment:** a genuine two-physical-device run is
+**deferred to M3** — the loopback OAuth client is unreachable from a second device,
+and the hosted client-metadata document that unlocks a deployable origin is a
+locked M3 item. M2's milestone claim is satisfied by two-context + two-browser
+evidence; the physical two-device demo is the first item of the M3 exit.
 
 ---
 
@@ -581,6 +742,12 @@ list after write-through; a manual/automated check confirms it on recipe.exchang
 **Write-set:** `src/recipes/write.ts`, `src/recipes/RecipeEditor.*`, tests.
 **Shared-state contract:** Writes to the user's real PDS (a real external mutation)
 — use a dedicated test account; clean up created records in test teardown.
+**Crash-safe cleanup (feasibility amendment):** teardown alone doesn't run when a
+test dies, so orphans accumulate on `@ngvalidation2112` and pollute later read
+assertions. Two mechanisms, both required: (a) every test-created record carries a
+per-run rkey prefix, and (b) each `@live` run *starts* with a pre-run purge
+(`listRecords` + delete over the test collections in the test repo). Applies to
+Phases 6–8.
 **Risks:** Writing to a real repo in tests. Isolate to a throwaway test account and
 delete records after. Never run write tests against a personal account.
 **Done when:**
@@ -616,7 +783,10 @@ read-back.
 placeholder-on-failure path must record *why* it fell back — a silent placeholder
 hides a broken blob). Enforce the client size cap with an `error` log naming the
 observed vs allowed size.
-**Risks:** Blob size/caps; enforce a client cap and fail loud past it.
+**Risks:** Blob size/caps; enforce a client cap and fail loud past it. A PDS only
+retains an uploaded blob once a record references it (unreferenced blobs are
+garbage-collected) — commit the record embedding the returned blob ref promptly
+after `uploadBlob`, and treat upload-then-crash as self-cleaning, not a leak.
 **Done when:**
 1. **Behavioral:** An authored recipe carries a working photo that renders.
 2. **Verification:** Playwright upload-and-render test green.
@@ -634,8 +804,11 @@ runs.
 survive recipe edits.
 
 **Changes:**
-- [ ] `src/recipes/drafts.ts` — IndexedDB draft + sync to PDS as `fyi.recipe.draft`
-  (`status: draft`); restore on open. `navigator.storage.persist()` request.
+- [ ] `src/recipes/drafts.ts` — IndexedDB draft + sync to PDS as `app.arecipe.draft`
+  (renamed from the spec's `fyi.recipe.draft` per the NSID resolution; `status:
+  draft`); restore on open. `navigator.storage.persist()` request. Editor carries a
+  one-line disclosure that synced drafts are publicly readable (drafts-privacy
+  resolution).
 - [ ] `src/recipes/refs.ts` — `com.atproto.repo.strongRef` (AT-URI primary + CID);
   "older version" indicator when CID mismatches.
 - [ ] tests — draft survives simulated eviction; edit changes CID and the indicator
@@ -653,7 +826,14 @@ asserts the draft is recovered from the PDS.
 (Two source files + tests; split drafts vs refs if it doesn't fit one context.)
 **Shared-state contract:** IndexedDB + draft records on the test PDS; teardown.
 **Risks:** Eviction is browser-dependent; simulate by clearing IndexedDB in the test
-rather than relying on real eviction.
+rather than relying on real eviction. Added by the feasibility amendment:
+- **Drafts on the PDS are public — RESOLVED: accepted** (see Open Questions).
+  Dev-time drafts go to the test account and are covered by the pre-run purge; the
+  editor carries a public-drafts disclosure line for real users.
+- **NSID authority — RESOLVED: namespace is `app.arecipe.*`** (owned domain
+  `arecipe.app`; see Open Questions). No `fyi.recipe.*` record is ever written.
+- `navigator.storage.persist()` is commonly denied in headless/CI contexts —
+  request it, log the answer at `info`, never assert `true` in tests.
 **Done when:**
 1. **Behavioral:** A draft recovers after local storage is cleared; editing a recipe
    surfaces the older-version indicator on a pinned reference.
@@ -664,7 +844,8 @@ rather than relying on real eviction.
 
 ### Phase 9: Social graph, comments, interactions (ROADMAP — re-plan before executing)
 
-**Goal:** `fyi.recipe.friend`, `fyi.recipe.comment`, `interaction.cooked/saved`,
+**Goal:** `app.arecipe.friend`, `app.arecipe.comment`, `interaction.cooked/saved`
+(app-scoped NSIDs renamed from the spec's `fyi.recipe.*` per the NSID resolution),
 affinity scoring, Jetstream live tail with polling fallback, unsigned→verified
 promotion, rate-limit handling. Spec Layers 6 + 7.
 **Depends on:** Phase 8.
@@ -688,8 +869,9 @@ run parallel with Phase 9 (disjoint write-sets) — decide at re-plan.
 
 ### Phase 11: Multi-authority delivery and trust (ROADMAP — pre-launch gate, re-plan before executing)
 
-**Goal:** Offline Ed25519 key ceremony, signed release manifest, `fyi.recipe.status`
-canary, service-worker verify-before-install flow, multi-origin hosting + DNS
+**Goal:** Offline Ed25519 key ceremony, signed release manifest, `app.arecipe.status`
+canary (NSID renamed per the NSID resolution), service-worker verify-before-install
+flow, multi-origin hosting + DNS
 failover, Tangled mirror + fallback origin, app-account DID with split keys, public
 incident runbook. Spec Layers 3 + 10.
 **Depends on:** a shippable app (Phases 6–8 at minimum). **Hard gate: must complete
@@ -733,6 +915,33 @@ prerender-without-a-backend question (`docs/STACK.md` §7) — then executed.
   redirect, IndexedDB), and reassess in-flight if it fights us (e.g. WebdriverIO, or
   Vitest browser mode) rather than blocking Phase 1 on a lock-in decision.* The
   maintainer is fine with it but wants to see how it goes before committing.
+
+- [CONFIRMED: PHASE-GATED (M1 checkpoint) — user, 2026-07-07] **Offline app shell
+  at the MLP?** The spec assigns the service worker to Layer 3 (verify-before-install
+  machinery → Phase 11), so as planned the M3 MLP has **no offline shell**: recipes
+  are cached in IndexedDB from Phase 4, but the app itself won't open without
+  network. A minimal cache-only SW could be pulled into M3 (kitchen-with-flaky-wifi
+  is a core recipe moment) with the signed-update SW still landing at Phase 11.
+  Decide at the M1 UI/UX checkpoint with the walking skeleton demoable and the
+  mealplanner review in hand.
+
+- [RESOLVED 2026-07-07] **Drafts on the PDS are public → accepted.** Recipe drafts
+  are low-sensitivity; PDS sync stays as specced. Two follow-ons recorded: (a)
+  during development, all drafts are written to the test account's PDS
+  (`@ngvalidation2112`) and the Phase 6 crash-safe pre-run purge explicitly covers
+  the draft collection; (b) for real users the authoring UI should disclose that a
+  synced draft is publicly readable — folded into Phase 8's scope (a disclosure
+  line in the editor, not a modal).
+
+- [RESOLVED 2026-07-07] **NSID namespace authority → rename to `app.arecipe.*`.**
+  The maintainer owns **`arecipe.app`** ("bought and paid for"; `arecipe.fyi` was a
+  first thought, not the real domain). Neither `recipe.fyi` nor `arecipe.fyi` is
+  controlled, so the spec's `fyi.recipe.*` namespace is replaced by `app.arecipe.*`
+  (reverse of arecipe.app — same pattern as bsky.app → `app.bsky.*`). Applies to
+  every app-scoped lexicon (draft, friend, comment, interaction.*, mute.*, status,
+  release, starterpack, group.manifest). The spec's own Layer 3 already references
+  `arecipe.app` DNS, so this also resolves the spec's internal arecipe.fyi/arecipe.app
+  inconsistency in favor of arecipe.app — errata updated.
 
 ## Review Log
 
@@ -868,3 +1077,92 @@ by the user as **ADVISORY** (overriding the agent's recommended PHASE-GATED) —
 does not gate execution; start on Playwright and reassess in-flight if D3 or a later
 phase reveals friction. No BLOCKING or PHASE-GATED items remain. The plan is ready
 for execution starting at Phase 0.
+
+### Feasibility amendment (post-Pass 3) — 2026-07-07
+Two freeform execution/feasibility analyses, run outside the structured gates and
+folded in additively: one prior review plus an independent second pass that
+verified its claims against the spec and the atproto docs before incorporating.
+Evidence tiers are marked: **[verified]** = confirmed against
+bluesky-social/atproto oauth-client-browser README or the spec text on 2026-07-07;
+**[probe]** = plausible, deferred to a Phase 0 probe.
+
+**Externally verified findings (drove rescoping):**
+- **[verified]** `BrowserOAuthClient` persists sessions itself; `init()` restores.
+  → Phase 3's `session-store.ts` rescoped to `session-provider.ts` (the D5 port
+  wrapping the library store) — do not rebuild library persistence. Multi-tab
+  behavior undocumented → Phase 3b converted to verify-then-build.
+- **[verified]** Browsers cannot resolve handles (no DNS TXT; `.well-known` is
+  CORS-hostile); `handleResolver` service is required. → Phase 2 resolution method
+  corrected; resolver recorded as a deliberate, configurable third-party
+  dependency. Spec Layer 1 errata recorded in Documentation Impact.
+- **[verified]** Loopback clients get ~1-day refresh tokens. → Phase 3's
+  persistence criterion bounded to the loopback lifetime; long-lived persistence
+  validated at M3 (hosted client); D1 records observed lifetimes. New finding not
+  present in the prior analysis.
+- **[verified, spec]** The spec assigns the service worker to Layer 3 → Phase 11
+  owns it; consequence surfaced: the M3 MLP has no offline shell → new open
+  question (M1 checkpoint).
+- **[verified, spec]** `fyi.recipe.*` NSID authority = `recipe.fyi` ≠ the spec's
+  DNS authority `arecipe.fyi` → new open question (Phase 8). New finding.
+- **[verified, spec-silence]** PDS records are public; `fyi.recipe.draft` synced
+  for eviction survival is world-readable and the spec doesn't say so → new open
+  question (Phase 8). New finding.
+
+**Structural changes:**
+- **New D5 (auth test seam):** wiring tests for Phases 4–8 run over a real
+  app-password session injected through a session-provider port — not through
+  Playwright driving bsky.social's consent pages (third-party UI: 2FA/captcha/rate
+  limits; the test account's email is not automatable). The interactive OAuth flow
+  is tested where it IS the feature: Phase 3's wiring test, `@live` tier.
+  Documented caveat: Bearer ≠ DPoP failure modes, so the `@live` tier's exclusive
+  coverage is recorded. Disposition `promote` → Phase 3.
+- **New D6 (CID verification depth):** Phase 4's `verified` flag was undefined
+  (verify what against what?). Three tiers named; Tier 1 (trust the PDS-reported
+  CID) rejected as dishonest; default Tier 2 (recompute from received record),
+  Tier 3 (sync CAR + commit signature = full credible exit) as later hardening.
+  Probe measures the dag-cbor dependency's bundle cost. Disposition `promote` →
+  Phase 4. New finding.
+- **CI test-tier split (Phase 1):** hermetic tiers (`test:unit`, `test:e2e` with
+  route fixtures) in push CI; `test:live` (credentials + live PDS) runs locally as
+  each phase's gate / nightly. Without this, push CI goes permanently red at
+  Phase 3.
+- **Phase 5 validation recalibrated:** two-physical-device demo deferred to M3
+  (loopback client unreachable from a second device; hosted client is a locked M3
+  item). M2 = two contexts + two browsers on one machine; milestone note added.
+- **Concurrency Map:** D5/D6 added — {D2, D4, D6} parallel public reads; D1 → D5
+  serialized on the test account.
+
+**Risk notes added (probe/execution-time):**
+- **[probe]** Crash-safe test cleanup (Phases 6–8): per-run rkey prefix + pre-run
+  purge; teardown alone doesn't survive a crashed test.
+- **[probe]** Blob retention: PDS garbage-collects unreferenced blobs — commit the
+  referencing record promptly after `uploadBlob` (Phase 7).
+- **[probe]** Auth-server rate limits: `@live` runs reuse cached sessions rather
+  than fresh logins per test (Phase 3).
+- recipe.exchange indexes via the firehose — interop comparisons stay
+  manual/generously-timed, never tight automated polls (Phase 4/6).
+- Fail-loud calibrated to atproto's open-world model: tolerate + preserve unknown
+  fields; fail loud only on required-field violations (Phase 4).
+- `navigator.storage.persist()` commonly denied headless — log, never assert
+  (Phase 8). Phase 1 shared-state contract corrected: Playwright's web server binds
+  one ephemeral port per run (the "CI binds no ports" claim was wrong).
+
+**What was checked and NOT incorporated:** pulling the hosted OAuth client forward
+to fix Phase 5 — rejected because "hosted client at M3" is a locked decision and
+the two-context evidence satisfies the automated milestone; the physical demo moves
+to M3 instead.
+
+**Open questions:** three new, walked through with the user same day. Outcomes:
+- **NSID authority → RESOLVED:** owned domain is `arecipe.app`; namespace renamed
+  `fyi.recipe.*` → `app.arecipe.*` throughout the plan (Phases 8, 9, 11); spec
+  errata updated (also settles the spec's internal arecipe.fyi vs arecipe.app
+  inconsistency in favor of arecipe.app).
+- **Drafts privacy → RESOLVED: accepted** (drafts are public); dev drafts live on
+  the test account and are covered by the pre-run purge; editor gains a one-line
+  public-drafts disclosure (Phase 8).
+- **Offline shell → CONFIRMED PHASE-GATED (M1 checkpoint)** per the
+  recommendation.
+
+**Confirmed ready:** Yes — unchanged from Pass 3. No BLOCKING items; one
+PHASE-GATED item (offline shell, decided at the M1 checkpoint) and one ADVISORY
+(Playwright harness, from Pass 3). Execution starts at Phase 0.
