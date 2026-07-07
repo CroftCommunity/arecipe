@@ -5,7 +5,12 @@
 // - the first embedded image's blob CID is extractable from a record value
 // - thumbnail URLs point at the CDN with did + cid
 import { describe, expect, it } from 'vitest';
-import { firstImageCid, formatDuration, thumbUrl } from '../../../src/recipes/present.js';
+import {
+  firstImageCid,
+  formatDuration,
+  formatPublishedDate,
+  thumbUrl,
+} from '../../../src/recipes/present.js';
 
 describe('formatDuration', () => {
   it('renders hours and minutes', () => {
@@ -38,6 +43,17 @@ describe('firstImageCid', () => {
 
   it('returns null when there is no embed', () => {
     expect(firstImageCid({})).toBeNull();
+  });
+});
+
+describe('formatPublishedDate', () => {
+  it('renders a short month + year from an ISO timestamp', () => {
+    expect(formatPublishedDate('2025-03-29T19:55:58Z')).toBe('Mar 2025');
+  });
+
+  it('treats absent or unparseable as not set', () => {
+    expect(formatPublishedDate(undefined)).toBeNull();
+    expect(formatPublishedDate('not-a-date')).toBeNull();
   });
 });
 

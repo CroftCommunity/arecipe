@@ -15,6 +15,14 @@ export const formatDuration = (iso: string | undefined): string | null => {
   return parts.join(' ');
 };
 
+/** Short human date ("Mar 2025") from an ISO timestamp; null when unusable. */
+export const formatPublishedDate = (iso: string | undefined): string | null => {
+  if (iso === undefined) return null;
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleDateString('en', { month: 'short', year: 'numeric', timeZone: 'UTC' });
+};
+
 type EmbedShape = {
   embed?: { images?: { image?: { ref?: { $link?: string } } }[] };
 };

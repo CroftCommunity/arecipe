@@ -1,10 +1,14 @@
-// Recipe cards + expanding detail (UI skeleton). Cards carry the two chips
-// that matter: total time and the provenance stamp — the CID-verification
-// verdict rendered like a rubber stamp, arecipe's signature element. An
-// open card expands across the grid into the ingredients-first detail.
+// Recipe cards + expanding detail. Trust surface (design iteration 3):
+// SILENT WHEN GOOD, LOUD WHEN BAD — the browser-padlock lesson. Intact
+// records carry no badge; the opened detail ends with one human provenance
+// line ("as published by <author> · fingerprint matches · <date>"). A record
+// whose content does NOT match its published fingerprint gets the rubber
+// stamp for real: a rust ALTERED? across the photo and an always-visible
+// warning. That stamp is the signature element — it appears exactly when it
+// matters and never as wallpaper.
 
 import type { CachedRecipe } from './cache.js';
-import { firstImageCid, formatDuration, thumbUrl } from './present.js';
+import { firstImageCid, formatDuration, formatPublishedDate, thumbUrl } from './present.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
   const node = document.createElement(tag);
@@ -20,39 +24,19 @@ const listEl = (tag: 'ul' | 'ol', testid: string, items: string[]): HTMLElement 
   return list;
 };
 
-// The stamp must explain itself — "verified" is meaningless until it does.
-// Clicking it toggles a plain-language note (user-side words, no jargon).
-const STAMP_NOTES = {
-  verified:
-    "Verified: this recipe matches the fingerprint it was published with — it hasn't been altered since the author saved it.",
-  unverified:
-    'Unverified: the recipe content did not match its published fingerprint. It may have been altered — treat with care.',
-} as const;
-
-const stampEl = (verified: boolean, note: HTMLElement): HTMLElement => {
-  const stamp = el('button', 'stamp', verified ? '✓ VERIFIED' : 'UNVERIFIED');
-  (stamp as HTMLButtonElement).type = 'button';
-  stamp.setAttribute('data-verified', String(verified));
-  stamp.setAttribute('aria-expanded', 'false');
-  note.textContent = verified ? STAMP_NOTES.verified : STAMP_NOTES.unverified;
-  stamp.addEventListener('click', (event) => {
-    // Inside a <summary>: don't let the click also toggle the card.
-    event.preventDefault();
-    event.stopPropagation();
-    note.hidden = !note.hidden;
-    stamp.setAttribute('aria-expanded', String(!note.hidden));
-  });
-  return stamp;
+export type RenderOptions = {
+  /** Human label for whose recipes these are (the handle the user typed). */
+  author?: string;
 };
 
-const renderRecipe = (entry: CachedRecipe): HTMLElement => {
+const renderRecipe = (entry: CachedRecipe, options: RenderOptions): HTMLElement => {
   const value = entry.value as {
     name?: string;
     text?: string;
     ingredients?: string[];
     instructions?: string[];
     totalTime?: string;
-    recipeYield?: string;
+    updatedAt?: string;
   };
   const did = entry.uri.split('/')[2] ?? '';
 
@@ -60,6 +44,7 @@ const renderRecipe = (entry: CachedRecipe): HTMLElement => {
   item.dataset['testid'] = 'recipe-item';
 
   const summary = el('summary', 'card-face');
+  const photoWrap = el('div', 'photo-wrap');
   const cid = firstImageCid(entry.value);
   if (cid !== null && did !== '') {
     const photo = document.createElement('img');
@@ -67,19 +52,30 @@ const renderRecipe = (entry: CachedRecipe): HTMLElement => {
     photo.src = thumbUrl(did, cid);
     photo.alt = '';
     photo.loading = 'lazy';
-    summary.append(photo);
+    photoWrap.append(photo);
   } else {
-    summary.append(el('div', 'card-photo card-photo--empty', '🍲'));
+    photoWrap.append(el('div', 'card-photo card-photo--empty', '🍲'));
   }
+  if (!entry.verified) {
+    photoWrap.append(el('span', 'altered-stamp', 'ALTERED?'));
+  }
+  summary.append(photoWrap);
   summary.append(el('span', 'card-title', value.name ?? '(untitled)'));
-  const chips = el('span', 'chips');
   const time = formatDuration(value.totalTime);
-  if (time !== null) chips.append(el('span', 'chip', time));
-  const stampNote = el('p', 'stamp-note');
-  stampNote.dataset['testid'] = 'stamp-note';
-  stampNote.hidden = true;
-  chips.append(stampEl(entry.verified, stampNote));
-  summary.append(chips, stampNote);
+  if (time !== null) {
+    const chips = el('span', 'chips');
+    chips.append(el('span', 'chip', time));
+    summary.append(chips);
+  }
+  if (!entry.verified) {
+    const warning = el(
+      'p',
+      'altered-warning',
+      "⚠ This copy doesn't match what the author published — treat with care.",
+    );
+    warning.dataset['testid'] = 'altered-warning';
+    summary.append(warning);
+  }
   item.append(summary);
 
   const detail = el('div', 'card-detail');
@@ -95,14 +91,31 @@ const renderRecipe = (entry: CachedRecipe): HTMLElement => {
   instructions.append(listEl('ol', 'recipe-instructions', value.instructions ?? []));
   cols.append(ingredients, instructions);
   detail.append(cols);
+
+  if (entry.verified) {
+    const author = options.author ?? did;
+    const date = formatPublishedDate(value.updatedAt);
+    const provenance = el(
+      'p',
+      'provenance',
+      `as published by ${author} · fingerprint matches${date === null ? '' : ` · ${date}`}`,
+    );
+    provenance.dataset['testid'] = 'provenance';
+    provenance.title =
+      'The recipe content re-hashes to the exact fingerprint it was published under — nothing altered it in storage or transit.';
+    detail.append(provenance);
+  }
   item.append(detail);
   return item;
 };
 
 /** Render cached recipes as a card grid with in-place expanding detail. */
-export const renderRecipeList = (entries: CachedRecipe[]): HTMLElement => {
+export const renderRecipeList = (
+  entries: CachedRecipe[],
+  options: RenderOptions = {},
+): HTMLElement => {
   const container = el('section', 'recipe-grid');
   container.dataset['testid'] = 'recipe-list';
-  for (const entry of entries) container.append(renderRecipe(entry));
+  for (const entry of entries) container.append(renderRecipe(entry, options));
   return container;
 };

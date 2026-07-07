@@ -29,32 +29,36 @@ describe('renderRecipeList', () => {
     expect(el.textContent).toContain('White Chocolate Strawberry Sourdough Sweet Bread');
   });
 
-  it('marks verified entries verified and unverified entries unverified', () => {
-    const el = renderRecipeList([entry(), entry({ uri: 'at://x/y/z', verified: false })]);
-    const items = Array.from(el.querySelectorAll('[data-testid=recipe-item]'));
-    expect(items[0]?.querySelector('[data-verified]')?.getAttribute('data-verified')).toBe('true');
-    expect(items[1]?.querySelector('[data-verified]')?.getAttribute('data-verified')).toBe('false');
+  // Trust surface (design iteration 3): silent when good, loud when bad —
+  // the browser-padlock lesson. Intact records carry no badge; a tampered
+  // record is stamped ALTERED? and warned, visibly, with no interaction.
+  it('an intact record carries no badge — the card is clean', () => {
+    const el = renderRecipeList([entry()]);
+    expect(el.querySelector('.altered-stamp')).toBeNull();
+    expect(el.querySelector('[data-testid=altered-warning]')).toBeNull();
   });
 
-  it('clicking the stamp reveals a plain-language explanation (both verdicts)', () => {
-    const el = renderRecipeList([entry(), entry({ uri: 'at://x/y/z', verified: false })]);
-    const items = Array.from(el.querySelectorAll('[data-testid=recipe-item]'));
+  it('a tampered record is loudly stamped and warned without any interaction', () => {
+    const el = renderRecipeList([entry({ uri: 'at://x/y/z', verified: false })]);
+    const stamp = el.querySelector<HTMLElement>('.altered-stamp');
+    expect(stamp?.textContent).toBe('ALTERED?');
+    const warning = el.querySelector<HTMLElement>('[data-testid=altered-warning]');
+    expect(warning?.hidden).toBe(false);
+    expect(warning?.textContent).toMatch(/doesn.t match what the author published/i);
+  });
 
-    const verifiedStamp = items[0]?.querySelector<HTMLElement>('.stamp');
-    verifiedStamp?.click();
-    const verifiedNote = items[0]?.querySelector<HTMLElement>('[data-testid=stamp-note]');
-    expect(verifiedNote?.hidden).toBe(false);
-    expect(verifiedNote?.textContent).toMatch(/hasn.t been altered/i);
+  it('the detail carries a human provenance line (author · fingerprint matches · date)', () => {
+    const el = renderRecipeList([entry()], { author: 'rdur.dev' });
+    const provenance = el.querySelector<HTMLElement>('[data-testid=provenance]');
+    expect(provenance?.textContent).toContain('as published by rdur.dev');
+    expect(provenance?.textContent).toContain('fingerprint matches');
+    expect(provenance?.textContent).toMatch(/\b20\d\d\b/); // a year from updatedAt
+  });
 
-    const unverifiedStamp = items[1]?.querySelector<HTMLElement>('.stamp');
-    unverifiedStamp?.click();
-    const unverifiedNote = items[1]?.querySelector<HTMLElement>('[data-testid=stamp-note]');
-    expect(unverifiedNote?.hidden).toBe(false);
-    expect(unverifiedNote?.textContent).toMatch(/did not match/i);
-
-    // Second click hides it again.
-    verifiedStamp?.click();
-    expect(items[0]?.querySelector<HTMLElement>('[data-testid=stamp-note]')?.hidden).toBe(true);
+  it('a tampered record replaces the provenance line with the warning', () => {
+    const el = renderRecipeList([entry({ verified: false })], { author: 'rdur.dev' });
+    expect(el.querySelector('[data-testid=provenance]')).toBeNull();
+    expect(el.querySelector('[data-testid=altered-warning]')).not.toBeNull();
   });
 
   it('renders ingredients and instructions as list items in the detail', () => {

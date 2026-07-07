@@ -71,12 +71,18 @@ test('an unresolvable handle surfaces the failure in the status line', async ({ 
   await expect(page.getByTestId('recipes-status')).toContainText('Unable to resolve handle');
 });
 
-test('the stamp explains itself on click (trust surface is legible)', async ({ page }) => {
+test('intact cards are clean; detail carries the human provenance line', async ({ page }) => {
   await routeFixtures(page);
   await page.goto('/');
   await page.getByTestId('handle-input').fill('somechef.example.com');
   await page.getByTestId('find-recipes').click();
   await expect(page.getByTestId('recipe-item')).toHaveCount(3);
-  await page.locator('.stamp').first().click();
-  await expect(page.getByTestId('stamp-note').first()).toContainText(/hasn.t been altered/i);
+  // Silent when good: no badge anywhere on intact cards.
+  await expect(page.locator('.altered-stamp')).toHaveCount(0);
+  // The provenance line lives in the opened detail.
+  await page.getByTestId('recipe-item').first().click();
+  await expect(page.getByTestId('provenance').first()).toContainText(
+    'as published by somechef.example.com',
+  );
+  await expect(page.getByTestId('provenance').first()).toContainText('fingerprint matches');
 });

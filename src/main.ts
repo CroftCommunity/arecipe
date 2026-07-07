@@ -68,7 +68,7 @@ const mountBrowse = (panel: HTMLElement, provider: SessionProvider | null): void
       const entries = await Promise.all(records.map((r) => cache.put(r)));
       const verified = entries.filter((e) => e.verified).length;
       recipesStatus.textContent = `${records.length} recipes cached (${verified} verified)`;
-      listContainer.replaceChildren(renderRecipeList(entries));
+      listContainer.replaceChildren(renderRecipeList(entries, { author: identity.handle }));
     })().catch((err: unknown) => {
       const message = err instanceof Error ? err.message : String(err);
       log.error('recipes', 'find failed', { error: message });

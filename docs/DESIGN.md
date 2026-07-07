@@ -51,10 +51,15 @@ empty states) · `--r-pill` (chips). One stroke width everywhere: `--stroke`
 
 ## Components + practices
 
-- **The provenance stamp** is the signature element — the CID-verification
-  verdict as a rubber stamp (enamel `✓ VERIFIED` / rust `UNVERIFIED`, slight
-  rotation). It is a button and **must explain itself**: clicking reveals a
-  plain-language note. Spend boldness here and nowhere else.
+- **Trust surface: silent when good, loud when bad** (the browser-padlock
+  lesson — positive security badges inform nobody; warnings do). Intact
+  records carry **no badge**. The opened detail ends with one quiet mono
+  provenance line: `as published by <author> · fingerprint matches · <date>`.
+  A record that fails the integrity check gets the signature element — the
+  rust **ALTERED?** rubber stamp across its photo (double border, rotated)
+  plus an always-visible plain-language warning. Never soften it, never
+  badge the happy path. "Verified" as a word is banned from primary UI copy
+  (it reads as account status, not content integrity).
 - **Cards**: white surface, `--line` border, `--r-l`, photo top (3:2; capped
   banner when open), display-face title, chips row (time + stamp). Hover =
   enamel border, nothing louder.
@@ -70,6 +75,32 @@ empty states) · `--r-pill` (chips). One stroke width everywhere: `--stroke`
 - **Copy**: sentence case, active voice, user-side vocabulary (no "PDS",
   "DID", "record" in primary UI copy — those appear in mono diagnostics).
   Errors say what happened and what to do next; they don't apologize.
+
+## Navigation: pages, not modals (non-negotiable)
+
+Mobile is first-class, and modals are a mess there — a lesson paid for in
+`chasemp/peadoubleueh`: hidden overlays that keep blocking touch, back
+buttons that don't close them, keyboards that break their positioning, focus
+traps. So:
+
+- **Content navigates to views** (list → detail → back), driven by history
+  so the back button/gesture always does the expected thing. No content in
+  overlays.
+- Acceptable overlay-ish elements: inline reveals in normal document flow
+  (the stamp note, `<details>` expansion) and transient toasts. Nothing that
+  captures focus or floats over the page.
+- If a flow seems to want a modal (confirm delete, quick share), prefer an
+  inline confirm or a dedicated view. On mobile there is no hover and no
+  mouse-dismiss; design for thumbs and the back gesture.
+- **The proven shape** (from `blockdoku.523.life`, the maintainer's most
+  successful complex PWA): destinations are **separate HTML pages**
+  (`index.html`, `settings.html`, …) — the menu navigates, the back button
+  is native, and each page loads only its own JS (free code-splitting: the
+  browse page never downloads auth). arecipe should adopt page-per-
+  destination at the M2/M3 re-plan rather than growing SPA tab state.
+- **Updates ask, they don't ambush** (also from blockdoku): when a new
+  build is available, show a small "Update available → Update now" toast;
+  the user applies it. Belongs to Phase 8b/11 SW update flow.
 
 ## Floors (non-negotiable)
 

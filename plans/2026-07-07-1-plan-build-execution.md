@@ -1527,6 +1527,19 @@ UI-pattern research. Outcomes:
   Tokens formalized (spacing/type/radii scales) + `docs/DESIGN.md` written
   (palette rules, type roles, machine-facts-in-mono, copy voice, a11y
   floors).
+- **Design iteration 3 (trust surface + mobile navigation):** the VERIFIED
+  badge failed twice with the maintainer ("I still don't understand it") —
+  root causes: the word reads as account status (blue-check connotation) and
+  an always-on badge carries no information (the browser-padlock lesson).
+  Decision (user-confirmed): **silent when good, loud when bad** — intact
+  cards carry no badge; detail ends with a quiet human provenance line
+  ("as published by <author> · fingerprint matches · <date>"); a failed check
+  gets the rust ALTERED? rubber stamp across the photo + always-visible
+  warning. "Verified" banned from primary UI copy. Also recorded (pea +
+  blockdoku evidence): **pages, not modals** — mobile first-class; blockdoku's
+  page-per-destination architecture (separate HTML docs, native back button,
+  natural code-splitting) is the recommended shape for the M2/M3 re-plan;
+  update-available toast pattern noted for Phase 8b/11.
 - **UI direction: keep it lite and data-grounded.** The middle-ground skeleton
   (tabs, cards w/ verified+time chips, ingredients-first detail) is directional,
   not committed; refine while walking real data. Lexicon fact established:

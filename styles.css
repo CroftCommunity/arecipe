@@ -286,33 +286,43 @@ body {
   color: var(--enamel);
 }
 
-/* The signature: a provenance stamp. Clickable — it explains itself. */
-.stamp {
+/* Trust surface: silent when good, loud when bad. The signature element is
+   the ALTERED? rubber stamp — it appears only when integrity checking
+   actually caught something. */
+
+.photo-wrap {
+  position: relative;
+}
+
+.altered-stamp {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-12deg);
   font-family: var(--mono);
-  font-size: var(--t-stamp);
-  letter-spacing: 0.08em;
-  padding: 0.18rem var(--s-2);
-  border: var(--stroke) solid var(--enamel);
-  color: var(--enamel);
-  background: none;
-  border-radius: var(--r-s);
-  transform: rotate(-2deg);
-  opacity: 0.85;
-  cursor: help;
-}
-
-.stamp[data-verified='false'] {
-  border-color: var(--rust);
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   color: var(--rust);
-  transform: rotate(1.5deg);
+  border: 3px double var(--rust);
+  border-radius: var(--r-s);
+  padding: var(--s-1) var(--s-3);
+  background: #ffffffd9;
 }
 
-.stamp-note {
+.altered-warning {
   font-size: 0.85rem;
+  color: var(--rust);
   margin: 0;
   padding: 0 var(--s-3) var(--s-3);
-  opacity: 0.85;
-  pointer-events: none;
+}
+
+/* Quiet human provenance line at the end of an intact detail. */
+.provenance {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  opacity: 0.65;
+  margin: var(--s-4) 0 0;
 }
 
 /* ---- expanded detail: ingredients first ---- */
