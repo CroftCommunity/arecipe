@@ -4,8 +4,13 @@
 
 import { bootSession } from '../auth/boot.js';
 import { mountBuildStamp } from '../build-stamp.js';
+import { resolveDidDoc } from '../identity/did.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
+import { createRecipeCache } from '../recipes/cache.js';
+import { createDraftStore } from '../recipes/drafts-local.js';
+import { createRecipeReader } from '../recipes/read.js';
+import { renderRecipeList } from '../recipes/view.js';
 import { registerServiceWorker } from '../sw-register.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -22,17 +27,76 @@ const main = async (): Promise<void> => {
   const content = el('section', 'panel');
   const { provider, agent } = await bootSession();
 
+  // Authoring entry + local drafts are for everyone — drafting needs no
+  // account; publishing (in the editor) does.
+  const newRecipe = el('a', 'button button--primary', 'New recipe') as HTMLAnchorElement;
+  newRecipe.href = './editor.html';
+  newRecipe.dataset['testid'] = 'new-recipe';
+  content.append(newRecipe);
+
+  const draftsSection = el('section');
+  draftsSection.append(el('h3', 'section-title', 'Drafts'));
+  const draftsList = el('div');
+  draftsSection.append(draftsList);
+  content.append(draftsSection);
+  const drafts = createDraftStore();
+  const renderDrafts = async (): Promise<void> => {
+    const all = await drafts.list();
+    draftsList.replaceChildren();
+    if (all.length === 0) {
+      const none = el('p', 'status', 'no drafts — nothing here leaves this device');
+      draftsList.append(none);
+      return;
+    }
+    for (const draft of all) {
+      const row = el('div', 'draft-row');
+      row.dataset['testid'] = 'draft-row';
+      const open = el('a', 'draft-link', draft.fields.name.trim() === '' ? '(untitled)' : draft.fields.name) as HTMLAnchorElement;
+      open.href = `./editor.html?draft=${encodeURIComponent(draft.id)}`;
+      const remove = el('button', 'button', 'Delete') as HTMLButtonElement;
+      remove.type = 'button';
+      remove.dataset['testid'] = 'draft-delete';
+      remove.addEventListener('click', () => {
+        void drafts.remove(draft.id).then(renderDrafts);
+      });
+      row.append(open, remove);
+      draftsList.append(row);
+    }
+  };
+  void renderDrafts().catch((err: unknown) => {
+    log.warn('drafts', 'list failed', { error: String(err) });
+  });
+
   if (agent !== null) {
     const who = el('p', 'status');
     who.dataset['testid'] = 'signed-in-did';
     who.textContent = `Signed in: ${agent.did ?? 'unknown'}`;
-    const empty = el(
-      'p',
-      'empty-state',
-      'Your shelf is empty — authoring arrives with the next milestone.',
-    );
-    empty.dataset['testid'] = 'mine-empty';
-    content.append(who, empty);
+    content.prepend(who);
+
+    // Published: the account's own recipes via the public read path.
+    const published = el('section');
+    published.append(el('h3', 'section-title', 'Published'));
+    const publishedList = el('div');
+    published.append(publishedList);
+    content.append(published);
+    void (async () => {
+      const did = agent.did;
+      if (did === undefined) return;
+      const { pds, handle } = await resolveDidDoc(did);
+      const records = await createRecipeReader()({ pds, did });
+      if (records.length === 0) {
+        const none = el('p', 'empty-state', 'Nothing published yet — your first recipe is one Publish away.');
+        none.dataset['testid'] = 'mine-empty';
+        publishedList.append(none);
+        return;
+      }
+      const cache = createRecipeCache();
+      const entries = await Promise.all(records.map((r) => cache.put(r)));
+      publishedList.replaceChildren(renderRecipeList(entries, { author: handle ?? did }));
+    })().catch((err: unknown) => {
+      log.error('recipes', 'own recipes load failed', { error: String(err) });
+      publishedList.append(el('p', 'status', `couldn’t load your recipes: ${String(err)}`));
+    });
   } else if (provider !== null) {
     const form = el('form', 'lookup') as HTMLFormElement;
     const input = document.createElement('input');

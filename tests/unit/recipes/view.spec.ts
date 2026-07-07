@@ -31,6 +31,15 @@ describe('renderRecipeList (link cards)', () => {
     );
   });
 
+  it('photo-less recipes get the brand-mark placeholder, not an emoji', () => {
+    const bare = { ...fixture.value };
+    delete bare['embed'];
+    const el = renderRecipeList([entry({ value: bare })]);
+    const placeholder = el.querySelector<HTMLImageElement>('.card-photo--empty img');
+    expect(placeholder?.getAttribute('src')).toContain('logo-');
+    expect(placeholder?.getAttribute('alt')).toBe('');
+  });
+
   it('mixed-author grids resolve by= per card from authorsByDid (5e)', () => {
     const other = entry({ uri: 'at://did:plc:other123/exchange.recipe.recipe/abc' });
     const el = renderRecipeList([entry(), other], {

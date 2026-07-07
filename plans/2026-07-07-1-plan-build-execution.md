@@ -26,7 +26,8 @@ feasibility amendment on 2026-07-07 (see Review Log).
 | 5c Theming (light/dark) | ✅ | Phase 5c close-out commit | Auto + one-tap cycle, pre-paint script, dark enamelware palette; ALTERED? verified loud in dark |
 | 5d Recipe detail page | ✅ | `d80424a` | Shareable recipe URLs; cold links verified in fresh profile; back restores results; ALTERED on both surfaces |
 | 5e Starter packs (lite) | ✅ | Phase 5e close-out commit | Zero-input feed: 72 verified recipes from 4 curated authors (incl. official arecipe.bsky.social); settings toggles + profile links; seeding pending creds |
-| 6–8c (M3 set) | planned | | 6 authoring (draft-before-publish) → 7 blobs → 8 draft-sync/versioning → 8b offline PWA → 8c hosted client + physical two-device demo (M3 exit) |
+| 6 Authoring (MLP core) | ✅ | Phase 6 close-out commit | editor + local drafts + Publish→PDS (@live 5.6s); race bug caught+fixed; brand placeholder |
+| 7–8c (M3 set) | planned | | 7 blobs → 8 draft-sync/versioning → 8b offline PWA → 8c hosted client + physical two-device demo (M3 exit) |
 | 9–12 | roadmap | | re-plan before execution |
 
 ---
@@ -1191,7 +1192,33 @@ is user-editable in settings; author names link out to Bluesky profiles.
 
 ---
 
-### Phase 6: Recipe authoring (create/edit) → visible on recipe.exchange
+### Phase 6: Recipe authoring (create/edit) → visible on recipe.exchange — ✅ SHIPPED (2026-07-07, Phase 6 close-out commit)
+
+**Delivered:** the MLP's core. `editor.html` (name/description/ingredients/
+instructions one-per-line/prep/total/servings), **draft-before-publish**:
+Save draft is local IndexedDB, works signed-out, URL names the draft so
+reload resumes it; Publish is the explicit act needing a session
+(disabled with a plain note otherwise), builds a lexicon-floor-validated
+record (fail loud naming the field; minutes→ISO durations, TDD) and
+`createRecord`s to the signed-in account's PDS (TID rkey PDS-minted).
+`mine.html` gained New recipe, a Drafts list (open/delete), and Published —
+the account's own recipes via the public read path. Shared
+`src/identity/did.ts` extracted (recipe/starter/mine all resolve DID docs
+through it). Brand-mark placeholder replaced the emoji for photo-less cards
+(user request). **@live write-path wiring test passed (5.6 s):** sign in →
+author → Publish → real PDS → appears in Published; cleanup is crash-safe
+and HARD-GUARDED to the test account's DID (marker-named records, pre-run
+purge + teardown). **Race bug found by the milestone regression:** the slow
+async starter feed clobbered a faster user search — reproduced hermetically
+(RED), fixed with a render-generation guard, regression test kept.
+recipe.exchange visibility of published records still rides the indexing
+lag (the maintainer signed the official account up on the site, which
+should register it; recheck later). Process note: the unit layer was
+strictly RED-first; the editor's hermetic e2e were authored alongside the
+page rather than observed-RED — the @live wiring test and race regression
+were observed failing before their fixes.
+
+*(Original spec below.)*
 
 **Goal:** Write a valid `exchange.recipe.recipe` to the user's PDS and confirm it
 appears on recipe.exchange with no coordination (the write half of credible exit).

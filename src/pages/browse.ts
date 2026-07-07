@@ -62,6 +62,11 @@ const main = (): void => {
     }
   };
 
+  // Only the newest action may render: slow async loads (the starter feed)
+  // must never clobber a faster user search that superseded them. Every
+  // renderer checks its generation before touching the DOM.
+  let generation = 0;
+
   const showEntries = (entries: CachedRecipe[], author: string, fetchedCount?: number): void => {
     const verified = entries.filter((e) => e.verified).length;
     recipesStatus.textContent = `${fetchedCount ?? entries.length} recipes cached (${verified} verified)`;
@@ -70,21 +75,24 @@ const main = (): void => {
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
+    const gen = ++generation;
     recipesStatus.textContent = 'finding…';
     void (async () => {
       const identity: ResolvedIdentity = await resolve(input.value.trim());
       const records = await readRecipes({ pds: identity.pds, did: identity.did });
       const entries = await Promise.all(records.map((r) => cache.put(r)));
       saveLastFind({ handle: identity.handle, uris: entries.map((e) => e.uri) });
+      if (gen !== generation) return; // superseded
       showEntries(entries, identity.handle, records.length);
     })().catch((err: unknown) => {
       const message = err instanceof Error ? err.message : String(err);
       log.error('recipes', 'find failed', { error: message });
-      recipesStatus.textContent = message;
+      if (gen === generation) recipesStatus.textContent = message;
     });
   });
 
   const showStarterFeed = async (): Promise<void> => {
+    const gen = generation; // page-load generation; a search supersedes us
     const enabled = createStarterPrefs().enabledAuthors();
     if (enabled.length === 0) {
       recipesStatus.textContent = 'starter pack is off — search a cook above';
@@ -92,6 +100,7 @@ const main = (): void => {
     }
     recipesStatus.textContent = 'loading your starter pack…';
     const feed = await loadStarterFeed(enabled);
+    if (gen !== generation) return; // the user searched while we loaded
     const verified = feed.entries.filter((e) => e.verified).length;
     const failed =
       feed.failedAuthors.length === 0 ? '' : ` — ${feed.failedAuthors.join(', ')} unavailable`;

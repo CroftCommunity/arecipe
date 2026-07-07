@@ -67,7 +67,16 @@ const photoWrapEl = (entry: CachedRecipe): HTMLElement => {
     photo.loading = 'lazy';
     photoWrap.append(photo);
   } else {
-    photoWrap.append(el('div', 'card-photo card-photo--empty', '🍲'));
+    // Brand-mark placeholder (theme pair, CSS picks) — never a bare emoji.
+    const placeholder = el('div', 'card-photo card-photo--empty');
+    for (const variant of ['light', 'dark'] as const) {
+      const mark = document.createElement('img');
+      mark.className = `placeholder-mark logo--${variant}`;
+      mark.src = `./assets/logo-${variant}.png`;
+      mark.alt = '';
+      placeholder.append(mark);
+    }
+    photoWrap.append(placeholder);
   }
   if (!entry.verified) {
     photoWrap.append(el('span', 'altered-stamp', 'ALTERED?'));

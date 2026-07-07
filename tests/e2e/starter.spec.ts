@@ -65,6 +65,58 @@ test('settings: starter rows link to Bluesky profiles and toggles persist', asyn
   await expect(page.getByTestId('starter-row').first().locator('input[type=checkbox]')).not.toBeChecked();
 });
 
+test('a quick search is NOT clobbered by the slower starter feed (race)', async ({ page }) => {
+  // Starter authors' PDSes respond slowly; the searched author responds fast.
+  const template = JSON.parse(identityFixture('plc-diddoc-ngvalidation2112.json')) as {
+    id: string;
+    service: { serviceEndpoint: string }[];
+  };
+  await page.route('https://plc.directory/**', async (route) => {
+    const did = decodeURIComponent(route.request().url().split('/').pop() ?? '');
+    const author = AUTHORS.find((a) => a.did === did);
+    const target = author?.pds ?? 'https://searched.test';
+    const doc = {
+      ...template,
+      id: did,
+      service: [{ ...template.service[0]!, serviceEndpoint: target }],
+    };
+    if (author !== undefined) await new Promise((r) => setTimeout(r, 2_000)); // slow starter
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(doc) });
+  });
+  for (const author of AUTHORS) {
+    await page.route(`${author.pds}/**`, async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: atprotoFixture('listRecords-exchange.recipe.recipe.json'),
+      });
+    });
+  }
+  await page.route('https://public.api.bsky.app/**', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ did: 'did:plc:searchedauthor123' }),
+    }),
+  );
+  await page.route('https://searched.test/**', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: atprotoFixture('listRecords-exchange.recipe.recipe.json'),
+    }),
+  );
+
+  await page.goto('/');
+  // Search immediately, before the slow starter feed lands.
+  await page.getByTestId('handle-input').fill('somechef.example.com');
+  await page.getByTestId('find-recipes').click();
+  await expect(page.getByTestId('recipes-status')).toHaveText('3 recipes cached (3 verified)');
+  // Wait past the starter feed's arrival: the search must still be showing.
+  await page.waitForTimeout(3_000);
+  await expect(page.getByTestId('recipes-status')).toHaveText('3 recipes cached (3 verified)');
+});
+
 test('unchecking an author removes their cards from the default feed', async ({ page }) => {
   await routeStarterFixtures(page);
   await page.goto('/settings.html');

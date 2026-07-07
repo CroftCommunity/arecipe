@@ -7,8 +7,8 @@ import { copyFileSync, cpSync, mkdirSync, readFileSync, writeFileSync } from 'no
 import { gzipSync } from 'node:zlib';
 import { buildSync } from 'esbuild';
 
-const PAGES = ['browse', 'mine', 'settings', 'account', 'recipe'];
-const HTML = ['index.html', 'mine.html', 'settings.html', 'account.html', 'recipe.html'];
+const PAGES = ['browse', 'mine', 'settings', 'account', 'recipe', 'editor'];
+const HTML = ['index.html', 'mine.html', 'settings.html', 'account.html', 'recipe.html', 'editor.html'];
 
 mkdirSync('dist', { recursive: true });
 buildSync({

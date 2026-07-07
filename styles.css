@@ -439,7 +439,12 @@ a.card {
 .card-photo--empty {
   display: grid;
   place-items: center;
-  font-size: var(--t-wordmark);
+}
+
+.placeholder-mark {
+  height: 4rem;
+  width: auto;
+  opacity: 0.45;
 }
 
 .card-title {
@@ -595,4 +600,59 @@ a.card {
 
 .attribution-link {
   color: var(--enamel);
+}
+
+/* ---- editor (Phase 6) ---- */
+
+.editor {
+  display: grid;
+  gap: var(--s-3);
+  max-width: 44rem;
+  margin-bottom: var(--s-4);
+}
+
+.editor-field {
+  display: grid;
+  gap: var(--s-1);
+}
+
+.editor-label {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.editor input,
+.editor textarea {
+  font: inherit;
+  padding: var(--s-2) var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--card);
+  color: inherit;
+}
+
+.section-title {
+  font-family: var(--display);
+  font-weight: 600;
+  color: var(--enamel);
+  margin: var(--s-5) 0 var(--s-2);
+}
+
+.draft-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  background: var(--card);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  padding: var(--s-2) var(--s-3);
+  margin-bottom: var(--s-2);
+  max-width: 44rem;
+}
+
+.draft-link {
+  color: var(--enamel);
+  font-weight: 700;
+  text-decoration: none;
 }

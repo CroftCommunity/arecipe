@@ -4,6 +4,7 @@
 // caches it like any other read.
 
 import { mountBuildStamp } from '../build-stamp.js';
+import { resolveDidDoc } from '../identity/did.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
 import { createRecipeCache, type CachedRecipe } from '../recipes/cache.js';
@@ -26,22 +27,6 @@ const parseAtUri = (uri: string): ParsedAtUri => {
   return { did: match[1]!, collection: match[2]!, rkey: match[3]! };
 };
 
-type DidDocument = {
-  alsoKnownAs?: string[];
-  service?: { id: string; type: string; serviceEndpoint: string }[];
-};
-
-/** DID → { pds, handle? } via plc.directory (CORS-open, D2-verified). */
-const resolveDid = async (did: string): Promise<{ pds: string; handle: string | null }> => {
-  const res = await fetch(`https://plc.directory/${encodeURIComponent(did)}`);
-  if (!res.ok) throw new Error(`DID document fetch failed (HTTP ${res.status}) for ${did}`);
-  const doc = (await res.json()) as DidDocument;
-  const pds = doc.service?.find((s) => s.id === '#atproto_pds' || s.id.endsWith('#atproto_pds'));
-  if (pds === undefined) throw new Error(`DID document for ${did} has no #atproto_pds service`);
-  const aka = doc.alsoKnownAs?.find((a) => a.startsWith('at://'));
-  return { pds: pds.serviceEndpoint, handle: aka?.slice('at://'.length) ?? null };
-};
-
 const loadRecipe = async (uri: string): Promise<{ entry: CachedRecipe; author: string }> => {
   const { did, rkey } = parseAtUri(uri);
   const byParam = new URLSearchParams(window.location.search).get('by');
@@ -55,7 +40,7 @@ const loadRecipe = async (uri: string): Promise<{ entry: CachedRecipe; author: s
 
   // Cold link: fetch, verify, cache — same trust path as any read.
   log.debug('recipes', 'cold link — fetching', { uri });
-  const { pds, handle } = await resolveDid(did);
+  const { pds, handle } = await resolveDidDoc(did);
   const record = await createRecordReader()({ pds, did, rkey });
   const entry = await cache.put(record);
   return { entry, author: byParam ?? handle ?? did };

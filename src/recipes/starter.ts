@@ -7,6 +7,7 @@
 import { log } from '../log.js';
 import { createRecipeCache, type CachedRecipe } from './cache.js';
 import { createRecipeReader } from './read.js';
+import { resolveDidDoc } from '../identity/did.js';
 
 export type StarterAuthor = { handle: string; did: string };
 
@@ -64,17 +65,6 @@ export const createStarterPrefs = (opts: { storage?: StorageLike } = {}): Starte
   };
 };
 
-type DidDocument = { service?: { id: string; serviceEndpoint: string }[] };
-
-const pdsOf = async (did: string): Promise<string> => {
-  const res = await fetch(`https://plc.directory/${encodeURIComponent(did)}`);
-  if (!res.ok) throw new Error(`DID document fetch failed (HTTP ${res.status}) for ${did}`);
-  const doc = (await res.json()) as DidDocument;
-  const pds = doc.service?.find((s) => s.id === '#atproto_pds' || s.id.endsWith('#atproto_pds'));
-  if (pds === undefined) throw new Error(`DID document for ${did} has no #atproto_pds service`);
-  return pds.serviceEndpoint;
-};
-
 export type StarterFeed = {
   entries: CachedRecipe[];
   authorsByDid: Record<string, string>;
@@ -91,7 +81,7 @@ export const loadStarterFeed = async (authors: StarterAuthor[]): Promise<Starter
   const perAuthor = await Promise.all(
     authors.map(async (author) => {
       try {
-        const pds = await pdsOf(author.did);
+        const { pds } = await resolveDidDoc(author.did);
         const records = await read({ pds, did: author.did });
         authorsByDid[author.did] = author.handle;
         return Promise.all(records.map((r) => cache.put(r)));
