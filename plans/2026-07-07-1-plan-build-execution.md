@@ -15,8 +15,9 @@ feasibility amendment on 2026-07-07 (see Review Log).
 | Phase | Outcome | Commits | Note |
 |---|---|---|---|
 | 0 Discovery | ✅ | `8c47af0`, `e98ad5a` | All 6 probes answered; nothing invalidated; fixtures + spike archived |
-| 1 Scaffold + logger + CI | ✅ | Phase 1 close-out commit | Shell + `src/log.ts` (TDD), hermetic CI, docs; real-Chrome validation passed |
-| 2–8, 3b | pending | | |
+| 1 Scaffold + logger + CI | ✅ | `a42375d` | Shell + `src/log.ts` (TDD), hermetic CI, docs; real-Chrome validation passed |
+| 2 Identity resolution | ✅ | Phase 2 close-out commit | handle→DID→PDS via resolver service (TDD, fixtures); live validation vs well-known curl |
+| 3–8, 3b | pending | | |
 | 9–12 | roadmap | | re-plan before execution |
 
 ---
@@ -611,7 +612,17 @@ shell renders outside the test harness.
 
 ---
 
-### Phase 2: Identity resolution (handle → DID → PDS)
+### Phase 2: Identity resolution (handle → DID → PDS) — ✅ SHIPPED (2026-07-07, Phase 2 close-out commit)
+
+**Delivered:** as specced. Resolver goes through the configurable
+handle-resolver service (default `public.api.bsky.app`) per the feasibility
+amendment; did:plc via plc.directory + did:web via well-known both covered in
+unit fixtures (did:web fixture is synthetic-by-shape — no convenient live
+did:web atproto account; noted in the fixtures' PROBE-NOTES). Wiring e2e runs
+hermetic via Playwright route fixtures; live validation done in real Chrome
+against the real network, cross-checked with an independent well-known curl.
+Also this phase: tests gained their own tsconfig (`tsconfig.tests.json`,
+node types) so the browser app's config stays node-free.
 
 **Goal:** Resolve a handle to a DID and a PDS endpoint + keys, the precondition for
 any auth or read.

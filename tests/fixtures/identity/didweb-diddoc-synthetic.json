@@ -1,0 +1,20 @@
+{
+  "@context": ["https://www.w3.org/ns/did/v1", "https://w3id.org/security/multikey/v1"],
+  "id": "did:web:webby.example.com",
+  "alsoKnownAs": ["at://webby.example.com"],
+  "verificationMethod": [
+    {
+      "id": "did:web:webby.example.com#atproto",
+      "type": "Multikey",
+      "controller": "did:web:webby.example.com",
+      "publicKeyMultibase": "zQ3shSYNTHETICfixtureKeyForShapeOnly1234567890abcd"
+    }
+  ],
+  "service": [
+    {
+      "id": "#atproto_pds",
+      "type": "AtprotoPersonalDataServer",
+      "serviceEndpoint": "https://pds.example.com"
+    }
+  ]
+}

@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "esbuild src/main.ts --bundle --format=esm --outfile=dist/main.js && esbuild src/sw.ts --bundle --outfile=dist/sw.js && cp index.html dist/",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.tests.json",
     "serve": "esbuild --servedir=dist --serve=127.0.0.1:4173",
     "test:unit": "vitest run tests/unit",
     "test:e2e": "playwright test",
@@ -15,6 +15,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.61.1",
+    "@types/node": "^26.1.0",
     "esbuild": "^0.28.1",
     "eslint": "^10.6.0",
     "typescript": "^6.0.3",
