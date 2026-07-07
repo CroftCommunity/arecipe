@@ -554,8 +554,12 @@ empty state as specced, and IndexedDB returns in Phase 3/4 where it's real;
 (b) lint = ESLint + typescript-eslint (recommended, flat config) — the spec
 named "lint" without a tool; (c) the production-quiet gate got its own e2e
 test (no `[arecipe]` debug/info without the flag), strengthening the
-observability contract beyond the spec's minimum. CI green-on-push remains
-unverified until the repo is pushed (flagged in the checklist).
+observability contract beyond the spec's minimum. ~~CI green-on-push remains
+unverified until the repo is pushed~~ **PROVEN 2026-07-07:** first push ran CI;
+run 1 caught a real defect (@live specs read `.env` at module load — Playwright
+loads excluded specs to list tests); after the tolerant-read fix, `test:
+success` on run 2. A Pages deploy job was added at the M1 checkpoint (blocked
+on repo visibility — private repos need a paid plan for Pages).
 
 **Goal:** A running static app skeleton with the chosen toolchain, a green test
 command, and CI, so every later phase has a home and a gate.
