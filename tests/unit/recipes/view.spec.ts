@@ -77,6 +77,52 @@ describe('renderRecipeDetail', () => {
     expect(provenance?.textContent).toContain('fingerprint matches');
   });
 
+  it('renders off-network credit when the recipe is attributed (website)', () => {
+    const attributed = entry({
+      value: {
+        ...fixture.value,
+        attribution: {
+          $type: 'exchange.recipe.defs#attributionWebsite',
+          name: 'Erin Lives Whole (Erin Antoniak)',
+          url: 'https://www.erinliveswhole.com/greek-cucumber-tomato-feta-salad/',
+          notes: 'Ingredients and method adapted from the source; description rewritten.',
+        },
+      },
+    });
+    const el = renderRecipeDetail(attributed, { author: 'arecipe.bsky.social' });
+    const credit = el.querySelector<HTMLElement>('[data-testid=attribution]');
+    expect(credit?.textContent).toContain('Erin Lives Whole (Erin Antoniak)');
+    expect(credit?.querySelector('a')?.getAttribute('href')).toBe(
+      'https://www.erinliveswhole.com/greek-cucumber-tomato-feta-salad/',
+    );
+  });
+
+  it('renders name-only credit for non-URL attribution (person)', () => {
+    const attributed = entry({
+      value: {
+        ...fixture.value,
+        attribution: { $type: 'exchange.recipe.defs#attributionPerson', name: 'Grandma Ruth' },
+      },
+    });
+    const el = renderRecipeDetail(attributed);
+    const credit = el.querySelector<HTMLElement>('[data-testid=attribution]');
+    expect(credit?.textContent).toContain('Grandma Ruth');
+    expect(credit?.querySelector('a')).toBeNull();
+  });
+
+  it('shows no credit line when the recipe is unattributed or original', () => {
+    // The wild fixture itself carries an attribution — strip it for this case.
+    const bare = { ...fixture.value };
+    delete bare['attribution'];
+    expect(
+      renderRecipeDetail(entry({ value: bare })).querySelector('[data-testid=attribution]'),
+    ).toBeNull();
+    const original = entry({
+      value: { ...bare, attribution: { $type: 'exchange.recipe.defs#attributionOriginal' } },
+    });
+    expect(renderRecipeDetail(original).querySelector('[data-testid=attribution]')).toBeNull();
+  });
+
   it('a tampered detail is stamped and warned instead', () => {
     const el = renderRecipeDetail(entry({ verified: false }), { author: 'rdur.dev' });
     expect(el.querySelector('[data-testid=provenance]')).toBeNull();

@@ -29,6 +29,30 @@ type RecipeValue = {
   instructions?: string[];
   totalTime?: string;
   updatedAt?: string;
+  attribution?: { $type?: string; name?: string; url?: string; notes?: string };
+};
+
+/** Off-network credit (attribution union): rendered whenever the recipe's
+ * author isn't (just) the PDS owner — name, linked when a URL exists.
+ * `attributionOriginal` means "my own recipe": no credit line. */
+const attributionEl = (value: RecipeValue): HTMLElement | null => {
+  const attribution = value.attribution;
+  if (attribution === undefined) return null;
+  if (attribution.$type?.endsWith('#attributionOriginal') === true) return null;
+  if (attribution.name === undefined || attribution.name === '') return null;
+  const credit = el('p', 'attribution');
+  credit.dataset['testid'] = 'attribution';
+  if (attribution.notes !== undefined) credit.title = attribution.notes;
+  credit.append(document.createTextNode('credit: '));
+  if (attribution.url !== undefined && attribution.url !== '') {
+    const link = el('a', 'attribution-link', attribution.name) as HTMLAnchorElement;
+    link.href = attribution.url;
+    link.rel = 'noopener';
+    credit.append(link);
+  } else {
+    credit.append(document.createTextNode(attribution.name));
+  }
+  return credit;
 };
 
 const photoWrapEl = (entry: CachedRecipe): HTMLElement => {
@@ -126,6 +150,8 @@ export const renderRecipeDetail = (
   if (value.text !== undefined && value.text !== '') {
     article.append(el('p', 'lede', value.text));
   }
+  const credit = attributionEl(value);
+  if (credit !== null) article.append(credit);
 
   const cols = el('div', 'detail-cols');
   const ingredients = el('section');

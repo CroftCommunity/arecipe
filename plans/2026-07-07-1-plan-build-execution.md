@@ -1137,8 +1137,19 @@ provenance author on the detail page links out too. Seeding script
 first official recipe: Greek Cucumber Tomato Feta Salad with
 `attributionWebsite` credit to Erin Lives Whole (source URL verified; our
 own description text; field formats copied from observed wild records —
-plain-word category, token-ref `cookingMethodNoCook`). **Pending:**
-`BSKY_ARECIPE_*` credentials in `.env`, then run the seeder.
+plain-word category, token-ref `cookingMethodNoCook`). **SEEDED 2026-07-07:**
+`at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq3m2skev52f`
+(TID rkey PDS-minted, per the Phase 6 decision). Cold-loaded live:
+Tier 2 verified ("fingerprint matches · Jul 2026"), and the feed rose to
+**73 starter-pack recipes (73 verified)**. **Attribution rendering added**
+(TDD, user-prompted): the detail page shows off-network credit from the
+lexicon's attribution union — linked name for `attributionWebsite`,
+name-only for `attributionPerson`, nothing for `attributionOriginal`;
+notes carried in the title attr. The wild fixtures' credits (e.g.
+lizasfarmhouse.com) now render too. recipe.exchange indexing: not yet
+visible minutes after publish (firehose lag, per the eventual-consistency
+note) — recheck later; the PDS record itself is instantly public.
+No photo on the seeded record by design — the source photo isn't ours.
 
 *(Original spec below.)*
 

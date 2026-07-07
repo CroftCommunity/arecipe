@@ -585,3 +585,14 @@ a.card {
     transition: none !important;
   }
 }
+
+/* Off-network credit (attribution). */
+.attribution {
+  font-size: 0.85rem;
+  opacity: 0.75;
+  margin: 0 0 var(--s-2);
+}
+
+.attribution-link {
+  color: var(--enamel);
+}
