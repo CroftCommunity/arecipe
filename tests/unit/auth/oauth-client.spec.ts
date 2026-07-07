@@ -7,7 +7,24 @@
 //   (atproto loopback clients may not redirect to the localhost hostname)
 // - an IP origin passes through as-is, port and path preserved
 import { describe, expect, it } from 'vitest';
-import { buildLoopbackMetadata, LOOPBACK_SCOPE } from '../../../src/auth/oauth-client.js';
+import {
+  buildLoopbackMetadata,
+  isLoopbackHostname,
+  LOOPBACK_SCOPE,
+} from '../../../src/auth/oauth-client.js';
+
+describe('isLoopbackHostname', () => {
+  it('accepts the loopback hosts the loopback client supports', () => {
+    expect(isLoopbackHostname('localhost')).toBe(true);
+    expect(isLoopbackHostname('127.0.0.1')).toBe(true);
+    expect(isLoopbackHostname('[::1]')).toBe(true);
+  });
+
+  it('rejects deployed origins — OAuth needs the hosted client there (M3)', () => {
+    expect(isLoopbackHostname('chasemp.github.io')).toBe(false);
+    expect(isLoopbackHostname('arecipe.app')).toBe(false);
+  });
+});
 
 describe('LOOPBACK_SCOPE', () => {
   it('includes atproto and transition:generic (D1: bare atproto cannot call appview RPCs)', () => {

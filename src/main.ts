@@ -3,7 +3,7 @@
 // tests/e2e/*.spec.ts against the built bundle (@live tier for OAuth).
 
 import type { Agent } from '@atproto/api';
-import { createOAuthClient } from './auth/oauth-client.js';
+import { createOAuthClient, isLoopbackHostname } from './auth/oauth-client.js';
 import { createOAuthSessionProvider, type SessionProvider } from './auth/session-provider.js';
 import { createResolver, type ResolvedIdentity } from './identity/resolve.js';
 import { isDebugEnabled, log } from './log.js';
@@ -29,7 +29,7 @@ const registerServiceWorker = async (): Promise<void> => {
   }
 };
 
-const mountSignIn = (app: HTMLElement, provider: SessionProvider): void => {
+const mountSignIn = (app: HTMLElement, provider: SessionProvider | null): void => {
   const form = document.createElement('form');
   const input = document.createElement('input');
   input.type = 'text';
@@ -92,15 +92,22 @@ const mountSignIn = (app: HTMLElement, provider: SessionProvider): void => {
       recipesStatus.textContent = `load failed: ${message}`;
     });
   });
-  signInButton.addEventListener('click', () => {
-    status.textContent = 'redirecting to sign-in…';
-    // Resolves only on failure/abort — success navigates away.
-    void provider.signIn(input.value.trim()).catch((err: unknown) => {
-      const message = err instanceof Error ? err.message : String(err);
-      log.error('auth', 'sign-in failed', { error: message });
-      status.textContent = `sign-in failed: ${message}`;
+  if (provider === null) {
+    // Deployed origin: no loopback client here; sign-in arrives with the
+    // hosted client-metadata document (M3). Read paths all work.
+    signInButton.hidden = true;
+  } else {
+    const boundProvider = provider;
+    signInButton.addEventListener('click', () => {
+      status.textContent = 'redirecting to sign-in…';
+      // Resolves only on failure/abort — success navigates away.
+      void boundProvider.signIn(input.value.trim()).catch((err: unknown) => {
+        const message = err instanceof Error ? err.message : String(err);
+        log.error('auth', 'sign-in failed', { error: message });
+        status.textContent = `sign-in failed: ${message}`;
+      });
     });
-  });
+  }
 };
 
 const mountSignedIn = (app: HTMLElement, agent: Agent, provider: SessionProvider): void => {
@@ -125,21 +132,31 @@ const main = async (): Promise<void> => {
   title.textContent = shellTitle(0);
   app.replaceChildren(title);
 
-  const provider = createOAuthSessionProvider({ client: createOAuthClient() });
+  const provider = isLoopbackHostname(window.location.hostname)
+    ? createOAuthSessionProvider({ client: createOAuthClient() })
+    : null;
+  if (provider === null) {
+    log.info('auth', 'deployed origin — sign-in unavailable until the hosted client (M3)', {
+      hostname: window.location.hostname,
+    });
+  }
   let agent: Agent | null = null;
   try {
-    agent = await provider.restore();
+    agent = (await provider?.restore()) ?? null;
   } catch (err) {
     log.error('auth', 'session restore failed', { error: String(err) });
   }
 
-  if (agent === null) mountSignIn(app, provider);
+  if (agent === null || provider === null) mountSignIn(app, provider);
   else mountSignedIn(app, agent, provider);
   log.debug('shell', 'mounted', { signedIn: agent !== null });
 
   // Debug console surface (?debug=1): lets a field debugger — and the 3b
   // two-tab regression test — force a token refresh on demand.
-  if (isDebugEnabled(window.location.search, window.localStorage.getItem('debug'))) {
+  if (
+    provider !== null &&
+    isDebugEnabled(window.location.search, window.localStorage.getItem('debug'))
+  ) {
     (window as Window & { arecipeDebug?: unknown }).arecipeDebug = {
       forceRefresh: provider.forceRefresh,
     };

@@ -15,6 +15,15 @@ import { log } from '../log.js';
 /** D1: bare `atproto` cannot call appview RPCs; transition:generic can. */
 export const LOOPBACK_SCOPE = 'atproto transition:generic';
 
+/**
+ * Whether the loopback OAuth client can exist on this origin. On deployed
+ * origins (GitHub Pages, arecipe.app) sign-in requires the hosted
+ * client-metadata document — an M3 item; until then the app runs read-only
+ * there instead of crashing at startup.
+ */
+export const isLoopbackHostname = (hostname: string): boolean =>
+  hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]';
+
 type LocationLike = { hostname: string; port: string; pathname: string };
 
 /** Loopback client metadata for the given origin, with the scope baked into the client_id. */
