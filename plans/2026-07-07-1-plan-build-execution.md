@@ -16,8 +16,9 @@ feasibility amendment on 2026-07-07 (see Review Log).
 |---|---|---|---|
 | 0 Discovery | ✅ | `8c47af0`, `e98ad5a` | All 6 probes answered; nothing invalidated; fixtures + spike archived |
 | 1 Scaffold + logger + CI | ✅ | `a42375d` | Shell + `src/log.ts` (TDD), hermetic CI, docs; real-Chrome validation passed |
-| 2 Identity resolution | ✅ | Phase 2 close-out commit | handle→DID→PDS via resolver service (TDD, fixtures); live validation vs well-known curl |
-| 3–8, 3b | pending | | |
+| 2 Identity resolution | ✅ | `0b9c32c` | handle→DID→PDS via resolver service (TDD, fixtures); live validation vs well-known curl |
+| 3 OAuth login + persistence | ✅ | Phase 3 close-out commit | session-provider port (TDD); @live tier landed; real login + reload-resume passed; bundle 174 KB gz flagged for M1 |
+| 3b, 4–8 | pending | | |
 | 9–12 | roadmap | | re-plan before execution |
 
 ---
@@ -660,7 +661,24 @@ the same well-known.
 
 ---
 
-### Phase 3: OAuth login (read scope) + default session persistence
+### Phase 3: OAuth login (read scope) + default session persistence — ✅ SHIPPED (2026-07-07, Phase 3 close-out commit)
+
+**Delivered:** as amended (session-provider port instead of a hand-rolled
+session store — the library owns persistence, confirmed live). Unit layer:
+loopback-metadata behaviors (D1 scope lesson pinned as tests) + provider
+contract (restore/signIn/signOut) over an injected client port. Wiring:
+`@live` Playwright test performs a REAL OAuth login (automated consent walk
+with the leak-safe fill discipline) and proves persistence across a reload —
+passed in 5.1 s. The `@live` tier itself landed this phase
+(`npm run test:live`, `LIVE=1` grep split in playwright.config; hermetic CI
+excludes it). Validation (Broad): real-PDS login + reload-resume via @live;
+refresh-cycle resumption verified firsthand in D1 same-day (same library,
+PDS, account — forced refresh ×2); silent-reauth on expiry is N/A for
+loopback clients (silent sign-in disallowed — documented; the restore-failure
+path logs at error and falls back to the sign-in form). **Bundle observation
+flagged for M1:** `@atproto/api` + oauth client take `main.js` from 2.7 KB to
+869 KB minified / 174 KB gzip; minify added to the build; tree-shaking or a
+slimmer XRPC client is an M1-checkpoint agenda item (trust-surface concern).
 
 **Goal:** A user signs in via atproto OAuth and the session persists across app
 opens (default path: plaintext refresh token + OS device lock).
@@ -1057,6 +1075,13 @@ prerender-without-a-backend question (`docs/STACK.md` §7) — then executed.
   redirect, IndexedDB), and reassess in-flight if it fights us (e.g. WebdriverIO, or
   Vitest browser mode) rather than blocking Phase 1 on a lock-in decision.* The
   maintainer is fine with it but wants to see how it goes before committing.
+
+- [RECOMMENDED: ADVISORY — added at Phase 3 close-out] **Bundle budget.** The
+  auth phase took `main.js` to 869 KB minified / 174 KB gzip (`@atproto/api`
+  ships every lexicon namespace; the oauth client adds crypto deps). The
+  small-auditable-bundle trust argument needs a stance: tree-shake via
+  narrower imports, adopt a slimmer XRPC client, or accept and document.
+  *Agenda item for the M1 UI/UX checkpoint alongside the offline-shell call.*
 
 - [CONFIRMED: PHASE-GATED (M1 checkpoint) — user, 2026-07-07] **Offline app shell
   at the MLP?** The spec assigns the service worker to Layer 3 (verify-before-install

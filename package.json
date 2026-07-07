@@ -5,11 +5,12 @@
   "description": "Recipe-sharing static SPA/PWA on the AT Protocol. No backend.",
   "type": "module",
   "scripts": {
-    "build": "esbuild src/main.ts --bundle --format=esm --outfile=dist/main.js && esbuild src/sw.ts --bundle --outfile=dist/sw.js && cp index.html dist/",
+    "build": "esbuild src/main.ts --bundle --minify --format=esm --outfile=dist/main.js && esbuild src/sw.ts --bundle --minify --outfile=dist/sw.js && cp index.html dist/",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.tests.json",
     "serve": "esbuild --servedir=dist --serve=127.0.0.1:4173",
     "test:unit": "vitest run tests/unit",
     "test:e2e": "playwright test",
+    "test:live": "LIVE=1 playwright test",
     "lint": "eslint .",
     "test": "npm run lint && npm run typecheck && npm run test:unit && npm run build && npm run test:e2e"
   },
@@ -21,5 +22,10 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.63.0",
     "vitest": "^4.1.10"
+  },
+  "dependencies": {
+    "@atproto/api": "^0.20.26",
+    "@atproto/oauth-client-browser": "^0.4.6",
+    "@atproto/oauth-types": "^0.7.4"
   }
 }

@@ -1,7 +1,10 @@
-// App entry: mounts the shell (title + sign-in form) and registers the
-// service worker. Wiring proven by tests/e2e/*.spec.ts against the built
-// bundle.
+// App entry: mounts the shell (title + sign-in form), restores any OAuth
+// session, and registers the service worker. Wiring proven by
+// tests/e2e/*.spec.ts against the built bundle (@live tier for OAuth).
 
+import type { Agent } from '@atproto/api';
+import { createOAuthClient } from './auth/oauth-client.js';
+import { createOAuthSessionProvider, type SessionProvider } from './auth/session-provider.js';
 import { createResolver } from './identity/resolve.js';
 import { log } from './log.js';
 import { shellTitle } from './shell.js';
@@ -23,19 +26,23 @@ const registerServiceWorker = async (): Promise<void> => {
   }
 };
 
-const mountSignIn = (app: HTMLElement): void => {
+const mountSignIn = (app: HTMLElement, provider: SessionProvider): void => {
   const form = document.createElement('form');
   const input = document.createElement('input');
   input.type = 'text';
   input.placeholder = 'your.handle (e.g. name.bsky.social)';
   input.dataset['testid'] = 'handle-input';
-  const submit = document.createElement('button');
-  submit.type = 'submit';
-  submit.textContent = 'Sign in';
-  submit.dataset['testid'] = 'resolve-submit';
+  const resolveButton = document.createElement('button');
+  resolveButton.type = 'submit';
+  resolveButton.textContent = 'Resolve';
+  resolveButton.dataset['testid'] = 'resolve-submit';
+  const signInButton = document.createElement('button');
+  signInButton.type = 'button';
+  signInButton.textContent = 'Sign in';
+  signInButton.dataset['testid'] = 'oauth-signin';
   const status = document.createElement('p');
   status.dataset['testid'] = 'resolved-pds';
-  form.append(input, submit);
+  form.append(input, resolveButton, signInButton);
   app.append(form, status);
 
   const resolve = createResolver();
@@ -50,19 +57,52 @@ const mountSignIn = (app: HTMLElement): void => {
         status.textContent = err instanceof Error ? err.message : String(err);
       });
   });
+  signInButton.addEventListener('click', () => {
+    status.textContent = 'redirecting to sign-in…';
+    // Resolves only on failure/abort — success navigates away.
+    void provider.signIn(input.value.trim()).catch((err: unknown) => {
+      const message = err instanceof Error ? err.message : String(err);
+      log.error('auth', 'sign-in failed', { error: message });
+      status.textContent = `sign-in failed: ${message}`;
+    });
+  });
 };
 
-const main = (): void => {
+const mountSignedIn = (app: HTMLElement, agent: Agent, provider: SessionProvider): void => {
+  const who = document.createElement('p');
+  who.dataset['testid'] = 'signed-in-did';
+  who.textContent = `Signed in: ${agent.did ?? 'unknown'}`;
+  const signOut = document.createElement('button');
+  signOut.type = 'button';
+  signOut.textContent = 'Sign out';
+  signOut.dataset['testid'] = 'sign-out';
+  signOut.addEventListener('click', () => {
+    void provider.signOut().then(() => window.location.reload());
+  });
+  app.append(who, signOut);
+};
+
+const main = async (): Promise<void> => {
   const app = document.getElementById('app');
   if (app === null) throw new Error('shell mount point #app missing');
 
   const title = document.createElement('h1');
   title.textContent = shellTitle(0);
   app.replaceChildren(title);
-  mountSignIn(app);
-  log.debug('shell', 'mounted');
+
+  const provider = createOAuthSessionProvider({ client: createOAuthClient() });
+  let agent: Agent | null = null;
+  try {
+    agent = await provider.restore();
+  } catch (err) {
+    log.error('auth', 'session restore failed', { error: String(err) });
+  }
+
+  if (agent === null) mountSignIn(app, provider);
+  else mountSignedIn(app, agent, provider);
+  log.debug('shell', 'mounted', { signedIn: agent !== null });
 
   void registerServiceWorker();
 };
 
-main();
+void main();
