@@ -4,6 +4,11 @@ Status: living document. Sequencing derived from the spec's dependency-respectin
 layer order (`docs/sources/arecipe-spec.md` §3) and its stated next milestone (§17).
 This is the *order of work* and its rationale; the spec is the *what*.
 
+> **Executable version:** this document is the narrative rough plan. The
+> fine-grained, TDD-first executable plan (phases, wiring tests, milestones,
+> Phase 0 discovery findings) lives at
+> `plans/2026-07-07-1-plan-build-execution.md`.
+
 Development follows TDD: a failing test before production code, small known-good
 increments, working state at every step. The layers are already dependency-ordered,
 so the build order tracks the layer order.

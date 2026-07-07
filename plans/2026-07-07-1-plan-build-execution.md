@@ -10,6 +10,15 @@ Passes run: Pass 1 (base) + Pass 2 (gap analysis) combined in one context on
 2026-07-07; Pass 3 (quality gates) in a fresh context on 2026-07-07; post-Pass-3
 feasibility amendment on 2026-07-07 (see Review Log).
 
+## Outcome Summary
+
+| Phase | Outcome | Commits | Note |
+|---|---|---|---|
+| 0 Discovery | ✅ | `8c47af0`, `e98ad5a` | All 6 probes answered; nothing invalidated; fixtures + spike archived |
+| 1 Scaffold + logger + CI | ✅ | Phase 1 close-out commit | Shell + `src/log.ts` (TDD), hermetic CI, docs; real-Chrome validation passed |
+| 2–8, 3b | pending | | |
+| 9–12 | roadmap | | re-plan before execution |
+
 ---
 
 ## Problem Statement
@@ -411,7 +420,7 @@ Notes:
   logs alone, since there is no backend to inspect. `src/log.ts` is created in
   Phase 1 (add it to the Phase 1 write-set) and used from Phase 3 onward.
 
-### Phase 0: Discovery — ✅ COMPLETE (2026-07-07; D2/D3/D4/D6 in `8c47af0`, D1/D5 in the Phase 0 close-out commit)
+### Phase 0: Discovery — ✅ COMPLETE (2026-07-07; D2/D3/D4/D6 in `8c47af0`, D1/D5 in `e98ad5a`)
 
 **Goal:** Resolve the four unknowns before any implementation phase is sized.
 Discovery Exemption applies (no TDD, no wiring tests); each task records evidence
@@ -531,7 +540,17 @@ phase whose shape a finding invalidates is updated here with a Review Log entry.
 
 ---
 
-### Phase 1: Project scaffold, CI, first wiring test
+### Phase 1: Project scaffold, CI, first wiring test — ✅ SHIPPED (2026-07-07, Phase 1 close-out commit)
+
+**Delivered:** as specced, with three reconciliations: (a) the D3 spike's
+IndexedDB-probe UI and its e2e test were removed from the app — harness
+capability evidence lives in the Phase 0 record; the Phase 1 shell is title +
+empty state as specced, and IndexedDB returns in Phase 3/4 where it's real;
+(b) lint = ESLint + typescript-eslint (recommended, flat config) — the spec
+named "lint" without a tool; (c) the production-quiet gate got its own e2e
+test (no `[arecipe]` debug/info without the flag), strengthening the
+observability contract beyond the spec's minimum. CI green-on-push remains
+unverified until the repo is pushed (flagged in the checklist).
 
 **Goal:** A running static app skeleton with the chosen toolchain, a green test
 command, and CI, so every later phase has a home and a gate.

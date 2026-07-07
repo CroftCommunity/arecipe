@@ -10,12 +10,15 @@
     "serve": "esbuild --servedir=dist --serve=127.0.0.1:4173",
     "test:unit": "vitest run tests/unit",
     "test:e2e": "playwright test",
-    "test": "npm run typecheck && npm run test:unit && npm run build && npm run test:e2e"
+    "lint": "eslint .",
+    "test": "npm run lint && npm run typecheck && npm run test:unit && npm run build && npm run test:e2e"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.1",
     "esbuild": "^0.28.1",
+    "eslint": "^10.6.0",
     "typescript": "^6.0.3",
+    "typescript-eslint": "^8.63.0",
     "vitest": "^4.1.10"
   }
 }

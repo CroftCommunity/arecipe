@@ -1,0 +1,22 @@
+# Hermetic CI: lint + typecheck + unit + build + e2e against the built bundle.
+# No credentials, no live-PDS calls — the `@live` tier (real-PDS suites,
+# arriving with Phase 3) runs locally as each phase's gate, NOT here.
+# See plans/2026-07-07-1-plan-build-execution.md § Phase 1.
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm test

@@ -1,4 +1,3 @@
-// SPIKE (Phase 0 / D3): promoted scaffold, not yet under TDD.
 import { defineConfig } from '@playwright/test';
 
 export default defineConfig({

@@ -1,4 +1,3 @@
-// SPIKE (Phase 0 / D3): harness probe — proves Vitest runs TS units.
 import { describe, expect, it } from 'vitest';
 import { shellTitle } from '../../src/shell.js';
 

@@ -1,7 +1,7 @@
-// SPIKE (Phase 0 / D3): promoted scaffold, not yet under TDD.
-// Minimal service worker: install/activate + network passthrough. Exists so
-// the harness probe can verify SW registration is testable under Playwright.
-// The real offline / verify-before-install workers are later phases.
+// Minimal service worker: install/activate + network passthrough. Its
+// registration (and update events) are observable via src/log.ts — see
+// tests/e2e/shell.spec.ts. Real offline caching is the M1-checkpoint open
+// question; the verify-before-install worker is Phase 11.
 
 // tsconfig carries both DOM and WebWorker libs (app + worker share one
 // config in the spike), so `self` types as Window — cast to the worker scope.

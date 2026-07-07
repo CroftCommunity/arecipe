@@ -55,7 +55,8 @@ stand up and babysit is out of scope by design (see `PHILOSOPHY.md` §4, commitm
 - **Search: in-browser index** (MiniSearch or FlexSearch), built at cold-start over
   cached recipes. Sub-100ms at 25-member scale. Known knee at ~500 members.
 
-- **Frontend framework / build tooling: OPEN.** Not pinned by the spec. See §7.
+- **Frontend framework: DECIDED — none (vanilla HTML5+CSS+TS).** Build tooling:
+  esbuild + Vitest + Playwright, confirmed by the Phase 0 toolchain spike. See §7.
 
 ---
 

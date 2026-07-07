@@ -7,6 +7,34 @@ coordination.
 
 The `a` is for Amanda. Domain: arecipe.app.
 
+## Building / development
+
+Vanilla TypeScript (strict) + esbuild; no framework. Tests: Vitest (unit) +
+Playwright (e2e against the built bundle).
+
+```sh
+npm install                 # dev dependencies
+npx playwright install chromium   # once, for the e2e browser
+
+npm test                    # the full hermetic gate: lint + typecheck +
+                            # unit + build + e2e (what CI runs on push)
+npm run build               # static bundle -> dist/
+npm run serve               # serve dist/ at http://127.0.0.1:4173
+```
+
+Two test tiers: the **hermetic** tier above needs no credentials or network
+beyond localhost and runs in CI on every push. The **`@live`** tier (real-PDS
+suites, arriving with the auth phase) needs the out-of-band test-account
+credential in a gitignored `.env` and runs locally as a phase gate — never in
+push CI.
+
+Diagnostic logging: append `?debug=1` (or set any `localStorage` `debug`
+entry) to see `[arecipe]` debug/info console logs; production stays quiet
+except warn/error.
+
+The executable build plan lives at
+[plans/2026-07-07-1-plan-build-execution.md](plans/2026-07-07-1-plan-build-execution.md).
+
 ## Docs
 
 - [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md) — philosophy and goals: incentive alignment
