@@ -55,6 +55,18 @@ const attributionEl = (value: RecipeValue): HTMLElement | null => {
   return credit;
 };
 
+const placeholderEl = (): HTMLElement => {
+  const placeholder = el('div', 'card-photo card-photo--empty');
+  for (const variant of ['light', 'dark'] as const) {
+    const mark = document.createElement('img');
+    mark.className = `placeholder-mark logo--${variant}`;
+    mark.src = `./assets/logo-${variant}.png`;
+    mark.alt = '';
+    placeholder.append(mark);
+  }
+  return placeholder;
+};
+
 const photoWrapEl = (entry: CachedRecipe): HTMLElement => {
   const did = entry.uri.split('/')[2] ?? '';
   const photoWrap = el('div', 'photo-wrap');
@@ -65,18 +77,15 @@ const photoWrapEl = (entry: CachedRecipe): HTMLElement => {
     photo.src = thumbUrl(did, cid);
     photo.alt = '';
     photo.loading = 'lazy';
+    // A failed fetch (fresh blob not on the CDN yet, host down) degrades to
+    // the brand placeholder — never a broken-image glyph.
+    photo.addEventListener('error', () => {
+      photo.replaceWith(placeholderEl());
+    });
     photoWrap.append(photo);
   } else {
     // Brand-mark placeholder (theme pair, CSS picks) — never a bare emoji.
-    const placeholder = el('div', 'card-photo card-photo--empty');
-    for (const variant of ['light', 'dark'] as const) {
-      const mark = document.createElement('img');
-      mark.className = `placeholder-mark logo--${variant}`;
-      mark.src = `./assets/logo-${variant}.png`;
-      mark.alt = '';
-      placeholder.append(mark);
-    }
-    photoWrap.append(placeholder);
+    photoWrap.append(placeholderEl());
   }
   if (!entry.verified) {
     photoWrap.append(el('span', 'altered-stamp', 'ALTERED?'));

@@ -31,6 +31,14 @@ describe('renderRecipeList (link cards)', () => {
     );
   });
 
+  it('a failing photo swaps to the placeholder instead of a broken image', () => {
+    const el = renderRecipeList([entry()]);
+    const photo = el.querySelector<HTMLImageElement>('img.card-photo');
+    photo?.dispatchEvent(new Event('error'));
+    expect(el.querySelector('img.card-photo')).toBeNull();
+    expect(el.querySelector('.card-photo--empty img')).not.toBeNull();
+  });
+
   it('photo-less recipes get the brand-mark placeholder, not an emoji', () => {
     const bare = { ...fixture.value };
     delete bare['embed'];

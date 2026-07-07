@@ -27,7 +27,8 @@ feasibility amendment on 2026-07-07 (see Review Log).
 | 5d Recipe detail page | ✅ | `d80424a` | Shareable recipe URLs; cold links verified in fresh profile; back restores results; ALTERED on both surfaces |
 | 5e Starter packs (lite) | ✅ | Phase 5e close-out commit | Zero-input feed: 72 verified recipes from 4 curated authors (incl. official arecipe.bsky.social); settings toggles + profile links; seeding pending creds |
 | 6 Authoring (MLP core) | ✅ | Phase 6 close-out commit | editor + local drafts + Publish→PDS (@live 5.6s); race bug caught+fixed; brand placeholder |
-| 7–8c (M3 set) | planned | | 7 blobs → 8 draft-sync/versioning → 8b offline PWA → 8c hosted client + physical two-device demo (M3 exit) |
+| 7 Photos (EXIF-stripped) | ✅ | Phase 7 close-out commit | Editor photo → canvas re-encode (EXIF provably gone on real PDS bytes) → embed; placeholder-on-failure |
+| 8–8c (M3 set) | planned | | 8 draft-sync/versioning → 8b offline PWA → 8c hosted client + physical two-device demo (M3 exit) |
 | 9–12 | roadmap | | re-plan before execution |
 
 ---
@@ -1297,7 +1298,26 @@ record's CID and fields match what was authored.
 
 ---
 
-### Phase 7: Blob (image) handling
+### Phase 7: Blob (image) handling — ✅ SHIPPED (2026-07-07, Phase 7 close-out commit)
+
+**Delivered, with one lexicon reconciliation:** the spec'd "full + thumb,
+embed both CIDs" doesn't exist in the lexicon — `#imagesEmbed` is up to 4
+images of **one blob each** (`{alt, image, aspectRatio}`); display
+thumbnails are the CDN's job. So: editor gains an optional photo (preview +
+fail-loud type/size validation, 20 MB input cap); on Publish the image is
+**decoded → downscaled (≤2048 edge) → canvas re-encoded** — which strips
+EXIF by construction, full-size path included (the D2 GPS finding) — then
+`uploadBlob`'d and embedded with its aspect ratio, record committed
+immediately after (the blob-retention window). Pure logic TDD'd (fitWithin,
+input validation); the **@live publish test now attaches an EXIF-bearing
+fixture JPEG (built with an injected GPS APP1 segment) and verifies the
+blob fetched back from the real PDS contains no Exif marker** — the
+privacy claim proven on actual uploaded bytes. Broken photo fetches (fresh
+blobs not yet on the CDN, host down) degrade to the brand placeholder,
+never a broken-image glyph (unit-tested). The thumbnail-cache item from the
+original spec is superseded by CDN + HTTP caching; revisit at 8b offline.
+
+*(Original spec below.)*
 
 **Goal:** Recipe photos as atproto blobs (thumbnail + full-size), embedded by CID.
 

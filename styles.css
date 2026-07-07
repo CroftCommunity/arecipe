@@ -656,3 +656,9 @@ a.card {
   font-weight: 700;
   text-decoration: none;
 }
+
+.editor-photo-preview {
+  max-width: 16rem;
+  border-radius: var(--r-m);
+  border: var(--stroke) solid var(--line);
+}

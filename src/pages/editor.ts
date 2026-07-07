@@ -7,6 +7,12 @@ import { mountBuildStamp } from '../build-stamp.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
 import { createDraftStore } from '../recipes/drafts-local.js';
+import {
+  buildImagesEmbed,
+  prepareImage,
+  uploadRecipeImage,
+  validateImageInput,
+} from '../recipes/images-upload.js';
 import { buildRecipeRecord, publishRecipe, type EditorFields } from '../recipes/write.js';
 import { registerServiceWorker } from '../sw-register.js';
 
@@ -99,6 +105,37 @@ const main = async (): Promise<void> => {
   content.append(el('h2', 'page-title', 'New recipe'));
   const fields = buildForm(content);
 
+  // Photo (Phase 7): optional, one image, re-encoded on publish (EXIF gone).
+  const photoField = el('label', 'editor-field');
+  photoField.append(el('span', 'editor-label', 'Photo (optional)'));
+  const photoInput = document.createElement('input');
+  photoInput.type = 'file';
+  photoInput.accept = 'image/*';
+  photoInput.dataset['testid'] = 'editor-photo';
+  const photoPreview = document.createElement('img');
+  photoPreview.className = 'editor-photo-preview';
+  photoPreview.alt = '';
+  photoPreview.hidden = true;
+  const photoStatus = el('p', 'status');
+  photoStatus.dataset['testid'] = 'photo-status';
+  photoField.append(photoInput, photoPreview, photoStatus);
+  content.append(photoField);
+  photoInput.addEventListener('change', () => {
+    const file = photoInput.files?.[0];
+    photoPreview.hidden = true;
+    photoStatus.textContent = '';
+    if (file === undefined) return;
+    try {
+      validateImageInput(file);
+      photoPreview.src = URL.createObjectURL(file);
+      photoPreview.hidden = false;
+      photoStatus.textContent = `${file.name} — will be re-encoded on publish (metadata removed)`;
+    } catch (err) {
+      photoInput.value = '';
+      photoStatus.textContent = err instanceof Error ? err.message : String(err);
+    }
+  });
+
   const actions = el('div', 'lookup');
   const saveButton = el('button', 'button', 'Save draft') as HTMLButtonElement;
   saveButton.type = 'button';
@@ -149,6 +186,14 @@ const main = async (): Promise<void> => {
     publishButton.addEventListener('click', () => {
       void (async () => {
         const record = buildRecipeRecord(readFields(fields)); // fail-loud validation
+        const file = photoInput.files?.[0];
+        if (file !== undefined) {
+          status.textContent = 'processing photo…';
+          const prepared = await prepareImage(file); // re-encode: EXIF gone
+          status.textContent = 'uploading photo…';
+          const blobRef = await uploadRecipeImage(boundAgent, prepared);
+          record.embed = buildImagesEmbed(blobRef, prepared);
+        }
         status.textContent = 'publishing…';
         const { uri } = await publishRecipe(boundAgent, record);
         if (draftId !== undefined) await drafts.remove(draftId);

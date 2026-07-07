@@ -28,6 +28,8 @@ export type RecipeRecordOut = {
   prepTime?: string;
   totalTime?: string;
   recipeYield?: string;
+  /** exchange.recipe.recipe#imagesEmbed (Phase 7). */
+  embed?: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
 };

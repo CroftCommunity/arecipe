@@ -80,13 +80,45 @@ test('@live author → publish → appears in My recipes (the write path)', asyn
   await page.getByTestId('editor-text').fill('Toast, but at midnight. Published by the e2e suite.');
   await page.getByTestId('editor-ingredients').fill('2 slices bread\nbutter');
   await page.getByTestId('editor-instructions').fill('Toast the bread.\nButter it generously.');
+
+  // Photo (Phase 7): attach the EXIF-bearing fixture — the re-encode must
+  // strip the metadata before the bytes ever leave the device.
+  await page
+    .getByTestId('editor-photo')
+    .setInputFiles(new URL('../fixtures/images/exif-test.jpg', import.meta.url).pathname);
+  await expect(page.getByTestId('photo-status')).toContainText('metadata removed');
+
   await page.getByTestId('publish').click();
 
   // Publish lands back on My recipes with the record in Published.
-  await expect(page).toHaveURL(/mine\.html/, { timeout: 30_000 });
+  await expect(page).toHaveURL(/mine\.html/, { timeout: 60_000 });
   await expect(page.getByTestId('recipe-item').filter({ hasText: name })).toHaveCount(1, {
     timeout: 30_000,
   });
+
+  // The published record carries the embed; the blob is publicly fetchable
+  // and contains NO Exif marker (the GPS-stripping claim, verified on the
+  // actual uploaded bytes).
+  const session = await login();
+  const list = (await (
+    await fetch(
+      `https://bsky.social/xrpc/com.atproto.repo.listRecords?repo=${TEST_DID}&collection=${COLLECTION}&limit=10`,
+      { headers: { authorization: `Bearer ${session.accessJwt}` } },
+    )
+  ).json()) as {
+    records: { value: { name?: string; embed?: { images?: { image?: { ref?: { $link?: string } }; aspectRatio?: unknown }[] } } }[];
+  };
+  const published = list.records.find((r) => r.value.name === name);
+  const image = published?.value.embed?.images?.[0];
+  expect(image?.aspectRatio).toBeDefined();
+  const cid = image?.image?.ref?.$link;
+  expect(cid).toBeDefined();
+  const blobRes = await fetch(
+    `https://bsky.social/xrpc/com.atproto.sync.getBlob?did=${TEST_DID}&cid=${cid}`,
+  );
+  expect(blobRes.status).toBe(200);
+  const bytes = Buffer.from(await blobRes.arrayBuffer());
+  expect(bytes.subarray(0, 2_048).includes('Exif')).toBe(false);
 
   await purgeTestRecipes(); // teardown (best-effort; pre-run purge covers crashes)
 });
