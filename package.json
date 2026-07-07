@@ -5,7 +5,7 @@
   "description": "Recipe-sharing static SPA/PWA on the AT Protocol. No backend.",
   "type": "module",
   "scripts": {
-    "build": "esbuild src/main.ts --bundle --minify --format=esm --outfile=dist/main.js && esbuild src/sw.ts --bundle --minify --outfile=dist/sw.js && cp index.html dist/",
+    "build": "node scripts/build.mjs",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.tests.json",
     "serve": "esbuild --servedir=dist --serve=127.0.0.1:4173",
     "test:unit": "vitest run tests/unit",

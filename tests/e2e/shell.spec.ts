@@ -28,6 +28,13 @@ test('service-worker registration is logged at info with ?debug=1', async ({ pag
     .toHaveLength(1);
 });
 
+test('build stamp is visible in the footer (M1 bundle-visibility rider)', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByTestId('build-stamp')).toHaveText(/^v.+ · .+ KB \(.+ KB gz\)$/, {
+    timeout: 10_000,
+  });
+});
+
 test('production console is quiet: no [arecipe] debug/info without the flag', async ({ page }) => {
   const lines = collectAppLogs(page);
   await page.goto('/');

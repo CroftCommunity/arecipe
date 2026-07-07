@@ -3,6 +3,7 @@
 // tests/e2e/*.spec.ts against the built bundle (@live tier for OAuth).
 
 import type { Agent } from '@atproto/api';
+import { mountBuildStamp } from './build-stamp.js';
 import { createOAuthClient, isLoopbackHostname } from './auth/oauth-client.js';
 import { createOAuthSessionProvider, type SessionProvider } from './auth/session-provider.js';
 import { createResolver, type ResolvedIdentity } from './identity/resolve.js';
@@ -149,6 +150,7 @@ const main = async (): Promise<void> => {
 
   if (agent === null || provider === null) mountSignIn(app, provider);
   else mountSignedIn(app, agent, provider);
+  void mountBuildStamp(app);
   log.debug('shell', 'mounted', { signedIn: agent !== null });
 
   // Debug console surface (?debug=1): lets a field debugger — and the 3b

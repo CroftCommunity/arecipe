@@ -932,6 +932,13 @@ evidence; the physical two-device demo is the first item of the M3 exit.
 
 **Goal:** Write a valid `exchange.recipe.recipe` to the user's PDS and confirm it
 appears on recipe.exchange with no coordination (the write half of credible exit).
+**M1-checkpoint addition (2026-07-07): draft-before-publish.** Authoring saves
+locally first (IndexedDB draft) and publishes to the PDS only on explicit user
+action — "build a recipe and save it without publishing it yet." Phase 8's
+PDS-synced drafts (eviction survival, accepted-public) layer on top of this
+local-first flow, they don't replace it. Ingredients stay free-text lines per
+the lexicon (`string[]`, no structure — verified against the D4 capture at the
+M1 checkpoint).
 
 **Changes:**
 - [ ] `src/recipes/write.ts` — construct + `createRecord`/`putRecord` a valid record
@@ -1058,12 +1065,33 @@ rather than relying on real eviction. Added by the feasibility amendment:
 
 ---
 
+### Phase 8b: Offline shell — cache-first SW + PWA manifest (M3 scope; spec before executing)
+
+**Goal (M1-checkpoint decision, 2026-07-07):** arecipe.app is a fully
+offline-capable PWA — cache-first service worker for the app shell, cached
+recipes readable offline (IndexedDB already holds them from Phase 4), web app
+manifest + installability. **Depends on:** Phases 6–8 shape; spec'd in a short
+phase-plan pass alongside the M2/M3 re-plan. **Constraints already known:**
+the SW fetch handler bypasses Playwright route interception — hermetic
+fixture-routed specs need `serviceWorkers: 'block'` (or a request-path split);
+the Phase 11 verify-before-install worker extends this one, so keep the
+update-flow seam clean.
+
+---
+
 ### Phase 9: Social graph, comments, interactions (ROADMAP — re-plan before executing)
 
 **Goal:** `app.arecipe.friend`, `app.arecipe.comment`, `interaction.cooked/saved`
 (app-scoped NSIDs renamed from the spec's `fyi.recipe.*` per the NSID resolution),
 affinity scoring, Jetstream live tail with polling fallback, unsigned→verified
 promotion, rate-limit handling. Spec Layers 6 + 7.
+**Parked idea (M1 checkpoint, 2026-07-07): structured ingredients as records.**
+The exchange lexicon keeps ingredients as free-text `string[]`; a future
+`app.arecipe.ingredient` entity (+ a starter pack of common ingredients
+published as records) could enable composition/grocery features — with
+dual-write of flattened strings into the `exchange.recipe.recipe` record to
+preserve interop. Deliberately deferred until we're walking the real data
+model; candidate for this phase's re-plan or later.
 **Depends on:** Phase 8.
 **Done when:** This phase is decomposed via its own phase-plan pass (Phase 0–style
 discovery on Jetstream availability + a fine phase breakdown), then executed. It is
@@ -1132,21 +1160,25 @@ prerender-without-a-backend question (`docs/STACK.md` §7) — then executed.
   Vitest browser mode) rather than blocking Phase 1 on a lock-in decision.* The
   maintainer is fine with it but wants to see how it goes before committing.
 
-- [RECOMMENDED: ADVISORY — added at Phase 3 close-out] **Bundle budget.** The
-  auth phase took `main.js` to 869 KB minified / 174 KB gzip (`@atproto/api`
-  ships every lexicon namespace; the oauth client adds crypto deps). The
-  small-auditable-bundle trust argument needs a stance: tree-shake via
-  narrower imports, adopt a slimmer XRPC client, or accept and document.
-  *Agenda item for the M1 UI/UX checkpoint alongside the offline-shell call.*
+- [RESOLVED 2026-07-07, M1 checkpoint] **Bundle budget → accept @atproto/api for
+  M3 velocity, with visibility baked in.** Measured: 915 KB min / 174 KB gz;
+  `@atproto/api` = 62% (570 KB — every Bluesky lexicon for one Agent wrapper).
+  User chose accept-and-document, with a hard rider: **the app must carry
+  console logging and a visible way to see the bundle/version** — a build
+  stamp (version + built-at + main.js size/gzip) generated at build time,
+  logged at startup, and rendered in the shell footer (mealplanner's visible
+  version stamp, upgraded into the trust story). Thin XRPC port (−62%) and
+  auth code-splitting stay on the table for launch prep (Phase 12 planning),
+  or earlier if the size starts to bite.
 
-- [CONFIRMED: PHASE-GATED (M1 checkpoint) — user, 2026-07-07] **Offline app shell
-  at the MLP?** The spec assigns the service worker to Layer 3 (verify-before-install
-  machinery → Phase 11), so as planned the M3 MLP has **no offline shell**: recipes
-  are cached in IndexedDB from Phase 4, but the app itself won't open without
-  network. A minimal cache-only SW could be pulled into M3 (kitchen-with-flaky-wifi
-  is a core recipe moment) with the signed-update SW still landing at Phase 11.
-  Decide at the M1 UI/UX checkpoint with the walking skeleton demoable and the
-  mealplanner review in hand.
+- [RESOLVED 2026-07-07, M1 checkpoint] **Offline app shell → YES: arecipe.app is
+  a fully offline-capable PWA.** A minimal cache-first service worker + web app
+  manifest (installability) join the M3 scope as their own phase (spec'd in the
+  M2/M3 re-plan; see Phase 8b stub). The verify-before-install SW still lands at
+  Phase 11 and replaces/extends the M3 worker. Known interaction: a SW fetch
+  handler bypasses Playwright route interception — the hermetic tier needs
+  `serviceWorkers: 'block'` (or equivalent) for fixture-routed specs when the
+  caching SW lands.
 
 - [RESOLVED 2026-07-07] **Drafts on the PDS are public → accepted.** Recipe drafts
   are low-sensitivity; PDS sync stays as specced. Two follow-ons recorded: (a)
@@ -1444,3 +1476,30 @@ Assumptions (five new/updated entries) and inline on the D-tasks. Highlights:
 **Phase 0 done-when check:** all BLOCKING questions resolved ✓ (none remain);
 Verified Assumptions reflect firsthand evidence ✓ (9 probe-backed entries);
 D3 produced a concrete toolchain ✓; no phase invalidated ✓.
+
+### M1 checkpoint — 2026-07-07
+Held per the milestone plan: walking-skeleton demo (live render of rdur.dev's
+verified recipes in real Chrome), mealplanner review, bundle-budget analysis,
+UI-pattern research. Outcomes:
+- **CI proven green on push** (Phase 1's last open criterion); first run caught
+  the @live/.env module-load defect. Pages deploy job added; blocked on repo
+  visibility — **user is making the repo public**; enable Pages + verify the
+  deployed URL when it flips. Non-loopback guard shipped so the deployed app
+  degrades to read-only instead of crashing (sign-in needs the M3 hosted client).
+- **Mealplanner review:** adopt the UI skeleton — ≤3 top tabs, card panels,
+  instructive empty states, segmented controls, visible version stamp,
+  offline-first PWA feel. Avoid: flat manager-singleton architecture, sql.js
+  local store, feature breadth (rotation/pantry/etc. are planning-domain;
+  post-MLP candidates). arecipe's cold-start "demo data" is real network data —
+  a strictly better story.
+- **Bundle → RESOLVED:** accept @atproto/api for M3 velocity + bake in a build
+  stamp (version/size, console + footer). Thin-XRPC (−62%) and code-splitting
+  deferred to launch prep. (See Open Questions.)
+- **Offline shell → RESOLVED: yes** — fully offline-capable PWA; Phase 8b stub
+  added to M3 scope. (See Open Questions.)
+- **UI direction: keep it lite and data-grounded.** The middle-ground skeleton
+  (tabs, cards w/ verified+time chips, ingredients-first detail) is directional,
+  not committed; refine while walking real data. Lexicon fact established:
+  ingredients are free-text `string[]` — no structure in the exchange lexicon.
+  Structured-ingredient records parked (Phase 9 note). **Draft-before-publish
+  added to Phase 6** (author + save locally without publishing).
