@@ -20,8 +20,9 @@ feasibility amendment on 2026-07-07 (see Review Log).
 | 3 OAuth login + persistence | ✅ | `12c9e0f` | session-provider port (TDD); @live tier landed; real login + reload-resume passed; bundle 174 KB gz flagged for M1 |
 | 3b Cross-tab coordination | ✅ | `27561a3` | Collapsed: library already coordinates (navigator.locks + BroadcastChannel, source-verified); forceRefresh API + two-tab @live regression pin it |
 | 4a Read + verified cache | ✅ | `e10901e` | Public read + Tier 2 CID verify (TDD); live: 3/3 verified vs real PDS; SW fetch-handler/route-interception gotcha found+fixed |
-| 4b Render (M1 exit) | ✅ | Phase 4b close-out commit | Recipes render w/ verified badges; interop confirmed BOTH ways (arecipe + recipe.exchange render the same record). **M1 checkpoint is now due** |
-| 5–8 | pending | | M1 UI/UX check-in (mealplanner review) gates the path onward |
+| 4b Render (M1 exit) | ✅ | `5084e4b` | Recipes render; interop confirmed BOTH ways (arecipe + recipe.exchange render the same record). M1 checkpoint held same day |
+| 5 Two-device read (M2 exit) | ✅ | Phase 5 close-out commit | Two contexts + two engines (Chrome/Firefox), same account, same recipes; independent refresh pinned. **M2 REACHED** |
+| 6–8, 8b | pending | | M2/M3 re-plan next (page-per-destination DECIDED; authoring w/ draft-before-publish; offline 8b; hosted OAuth client) |
 | 9–12 | roadmap | | re-plan before execution |
 
 ---
@@ -895,7 +896,21 @@ and record UI/UX directional decisions (a fresh phase-plan pass may spin out of 
 
 ---
 
-### Phase 5: Two-device same-user read (milestone gate)
+### Phase 5: Two-device same-user read (milestone gate) — ✅ SHIPPED (2026-07-07, Phase 5 close-out commit) — **M2 REACHED**
+
+**Delivered:** as specced — no new production code; the phase is the
+milestone-level wiring test. `tests/e2e/two-device-read.spec.ts` (@live):
+two independent browser contexts (separate IndexedDB, separate DPoP keys),
+two full interactive OAuth logins for the same account, both render the
+identical recipe set; device 1's forced refresh (single-use token rotation)
+leaves device 2's session untouched, both survive reloads — the D1-flagged
+independent-refresh risk is pinned. Passed in 10.3 s. The three @live specs'
+copy-pasted auth walk was extracted to `tests/e2e/helpers/live.ts` (the
+"small fixes" allowance). **Broad validation:** the same account on two
+genuinely different engines — real Google Chrome and Firefox — logged in
+independently and rendered the same 3 recipes (SAME DID / SAME RECIPES
+confirmed). Physical two-device demo remains the first M3 exit item per the
+feasibility amendment (loopback client unreachable from a second machine).
 
 **Goal:** The spec's stated first milestone — the same account, signed in on two
 devices, renders the same records. Completes the rough plan's "Phase 0".
@@ -1527,6 +1542,12 @@ UI-pattern research. Outcomes:
   Tokens formalized (spacing/type/radii scales) + `docs/DESIGN.md` written
   (palette rules, type roles, machine-facts-in-mono, copy voice, a11y
   floors).
+- **DECIDED (user, 2026-07-07): page-per-destination architecture.** The
+  M2/M3 re-plan restructures the app as separate HTML documents per
+  destination (browse / my recipes / settings / …, blockdoku-style): native
+  back button, no SPA tab state, free code-splitting (the browse page never
+  loads the OAuth stack — this also materially serves the bundle budget).
+  Shared modules stay in `src/`; esbuild gains multi-entry.
 - **Design iteration 3 (trust surface + mobile navigation):** the VERIFIED
   badge failed twice with the maintainer ("I still don't understand it") —
   root causes: the word reads as account status (blue-check connotation) and

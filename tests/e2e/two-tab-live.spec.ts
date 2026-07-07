@@ -5,50 +5,12 @@
 // pins the end-state behavior so a library upgrade that loses it fails
 // loudly. Assertions are on end state (both tabs authenticated), not call
 // ordering, per the plan's flakiness note.
-import { readFileSync } from 'node:fs';
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test } from '@playwright/test';
+import { readEnv, signIn } from './helpers/live.js';
 
-// Tolerant read: .env is absent in CI (see auth-live.spec.ts).
-const readEnv = (): Record<string, string> => {
-  try {
-    return Object.fromEntries(
-      readFileSync(new URL('../../.env', import.meta.url), 'utf8')
-        .split('\n')
-        .filter(Boolean)
-        .map((l) => l.split(/=(.*)/s).slice(0, 2)),
-    ) as Record<string, string>;
-  } catch {
-    return {};
-  }
-};
 const env = readEnv();
-
 const HANDLE = env['BSKY_TEST_HANDLE'] ?? '';
 const PASSWORD = env['BSKY_TEST_PASSWORD'] ?? '';
-
-const walkAuthPages = async (page: Page, appOrigin: string): Promise<void> => {
-  for (let i = 0; i < 15 && !page.url().startsWith(appOrigin); i++) {
-    await page.waitForTimeout(900);
-    if (page.url().startsWith(appOrigin)) break;
-    const pw = page.locator('input[type=password]:visible').first();
-    if ((await page.locator('input[type=password]:visible').count()) > 0) {
-      const enabled = await pw.isEnabled().catch(() => false);
-      const already = await pw.inputValue().catch(() => 'x');
-      if (enabled && already === '') {
-        await pw.fill(PASSWORD, { timeout: 5_000 });
-        await page
-          .locator('button:has-text("Sign in"):visible, button[type=submit]:visible')
-          .first()
-          .click({ timeout: 5_000 });
-      }
-    } else {
-      const authorize = page
-        .locator('button:has-text("Authorize"):visible, button:has-text("Accept"):visible')
-        .first();
-      if ((await authorize.count()) > 0) await authorize.click({ timeout: 5_000 }).catch(() => {});
-    }
-  }
-};
 
 test('@live two tabs survive a forced refresh (single-use refresh token hazard)', async ({
   context,
@@ -63,11 +25,7 @@ test('@live two tabs survive a forced refresh (single-use refresh token hazard)'
   // would be lost across the OAuth redirect round-trip.
   await page.goto('/');
   await page.evaluate(() => window.localStorage.setItem('debug', '1'));
-  await page.reload();
-  await page.getByTestId('handle-input').fill(HANDLE);
-  await page.getByTestId('oauth-signin').click();
-  await page.waitForURL(/bsky\.social/, { timeout: 30_000 });
-  await walkAuthPages(page, origin);
+  await signIn(page, { handle: HANDLE, password: PASSWORD, origin });
   await expect(page.getByTestId('signed-in-did')).toContainText('did:plc:', { timeout: 30_000 });
 
   // Tab 2: restores the same session from the shared store, no login.
