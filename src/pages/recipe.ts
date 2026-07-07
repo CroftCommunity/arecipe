@@ -1,0 +1,93 @@
+// Recipe detail page (5d): recipe.html?u=<at-uri>[&by=<handle>] — a real,
+// shareable document. Cache-first; a cold link (no prior cache) resolves the
+// author's PDS from the DID, fetches the record, Tier 2-verifies it, and
+// caches it like any other read.
+
+import { mountBuildStamp } from '../build-stamp.js';
+import { log } from '../log.js';
+import { mountShell } from '../nav.js';
+import { createRecipeCache, type CachedRecipe } from '../recipes/cache.js';
+import { createRecordReader } from '../recipes/read.js';
+import { renderRecipeDetail } from '../recipes/view.js';
+import { registerServiceWorker } from '../sw-register.js';
+
+const el = (tag: string, className?: string, text?: string): HTMLElement => {
+  const node = document.createElement(tag);
+  if (className !== undefined) node.className = className;
+  if (text !== undefined) node.textContent = text;
+  return node;
+};
+
+type ParsedAtUri = { did: string; collection: string; rkey: string };
+
+const parseAtUri = (uri: string): ParsedAtUri => {
+  const match = /^at:\/\/([^/]+)\/([^/]+)\/([^/]+)$/.exec(uri);
+  if (match === null) throw new Error(`not a valid at:// URI: ${uri}`);
+  return { did: match[1]!, collection: match[2]!, rkey: match[3]! };
+};
+
+type DidDocument = {
+  alsoKnownAs?: string[];
+  service?: { id: string; type: string; serviceEndpoint: string }[];
+};
+
+/** DID → { pds, handle? } via plc.directory (CORS-open, D2-verified). */
+const resolveDid = async (did: string): Promise<{ pds: string; handle: string | null }> => {
+  const res = await fetch(`https://plc.directory/${encodeURIComponent(did)}`);
+  if (!res.ok) throw new Error(`DID document fetch failed (HTTP ${res.status}) for ${did}`);
+  const doc = (await res.json()) as DidDocument;
+  const pds = doc.service?.find((s) => s.id === '#atproto_pds' || s.id.endsWith('#atproto_pds'));
+  if (pds === undefined) throw new Error(`DID document for ${did} has no #atproto_pds service`);
+  const aka = doc.alsoKnownAs?.find((a) => a.startsWith('at://'));
+  return { pds: pds.serviceEndpoint, handle: aka?.slice('at://'.length) ?? null };
+};
+
+const loadRecipe = async (uri: string): Promise<{ entry: CachedRecipe; author: string }> => {
+  const { did, rkey } = parseAtUri(uri);
+  const byParam = new URLSearchParams(window.location.search).get('by');
+  const cache = createRecipeCache();
+
+  const cached = await cache.get(uri);
+  if (cached !== undefined) {
+    log.debug('recipes', 'detail served from cache', { uri });
+    return { entry: cached, author: byParam ?? did };
+  }
+
+  // Cold link: fetch, verify, cache — same trust path as any read.
+  log.debug('recipes', 'cold link — fetching', { uri });
+  const { pds, handle } = await resolveDid(did);
+  const record = await createRecordReader()({ pds, did, rkey });
+  const entry = await cache.put(record);
+  return { entry, author: byParam ?? handle ?? did };
+};
+
+const main = async (): Promise<void> => {
+  const app = document.getElementById('app');
+  if (app === null) throw new Error('shell mount point #app missing');
+
+  const content = el('section', 'panel');
+  const status = el('p', 'status', 'loading…');
+  content.append(status);
+  mountShell(app, content);
+  void mountBuildStamp(app);
+  void registerServiceWorker();
+
+  const uri = new URLSearchParams(window.location.search).get('u');
+  if (uri === null) {
+    status.textContent = 'No recipe given — pick one from Browse.';
+    return;
+  }
+  try {
+    const { entry, author } = await loadRecipe(uri);
+    const name = (entry.value as { name?: string }).name;
+    if (name !== undefined) document.title = `${name} — arecipe`;
+    content.replaceChildren(renderRecipeDetail(entry, { author }));
+    log.debug('shell', 'mounted', { page: 'recipe', uri });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    log.error('recipes', 'detail load failed', { uri, error: message });
+    status.textContent = message;
+  }
+};
+
+void main();

@@ -1,12 +1,10 @@
 // @vitest-environment happy-dom
-// Phase 4b: rendering cached recipes. Behaviors:
-// - each cached recipe renders its title
-// - a verified entry carries the verified marker; an unverified one carries
-//   the unverified marker (both sides — mutation resistance)
-// - the detail view renders ingredients and instructions as list items
+// Recipe views (5d split): the list renders LINK CARDS to recipe.html (real
+// pages, no in-place expansion); the detail renders the full recipe.
+// Trust surface stays: silent when good, loud when bad, on both surfaces.
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { renderRecipeList } from '../../../src/recipes/view.js';
+import { renderRecipeDetail, renderRecipeList } from '../../../src/recipes/view.js';
 import type { CachedRecipe } from '../../../src/recipes/cache.js';
 
 // cwd-relative: happy-dom's URL global is not a node file: URL.
@@ -23,46 +21,31 @@ const entry = (overrides: Partial<CachedRecipe> = {}): CachedRecipe => ({
   ...overrides,
 });
 
-describe('renderRecipeList', () => {
-  it('renders each recipe title', () => {
-    const el = renderRecipeList([entry()]);
-    expect(el.textContent).toContain('White Chocolate Strawberry Sourdough Sweet Bread');
-  });
-
-  // Trust surface (design iteration 3): silent when good, loud when bad —
-  // the browser-padlock lesson. Intact records carry no badge; a tampered
-  // record is stamped ALTERED? and warned, visibly, with no interaction.
-  it('an intact record carries no badge — the card is clean', () => {
-    const el = renderRecipeList([entry()]);
-    expect(el.querySelector('.altered-stamp')).toBeNull();
-    expect(el.querySelector('[data-testid=altered-warning]')).toBeNull();
-  });
-
-  it('a tampered record is loudly stamped and warned without any interaction', () => {
-    const el = renderRecipeList([entry({ uri: 'at://x/y/z', verified: false })]);
-    const stamp = el.querySelector<HTMLElement>('.altered-stamp');
-    expect(stamp?.textContent).toBe('ALTERED?');
-    const warning = el.querySelector<HTMLElement>('[data-testid=altered-warning]');
-    expect(warning?.hidden).toBe(false);
-    expect(warning?.textContent).toMatch(/doesn.t match what the author published/i);
-  });
-
-  it('the detail carries a human provenance line (author · fingerprint matches · date)', () => {
+describe('renderRecipeList (link cards)', () => {
+  it('renders each recipe as a link to its own page, carrying uri + author', () => {
     const el = renderRecipeList([entry()], { author: 'rdur.dev' });
-    const provenance = el.querySelector<HTMLElement>('[data-testid=provenance]');
-    expect(provenance?.textContent).toContain('as published by rdur.dev');
-    expect(provenance?.textContent).toContain('fingerprint matches');
-    expect(provenance?.textContent).toMatch(/\b20\d\d\b/); // a year from updatedAt
+    const card = el.querySelector<HTMLAnchorElement>('a[data-testid=recipe-item]');
+    expect(card?.textContent).toContain('White Chocolate Strawberry Sourdough Sweet Bread');
+    expect(card?.getAttribute('href')).toBe(
+      `./recipe.html?u=${encodeURIComponent(fixture.uri)}&by=rdur.dev`,
+    );
   });
 
-  it('a tampered record replaces the provenance line with the warning', () => {
-    const el = renderRecipeList([entry({ verified: false })], { author: 'rdur.dev' });
-    expect(el.querySelector('[data-testid=provenance]')).toBeNull();
-    expect(el.querySelector('[data-testid=altered-warning]')).not.toBeNull();
+  it('an intact card is clean; a tampered card is stamped and warned', () => {
+    const el = renderRecipeList([entry(), entry({ uri: 'at://x/y/z', verified: false })]);
+    const cards = Array.from(el.querySelectorAll('[data-testid=recipe-item]'));
+    expect(cards[0]?.querySelector('.altered-stamp')).toBeNull();
+    expect(cards[1]?.querySelector('.altered-stamp')?.textContent).toBe('ALTERED?');
+    expect(cards[1]?.querySelector('[data-testid=altered-warning]')).not.toBeNull();
   });
+});
 
-  it('renders ingredients and instructions as list items in the detail', () => {
-    const el = renderRecipeList([entry()]);
+describe('renderRecipeDetail', () => {
+  it('renders title, ingredients-first columns, and numbered instructions', () => {
+    const el = renderRecipeDetail(entry(), { author: 'rdur.dev' });
+    expect(el.querySelector('h2')?.textContent).toBe(
+      'White Chocolate Strawberry Sourdough Sweet Bread',
+    );
     const ingredients = el.querySelectorAll('[data-testid=recipe-ingredients] li');
     const instructions = el.querySelectorAll('[data-testid=recipe-instructions] li');
     expect(ingredients.length).toBeGreaterThan(0);
@@ -70,5 +53,19 @@ describe('renderRecipeList', () => {
     expect(Array.from(ingredients).map((li) => li.textContent)).toContain(
       (fixture.value['ingredients'] as string[])[0],
     );
+  });
+
+  it('an intact detail ends with the human provenance line', () => {
+    const el = renderRecipeDetail(entry(), { author: 'rdur.dev' });
+    const provenance = el.querySelector('[data-testid=provenance]');
+    expect(provenance?.textContent).toContain('as published by rdur.dev');
+    expect(provenance?.textContent).toContain('fingerprint matches');
+  });
+
+  it('a tampered detail is stamped and warned instead', () => {
+    const el = renderRecipeDetail(entry({ verified: false }), { author: 'rdur.dev' });
+    expect(el.querySelector('[data-testid=provenance]')).toBeNull();
+    expect(el.querySelector('.altered-stamp')?.textContent).toBe('ALTERED?');
+    expect(el.querySelector('[data-testid=altered-warning]')).not.toBeNull();
   });
 });

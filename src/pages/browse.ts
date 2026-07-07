@@ -6,7 +6,7 @@ import { mountBuildStamp } from '../build-stamp.js';
 import { createResolver, type ResolvedIdentity } from '../identity/resolve.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
-import { createRecipeCache } from '../recipes/cache.js';
+import { createRecipeCache, type CachedRecipe } from '../recipes/cache.js';
 import { createRecipeReader } from '../recipes/read.js';
 import { renderRecipeList } from '../recipes/view.js';
 import { registerServiceWorker } from '../sw-register.js';
@@ -40,6 +40,33 @@ const main = (): void => {
   const resolve = createResolver();
   const readRecipes = createRecipeReader();
   const cache = createRecipeCache();
+
+  // Last search survives navigation (5d): opening a recipe page and coming
+  // back re-renders the results from the cache — no network, no empty page.
+  // Defensive storage access (Safari private mode).
+  type LastFind = { handle: string; uris: string[] };
+  const saveLastFind = (value: LastFind): void => {
+    try {
+      window.sessionStorage.setItem('last-find', JSON.stringify(value));
+    } catch {
+      /* private mode: back-restore unavailable */
+    }
+  };
+  const readLastFind = (): LastFind | null => {
+    try {
+      const raw = window.sessionStorage.getItem('last-find');
+      return raw === null ? null : (JSON.parse(raw) as LastFind);
+    } catch {
+      return null;
+    }
+  };
+
+  const showEntries = (entries: CachedRecipe[], author: string, fetchedCount?: number): void => {
+    const verified = entries.filter((e) => e.verified).length;
+    recipesStatus.textContent = `${fetchedCount ?? entries.length} recipes cached (${verified} verified)`;
+    listContainer.replaceChildren(renderRecipeList(entries, { author }));
+  };
+
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     recipesStatus.textContent = 'finding…';
@@ -47,15 +74,27 @@ const main = (): void => {
       const identity: ResolvedIdentity = await resolve(input.value.trim());
       const records = await readRecipes({ pds: identity.pds, did: identity.did });
       const entries = await Promise.all(records.map((r) => cache.put(r)));
-      const verified = entries.filter((e) => e.verified).length;
-      recipesStatus.textContent = `${records.length} recipes cached (${verified} verified)`;
-      listContainer.replaceChildren(renderRecipeList(entries, { author: identity.handle }));
+      saveLastFind({ handle: identity.handle, uris: entries.map((e) => e.uri) });
+      showEntries(entries, identity.handle, records.length);
     })().catch((err: unknown) => {
       const message = err instanceof Error ? err.message : String(err);
       log.error('recipes', 'find failed', { error: message });
       recipesStatus.textContent = message;
     });
   });
+
+  const last = readLastFind();
+  if (last !== null) {
+    input.value = last.handle;
+    void (async () => {
+      const entries = (await Promise.all(last.uris.map((u) => cache.get(u)))).filter(
+        (e): e is NonNullable<typeof e> => e !== undefined,
+      );
+      if (entries.length > 0) showEntries(entries, last.handle);
+    })().catch((err: unknown) => {
+      log.warn('recipes', 'last-search restore failed', { error: String(err) });
+    });
+  }
 
   mountShell(app, content);
   void mountBuildStamp(app);

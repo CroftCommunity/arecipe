@@ -1,11 +1,9 @@
-// Recipe cards + expanding detail. Trust surface (design iteration 3):
-// SILENT WHEN GOOD, LOUD WHEN BAD — the browser-padlock lesson. Intact
-// records carry no badge; the opened detail ends with one human provenance
-// line ("as published by <author> · fingerprint matches · <date>"). A record
-// whose content does NOT match its published fingerprint gets the rubber
-// stamp for real: a rust ALTERED? across the photo and an always-visible
-// warning. That stamp is the signature element — it appears exactly when it
-// matters and never as wallpaper.
+// Recipe views (5d): the list renders LINK CARDS to recipe.html — real
+// pages with shareable URLs and native back, no in-place expansion. The
+// detail renders the full recipe. Trust surface on both: silent when good,
+// loud when bad — intact records carry no badge (quiet provenance line at
+// the end of the detail); a failed integrity check gets the rust ALTERED?
+// rubber stamp + always-visible warning wherever the recipe appears.
 
 import type { CachedRecipe } from './cache.js';
 import { firstImageCid, formatDuration, formatPublishedDate, thumbUrl } from './present.js';
@@ -24,26 +22,17 @@ const listEl = (tag: 'ul' | 'ol', testid: string, items: string[]): HTMLElement 
   return list;
 };
 
-export type RenderOptions = {
-  /** Human label for whose recipes these are (the handle the user typed). */
-  author?: string;
+type RecipeValue = {
+  name?: string;
+  text?: string;
+  ingredients?: string[];
+  instructions?: string[];
+  totalTime?: string;
+  updatedAt?: string;
 };
 
-const renderRecipe = (entry: CachedRecipe, options: RenderOptions): HTMLElement => {
-  const value = entry.value as {
-    name?: string;
-    text?: string;
-    ingredients?: string[];
-    instructions?: string[];
-    totalTime?: string;
-    updatedAt?: string;
-  };
+const photoWrapEl = (entry: CachedRecipe): HTMLElement => {
   const did = entry.uri.split('/')[2] ?? '';
-
-  const item = el('details', 'card');
-  item.dataset['testid'] = 'recipe-item';
-
-  const summary = el('summary', 'card-face');
   const photoWrap = el('div', 'photo-wrap');
   const cid = firstImageCid(entry.value);
   if (cid !== null && did !== '') {
@@ -59,29 +48,81 @@ const renderRecipe = (entry: CachedRecipe, options: RenderOptions): HTMLElement 
   if (!entry.verified) {
     photoWrap.append(el('span', 'altered-stamp', 'ALTERED?'));
   }
-  summary.append(photoWrap);
-  summary.append(el('span', 'card-title', value.name ?? '(untitled)'));
-  const time = formatDuration(value.totalTime);
-  if (time !== null) {
-    const chips = el('span', 'chips');
-    chips.append(el('span', 'chip', time));
-    summary.append(chips);
-  }
-  if (!entry.verified) {
-    const warning = el(
-      'p',
-      'altered-warning',
-      "⚠ This copy doesn't match what the author published — treat with care.",
-    );
-    warning.dataset['testid'] = 'altered-warning';
-    summary.append(warning);
-  }
-  item.append(summary);
+  return photoWrap;
+};
 
-  const detail = el('div', 'card-detail');
+const alteredWarningEl = (): HTMLElement => {
+  const warning = el(
+    'p',
+    'altered-warning',
+    "⚠ This copy doesn't match what the author published — treat with care.",
+  );
+  warning.dataset['testid'] = 'altered-warning';
+  return warning;
+};
+
+const chipsEl = (value: RecipeValue): HTMLElement | null => {
+  const time = formatDuration(value.totalTime);
+  if (time === null) return null;
+  const chips = el('span', 'chips');
+  chips.append(el('span', 'chip', time));
+  return chips;
+};
+
+export type RenderOptions = {
+  /** Human label for whose recipes these are (the handle the user typed). */
+  author?: string;
+};
+
+const recipePageHref = (entry: CachedRecipe, options: RenderOptions): string => {
+  const by = options.author === undefined ? '' : `&by=${encodeURIComponent(options.author)}`;
+  return `./recipe.html?u=${encodeURIComponent(entry.uri)}${by}`;
+};
+
+const renderCard = (entry: CachedRecipe, options: RenderOptions): HTMLElement => {
+  const value = entry.value as RecipeValue;
+  const card = el('a', 'card') as HTMLAnchorElement;
+  card.dataset['testid'] = 'recipe-item';
+  card.href = recipePageHref(entry, options);
+  card.append(photoWrapEl(entry));
+  card.append(el('span', 'card-title', value.name ?? '(untitled)'));
+  const chips = chipsEl(value);
+  if (chips !== null) card.append(chips);
+  if (!entry.verified) card.append(alteredWarningEl());
+  return card;
+};
+
+/** Render cached recipes as a grid of link cards (each opens its own page). */
+export const renderRecipeList = (
+  entries: CachedRecipe[],
+  options: RenderOptions = {},
+): HTMLElement => {
+  const container = el('section', 'recipe-grid');
+  container.dataset['testid'] = 'recipe-list';
+  for (const entry of entries) container.append(renderCard(entry, options));
+  return container;
+};
+
+/** Render one recipe in full: banner, title, chips, ingredients-first detail. */
+export const renderRecipeDetail = (
+  entry: CachedRecipe,
+  options: RenderOptions = {},
+): HTMLElement => {
+  const value = entry.value as RecipeValue;
+  const did = entry.uri.split('/')[2] ?? '';
+  const article = el('article', 'recipe-detail');
+
+  const banner = photoWrapEl(entry);
+  banner.classList.add('photo-wrap--banner');
+  article.append(banner);
+  article.append(el('h2', 'recipe-title', value.name ?? '(untitled)'));
+  const chips = chipsEl(value);
+  if (chips !== null) article.append(chips);
+  if (!entry.verified) article.append(alteredWarningEl());
   if (value.text !== undefined && value.text !== '') {
-    detail.append(el('p', 'lede', value.text));
+    article.append(el('p', 'lede', value.text));
   }
+
   const cols = el('div', 'detail-cols');
   const ingredients = el('section');
   ingredients.append(el('h3', undefined, 'Ingredients'));
@@ -90,7 +131,7 @@ const renderRecipe = (entry: CachedRecipe, options: RenderOptions): HTMLElement 
   instructions.append(el('h3', undefined, 'Instructions'));
   instructions.append(listEl('ol', 'recipe-instructions', value.instructions ?? []));
   cols.append(ingredients, instructions);
-  detail.append(cols);
+  article.append(cols);
 
   if (entry.verified) {
     const author = options.author ?? did;
@@ -103,19 +144,7 @@ const renderRecipe = (entry: CachedRecipe, options: RenderOptions): HTMLElement 
     provenance.dataset['testid'] = 'provenance';
     provenance.title =
       'The recipe content re-hashes to the exact fingerprint it was published under — nothing altered it in storage or transit.';
-    detail.append(provenance);
+    article.append(provenance);
   }
-  item.append(detail);
-  return item;
-};
-
-/** Render cached recipes as a card grid with in-place expanding detail. */
-export const renderRecipeList = (
-  entries: CachedRecipe[],
-  options: RenderOptions = {},
-): HTMLElement => {
-  const container = el('section', 'recipe-grid');
-  container.dataset['testid'] = 'recipe-list';
-  for (const entry of entries) container.append(renderRecipe(entry, options));
-  return container;
+  return article;
 };

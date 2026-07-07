@@ -41,10 +41,15 @@ const routeFixtures = async (page: Page): Promise<void> => {
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(doc) });
   });
   await page.route(`${AUTHOR_PDS}/**`, async (route) => {
+    const isSingle = route.request().url().includes('getRecord');
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: atprotoFixture('listRecords-exchange.recipe.recipe.json'),
+      body: atprotoFixture(
+        isSingle
+          ? 'getRecord-exchange.recipe.recipe.json'
+          : 'listRecords-exchange.recipe.recipe.json',
+      ),
     });
   });
 };
@@ -61,6 +66,36 @@ test('one action: handle in, verified recipe cards out (wiring)', async ({ page 
     'White Chocolate Strawberry Sourdough Sweet Bread',
   );
   await expect(page.getByTestId('recipe-item')).toHaveCount(3);
+});
+
+test('a card opens its own page; native back returns to the results (5d wiring)', async ({
+  page,
+}) => {
+  await routeFixtures(page);
+  await page.goto('/');
+  await page.getByTestId('handle-input').fill('somechef.example.com');
+  await page.getByTestId('find-recipes').click();
+  await expect(page.getByTestId('recipe-item')).toHaveCount(3);
+
+  await page.getByTestId('recipe-item').first().click();
+  await expect(page).toHaveURL(/recipe\.html\?u=/);
+  await expect(page.locator('h2')).toContainText('White Chocolate Strawberry Sourdough');
+  await expect(page.getByTestId('recipe-ingredients').locator('li').first()).toBeVisible();
+  await expect(page.getByTestId('provenance')).toContainText('fingerprint matches');
+
+  // Native back: the browse results are still there (restored from cache).
+  await page.goBack();
+  await expect(page.getByTestId('recipe-item')).toHaveCount(3, { timeout: 10_000 });
+});
+
+test('a cold recipe link renders with no prior cache (shareable URLs)', async ({ page }) => {
+  await routeFixtures(page);
+  const uri = `at://${AUTHOR_DID}/exchange.recipe.recipe/01JQJ5RW51ZVEW72XN6GSRWC8D`;
+  await page.goto(`/recipe.html?u=${encodeURIComponent(uri)}&by=somechef.example.com`);
+  await expect(page.locator('h2')).toContainText('White Chocolate Strawberry Sourdough', {
+    timeout: 15_000,
+  });
+  await expect(page.getByTestId('provenance')).toContainText('as published by somechef.example.com');
 });
 
 test('an unresolvable handle surfaces the failure in the status line', async ({ page }) => {

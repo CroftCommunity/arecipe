@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#175e54" />
+    <link rel="icon" type="image/png" href="./assets/logo-light.png" />
+    <title>arecipe — recipe</title>
+    <!-- Fonts are an external dependency for the skeleton only; self-host
+         when the offline PWA work lands (Phase 8b) — recorded in the plan. -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450..650&family=Atkinson+Hyperlegible:wght@400;700&display=swap"
+    />
+    <script>
+      // Pre-paint theme resolution (no flash): src/theme.ts owns it after load.
+      (function () {
+        try {
+          var m = localStorage.getItem('theme');
+          var dark =
+            m === 'dark' ||
+            (m !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+          document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        } catch (e) {
+          document.documentElement.dataset.theme = 'light';
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="./recipe.js"></script>
+  </body>
+</html>

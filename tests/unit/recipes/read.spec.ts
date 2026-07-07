@@ -6,7 +6,7 @@
 // - a non-OK PDS response fails loud with the status
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { createRecipeReader } from '../../../src/recipes/read.js';
+import { createRecipeReader, createRecordReader } from '../../../src/recipes/read.js';
 
 const listFixture = readFileSync(
   new URL('../../fixtures/atproto/listRecords-exchange.recipe.recipe.json', import.meta.url),
@@ -59,5 +59,26 @@ describe('createRecipeReader', () => {
       fetchFn: fetchReturning(502, '{"error":"UpstreamFailure"}'),
     });
     await expect(read({ pds: PDS, did: DID })).rejects.toThrow(/502/);
+  });
+});
+
+describe('createRecordReader (single record, 5d cold links)', () => {
+  const getFixture = readFileSync(
+    new URL('../../fixtures/atproto/getRecord-exchange.recipe.recipe.json', import.meta.url),
+    'utf8',
+  );
+
+  it('fetches and validates one record by rkey', async () => {
+    const readOne = createRecordReader({ fetchFn: fetchReturning(200, getFixture) });
+    const record = await readOne({ pds: PDS, did: DID, rkey: '01JQJ5RW51ZVEW72XN6GSRWC8D' });
+    expect(record.uri).toContain('/exchange.recipe.recipe/01JQJ5RW51ZVEW72XN6GSRWC8D');
+    expect(record.value.name).toBe('White Chocolate Strawberry Sourdough Sweet Bread');
+  });
+
+  it('fails loud when the record is missing', async () => {
+    const readOne = createRecordReader({
+      fetchFn: fetchReturning(400, '{"error":"RecordNotFound","message":"Could not locate record"}'),
+    });
+    await expect(readOne({ pds: PDS, did: DID, rkey: 'nope' })).rejects.toThrow(/400/);
   });
 });

@@ -387,10 +387,34 @@ body {
   background: var(--enamel-soft);
 }
 
-/* An open card spans the grid — keep the photo a banner, not a billboard. */
-.card[open] .card-photo {
+/* Banners (detail page) stay banners, not billboards. */
+.photo-wrap--banner .card-photo {
   aspect-ratio: auto;
-  height: 14rem;
+  height: 16rem;
+  border-radius: var(--r-l);
+}
+
+/* ---- recipe detail page ---- */
+
+.recipe-detail {
+  max-width: 52rem;
+}
+
+.recipe-title {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.6rem;
+  line-height: 1.2;
+  margin: var(--s-4) 0 var(--s-2);
+}
+
+.card .card-title {
+  text-decoration: none;
+}
+
+a.card {
+  text-decoration: none;
+  color: inherit;
 }
 
 .card-photo--empty {

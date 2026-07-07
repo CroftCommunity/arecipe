@@ -24,7 +24,8 @@ feasibility amendment on 2026-07-07 (see Review Log).
 | 5 Two-device read (M2 exit) | ✅ | Phase 5 close-out commit | Two contexts + two engines (Chrome/Firefox), same account, same recipes; independent refresh pinned. **M2 REACHED** |
 | 5b Pages + nav shell | ✅ | Phase 5b close-out commit | 4 documents, native back, bottom tab bar mobile; browse.js −98% (44 KB / 15 KB gz); @live 3/3 incl. mine.html callback |
 | 5c Theming (light/dark) | ✅ | Phase 5c close-out commit | Auto + one-tap cycle, pre-paint script, dark enamelware palette; ALTERED? verified loud in dark |
-| 6–8c (M3 set) | planned | | 6 authoring (draft-before-publish) → 7 blobs → 8 draft-sync/versioning → 8b offline PWA → 8c hosted client + physical two-device demo (M3 exit). 5d recipe-detail page proposed |
+| 5d Recipe detail page | ✅ | Phase 5d close-out commit | Shareable recipe URLs; cold links verified in fresh profile; back restores results; ALTERED on both surfaces |
+| 6–8c (M3 set) | planned | | 6 authoring (draft-before-publish) → 7 blobs → 8 draft-sync/versioning → 8b offline PWA → 8c hosted client + physical two-device demo (M3 exit) |
 | 9–12 | roadmap | | re-plan before execution |
 
 ---
@@ -1063,6 +1064,59 @@ floors; ALTERED? stamp must stay loud in dark.
 **Done when:** toggle + auto detection work and persist; dark palette passes
 the contrast floors. **Validation:** Moderate — screenshots of both themes
 reviewed (incl. the tampered-state stamp in dark).
+
+---
+
+### Phase 5d: Recipe detail as a real page — ✅ SHIPPED (2026-07-07, Phase 5d close-out commit)
+
+**Delivered:** as specced. Cards are links; `recipe.html?u=<at-uri>[&by=]` is
+a real shareable document (document.title = recipe name); cache-first with
+the cold-link path fetching DID doc → PDS → getRecord → Tier 2 verify →
+cache (author handle recovered from the DID doc's `alsoKnownAs` when no
+`by` param). Browse persists the last search in sessionStorage and restores
+results from cache on load — native back from a recipe returns to the
+results (validated: 3 cards restored). Cold link validated in a brand-new
+browser context: rendered with "as published by rdur.dev · fingerprint
+matches · Mar 2025". ALTERED? stamp + warning render on both card and
+detail (unit-covered). Banner-cap defect caught in the screenshot pass and
+fixed (detail banners 16rem).
+
+*(Original spec below.)*
+
+**Goal:** Cards stop expanding in place ("still like modals" — maintainer) and
+link to `recipe.html?u=<at-uri>`: a real document with a shareable URL,
+native back, and the page shape Phase 12's public `/recipes/{did}/{rkey}`
+prerender will reuse. Cold links work: a recipient with no cache gets the
+recipe fetched, Tier 2-verified, and rendered.
+
+**Changes:**
+- [ ] `recipe.html` + `src/pages/recipe.ts` — parse `?u=` (+ optional
+  `&by=<handle>`); cache-first, network fallback (at-uri → DID doc via
+  plc.directory → pds → getRecord → cache.put w/ verify); document.title set
+  to the recipe name; back affordance.
+- [ ] `src/recipes/read.ts` — `readRecord` (single getRecord, same open-world
+  validation, fail loud).
+- [ ] `src/recipes/view.ts` — split: `renderRecipeList` = link-cards only;
+  `renderRecipeDetail` = banner photo, title, chips, lede, ingredients-first
+  columns, provenance line / ALTERED warning.
+- [ ] `src/pages/browse.ts` — persist the last search (sessionStorage) and
+  re-render from cache on load, so native back from a recipe returns to the
+  results instead of an empty page.
+**Wiring test:** browse → find → click a card → recipe.html renders title +
+ingredients → native back returns to browse **with the results still
+showing**. Cold-link test: direct goto `recipe.html?u=…` over route fixtures
+renders with the provenance line (no prior cache).
+**Write-set:** `recipe.html`, `src/pages/recipe.ts`, `src/pages/browse.ts`,
+`src/recipes/read.ts`, `src/recipes/view.ts`, `scripts/build.mjs`, tests.
+**Diagnostic logging:** cold-path fetch steps at debug; verify outcome as in
+Phase 4a.
+**Risks:** back-from-detail UX (addressed via the sessionStorage restore);
+provenance author on cold links (DID doc `alsoKnownAs` → handle, did-string
+fallback).
+**Done when:** a recipe URL is shareable (works cold), back preserves the
+browse results, ALTERED renders on the detail page too.
+**Validation:** Moderate — real-browser click-through incl. a cold link in a
+fresh profile.
 
 ---
 

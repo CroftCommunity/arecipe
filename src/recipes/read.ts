@@ -41,6 +41,26 @@ const validateRecipeValue = (uri: string, value: Record<string, unknown>): Recip
 
 export type ReadRecipesTarget = { pds: string; did: string };
 
+/** Single-record fetch (5d cold links): same validation, fail loud. */
+export const createRecordReader = (options: { fetchFn?: typeof fetch } = {}) => {
+  const fetchFn = options.fetchFn ?? fetch;
+  return async (target: { pds: string; did: string; rkey: string }): Promise<RecipeRecord> => {
+    const url = `${target.pds}/xrpc/com.atproto.repo.getRecord?repo=${encodeURIComponent(target.did)}&collection=${RECIPE_COLLECTION}&rkey=${encodeURIComponent(target.rkey)}`;
+    log.debug('recipes', 'fetching record', { did: target.did, rkey: target.rkey });
+    const res = await fetchFn(url);
+    if (!res.ok) {
+      log.warn('recipes', 'getRecord failed', { status: res.status, rkey: target.rkey });
+      throw new Error(`getRecord failed (HTTP ${res.status}) for ${target.rkey}`);
+    }
+    const body = (await res.json()) as {
+      uri: string;
+      cid: string;
+      value: Record<string, unknown>;
+    };
+    return { uri: body.uri, cid: body.cid, value: validateRecipeValue(body.uri, body.value) };
+  };
+};
+
 export const createRecipeReader = (options: { fetchFn?: typeof fetch } = {}) => {
   const fetchFn = options.fetchFn ?? fetch;
 
