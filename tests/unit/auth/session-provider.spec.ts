@@ -13,6 +13,7 @@ type FakeSession = {
   did: string;
   signOut: () => Promise<void>;
   fetchHandler: (pathname: string, init?: RequestInit) => Promise<Response>;
+  getTokenInfo: (refresh?: boolean | 'auto') => Promise<{ expiresAt?: Date }>;
 };
 
 const makeFakeSession = (did: string, calls: string[]): FakeSession => ({
@@ -21,6 +22,10 @@ const makeFakeSession = (did: string, calls: string[]): FakeSession => ({
     calls.push(`signOut:${did}`);
   },
   fetchHandler: async () => new Response('{}'),
+  getTokenInfo: async (refresh) => {
+    calls.push(`getTokenInfo:${String(refresh)}`);
+    return { expiresAt: new Date('2026-07-07T18:00:00Z') };
+  },
 });
 
 describe('createOAuthSessionProvider', () => {
@@ -55,6 +60,25 @@ describe('createOAuthSessionProvider', () => {
     });
     await provider.signIn('alice.bsky.social');
     expect(calls).toEqual(['signIn:alice.bsky.social']);
+  });
+
+  it('forceRefresh() forces a token refresh on the restored session (3b debug hook)', async () => {
+    const calls: string[] = [];
+    const session = makeFakeSession('did:plc:abc123', calls);
+    const provider = createOAuthSessionProvider({
+      client: { init: async () => ({ session }), signIn: async () => undefined },
+    });
+    await provider.restore();
+    const info = await provider.forceRefresh();
+    expect(calls).toContain('getTokenInfo:true');
+    expect(info.expiresAt).toEqual(new Date('2026-07-07T18:00:00Z'));
+  });
+
+  it('forceRefresh() fails loud when signed out', async () => {
+    const provider = createOAuthSessionProvider({
+      client: { init: async () => undefined, signIn: async () => undefined },
+    });
+    await expect(provider.forceRefresh()).rejects.toThrow(/no session/i);
   });
 
   it('signOut() revokes the restored session', async () => {

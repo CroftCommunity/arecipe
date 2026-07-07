@@ -6,7 +6,7 @@ import type { Agent } from '@atproto/api';
 import { createOAuthClient } from './auth/oauth-client.js';
 import { createOAuthSessionProvider, type SessionProvider } from './auth/session-provider.js';
 import { createResolver } from './identity/resolve.js';
-import { log } from './log.js';
+import { isDebugEnabled, log } from './log.js';
 import { shellTitle } from './shell.js';
 
 const registerServiceWorker = async (): Promise<void> => {
@@ -101,6 +101,14 @@ const main = async (): Promise<void> => {
   if (agent === null) mountSignIn(app, provider);
   else mountSignedIn(app, agent, provider);
   log.debug('shell', 'mounted', { signedIn: agent !== null });
+
+  // Debug console surface (?debug=1): lets a field debugger — and the 3b
+  // two-tab regression test — force a token refresh on demand.
+  if (isDebugEnabled(window.location.search, window.localStorage.getItem('debug'))) {
+    (window as Window & { arecipeDebug?: unknown }).arecipeDebug = {
+      forceRefresh: provider.forceRefresh,
+    };
+  }
 
   void registerServiceWorker();
 };

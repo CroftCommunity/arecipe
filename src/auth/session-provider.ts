@@ -21,6 +21,7 @@ export type OAuthSessionLike = {
   did: string;
   signOut: () => Promise<void>;
   fetchHandler: (pathname: string, init?: RequestInit) => Promise<Response>;
+  getTokenInfo: (refresh?: boolean | 'auto') => Promise<{ expiresAt?: Date }>;
 };
 
 export type SessionProvider = {
@@ -30,6 +31,13 @@ export type SessionProvider = {
   signIn: (handle: string) => Promise<void>;
   /** Revoke the restored session. No-op when signed out. */
   signOut: () => Promise<void>;
+  /**
+   * Force a token refresh now (debug/diagnostic surface — exposed on the
+   * console in debug mode; also exercised by the 3b two-tab regression test).
+   * The library serializes concurrent refreshes across tabs via
+   * navigator.locks; this just requests one.
+   */
+  forceRefresh: () => Promise<{ expiresAt?: Date }>;
 };
 
 export const createOAuthSessionProvider = (opts: { client: OAuthClientPort }): SessionProvider => {
@@ -55,6 +63,15 @@ export const createOAuthSessionProvider = (opts: { client: OAuthClientPort }): S
       log.info('auth', 'signing out', { did: current.did });
       await current.signOut();
       current = null;
+    },
+    forceRefresh: async () => {
+      if (current === null) throw new Error('no session to refresh');
+      log.info('auth', 'forcing token refresh', { did: current.did });
+      const info = await current.getTokenInfo(true);
+      log.info('auth', 'token refreshed', {
+        expiresAt: info.expiresAt?.toISOString() ?? 'unknown',
+      });
+      return info;
     },
   };
 };

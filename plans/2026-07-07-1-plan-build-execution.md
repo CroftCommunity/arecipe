@@ -17,8 +17,9 @@ feasibility amendment on 2026-07-07 (see Review Log).
 | 0 Discovery | ✅ | `8c47af0`, `e98ad5a` | All 6 probes answered; nothing invalidated; fixtures + spike archived |
 | 1 Scaffold + logger + CI | ✅ | `a42375d` | Shell + `src/log.ts` (TDD), hermetic CI, docs; real-Chrome validation passed |
 | 2 Identity resolution | ✅ | `0b9c32c` | handle→DID→PDS via resolver service (TDD, fixtures); live validation vs well-known curl |
-| 3 OAuth login + persistence | ✅ | Phase 3 close-out commit | session-provider port (TDD); @live tier landed; real login + reload-resume passed; bundle 174 KB gz flagged for M1 |
-| 3b, 4–8 | pending | | |
+| 3 OAuth login + persistence | ✅ | `12c9e0f` | session-provider port (TDD); @live tier landed; real login + reload-resume passed; bundle 174 KB gz flagged for M1 |
+| 3b Cross-tab coordination | ✅ | Phase 3b close-out commit | Collapsed: library already coordinates (navigator.locks + BroadcastChannel, source-verified); forceRefresh API + two-tab @live regression pin it |
+| 4–8 | pending | | |
 | 9–12 | roadmap | | re-plan before execution |
 
 ---
@@ -746,7 +747,26 @@ the session (not just initial login), check for silent-reauth on expiry.
 
 ---
 
-### Phase 3b: Cross-tab session coordination
+### Phase 3b: Cross-tab session coordination — ✅ SHIPPED (2026-07-07, collapsed to regression test; Phase 3b close-out commit)
+
+**Delivered:** the verify-then-build probe answered BUILD NOTHING —
+`tab-coordination.ts` was not written. Source verification
+(oauth-client-browser 0.4.6): refresh is serialized cross-tab via
+`navigator.locks.request(..., {mode:'exclusive'})`
+(`browser-runtime-implementation.js:5-10`), tabs sync via a
+`BroadcastChannel` synchronization channel (`browser-oauth-client.js:11`),
+and session-getter carries an invalid_grant recovery path for lockless
+runtimes. Building the planned module would have duplicated the library.
+What shipped instead: `SessionProvider.forceRefresh()` (TDD — a real
+debug/diagnostic API, exposed on the console under the debug flag) and the
+two-tab `@live` regression test: login, second tab restores from the shared
+store, forced refresh rotates the single-use token, BOTH tabs remain
+authenticated across reloads (passed 4.6 s). The test pins the library
+behavior so an upgrade that loses coordination fails loudly. Validation:
+the two-tab scenario runs as real same-profile tabs against the real PDS —
+the exact hazard scenario, automated. Discovery note for later phases: the
+`?debug=1` URL flag does not survive the OAuth redirect round-trip; use the
+localStorage flag around auth flows.
 
 **Goal:** Two open tabs do not kill each other's session racing to refresh the
 single-use token.
