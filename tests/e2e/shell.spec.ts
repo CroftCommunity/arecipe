@@ -15,7 +15,8 @@ const collectAppLogs = (page: Page): string[] => {
 
 test('shell renders from the built bundle (wiring)', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('h1')).toHaveText('arecipe — no recipes yet');
+  await expect(page.locator('h1')).toHaveText('arecipe');
+  await expect(page.getByTestId('tab-browse')).toBeVisible();
 });
 
 test('service-worker registration is logged at info with ?debug=1', async ({ page }) => {
@@ -26,6 +27,15 @@ test('service-worker registration is logged at info with ?debug=1', async ({ pag
       timeout: 15_000,
     })
     .toHaveLength(1);
+});
+
+test('tabs switch between Browse and My recipes (UI skeleton)', async ({ page }) => {
+  await page.goto('/');
+  await page.getByTestId('tab-mine').click();
+  await expect(page.getByTestId('mine-empty')).toBeVisible();
+  await expect(page.getByTestId('handle-input')).toBeHidden();
+  await page.getByTestId('tab-browse').click();
+  await expect(page.getByTestId('handle-input')).toBeVisible();
 });
 
 test('build stamp is visible in the footer (M1 bundle-visibility rider)', async ({ page }) => {

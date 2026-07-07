@@ -1,0 +1,330 @@
+/* arecipe — UI skeleton design tokens.
+   Direction: "enamelware, not parchment" — cool tile + enamel green against
+   the genre's default warm cream. Display: Fraunces (restrained). Body:
+   Atkinson Hyperlegible (arm's-length kitchen legibility is a functional
+   requirement). Signature element: the provenance stamp. */
+
+:root {
+  --tile: #f4f7f5;
+  --ink: #1c2b27;
+  --enamel: #175e54;
+  --enamel-soft: #175e5414;
+  --yolk: #e8a013;
+  --rust: #b4552d;
+  --card: #ffffff;
+  --line: #d9e2de;
+  --display: 'Fraunces', georgia, serif;
+  --body: 'Atkinson Hyperlegible', system-ui, sans-serif;
+  --mono: ui-monospace, 'SF Mono', menlo, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--tile);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+}
+
+#app {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 0 1rem 4rem;
+}
+
+:focus-visible {
+  outline: 3px solid var(--yolk);
+  outline-offset: 2px;
+}
+
+/* ---- header ---- */
+
+.topbar {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 1.1rem 0 0.4rem;
+}
+
+.wordmark {
+  font-family: var(--display);
+  font-weight: 550;
+  font-size: 2rem;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: var(--enamel);
+}
+
+.auth-area {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.auth-who {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--ink);
+  opacity: 0.7;
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---- tabs ---- */
+
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 2px solid var(--line);
+  margin-bottom: 1.25rem;
+}
+
+.tab {
+  appearance: none;
+  border: 0;
+  background: none;
+  font-family: var(--body);
+  font-size: 1rem;
+  padding: 0.55rem 0.9rem;
+  cursor: pointer;
+  color: var(--ink);
+  opacity: 0.62;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+}
+
+.tab--active {
+  opacity: 1;
+  border-bottom-color: var(--enamel);
+  font-weight: 700;
+}
+
+/* ---- lookup row + controls ---- */
+
+.lookup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 0.5rem;
+}
+
+.lookup input {
+  flex: 1 1 14rem;
+  font: inherit;
+  padding: 0.55rem 0.8rem;
+  border: 1.5px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--card);
+  color: inherit;
+}
+
+.lookup input::placeholder {
+  color: var(--ink);
+  opacity: 0.45;
+}
+
+.button {
+  font: inherit;
+  font-weight: 700;
+  padding: 0.55rem 1rem;
+  border-radius: 0.5rem;
+  border: 1.5px solid var(--enamel);
+  background: var(--card);
+  color: var(--enamel);
+  cursor: pointer;
+}
+
+.button--primary {
+  background: var(--enamel);
+  color: var(--card);
+}
+
+.button:hover {
+  background: var(--enamel-soft);
+}
+
+.button--primary:hover {
+  background: #124b43;
+}
+
+.status {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  min-height: 1.2em;
+  margin: 0.35rem 0;
+  opacity: 0.75;
+}
+
+.empty-state {
+  border: 1.5px dashed var(--line);
+  border-radius: 0.75rem;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  opacity: 0.8;
+}
+
+/* ---- recipe cards ---- */
+
+.recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.card {
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  transition: border-color 120ms ease;
+}
+
+.card:hover {
+  border-color: var(--enamel);
+}
+
+.card[open] {
+  grid-column: 1 / -1;
+  border-color: var(--enamel);
+}
+
+.card-face {
+  display: block;
+  cursor: pointer;
+  list-style: none;
+}
+
+.card-face::-webkit-details-marker {
+  display: none;
+}
+
+.card-photo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  background: var(--enamel-soft);
+}
+
+/* An open card spans the grid — keep the photo a banner, not a billboard. */
+.card[open] .card-photo {
+  aspect-ratio: auto;
+  height: 14rem;
+}
+
+.card-photo--empty {
+  display: grid;
+  place-items: center;
+  font-size: 2rem;
+}
+
+.card-title {
+  display: block;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.15rem;
+  line-height: 1.25;
+  padding: 0.7rem 0.9rem 0.2rem;
+}
+
+.chips {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.2rem 0.9rem 0.85rem;
+}
+
+.chip {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: var(--enamel-soft);
+  color: var(--enamel);
+}
+
+/* The signature: a provenance stamp. */
+.stamp {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  padding: 0.18rem 0.45rem;
+  border: 1.5px solid var(--enamel);
+  color: var(--enamel);
+  border-radius: 0.2rem;
+  transform: rotate(-2deg);
+  opacity: 0.85;
+}
+
+.stamp[data-verified='false'] {
+  border-color: var(--rust);
+  color: var(--rust);
+  transform: rotate(1.5deg);
+}
+
+/* ---- expanded detail: ingredients first ---- */
+
+.card-detail {
+  padding: 0 1.1rem 1.25rem;
+  border-top: 1.5px solid var(--line);
+}
+
+.lede {
+  max-width: 44rem;
+  opacity: 0.85;
+}
+
+.detail-cols {
+  display: grid;
+  grid-template-columns: minmax(14rem, 1fr) 2fr;
+  gap: 0 2.5rem;
+}
+
+.detail-cols h3 {
+  font-family: var(--display);
+  font-weight: 600;
+  color: var(--enamel);
+  margin: 1.1rem 0 0.4rem;
+}
+
+.detail-cols ul {
+  padding-left: 1.1rem;
+}
+
+.detail-cols ol {
+  padding-left: 1.3rem;
+}
+
+.detail-cols ol li {
+  margin-bottom: 0.7rem;
+}
+
+@media (max-width: 40rem) {
+  .detail-cols {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- footer stamp ---- */
+
+footer[data-testid='build-stamp'] {
+  margin-top: 3rem;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  opacity: 0.5;
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}

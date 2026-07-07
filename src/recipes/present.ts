@@ -1,0 +1,32 @@
+// Presentational derivations from record values (UI skeleton).
+// Open-world tolerance applies here too: a duration we can't parse renders
+// as "not set" rather than breaking the card.
+
+export const formatDuration = (iso: string | undefined): string | null => {
+  if (iso === undefined || iso === '') return null;
+  const match = /^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/.exec(iso);
+  if (match === null) return null;
+  const hours = Number(match[1] ?? 0);
+  const minutes = Number(match[2] ?? 0);
+  if (hours === 0 && minutes === 0) return null;
+  const parts: string[] = [];
+  if (hours > 0) parts.push(`${hours} h`);
+  if (minutes > 0) parts.push(`${minutes} m`);
+  return parts.join(' ');
+};
+
+type EmbedShape = {
+  embed?: { images?: { image?: { ref?: { $link?: string } } }[] };
+};
+
+export const firstImageCid = (value: Record<string, unknown>): string | null =>
+  (value as EmbedShape).embed?.images?.[0]?.image?.ref?.$link ?? null;
+
+/**
+ * Blob thumbnail via the Bluesky CDN. A recorded third-party dependency
+ * (like the handle resolver): direct `sync.getBlob` serves the full-size
+ * original (~1 MB per photo, D2-observed), which is the wrong default for a
+ * card grid. Revisit alongside Phase 8b offline caching.
+ */
+export const thumbUrl = (did: string, cid: string): string =>
+  `https://cdn.bsky.app/img/feed_thumbnail/plain/${did}/${cid}@jpeg`;

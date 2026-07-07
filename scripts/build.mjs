@@ -16,6 +16,7 @@ buildSync({
 });
 buildSync({ entryPoints: ['src/sw.ts'], bundle: true, minify: true, outfile: 'dist/sw.js' });
 copyFileSync('index.html', 'dist/index.html');
+copyFileSync('styles.css', 'dist/styles.css');
 
 const sha = execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim();
 const now = new Date();

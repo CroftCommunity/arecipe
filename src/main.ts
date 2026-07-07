@@ -1,6 +1,6 @@
-// App entry: mounts the shell (title + sign-in form), restores any OAuth
-// session, and registers the service worker. Wiring proven by
-// tests/e2e/*.spec.ts against the built bundle (@live tier for OAuth).
+// App entry: header (wordmark + auth), Browse / My recipes tabs, service
+// worker, build stamp. Wiring proven by tests/e2e/*.spec.ts against the
+// built bundle (@live tier for OAuth).
 
 import type { Agent } from '@atproto/api';
 import { mountBuildStamp } from './build-stamp.js';
@@ -11,7 +11,6 @@ import { isDebugEnabled, log } from './log.js';
 import { createRecipeCache } from './recipes/cache.js';
 import { createRecipeReader } from './recipes/read.js';
 import { renderRecipeList } from './recipes/view.js';
-import { shellTitle } from './shell.js';
 
 const registerServiceWorker = async (): Promise<void> => {
   if (!('serviceWorker' in navigator)) {
@@ -30,31 +29,36 @@ const registerServiceWorker = async (): Promise<void> => {
   }
 };
 
-const mountSignIn = (app: HTMLElement, provider: SessionProvider | null): void => {
-  const form = document.createElement('form');
+const el = (tag: string, className?: string, text?: string): HTMLElement => {
+  const node = document.createElement(tag);
+  if (className !== undefined) node.className = className;
+  if (text !== undefined) node.textContent = text;
+  return node;
+};
+
+const mountBrowse = (panel: HTMLElement, provider: SessionProvider | null): void => {
+  const form = el('form', 'lookup') as HTMLFormElement;
   const input = document.createElement('input');
   input.type = 'text';
-  input.placeholder = 'your.handle (e.g. name.bsky.social)';
+  input.placeholder = 'a cook’s handle — try rdur.dev';
   input.dataset['testid'] = 'handle-input';
-  const resolveButton = document.createElement('button');
+  const resolveButton = el('button', 'button', 'Resolve') as HTMLButtonElement;
   resolveButton.type = 'submit';
-  resolveButton.textContent = 'Resolve';
   resolveButton.dataset['testid'] = 'resolve-submit';
-  const signInButton = document.createElement('button');
+  const signInButton = el('button', 'button button--primary', 'Sign in') as HTMLButtonElement;
   signInButton.type = 'button';
-  signInButton.textContent = 'Sign in';
   signInButton.dataset['testid'] = 'oauth-signin';
-  const status = document.createElement('p');
+  const status = el('p', 'status');
   status.dataset['testid'] = 'resolved-pds';
-  const loadButton = document.createElement('button');
+  const loadButton = el('button', 'button button--primary', 'Load recipes') as HTMLButtonElement;
   loadButton.type = 'button';
-  loadButton.textContent = 'Load recipes';
   loadButton.dataset['testid'] = 'load-recipes';
   loadButton.hidden = true;
-  const recipesStatus = document.createElement('p');
+  const recipesStatus = el('p', 'status');
   recipesStatus.dataset['testid'] = 'recipes-status';
+  const listContainer = el('div');
   form.append(input, resolveButton, signInButton);
-  app.append(form, status, loadButton, recipesStatus);
+  panel.append(form, status, loadButton, recipesStatus, listContainer);
 
   const resolve = createResolver();
   let resolved: ResolvedIdentity | null = null;
@@ -73,10 +77,24 @@ const mountSignIn = (app: HTMLElement, provider: SessionProvider | null): void =
       });
   });
 
+  if (provider === null) {
+    // Deployed origin: sign-in arrives with the hosted client (M3).
+    signInButton.hidden = true;
+  } else {
+    const boundProvider = provider;
+    signInButton.addEventListener('click', () => {
+      status.textContent = 'redirecting to sign-in…';
+      // Resolves only on failure/abort — success navigates away.
+      void boundProvider.signIn(input.value.trim()).catch((err: unknown) => {
+        const message = err instanceof Error ? err.message : String(err);
+        log.error('auth', 'sign-in failed', { error: message });
+        status.textContent = `sign-in failed: ${message}`;
+      });
+    });
+  }
+
   const readRecipes = createRecipeReader();
   const cache = createRecipeCache();
-  const listContainer = document.createElement('div');
-  app.append(listContainer);
   loadButton.addEventListener('click', () => {
     if (resolved === null) return;
     const target = resolved;
@@ -93,45 +111,68 @@ const mountSignIn = (app: HTMLElement, provider: SessionProvider | null): void =
       recipesStatus.textContent = `load failed: ${message}`;
     });
   });
-  if (provider === null) {
-    // Deployed origin: no loopback client here; sign-in arrives with the
-    // hosted client-metadata document (M3). Read paths all work.
-    signInButton.hidden = true;
-  } else {
-    const boundProvider = provider;
-    signInButton.addEventListener('click', () => {
-      status.textContent = 'redirecting to sign-in…';
-      // Resolves only on failure/abort — success navigates away.
-      void boundProvider.signIn(input.value.trim()).catch((err: unknown) => {
-        const message = err instanceof Error ? err.message : String(err);
-        log.error('auth', 'sign-in failed', { error: message });
-        status.textContent = `sign-in failed: ${message}`;
-      });
-    });
-  }
 };
 
-const mountSignedIn = (app: HTMLElement, agent: Agent, provider: SessionProvider): void => {
-  const who = document.createElement('p');
+const mountMine = (panel: HTMLElement, agent: Agent | null): void => {
+  const empty = el(
+    'p',
+    'empty-state',
+    agent === null
+      ? 'Sign in to keep your recipes here.'
+      : 'Your shelf is empty — authoring arrives with the next milestone.',
+  );
+  empty.dataset['testid'] = 'mine-empty';
+  panel.append(empty);
+};
+
+const mountAuthArea = (
+  area: HTMLElement,
+  agent: Agent | null,
+  provider: SessionProvider | null,
+): void => {
+  if (agent === null || provider === null) return;
+  const who = el('span', 'auth-who', agent.did ?? 'unknown');
   who.dataset['testid'] = 'signed-in-did';
-  who.textContent = `Signed in: ${agent.did ?? 'unknown'}`;
-  const signOut = document.createElement('button');
+  const signOut = el('button', 'button', 'Sign out') as HTMLButtonElement;
   signOut.type = 'button';
-  signOut.textContent = 'Sign out';
   signOut.dataset['testid'] = 'sign-out';
   signOut.addEventListener('click', () => {
     void provider.signOut().then(() => window.location.reload());
   });
-  app.append(who, signOut);
+  area.append(who, signOut);
 };
 
 const main = async (): Promise<void> => {
   const app = document.getElementById('app');
   if (app === null) throw new Error('shell mount point #app missing');
 
-  const title = document.createElement('h1');
-  title.textContent = shellTitle(0);
-  app.replaceChildren(title);
+  const header = el('header', 'topbar');
+  header.append(el('h1', 'wordmark', 'arecipe'));
+  const authArea = el('div', 'auth-area');
+  header.append(authArea);
+
+  const tabs = el('nav', 'tabs');
+  const tabBrowse = el('button', 'tab tab--active', 'Browse') as HTMLButtonElement;
+  tabBrowse.type = 'button';
+  tabBrowse.dataset['testid'] = 'tab-browse';
+  const tabMine = el('button', 'tab', 'My recipes') as HTMLButtonElement;
+  tabMine.type = 'button';
+  tabMine.dataset['testid'] = 'tab-mine';
+  tabs.append(tabBrowse, tabMine);
+
+  const browsePanel = el('section', 'panel');
+  const minePanel = el('section', 'panel');
+  minePanel.hidden = true;
+  app.replaceChildren(header, tabs, browsePanel, minePanel);
+
+  const selectTab = (which: 'browse' | 'mine'): void => {
+    browsePanel.hidden = which !== 'browse';
+    minePanel.hidden = which !== 'mine';
+    tabBrowse.classList.toggle('tab--active', which === 'browse');
+    tabMine.classList.toggle('tab--active', which === 'mine');
+  };
+  tabBrowse.addEventListener('click', () => selectTab('browse'));
+  tabMine.addEventListener('click', () => selectTab('mine'));
 
   const provider = isLoopbackHostname(window.location.hostname)
     ? createOAuthSessionProvider({ client: createOAuthClient() })
@@ -148,8 +189,9 @@ const main = async (): Promise<void> => {
     log.error('auth', 'session restore failed', { error: String(err) });
   }
 
-  if (agent === null || provider === null) mountSignIn(app, provider);
-  else mountSignedIn(app, agent, provider);
+  mountAuthArea(authArea, agent, provider);
+  mountBrowse(browsePanel, agent === null ? provider : null);
+  mountMine(minePanel, agent);
   void mountBuildStamp(app);
   log.debug('shell', 'mounted', { signedIn: agent !== null });
 
