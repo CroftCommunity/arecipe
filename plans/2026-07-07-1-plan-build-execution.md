@@ -1542,6 +1542,16 @@ UI-pattern research. Outcomes:
   Tokens formalized (spacing/type/radii scales) + `docs/DESIGN.md` written
   (palette rules, type roles, machine-facts-in-mono, copy voice, a11y
   floors).
+- **M2/M3 re-plan inputs (maintainer references, 2026-07-07):** from
+  blockdoku (`settings.html` / `gamesettings.html` / `index.html`) and
+  mealplanner (`?tab=settings`): settings split into **App management**
+  (version/update/cache/install/About — plus arecipe's integrity explainer
+  and later release verification) vs **domain settings** (account, prefs),
+  as separate cross-linked pages; wordmark top-left = home; theme toggle in
+  the top bar; **bottom tab bar on mobile** (thumb reach), top tabs on wide;
+  native light/dark via `prefers-color-scheme` + manual override (dark
+  palette to be designed at the re-plan). Details in `docs/DESIGN.md`
+  § Header, nav placement, settings architecture.
 - **DECIDED (user, 2026-07-07): page-per-destination architecture.** The
   M2/M3 re-plan restructures the app as separate HTML documents per
   destination (browse / my recipes / settings / …, blockdoku-style): native

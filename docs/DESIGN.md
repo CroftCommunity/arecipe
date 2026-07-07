@@ -102,6 +102,31 @@ traps. So:
   build is available, show a small "Update available → Update now" toast;
   the user applies it. Belongs to Phase 8b/11 SW update flow.
 
+## Header, nav placement, settings architecture (M2/M3 re-plan inputs)
+
+Patterns lifted from the maintainer's own PWAs (blockdoku + mealplanner),
+to be implemented with the page-per-destination restructure:
+
+- **Top bar**: wordmark top-left is always a tap target for home (both
+  apps). Quick app controls top-right: theme toggle (one tap, mealplanner's
+  sun icon) and a settings gear. Nothing else lives up there.
+- **Mobile nav goes to the bottom**: primary destinations render as a
+  bottom tab bar on small screens (thumb reach — mealplanner does this),
+  top tabs on wide screens. Same destinations, responsive placement.
+- **Settings split in two, cross-linked** (blockdoku: `settings.html` ↔
+  `gamesettings.html`, both linked from index, each links back home and
+  sideways):
+  - **App management** — the PWA machinery: version/build stamp, update
+    check, cache/storage, install, About. arecipe additions: the
+    integrity-check explainer and (later) signed-release verification
+    live here.
+  - **Domain settings** — account (sign in/out, handle), display prefs,
+    recipe defaults.
+- **Native light/dark**: honor `prefers-color-scheme` by default with a
+  manual override in the top bar. The token system needs a dark palette
+  (enamelware-at-night: deep green-black tile, same enamel/yolk/rust
+  hues re-tuned for contrast) — design it at the re-plan, not ad hoc.
+
 ## Floors (non-negotiable)
 
 - Focus visible everywhere: 3px `--yolk` outline.
