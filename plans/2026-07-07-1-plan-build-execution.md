@@ -1516,6 +1516,17 @@ UI-pattern research. Outcomes:
   deferred to launch prep. (See Open Questions.)
 - **Offline shell → RESOLVED: yes** — fully offline-capable PWA; Phase 8b stub
   added to M3 scope. (See Open Questions.)
+- **Design iteration 2 (maintainer feedback on the live skeleton):**
+  wordmark "a" differentiated (yolk-deep, lighter weight — reads "a recipe");
+  Resolve+Load merged into one action ("Find recipes"), PDS line demoted to
+  console diagnostics; footer colophon added (© 2026 Chase Pettet + GitHub
+  source, one link) under the build stamp; **the stamp now explains itself**
+  — clicking reveals a plain-language note ("matches the fingerprint it was
+  published with — hasn't been altered…"), because the maintainer himself
+  didn't know what "verified" meant, which made it noise, not trust surface.
+  Tokens formalized (spacing/type/radii scales) + `docs/DESIGN.md` written
+  (palette rules, type roles, machine-facts-in-mono, copy voice, a11y
+  floors).
 - **UI direction: keep it lite and data-grounded.** The middle-ground skeleton
   (tabs, cards w/ verified+time chips, ingredients-first detail) is directional,
   not committed; refine while walking real data. Lexicon fact established:

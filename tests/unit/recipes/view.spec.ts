@@ -36,6 +36,27 @@ describe('renderRecipeList', () => {
     expect(items[1]?.querySelector('[data-verified]')?.getAttribute('data-verified')).toBe('false');
   });
 
+  it('clicking the stamp reveals a plain-language explanation (both verdicts)', () => {
+    const el = renderRecipeList([entry(), entry({ uri: 'at://x/y/z', verified: false })]);
+    const items = Array.from(el.querySelectorAll('[data-testid=recipe-item]'));
+
+    const verifiedStamp = items[0]?.querySelector<HTMLElement>('.stamp');
+    verifiedStamp?.click();
+    const verifiedNote = items[0]?.querySelector<HTMLElement>('[data-testid=stamp-note]');
+    expect(verifiedNote?.hidden).toBe(false);
+    expect(verifiedNote?.textContent).toMatch(/hasn.t been altered/i);
+
+    const unverifiedStamp = items[1]?.querySelector<HTMLElement>('.stamp');
+    unverifiedStamp?.click();
+    const unverifiedNote = items[1]?.querySelector<HTMLElement>('[data-testid=stamp-note]');
+    expect(unverifiedNote?.hidden).toBe(false);
+    expect(unverifiedNote?.textContent).toMatch(/did not match/i);
+
+    // Second click hides it again.
+    verifiedStamp?.click();
+    expect(items[0]?.querySelector<HTMLElement>('[data-testid=stamp-note]')?.hidden).toBe(true);
+  });
+
   it('renders ingredients and instructions as list items in the detail', () => {
     const el = renderRecipeList([entry()]);
     const ingredients = el.querySelectorAll('[data-testid=recipe-ingredients] li');

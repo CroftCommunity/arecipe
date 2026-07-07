@@ -1,7 +1,7 @@
-// Phase 4a wiring test: entry point → resolve → public read → verified
-// cache, surfaced in the shell. Hermetic: resolver + PDS served from the
-// recorded D2 fixtures via route interception. The @live variant (real PDS,
-// real recipe.exchange author) is the phase validation.
+// Wiring tests: one action — a handle in, recipes out (resolve → public
+// read → verified cache → cards). PDS resolution details are console
+// diagnostics, not UI. Hermetic via recorded-fixture routes; the @live
+// variant is the phase validation.
 import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
 
@@ -16,14 +16,22 @@ const AUTHOR_PDS = 'https://morel.us-east.host.bsky.network';
 
 const routeFixtures = async (page: Page): Promise<void> => {
   await page.route('https://public.api.bsky.app/**', async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({ did: AUTHOR_DID }),
-    });
+    const url = route.request().url();
+    if (url.includes('resolveHandle') && url.includes('somechef')) {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ did: AUTHOR_DID }),
+      });
+    } else {
+      await route.fulfill({
+        status: 400,
+        contentType: 'application/json',
+        body: identityFixture('resolveHandle-unresolvable.json'),
+      });
+    }
   });
   await page.route('https://plc.directory/**', async (route) => {
-    // Point the recorded DID doc's PDS at the fixture author's PDS.
     const doc = JSON.parse(identityFixture('plc-diddoc-ngvalidation2112.json')) as {
       id: string;
       service: { serviceEndpoint: string }[];
@@ -41,28 +49,34 @@ const routeFixtures = async (page: Page): Promise<void> => {
   });
 };
 
-test('resolve → load recipes → verified cache count in the shell (wiring)', async ({ page }) => {
+test('one action: handle in, verified recipe cards out (wiring)', async ({ page }) => {
   await routeFixtures(page);
   await page.goto('/');
   await page.getByTestId('handle-input').fill('somechef.example.com');
-  await page.getByTestId('resolve-submit').click();
-  await expect(page.getByTestId('resolved-pds')).toHaveText(`PDS: ${AUTHOR_PDS}`);
-
-  await page.getByTestId('load-recipes').click();
+  await page.getByTestId('find-recipes').click();
   await expect(page.getByTestId('recipes-status')).toHaveText('3 recipes cached (3 verified)', {
     timeout: 15_000,
   });
+  await expect(page.getByTestId('recipe-item').first()).toContainText(
+    'White Chocolate Strawberry Sourdough Sweet Bread',
+  );
+  await expect(page.getByTestId('recipe-item')).toHaveCount(3);
 });
 
-test('loaded recipes render titles from real records (4b wiring)', async ({ page }) => {
+test('an unresolvable handle surfaces the failure in the status line', async ({ page }) => {
+  await routeFixtures(page);
+  await page.goto('/');
+  await page.getByTestId('handle-input').fill('definitely-not-real-xyz9.bsky.social');
+  await page.getByTestId('find-recipes').click();
+  await expect(page.getByTestId('recipes-status')).toContainText('Unable to resolve handle');
+});
+
+test('the stamp explains itself on click (trust surface is legible)', async ({ page }) => {
   await routeFixtures(page);
   await page.goto('/');
   await page.getByTestId('handle-input').fill('somechef.example.com');
-  await page.getByTestId('resolve-submit').click();
-  await page.getByTestId('load-recipes').click();
-  await expect(page.getByTestId('recipe-item').first()).toContainText(
-    'White Chocolate Strawberry Sourdough Sweet Bread',
-    { timeout: 15_000 },
-  );
+  await page.getByTestId('find-recipes').click();
   await expect(page.getByTestId('recipe-item')).toHaveCount(3);
+  await page.locator('.stamp').first().click();
+  await expect(page.getByTestId('stamp-note').first()).toContainText(/hasn.t been altered/i);
 });

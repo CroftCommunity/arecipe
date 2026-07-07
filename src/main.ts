@@ -42,39 +42,38 @@ const mountBrowse = (panel: HTMLElement, provider: SessionProvider | null): void
   input.type = 'text';
   input.placeholder = 'a cook’s handle — try rdur.dev';
   input.dataset['testid'] = 'handle-input';
-  const resolveButton = el('button', 'button', 'Resolve') as HTMLButtonElement;
-  resolveButton.type = 'submit';
-  resolveButton.dataset['testid'] = 'resolve-submit';
-  const signInButton = el('button', 'button button--primary', 'Sign in') as HTMLButtonElement;
+  const findButton = el('button', 'button button--primary', 'Find recipes') as HTMLButtonElement;
+  findButton.type = 'submit';
+  findButton.dataset['testid'] = 'find-recipes';
+  const signInButton = el('button', 'button', 'Sign in') as HTMLButtonElement;
   signInButton.type = 'button';
   signInButton.dataset['testid'] = 'oauth-signin';
-  const status = el('p', 'status');
-  status.dataset['testid'] = 'resolved-pds';
-  const loadButton = el('button', 'button button--primary', 'Load recipes') as HTMLButtonElement;
-  loadButton.type = 'button';
-  loadButton.dataset['testid'] = 'load-recipes';
-  loadButton.hidden = true;
   const recipesStatus = el('p', 'status');
   recipesStatus.dataset['testid'] = 'recipes-status';
   const listContainer = el('div');
-  form.append(input, resolveButton, signInButton);
-  panel.append(form, status, loadButton, recipesStatus, listContainer);
+  form.append(input, findButton, signInButton);
+  panel.append(form, recipesStatus, listContainer);
 
+  // One action: handle in, recipes out. Resolution details (DID, PDS) are
+  // console diagnostics via the resolver's own logging, not UI.
   const resolve = createResolver();
-  let resolved: ResolvedIdentity | null = null;
+  const readRecipes = createRecipeReader();
+  const cache = createRecipeCache();
   form.addEventListener('submit', (event) => {
     event.preventDefault();
-    status.textContent = 'resolving…';
-    loadButton.hidden = true;
-    void resolve(input.value.trim())
-      .then((identity) => {
-        resolved = identity;
-        status.textContent = `PDS: ${identity.pds}`;
-        loadButton.hidden = false;
-      })
-      .catch((err: unknown) => {
-        status.textContent = err instanceof Error ? err.message : String(err);
-      });
+    recipesStatus.textContent = 'finding…';
+    void (async () => {
+      const identity: ResolvedIdentity = await resolve(input.value.trim());
+      const records = await readRecipes({ pds: identity.pds, did: identity.did });
+      const entries = await Promise.all(records.map((r) => cache.put(r)));
+      const verified = entries.filter((e) => e.verified).length;
+      recipesStatus.textContent = `${records.length} recipes cached (${verified} verified)`;
+      listContainer.replaceChildren(renderRecipeList(entries));
+    })().catch((err: unknown) => {
+      const message = err instanceof Error ? err.message : String(err);
+      log.error('recipes', 'find failed', { error: message });
+      recipesStatus.textContent = message;
+    });
   });
 
   if (provider === null) {
@@ -83,34 +82,15 @@ const mountBrowse = (panel: HTMLElement, provider: SessionProvider | null): void
   } else {
     const boundProvider = provider;
     signInButton.addEventListener('click', () => {
-      status.textContent = 'redirecting to sign-in…';
+      recipesStatus.textContent = 'redirecting to sign-in…';
       // Resolves only on failure/abort — success navigates away.
       void boundProvider.signIn(input.value.trim()).catch((err: unknown) => {
         const message = err instanceof Error ? err.message : String(err);
         log.error('auth', 'sign-in failed', { error: message });
-        status.textContent = `sign-in failed: ${message}`;
+        recipesStatus.textContent = `sign-in failed: ${message}`;
       });
     });
   }
-
-  const readRecipes = createRecipeReader();
-  const cache = createRecipeCache();
-  loadButton.addEventListener('click', () => {
-    if (resolved === null) return;
-    const target = resolved;
-    recipesStatus.textContent = 'loading…';
-    void (async () => {
-      const records = await readRecipes({ pds: target.pds, did: target.did });
-      const entries = await Promise.all(records.map((r) => cache.put(r)));
-      const verified = entries.filter((e) => e.verified).length;
-      recipesStatus.textContent = `${records.length} recipes cached (${verified} verified)`;
-      listContainer.replaceChildren(renderRecipeList(entries));
-    })().catch((err: unknown) => {
-      const message = err instanceof Error ? err.message : String(err);
-      log.error('recipes', 'load failed', { error: message });
-      recipesStatus.textContent = `load failed: ${message}`;
-    });
-  });
 };
 
 const mountMine = (panel: HTMLElement, agent: Agent | null): void => {
@@ -147,7 +127,10 @@ const main = async (): Promise<void> => {
   if (app === null) throw new Error('shell mount point #app missing');
 
   const header = el('header', 'topbar');
-  header.append(el('h1', 'wordmark', 'arecipe'));
+  const wordmark = el('h1', 'wordmark');
+  // Differentiated leading "a" so the wordmark reads "a recipe".
+  wordmark.append(el('span', 'wordmark-a', 'a'), document.createTextNode('recipe'));
+  header.append(wordmark);
   const authArea = el('div', 'auth-area');
   header.append(authArea);
 

@@ -20,12 +20,28 @@ const listEl = (tag: 'ul' | 'ol', testid: string, items: string[]): HTMLElement 
   return list;
 };
 
-const stampEl = (verified: boolean): HTMLElement => {
-  const stamp = el('span', 'stamp', verified ? '✓ VERIFIED' : 'UNVERIFIED');
+// The stamp must explain itself — "verified" is meaningless until it does.
+// Clicking it toggles a plain-language note (user-side words, no jargon).
+const STAMP_NOTES = {
+  verified:
+    "Verified: this recipe matches the fingerprint it was published with — it hasn't been altered since the author saved it.",
+  unverified:
+    'Unverified: the recipe content did not match its published fingerprint. It may have been altered — treat with care.',
+} as const;
+
+const stampEl = (verified: boolean, note: HTMLElement): HTMLElement => {
+  const stamp = el('button', 'stamp', verified ? '✓ VERIFIED' : 'UNVERIFIED');
+  (stamp as HTMLButtonElement).type = 'button';
   stamp.setAttribute('data-verified', String(verified));
-  stamp.title = verified
-    ? 'Record content matches its signed identifier (CID)'
-    : 'Record content did NOT match its reported identifier';
+  stamp.setAttribute('aria-expanded', 'false');
+  note.textContent = verified ? STAMP_NOTES.verified : STAMP_NOTES.unverified;
+  stamp.addEventListener('click', (event) => {
+    // Inside a <summary>: don't let the click also toggle the card.
+    event.preventDefault();
+    event.stopPropagation();
+    note.hidden = !note.hidden;
+    stamp.setAttribute('aria-expanded', String(!note.hidden));
+  });
   return stamp;
 };
 
@@ -59,8 +75,11 @@ const renderRecipe = (entry: CachedRecipe): HTMLElement => {
   const chips = el('span', 'chips');
   const time = formatDuration(value.totalTime);
   if (time !== null) chips.append(el('span', 'chip', time));
-  chips.append(stampEl(entry.verified));
-  summary.append(chips);
+  const stampNote = el('p', 'stamp-note');
+  stampNote.dataset['testid'] = 'stamp-note';
+  stampNote.hidden = true;
+  chips.append(stampEl(entry.verified, stampNote));
+  summary.append(chips, stampNote);
   item.append(summary);
 
   const detail = el('div', 'card-detail');

@@ -16,7 +16,19 @@ const collectAppLogs = (page: Page): string[] => {
 test('shell renders from the built bundle (wiring)', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('h1')).toHaveText('arecipe');
+  // The leading "a" is differentiated so the wordmark reads "a recipe".
+  await expect(page.locator('h1 .wordmark-a')).toHaveText('a');
   await expect(page.getByTestId('tab-browse')).toBeVisible();
+});
+
+test('colophon: one-action copyright + source link under the build stamp', async ({ page }) => {
+  await page.goto('/');
+  const colophon = page.getByTestId('colophon');
+  await expect(colophon).toContainText('© 2026 Chase Pettet');
+  await expect(colophon).toHaveAttribute(
+    'href',
+    'https://github.com/CroftCommunity/arecipe',
+  );
 });
 
 test('service-worker registration is logged at info with ?debug=1', async ({ page }) => {
