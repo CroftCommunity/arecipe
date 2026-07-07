@@ -145,6 +145,50 @@ This is a decision the maintainer should make, gated before the scaffold phase.
   describes the protocol view, not the browser-feasible path → errata recorded in
   Documentation Impact.
 
+- **The loopback OAuth flow works end-to-end — VERIFIED (D1, 2026-07-07).**
+  Full cycle against the real PDS via Playwright-driven browser:
+  `signIn(handle)` → bsky.social login (handle prefilled via `login_hint`) →
+  consent screen (Authorize/Deny — always shown; loopback forbids silent
+  sign-in) → callback → `init()` returns the session (correct DID) →
+  authenticated DPoP read (`getProfile` via appview proxy) → reload restores
+  the session without re-login → `getTokenInfo(true)` forces refresh (twice) →
+  a second tab restores the same session from the shared store and keeps
+  reading after tab 1's refresh. Findings that bind Phase 3:
+  - **Scope must be requested explicitly.** Bare loopback default is `atproto`
+    only → appview RPCs fail with "Missing required scope rpc:…". Fix (v0.4.6):
+    build the loopback client_id with `?scope=atproto+transition:generic` and
+    pass `atprotoLoopbackClientMetadata(clientId)` as `clientMetadata`.
+  - **Access token ≈ 1 hour** (observed); loopback refresh validity "typically
+    1 day" (library README; not directly measured).
+  - **Persistence surface** (all library-owned; IndexedDB db
+    `@atproto-oauth-client`): stores `session` (keyed by DID),
+    `authorizationServerMetadataCache`, `didCache`, `dpopNonceCache` (per
+    host), `handleCache`, `protectedResourceMetadataCache`, `state`. Confirms
+    the session-provider-is-a-thin-wrapper rescope.
+  - **v0.4.6 has no event API** (the README's `addEventListener('deleted')` is
+    a newer version). Client surface: init/initRestore/initCallback, restore,
+    revoke, signIn/signInRedirect/**signInPopup**, dispose. Session surface:
+    did/sub, serverMetadata, getTokenInfo, signOut, fetchHandler.
+  - **Multi-tab (soft evidence):** two tabs share the IndexedDB session store;
+    no breakage in a basic probe. The concurrent-refresh race with a
+    single-use refresh token was NOT stress-tested — Phase 3b's
+    verify-then-build stands.
+  - No email-2FA challenge appeared for this account (`emailAuthFactor:
+    false`), so the flow is automatable for `@live` tests.
+
+- **The app-password seam is proven — VERIFIED (D5, 2026-07-07).**
+  `AtpAgent` + `createSession` with the D1-minted scoped app-password
+  (`arecipe-phase0-tests`, in `.env` as `BSKY_TEST_APP_PASSWORD`) performed
+  the same appview-proxied read as the OAuth Agent plus a full repo
+  `createRecord` → `getRecord` (match) → `deleteRecord` (verified gone) cycle
+  on a scratch collection (`app.arecipe.probe`). Port shape: the app consumes
+  an `Agent`; OAuth (DPoP) and app-password (Bearer) implementations are
+  interchangeable for repo/blob/appview calls. Caveats the `@live` OAuth tier
+  alone covers: DPoP nonce retries, OAuth token lifetimes/refresh, scope
+  model. Bonus: the PDS auto-generated a **TID rkey** (`3mq2yxuxcz32f`) on
+  createRecord — writing without an explicit rkey yields spec-conformant TIDs
+  (informs the Phase 6 rkey decision).
+
 - **Loopback clients get ~1-day refresh tokens.** Loopback/public clients have
   "very limited" refresh validity, "typically 1 day," vs longer-lived tokens for
   registered clients. Confirmed 2026-07-07 (same README). Consequence: Phase 3's
@@ -367,13 +411,17 @@ Notes:
   logs alone, since there is no backend to inspect. `src/log.ts` is created in
   Phase 1 (add it to the Phase 1 write-set) and used from Phase 3 onward.
 
-### Phase 0: Discovery
+### Phase 0: Discovery — ✅ COMPLETE (2026-07-07; D2/D3/D4/D6 in `8c47af0`, D1/D5 in the Phase 0 close-out commit)
 
 **Goal:** Resolve the four unknowns before any implementation phase is sized.
 Discovery Exemption applies (no TDD, no wiring tests); each task records evidence
 back into Verified Assumptions and declares a disposition for probe code.
 
-- [ ] **D1: Does `@atproto/oauth-client-browser` work end-to-end against a real PDS?**
+- [x] **D1: Does `@atproto/oauth-client-browser` work end-to-end against a real PDS?**
+  ✅ DONE 2026-07-07 — yes: full login→consent→callback→read→restore→forced-
+  refresh→two-tab cycle green. Key catches: scope must be requested explicitly
+  (`transition:generic`); v0.4.6 has no event API; access token ≈1 h. Spike
+  archived in `spike/d1-oauth/`. See Verified Assumptions.
   - **Probe:** In a throwaway Vite + TS sandbox, install `@atproto/oauth-client-browser`
     + `@atproto/api`. Instantiate `BrowserOAuthClient`, complete a login against the
     test account (see BLOCKING open question), obtain an `oauthSession`, build an
@@ -429,7 +477,11 @@ back into Verified Assumptions and declares a disposition for probe code.
   - **Disposition:** `keep-as-fixture` (schema snapshot becomes a test fixture and
     the basis for the lexicon mirror in a later phase).
 
-- [ ] **D5: Where is the injectable session seam for auth-dependent wiring tests?**
+- [x] **D5: Where is the injectable session seam for auth-dependent wiring tests?**
+  ✅ DONE 2026-07-07 — app-password `AtpAgent` ran the same appview read + full
+  repo create/read/delete cycle (teardown verified) as the OAuth Agent. Port:
+  "provide an `Agent`"; caveat list recorded. App-password minted
+  (`arecipe-phase0-tests` → `.env`). See Verified Assumptions.
   *(Added by feasibility amendment. Motivation: Phases 4–8 wiring tests must not
   depend on Playwright driving bsky.social's login/consent pages — a third-party UI
   that can change, rate-limit, captcha, or demand email-2FA. The interactive OAuth
@@ -588,6 +640,11 @@ opens (default path: plaintext refresh token + OS device lock).
   client** (localhost `clientId` per atproto's loopback exception) + handleResolver;
   login initiation, callback handling, `oauthSession` → `Agent`. Hosted
   client-metadata is deferred to M3; do not block local TDD on it.
+  D1-bound specifics: request scope explicitly via the loopback client_id
+  (`?scope=atproto+transition:generic` → `atprotoLoopbackClientMetadata`) — the
+  bare default `atproto` scope cannot call appview RPCs; v0.4.6 exposes **no
+  event API** for session invalidation (handle the `restore`/`init` failure
+  path instead, and re-check the API surface if the package is upgraded).
 - [ ] `src/auth/session-provider.ts` — rescoped by the feasibility amendment (was
   `session-store.ts` rebuilding persistence): `BrowserOAuthClient` already persists
   sessions and restores them via `init()` (Verified Assumptions), so this module is
@@ -795,10 +852,12 @@ per-run rkey prefix, and (b) each `@live` run *starts* with a pre-run purge
 Phases 6–8.
 **Risks:** Writing to a real repo in tests. Isolate to a throwaway test account and
 delete records after. Never run write tests against a personal account.
-**Rkey format (D4 finding):** the lexicon declares `key: tid` but real
-recipe.exchange records use 26-char ULIDs — PDSs don't enforce the declared key
-type. Decide at this phase: match practice (ULID, what recipe.exchange itself
-writes) or spec (TID). Either renders on recipe.exchange; pick one and record it.
+**Rkey format (D4 finding, sharpened by D5):** the lexicon declares `key: tid`
+but real recipe.exchange records use 26-char ULIDs — PDSs don't enforce the
+declared key type. D5 observed that `createRecord` without an explicit rkey
+auto-generates a spec-conformant TID — so the path of least resistance (omit
+the rkey) also matches the lexicon. Default: let the PDS mint TIDs; revisit
+only if ULID sort-compat with recipe.exchange turns out to matter.
 **Done when:**
 1. **Behavioral:** A recipe authored in arecipe is retrievable from the PDS and
    renders on recipe.exchange.
@@ -1241,3 +1300,36 @@ Assumptions (five new/updated entries) and inline on the D-tasks. Highlights:
   EXIF; full-size upload path must strip EXIF, not just the thumbnail path.
 - Probe hygiene: the fetched third-party blob (personal photo w/ GPS EXIF) was
   deleted, not kept as a fixture.
+
+### Phase 0 close-out — 2026-07-07 (D1/D5 done; Phase 0 ✅ COMPLETE)
+- **D1 (OAuth e2e): full pass.** Login → consent → callback → authenticated
+  DPoP read → reload-restore → two forced refreshes → two-tab share, all against
+  the real PDS. Three plan-binding catches: explicit scope required
+  (`transition:generic`), v0.4.6 has no event API, access token ≈ 1 h. Phase 3
+  spec annotated. Spike archived to `spike/d1-oauth/` (throwaway disposition,
+  kept for diagnostic value per execute.md).
+- **D5 (seam): proven.** App-password Agent ≡ OAuth Agent for appview reads and
+  repo create/read/delete (teardown verified, scratch collection
+  `app.arecipe.probe`). Scoped app-password `arecipe-phase0-tests` minted and
+  recorded in `.env` (kept for `@live` tests — re-entry item (c) satisfied as
+  "recorded"). Bonus: PDS auto-mints TID rkeys — Phase 6 rkey note resolved to
+  "omit rkey, let the PDS mint TIDs."
+- **Re-entry verification (parallel probe set):** (a) all findings in Verified
+  Assumptions ✓; (b) no orphan processes — probe HTTP server stopped, port 8127
+  verified clear ✓; (c) app-password recorded ✓; (d) dispositions honored — D1
+  throwaway→`spike/`, D2/D4 fixtures in `tests/fixtures/`, D3 promoted in-repo
+  flagged SPIKE, D6 algorithm archived in `spike/d6-cid/` pending Phase 4 TDD ✓.
+- **Incident (recorded per report-outcomes discipline):** a Playwright failure
+  log mid-D1 dumped the DOM state of the filled password field, putting the
+  test account's **main password into the session transcript**. The driver was
+  fixed (check-before-fill, no retry on filled fields). Recommendation to the
+  maintainer: rotate `@ngvalidation2112`'s main password, then re-mint the
+  app-password (one `spike/d1-oauth/mint-app-password.mjs` run). The account is
+  a dedicated validation account; blast radius is limited to it.
+- **Plan impact:** no phase restructuring needed — every Phase 0 finding
+  confirmed or sharpened the existing specs (scope note on Phase 3, rkey
+  default on Phase 6, EXIF note on Phase 7). Phase 1 is unblocked.
+
+**Phase 0 done-when check:** all BLOCKING questions resolved ✓ (none remain);
+Verified Assumptions reflect firsthand evidence ✓ (9 probe-backed entries);
+D3 produced a concrete toolchain ✓; no phase invalidated ✓.
