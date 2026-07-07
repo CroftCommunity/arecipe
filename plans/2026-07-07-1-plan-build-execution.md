@@ -23,7 +23,8 @@ feasibility amendment on 2026-07-07 (see Review Log).
 | 4b Render (M1 exit) | ✅ | `5084e4b` | Recipes render; interop confirmed BOTH ways (arecipe + recipe.exchange render the same record). M1 checkpoint held same day |
 | 5 Two-device read (M2 exit) | ✅ | Phase 5 close-out commit | Two contexts + two engines (Chrome/Firefox), same account, same recipes; independent refresh pinned. **M2 REACHED** |
 | 5b Pages + nav shell | ✅ | Phase 5b close-out commit | 4 documents, native back, bottom tab bar mobile; browse.js −98% (44 KB / 15 KB gz); @live 3/3 incl. mine.html callback |
-| 5c–8c (M3 set) | planned | | 5c theming → 6 authoring (draft-before-publish) → 7 blobs → 8 draft-sync/versioning → 8b offline PWA → 8c hosted client + physical two-device demo (M3 exit) |
+| 5c Theming (light/dark) | ✅ | Phase 5c close-out commit | Auto + one-tap cycle, pre-paint script, dark enamelware palette; ALTERED? verified loud in dark |
+| 6–8c (M3 set) | planned | | 6 authoring (draft-before-publish) → 7 blobs → 8 draft-sync/versioning → 8b offline PWA → 8c hosted client + physical two-device demo (M3 exit). 5d recipe-detail page proposed |
 | 9–12 | roadmap | | re-plan before execution |
 
 ---
@@ -1027,7 +1028,20 @@ per-page bundle split measured and recorded.
 
 ---
 
-### Phase 5c: Theming — native light/dark (M2/M3 re-plan, 2026-07-07)
+### Phase 5c: Theming — native light/dark — ✅ SHIPPED (2026-07-07, Phase 5c close-out commit)
+
+**Delivered:** as specced. `src/theme.ts` (cycle/resolve pure + unit-tested;
+toggle in the top bar showing the current mode glyph; localStorage persist;
+auto follows live `prefers-color-scheme` changes; storage access defensive —
+Safari private mode degrades to auto instead of crashing); pre-paint inline
+script in each document head (no theme flash); dark enamelware palette as
+`[data-theme='dark']` token overrides (table in DESIGN.md), incl. the
+tokenized `--stamp-veil` so the ALTERED? stamp stays loud in dark (verified
+by doctored-fixture screenshot). Wiring e2e: auto follows emulated color
+scheme; toggle cycles to dark, changes rendered colors, persists across
+reload and across documents.
+
+*(Original spec below.)*
 
 **Goal:** `prefers-color-scheme` respected by default; one-tap override in
 the top bar (auto → light → dark, persisted in localStorage); a designed

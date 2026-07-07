@@ -1,7 +1,10 @@
 // Shared nav shell (Phase 5b). Page-per-destination: these are real links
 // between real documents — native back button, no router, no tab state.
-// Top bar: wordmark = home, settings gear. Tab bar: primary destinations,
-// rendered at the bottom on small screens (thumb reach), top on wide.
+// Top bar: wordmark = home, theme toggle (5c), settings gear. Tab bar:
+// primary destinations, rendered at the bottom on small screens (thumb
+// reach), top on wide.
+
+import { initThemeToggle } from './theme.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
   const node = document.createElement(tag);
@@ -18,11 +21,15 @@ export const renderTopbar = (): HTMLElement => {
   home.append(el('span', 'wordmark-a', 'a'), document.createTextNode('recipe'));
   wordmark.append(home);
   const controls = el('div', 'auth-area');
+  const themeToggle = el('button', 'nav-gear') as HTMLButtonElement;
+  themeToggle.type = 'button';
+  themeToggle.dataset['testid'] = 'theme-toggle';
+  initThemeToggle(themeToggle);
   const gear = el('a', 'nav-gear', '⚙') as HTMLAnchorElement;
   gear.href = './settings.html';
   gear.dataset['testid'] = 'nav-settings';
   gear.setAttribute('aria-label', 'Settings');
-  controls.append(gear);
+  controls.append(themeToggle, gear);
   bar.append(wordmark, controls);
   return bar;
 };

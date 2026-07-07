@@ -44,6 +44,26 @@
   --r-l: 0.75rem;
   --r-pill: 999px;
   --stroke: 1.5px;
+
+  /* component-specific */
+  --stamp-veil: #ffffffd9;
+}
+
+/* Dark enamelware — same kitchen at night. Hues re-tuned for the contrast
+   floors (docs/DESIGN.md); resolved theme is applied as data-theme by a
+   pre-paint inline script + src/theme.ts. */
+[data-theme='dark'] {
+  --tile: #101b18;
+  --ink: #e2ebe7;
+  --enamel: #5cb3a1;
+  --enamel-deep: #79c7b6;
+  --enamel-soft: #5cb3a124;
+  --yolk: #e8a013;
+  --yolk-deep: #e5b13d;
+  --rust: #e07a4f;
+  --card: #182622;
+  --line: #2b3b36;
+  --stamp-veil: #101b18d9;
 }
 
 * {
@@ -99,6 +119,10 @@ body {
   color: var(--enamel);
   opacity: 0.75;
   padding: var(--s-1) var(--s-2);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--body);
 }
 
 .nav-gear:hover {
@@ -400,7 +424,7 @@ body {
   border: 3px double var(--rust);
   border-radius: var(--r-s);
   padding: var(--s-1) var(--s-3);
-  background: #ffffffd9;
+  background: var(--stamp-veil);
 }
 
 .altered-warning {

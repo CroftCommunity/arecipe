@@ -12,6 +12,20 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450..650&family=Atkinson+Hyperlegible:wght@400;700&display=swap"
     />
+    <script>
+      // Pre-paint theme resolution (no flash): src/theme.ts owns it after load.
+      (function () {
+        try {
+          var m = localStorage.getItem('theme');
+          var dark =
+            m === 'dark' ||
+            (m !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+          document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        } catch (e) {
+          document.documentElement.dataset.theme = 'light';
+        }
+      })();
+    </script>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>

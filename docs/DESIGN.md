@@ -24,6 +24,23 @@ with wet hands. Everything below derives from that. Tokens live in
 New colors do not get invented inline. If a need isn't covered, extend the
 palette here first.
 
+### Dark enamelware (same kitchen at night)
+
+Applied as `[data-theme='dark']` token overrides; resolved pre-paint by an
+inline head script, owned by `src/theme.ts` after load (auto → light → dark
+cycle in the top bar, persisted; auto follows `prefers-color-scheme`).
+
+| Token | Dark value | Note |
+|---|---|---|
+| `--tile` | `#101B18` | Deep green-black. |
+| `--ink` | `#E2EBE7` | |
+| `--enamel` | `#5CB3A1` | Lightened for text/border contrast on dark. |
+| `--enamel-deep` | `#79C7B6` | Hover lightens (inverted from light mode). |
+| `--yolk-deep` | `#E5B13D` | The wordmark "a" brightens on dark. |
+| `--rust` | `#E07A4F` | Warning stays loud — verified against the ALTERED? stamp. |
+| `--card` / `--line` | `#182622` / `#2B3B36` | |
+| `--stamp-veil` | `#101B18D9` | The ALTERED? stamp's backing veil. |
+
 ## Type roles
 
 | Role | Face | Usage |
