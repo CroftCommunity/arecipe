@@ -7,7 +7,7 @@ to fine phases here; `docs/sources/arecipe-spec.md` remains the technical source
 of truth.
 
 Passes run: Pass 1 (base) + Pass 2 (gap analysis) combined in one context on
-2026-07-07. Pass 3 (quality gates) pending in a fresh context.
+2026-07-07; Pass 3 (quality gates) in a fresh context on 2026-07-07.
 
 ---
 
@@ -60,6 +60,15 @@ WebAuthn, IndexedDB, service workers, and `@atproto/*` (TS-native). TS strict mo
 per the coding guidance. Any offline/CLI tooling (signing helper, canary publisher)
 would be Rust per house conventions, but that tooling is out of the shipped app and
 out of this plan's near-term scope.
+
+> Coherence note (Pass 3): "Decisions Locked" phrases TS as *optional* ("TS optional
+> for type safety") while this section commits to it. Reconciled: **TS is the
+> committed default for the app's `src/` logic** (strict mode, `@atproto/*` is
+> TS-native, and the coding guidance requires strict typing); "optional" was meant
+> only in the sense that vanilla JS is not forbidden for trivial glue. Plan phases
+> use `.ts` throughout. Because the framework decision is *no framework*, there is
+> **no JSX** — component files are `.ts` (Web Components / template rendering), never
+> `.tsx`; the earlier `main.ts(x)` / `RecipeView.*` notation is normalized to `.ts`.
 
 **Why the framework is an Open Question, not a pick.** The spec is
 framework-agnostic and the choice has real consequences for bundle size (which is
@@ -146,10 +155,12 @@ This is a decision the maintainer should make, gated before the scaffold phase.
 - `README.md` — add a "Building / development" section once the scaffold and test
   command exist. Handled in Phase 1.
 
-- `docs/STACK.md` §7 (open stack decisions) — as D3/framework and the prerender
-  question resolve, update the "OPEN" items to record the decision + rationale.
-  Framework decision handled at Phase 1; prerender decision handled when Phase 12
-  is planned.
+- `docs/STACK.md` §7 (open stack decisions) — the framework and OAuth decisions
+  were **already recorded here during the Pass 2 addendum** (§7 lines 171/179, DECIDED
+  2026-07-07); no further Phase 1 work on those. **Still stale:** §2 (line 58) reads
+  "Frontend framework / build tooling: OPEN" and contradicts the §7 DECIDED entry —
+  Phase 1 fixes that cross-reference. The prerender "OPEN" item stays open and is
+  resolved when Phase 12 is planned.
 
 - New: `plans/` directory (this file). No references elsewhere yet — grepped repo
   for "plans/" , none found outside this file.
@@ -169,10 +180,23 @@ Phase 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → [9, 10] → 11 → 12
 - **Phase 0 discovery tasks {D1, D2, D4} are independent probes** and may run
   concurrently (disjoint: D1 exercises OAuth, D2 exercises public reads, D4 fetches
   a record schema). D3 (toolchain decision) depends on nothing but should conclude
-  before Phase 1. Discovery writes only findings back into this plan doc; per the
-  Discovery Exemption, no production code and no shared implementation state, so the
-  only shared surface is this document — serialize the plan-doc edits, run the
-  probes in parallel.
+  before Phase 1.
+  - **Shared-state contract (parallel probe set):** Each probe runs in its own
+    sandbox directory with disjoint tmp paths; none binds a port. Two shared ambient
+    surfaces exist and are handled explicitly: (1) **this plan doc** — the only place
+    findings are written; serialize the plan-doc edits (one writer at a time). (2)
+    **the test account** `@ngvalidation2112.bsky.social` — D1 *mutates* it by minting
+    a scoped app-password and running a real login/refresh; D2 and D4 touch only
+    *public, unauthenticated* reads and do not mutate the account. Because only D1
+    writes account state and it writes its own dedicated app-password, the mutation is
+    disjoint from D2/D4's reads — safe to parallelize. Do not run a second
+    account-mutating probe concurrently with D1.
+  - **Re-entry verification (after the probe set returns):** (a) each finding is
+    recorded in Verified Assumptions with evidence; (b) no probe left a running
+    process or dev server; (c) D1's minted app-password is recorded for later reuse
+    or revoked — not left dangling; (d) D3's promoted scaffold is the only probe
+    output kept as code (D1 throwaway archived, D2/D4 fixtures captured), matching
+    each task's declared disposition.
 
 - **Phases 9 and 10** (social graph, immune system) have plausibly disjoint
   write-sets and could parallelize, but both are roadmap-altitude and will be
@@ -229,6 +253,27 @@ Notes:
 > `docs/BUILD-PLAN.md` "Phase 0 (read-only interop)" maps to Phases 1–5 here;
 > its "Phase 1 (write path)" maps to Phases 6–8; its Phases 2–4 map to the
 > roadmap Phases 9–12.
+
+**Cross-phase conventions (added Pass 3):**
+
+- **Tests first (RED before production code).** In every implementation phase
+  (1–8, 3b), the unit tests and the phase's wiring test are written and observed
+  failing *before* any production code — the `Changes` bullets list production
+  files before their tests for readability, not as an execution order. The wiring
+  test is RED at phase start and GREEN at phase end; watch each test fail before
+  making it pass (per coding-agents TDD guidance). Phase 1 is a partial exception:
+  the D3 spike is *promoted* as the scaffold, so TDD applies to the shell entry
+  point and the wiring test (RED-first), not to build/config files.
+
+- **Diagnostic logging (observability).** Each phase that touches a failure-prone
+  boundary carries a **Diagnostic logging** line naming what to log so a failure is
+  debuggable after the fact. Convention: a small `src/log.ts` leveled logger
+  (`debug`/`info`/`warn`/`error`) writing structured records to the console, gated
+  by a `?debug=1` / `localStorage.debug` flag so production stays quiet. The
+  risky boundaries the spec and crashability review flag — OAuth redirect + token
+  refresh, PDS fetch, service-worker update, blob upload — must be traceable from
+  logs alone, since there is no backend to inspect. `src/log.ts` is created in
+  Phase 1 (add it to the Phase 1 write-set) and used from Phase 3 onward.
 
 ### Phase 0: Discovery
 
@@ -295,12 +340,19 @@ command, and CI, so every later phase has a home and a gate.
 **Changes:**
 - [ ] Promote the D3 winning scaffold: `package.json`, build config, TS strict
   config (one commit).
-- [ ] `src/main.ts(x)` app entry that renders a static shell (title + empty state).
+- [ ] `src/main.ts` app entry that renders a static shell (title + empty state).
+- [ ] `src/log.ts` — leveled structured logger (`debug`/`info`/`warn`/`error`),
+  gated by `?debug=1` / `localStorage.debug`; the observability spine every later
+  phase logs through. Unit test asserts level gating (debug suppressed unless the
+  flag is set; `error` always emits).
 - [ ] Test harness config (Vitest + Playwright) with one passing unit test and one
   Playwright test that loads the built bundle and asserts the shell renders.
 - [ ] CI workflow running lint + typecheck + `test` on push.
 - [ ] `README.md` "Building / development" section; `docs/BUILD-PLAN.md` pointer to
-  this plan; `docs/STACK.md` §7 framework decision recorded.
+  this plan; fix the stale `docs/STACK.md` §2 line ("Frontend framework / build
+  tooling: OPEN") to point at the §7 DECIDED entry (the §7 decision itself was
+  already recorded during the Pass 2 addendum — this phase only clears the stale
+  cross-reference).
 
 **Call chain:** Browser loads `index.html` → bundle → `main` mounts shell.
 **Wiring test:** Playwright loads the built bundle and asserts the app shell is
@@ -308,12 +360,16 @@ visible (proves the entry point actually renders, not just that a component unit
 tests green).
 **Depends on:** Phase 0 (D3).
 **Read-set:** D3 spike output.
-**Write-set:** `package.json`, build/test config files, `src/main.*`,
-`tests/shell.spec.*`, CI workflow, `README.md`, `docs/BUILD-PLAN.md`,
-`docs/STACK.md`. (Config-heavy scaffold; the logic surface is one file — split
-further only if D3 reveals more than a trivial entry.)
+**Write-set:** `package.json`, build/test config files, `src/main.ts`,
+`src/log.ts`, `tests/shell.spec.*`, `tests/log.spec.*`, CI workflow, `README.md`,
+`docs/BUILD-PLAN.md`, `docs/STACK.md`. (Config-heavy scaffold; the logic surface is
+two small files — split further only if D3 reveals more than a trivial entry.)
 **Shared-state contract:** No shared mutable state beyond the file write-set. CI
 binds no local ports; tests use ephemeral Playwright browser contexts.
+**Diagnostic logging:** This phase *builds* the logger (`src/log.ts`). Verify a
+service-worker registration/update event is logged at `info` (the SW update flow is
+a flagged risky boundary; make it observable from the first phase that can register
+one).
 **Risks:** Playwright + service-worker interaction can be fiddly; confirm in D3 so
 this phase doesn't discover it late.
 **Done when:**
@@ -383,6 +439,14 @@ cross-tab coordination is deliberately deferred to Phase 3b to stay within it.)
 **Shared-state contract:** IndexedDB (origin-scoped); no ports; OAuth redirect uses
 the browser's own navigation. No shared state across test runs (fresh browser
 context per Playwright test).
+**Diagnostic logging:** Log each OAuth step through `src/log.ts`: sign-in initiated
+(handle, resolved authz endpoint), redirect returned (callback params present /
+error param), token exchange result, session save/restore, and every refresh
+attempt with its outcome. Redirect and refresh are the two highest-frequency
+failure modes in a backendless SPA and the crashability review's OPEN item —
+without a log trail a silent-reauth or lost-session bug is undebuggable. Log
+`error` on any auth failure with the DPoP/nonce error class (never the token
+value or app-password).
 **Risks:** PWA/installed-context redirect quirks (spec §4) — exercise the redirect
 return path explicitly; D1 should have surfaced the shape.
 **Done when:**
@@ -447,6 +511,12 @@ real recipe title from recipe.exchange renders on screen.
 `tests/recipes/*`. (4 files — split render vs read if it doesn't fit one context:
 4a read+cache, 4b RecipeView. Decide at execution based on D3 framework verbosity.)
 **Shared-state contract:** IndexedDB (origin-scoped). Outbound reads only.
+**Diagnostic logging:** Log each PDS fetch (endpoint, DID, record count) at `debug`,
+cache hit/miss at `debug`, and every CID verification outcome — pass at `debug`,
+**mismatch at `warn`** with the AT-URI and both CIDs. The `verified` flag is the
+credible-exit proof made visible; a mismatch is a trust-surface event and must be
+traceable, not silent. Log `error` on a schema-validation failure (the fail-loud
+boundary) with the offending field.
 **Risks:** Record schema drift vs D4 fixture; validate at the boundary and fail
 loud on unexpected shape (per coding guidance: no silent fallback).
 **Done when:**
@@ -541,11 +611,20 @@ read-back.
 **Read-set:** `src/recipes/write.ts`, `src/recipes/RecipeView.*`.
 **Write-set:** `src/recipes/blobs.ts`, tests, small edits to editor/view wiring.
 **Shared-state contract:** Blob writes to the test account's PDS; teardown cleans up.
+**Diagnostic logging:** Log `uploadBlob` start/result (size, mime, returned CID) at
+`info`, thumbnail generation at `debug`, and `getBlob` failures at `warn` (the
+placeholder-on-failure path must record *why* it fell back — a silent placeholder
+hides a broken blob). Enforce the client size cap with an `error` log naming the
+observed vs allowed size.
 **Risks:** Blob size/caps; enforce a client cap and fail loud past it.
 **Done when:**
 1. **Behavioral:** An authored recipe carries a working photo that renders.
 2. **Verification:** Playwright upload-and-render test green.
-**Validation:** Moderate — confirm blob fetch works from a second session/device.
+**Validation:** Broad — `uploadBlob` is a real external mutation against the test
+account's PDS (same risk tier as the Phase 6 write path, which is Broad). Confirm
+the blob fetches from a second session/device, verify the embedded CID matches the
+uploaded bytes, and confirm teardown removes the blob so it does not leak into later
+runs.
 
 ---
 
@@ -560,7 +639,9 @@ survive recipe edits.
 - [ ] `src/recipes/refs.ts` — `com.atproto.repo.strongRef` (AT-URI primary + CID);
   "older version" indicator when CID mismatches.
 - [ ] tests — draft survives simulated eviction; edit changes CID and the indicator
-  appears.
+  appears; **and the negative edge: a reference whose pinned CID still matches shows
+  NO stale indicator.** Assert both sides so the test survives a mutation that always
+  shows (or never shows) the indicator.
 
 **Call chain:** Editor autosave → `drafts.save` (local + PDS) → reopen →
 `drafts.restore`; edit recipe → new CID → references show stale indicator.
@@ -645,12 +726,13 @@ prerender-without-a-backend question (`docs/STACK.md` §7) — then executed.
 - [RESOLVED 2026-07-07] OAuth client registration → **loopback client for TDD/local;
   hosted client-metadata document is an M3 milestone item** (see Decisions Locked).
 
-- [CANDIDATE, confirm in D3] e2e/wiring harness → **Playwright is the working
-  candidate, not yet committed.** The maintainer is fine with it but wants to see how
-  it goes before locking in. D3 exercises it against the vanilla stack (service worker,
-  OAuth redirect, IndexedDB); if it fits cleanly it graduates to the decision, if it
-  fights us we reassess (e.g. WebdriverIO, or Vitest browser mode). No commitment until
-  D3 reports.
+- [CONFIRMED: ADVISORY — user, 2026-07-07] e2e/wiring harness → **Playwright is the
+  working candidate, not yet committed.** *User set ADVISORY (overriding the agent's
+  PHASE-GATED recommendation): the harness does not gate execution — start on
+  Playwright, let D3 stress it against the vanilla stack (service worker, OAuth
+  redirect, IndexedDB), and reassess in-flight if it fights us (e.g. WebdriverIO, or
+  Vitest browser mode) rather than blocking Phase 1 on a lock-in decision.* The
+  maintainer is fine with it but wants to see how it goes before committing.
 
 ## Review Log
 
@@ -704,3 +786,85 @@ firsthand check of `@atproto/oauth-client-browser`.
 - Vanilla stack shrinks D3 to a harness+baseline check rather than a framework bake-off.
 - Only Playwright-as-harness remains open (PHASE-GATED Phase 1); all other planning
   questions are resolved.
+
+### Pass 3: Quality Gates — 2026-07-07
+Fresh-context quality-gate review. Spot-checked the repo (still greenfield: only
+`README.md`, `LICENSE`, `docs/`, `plans/`) and confirmed the doc touch points.
+Applied additively; the Pass 2 phase shape is unchanged.
+
+**TDD ordering:**
+- Added a cross-phase "Tests first (RED before production code)" convention note at
+  the head of the Phases section: `Changes` lists production files before tests for
+  readability only; unit + wiring tests are written and watched failing first. Noted
+  Phase 1's promoted-scaffold exception (TDD applies to the shell entry point and
+  wiring test, not build/config).
+- Phase 8: added the negative mutation-resistance edge (a reference whose pinned CID
+  still matches shows NO stale indicator) so the versioning test isn't a single-point
+  assertion that survives an always-show / never-show mutation.
+- Verified every implementation phase (1–8, 3b) already has a wiring test that
+  exercises the entry point through Playwright and a Verification command that runs
+  the call chain (not isolated-module tests). No defects there.
+
+**Observability:**
+- Biggest gap in the Pass 2 plan: no diagnostic-logging strategy anywhere, despite a
+  backendless app where post-hoc debugging depends entirely on client logs. Added a
+  logging convention (`src/log.ts`, leveled, flag-gated) created in Phase 1, and
+  per-phase **Diagnostic logging** lines on every flagged risky boundary: Phase 1
+  (service-worker update), Phase 3 (OAuth redirect + every refresh outcome), Phase 4
+  (PDS fetch + CID-verify mismatch at `warn`), Phase 7 (blob upload/fetch + cap
+  enforcement). Explicitly barred logging token/app-password values.
+
+**Debugging readiness:**
+- Logger + per-phase log points now make a mid-execution failure attributable to a
+  phase and a boundary. Milestone demos and commit-per-phase (already in the plan)
+  remain the coarse checkpoints. Added `src/log.ts` and `tests/log.spec.*` to the
+  Phase 1 write-set.
+
+**Validation calibration:**
+- Recalibrated Phase 7 (blobs) from Moderate → **Broad**: `uploadBlob` is a real
+  external mutation against the test account's PDS, the same risk tier as the Phase 6
+  write path (Broad). Added CID-matches-bytes and teardown-verification to its
+  validation. Phase 8 stays Moderate (draft records are lower-stakes writes) —
+  reviewed and left as-is.
+- Reviewed all other phases' Validation fields: 3/4/5/6 Broad (external/interop), 1/2/3b
+  Moderate — calibration matches scope. Phase 0 tasks each have a concrete question,
+  probe, success criterion, and declared disposition (D3 `promote` → named Phase 1
+  follow-up with TDD). Note: D2 and D4 are technically resolvable during planning
+  (public curl / public lexicon fetch); left batched into Phase 0 execution since Pass
+  3 is analysis-only and they carry proper dispositions — flagging for the executor to
+  front-run if convenient.
+
+**Concurrency honesty:**
+- Concurrency Map accounts for all phases; implementation spine correctly sequential.
+- Strengthened the {D1, D2, D4} parallel probe set: the Pass 2 contract named only the
+  plan doc as shared surface and omitted re-entry verification (required for any
+  parallel-set member). Added the **test account** as the second shared ambient
+  surface — D1 mutates it (app-password mint + login/refresh), D2/D4 are public reads
+  only, so the mutation is disjoint from the reads and parallel-safe; barred a second
+  account-mutating probe alongside D1. Added a concrete 4-point re-entry verification
+  (findings recorded, no orphan processes, D1 app-password recorded-or-revoked,
+  dispositions honored). No new parallelism surfaced — the spine genuinely builds
+  forward.
+
+**Coherence:**
+- Reconciled the TS-committed (Reasoning) vs TS-optional (Decisions Locked) tension:
+  TS is the committed default for `src/`; "optional" meant only that trivial glue JS
+  isn't forbidden. Normalized `main.ts(x)` / `.tsx` notation to `.ts` — no framework
+  means no JSX. Plan still solves the original problem (read-only interop milestone +
+  write path); no scope creep observed.
+
+**Documentation impact:**
+- Corrected the Documentation Impact entry: STACK.md §7 framework/OAuth decisions were
+  already recorded in the Pass 2 addendum (not pending Phase 1 work). Caught a stale
+  cross-reference the Pass 2 update left behind — STACK.md §2 line 58 still says
+  "Frontend framework / build tooling: OPEN," contradicting §7 DECIDED. Scheduled the
+  fix into Phase 1 (the phase already touching STACK.md), not a trailing docs phase.
+- Reconciled the Playwright open-question tag from the non-standard "[CANDIDATE]" to
+  `[RECOMMENDED: PHASE-GATED (Phase 1, via D3)]` with rationale, per the skill's
+  severity format.
+
+**Confirmed ready:** Yes. The one open question (Playwright harness) was confirmed
+by the user as **ADVISORY** (overriding the agent's recommended PHASE-GATED) — it
+does not gate execution; start on Playwright and reassess in-flight if D3 or a later
+phase reveals friction. No BLOCKING or PHASE-GATED items remain. The plan is ready
+for execution starting at Phase 0.
