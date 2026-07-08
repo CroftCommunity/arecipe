@@ -105,8 +105,8 @@ const checkForNewerRevision = async (
   }
 };
 
-/** Comment section (Phase 9b): friends-scoped discovery — read comments from
- * the recipe author + (signed in) you + your friends; thread + render; compose
+/** Comment section (Phase 9b): cookbook-scoped discovery — read comments from
+ * the recipe author + (signed in) you + your cookbook; thread + render; compose
  * + reply when signed in. Honors the Hide Comments social pref. */
 const mountComments = async (
   content: HTMLElement,
@@ -167,7 +167,7 @@ const mountComments = async (
   await refresh();
 
   // Load the auth client (shared, deferred split chunk — see getAgent in main).
-  // Signed in → add you + your friends to discovery and enable composing;
+  // Signed in → add you + your cookbook to discovery and enable composing;
   // signed out → a sign-in pointer.
   agent = await getAgent();
 
@@ -237,7 +237,7 @@ const mountComments = async (
           status.textContent = `couldn’t post: ${String(err)}`;
         });
     });
-    // Re-render with the enriched discovery set (you + friends) + reply buttons.
+    // Re-render with the enriched discovery set (you + cookbook) + reply buttons.
     await refresh();
   } else {
     const note = el('p', 'status', 'Sign in on My recipes to join the conversation.');
@@ -246,8 +246,8 @@ const mountComments = async (
   }
 };
 
-/** Interactions (Phase 9c): a friends-scoped like count + a heart, plus a
- * save toggle, on the recipe page. Reading is public (author + you + friends);
+/** Interactions (Phase 9c): a cookbook-scoped like count + a heart, plus a
+ * save toggle, on the recipe page. Reading is public (author + you + cookbook);
  * liking/saving needs a session (deferred, shared auth). Liking lives here, not
  * on Browse — Browse stays zero-auth. Honors the Hide Likes social pref. */
 const mountInteractions = async (
@@ -362,7 +362,7 @@ const mountInteractions = async (
     };
     likeBtn.addEventListener('click', toggle('liked', () => summarize(interactions, viewerDid).youLiked));
     saveBtn.addEventListener('click', toggle('saved', () => summarize(interactions, viewerDid).youSaved));
-    await refresh(); // re-render with your state + friends' counts + live controls
+    await refresh(); // re-render with your state + cookbook counts + live controls
   }
 };
 

@@ -17,11 +17,11 @@ import {
 import { gzipSync } from 'node:zlib';
 import { buildSync } from 'esbuild';
 
-const PAGES = ['browse', 'mine', 'friends', 'settings', 'account', 'recipe', 'editor'];
+const PAGES = ['browse', 'mine', 'cookbook', 'settings', 'account', 'recipe', 'editor'];
 const HTML = {
   'index.html': 'browse',
   'mine.html': 'mine',
-  'friends.html': 'friends',
+  'cookbook.html': 'cookbook',
   'settings.html': 'settings',
   'account.html': 'account',
   'recipe.html': 'recipe',
@@ -67,6 +67,7 @@ for (const [file, page] of Object.entries(HTML)) {
   writeFileSync(`dist/${file}`, html);
 }
 copyFileSync('manifest.webmanifest', 'dist/manifest.webmanifest');
+copyFileSync('friends.html', 'dist/friends.html'); // legacy path → redirect stub (CB3)
 copyFileSync('CNAME', 'dist/CNAME'); // custom domain survives every deploy
 copyFileSync('client-metadata.json', 'dist/client-metadata.json'); // hosted OAuth client id (8c)
 cpSync('assets', 'dist/assets', { recursive: true });
@@ -111,6 +112,7 @@ const precache = [
   ...jsToPrecache.map((f) => `./${f}`),
   `./${cssName}`,
   ...Object.keys(HTML).map((f) => `./${f}`),
+  './friends.html', // legacy redirect stub (offline-resolvable)
   './manifest.webmanifest',
   './assets/fonts/fonts.css',
   ...readdirSync('assets/fonts')

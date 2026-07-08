@@ -35,13 +35,13 @@ describe('renderTopbar', () => {
 });
 
 describe('renderTabs', () => {
-  it('renders Browse, Friends, and My recipes as links', () => {
+  it('renders Browse, Cookbook, and My recipes as links', () => {
     const tabs = renderTabs('/index.html');
     expect(tabs.querySelector('[data-testid=tab-browse]')?.getAttribute('href')).toBe(
       './index.html',
     );
-    expect(tabs.querySelector('[data-testid=tab-friends]')?.getAttribute('href')).toBe(
-      './friends.html',
+    expect(tabs.querySelector('[data-testid=tab-cookbook]')?.getAttribute('href')).toBe(
+      './cookbook.html',
     );
     expect(tabs.querySelector('[data-testid=tab-mine]')?.getAttribute('href')).toBe('./mine.html');
   });
@@ -50,8 +50,8 @@ describe('renderTabs', () => {
     ['/', 'tab-browse'],
     ['/index.html', 'tab-browse'],
     ['/arecipe/', 'tab-browse'],
-    ['/friends.html', 'tab-friends'],
-    ['/arecipe/friends.html', 'tab-friends'],
+    ['/cookbook.html', 'tab-cookbook'],
+    ['/arecipe/cookbook.html', 'tab-cookbook'],
     ['/mine.html', 'tab-mine'],
     ['/arecipe/mine.html', 'tab-mine'],
   ])('marks the active tab for %s', (pathname, expected) => {

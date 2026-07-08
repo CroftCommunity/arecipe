@@ -1,31 +1,18 @@
 <!doctype html>
+<!-- Legacy path (CB3): the Friends page became the Cookbook. Redirect old
+     links/bookmarks (query + hash preserved), so a shared friends.html?did=…
+     still works. Static, precached — resolves offline too. -->
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#175e54" />
-    <link rel="icon" type="image/png" href="./assets/logo-light.png" />
-    <title>arecipe — friends</title>
+    <title>arecipe — cookbook</title>
+    <link rel="canonical" href="./cookbook.html" />
     <script>
-      // Pre-paint theme resolution (no flash): src/theme.ts owns it after load.
-      (function () {
-        try {
-          var m = localStorage.getItem('theme');
-          var dark =
-            m === 'dark' ||
-            (m !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
-          document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-        } catch (e) {
-          document.documentElement.dataset.theme = 'light';
-        }
-      })();
+      location.replace('./cookbook.html' + location.search + location.hash);
     </script>
-    <link rel="stylesheet" href="./assets/fonts/fonts.css" />
-    <link rel="manifest" href="./manifest.webmanifest" />
-    <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <div id="app"></div>
-    <script type="module" src="./friends.js"></script>
+    <noscript><a href="./cookbook.html">Continue to your cookbook</a></noscript>
   </body>
 </html>

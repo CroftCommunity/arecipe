@@ -144,17 +144,19 @@ to be implemented with the page-per-destination restructure:
 - **Mobile nav goes to the bottom**: primary destinations render as a
   bottom tab bar on small screens (thumb reach — mealplanner does this),
   top tabs on wide screens. Same destinations, responsive placement.
-- **Friends is a third top-level destination** (M4/9a): Browse · Friends ·
-  My recipes. The Friends page adds friends by handle (a public
-  `app.arecipe.friend` follow naming a DID) and shows their recipes as a
-  read feed. It also answers `friends.html?did=<did>` as a shareable,
-  signed-out **cold-view** of any account's public friends feed — the same
-  page-not-modal, real-URL discipline as `recipe.html?u=`. Trying it as a
-  full tab is deliberate (evaluate in use; drop to a sub-surface if it
-  doesn't earn the slot).
+- **Cookbook is a third top-level destination** (M4/CB3; was "Friends" in 9a):
+  Browse · Cookbook · My recipes. Your **Cookbook** is your own recipes plus a
+  bounded, chosen **reach** — starter-pack cooks + who you follow on Bluesky +
+  your Bluesky followers (Bluesky primitives; there is no arecipe-native friend
+  record anymore). The page shows your cookbook members (with a source badge)
+  and their recipes as a read feed. It also answers `cookbook.html?did=<did>` as
+  a shareable, signed-out **cold-view** of any account's cookbook — the same
+  page-not-modal, real-URL discipline as `recipe.html?u=`. The legacy
+  `friends.html` redirects here (query preserved). Browse stays broader and
+  zero-auth; the Cookbook is "my-people's-kitchen."
 - **Comments live on the recipe page** (M4/9b), below the recipe, threaded
-  (reply nests under parent). Discovery is **friends-scoped** — you see the
-  recipe author's, your own, and your friends' comments; there is no backend
+  (reply nests under parent). Discovery is **cookbook-scoped** — you see the
+  recipe author's, your own, and your cookbook's comments; there is no backend
   to index everyone's, and that is the honest boundary. Author names link to
   Bluesky profiles; a comment made on an older recipe revision carries a quiet
   "on an earlier version" marker (silent-good / loud-bad). Signed-out is
