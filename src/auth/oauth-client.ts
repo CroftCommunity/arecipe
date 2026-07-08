@@ -11,16 +11,35 @@ import {
   type OAuthClientMetadataInput,
 } from '@atproto/oauth-types';
 import { log } from '../log.js';
+import clientMetadataJson from '../../client-metadata.json';
 
 /** D1: bare `atproto` cannot call appview RPCs; transition:generic can. */
 export const LOOPBACK_SCOPE = 'atproto transition:generic';
 
+/** The production origin whose hosted client-metadata document this build
+ * carries. Sign-in is offered only here (client_id must match the origin)
+ * or on loopback; every other origin is read-only. */
+export const PRODUCTION_ORIGIN = 'https://arecipe.app';
+
+/** The hosted client-metadata document, served verbatim at
+ * `${PRODUCTION_ORIGIN}/client-metadata.json` (see build.mjs) and burned in
+ * here — the auth server fetches the URL to verify; the two must match. */
+export const HOSTED_CLIENT_METADATA = clientMetadataJson as OAuthClientMetadataInput;
+
+export type AuthMode = 'loopback' | 'hosted' | 'none';
+
 /**
- * Whether the loopback OAuth client can exist on this origin. On deployed
- * origins (GitHub Pages, arecipe.app) sign-in requires the hosted
- * client-metadata document — an M3 item; until then the app runs read-only
- * there instead of crashing at startup.
+ * Which OAuth client (if any) this origin can run:
+ * - loopback hosts (local dev) → the loopback client
+ * - the production origin → the hosted client-metadata document
+ * - anything else → none (the client_id/redirect wouldn't match → read-only)
  */
+export const authModeFor = (origin: string, hostname: string): AuthMode => {
+  if (isLoopbackHostname(hostname)) return 'loopback';
+  if (origin === PRODUCTION_ORIGIN) return 'hosted';
+  return 'none';
+};
+
 export const isLoopbackHostname = (hostname: string): boolean =>
   hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]';
 
@@ -39,10 +58,14 @@ export type CreateOAuthClientOptions = {
   handleResolver?: string;
 };
 
-/** The production BrowserOAuthClient, configured for the current (loopback) origin. */
+/** The BrowserOAuthClient for the current origin: loopback metadata locally,
+ * the hosted client-metadata document on the production origin. */
 export const createOAuthClient = (options: CreateOAuthClientOptions = {}): BrowserOAuthClient => {
-  const metadata = buildLoopbackMetadata(window.location);
+  const mode = authModeFor(window.location.origin, window.location.hostname);
+  const metadata =
+    mode === 'hosted' ? HOSTED_CLIENT_METADATA : buildLoopbackMetadata(window.location);
   log.debug('auth', 'oauth client configured', {
+    mode,
     clientId: metadata.client_id,
     scope: metadata.scope ?? '',
   });

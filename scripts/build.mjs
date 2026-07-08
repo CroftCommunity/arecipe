@@ -62,6 +62,7 @@ for (const [file, page] of Object.entries(HTML)) {
 }
 copyFileSync('manifest.webmanifest', 'dist/manifest.webmanifest');
 copyFileSync('CNAME', 'dist/CNAME'); // custom domain survives every deploy
+copyFileSync('client-metadata.json', 'dist/client-metadata.json'); // hosted OAuth client id (8c)
 cpSync('assets', 'dist/assets', { recursive: true });
 
 // Version + per-page sizes.

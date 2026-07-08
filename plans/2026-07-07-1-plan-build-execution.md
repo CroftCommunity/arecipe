@@ -30,7 +30,7 @@ feasibility amendment on 2026-07-07 (see Review Log).
 | 7 Photos (EXIF-stripped) | ✅ | Phase 7 close-out commit | Editor photo → canvas re-encode (EXIF provably gone on real PDS bytes) → embed; placeholder-on-failure |
 | 8 Draft-sync + versioning | ✅ | Phase 8 close-out commit | PDS draft backup + eviction recovery (@live-proven); EDIT shipped; stale-cache indicator both edges; PRACTICES.md started |
 | 8b Offline PWA | ✅ | Phase 8b close-out commit | Hashed assets, versioned cache-first SW, update toast, manifest+maskable icons, self-hosted fonts, offline starter fallback; theme→2-state; CNAME baked |
-| 8c | planned | | hosted client-metadata.json (deployed sign-in) + physical two-device demo (M3 exit) |
+| 8c Hosted OAuth client | 🚧 code | Phase 8c commit | client-metadata.json served+burned; sign-in un-hidden on arecipe.app; LIVE sign-in + two-device demo pending (needs human on the real origin) |
 | 9–12 | roadmap | | re-plan before execution |
 
 ---
@@ -1534,7 +1534,27 @@ hard way there:
 
 ---
 
-### Phase 8c: Hosted OAuth client → deployed sign-in + physical two-device demo (M3 exit) (M2/M3 re-plan, 2026-07-07)
+### Phase 8c: Hosted OAuth client → deployed sign-in + physical two-device demo (M3 exit) — 🚧 CODE SHIPPED (2026-07-08); live demo pending
+
+**Code delivered.** Canonical `client-metadata.json` (client_id =
+`https://arecipe.app/client-metadata.json`, redirect = `.../mine.html`,
+scope `atproto transition:generic`, public DPoP web client) is the single
+source of truth: burned into the bundle (`import` — auth server fetches the
+URL to verify, so the two must match by construction) AND served verbatim at
+that URL by the build. `authModeFor(origin, hostname)` picks the client:
+loopback locally, hosted on `arecipe.app`, none elsewhere (read-only —
+client_id/redirect wouldn't match). Sign-in un-hides on the production
+origin; boot + createOAuthClient switch on the mode. Unit-tested
+(mode selection, metadata shape); the loopback @live tier is unaffected
+(5/5). **Pending (needs the live origin + a human):** sign in on
+https://arecipe.app, then the **physical two-device demo** (laptop + phone,
+same account, same recipes) — the deferred Phase 5 validation and the M3
+exit criterion. Hermetic tests can't exercise the hosted flow (client_id is
+tied to arecipe.app, unreachable from the local harness).
+
+*(Original spec below.)*
+
+### Phase 8c (original spec): Hosted OAuth client → deployed sign-in + physical two-device demo (M3 exit)
 
 **Goal:** The deployed app becomes fully functional: a static
 `client-metadata.json` served from the deployed origin acts as the OAuth

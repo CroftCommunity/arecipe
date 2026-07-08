@@ -8,10 +8,41 @@
 // - an IP origin passes through as-is, port and path preserved
 import { describe, expect, it } from 'vitest';
 import {
+  authModeFor,
   buildLoopbackMetadata,
+  HOSTED_CLIENT_METADATA,
   isLoopbackHostname,
   LOOPBACK_SCOPE,
+  PRODUCTION_ORIGIN,
 } from '../../../src/auth/oauth-client.js';
+
+describe('authModeFor', () => {
+  it('loopback origins use the loopback client', () => {
+    expect(authModeFor('http://127.0.0.1:4173', '127.0.0.1')).toBe('loopback');
+    expect(authModeFor('http://localhost:4173', 'localhost')).toBe('loopback');
+  });
+
+  it('the production origin uses the hosted client', () => {
+    expect(authModeFor(PRODUCTION_ORIGIN, 'arecipe.app')).toBe('hosted');
+  });
+
+  it('any other deployed origin has no sign-in (client_id would not match)', () => {
+    expect(authModeFor('https://croftcommunity.github.io', 'croftcommunity.github.io')).toBe('none');
+  });
+});
+
+describe('HOSTED_CLIENT_METADATA', () => {
+  it('client_id is the metadata URL and redirect stays on the production origin', () => {
+    expect(HOSTED_CLIENT_METADATA.client_id).toBe(`${PRODUCTION_ORIGIN}/client-metadata.json`);
+    expect(HOSTED_CLIENT_METADATA.redirect_uris).toContain(`${PRODUCTION_ORIGIN}/mine.html`);
+  });
+
+  it('requests the appview scope and is a public DPoP web client', () => {
+    expect(HOSTED_CLIENT_METADATA.scope).toBe(LOOPBACK_SCOPE);
+    expect(HOSTED_CLIENT_METADATA.token_endpoint_auth_method).toBe('none');
+    expect(HOSTED_CLIENT_METADATA.dpop_bound_access_tokens).toBe(true);
+  });
+});
 
 describe('isLoopbackHostname', () => {
   it('accepts the loopback hosts the loopback client supports', () => {

@@ -1,7 +1,14 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "types": ["node"]
+    "types": [
+      "node"
+    ],
+    "resolveJsonModule": true
   },
-  "include": ["src", "tests", "playwright.config.ts"]
+  "include": [
+    "src",
+    "tests",
+    "playwright.config.ts"
+  ]
 }

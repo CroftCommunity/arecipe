@@ -3,7 +3,7 @@
 
 import type { Agent } from '@atproto/api';
 import { isDebugEnabled, log } from '../log.js';
-import { createOAuthClient, isLoopbackHostname } from './oauth-client.js';
+import { authModeFor, createOAuthClient } from './oauth-client.js';
 import { createOAuthSessionProvider, type SessionProvider } from './session-provider.js';
 
 export type SessionBoot = {
@@ -11,13 +11,13 @@ export type SessionBoot = {
   agent: Agent | null;
 };
 
-/** Create the provider (loopback origins only until 8c), restore any session, expose the debug hook. */
+/** Create the provider (loopback or hosted origins), restore any session, expose the debug hook. */
 export const bootSession = async (): Promise<SessionBoot> => {
-  const provider = isLoopbackHostname(window.location.hostname)
-    ? createOAuthSessionProvider({ client: createOAuthClient() })
-    : null;
+  const mode = authModeFor(window.location.origin, window.location.hostname);
+  const provider =
+    mode === 'none' ? null : createOAuthSessionProvider({ client: createOAuthClient() });
   if (provider === null) {
-    log.info('auth', 'deployed origin — sign-in unavailable until the hosted client (8c)', {
+    log.info('auth', 'origin has no OAuth client — read-only', {
       hostname: window.location.hostname,
     });
     return { provider: null, agent: null };
