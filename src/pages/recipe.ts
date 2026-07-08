@@ -21,6 +21,7 @@ import { renderRecipeDetail } from '../recipes/view.js';
 import { addComment, buildThread, loadRecipeComments, type CommentRepo } from '../social/comments.js';
 import { renderComments } from '../social/comments-view.js';
 import { resolveCookbook } from '../social/cookbook.js';
+import { createReachPrefs } from '../social/reach.js';
 import {
   addInteraction,
   loadRecipeInteractions,
@@ -180,7 +181,7 @@ const mountComments = async (
       // Cookbook-scoped discovery (CB1): comments come from repos we know — the
       // recipe author (added above) + you + your cookbook (starters + Bluesky
       // follows + followers). Replaces the dropped app.arecipe.friend graph.
-      const members = await resolveCookbook({ you: { did: me, pds } });
+      const members = await resolveCookbook({ you: { did: me, pds }, config: createReachPrefs().load() });
       const capped = members.slice(0, COOKBOOK_DISCOVERY_CAP);
       if (capped.length < members.length) {
         log.info('comments', 'cookbook discovery capped', {
@@ -318,7 +319,7 @@ const mountInteractions = async (
       // Cookbook-scoped like discovery (CB2): counts come from repos we know —
       // the recipe author (added above) + you + your cookbook. Same capped,
       // priority-ordered scope as comment discovery.
-      const members = await resolveCookbook({ you: { did: viewerDid, pds } });
+      const members = await resolveCookbook({ you: { did: viewerDid, pds }, config: createReachPrefs().load() });
       const capped = members.slice(0, COOKBOOK_DISCOVERY_CAP);
       if (capped.length < members.length) {
         log.info('interactions', 'cookbook discovery capped', {

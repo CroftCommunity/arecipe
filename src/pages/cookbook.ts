@@ -17,7 +17,8 @@ import { log } from '../log.js';
 import { mountShell } from '../nav.js';
 import { retryOnce } from '../retry.js';
 import { requestPersistence } from '../storage-persist.js';
-import { resolveCookbook, type CookbookMember } from '../social/cookbook.js';
+import { resolveCookbook, type CookbookMember, type ReachConfig } from '../social/cookbook.js';
+import { createReachPrefs } from '../social/reach.js';
 import { loadAuthorsFeed, type FeedAuthor } from '../social/feed.js';
 import { renderRecipeList } from '../recipes/view.js';
 import { registerServiceWorker } from '../sw-register.js';
@@ -100,8 +101,11 @@ const showCookbook = async (
   membersMount: HTMLElement,
   feedContainer: HTMLElement,
   you: { did: string; pds: string },
+  config?: ReachConfig,
 ): Promise<void> => {
-  const members = await resolveCookbook({ you });
+  // Cold-view passes no config (we can't read the viewed account's prefs) →
+  // resolveCookbook's all-on default; the signed-in path passes your reach prefs.
+  const members = await resolveCookbook(config === undefined ? { you } : { you, config });
   const authors = await membersToAuthors(members);
   membersMount.replaceChildren(renderMembersList(members, authors));
   container.insertBefore(membersMount, feedContainer);
@@ -140,12 +144,17 @@ const main = async (): Promise<void> => {
   void requestPersistence();
 
   if (agent === null || agent.did === undefined) {
-    const gate = el(
-      'p',
-      'empty-state',
-      'Sign in on My recipes to see your cookbook — your starter cooks plus who you follow on Bluesky.',
-    );
+    const gate = el('p', 'empty-state');
     gate.dataset['testid'] = 'cookbook-signed-out';
+    const signInLink = el('a', 'friend-link', 'Sign in on My recipes') as HTMLAnchorElement;
+    signInLink.href = './mine.html';
+    signInLink.dataset['testid'] = 'cookbook-signin-link';
+    gate.append(
+      signInLink,
+      document.createTextNode(
+        ' to see your cookbook — your starter cooks plus who you follow on Bluesky.',
+      ),
+    );
     content.append(gate);
     mountShell(app, content);
     void mountBuildStamp(app);
@@ -173,7 +182,7 @@ const main = async (): Promise<void> => {
     const { pds } = await retryOnce(() => resolveDidDoc(did));
     mountShell(app, content);
     void mountBuildStamp(app);
-    await showCookbook(content, membersMount, feedContainer, { did, pds });
+    await showCookbook(content, membersMount, feedContainer, { did, pds }, createReachPrefs().load());
   } catch (err) {
     log.error('cookbook', 'cookbook load failed', { error: String(err) });
     status.textContent = `couldn’t load your cookbook: ${String(err)}`;

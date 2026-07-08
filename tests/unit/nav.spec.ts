@@ -19,6 +19,30 @@ describe('renderTopbar', () => {
     expect(dark?.getAttribute('alt')).toBe('');
   });
 
+  const stubHint = (value: string | null): void => {
+    Object.defineProperty(window, 'localStorage', {
+      value: { getItem: (k: string) => (k === 'arecipe-session' ? value : null) },
+      configurable: true,
+    });
+  };
+
+  it('shows a Sign in link to My recipes when there is no session hint', () => {
+    stubHint(null);
+    const bar = renderTopbar();
+    expect(bar.querySelector('[data-testid=nav-signin]')?.getAttribute('href')).toBe('./mine.html');
+    expect(bar.querySelector('[data-testid=nav-account]')).toBeNull();
+  });
+
+  it('shows an Account link when the session hint is set (zero-auth)', () => {
+    stubHint('1');
+    const bar = renderTopbar();
+    expect(bar.querySelector('[data-testid=nav-account]')?.getAttribute('href')).toBe(
+      './account.html',
+    );
+    expect(bar.querySelector('[data-testid=nav-signin]')).toBeNull();
+    stubHint(null);
+  });
+
   it('wordmark links home and keeps the differentiated "a"', () => {
     const bar = renderTopbar();
     const home = bar.querySelector<HTMLAnchorElement>('a.wordmark-link');

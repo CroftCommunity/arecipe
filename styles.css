@@ -163,6 +163,23 @@ body {
   gap: var(--s-2);
 }
 
+/* Top-right sign-in / account link — a legible text affordance so sign-in is
+   discoverable without hunting the tabs. */
+.nav-auth {
+  text-decoration: none;
+  color: var(--enamel);
+  font-family: var(--body);
+  font-weight: 600;
+  font-size: var(--t-caption);
+  padding: var(--s-1) var(--s-2);
+  border: var(--stroke) solid var(--enamel);
+  border-radius: var(--r-m);
+}
+
+.nav-auth:hover {
+  background: var(--enamel-soft);
+}
+
 .auth-who {
   font-family: var(--mono);
   font-size: var(--t-caption);
@@ -487,6 +504,13 @@ body {
 .browse-count {
   margin-left: auto;
   text-align: right;
+  /* One dot-separated line: reset filters · N of M shown · set dietary pref ↗.
+     Wraps as a unit on narrow screens, stays right-aligned. */
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--s-1);
 }
 
 .browse-count .status {
