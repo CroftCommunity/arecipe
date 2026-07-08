@@ -15,7 +15,7 @@
 | 5 View-mode wiring | ✅ SHIPPED | `f7a0b4b` | Segmented Tiles/Details toggle; `renderCurrent` picks renderer from `state.view`; persisted; composes with photos-only. 2 e2e cases. |
 | 6 Facet dropdowns | ✅ SHIPPED | `14fe0d5` | `renderFacetDropdown` (details name=browse-facet, checkbox options w/ data-dimension/value; null when empty). 4 unit tests. Wired in Phase 7. |
 | 7 Label filtering | ✅ SHIPPED | `e172c99` | Meal/Cuisine dropdowns wired; facet change refreshes count+list only (panel stays open); inert stale facets; outside-click close; DESIGN note. 4 e2e; full gate green. |
-| 8 Settings diet pref | ⬜ pending | | |
+| 8 Settings diet pref | ✅ SHIPPED | `6e7644e` | "Only show me" section (id=diet-preference) writes `diet-preference`; Browse reads it cross-page. `DIET_OPTIONS` vocab. 2 e2e + 1 unit. |
 | 9 Record data hygiene | ⬜ pending | | |
 
 ## Problem Statement
@@ -393,7 +393,13 @@ the feature.
 2. **Verification:** `npx playwright test tests/e2e/browse.spec.ts` (full suite green) and `npm test` (whole hermetic gate) green.
 **Validation:** Broad. Full e2e + `npm run serve` manual pass across both themes; confirm filtering works on both the starter feed and a live handle search; verify no auth code leaked into the Browse bundle (existing bundle-split test still green).
 
-### Phase 8: Settings — "Only show me" dietary preference (wired)
+### Phase 8: Settings — "Only show me" dietary preference (wired) — ✅ SHIPPED (`6e7644e`)
+**Delivered:** `section('Only show me', 'diet-preference')` with `id=diet-preference` (the Browse
+↗ link target), a `starter-row` checkbox per `DIET_OPTIONS` bound to `createDietPreference`
+load/save, `log.debug('diet','toggled')` on change; placed after the starter section. New
+`DIET_OPTIONS` (normalized vocab) in `diet-preference.ts`. New `tests/e2e/settings.spec.ts` proves
+persistence + the Settings→Browse cross-page filter; 1 unit test for the vocab. No new CSS (reuses
+`.starter-row`). Full hermetic suite 43 green.
 **Goal:** A dietary-preference control in Settings that writes the app-wide `diet-preference`
 store; because `renderCurrent` (Phase 3) already reads it, setting it here filters Browse.
 **Changes:**
