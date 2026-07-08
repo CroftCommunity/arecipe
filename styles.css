@@ -380,6 +380,12 @@ body {
   gap: var(--s-2);
 }
 
+.browse-facets {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
 /* Segmented control (Tiles | Details): two joined buttons, one active. */
 .segmented {
   display: inline-flex;

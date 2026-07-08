@@ -11,8 +11,13 @@ import { createExclusions } from '../recipes/exclusions.js';
 import { createStarterPrefs, loadStarterFeed } from '../recipes/starter.js';
 import { createRecipeReader } from '../recipes/read.js';
 import { createDietPreference } from '../recipes/diet-preference.js';
-import { createBrowsePrefs, matchesFilter, type BrowseState } from './browse-state.js';
-import { renderRecipeDetailsList, renderRecipeList, type RenderOptions } from '../recipes/view.js';
+import { availableFacets, createBrowsePrefs, matchesFilter, type BrowseState } from './browse-state.js';
+import {
+  renderFacetDropdown,
+  renderRecipeDetailsList,
+  renderRecipeList,
+  type RenderOptions,
+} from '../recipes/view.js';
 import { registerServiceWorker } from '../sw-register.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -60,6 +65,11 @@ const main = (): void => {
   photosToggle.dataset['testid'] = 'photos-only';
   photosToggleLabel.append(photosToggle, document.createTextNode('Photos only'));
   controls.append(photosToggleLabel);
+  // Facet dropdowns (Phase 7): Meal ▾ + Cuisine ▾, rebuilt from the current
+  // feed's available facets. Held in their own container so a facet change can
+  // refresh the count+list without rebuilding (and collapsing) the dropdowns.
+  const facetsContainer = el('div', 'browse-facets');
+  controls.append(facetsContainer);
   const countBlock = el('div', 'browse-count');
   const dietLink = el('a', 'diet-pref-link', 'set dietary preference ↗') as HTMLAnchorElement;
   dietLink.href = './settings.html#diet-preference';
@@ -126,21 +136,37 @@ const main = (): void => {
   const dietPreference = createDietPreference();
   let state: BrowseState = browsePrefs.load();
 
-  const isFiltered = (diet: string[]): boolean =>
-    state.photosOnly ||
-    state.facets.cuisine.length > 0 ||
-    state.facets.category.length > 0 ||
-    diet.length > 0;
+  // Selected facets that no longer exist in the current feed are kept in
+  // state (so they re-apply when the user returns to a feed that has them)
+  // but treated as inert here — otherwise a stale selection would filter the
+  // whole list to nothing after a feed/search switch.
+  const effectiveState = (): BrowseState => {
+    const available = current === null
+      ? { cuisine: [], category: [] }
+      : availableFacets(withoutHidden(current.entries));
+    return {
+      view: state.view,
+      photosOnly: state.photosOnly,
+      facets: {
+        cuisine: state.facets.cuisine.filter((c) => available.cuisine.includes(c)),
+        category: state.facets.category.filter((c) => available.category.includes(c)),
+      },
+    };
+  };
+
+  const isFiltered = (s: BrowseState, diet: string[]): boolean =>
+    s.photosOnly || s.facets.cuisine.length > 0 || s.facets.category.length > 0 || diet.length > 0;
 
   const renderCurrent = (): void => {
     if (current === null) return;
     const kept = withoutHidden(current.entries);
     const diet = dietPreference.load();
-    const shown = kept.filter((e) => matchesFilter(e.value, { state, diet }));
+    const effective = effectiveState();
+    const shown = kept.filter((e) => matchesFilter(e.value, { state: effective, diet }));
     const verified = shown.filter((e) => e.verified).length;
     // When a filter is active the honest count is "N of M shown"; with no
     // filter, the original per-path string is preserved byte-identical.
-    recipesStatus.textContent = isFiltered(diet)
+    recipesStatus.textContent = isFiltered(effective, diet)
       ? `${shown.length} of ${kept.length} shown · ${verified} verified`
       : current.kind === 'search'
         ? `${current.fetchedCount ?? current.entries.length} recipes cached (${verified} verified)`
@@ -155,9 +181,67 @@ const main = (): void => {
       view: state.view,
       shown: shown.length,
       total: kept.length,
-      filtered: isFiltered(diet),
+      filtered: isFiltered(effective, diet),
     });
   };
+
+  // Rebuild the Meal ▾ / Cuisine ▾ dropdowns from the current feed's available
+  // facets. Called when `current` changes (feed vs search) — NOT on a facet
+  // checkbox change, so the open dropdown survives multi-select.
+  const rebuildToolbarFacets = (): void => {
+    if (current === null) {
+      facetsContainer.replaceChildren();
+      return;
+    }
+    const available = availableFacets(withoutHidden(current.entries));
+    const meal = renderFacetDropdown({
+      dimension: 'category',
+      label: 'Meal',
+      available: available.category,
+      selected: state.facets.category,
+    });
+    const cuisine = renderFacetDropdown({
+      dimension: 'cuisine',
+      label: 'Cuisine',
+      available: available.cuisine,
+      selected: state.facets.cuisine,
+    });
+    const dropdowns = [meal, cuisine].filter((n): n is HTMLElement => n !== null);
+    facetsContainer.replaceChildren(...dropdowns);
+  };
+
+  // Show the current list: rebuild the (feed-dependent) facet dropdowns, then
+  // render. Toggle handlers call renderCurrent() directly (no rebuild).
+  const showCurrent = (): void => {
+    rebuildToolbarFacets();
+    renderCurrent();
+  };
+
+  // Facet checkbox change (event-delegated): update state, persist, and
+  // refresh only the count + list — leave the dropdown open and intact.
+  facetsContainer.addEventListener('change', (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement) || target.type !== 'checkbox') return;
+    const dimension = target.dataset['dimension'];
+    const value = target.dataset['value'];
+    if ((dimension !== 'cuisine' && dimension !== 'category') || value === undefined) return;
+    const selected = new Set(state.facets[dimension]);
+    if (target.checked) selected.add(value);
+    else selected.delete(value);
+    state = { ...state, facets: { ...state.facets, [dimension]: [...selected] } };
+    browsePrefs.save(state);
+    log.debug('browse', 'facets changed', { dimension, selected: [...selected] });
+    renderCurrent();
+  });
+
+  // Close an open facet dropdown when clicking outside it.
+  document.addEventListener('click', (event) => {
+    for (const dd of facetsContainer.querySelectorAll<HTMLDetailsElement>(
+      'details.facet-dd[open]',
+    )) {
+      if (!dd.contains(event.target as Node)) dd.removeAttribute('open');
+    }
+  });
 
   // Reflect the active view on the segmented control (aria-pressed + class).
   const reflectViewControl = (): void => {
@@ -194,7 +278,7 @@ const main = (): void => {
 
   const showEntries = (entries: CachedRecipe[], author: string, fetchedCount?: number): void => {
     current = { entries, kind: 'search', author, fetchedCount };
-    renderCurrent();
+    showCurrent();
   };
 
   form.addEventListener('submit', (event) => {
@@ -235,7 +319,7 @@ const main = (): void => {
       authorsByDid: feed.authorsByDid,
       statusSuffix: `${failed}${offline}`,
     };
-    renderCurrent();
+    showCurrent();
   };
 
   const last = readLastFind();

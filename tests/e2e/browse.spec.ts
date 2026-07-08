@@ -103,3 +103,59 @@ test('photos-only choice persists across reload', async ({ page }) => {
   await expect(page.getByTestId('photos-only')).toBeChecked();
   await expect(page.getByTestId('recipe-item')).toHaveCount(3);
 });
+
+// Facet filtering. Mixed fixture: Greek Salad (greek/dinner), American Pancakes
+// (american/breakfast), Italian Minestrone (italian/dinner), Greek Vegan Lunch
+// Bowl (greek/lunch).
+const openFacet = async (page: Page, dimension: 'category' | 'cuisine'): Promise<void> => {
+  await page.locator(`details.facet-dd[data-dimension=${dimension}] summary`).click();
+};
+
+test('Meal facet narrows to matching recipes and updates the count (wiring)', async ({ page }) => {
+  await routeMixedFeed(page);
+  await page.goto('/');
+  await expect(page.getByTestId('recipe-item')).toHaveCount(4);
+  await openFacet(page, 'category');
+  await page.locator('input[data-dimension=category][data-value=dinner]').check();
+  await expect(page.getByTestId('recipe-item')).toHaveCount(2); // Greek Salad + Minestrone
+  await expect(page.getByTestId('recipes-status')).toContainText('2 of 4 shown');
+});
+
+test('OR within a dimension; multi-select keeps the dropdown open', async ({ page }) => {
+  await routeMixedFeed(page);
+  await page.goto('/');
+  await expect(page.getByTestId('recipe-item')).toHaveCount(4);
+  await openFacet(page, 'category');
+  await page.locator('input[data-dimension=category][data-value=dinner]').check();
+  // The panel must stay open so a second selection is cumulative.
+  await page.locator('input[data-dimension=category][data-value=breakfast]').check();
+  await expect(page.locator('details.facet-dd[data-dimension=category][open]')).toHaveCount(1);
+  await expect(page.getByTestId('recipe-item')).toHaveCount(3); // 2 dinner + 1 breakfast
+});
+
+test('AND across dimensions: cuisine greek + meal lunch → one recipe', async ({ page }) => {
+  await routeMixedFeed(page);
+  await page.goto('/');
+  await expect(page.getByTestId('recipe-item')).toHaveCount(4);
+  await openFacet(page, 'cuisine');
+  await page.locator('input[data-dimension=cuisine][data-value=greek]').check();
+  await openFacet(page, 'category');
+  await page.locator('input[data-dimension=category][data-value=lunch]').check();
+  await expect(page.getByTestId('recipe-item')).toHaveCount(1); // Greek Vegan Lunch Bowl
+  await expect(page.getByTestId('recipes-status')).toContainText('1 of 4 shown');
+});
+
+test('facet selections persist across reload', async ({ page }) => {
+  await routeMixedFeed(page);
+  await page.goto('/');
+  await expect(page.getByTestId('recipe-item')).toHaveCount(4);
+  await openFacet(page, 'category');
+  await page.locator('input[data-dimension=category][data-value=dinner]').check();
+  await expect(page.getByTestId('recipe-item')).toHaveCount(2);
+
+  await page.reload();
+  await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId('recipe-item')).toHaveCount(2);
+  await openFacet(page, 'category');
+  await expect(page.locator('input[data-dimension=category][data-value=dinner]')).toBeChecked();
+});
