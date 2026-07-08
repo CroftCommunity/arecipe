@@ -13,7 +13,7 @@
 | 3 Photos-only | ✅ SHIPPED | `bc9488e` | Photos-only toggle filters via `matchesFilter`; diet-pref applied; `N of M shown` when filtered; new `browse.spec.ts` + mixed fixture. |
 | 4 Details renderer | ✅ SHIPPED | `7e13878` | `renderRecipeDetailsList` (row=link, thumb+name+desc+facet chips); shares `recipe-item` testid; 6 unit tests. Wired in Phase 5. |
 | 5 View-mode wiring | ✅ SHIPPED | `f7a0b4b` | Segmented Tiles/Details toggle; `renderCurrent` picks renderer from `state.view`; persisted; composes with photos-only. 2 e2e cases. |
-| 6 Facet dropdowns | ⬜ pending | | |
+| 6 Facet dropdowns | ✅ SHIPPED | `14fe0d5` | `renderFacetDropdown` (details name=browse-facet, checkbox options w/ data-dimension/value; null when empty). 4 unit tests. Wired in Phase 7. |
 | 7 Label filtering | ⬜ pending | | |
 | 8 Settings diet pref | ⬜ pending | | |
 | 9 Record data hygiene | ⬜ pending | | |
@@ -336,7 +336,11 @@ composes with photos-only. Full hermetic suite 37 green.
 2. **Verification:** `npx playwright test tests/e2e/browse.spec.ts -g "Details"`.
 **Validation:** Moderate. e2e + manual serve check in both themes.
 
-### Phase 6: Facet dropdown renderer (view)
+### Phase 6: Facet dropdown renderer (view) — ✅ SHIPPED (`14fe0d5`)
+**Delivered:** `renderFacetDropdown({dimension,label,available,selected})` → `<details
+class="facet-dd" name="browse-facet">` + `<summary>Meal ▾</summary>` + checkbox panel; each
+`input` carries `data-dimension`/`data-value`, checked per `selected`; returns `null` when
+`available` is empty. `.facet-dd` popover CSS (absolute panel, light + dark). 4 happy-dom tests.
 **Goal:** Render the two multi-select filter dropdowns — `Meal ▾` and `Cuisine ▾` (per the
 Phase 0 decision: two separate dropdowns, not chips), reflecting selected state. Render only;
 wired in Phase 7.
