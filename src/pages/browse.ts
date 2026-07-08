@@ -10,7 +10,7 @@ import { createRecipeCache, type CachedRecipe } from '../recipes/cache.js';
 import { createExclusions } from '../recipes/exclusions.js';
 import { createStarterPrefs, loadStarterFeed } from '../recipes/starter.js';
 import { createRecipeReader } from '../recipes/read.js';
-import { renderRecipeList } from '../recipes/view.js';
+import { renderRecipeList, type RenderOptions } from '../recipes/view.js';
 import { registerServiceWorker } from '../sw-register.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -35,9 +35,18 @@ const main = (): void => {
   findButton.dataset['testid'] = 'find-recipes';
   const recipesStatus = el('p', 'status');
   recipesStatus.dataset['testid'] = 'recipes-status';
+  // Toolbar bar: controls (added by later phases) on the left, the count
+  // block pushed right. The count carries a link to the Settings dietary
+  // section — diet is a persisted preference set there, not a Browse filter.
+  const toolbar = el('div', 'browse-toolbar');
+  const countBlock = el('div', 'browse-count');
+  const dietLink = el('a', 'diet-pref-link', 'set dietary preference ↗') as HTMLAnchorElement;
+  dietLink.href = './settings.html#diet-preference';
+  countBlock.append(recipesStatus, dietLink);
+  toolbar.append(countBlock);
   const listContainer = el('div');
   form.append(input, findButton);
-  content.append(form, recipesStatus, listContainer);
+  content.append(form, toolbar, listContainer);
 
   const resolve = createResolver();
   const readRecipes = createRecipeReader();
@@ -69,17 +78,47 @@ const main = (): void => {
   let generation = 0;
 
   const exclusions = createExclusions();
-  const withoutHidden = (entries: CachedRecipe[]): { kept: CachedRecipe[]; hidden: number } => {
-    const kept = entries.filter((e) => !exclusions.isHidden(e.uri));
-    return { kept, hidden: entries.length - kept.length };
+  const withoutHidden = (entries: CachedRecipe[]): CachedRecipe[] =>
+    entries.filter((e) => !exclusions.isHidden(e.uri));
+
+  // The single render seam: both the handle-search path and the starter feed
+  // set `current` and call `renderCurrent()`, so every later toggle/filter
+  // re-renders whichever list is showing — no refetch. `current` holds enough
+  // to rebuild the status line and list on demand. The two paths emit two
+  // different status strings (search "N recipes cached", starter "N starter
+  // pack recipes" + failed/offline suffixes), so `kind` discriminates.
+  type Current = {
+    entries: CachedRecipe[];
+    kind: 'search' | 'starter';
+    author?: string;
+    authorsByDid?: Record<string, string>;
+    fetchedCount?: number; // search: total records fetched (may exceed shown)
+    statusSuffix?: string; // starter: " — X unavailable" / " · showing saved copies"
   };
-  const hiddenNote = (hidden: number): string => (hidden === 0 ? '' : ` · ${hidden} hidden`);
+  let current: Current | null = null;
+
+  const renderCurrent = (): void => {
+    if (current === null) return;
+    const kept = withoutHidden(current.entries);
+    const verified = kept.filter((e) => e.verified).length;
+    recipesStatus.textContent =
+      current.kind === 'search'
+        ? `${current.fetchedCount ?? current.entries.length} recipes cached (${verified} verified)`
+        : `${kept.length} starter pack recipes (${verified} verified)${current.statusSuffix ?? ''}`;
+    const options: RenderOptions = {};
+    if (current.author !== undefined) options.author = current.author;
+    if (current.authorsByDid !== undefined) options.authorsByDid = current.authorsByDid;
+    listContainer.replaceChildren(renderRecipeList(kept, options));
+    log.debug('browse', 'render', {
+      kind: current.kind,
+      shown: kept.length,
+      total: current.entries.length,
+    });
+  };
 
   const showEntries = (entries: CachedRecipe[], author: string, fetchedCount?: number): void => {
-    const { kept, hidden } = withoutHidden(entries);
-    const verified = kept.filter((e) => e.verified).length;
-    recipesStatus.textContent = `${fetchedCount ?? entries.length} recipes cached (${verified} verified)${hiddenNote(hidden)}`;
-    listContainer.replaceChildren(renderRecipeList(kept, { author }));
+    current = { entries, kind: 'search', author, fetchedCount };
+    renderCurrent();
   };
 
   form.addEventListener('submit', (event) => {
@@ -110,14 +149,17 @@ const main = (): void => {
     recipesStatus.textContent = 'loading your starter pack…';
     const feed = await loadStarterFeed(enabled);
     if (gen !== generation) return; // the user searched while we loaded
-    const { kept, hidden } = withoutHidden(feed.entries);
-    const verified = kept.filter((e) => e.verified).length;
     const failed =
       feed.failedAuthors.length === 0 ? '' : ` — ${feed.failedAuthors.join(', ')} unavailable`;
     const offline =
       feed.cachedAuthors.length === 0 ? '' : ` · showing saved copies (offline)`;
-    recipesStatus.textContent = `${kept.length} starter pack recipes (${verified} verified)${failed}${offline}${hiddenNote(hidden)}`;
-    listContainer.replaceChildren(renderRecipeList(kept, { authorsByDid: feed.authorsByDid }));
+    current = {
+      entries: feed.entries,
+      kind: 'starter',
+      authorsByDid: feed.authorsByDid,
+      statusSuffix: `${failed}${offline}`,
+    };
+    renderCurrent();
   };
 
   const last = readLastFind();

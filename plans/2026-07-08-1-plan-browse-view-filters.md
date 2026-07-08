@@ -1,5 +1,23 @@
 # Browse page — view modes, image + label filtering, header polish
 
+**Status:** In execution (Phase 0 done; Phases 1–9 pending). Worktree
+`browse-view-filters`.
+
+## Outcome Summary
+
+| Phase | Outcome | Commit | Note |
+|-------|---------|--------|------|
+| 0 Discovery | ✅ done | (pre-exec) | Compact bar, two dropdowns, diet in Settings. |
+| 1 Header + render seam | ✅ SHIPPED | `9fb24f9` | `renderCurrent()` seam; `.browse-toolbar` with right-aligned count + `set dietary preference ↗` link; dropped `· N hidden`. |
+| 2 Browse-state core | ⬜ pending | | |
+| 3 Photos-only | ⬜ pending | | |
+| 4 Details renderer | ⬜ pending | | |
+| 5 View-mode wiring | ⬜ pending | | |
+| 6 Facet dropdowns | ⬜ pending | | |
+| 7 Label filtering | ⬜ pending | | |
+| 8 Settings diet pref | ⬜ pending | | |
+| 9 Record data hygiene | ⬜ pending | | |
+
 ## Problem Statement
 
 The Browse page (`src/pages/browse.ts`) renders the starter feed (and handle-search
@@ -167,7 +185,15 @@ have been adjusted to match. This is the only phase allowed to restructure later
   (arrow ↗ = "opens the setting"). `renderCurrent` still *applies* the stored diet preference.
 - Prototype (`scratchpad/mock/`) disposition: **throwaway** — delete after build starts.
 
-### Phase 1: Header polish + single render seam
+### Phase 1: Header polish + single render seam — ✅ SHIPPED (`9fb24f9`)
+**Delivered:** `renderCurrent()` seam with a `Current` record carrying `kind`
+(`search`/`starter`) + `fetchedCount` + `statusSuffix` so both status strings
+reconstruct faithfully (Pass 3 gap). `.browse-toolbar` > `.browse-count`
+(right-aligned) holds the status + `set dietary preference ↗` link →
+`./settings.html#diet-preference`. `hiddenNote` removed; `withoutHidden`
+simplified to return `CachedRecipe[]`. `log.debug('browse', 'render', …)` added.
+Wiring test + full hermetic suite (33 e2e, 144 unit) green; the exact-match race
+test still passes (search string byte-identical).
 **Goal:** Right-align the count, drop the `· N hidden` note, and refactor `browse.ts` so both
 render paths funnel through one `renderCurrent()` that holds the current entries — the seam
 every later toggle/filter hooks into. A visible `.browse-toolbar` container is added with the

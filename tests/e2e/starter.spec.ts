@@ -52,6 +52,24 @@ test('a first-time visitor sees starter-pack recipes with zero input (wiring)', 
   await expect(page.getByTestId('recipes-status')).toContainText('starter pack');
 });
 
+test('browse toolbar: count right-aligned, no "hidden" note, dietary-preference link (wiring)', async ({
+  page,
+}) => {
+  await routeStarterFixtures(page);
+  await page.goto('/');
+  await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
+  const status = page.getByTestId('recipes-status');
+  await expect(status).toContainText('starter pack recipes');
+  // The "· N hidden" note is dropped from the displayed string (Phase 1).
+  await expect(status).not.toContainText('hidden');
+  // The status lives in a toolbar, right-aligned inside a count block.
+  await expect(page.locator('.browse-toolbar')).toBeVisible();
+  await expect(page.locator('.browse-count')).toHaveCSS('text-align', 'right');
+  // A "set dietary preference ↗" link points at the Settings dietary section.
+  const dietLink = page.locator('.browse-toolbar a', { hasText: 'set dietary preference' });
+  await expect(dietLink).toHaveAttribute('href', './settings.html#diet-preference');
+});
+
 test('settings: starter rows link to Bluesky profiles and toggles persist', async ({ page }) => {
   await page.goto('/settings.html');
   const rows = page.getByTestId('starter-row');

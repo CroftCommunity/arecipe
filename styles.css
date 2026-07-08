@@ -362,6 +362,32 @@ body {
   opacity: 0.8;
 }
 
+/* Browse toolbar: transient controls (view mode, photos-only, facet
+   dropdowns) live on the left as later phases add them; the count block is
+   pushed to the right edge. */
+.browse-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--s-2) var(--s-3);
+  margin: var(--s-2) 0;
+}
+
+.browse-count {
+  margin-left: auto;
+  text-align: right;
+}
+
+.browse-count .status {
+  margin: 0;
+}
+
+.diet-pref-link {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  opacity: 0.75;
+}
+
 /* ---- recipe cards ---- */
 
 .recipe-grid {
