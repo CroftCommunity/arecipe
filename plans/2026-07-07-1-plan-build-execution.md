@@ -1641,6 +1641,48 @@ EXIF-safe upload (cooked photos), the guarded `@live` purge harness (writes),
 and the `renderRecipeList/Detail` views. New third-party dependency: Jetstream
 (Bluesky-run) — the `listRecords` polling fallback is the durability answer.
 
+**★ Cookbook re-plan (2026-07-08, supersedes the friend-based model below).**
+Talked out with the user; the M4 social model is reframed around a **Cookbook**:
+- **Cookbook** = your own recipes + a bounded, user-chosen **reach**. Sources:
+  **starter-pack cooks** + **Bluesky follows** + **Bluesky followers**.
+  **DROP our `app.arecipe.friend` concept — use Bsky primitives** (user decision).
+  "Friend" was our lexicon (9a); it competed with Bsky's graph and muddled the
+  model. Adding a cook = following on Bsky / toggling a starter; no arecipe-native
+  friend record.
+- **Browse stays broader** than the cookbook — starter packs + search + wider
+  discovery, NOT limited by cookbook scope, stays zero-auth. (Explore-the-world
+  vs my-people's-kitchen.)
+- **Two orthogonal cookbook settings:** (1) **reach** — which sources + like-graph
+  **depth** (network effect: circle → recipes they liked → the cooks behind those);
+  (2) **social signals** — likes / comments shown *on* recipes, independent of reach.
+- **Feed = a view** ("newest in your cookbook"), not a dial. **Value order:
+  new-recipe feed > likes > comments** (comments most opt-in).
+- **Likes = a discovery engine** (the like-graph), not just a count.
+- **Nav:** the shipped **"Friends" tab (9a) → "Cookbook" tab** (`friends.html` →
+  `cookbook.html`; redirect the old path).
+- **UI lab:** `ui-lab/social-scope.html` (throwaway, not deployed) prototypes the
+  two-axis settings + preview; iterate there before wiring settings.
+
+**Discovery (2026-07-08, verified) — Bsky graph endpoints, browser-reachable:**
+- **Follows:** `listRecords?collection=app.bsky.graph.follow` on your PDS —
+  HTTP 200, `access-control-allow-origin: *`, records `{subject:<did>, createdAt}`.
+  AppView-free (direct repo read).
+- **Followers:** `app.bsky.graph.getFollowers?actor=<did>` on `public.api.bsky.app`
+  — HTTP 200, CORS `*`, `{followers:[{did, handle}]}` (handle may be
+  `handle.invalid`; DID always present). The one accepted AppView dependency.
+
+**Reshape implications (to execute):**
+- **9a:** drop `app.arecipe.friend` (friends.ts add/remove/records, the friend
+  `@live` write + its guarded purge). Keep the extracted `loadAuthorsFeed`.
+- New **`src/social/cookbook.ts`** — shared scope: resolves cookbook member repos
+  from starters + follows + followers (+ you), honoring the reach config. Consumed
+  by the Cookbook tab, the recipe page (9b comments / 9c likes discovery), the feed.
+- **9b/9c discovery** switches from `listFriends(app.arecipe.friend)` to the
+  cookbook scope. Comment/interaction records + their guarded purges stay.
+- **Settings** gains the two-axis cookbook controls (reach + social signals).
+- The friend-based text in the 9a/9b/9c sections below is **superseded** by this
+  note (left in place for history; do not re-implement `app.arecipe.friend`).
+
 **M4 cross-phase conventions (added Pass 3, 2026-07-08).** The M0–M3 cross-phase
 conventions (line ~426) enumerate phases 1–8/3b explicitly and do not name the M4
 phases; these extend them to 9a–10:
