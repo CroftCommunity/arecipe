@@ -1,0 +1,282 @@
+{
+  "Banana Bread": {
+    "file": "banana-bread-0.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Banana_bread_slices.jpg",
+    "license": "CC BY 4.0",
+    "artist": "Shisma",
+    "attributionRequired": true
+  },
+  "Coleslaw": {
+    "file": "coleslaw-0.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Bowl%27o%27Coleslaw_modified.jpg",
+    "license": "CC BY-SA 2.0",
+    "artist": "unknown",
+    "attributionRequired": true
+  },
+  "Chili con Carne": {
+    "file": "chili-con-carne-0.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Chili_con_carne_50_A.jpg",
+    "license": "CC0",
+    "artist": "René Hourdry",
+    "attributionRequired": false
+  },
+  "Caesar Salad": {
+    "file": "caesar-salad-2.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Caesar_Salad_from_Tony_Roma_Restaurant-_March_2024_02.jpg",
+    "license": "CC BY-SA 4.0",
+    "artist": "Banej",
+    "attributionRequired": true
+  },
+  "Cobb Salad": {
+    "file": "cobb-salad-2.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Cobb_salad_(packaged)_-_Massachusetts.jpg",
+    "license": "CC0",
+    "artist": "Daderot",
+    "attributionRequired": false
+  },
+  "Southern Fried Chicken": {
+    "file": "southern-fried-chicken-0.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Fried-Chicken-Set.jpg",
+    "license": "CC0",
+    "artist": "Evan-Amos",
+    "attributionRequired": false
+  },
+  "BBQ Pulled Pork": {
+    "file": "bbq-pulled-pork-0.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Pulled_pork_sandwich_-_%22Naked%22.jpg",
+    "license": "CC BY-SA 4.0",
+    "artist": "Infrogmation of New Orleans",
+    "attributionRequired": true
+  },
+  "Mac and Cheese": {
+    "file": "mac-and-cheese-2.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Macaroni_and_cheese_(2)_(cropped).jpg",
+    "license": "CC BY-SA 2.0",
+    "artist": "Sumeet Jain from San Francisco, USA",
+    "attributionRequired": true
+  },
+  "Chilaquiles Rojos": {
+    "file": "chilaquiles-rojos-2.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Chilaquiles_at_the_Grand_Cantina,_Windsor,_Ontario,_2025-09-01_02.jpg",
+    "license": "CC BY-SA 4.0",
+    "artist": "Chris Woodrich",
+    "attributionRequired": true
+  },
+  "Huevos Rancheros": {
+    "file": "huevos-rancheros-1.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Huevos_rancheros.jpg",
+    "license": "CC BY-SA 4.0",
+    "artist": "1000b",
+    "attributionRequired": true
+  },
+  "Salsa Verde": {
+    "file": "salsa-verde-0.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:SALSA_VERDE.jpg",
+    "license": "CC BY-SA 2.5",
+    "artist": "No machine-readable author provided. JEDIKNIGHT1970 assumed (based on copyright claims).",
+    "attributionRequired": true
+  },
+  "Birria Tacos": {
+    "file": "birria-tacos-1.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Birria_tacos,_birria_consomme.jpg",
+    "license": "CC BY 2.0",
+    "artist": "T.Tseng",
+    "attributionRequired": true
+  },
+  "Ground Beef Tacos": {
+    "file": "ground-beef-tacos-0.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:001_Tacos_de_carnitas,_carne_asada_y_al_pastor.jpg",
+    "license": "CC BY-SA 2.0",
+    "artist": "Larry Miller",
+    "attributionRequired": true
+  },
+  "Chicken Fajitas": {
+    "file": "chicken-fajitas-0.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Chicken_fajitas_-_La_Hacienda_-_Sarah_Stierch.jpg",
+    "license": "CC BY 4.0",
+    "artist": "Missvain",
+    "attributionRequired": true
+  },
+  "Mexican Rice": {
+    "file": "mexican-rice-0.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Mexican_rice_and_beans.jpg",
+    "license": "CC BY 2.0",
+    "artist": "Maryam S.",
+    "attributionRequired": true
+  },
+  "Elote": {
+    "file": "elote-0.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Air_fried_corn-on-the-cob_(United_States).jpg",
+    "license": "CC BY-SA 4.0",
+    "artist": "NeoBatfreak",
+    "attributionRequired": true
+  },
+  "Pork Tamales": {
+    "file": "pork-tamales-1.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Pork_tamale_-_May_2024_-_Sarah_Stierch.jpg",
+    "license": "CC BY 4.0",
+    "artist": "Missvain",
+    "attributionRequired": true
+  },
+  "Pozole Rojo": {
+    "file": "pozole-rojo-0.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Pozole,_Mazatl%C3%A1n,_13_de_marzo_de_2023_02.jpg",
+    "license": "CC0",
+    "artist": "El Nuevo Doge",
+    "attributionRequired": false
+  },
+  "Cheese Enchiladas": {
+    "file": "cheese-enchiladas-0.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Festival_de_la_Enchilada_59.jpg",
+    "license": "CC BY-SA 4.0",
+    "artist": "Lameirasb",
+    "attributionRequired": true
+  },
+  "Beef Barbacoa": {
+    "file": "beef-barbacoa-0.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Barbacoa_(en_Hidalgo).JPG",
+    "license": "CC BY-SA 3.0",
+    "artist": "Elton Rodriguez",
+    "attributionRequired": true
+  },
+  "Carnitas": {
+    "file": "carnitas-1.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Carnitas_sope_-_Los_Molcajetes_Bar_%26_Grill_(Montecito_Blvd.,_Santa_Rosa)_-_April_2023_-_Sarah_Stierch_01.jpg",
+    "license": "CC BY 4.0",
+    "artist": "Missvain",
+    "attributionRequired": true
+  },
+  "Pico de Gallo": {
+    "file": "pico-de-gallo-1.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Mmm..._Pico_de_Gallo_(5923456035).jpg",
+    "license": "CC BY 2.0",
+    "artist": "jeffreyw",
+    "attributionRequired": true
+  },
+  "Guacamole": {
+    "file": "guacamole-0.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Guacamole_IMGP1271.jpg",
+    "license": "CC BY-SA 3.0",
+    "artist": "Nikodem Nijaki",
+    "attributionRequired": true
+  },
+  "Apple Pie": {
+    "file": "apple-pie-2.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Apple_pie_24.jpg",
+    "license": "CC BY 4.0",
+    "artist": "Shisma",
+    "attributionRequired": true
+  },
+  "Classic Meatloaf": {
+    "file": "classic-meatloaf-1.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:MeatloafWithSauce.jpg",
+    "license": "Public domain",
+    "artist": "Renee Comet (photographer)",
+    "attributionRequired": false
+  },
+  "Crispy Baked Buffalo Wings": {
+    "file": "crispy-baked-buffalo-wings-0.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Homemade_buffalo_wings.jpg",
+    "license": "CC BY 2.0",
+    "artist": "stef yau",
+    "attributionRequired": true
+  },
+  "Tacos al Pastor": {
+    "file": "tacos-al-pastor-1.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:001_Tacos_de_carnitas,_carne_asada_y_al_pastor.jpg",
+    "license": "CC BY-SA 2.0",
+    "artist": "Larry Miller",
+    "attributionRequired": true
+  },
+  "Mango Sticky Rice": {
+    "file": "mango-sticky-rice-0.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Mango_sticy_rice_(3859549574).jpg",
+    "license": "CC BY 2.0",
+    "artist": "Dennis Wong from Hong Kong, Hong Kong",
+    "attributionRequired": true
+  },
+  "Chicken Biryani": {
+    "file": "chicken-biryani-2.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Chicken_biriyani-_My_cafe_restaurant_-_Meghalaya_DSC_009.jpg",
+    "license": "CC BY-SA 4.0",
+    "artist": "Gitika Gayan",
+    "attributionRequired": true
+  },
+  "Chicken Tikka Masala": {
+    "file": "chicken-tikka-masala-2.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Chicken_tikka_masala_at_Yeti_in_Glen_Ellen_2015_-_Sarah_Stierch.jpg",
+    "license": "CC BY 4.0",
+    "artist": "Missvain",
+    "attributionRequired": true
+  },
+  "Butter Chicken": {
+    "file": "butter-chicken-0.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Chicken_makhani.jpg",
+    "license": "CC BY-SA 2.0",
+    "artist": "stu_spivack",
+    "attributionRequired": true
+  },
+  "Coq au Vin": {
+    "file": "coq-au-vin-0.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Coq_au_Vin_6of7_(8735164745).jpg",
+    "license": "CC BY 2.0",
+    "artist": "Breville USA",
+    "attributionRequired": true
+  },
+  "Beef Bourguignon": {
+    "file": "beef-bourguignon-1.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:B%C5%93uf_bourguignon_06.JPG",
+    "license": "CC BY-SA 4.0",
+    "artist": "Arnaud 25",
+    "attributionRequired": true
+  },
+  "Greek Chicken Souvlaki with Tzatziki": {
+    "file": "greek-chicken-souvlaki-with-tzatziki-2.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Souvlaki_in_Athens.JPG",
+    "license": "CC BY-SA 4.0",
+    "artist": "Miyagawa",
+    "attributionRequired": true
+  },
+  "Spaghetti Carbonara": {
+    "file": "spaghetti-carbonara-2.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Spaghetti_alla_Carbonara_(Madrid).JPG",
+    "license": "CC BY-SA 3.0",
+    "artist": "Tamorlan",
+    "attributionRequired": true
+  },
+  "Pad Thai": {
+    "file": "pad-thai-0.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Phat_Thai_kung_Chang_Khien_street_stall.jpg",
+    "license": "CC BY-SA 3.0",
+    "artist": "Takeaway",
+    "attributionRequired": true
+  },
+  "Sloppy Joes": {
+    "file": "sloppy-joes-alt1.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Sloppy_Joe_%22homemade%22.jpg",
+    "license": "CC BY 2.0",
+    "artist": "Buck Blues",
+    "attributionRequired": true
+  },
+  "Refried Beans": {
+    "file": "refried-beans-alt1.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Frijoles_refritos.jpg",
+    "license": "CC BY 2.0",
+    "artist": "Karyn Christner",
+    "attributionRequired": true
+  },
+  "Chicken Enchiladas": {
+    "file": "chicken-enchiladas-alt0.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Enchiladas_con_salsa_roja.jpg",
+    "license": "CC BY-SA 4.0",
+    "artist": "Dahyana Yasada R. R.",
+    "attributionRequired": true
+  },
+  "Moussaka": {
+    "file": "moussaka-alt0.png",
+    "commons": "https://commons.wikimedia.org/wiki/File:Moussaka_in_Jerusalem,_Israel.png",
+    "license": "CC0",
+    "artist": "PeleYoetz",
+    "attributionRequired": false
+  }
+}

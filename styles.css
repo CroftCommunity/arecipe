@@ -602,6 +602,41 @@ a.card {
   color: var(--enamel);
 }
 
+/* Image credit (Wikimedia Commons). On the card: one thin, quiet line along
+   the bottom edge — present but out of the way. On the detail banner: a
+   gradient overlay pinned to the foot of the photo, linking to the source so
+   CC BY / BY-SA attribution stays visible with the image. */
+.photo-credit {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0.9rem var(--s-3) 0.35rem;
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  color: #fff;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.62), rgba(0, 0, 0, 0));
+  text-align: right;
+  pointer-events: none;
+}
+
+/* Banner corners are rounded, so round the overlay to match; on cards the
+   image's bottom edge is straight, so it stays square. */
+.photo-wrap--banner .photo-credit {
+  border-radius: 0 0 var(--r-l) var(--r-l);
+}
+
+/* Cards are small — dial the credit down a touch so it stays out of the way. */
+.card .photo-credit {
+  font-size: calc(var(--t-caption) * 0.85);
+}
+
+.photo-credit-link {
+  color: #fff;
+  text-decoration: underline;
+  pointer-events: auto;
+}
+
 /* ---- editor (Phase 6) ---- */
 
 .editor {

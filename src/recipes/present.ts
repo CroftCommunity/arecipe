@@ -30,6 +30,15 @@ type EmbedShape = {
 export const firstImageCid = (value: Record<string, unknown>): string | null =>
   (value as EmbedShape).embed?.images?.[0]?.image?.ref?.$link ?? null;
 
+export type ImageCredit = { artist?: string; license?: string; source?: string };
+
+type CreditShape = { embed?: { images?: { credit?: ImageCredit }[] } };
+
+/** The first embedded image's credit (artist/license/source), when present.
+ * Populated for images sourced from Wikimedia Commons; null otherwise. */
+export const firstImageCredit = (value: Record<string, unknown>): ImageCredit | null =>
+  (value as CreditShape).embed?.images?.[0]?.credit ?? null;
+
 /**
  * Blob thumbnail via the Bluesky CDN. A recorded third-party dependency
  * (like the handle resolver): direct `sync.getBlob` serves the full-size

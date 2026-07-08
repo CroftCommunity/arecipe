@@ -6,7 +6,7 @@
 // rubber stamp + always-visible warning wherever the recipe appears.
 
 import type { CachedRecipe } from './cache.js';
-import { firstImageCid, formatDuration, formatPublishedDate, thumbUrl } from './present.js';
+import { firstImageCid, firstImageCredit, formatDuration, formatPublishedDate, thumbUrl } from './present.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
   const node = document.createElement(tag);
@@ -103,6 +103,46 @@ const alteredWarningEl = (): HTMLElement => {
   return warning;
 };
 
+/** Normalized image credit for rendering: a "unknown"/empty artist drops out,
+ * and the whole thing is null unless there's at least a license or an artist. */
+const creditParts = (
+  value: RecipeValue,
+): { artist: string; license: string; source: string } | null => {
+  const c = firstImageCredit(value as Record<string, unknown>);
+  if (c === null) return null;
+  const license = typeof c.license === 'string' ? c.license : '';
+  const rawArtist = typeof c.artist === 'string' ? c.artist : '';
+  const artist = rawArtist === 'unknown' ? '' : rawArtist;
+  if (license === '' && artist === '') return null;
+  return { artist, license, source: typeof c.source === 'string' ? c.source : '' };
+};
+
+/** Credit overlaid at the bottom of an image. On the detail banner the artist
+ * links to the Commons source (keeping CC BY / BY-SA attribution with the
+ * photo); on cards it's text-only, since the card itself is a link and nesting
+ * anchors is invalid. Same visual treatment (.photo-credit) either way. */
+const imageCreditOverlay = (
+  value: RecipeValue,
+  opts: { withLink: boolean; testid: string },
+): HTMLElement | null => {
+  const c = creditParts(value);
+  if (c === null) return null;
+  const wrap = el('span', 'photo-credit');
+  wrap.dataset['testid'] = opts.testid;
+  const label = c.artist !== '' ? c.artist : c.license;
+  if (opts.withLink && c.source !== '') {
+    const link = el('a', 'photo-credit-link', label) as HTMLAnchorElement;
+    link.href = c.source;
+    link.rel = 'noopener';
+    link.target = '_blank';
+    wrap.append(link);
+  } else {
+    wrap.append(document.createTextNode(label));
+  }
+  if (c.artist !== '' && c.license !== '') wrap.append(document.createTextNode(` · ${c.license}`));
+  return wrap;
+};
+
 const chipsEl = (value: RecipeValue): HTMLElement | null => {
   const time = formatDuration(value.totalTime);
   if (time === null) return null;
@@ -130,7 +170,10 @@ const renderCard = (entry: CachedRecipe, options: RenderOptions): HTMLElement =>
   const card = el('a', 'card') as HTMLAnchorElement;
   card.dataset['testid'] = 'recipe-item';
   card.href = recipePageHref(entry, options);
-  card.append(photoWrapEl(entry));
+  const photoWrap = photoWrapEl(entry);
+  const cardCredit = imageCreditOverlay(value, { withLink: false, testid: 'card-credit' });
+  if (cardCredit !== null) photoWrap.append(cardCredit);
+  card.append(photoWrap);
   card.append(el('span', 'card-title', value.name ?? '(untitled)'));
   const chips = chipsEl(value);
   if (chips !== null) card.append(chips);
@@ -160,6 +203,8 @@ export const renderRecipeDetail = (
 
   const banner = photoWrapEl(entry);
   banner.classList.add('photo-wrap--banner');
+  const photoCredit = imageCreditOverlay(value, { withLink: true, testid: 'photo-credit' });
+  if (photoCredit !== null) banner.append(photoCredit);
   article.append(banner);
   article.append(el('h2', 'recipe-title', value.name ?? '(untitled)'));
   const chips = chipsEl(value);

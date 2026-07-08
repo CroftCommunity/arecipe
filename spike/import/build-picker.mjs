@@ -8,8 +8,11 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 
 const DIR = process.argv[2];
-if (!DIR) throw new Error('usage: node build-picker.mjs <dir>');
-const catalog = JSON.parse(readFileSync(`${DIR}/catalog.json`, 'utf8'));
+if (!DIR) throw new Error('usage: node build-picker.mjs <dir> [outfile] [name1,name2,...]');
+const OUTFILE = process.argv[3] ?? 'index.html';
+const ONLY = process.argv[4] ? new Set(process.argv[4].split(',')) : null;
+const all = JSON.parse(readFileSync(`${DIR}/catalog.json`, 'utf8'));
+const catalog = ONLY === null ? all : all.filter((c) => ONLY.has(c.name));
 
 const esc = (s) =>
   String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -148,5 +151,5 @@ const html = `<!doctype html>
 </body>
 </html>`;
 
-writeFileSync(`${DIR}/index.html`, html);
-console.log(`wrote ${DIR}/index.html (${withImgs}/${catalog.length} recipes with candidates)`);
+writeFileSync(`${DIR}/${OUTFILE}`, html);
+console.log(`wrote ${DIR}/${OUTFILE} (${withImgs}/${catalog.length} recipes with candidates)`);

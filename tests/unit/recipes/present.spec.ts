@@ -7,6 +7,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   firstImageCid,
+  firstImageCredit,
   formatDuration,
   formatPublishedDate,
   thumbUrl,
@@ -43,6 +44,31 @@ describe('firstImageCid', () => {
 
   it('returns null when there is no embed', () => {
     expect(firstImageCid({})).toBeNull();
+  });
+});
+
+describe('firstImageCredit', () => {
+  it('extracts artist/license/source from the first image credit', () => {
+    const value = {
+      embed: {
+        images: [
+          {
+            image: { $type: 'blob', ref: { $link: 'bafk' } },
+            credit: { artist: 'Nikodem Nijaki', license: 'CC BY-SA 3.0', source: 'https://commons.wikimedia.org/wiki/File:Guac.jpg' },
+          },
+        ],
+      },
+    };
+    expect(firstImageCredit(value)).toEqual({
+      artist: 'Nikodem Nijaki',
+      license: 'CC BY-SA 3.0',
+      source: 'https://commons.wikimedia.org/wiki/File:Guac.jpg',
+    });
+  });
+
+  it('returns null when the image has no credit or there is no embed', () => {
+    expect(firstImageCredit({ embed: { images: [{ image: {} }] } })).toBeNull();
+    expect(firstImageCredit({})).toBeNull();
   });
 });
 

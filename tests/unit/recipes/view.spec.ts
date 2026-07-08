@@ -147,3 +147,50 @@ describe('renderRecipeDetail', () => {
     expect(el.querySelector('[data-testid=altered-warning]')).not.toBeNull();
   });
 });
+
+describe('image credit (Commons attribution)', () => {
+  const withCredit = () =>
+    entry({
+      value: {
+        ...fixture.value,
+        embed: {
+          images: [
+            {
+              image: { $type: 'blob', ref: { $link: 'bafkcredit' }, mimeType: 'image/jpeg' },
+              alt: 'Pico de Gallo',
+              credit: {
+                artist: 'jeffreyw',
+                license: 'CC BY 2.0',
+                source: 'https://commons.wikimedia.org/wiki/File:Pico.jpg',
+              },
+            },
+          ],
+        },
+      },
+    });
+
+  it('a card overlays the image credit (text-only) at the bottom of the photo', () => {
+    const el = renderRecipeList([withCredit()]);
+    const credit = el.querySelector<HTMLElement>('.photo-wrap [data-testid=card-credit]');
+    expect(credit?.textContent).toContain('CC BY 2.0');
+    expect(credit?.textContent).toContain('jeffreyw');
+    // the card is itself an anchor — the credit must not nest another link
+    expect(credit?.querySelector('a')).toBeNull();
+  });
+
+  it('a card without an embedded image has no credit line', () => {
+    const bare = { ...fixture.value };
+    delete bare['embed'];
+    expect(renderRecipeList([entry({ value: bare })]).querySelector('[data-testid=card-credit]')).toBeNull();
+  });
+
+  it('the detail banner overlays an image credit linking to the Commons source', () => {
+    const el = renderRecipeDetail(withCredit(), { author: 'arecipe.bsky.social' });
+    const credit = el.querySelector<HTMLElement>('[data-testid=photo-credit]');
+    expect(credit?.textContent).toContain('CC BY 2.0');
+    expect(credit?.textContent).toContain('jeffreyw');
+    expect(credit?.querySelector('a')?.getAttribute('href')).toBe(
+      'https://commons.wikimedia.org/wiki/File:Pico.jpg',
+    );
+  });
+});
