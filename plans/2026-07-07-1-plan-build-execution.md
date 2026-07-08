@@ -1884,18 +1884,26 @@ linked to profiles. **Validation:** Broad (external write). **Stop-point.**
 notes/photos — reuse the Phase 7 EXIF-safe `prepareImage`/`uploadRecipeImage`)
 and `…saved`; buttons + counts on recipe cards/detail; a "Saved" view under My
 recipes.
-**Added 2026-07-08 (user) — the "like" interaction + Hide Likes.** A third
-interaction kind, `…liked`, surfaced as: a subtle heart top-right of the recipe
-image on the Browse tiles (tap to like) and `Foo Recipe · N likes` on the
-title/name line (tile + detail). Counts are **friends-scoped** by the same
-backendless discovery as comments (you can only count likes from repos you know
-— you + friends), so "N likes" means "N you + friends" at 12–25 scale; name it
-honestly in the copy. A **Hide Likes** toggle joins the 9b "Social" settings
-panel (`src/social/prefs.ts` — reserve the key there; off by default). **Open at
-9c start — confirm with user:** is `liked` *additive* to cooked/saved (three
-kinds) or does it fold/replace one? (Explained 2026-07-08: like = lightweight
-public approval; cooked = "I made this" + rating/notes/photo; saved = private
-bookmark — semantically distinct, hence the additive default recommendation.)
+**Reshaped 2026-07-08 (user decisions) — likes + saved; cooked deferred.**
+- **Kinds: `liked` + `saved` only — `cooked` is DEFERRED** (it was the heaviest:
+  ratings/notes/photos; can return later). `saved` = private bookmark with a
+  "Saved" view under My recipes; `liked` = one-tap public approval (heart +
+  count).
+- **`liked` surfaces:** `Foo Recipe · N likes` on the name/title line (Browse
+  tiles + detail) and a heart on the recipe **image**. **Counts are
+  friends-scoped** (same backendless boundary as comments — you can only count
+  likes from repos you know, you + friends); copy must be honest, not a
+  pretend-global count.
+- **Liking happens ONLY on the recipe detail page — NOT from Browse.** Browse
+  ships zero auth code (a tested guarantee) and liking is an auth'd write. So
+  Browse tiles show the heart + count **read-only** (display); tapping a tile
+  opens `recipe.html`, where the heart actually likes (the recipe page is
+  already session-aware with deferred auth). Browse stays a pure read surface —
+  the "Browse ships zero auth code" e2e stays valid unchanged.
+- **Hide Likes** toggle joins the 9b "Social" settings panel (`src/social/
+  prefs.ts` — reserve the key; off by default), hides the hearts + counts.
+- Wiring split as 9a/9b: hermetic renders counts from routed fixtures; `@live`
+  proves the like write (+ guarded `app.arecipe.interaction` purge).
 **Changes (planned; re-confirm at start):** `src/social/interactions.ts`
 (write/list/count), buttons in `src/pages/recipe.ts` + `src/recipes/view.ts`
 card chips, a saved list in `src/pages/mine.ts`.
