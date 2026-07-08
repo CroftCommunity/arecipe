@@ -153,13 +153,25 @@ diet-preference question in the Review Log.
 **Done when:** The arrangement and the preference/filter split are chosen, and Phases 2–7
 have been adjusted to match. This is the only phase allowed to restructure later phases.
 
+**DECISION (2026-07-08, from the prototype):**
+- **Layout = compact bar (variant C):** a search row (handle input + Find), then a single
+  control bar: `[Tiles | Details]` segmented toggle · `Photos only` toggle · `Meal ▾` ·
+  `Cuisine ▾` · then right-aligned the count `N of M shown · V verified` with a
+  `set dietary preference ↗` link beneath it.
+- **Two separate dropdowns** — `Meal ▾` and `Cuisine ▾` (not one combined "Filters"). Each is
+  a multi-select (grouped checkboxes), OR-within / AND-across dimensions.
+- **No diet control on the Browse toolbar.** Dietary preference is set only in Settings; the
+  Browse count area carries a `set dietary preference ↗` link to the Settings dietary section
+  (arrow ↗ = "opens the setting"). `renderCurrent` still *applies* the stored diet preference.
+- Prototype (`scratchpad/mock/`) disposition: **throwaway** — delete after build starts.
+
 ### Phase 1: Header polish + single render seam
 **Goal:** Right-align the count, drop the `· N hidden` note, and refactor `browse.ts` so both
 render paths funnel through one `renderCurrent()` that holds the current entries — the seam
 every later toggle/filter hooks into. A visible `.browse-toolbar` container is added with the
 count right-aligned inside it.
 **Changes:**
-- [ ] `src/pages/browse.ts` — introduce `let current: { entries: CachedRecipe[]; author?: string; authorsByDid?: Record<string,string> } | null` and a `renderCurrent()` that renders `current` via `renderRecipeList`; `showEntries` and `showStarterFeed` set `current` and call it. Remove `hiddenNote` usage from the displayed string (keep `withoutHidden` filtering). Wrap the count `<p data-testid=recipes-status>` in a `.browse-toolbar` bar.
+- [ ] `src/pages/browse.ts` — introduce `let current: { entries: CachedRecipe[]; author?: string; authorsByDid?: Record<string,string> } | null` and a `renderCurrent()` that renders `current` via `renderRecipeList`; `showEntries` and `showStarterFeed` set `current` and call it. Remove `hiddenNote` usage from the displayed string (keep `withoutHidden` filtering). Wrap the count `<p data-testid=recipes-status>` in a `.browse-toolbar` bar, count right-aligned, with a `set dietary preference ↗` link (→ `./settings.html`, to the dietary section) beneath the count.
 - [ ] `styles.css` — `.browse-toolbar` (flex row, count pushed right via `margin-left:auto` / `justify-content` + `.status` right-aligned).
 - [ ] `tests/e2e/starter.spec.ts` — extend an existing assertion (or add one) that the status text has no "hidden" substring and the toolbar exists. (Editing this file is allowed — it is Browse's own suite, not the other agent's.)
 **Call chain:** page load → `main()` → `showStarterFeed()` / form submit → `showEntries()` → `renderCurrent()` → `renderRecipeList` → DOM `.browse-toolbar` + `.recipe-grid`.
@@ -264,13 +276,14 @@ wired in Phase 5.
 2. **Verification:** `npx playwright test tests/e2e/browse.spec.ts -g "Details"`.
 **Validation:** Moderate. e2e + manual serve check in both themes.
 
-### Phase 6: Facet chips renderer (view)
-**Goal:** Render the label-filter chips (grouped by dimension: diet, meal category, cuisine),
-reflecting selected state. Render only; wired in Phase 7.
+### Phase 6: Facet dropdown renderer (view)
+**Goal:** Render the two multi-select filter dropdowns — `Meal ▾` and `Cuisine ▾` (per the
+Phase 0 decision: two separate dropdowns, not chips), reflecting selected state. Render only;
+wired in Phase 7.
 **Changes:**
-- [ ] `src/recipes/view.ts` — `renderFacetChips(available, selected): HTMLElement` producing grouped, toggleable `.facet-chip[aria-pressed]` buttons per dimension; a chip carries `data-dimension` + `data-value`. Pure render + `aria-pressed`; no wiring.
-- [ ] `styles.css` — `.facet-bar` / `.facet-group` / `.facet-chip` (+ selected state), consistent with `.chip`.
-- [ ] `tests/unit/recipes/view.spec.ts` — `describe('renderFacetChips')`: renders a chip per available value grouped by dimension; selected values get `aria-pressed=true`; empty `available` → no chips.
+- [ ] `src/recipes/view.ts` — `renderFacetDropdown(dimension, available, selected): HTMLElement` producing a `<details class="facet-dd">` with a `<summary>` label (e.g. "Meal ▾") and a panel of checkbox options; each option carries `data-dimension` + `data-value`, checked per `selected`. Called once per dimension (meal, cuisine).
+- [ ] `styles.css` — `.facet-dd` / `.facet-dd-panel` (native `<details>` popover styling, consistent with the app; light + dark).
+- [ ] `tests/unit/recipes/view.spec.ts` — `describe('renderFacetDropdown')`: renders one checkbox per available value; selected values are `checked`; empty `available` → the dropdown is omitted (or renders disabled); summary shows the dimension label.
 **Call chain:** (render library) consumed by Phase 7. Not wired here.
 **Wiring test:** none this phase; Phase 7 provides the e2e.
 **Depends on:** Phase 2 (`availableFacets` shape, `BrowseState`).
@@ -292,10 +305,10 @@ reflecting selected state. Render only; wired in Phase 7.
 facets from the current entries and applying `matchesFilter`; persist selections. Complete
 the feature.
 **Changes:**
-- [ ] `src/pages/browse.ts` — build the facet bar from `availableFacets(current.entries)`; on chip toggle, update `BrowseState.facets`, persist, and `renderCurrent()`; initialize from prefs; recompute available facets whenever `current` changes (feed vs search).
+- [ ] `src/pages/browse.ts` — build the `Meal ▾` + `Cuisine ▾` dropdowns from `availableFacets(current.entries)` (via `renderFacetDropdown`); on a dropdown checkbox `change`, update `BrowseState.facets`, persist, and `renderCurrent()`; initialize from prefs; recompute available facets whenever `current` changes (feed vs search).
 - [ ] `tests/e2e/browse.spec.ts` — add cases using `listRecords-browse-mixed.json`: selecting `vegetarian` narrows to vegetarian recipes; adding `breakfast` yields `vegetarian AND (breakfast)`; selecting two categories is OR within the dimension; selections persist across reload.
 - [ ] `docs/DESIGN.md` — (ADVISORY, only if confirmed) one line noting Browse view-mode + label filtering.
-**Call chain:** chip `click` → update `BrowseState.facets` + persist + `renderCurrent()` → `matchesFilter` (Phase 2) → active renderer → filtered DOM.
+**Call chain:** dropdown checkbox `change` → update `BrowseState.facets` + persist + `renderCurrent()` → `matchesFilter` (Phase 2) → active renderer → filtered DOM.
 **Wiring test:** the `tests/e2e/browse.spec.ts` facet cases (RED before wiring, GREEN after).
 **Depends on:** Phase 1 (seam), Phase 2 (facets/predicate/prefs), Phase 6 (chips render). Phase 3 for the shared mixed fixture.
 **Read-set:** `src/pages/browse-state.ts`, `src/recipes/view.ts`, `src/pages/browse.ts`, `tests/fixtures/atproto/listRecords-browse-mixed.json`.
@@ -354,17 +367,10 @@ during execution (not yet read in depth — see Open Questions).
 - [RECOMMENDED: PHASE-GATED (Phase 8)] `src/pages/settings.ts` structure not yet read in
   depth. *Rationale: the Settings phase assumes a controls pattern to reuse; verify before
   Phase 8 (or in Phase 0). Low risk — settings is an existing page with toggle controls.*
-- [RECOMMENDED: ADVISORY] Facet semantics OR-within-dimension / AND-across-dimensions.
-  *Rationale: standard faceted search; AND-within would make multi-select meal filters
-  return nothing. Recommend as stated.*
-- [RECOMMENDED: ADVISORY] Default view mode = Tiles, photos-only = off, persistence in
-  `localStorage`. *Rationale: preserves current behavior; prefs persist across sessions like
-  `theme`.*
-- [RECOMMENDED: ADVISORY] Keep hiding `exclusions` recipes, only removing the visible
-  `· N hidden` note. *Rationale: the user asked to drop the note, not to un-hide junk
-  records; the curated baseline still applies.*
-- [RECOMMENDED: ADVISORY] Add the one-line `docs/DESIGN.md` note in Phase 7?
-  *Rationale: keeps design doc current; skip is fine since it's not load-bearing.*
+- [CONFIRMED: ADVISORY] Facet semantics OR-within-dimension / AND-across-dimensions. *Accepted as recommended.*
+- [CONFIRMED: ADVISORY] Default view mode = Tiles, photos-only = off, persistence in `localStorage`. *Accepted as recommended.*
+- [CONFIRMED: ADVISORY] Keep hiding `exclusions` recipes, only removing the visible `· N hidden` note. *Accepted as recommended.*
+- [CONFIRMED: ADVISORY] Add the one-line `docs/DESIGN.md` note in Phase 7. *Accepted as recommended.*
 
 ## Review Log
 
