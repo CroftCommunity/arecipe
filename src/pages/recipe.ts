@@ -20,10 +20,31 @@ import { retryOnce } from '../retry.js';
 import { renderRecipeDetail } from '../recipes/view.js';
 import { addComment, buildThread, loadRecipeComments, type CommentRepo } from '../social/comments.js';
 import { renderComments } from '../social/comments-view.js';
-import { listFriends } from '../social/friends.js';
+import { resolveCookbook } from '../social/cookbook.js';
+import {
+  addInteraction,
+  loadRecipeInteractions,
+  removeInteraction,
+  summarize,
+  withOwnInteraction,
+  type Interaction,
+  type InteractionRepo,
+} from '../social/interactions.js';
 import { createSocialPrefs } from '../social/prefs.js';
 import { registerServiceWorker } from '../sw-register.js';
 import type { Agent } from '@atproto/api';
+
+/** Memoized loader for the deferred auth client — comments + interactions
+ * share one load so @atproto/api is fetched (as a split chunk) at most once. */
+type AgentLoader = () => Promise<Agent | null>;
+
+// Per-recipe cookbook-discovery fan-out bound (CB1 open-question resolution):
+// read at most this many cookbook members per recipe view. Members arrive in
+// source priority (you → starter → follow → follower), so the cap favors the
+// high-signal sources over a potentially-large followers set. Applied with a
+// log line — never a silent truncation. The Cookbook feed (CB5) reads all
+// members; only per-recipe discovery caps.
+const COOKBOOK_DISCOVERY_CAP = 50;
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
   const node = document.createElement(tag);
@@ -91,6 +112,7 @@ const mountComments = async (
   content: HTMLElement,
   entry: CachedRecipe,
   uri: string,
+  getAgent: AgentLoader,
 ): Promise<void> => {
   if (createSocialPrefs().hideComments()) {
     log.debug('comments', 'comment section hidden by social pref');
@@ -144,15 +166,10 @@ const mountComments = async (
   await addRepo(parseAtUri(uri).did);
   await refresh();
 
-  // Now load the auth client as a split chunk (deferred so @atproto/api never
-  // sits in the recipe entry bundle). Signed in → add you + your friends to
-  // discovery and enable composing; signed out → a sign-in pointer.
-  try {
-    const boot = await import('../auth/boot.js');
-    agent = (await boot.bootSession()).agent;
-  } catch (err) {
-    log.warn('comments', 'auth client load failed', { error: String(err) });
-  }
+  // Load the auth client (shared, deferred split chunk — see getAgent in main).
+  // Signed in → add you + your friends to discovery and enable composing;
+  // signed out → a sign-in pointer.
+  agent = await getAgent();
 
   const signedInAgent = agent;
   if (signedInAgent?.did !== undefined) {
@@ -160,10 +177,22 @@ const mountComments = async (
     await addRepo(me);
     try {
       const { pds } = await resolveDidDoc(me);
-      const friends = await listFriends({ pds, did: me });
-      for (const friend of friends) await addRepo(friend.subject);
+      // Cookbook-scoped discovery (CB1): comments come from repos we know — the
+      // recipe author (added above) + you + your cookbook (starters + Bluesky
+      // follows + followers). Replaces the dropped app.arecipe.friend graph.
+      const members = await resolveCookbook({ you: { did: me, pds } });
+      const capped = members.slice(0, COOKBOOK_DISCOVERY_CAP);
+      if (capped.length < members.length) {
+        log.info('comments', 'cookbook discovery capped', {
+          reading: capped.length,
+          of: members.length,
+        });
+      }
+      for (const member of capped) await addRepo(member.did);
     } catch (err) {
-      log.warn('comments', 'could not load friends for comment discovery', { error: String(err) });
+      log.warn('comments', 'could not load cookbook for comment discovery', {
+        error: String(err),
+      });
     }
 
     const form = el('form', 'comment-compose') as HTMLFormElement;
@@ -214,6 +243,126 @@ const mountComments = async (
     const note = el('p', 'status', 'Sign in on My recipes to join the conversation.');
     note.dataset['testid'] = 'comment-signed-out';
     box.append(note);
+  }
+};
+
+/** Interactions (Phase 9c): a friends-scoped like count + a heart, plus a
+ * save toggle, on the recipe page. Reading is public (author + you + friends);
+ * liking/saving needs a session (deferred, shared auth). Liking lives here, not
+ * on Browse — Browse stays zero-auth. Honors the Hide Likes social pref. */
+const mountInteractions = async (
+  content: HTMLElement,
+  entry: CachedRecipe,
+  uri: string,
+  getAgent: AgentLoader,
+): Promise<void> => {
+  if (createSocialPrefs().hideLikes()) {
+    log.debug('interactions', 'interactions hidden by social pref');
+    return;
+  }
+
+  const box = el('section', 'interactions');
+  box.dataset['testid'] = 'interactions';
+  const likeBtn = el('button', 'button like-btn') as HTMLButtonElement;
+  likeBtn.type = 'button';
+  likeBtn.dataset['testid'] = 'like-button';
+  const likeCount = el('span', 'like-count');
+  likeCount.dataset['testid'] = 'like-count';
+  const saveBtn = el('button', 'button save-btn') as HTMLButtonElement;
+  saveBtn.type = 'button';
+  saveBtn.dataset['testid'] = 'save-button';
+  box.append(likeBtn, likeCount, saveBtn);
+  content.append(box);
+
+  const repos: InteractionRepo[] = [];
+  const addRepo = async (did: string): Promise<void> => {
+    if (repos.some((r) => r.did === did)) return;
+    try {
+      const { pds } = await resolveDidDoc(did);
+      repos.push({ did, pds });
+    } catch (err) {
+      log.warn('interactions', 'could not resolve an interaction repo', { did, error: String(err) });
+    }
+  };
+
+  let agent: Agent | null = null;
+  let viewerDid: string | null = null;
+  let interactions: Interaction[] = [];
+  const strong = strongRefOf(entry);
+
+  const render = (): void => {
+    const { likeCount: n, youLiked, youSaved } = summarize(interactions, viewerDid);
+    likeCount.textContent = n === 1 ? '1 like' : `${n} likes`;
+    likeBtn.textContent = youLiked ? '♥ Liked' : '♡ Like';
+    likeBtn.classList.toggle('is-active', youLiked);
+    likeBtn.disabled = agent === null; // signed-out: count is read-only
+    saveBtn.textContent = youSaved ? 'Saved' : 'Save';
+    saveBtn.hidden = agent === null; // saving is a private action
+  };
+  const refresh = async (): Promise<void> => {
+    interactions = await loadRecipeInteractions(uri, repos);
+    render();
+  };
+
+  // Author's counts first — read-only, no auth (keeps the page light).
+  await addRepo(parseAtUri(uri).did);
+  await refresh();
+
+  agent = await getAgent();
+  const signedInAgent = agent;
+  if (signedInAgent?.did !== undefined) {
+    viewerDid = signedInAgent.did;
+    await addRepo(viewerDid);
+    try {
+      const { pds } = await resolveDidDoc(viewerDid);
+      // Cookbook-scoped like discovery (CB2): counts come from repos we know —
+      // the recipe author (added above) + you + your cookbook. Same capped,
+      // priority-ordered scope as comment discovery.
+      const members = await resolveCookbook({ you: { did: viewerDid, pds } });
+      const capped = members.slice(0, COOKBOOK_DISCOVERY_CAP);
+      if (capped.length < members.length) {
+        log.info('interactions', 'cookbook discovery capped', {
+          reading: capped.length,
+          of: members.length,
+        });
+      }
+      for (const member of capped) await addRepo(member.did);
+    } catch (err) {
+      log.warn('interactions', 'could not load cookbook for interaction discovery', {
+        error: String(err),
+      });
+    }
+    const me = signedInAgent.did;
+    const toggle = (kind: 'liked' | 'saved', has: () => boolean) => (): void => {
+      void (async () => {
+        try {
+          if (has()) {
+            await removeInteraction(signedInAgent, { recipeUri: uri, kind });
+            interactions = withOwnInteraction(interactions, me, uri, kind, null);
+          } else {
+            const res = await addInteraction(signedInAgent, { kind, recipe: strong });
+            interactions = withOwnInteraction(interactions, me, uri, kind, {
+              uri: res.uri,
+              cid: res.cid,
+              kind,
+              recipe: strong,
+              author: me,
+              createdAt: new Date().toISOString(),
+            });
+          }
+          // Reflect the viewer's OWN toggle immediately from the write result —
+          // do NOT re-read here (an immediate listRecords can race the PDS's
+          // read-after-write and blank the count). Others' interactions were
+          // loaded above; a later page load reconciles.
+          render();
+        } catch (err) {
+          log.error('interactions', 'toggle failed', { kind, error: String(err) });
+        }
+      })();
+    };
+    likeBtn.addEventListener('click', toggle('liked', () => summarize(interactions, viewerDid).youLiked));
+    saveBtn.addEventListener('click', toggle('saved', () => summarize(interactions, viewerDid).youSaved));
+    await refresh(); // re-render with your state + friends' counts + live controls
   }
 };
 
@@ -276,10 +425,27 @@ const main = async (): Promise<void> => {
     });
     content.append(hideButton);
 
-    // Comments (9b): friends-scoped, below the recipe. Loads its own auth
-    // client as a deferred chunk (keeps @atproto/api out of the entry bundle).
-    void mountComments(content, entry, uri).catch((err: unknown) => {
+    // Social sections (9b comments, 9c interactions) share ONE deferred auth
+    // load: @atproto/api is fetched (as a split chunk) at most once, and only
+    // after the recipe detail is on screen — the shareable page stays light.
+    let agentPromise: Promise<Agent | null> | null = null;
+    const getAgent: AgentLoader = () => {
+      agentPromise ??= (async () => {
+        try {
+          const boot = await import('../auth/boot.js');
+          return (await boot.bootSession()).agent;
+        } catch (err) {
+          log.warn('recipes', 'auth client load failed', { error: String(err) });
+          return null;
+        }
+      })();
+      return agentPromise;
+    };
+    void mountComments(content, entry, uri, getAgent).catch((err: unknown) => {
       log.error('comments', 'comment section failed', { uri, error: String(err) });
+    });
+    void mountInteractions(content, entry, uri, getAgent).catch((err: unknown) => {
+      log.error('interactions', 'interaction section failed', { uri, error: String(err) });
     });
     log.debug('shell', 'mounted', { page: 'recipe', uri });
   } catch (err) {

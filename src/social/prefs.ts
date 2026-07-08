@@ -7,10 +7,13 @@
 type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
 const HIDE_COMMENTS_KEY = 'social-hide-comments';
+const HIDE_LIKES_KEY = 'social-hide-likes';
 
 export type SocialPrefs = {
   hideComments: () => boolean;
   setHideComments: (hidden: boolean) => void;
+  hideLikes: () => boolean;
+  setHideLikes: (hidden: boolean) => void;
 };
 
 export const createSocialPrefs = (opts: { storage?: StorageLike } = {}): SocialPrefs => {
@@ -33,5 +36,7 @@ export const createSocialPrefs = (opts: { storage?: StorageLike } = {}): SocialP
   return {
     hideComments: () => read(HIDE_COMMENTS_KEY),
     setHideComments: (hidden) => write(HIDE_COMMENTS_KEY, hidden),
+    hideLikes: () => read(HIDE_LIKES_KEY),
+    setHideLikes: (hidden) => write(HIDE_LIKES_KEY, hidden),
   };
 };

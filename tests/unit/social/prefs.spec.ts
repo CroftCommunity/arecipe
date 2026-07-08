@@ -34,6 +34,16 @@ describe('createSocialPrefs', () => {
     expect(createSocialPrefs({ storage }).hideComments()).toBe(false);
   });
 
+  it('hides likes = false by default; persists across re-creation', () => {
+    const storage = memoryStorage();
+    const prefs = createSocialPrefs({ storage });
+    expect(prefs.hideLikes()).toBe(false);
+    prefs.setHideLikes(true);
+    expect(createSocialPrefs({ storage }).hideLikes()).toBe(true);
+    // Independent of Hide Comments.
+    expect(createSocialPrefs({ storage }).hideComments()).toBe(false);
+  });
+
   it('degrades to defaults when storage throws (private mode)', () => {
     const broken = {
       getItem: () => {
