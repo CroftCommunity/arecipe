@@ -3,6 +3,7 @@
 // author's PDS from the DID, fetches the record, Tier 2-verifies it, and
 // caches it like any other read.
 
+import { bootSession } from '../auth/boot.js';
 import { mountBuildStamp } from '../build-stamp.js';
 import { resolveDidDoc } from '../identity/did.js';
 import { log } from '../log.js';
@@ -10,10 +11,15 @@ import { mountShell } from '../nav.js';
 import { createRecipeCache, type CachedRecipe } from '../recipes/cache.js';
 import { createExclusions } from '../recipes/exclusions.js';
 import { createRecordReader } from '../recipes/read.js';
-import { isStale } from '../recipes/refs.js';
+import { isStale, strongRefOf } from '../recipes/refs.js';
 import { retryOnce } from '../retry.js';
 import { renderRecipeDetail } from '../recipes/view.js';
+import { addComment, buildThread, loadRecipeComments, type CommentRepo } from '../social/comments.js';
+import { renderComments } from '../social/comments-view.js';
+import { listFriends } from '../social/friends.js';
+import { createSocialPrefs } from '../social/prefs.js';
 import { registerServiceWorker } from '../sw-register.js';
+import type { Agent } from '@atproto/api';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
   const node = document.createElement(tag);
@@ -74,6 +80,125 @@ const checkForNewerRevision = async (
   }
 };
 
+/** Comment section (Phase 9b): friends-scoped discovery — read comments from
+ * the recipe author + (signed in) you + your friends; thread + render; compose
+ * + reply when signed in. Honors the Hide Comments social pref. */
+const mountComments = async (
+  content: HTMLElement,
+  entry: CachedRecipe,
+  uri: string,
+  agent: Agent | null,
+): Promise<void> => {
+  if (createSocialPrefs().hideComments()) {
+    log.debug('comments', 'comment section hidden by social pref');
+    return;
+  }
+
+  const box = el('section', 'comments');
+  box.append(el('h3', 'section-title', 'Comments'));
+  const threadMount = el('div');
+  threadMount.dataset['testid'] = 'comments-thread-mount';
+  box.append(threadMount);
+  content.append(box);
+
+  const authorsByDid: Record<string, string> = {};
+  const repos: CommentRepo[] = [];
+  const addRepo = async (did: string): Promise<void> => {
+    if (repos.some((r) => r.did === did)) return;
+    try {
+      const { pds, handle } = await resolveDidDoc(did);
+      repos.push({ did, pds });
+      if (handle !== null) authorsByDid[did] = handle;
+    } catch (err) {
+      log.warn('comments', 'could not resolve a comment repo', { did, error: String(err) });
+    }
+  };
+
+  let replyParent: string | null = null;
+  let replyingNote: HTMLElement | null = null;
+  let textarea: HTMLTextAreaElement | null = null;
+  const beginReply = (parentUri: string): void => {
+    replyParent = parentUri;
+    if (replyingNote !== null) replyingNote.hidden = false;
+    textarea?.focus();
+  };
+
+  const refresh = async (): Promise<void> => {
+    const comments = await loadRecipeComments(uri, repos);
+    const tree = buildThread(comments);
+    threadMount.replaceChildren(
+      renderComments(tree, {
+        recipeCid: entry.cid,
+        authorsByDid,
+        onReply: agent === null ? undefined : beginReply,
+      }),
+    );
+  };
+
+  // Discovery set: the recipe author always; you + your friends when signed in.
+  await addRepo(parseAtUri(uri).did);
+  if (agent?.did !== undefined) {
+    const me = agent.did;
+    await addRepo(me);
+    try {
+      const { pds } = await resolveDidDoc(me);
+      const friends = await listFriends({ pds, did: me });
+      for (const friend of friends) await addRepo(friend.subject);
+    } catch (err) {
+      log.warn('comments', 'could not load friends for comment discovery', { error: String(err) });
+    }
+
+    const form = el('form', 'comment-compose') as HTMLFormElement;
+    form.dataset['testid'] = 'comment-compose';
+    textarea = document.createElement('textarea');
+    textarea.dataset['testid'] = 'comment-text';
+    textarea.placeholder = 'Add a comment…';
+    replyingNote = el('p', 'status', 'replying to a comment · ');
+    replyingNote.dataset['testid'] = 'comment-replying';
+    replyingNote.hidden = true;
+    const cancelReply = el('button', 'button', 'cancel') as HTMLButtonElement;
+    cancelReply.type = 'button';
+    cancelReply.addEventListener('click', () => {
+      replyParent = null;
+      if (replyingNote !== null) replyingNote.hidden = true;
+    });
+    replyingNote.append(cancelReply);
+    const post = el('button', 'button button--primary', 'Post comment') as HTMLButtonElement;
+    post.type = 'submit';
+    post.dataset['testid'] = 'comment-post';
+    const status = el('p', 'status');
+    status.dataset['testid'] = 'comment-status';
+    form.append(replyingNote, textarea, post, status);
+    box.append(form);
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const text = textarea?.value.trim() ?? '';
+      if (text === '') return;
+      status.textContent = 'posting…';
+      const parent = replyParent ?? undefined;
+      void addComment(agent, { recipe: strongRefOf(entry), text, parent })
+        .then(async () => {
+          if (textarea !== null) textarea.value = '';
+          replyParent = null;
+          if (replyingNote !== null) replyingNote.hidden = true;
+          status.textContent = '';
+          await refresh();
+        })
+        .catch((err: unknown) => {
+          log.error('comments', 'post failed', { error: String(err) });
+          status.textContent = `couldn’t post: ${String(err)}`;
+        });
+    });
+  } else {
+    const note = el('p', 'status', 'Sign in on My recipes to join the conversation.');
+    note.dataset['testid'] = 'comment-signed-out';
+    box.append(note);
+  }
+
+  await refresh();
+};
+
 const main = async (): Promise<void> => {
   const app = document.getElementById('app');
   if (app === null) throw new Error('shell mount point #app missing');
@@ -90,6 +215,8 @@ const main = async (): Promise<void> => {
     status.textContent = 'No recipe given — pick one from Browse.';
     return;
   }
+  // Session is optional here: reading is public; commenting (9b) needs it.
+  const { agent } = await bootSession();
   try {
     const { entry, author, fromCache } = await loadRecipe(uri);
     const name = (entry.value as { name?: string }).name;
@@ -132,7 +259,12 @@ const main = async (): Promise<void> => {
       log.info('exclusions', 'toggled', { uri, hidden: exclusions.isHidden(uri) });
     });
     content.append(hideButton);
-    log.debug('shell', 'mounted', { page: 'recipe', uri });
+
+    // Comments (9b): friends-scoped, below the recipe.
+    void mountComments(content, entry, uri, agent).catch((err: unknown) => {
+      log.error('comments', 'comment section failed', { uri, error: String(err) });
+    });
+    log.debug('shell', 'mounted', { page: 'recipe', uri, signedIn: agent !== null });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     log.error('recipes', 'detail load failed', { uri, error: message });

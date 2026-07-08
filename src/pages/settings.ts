@@ -7,6 +7,7 @@ import { log } from '../log.js';
 import { mountShell } from '../nav.js';
 import { createExclusions } from '../recipes/exclusions.js';
 import { createStarterPrefs, STARTER_AUTHORS } from '../recipes/starter.js';
+import { createSocialPrefs } from '../social/prefs.js';
 import { registerServiceWorker } from '../sw-register.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -125,6 +126,28 @@ const main = async (): Promise<void> => {
     starter.append(row);
   }
 
+  const social = section('Social', 'social-settings');
+  social.append(
+    el(
+      'p',
+      'status',
+      'What shows on recipes from you and your friends. Off by default — turn on to hide.',
+    ),
+  );
+  const socialPrefs = createSocialPrefs();
+  const hideCommentsRow = el('label', 'starter-row');
+  hideCommentsRow.dataset['testid'] = 'social-hide-comments';
+  const hideCommentsBox = document.createElement('input');
+  hideCommentsBox.type = 'checkbox';
+  hideCommentsBox.checked = socialPrefs.hideComments();
+  hideCommentsBox.addEventListener('change', () => {
+    socialPrefs.setHideComments(hideCommentsBox.checked);
+    log.debug('social', 'hide comments toggled', { hidden: hideCommentsBox.checked });
+  });
+  hideCommentsRow.append(hideCommentsBox, el('span', undefined, 'Hide comments'));
+  social.append(hideCommentsRow);
+  // Hide Likes lands in 9c alongside the like interaction (same panel/store).
+
   const hiddenSection = section('Hidden recipes', 'hidden-recipes');
   hiddenSection.append(
     el('p', 'status', 'Recipes you (or the built-in baseline) hid from feeds. Unhide to restore.'),
@@ -170,7 +193,7 @@ const main = async (): Promise<void> => {
     ),
   );
 
-  content.append(build, updates, starter, hiddenSection, integrity, about);
+  content.append(build, updates, starter, social, hiddenSection, integrity, about);
   mountShell(app, content);
   void mountBuildStamp(app);
   log.debug('shell', 'mounted', { page: 'settings' });

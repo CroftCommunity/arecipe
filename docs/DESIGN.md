@@ -147,6 +147,17 @@ to be implemented with the page-per-destination restructure:
   page-not-modal, real-URL discipline as `recipe.html?u=`. Trying it as a
   full tab is deliberate (evaluate in use; drop to a sub-surface if it
   doesn't earn the slot).
+- **Comments live on the recipe page** (M4/9b), below the recipe, threaded
+  (reply nests under parent). Discovery is **friends-scoped** — you see the
+  recipe author's, your own, and your friends' comments; there is no backend
+  to index everyone's, and that is the honest boundary. Author names link to
+  Bluesky profiles; a comment made on an older recipe revision carries a quiet
+  "on an earlier version" marker (silent-good / loud-bad). Signed-out is
+  read-only with a sign-in pointer; the compose box + reply need a session.
+- **"Social" settings panel** (M4/9b) on `settings.html`: viewer-side display
+  toggles, off by default. **Hide comments** ships in 9b (skips the comment
+  section when on); **Hide likes** lands in 9c with the like interaction, on the
+  same panel.
 - **Settings split in two, cross-linked** (blockdoku: `settings.html` ↔
   `gamesettings.html`, both linked from index, each links back home and
   sideways):

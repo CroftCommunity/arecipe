@@ -32,7 +32,8 @@ feasibility amendment on 2026-07-07 (see Review Log).
 | 8b Offline PWA | ✅ | Phase 8b close-out commit | Hashed assets, versioned cache-first SW, update toast, manifest+maskable icons, self-hosted fonts, offline starter fallback; theme→2-state; CNAME baked |
 | 8c Hosted OAuth client (M3 EXIT) | ✅ | `a03205c` | Real OAuth on arecipe.app; two independent devices signed into the same account, same recipes. **MLP shipped.** |
 | 9a Friends (social graph) | ✅ | Phase 9a close-out commit | `app.arecipe.friend` follows; feed.ts loader extracted (starter guard green); 3rd nav tab; `?did=` cold-view; guarded multi-collection purge; @live add→appear→remove green |
-| 9b–12 | roadmap | | re-plan before execution (9b/9c re-confirm shape at start) |
+| 9b Comments (threaded) | ✅ | Phase 9b close-out commit | `app.arecipe.comment` friends-scoped threaded comments on the recipe page (AT-URI threading, pinned recipe strongRef); Social settings panel + Hide Comments; @live comment→reply-nests green. Recipe-page bundle 49K→930K (code-split backlogged) |
+| 9c–12 | roadmap | | re-plan before execution (9c re-confirm shape at start; 9c adds likes + Hide Likes) |
 
 ---
 
@@ -1797,7 +1798,33 @@ comment/interaction/mute as later phases land (see the M4 cross-phase
 guarded-purge note for the markerless-collection guard).
 **Stop-point.**
 
-### Phase 9b: Comments (threaded) — sequenced M4 #2
+### Phase 9b: Comments (threaded) — ✅ SHIPPED (2026-07-08, Phase 9b close-out commit) — sequenced M4 #2
+
+**Delivered:** friends-scoped threaded comments on the recipe page.
+`src/social/comments.ts`: `buildCommentRecord`/`listCommentsFor`/`buildThread`/
+`commentOnStaleRevision`/`loadRecipeComments` (unit-tested, all mutation-
+resistance edges — nesting top/reply/reply-to-reply, orphaned-parent-at-top,
+AT-URI-survives-CID-change, stale both edges) + `addComment` (@live). Threading
+keys on the parent **AT-URI** (edited parent still nests); the recipe ref stays a
+pinned strongRef (alteration detectable). Recipe page is now session-aware and
+mounts the comment section (friends-scoped discovery: recipe author + you +
+friends), with a compose box + reply when signed in and a read-only + sign-in
+note when out. Hermetic proves the signed-out threaded render; `@live` proves
+comment → appears → reply nests (7.6s). Full hermetic gate (32 e2e + unit) green.
+
+**Deviations from the Pass-3 spec (all recorded, none silent):**
+- **`renderComments` lives in `src/social/comments-view.ts`, not `view.ts`** —
+  the plan's sanctioned alternative; taken because `view.ts` carried unrelated
+  in-flight image-credit WIP (since landed as `b3f9842`) and this keeps the
+  write-sets disjoint.
+- **Added a "Social" settings panel + Hide Comments toggle** (new files
+  `src/social/prefs.ts` + `settings.ts` edit) per a user request 2026-07-08.
+  Hide Comments is wired (skips the section); Hide Likes is scheduled into 9c.
+- **Recipe-page bundle regressed 49K→930K** (session-awareness pulls
+  `@atproto/api`). User-confirmed to ship now; the code-split fix is filed in the
+  M4 backlog ("lazy-load auth on the recipe page").
+- Actual 9b write-set: `src/social/comments.ts`, `comments-view.ts`, `prefs.ts`,
+  `src/pages/recipe.ts`, `src/pages/settings.ts` (not `view.ts`), + tests + docs.
 
 **Goal:** `app.arecipe.comment` (recipe strongRef + text + optional parent
 **AT-URI** for threading) rendered on the recipe detail page; author your own.
@@ -1807,6 +1834,22 @@ path), so comments render uniformly; author names link to Bluesky profiles.
 (follows the latest revision, so an edited parent still resolves), while the
 recipe reference keeps the full strongRef (uri+cid) for provenance — the same
 mutable-vs-pinned split settled in Phase 8.
+**Shape confirmed 2026-07-08 (execution, user-confirmed): friends-scoped
+discovery.** In a backendless app, `app.arecipe.comment` records live in each
+commenter's own PDS and nothing indexes them globally (recipe.exchange's AppView
+does not know our lexicon — D8). So the recipe page discovers comments only from
+repos it already knows: the **recipe author** (always queryable — the page
+already resolves the author's PDS), **you** (when signed in), and **your
+friends** (the 9a graph). Non-friends' comments are invisible — honest for a
+backendless, friends-scoped app at 12–25 scale, and coherent with 9a/9d/10.
+Consequences: the recipe page gains session-awareness (was pure public read);
+signed-out shows the author's own comments (read-only, and the hermetic test
+seam); signed-in adds a compose box + reply and folds in your + friends'
+comments. 9d later merges these into the activity feed. Wiring split mirrors 9a
+(user-confirmed): **hermetic** proves the threaded render + reply nesting +
+orphaned-parent fallback over routed fixtures (author-repo comments, no session);
+**`@live`** proves the write path (comment → appears → reply nests) with a
+guarded `app.arecipe.comment` purge.
 **Changes (planned; re-confirm shape at 9b start):** `src/social/comments.ts`
 (write/list/thread-build), comment section + compose box added to
 `src/pages/recipe.ts` rendered via a new `renderComments` in
@@ -1841,6 +1884,18 @@ linked to profiles. **Validation:** Broad (external write). **Stop-point.**
 notes/photos — reuse the Phase 7 EXIF-safe `prepareImage`/`uploadRecipeImage`)
 and `…saved`; buttons + counts on recipe cards/detail; a "Saved" view under My
 recipes.
+**Added 2026-07-08 (user) — the "like" interaction + Hide Likes.** A third
+interaction kind, `…liked`, surfaced as: a subtle heart top-right of the recipe
+image on the Browse tiles (tap to like) and `Foo Recipe · N likes` on the
+title/name line (tile + detail). Counts are **friends-scoped** by the same
+backendless discovery as comments (you can only count likes from repos you know
+— you + friends), so "N likes" means "N you + friends" at 12–25 scale; name it
+honestly in the copy. A **Hide Likes** toggle joins the 9b "Social" settings
+panel (`src/social/prefs.ts` — reserve the key there; off by default). **Open at
+9c start — confirm with user:** is `liked` *additive* to cooked/saved (three
+kinds) or does it fold/replace one? (Explained 2026-07-08: like = lightweight
+public approval; cooked = "I made this" + rating/notes/photo; saved = private
+bookmark — semantically distinct, hence the additive default recommendation.)
 **Changes (planned; re-confirm at start):** `src/social/interactions.ts`
 (write/list/count), buttons in `src/pages/recipe.ts` + `src/recipes/view.ts`
 card chips, a saved list in `src/pages/mine.ts`.
@@ -2009,6 +2064,46 @@ M4 — so no re-entry-verification fields are required per phase.
 `app.arecipe.ingredient` (+ starter pack), dual-writing flattened strings into
 `exchange.recipe.recipe` for interop. Revisit after M4 or when a
 composition/grocery feature is actually pulled.
+
+**Backlog (filed 2026-07-08): client-side search over the verified cache** —
+dynamic search across recipes, authors, and (friends-scoped) comments. **Its own
+phase-plan pass before execution.** Key framing already established: search is a
+*runtime* index over `src/recipes/cache.ts` (IndexedDB), NOT a build step —
+content is fetched live from PDSs and doesn't exist at build time, so a
+build-time SSG/search story (Astro + Pagefind, etc.) is the wrong fit and would
+also break the locked no-framework + small-signed-bundle (trust-surface)
+decisions. Approach: a tiny, auditable single-file full-text index
+(MiniSearch/FlexSearch-class, prefix + fuzzy) built from `cache.list()` at load.
+Scope follows the data model: recipes + authors are searchable over whatever's
+cached (starter + friends + browsed); *global* recipe search would need
+recipe.exchange's AppView (optional, third-party, durability caveat); **comment
+search is bounded by 9b's friends-scoped discovery** — you can only search
+comments you can see. Discovery gate for that pass: a **D6-style bundle-cost
+probe** of the chosen index library (trust-surface budget), the same bar
+`@ipld/dag-cbor` was held to. (Origin: user raised Astro-for-search 2026-07-08;
+ruled out for the reasons above.)
+
+**Backlog (filed 2026-07-08): themed "no meal image" card standin** — use
+`assets/no_meal_image_standin.png` (a light/dark **split** asset, like the
+`logo-light`/`logo-dark` pair) as the placeholder shown on recipe cards/tiles
+that have no photo, swapped by theme (the pre-paint `data-theme` +
+`prefers-color-scheme` machinery already drives the logo pair — reuse it). Today
+`photoWrapEl` (in `src/recipes/view.ts`) renders no-photo cards without a themed
+standin. Small, self-contained; can ride the next `view.ts`/`styles.css`-touching
+phase or stand alone. (User-added asset 2026-07-08.)
+
+**Backlog (filed 2026-07-08): lazy-load auth on the recipe page (code-split)** —
+Phase 9b made `src/pages/recipe.ts` session-aware for commenting, which pulls
+`bootSession` → `@atproto/api` into the bundle and took the **shareable
+cold-link recipe page from 49K/17Kgz to 930K/194Kgz** (the same weight M1 flagged
+for `@atproto/api`). The recipe detail renders from a light path (cache/read/
+view/refs); only the comment section needs auth. Fix: dynamic-`import()` the
+auth/comment machinery so the detail ships light (~49K) and the heavy chunk loads
+after render. Requires **esbuild `splitting: true` + `chunkNames` + adding the
+emitted chunk(s) to the service-worker precache list** in `scripts/build.mjs` —
+a build-infra change worth its own focused pass (probe esbuild splitting first;
+no-assumed-behavior). Related precedent: the "Browse ships zero auth code" e2e.
+(Deferred from 9b, user-confirmed 2026-07-08.)
 
 ### M4 Documentation Impact
 
