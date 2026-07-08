@@ -4,7 +4,7 @@
 // license + author + file-page URL so a chosen image can be attributed later.
 //
 //   node spike/import/fetch-images.mjs <out-dir>
-import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { writeFileSync, readFileSync, mkdirSync, existsSync } from 'node:fs';
 
 // Wikimedia rate-limits bursts (HTTP 429). Serialize every request behind a
 // minimum interval and back off (honoring Retry-After) on 429/503.
@@ -99,9 +99,28 @@ const recs = (await (await fetch(listUrl)).json()).records
   .map((r) => ({ name: r.value.name, text: r.value.text, uri: r.uri }))
   .filter((r) => r.name !== SEED);
 
+// Resume: reuse prior results whose thumbnails are all still on disk, so a
+// re-run after a timeout only does the outstanding work. Written after every
+// recipe so partial progress is never lost.
+const catalogPath = `${OUT}/catalog.json`;
+const prior = new Map();
+if (existsSync(catalogPath)) {
+  for (const c of JSON.parse(readFileSync(catalogPath, 'utf8'))) prior.set(c.name, c);
+}
+const isComplete = (c) =>
+  c !== undefined && c.options.length > 0 && c.options.every((o) => existsSync(`${IMG}/${o.file}`));
+
 const catalog = [];
+const flush = () => writeFileSync(catalogPath, JSON.stringify(catalog, null, 2));
+
 for (const rec of recs) {
   const term = searchTerm(rec.name);
+  if (isComplete(prior.get(rec.name))) {
+    catalog.push(prior.get(rec.name));
+    console.log(`${rec.name}  -> reused ${prior.get(rec.name).options.length} images`);
+    flush();
+    continue;
+  }
   try {
     const found = await searchImages(term);
     const options = [];
@@ -122,9 +141,7 @@ for (const rec of recs) {
     catalog.push({ ...rec, term, options: [] });
     console.log(`${rec.name}  (term: "${term}") -> FAILED ${String(e.message)}`);
   }
-  await new Promise((r) => setTimeout(r, 400));
+  flush();
 }
-
-writeFileSync(`${OUT}/catalog.json`, JSON.stringify(catalog, null, 2));
 const withImgs = catalog.filter((c) => c.options.length > 0).length;
 console.log(`\n${withImgs}/${catalog.length} recipes have candidates -> ${OUT}/catalog.json`);
