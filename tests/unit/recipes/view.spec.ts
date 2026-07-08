@@ -4,7 +4,11 @@
 // Trust surface stays: silent when good, loud when bad, on both surfaces.
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { renderRecipeDetail, renderRecipeList } from '../../../src/recipes/view.js';
+import {
+  renderRecipeDetail,
+  renderRecipeDetailsList,
+  renderRecipeList,
+} from '../../../src/recipes/view.js';
 import type { CachedRecipe } from '../../../src/recipes/cache.js';
 
 // cwd-relative: happy-dom's URL global is not a node file: URL.
@@ -69,6 +73,60 @@ describe('renderRecipeList (link cards)', () => {
     expect(cards[0]?.querySelector('.altered-stamp')).toBeNull();
     expect(cards[1]?.querySelector('.altered-stamp')?.textContent).toBe('ALTERED?');
     expect(cards[1]?.querySelector('[data-testid=altered-warning]')).not.toBeNull();
+  });
+});
+
+describe('renderRecipeDetailsList (Details view rows)', () => {
+  it('renders one linked row per recipe with name, description, and correct href', () => {
+    const withText = entry({ value: { ...fixture.value, text: 'A short blurb.' } });
+    const el = renderRecipeDetailsList([withText], { author: 'rdur.dev' });
+    const rows = el.querySelectorAll<HTMLAnchorElement>('a.recipe-row');
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.getAttribute('href')).toBe(
+      `./recipe.html?u=${encodeURIComponent(fixture.uri)}&by=rdur.dev`,
+    );
+    expect(rows[0]?.textContent).toContain('White Chocolate Strawberry Sourdough Sweet Bread');
+    expect(rows[0]?.textContent).toContain('A short blurb.');
+  });
+
+  it('an image-less recipe falls back to the brand placeholder', () => {
+    const bare = { ...fixture.value };
+    delete bare['embed'];
+    const el = renderRecipeDetailsList([entry({ value: bare })]);
+    expect(el.querySelector('.card-photo--empty img')).not.toBeNull();
+  });
+
+  it('renders label chips from the recipe facets (cuisine, category, diet)', () => {
+    const value = {
+      ...fixture.value,
+      recipeCuisine: 'greek',
+      recipeCategory: 'dinner',
+      suitableForDiet: ['exchange.recipe.defs#dietVegetarian'],
+    };
+    const el = renderRecipeDetailsList([entry({ value })]);
+    const chipText = Array.from(el.querySelectorAll('.recipe-row .chip')).map((c) => c.textContent);
+    expect(chipText).toContain('greek');
+    expect(chipText).toContain('dinner');
+    expect(chipText).toContain('Vegetarian');
+  });
+
+  it('does not nest anchors inside the row link (the row itself is the link)', () => {
+    const el = renderRecipeDetailsList([entry()]);
+    const row = el.querySelector('a.recipe-row');
+    expect(row?.querySelector('a')).toBeNull();
+  });
+
+  it('a tampered row is stamped ALTERED like a card', () => {
+    const el = renderRecipeDetailsList([entry({ uri: 'at://x/y/z', verified: false })]);
+    expect(el.querySelector('.recipe-row .altered-stamp')?.textContent).toBe('ALTERED?');
+  });
+
+  it('renders a row per entry for multiple entries', () => {
+    const el = renderRecipeDetailsList([
+      entry(),
+      entry({ uri: 'at://did:plc:o/exchange.recipe.recipe/2' }),
+    ]);
+    expect(el.querySelectorAll('a.recipe-row')).toHaveLength(2);
   });
 });
 

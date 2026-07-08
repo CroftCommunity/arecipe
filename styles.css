@@ -423,6 +423,58 @@ body {
   margin-top: var(--s-4);
 }
 
+/* ---- Details view: one row per recipe (thumb left, text right) ---- */
+
+.recipe-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  margin-top: var(--s-4);
+}
+
+.recipe-row {
+  display: flex;
+  gap: var(--s-3);
+  align-items: center;
+  background: var(--card);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-l);
+  overflow: hidden;
+  padding: var(--s-2);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 120ms ease;
+}
+
+.recipe-row:hover {
+  border-color: var(--enamel);
+}
+
+.recipe-row-thumb {
+  flex: 0 0 auto;
+  width: 6rem;
+}
+
+.recipe-row-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  min-width: 0;
+  padding: 0 var(--s-2);
+}
+
+.recipe-row-text {
+  font-size: var(--t-caption);
+  opacity: 0.8;
+  margin: 0;
+}
+
+.recipe-row-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1);
+}
+
 .card {
   background: var(--card);
   border: var(--stroke) solid var(--line);

@@ -5,6 +5,7 @@
 // the end of the detail); a failed integrity check gets the rust ALTERED?
 // rubber stamp + always-visible warning wherever the recipe appears.
 
+import { recipeFacets } from '../pages/browse-state.js';
 import type { CachedRecipe } from './cache.js';
 import { firstImageCid, firstImageCredit, formatDuration, formatPublishedDate, thumbUrl } from './present.js';
 
@@ -189,6 +190,52 @@ export const renderRecipeList = (
   const container = el('section', 'recipe-grid');
   container.dataset['testid'] = 'recipe-list';
   for (const entry of entries) container.append(renderCard(entry, options));
+  return container;
+};
+
+/** Small label chips from a recipe's facets (category, cuisine, diet). Diet
+ * tokens drop the `diet` prefix for readability (dietVegetarian → Vegetarian). */
+const facetChipsEl = (value: RecipeValue): HTMLElement | null => {
+  const facets = recipeFacets(value as Record<string, unknown>);
+  const labels: string[] = [];
+  if (facets.category !== null) labels.push(facets.category);
+  if (facets.cuisine !== null) labels.push(facets.cuisine);
+  for (const token of facets.diet) labels.push(token.replace(/^diet/, ''));
+  if (labels.length === 0) return null;
+  const chips = el('span', 'recipe-row-chips');
+  for (const label of labels) chips.append(el('span', 'chip', label));
+  return chips;
+};
+
+/** One Details-view row: the row IS the link (no nested anchors), thumb left,
+ * name + description + label chips right. Same trust surface as a card. */
+const renderRow = (entry: CachedRecipe, options: RenderOptions): HTMLElement => {
+  const value = entry.value as RecipeValue;
+  const row = el('a', 'recipe-row') as HTMLAnchorElement;
+  row.dataset['testid'] = 'recipe-item'; // same testid as cards: view-agnostic counts
+  row.href = recipePageHref(entry, options);
+  const thumb = photoWrapEl(entry);
+  thumb.classList.add('recipe-row-thumb');
+  const body = el('div', 'recipe-row-body');
+  body.append(el('span', 'card-title', value.name ?? '(untitled)'));
+  if (value.text !== undefined && value.text !== '') {
+    body.append(el('p', 'recipe-row-text', value.text));
+  }
+  const chips = facetChipsEl(value);
+  if (chips !== null) body.append(chips);
+  row.append(thumb, body);
+  if (!entry.verified) row.append(alteredWarningEl());
+  return row;
+};
+
+/** Render cached recipes as a vertical list of link rows (Details view). */
+export const renderRecipeDetailsList = (
+  entries: CachedRecipe[],
+  options: RenderOptions = {},
+): HTMLElement => {
+  const container = el('section', 'recipe-rows');
+  container.dataset['testid'] = 'recipe-list';
+  for (const entry of entries) container.append(renderRow(entry, options));
   return container;
 };
 
