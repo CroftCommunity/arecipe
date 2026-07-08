@@ -1,7 +1,8 @@
 # Browse page — view modes, image + label filtering, header polish
 
-**Status:** In execution (Phase 0 done; Phases 1–9 pending). Worktree
-`browse-view-filters`.
+**Status:** ✅ Closed (2026-07-08). All 9 phases shipped (0 discovery + 1–8 UI +
+9 ops incl. the live record correction). Worktree `browse-view-filters`; not
+pushed. Full hermetic gate green; nothing deferred.
 
 ## Outcome Summary
 
@@ -16,7 +17,7 @@
 | 6 Facet dropdowns | ✅ SHIPPED | `14fe0d5` | `renderFacetDropdown` (details name=browse-facet, checkbox options w/ data-dimension/value; null when empty). 4 unit tests. Wired in Phase 7. |
 | 7 Label filtering | ✅ SHIPPED | `e172c99` | Meal/Cuisine dropdowns wired; facet change refreshes count+list only (panel stays open); inert stale facets; outside-click close; DESIGN note. 4 e2e; full gate green. |
 | 8 Settings diet pref | ✅ SHIPPED | `6e7644e` | "Only show me" section (id=diet-preference) writes `diet-preference`; Browse reads it cross-page. `DIET_OPTIONS` vocab. 2 e2e + 1 unit. |
-| 9 Record data hygiene | 🟡 CODE SHIPPED | `c33dbd0` | Ops script + transform test (4 node --test) done; **live dry-run/write pending** (no .env in worktree; irreversible external write awaits go). |
+| 9 Record data hygiene | ✅ SHIPPED | `c33dbd0` | Ops script + 4 transform tests; live run done — 1 record (`3mq3m2skev52f`, "Greek Cucumber Tomato Feta Salad") `side dish`→`side`, readback clean, idempotent. |
 
 ## Problem Statement
 
@@ -427,7 +428,14 @@ structural unknown remains.
 2. **Verification:** `npx playwright test tests/e2e/settings.spec.ts -g "diet"`.
 **Validation:** Broad (cross-page). e2e across Settings→Browse + manual serve check.
 
-### Phase 9: Record data hygiene (ops, independent)
+### Phase 9: Record data hygiene (ops, independent) — ✅ SHIPPED (`c33dbd0`)
+**Delivered:** `spike/import/fix-metadata.mjs` (pure `correctRecordValue` + guarded network
+runner) + `fix-metadata.test.mjs` (4 `node --test` cases). Live run (2026-07-08): dry-run
+previewed 1 correction of 41 records; live `putRecord` corrected `3mq3m2skev52f` ("Greek
+Cucumber Tomato Feta Salad") `recipeCategory` `side dish`→`side`; readback confirmed 0 `side dish`
+remain, `createdAt` preserved, `updatedAt` bumped to `2026-07-08T19:32:21Z`; a second dry-run
+reported 0 corrections (idempotent). No `suitableForDiet` tokens needed fixing on the owned
+account. `.env` was copied into the worktree only for the run and removed afterward.
 **Goal:** Correct the malformed metadata on records **we own** (arecipe.bsky.social) so the
 raw data is clean, not just normalized at display time. Foreign records we cannot edit
 (recipe.exchange's Gingerbread Cookies) are covered only by the Phase 2 code normalization —
@@ -666,3 +674,31 @@ new files (`browse-state.ts`, `diet-preference.ts`, `listRecords-browse-mixed.js
   folded into Phase 8.
 **Confirmed ready:** yes — no BLOCKING items remain; all open questions are CONFIRMED. Phase 3
 and Phase 8 carry PHASE-GATED count-string / anchor details now written into those phases.
+
+### Plan close-out — 2026-07-08
+**Shipped:** The Browse page now carries a compact toolbar: a Tiles/Details view toggle, a
+"Photos only" toggle, and transient `Meal ▾` / `Cuisine ▾` multi-select filter dropdowns (OR
+within a dimension, AND across), with a right-aligned count and a `set dietary preference ↗`
+link (the `· N hidden` note is gone). All controls persist in `localStorage` and re-render
+through one `renderCurrent()` seam that works on both the starter feed and handle-search
+results. A shared app-wide "Only show me" dietary preference lives in Settings
+(`#diet-preference`) and filters Browse cross-page. New modules: `src/pages/browse-state.ts`
+(`recipeFacets`/`matchesFilter`/`availableFacets`/`createBrowsePrefs`) and
+`src/recipes/diet-preference.ts` (`createDietPreference` + `DIET_OPTIONS`); a Details renderer
+(`renderRecipeDetailsList`) and facet-dropdown renderer (`renderFacetDropdown`) in
+`src/recipes/view.ts`. Commits `a3d9ae9` (P1) → `c33dbd0` (P9) on `browse-view-filters`
+(not pushed). Feature is read/derive/render only — no PDS/lexicon/write-path change. Phase 9
+ops additionally corrected the one owned malformed live record (`side dish`→`side`). Gate:
+lint + typecheck + 172 unit + 43 hermetic e2e (incl. the zero-auth bundle-split) green.
+**Stopped or skipped:** Nothing. All 9 phases shipped. The `docs/DESIGN.md` advisory note was
+included (Phase 7). No work deferred to a backlog.
+**Discoveries:** (1) The mixed e2e fixture initially rendered zero cards — `cache.put`
+recomputes each record's CID and `fromLexJson` runs `CID.parse` on every image `ref.$link`, so
+a hand-mangled `$link` throws and silently drops the record. Fixtures must use real, parseable
+CIDs for image refs (the record-level `cid` string can be arbitrary). (2) git worktrees do not
+share `node_modules` — the worktree needed its own `npm ci` before any build/test ran. (3) The
+two Browse status strings (search "N recipes cached" vs starter "N starter pack recipes" +
+failed/offline suffixes) had to be reconstructed inside the seam via a `kind` discriminator; the
+Pass 3 gap-catch here prevented the race test (exact `toHaveText`) from breaking. (4) The live
+account had exactly the one predicted malformed record and no bad diet tokens, matching the
+Phase 0 assessment.
