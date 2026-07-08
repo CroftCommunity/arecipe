@@ -1615,105 +1615,241 @@ hard way there:
 
 ---
 
-## M4 — Social layer (re-planned 2026-07-08)
+## M4 — Social layer (re-planned 2026-07-08; Pass 1+2 applied 2026-07-08)
 
 **Shape:** comprehensive plan, **stop-anywhere sequencing** (user-chosen). Each
 phase leaves a shippable increment; execution can halt after any one. Discovery
-ran first (below). Spec Layers 6–8. Ingredients-as-records stays parked
-(see the old note, now at the M4 tail).
+ran first (below). Spec Layers 6–8. Ingredients-as-records stays parked (M4 tail).
+
+**Reasoning (why this decomposition).** The social layer's records are ours to
+define (`app.arecipe.*`), so the risk isn't upstream behavior — it's (a) the
+live-feed transport (Jetstream), resolved by discovery, and (b) that later
+phases reference records earlier phases create. So the spine is strictly
+sequential by data dependency: 9a mints identity/friend records → 9b/9c
+*reference recipes* (strongRef) and render on the recipe page → 9d *tails*
+all of it live → 10 *weights* it. Every phase reuses proven surfaces rather
+than inventing: `createRecordReader`/`createResolver`/`resolveDidDoc` (reads +
+identity), `strongRefOf` (references), the `publishRecipe`-shaped
+`createRecord` write path, `retryOnce` (post-redirect races), the Phase-7
+EXIF-safe upload (cooked photos), the guarded `@live` purge harness (writes),
+and the `renderRecipeList/Detail` views. New third-party dependency: Jetstream
+(Bluesky-run) — the `listRecords` polling fallback is the durability answer.
 
 ### M4 Phase 0: Discovery — ✅ DONE (2026-07-08)
 
 - [x] **D7: Is Jetstream usable for the live feed?** ✅ Reachable via
   browser-native `WebSocket` (`wss://jetstream1.us-east.bsky.network/subscribe`;
-  jetstream2/us-west as fallback). Event shape (VERIFIED): `{ did, time_us,
+  jetstream2 / us-west fallback). Event shape (VERIFIED): `{ did, time_us,
   kind:'commit', commit:{ rev, operation, collection, rkey, record, cid } }` —
   carries the record AND its cid, so feed items render AND Tier 2-verify.
-  `wantedCollections` filters by type; **`wantedDids` filters to specific repos**
-  (the friends feed — accepted, stays open); **`cursor=<time_us>` replays**
-  (offline catch-up — replayed 825 events from ~5s back). Polling fallback:
-  `com.atproto.repo.listRecords` per followed repo (already have the reader).
+  `wantedCollections` filters by type; **`wantedDids` filters to specific repos**;
+  **the two combine (AND)** — VERIFIED 2026-07-08 (busy collection + a
+  non-posting DID → 0 events; collection alone → 391), so a friends feed =
+  `wantedDids=<friends> & wantedCollections=<app.arecipe.* + exchange.recipe.recipe>`
+  yields exactly friends' relevant events. **`cursor=<time_us>` replays**
+  (825 events from ~5s back = offline catch-up). Not a `fetch` event and
+  cross-origin, so the Phase 8b service worker never touches the WS.
+  **Known limit:** Jetstream caps `wantedDids` (~10k) — fine at the 12–25
+  scale; note for any future growth.
 - [x] **D8: The social lexicons are ours** (`app.arecipe.*`). recipe.exchange
-  defines no comment/friend/interaction types (D4: only recipe/collection/
-  defs/profile), so we define these — reusing `com.atproto.repo.strongRef`
-  (uri+cid, already in `refs.ts`) for recipe references. Field shapes drafted
-  per spec §Layer 6; confirm each before its phase writes a record.
-- [ ] **D9 (design, OPEN → PHASE-GATED 9b): unsigned→verified promotion.** How a
-  comment/interaction from someone NOT on Bluesky (app-scoped `app.arecipe.friend`
-  cold-start path) is shown vs one from a verifiable atproto identity. Resolve
-  before comments render others' content. *Recommended: show all, badge
-  provenance (reuse the silent-good/loud-bad surface) — decide at 9b.*
+  defines no comment/friend/interaction types (D4), so we define them, reusing
+  `com.atproto.repo.strongRef` (uri+cid, in `refs.ts`) for recipe references.
+  Field shapes drafted per spec §Layer 6; confirm each before its phase writes.
+- [ ] **D9 (design, PHASE-GATED 9b): unsigned→verified promotion.** How a
+  comment/interaction from someone NOT on Bluesky (the `app.arecipe.friend`
+  cold-start path) is shown vs a verifiable atproto identity. *Recommended:
+  show all, badge provenance (reuse the silent-good/loud-bad surface) — decide
+  at 9b.*
 
 ### Phase 9a: Friends (social graph) — sequenced M4 #1
 
-**Goal:** `app.arecipe.friend` records (public follow naming a DID), a friends
-list on My recipes / account, and a friends **read** feed (their recipes via the
-existing reader). No live tail yet.
-**Changes:** `src/social/friends.ts` (create/list/remove strongRef-free DID
-records), friends UI, feed = `loadStarterFeed`-shaped multi-author read over
-friends.
-**Wiring test:** add a friend by handle → their recipes appear in a Friends feed;
-remove → they leave. @live: friend write to the test account, teardown-guarded.
-**Depends on:** Phase 8 (reader, DID resolution, guarded-write harness).
-**Done when:** friends persist as PDS records and drive a read feed. **Stop-point.**
+**Goal:** `app.arecipe.friend` records (a public follow naming a DID), a friends
+list to add/remove by handle, and a friends **read** feed (their recipes via the
+existing multi-author reader). No live tail yet — that's 9d.
+**Changes:**
+- [ ] `src/social/friends.ts` — `addFriend(agent, handle)` (resolve handle→did
+  via `createResolver`, `createRecord` an `app.arecipe.friend` `{subject: did,
+  createdAt}`), `listFriends(pds, did)` (public `listRecords`),
+  `removeFriend(agent, rkey)`. **rkey decision:** PDS-minted TID; remove by
+  listing and matching `subject` (a `did:` can't be a raw rkey; hashing adds
+  complexity for no gain at this scale). `loadFriendsFeed(friends)` reuses the
+  `loadStarterFeed` multi-author shape — extract the shared loader from
+  `starter.ts` into `src/social/feed.ts` so both call it (small refactor,
+  removes duplication rather than adding it).
+- [ ] `src/pages/friends.ts` + `friends.html` — add-by-handle form, friends list
+  (names link to Bluesky profiles, per the starter-pack pattern), the read feed.
+- [ ] `src/nav.ts` — add a "Friends" destination (3rd tab; bottom bar already
+  handles N tabs).
+**Call chain:** Friends tab → `friends.html` → `friends.ts` → `addFriend`/
+`loadFriendsFeed` → renders via `renderRecipeList`.
+**Wiring test:** hermetic e2e — add a friend by handle (routed fixture) → their
+recipes appear in the Friends feed; remove → they leave. `@live`: friend write
+to the test account, guarded purge extended to `app.arecipe.friend`.
+**Depends on:** Phase 8 (reader, `resolveDidDoc`, guarded-write harness),
+`createResolver`.
+**Read-set:** `src/recipes/read.ts`, `src/identity/resolve.ts`,
+`src/identity/did.ts`, `src/recipes/starter.ts` (to extract the shared loader),
+`src/recipes/view.ts`.
+**Write-set:** `src/social/friends.ts`, `src/social/feed.ts`, `src/pages/friends.ts`,
+`friends.html`, `src/nav.ts`, `src/recipes/starter.ts` (import the extracted
+loader), `scripts/build.mjs` (register the page), tests. (Logic surface: 3 new
+`.ts` + nav + a starter.ts import swap — the page-scaffold overhead mirrors 5b;
+split friends-management vs feed if it exceeds one context.)
+**Shared-state contract:** writes `app.arecipe.friend` to the signed-in PDS
+(real external mutation — dedicated test account only, guarded purge, per
+Phase 6). No ports, no cross-tab state. The starter.ts loader extraction is a
+pure move (behavior-preserving; its tests must stay green).
+**Diagnostic logging:** friend add/remove at info; feed per-author failure at
+warn (reuse the starter fallback — cached copies offline).
+**Risks:** the starter.ts extraction must not regress the starter feed
+(Pass 2: shared write-set with 5e — keep the loader's signature identical, run
+starter tests). Friend-of-a-non-atproto-handle → `createResolver` fails loud.
+**Done when:**
+1. **Behavioral:** adding a handle persists an `app.arecipe.friend` record and
+   that cook's recipes show in the Friends feed; removing deletes the record and
+   the cards.
+2. **Verification:** `npm test -- friends` + the friends wiring e2e green;
+   `npm run test:live` friend round-trip green.
+**Validation:** Broad — real friend write/read/remove against the test account
+(external mutation); confirm the record on the PDS and that teardown removed it.
+**Stop-point.**
 
 ### Phase 9b: Comments (threaded) — sequenced M4 #2
 
 **Goal:** `app.arecipe.comment` (recipe strongRef + text + optional parent
-strongRef for threading), rendered on the recipe detail page; author your own.
-D9 (unsigned→verified) resolved here.
-**Wiring test:** comment on a recipe → appears threaded on its page; reply nests.
-@live write + guarded teardown.
-**Depends on:** 9a (identity/feed patterns), `refs.ts`.
-**Done when:** threaded comments read+write on recipe pages. **Stop-point.**
+**AT-URI** for threading) rendered on the recipe detail page; author your own.
+D9 resolved here.
+**Threading decision (Pass 2):** the parent reference threads by **AT-URI**
+(follows the latest revision, so an edited parent still resolves), while the
+recipe reference keeps the full strongRef (uri+cid) for provenance — the same
+mutable-vs-pinned split settled in Phase 8.
+**Changes (planned; re-confirm shape at 9b start):** `src/social/comments.ts`
+(write/list/thread-build), comment section + compose box added to
+`src/pages/recipe.ts` rendered via a new `renderComments` in
+`src/recipes/view.ts` (or `src/social/comments-view.ts` if `view.ts` grows).
+**Wiring test:** comment on a recipe → appears threaded on its page; a reply
+nests under its parent. `@live` write + guarded teardown (purge extended).
+**Depends on:** 9a (identity/feed patterns, guarded purge), `refs.ts`.
+**Read-set:** `src/pages/recipe.ts`, `src/recipes/refs.ts`, `src/identity/did.ts`.
+**Write-set:** `src/social/comments.ts`, `src/pages/recipe.ts`,
+`src/recipes/view.ts` (comment render), tests.
+**Shared-state contract:** writes `app.arecipe.comment` to the signed-in PDS
+(guarded test account). Shares `recipe.ts`/`view.ts` with 9c → **sequential
+with 9c** (see Concurrency).
+**Done when:** threaded comments read+write on recipe pages; unsigned-vs-verified
+provenance shown per D9. **Validation:** Broad (external write). **Stop-point.**
 
 ### Phase 9c: Interactions (cooked / saved) — sequenced M4 #3
 
 **Goal:** `app.arecipe.interaction.cooked` (recipe strongRef, optional rating/
-notes/photos — reuse the Phase 7 EXIF-safe upload) and `…saved`; buttons + counts
-on recipe cards/detail; a "saved" view under My recipes.
-**Wiring test:** mark cooked/saved → reflected on the recipe + in My recipes.
-**Depends on:** 9a, 7 (blobs). **Done when:** interactions read+write. **Stop-point.**
+notes/photos — reuse the Phase 7 EXIF-safe `prepareImage`/`uploadRecipeImage`)
+and `…saved`; buttons + counts on recipe cards/detail; a "Saved" view under My
+recipes.
+**Changes (planned; re-confirm at start):** `src/social/interactions.ts`
+(write/list/count), buttons in `src/pages/recipe.ts` + `src/recipes/view.ts`
+card chips, a saved list in `src/pages/mine.ts`.
+**Wiring test:** mark cooked/saved → reflected on the recipe and in My recipes;
+a cooked photo round-trips EXIF-stripped (reuse the Phase 7 fixture assertion).
+**Depends on:** 9a, Phase 7 (blobs).
+**Read-set:** `src/pages/recipe.ts`, `src/pages/mine.ts`, `src/recipes/view.ts`,
+`src/recipes/images-upload.ts`, `src/recipes/refs.ts`.
+**Write-set:** `src/social/interactions.ts`, `src/pages/recipe.ts`,
+`src/recipes/view.ts`, `src/pages/mine.ts`, tests. (4+ files → **split** at
+execution: 9c-i write+recipe-page, 9c-ii card counts + Saved view.)
+**Shared-state contract:** writes `app.arecipe.interaction.*` + blobs to the
+guarded test account. Shares `recipe.ts`/`view.ts` with 9b → **sequential**.
+**Done when:** interactions read+write with counts and a Saved view.
+**Validation:** Broad (external write + blob). **Stop-point.**
 
 ### Phase 9d: Live feed via Jetstream + affinity — sequenced M4 #4
 
 **Goal:** a live feed of friends' recent recipes/comments/interactions —
-Jetstream (`wantedDids`=friends, `cursor` for catch-up, Tier 2-verify each item)
-with the listRecords polling fallback; **affinity scoring** (interaction-derived
-weight) orders the feed. Rate-limit handling per the D7 findings.
-**Wiring test:** a friend's new record appears live in the feed (simulated via a
-test write); offline→online replays via cursor; fallback path covered when WS
-is blocked.
-**Depends on:** 9a–9c. **Done when:** live feed with graceful degradation.
+Jetstream (`wantedDids`=friends × `wantedCollections`, `cursor` for catch-up,
+Tier 2-verify each item) with the `listRecords` polling fallback; **affinity
+scoring** (interaction-derived weight) orders it.
+**Changes (planned; re-confirm at start):** `src/social/jetstream.ts` (WS
+subscribe with the D7 params, reconnect + cursor persistence, fallback to poll
+when WS fails), `src/social/affinity.ts` (pure scoring — TDD, weights/decay
+tuned in-phase), feed render on `friends.html` (or a new `feed.html`).
+**Wiring test:** a friend's new record appears live (simulated via a test
+write); offline→online replays via cursor; the fallback path renders when the
+WS is blocked (route/deny the WS in the test).
+**Depends on:** 9a–9c.
+**Read-set:** `src/social/feed.ts`, `src/social/friends.ts`, `src/recipes/cache.ts`,
+`src/recipes/refs.ts`.
+**Write-set:** `src/social/jetstream.ts`, `src/social/affinity.ts`,
+`src/pages/friends.ts` (or feed.html + page), tests.
+**Shared-state contract:** one WebSocket to Jetstream (cross-origin — SW
+untouched); cursor persisted in localStorage (defensive). No PDS writes.
+**Risks:** WS reconnect storms (backoff); `cursor` gap if offline > retention —
+fall back to a full poll. Affinity is a design-time tune, not correctness.
+**Done when:** live feed with graceful degradation to polling; affinity orders
+it. **Validation:** Broad — live event observed end-to-end + fallback exercised.
 **Stop-point (M4 social core complete).**
 
 ### Phase 10: Immune system / moderation — sequenced M4 #5 (spec Layer 8)
 
 **Goal:** the real mute system, **promoting the 5f exclusions-lite** into
 `app.arecipe.mute.*` (person/recipe/tag/list/listitem/listblock) — inherited
-mutes weighted by affinity, applied client-side with a legible inheritance path;
-canonical baseline lists; optional labeler. Bounded to 12–25 scale.
+mutes weighted by affinity, applied client-side with a legible inheritance
+path; canonical baseline lists; optional labeler. Bounded to 12–25 scale.
+**Changes (planned; re-confirm at start):** promote `src/recipes/exclusions.ts`
+→ `src/social/mutes.ts` (records, not just localStorage; keep the local
+overlay as the offline layer), inheritance resolver weighted by
+`affinity.ts`, mute management UI in settings.
 **Depends on:** 9a (graph), 9d (affinity), 5f (overlay model — the seed).
+**Read-set:** `src/recipes/exclusions.ts`, `src/social/affinity.ts`,
+`src/social/friends.ts`, `src/pages/settings.ts`.
+**Write-set:** `src/social/mutes.ts`, `src/pages/settings.ts`,
+feed/render filters, tests.
+**Shared-state contract:** writes `app.arecipe.mute.*` to the guarded test
+account; reads friends' public mute lists.
 **Done when:** subscribable mute lists + affinity-weighted inheritance, all
-overrideable. **Stop-point (M4 complete).**
+overrideable (both edges, per the 5f model). **Validation:** Broad.
+**Stop-point (M4 complete).**
 
-**Concurrency:** the M4 spine is sequential (9a records → 9b/9c reference them →
-9d tails them → 10 weights them). 9b and 9c have plausibly disjoint write-sets
-(`comment.ts` vs `interaction.ts`) and could parallelize — decide at 9b/9c start
-per the parallel-dispatch protocol; default sequential.
+### M4 Concurrency Map
+
+Sequential spine: 9a → 9b → 9c → 9d → 10.
+- **9a → rest:** later phases reference records 9a's identity/friend layer and
+  the extracted `feed.ts` create. Sequential by data dependency.
+- **9b vs 9c — SEQUENTIAL (corrected in Pass 2).** Both write
+  `src/pages/recipe.ts` AND `src/recipes/view.ts` (comment render + interaction
+  chips live on the same detail page). Shared write-set → the hard rule forbids
+  parallel. (The pre-Pass-2 note calling them a "parallel candidate" was wrong —
+  it hadn't compared write-sets.)
+- **9d, 10** build on all prior. No disjoint subgraphs worth parallelizing.
+All phases sequential; reason recorded above. No worktree/parallel dispatch for
+M4 — so no re-entry-verification fields are required per phase.
 
 **Parked (from M1): structured ingredients as records** — a future
 `app.arecipe.ingredient` (+ starter pack), dual-writing flattened strings into
 `exchange.recipe.recipe` for interop. Revisit after M4 or when a
 composition/grocery feature is actually pulled.
 
+### M4 Documentation Impact
+
+- `docs/DESIGN.md` — a "Friends" 3rd nav destination changes the top-bar/tab
+  narrative; the mute UI and comment/interaction surfaces need design entries.
+  Handled in 9a (nav) and 10 (mute UI), same-phase.
+- `docs/PRACTICES.md` — the guarded-`@live`-purge pattern generalizes across
+  collections (recipe, draft, friend, comment, interaction, mute); fold a
+  "guarded multi-collection purge" note when 9a extends it.
+- `README.md` — Building/dev section: note the new page entries (friends/feed)
+  once they exist. Handled in 9a.
+- New files (`src/social/*`, `friends.html`, maybe `feed.html`): grepped — no
+  references outside the phases that create them.
+
 **M4 open questions (confirm severities before executing 9a):**
 - [RECOMMENDED: PHASE-GATED (9b)] D9 unsigned→verified promotion (above).
 - [RECOMMENDED: ADVISORY] Jetstream is a third-party dependency (Bluesky-run);
-  the polling fallback is the durability answer, but a self-hosted Jetstream is a
-  later resilience option (mirrors the handle-resolver third-party stance).
+  the polling fallback is the durability answer; a self-hosted Jetstream is a
+  later resilience option (mirrors the handle-resolver stance).
 - [RECOMMENDED: ADVISORY] Affinity algorithm specifics (weights, decay) are a
   design-time tune in 9d, not an upfront decision.
+- [RECOMMENDED: ADVISORY — added Pass 1] A "Friends" tab makes 3 top-level
+  destinations; confirm that's the right IA vs folding friends under Account.
+  *Rationale: nav is cheap to change now, expensive after habit forms.*
 
 ---
 
@@ -2127,6 +2263,40 @@ local build instead.
 ### M3 milestone reached — MLP shipped — 2026-07-08
 
 ### M4 re-plan — 2026-07-08
+
+### M4 Pass 1 + Pass 2 (combined) — 2026-07-08
+Ran the phase-plan skill's Pass 1 (reasoning + executable detail) and Pass 2
+(gap analysis) over the M4 block, grounded in the actual codebase.
+
+**Pass 1 added:** an M4 Reasoning paragraph (why sequential-by-data-
+dependency; which proven surfaces each phase reuses); full field sets on 9a
+(Call chain, Wiring test, Read/Write-set, Shared-state contract, Diagnostic
+logging, two-tier Done-when, Broad Validation) and structural fields on
+9b–10; an M4 Concurrency Map and M4 Documentation Impact section; one new
+ADVISORY open question (Friends as a 3rd tab vs under Account).
+
+**Pass 2 found (and fixed):**
+- **9b/9c are NOT a parallel candidate.** Both write `src/pages/recipe.ts`
+  AND `src/recipes/view.ts` (comments + interaction chips share the recipe
+  detail page). Shared write-set → pulled to strictly sequential; the earlier
+  "parallel candidate" note was made before comparing write-sets.
+- **wantedDids × wantedCollections combine unverified → verified live** (AND;
+  D7 updated). The friends feed's whole filtering model depended on it.
+- **Threading must use AT-URI, not pinned CID** — an edited parent comment
+  would otherwise orphan its children (the Phase 8 mutable-vs-pinned lesson).
+  Recorded as the 9b threading decision.
+- **Friend rkey strategy** named (PDS-minted TID, remove-by-subject-match;
+  a `did:` isn't a valid raw rkey).
+- **9c is 4+ files → split** flagged at execution (9c-i / 9c-ii).
+- **Codebase grounding confirmed:** loadStarterFeed / createResolver /
+  strongRefOf / createRecordReader / resolveDidDoc / retryOnce / the guarded
+  @live purge / SW cross-origin rule all exist as the plan assumes. The 9a
+  starter.ts→feed.ts loader extraction is a shared-write-set with 5e —
+  behavior-preserving, starter tests must stay green.
+
+**Confirmed:** the stop-anywhere sequencing holds; Jetstream + polling
+fallback is the right transport pair; every phase reuses existing surfaces
+rather than inventing. Analysis only — no code.
 Comprehensive plan, stop-anywhere sequencing (user-chosen), discovery-first.
 D7 (Jetstream) + D8 (social lexicons are ours) probed and answered live; D9
 (unsigned→verified) surfaced as a PHASE-GATED design question for 9b. M4
