@@ -154,6 +154,14 @@ to be implemented with the page-per-destination restructure:
   page-not-modal, real-URL discipline as `recipe.html?u=`. The legacy
   `friends.html` redirects here (query preserved). Browse stays broader and
   zero-auth; the Cookbook is "my-people's-kitchen."
+- **Signed-in landing → Cookbook** (CB3.1): a signed-in visitor arriving at the
+  home entry (typed URL, PWA launch, external link — anything without an in-app
+  referrer) is sent to their Cookbook; everyone else lands on Browse. Browse
+  keeps its zero-auth guarantee — the signal is a localStorage "session hint"
+  written by the auth boot flow (`src/auth/session-hint.ts`) and read by a
+  pre-paint inline script in `index.html`, never the auth client. Clicking the
+  Browse tab (an in-app, same-origin referrer) is exempt, so Browse stays
+  reachable while signed in.
 - **Comments live on the recipe page** (M4/9b), below the recipe, threaded
   (reply nests under parent). Discovery is **cookbook-scoped** — you see the
   recipe author's, your own, and your cookbook's comments; there is no backend

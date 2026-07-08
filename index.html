@@ -7,6 +7,23 @@
     <link rel="icon" type="image/png" href="./assets/logo-light.png" />
     <title>arecipe</title>
     <script>
+      // Signed-in landing (pre-paint, zero-auth): send a signed-in visitor
+      // arriving at the home entry to their Cookbook. Browse ships no auth code,
+      // so this reads only the localStorage session hint written by the auth
+      // boot flow (key must match src/auth/session-hint.ts). Skipped when the
+      // referrer is in-app (a Browse-tab / wordmark click) so Browse stays
+      // reachable while signed in.
+      (function () {
+        try {
+          var signedIn = localStorage.getItem('arecipe-session') === '1';
+          var fromApp = document.referrer && document.referrer.indexOf(location.origin) === 0;
+          if (signedIn && !fromApp) location.replace('./cookbook.html');
+        } catch (e) {
+          /* no hint / storage blocked: stay on Browse */
+        }
+      })();
+    </script>
+    <script>
       // Pre-paint theme resolution (no flash): src/theme.ts owns it after load.
       (function () {
         try {

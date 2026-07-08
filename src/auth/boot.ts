@@ -4,6 +4,7 @@
 import type { Agent } from '@atproto/api';
 import { isDebugEnabled, log } from '../log.js';
 import { authModeFor, createOAuthClient } from './oauth-client.js';
+import { setSessionHint } from './session-hint.js';
 import { createOAuthSessionProvider, type SessionProvider } from './session-provider.js';
 
 export type SessionBoot = {
@@ -28,6 +29,9 @@ export const bootSession = async (): Promise<SessionBoot> => {
   } catch (err) {
     log.error('auth', 'session restore failed', { error: String(err) });
   }
+  // Mirror session presence into the zero-auth landing hint (index.html reads it
+  // to route a signed-in home landing to the Cookbook).
+  setSessionHint(agent !== null);
   // Debug console surface (?debug=1 / localStorage.debug): field debugging
   // and the 3b/5 regression tests force refreshes through this.
   if (isDebugEnabled(window.location.search, window.localStorage.getItem('debug'))) {

@@ -9,6 +9,7 @@
 
 import { Agent } from '@atproto/api';
 import { log } from '../log.js';
+import { setSessionHint } from './session-hint.js';
 
 /** The slice of BrowserOAuthClient the provider consumes (injectable for tests). */
 export type OAuthClientPort = {
@@ -63,6 +64,7 @@ export const createOAuthSessionProvider = (opts: { client: OAuthClientPort }): S
       log.info('auth', 'signing out', { did: current.did });
       await current.signOut();
       current = null;
+      setSessionHint(false); // clear the landing hint so home goes back to Browse
     },
     forceRefresh: async () => {
       if (current === null) throw new Error('no session to refresh');
