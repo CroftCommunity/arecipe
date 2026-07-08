@@ -96,6 +96,8 @@ const precache = [
   ...readdirSync('assets/icons').map((f) => `./assets/icons/${f}`),
   './assets/logo-light.png',
   './assets/logo-dark.png',
+  './assets/no-meal-light.png',
+  './assets/no-meal-dark.png',
 ];
 buildSync({
   entryPoints: ['src/sw.ts'],
