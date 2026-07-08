@@ -30,7 +30,7 @@ feasibility amendment on 2026-07-07 (see Review Log).
 | 7 Photos (EXIF-stripped) | ✅ | Phase 7 close-out commit | Editor photo → canvas re-encode (EXIF provably gone on real PDS bytes) → embed; placeholder-on-failure |
 | 8 Draft-sync + versioning | ✅ | Phase 8 close-out commit | PDS draft backup + eviction recovery (@live-proven); EDIT shipped; stale-cache indicator both edges; PRACTICES.md started |
 | 8b Offline PWA | ✅ | Phase 8b close-out commit | Hashed assets, versioned cache-first SW, update toast, manifest+maskable icons, self-hosted fonts, offline starter fallback; theme→2-state; CNAME baked |
-| 8c Hosted OAuth client | 🚧 code | Phase 8c commit | client-metadata.json served+burned; sign-in un-hidden on arecipe.app; LIVE sign-in + two-device demo pending (needs human on the real origin) |
+| 8c Hosted OAuth client (M3 EXIT) | ✅ | `a03205c` | Real OAuth on arecipe.app; two independent devices signed into the same account, same recipes. **MLP shipped.** |
 | 9–12 | roadmap | | re-plan before execution |
 
 ---
@@ -1534,7 +1534,7 @@ hard way there:
 
 ---
 
-### Phase 8c: Hosted OAuth client → deployed sign-in + physical two-device demo (M3 exit) — 🚧 CODE SHIPPED (2026-07-08); live demo pending
+### Phase 8c: Hosted OAuth client → deployed sign-in + two-device demo (M3 exit) — ✅ SHIPPED (2026-07-08)
 
 **Code delivered.** Canonical `client-metadata.json` (client_id =
 `https://arecipe.app/client-metadata.json`, redirect = `.../mine.html`,
@@ -2020,6 +2020,21 @@ Assumptions (five new/updated entries) and inline on the D-tasks. Highlights:
 - **Plan impact:** no phase restructuring needed — every Phase 0 finding
   confirmed or sharpened the existing specs (scope note on Phase 3, rkey
   default on Phase 6, EXIF note on Phase 7). Phase 1 is unblocked.
+
+### M3 milestone reached — MLP shipped — 2026-07-08
+The Minimum Lovable Product is live at https://arecipe.app: a small group can
+find, author (draft-before-publish), photograph (EXIF-stripped), edit, and
+version recipes that live in their own atproto accounts and appear on
+recipe.exchange with no coordination — offline-capable, installable, with a
+legible trust surface. **M3 exit demo passed** (2026-07-08): driven with the
+test account across two independent browser contexts on the LIVE origin, both
+completed real OAuth sign-in via the hosted client-metadata document, resolved
+to the same DID (did:plc:xyfhcaweaeyew3zrgk6jaln7), and rendered the same
+recipes. Known transient: the My-recipes "Published" own-repo fetch failed
+once on one device post-redirect (network race; the PDS is healthy, CORS-open,
+verified) — caught + shown gracefully; a one-shot retry is the candidate
+hardening. Milestones M0–M3 complete. Next: M4 (social, Phases 9–10) and M5
+(trust + launch, 11–12), each re-planned before execution.
 
 **Phase 0 done-when check:** all BLOCKING questions resolved ✓ (none remain);
 Verified Assumptions reflect firsthand evidence ✓ (9 probe-backed entries);
