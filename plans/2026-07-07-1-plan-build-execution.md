@@ -3646,3 +3646,44 @@ build precaches the pair. (Same process as the 2026-07-08 `030f57f` standin.)
 (29 files / 195 tests), build, e2e (45). `@live` comment gate green; `@live` like
 gate flaky (filed above). Committed to `main` (chasemp identity); code + this plan
 in separate commits per repo convention.
+
+### CB3 shipped — Cookbook rename + app.arecipe.friend dropped — 2026-07-08
+
+Did CB3 in one coherent pass (CB3-i plumbing + CB3-ii drop together, to avoid
+shipping a transitional state with a knowingly-broken @live friend spec).
+
+**Renamed Friends → Cookbook.** `src/pages/friends.ts` → `src/pages/cookbook.ts`,
+reworked to source-based membership: resolves the cookbook (via `resolveCookbook`)
+and renders members with a source badge (you / starter / following / follower) +
+their recipes feed (`loadAuthorsFeed`). No add/remove-friend form — membership is
+your starters + Bluesky graph (a note points to following on Bluesky / Settings).
+Kept the `?did=` cold-view (now any account's cookbook). `friends.html` → `nav.ts`
+tab (`tab-cookbook`, `./cookbook.html`), `scripts/build.mjs` page swap, and
+`cookbook.html`. Legacy `friends.html` is now a **static redirect stub**
+(query + hash preserved, precached → resolves offline); the SW serves it and it
+`location.replace`s to `cookbook.html`.
+
+**Dropped `app.arecipe.friend`.** Deleted `src/social/friends.ts`
+(FRIEND_COLLECTION / buildFriendRecord / listFriends / findFriendRkey / addFriend
+/ removeFriend / loadFriendsFeed), `tests/unit/social/friends.spec.ts`, and
+`tests/e2e/friends-live.spec.ts` (the friend @live write + its guarded purge).
+`loadAuthorsFeed` (feed.ts) is unaffected. `recipe.ts` comment terminology
+refreshed friends-scoped → cookbook-scoped. Docs updated same-phase: `README.md`
+(page list + redirect), `docs/DESIGN.md` (Cookbook destination + cookbook-scoped
+comments). `grep -r 'app.arecipe.friend\|listFriends' src` is now clean (only a
+doc-comment mention in cookbook.ts describing what it replaced).
+
+**Wiring test (hermetic):** `tests/e2e/cookbook.spec.ts` — the `?did=` cold-view
+renders a Bluesky-follow member + that cook's recipes via `resolveCookbook` over
+routed follows/followers/plc fixtures (the scope module's hermetic entry-point
+proof, which CB1 deferred here); `tab-cookbook` navigates; the legacy
+`friends.html` redirects to `cookbook.html`. **Validation:** Moderate (read-only
+page + redirect; no @live — the friend write surface was removed, not added).
+
+**Gate:** full hermetic `npm test` PASS — lint, typecheck, unit (28 files / 188
+tests), build, e2e (46). Committed to `main` (chasemp); code + plan separate.
+
+**M4 cookbook reshape status:** CB1 ✅, CB2 core ✅ (Browse card counts + Saved
+view remain), CB3 ✅. Remaining: CB4 (two-axis settings), CB5 (cookbook feed
+re-plan), CB6 (optional depth/Jetstream), CB7 (mutes re-plan). The @live like-gate
+flake TODO still stands.
