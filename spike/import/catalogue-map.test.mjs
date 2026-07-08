@@ -17,8 +17,17 @@ import {
   parseTimeToIso,
   classifyLabels,
   siteName,
+  cleanText,
   mapEntry,
 } from './catalogue-map.mjs';
+
+test('cleanText decodes HTML entities and collapses whitespace', () => {
+  assert.equal(cleanText('Don&#39;t stir'), "Don't stir");
+  assert.equal(cleanText('salt &amp; pepper'), 'salt & pepper');
+  assert.equal(cleanText('0.6&quot; pieces'), '0.6" pieces');
+  assert.equal(cleanText('warm&nbsp;'), 'warm');
+  assert.equal(cleanText('1  Roma   tomato'), '1 Roma tomato');
+});
 
 test('cuisineToken maps known cuisines to plain words; Classics is not a cuisine', () => {
   assert.equal(cuisineToken('Greek'), 'greek');
@@ -35,6 +44,13 @@ test('parseTimeToIso converts human times, stripping parentheticals', () => {
   assert.equal(parseTimeToIso('15 min (plus soaking)'), 'PT15M');
   assert.equal(parseTimeToIso(''), null);
   assert.equal(parseTimeToIso(undefined), null);
+});
+
+test('parseTimeToIso accepts and normalizes ISO-8601 input (from JSON-LD)', () => {
+  assert.equal(parseTimeToIso('PT10M'), 'PT10M');
+  assert.equal(parseTimeToIso('PT1H30M'), 'PT1H30M');
+  assert.equal(parseTimeToIso('PT505M'), 'PT8H25M');
+  assert.equal(parseTimeToIso('PT0M'), null);
 });
 
 test('classifyLabels separates meal category, diet tokens, and keywords', () => {

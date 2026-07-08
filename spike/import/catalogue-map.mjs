@@ -51,15 +51,24 @@ const SITE = {
   'kingarthurbaking.com': 'King Arthur Baking',
 };
 
-/** "1 hr 10 min", "3 hr", "15 min (plus soaking)" → ISO-8601; else null. */
+/** Human ("1 hr 10 min") or ISO ("PT505M") → normalized ISO-8601; else null.
+ * Both paths reduce to total minutes so ISO from JSON-LD gets tidied too
+ * (PT505M → PT8H25M). Seconds are ignored — recipe times don't need them. */
 export const parseTimeToIso = (raw) => {
   if (raw === undefined || raw === null || raw === '') return null;
   const base = raw.replace(/\([^)]*\)/g, '');
-  const hrs = /(\d+)\s*hr/.exec(base);
-  const mins = /(\d+)\s*min/.exec(base);
-  const h = hrs === null ? 0 : Number(hrs[1]);
-  const m = mins === null ? 0 : Number(mins[1]);
-  if (h === 0 && m === 0) return null;
+  let totalMin;
+  if (/^\s*PT/i.test(base)) {
+    const iso = /PT(?:(\d+)H)?(?:(\d+)M)?/i.exec(base);
+    totalMin = (Number(iso?.[1] ?? 0)) * 60 + Number(iso?.[2] ?? 0);
+  } else {
+    const hrs = /(\d+)\s*hr/.exec(base);
+    const mins = /(\d+)\s*min/.exec(base);
+    totalMin = (hrs === null ? 0 : Number(hrs[1])) * 60 + (mins === null ? 0 : Number(mins[1]));
+  }
+  if (totalMin <= 0) return null;
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
   return `PT${h > 0 ? `${h}H` : ''}${m > 0 ? `${m}M` : ''}`;
 };
 
@@ -89,6 +98,19 @@ export const classifyLabels = (labels) => {
     else keywords.push(label);
   }
   return { category, diet, keywords };
+};
+
+/** Decode the handful of HTML entities that leak through JSON-LD text and
+ * collapse runs of whitespace. Facts in, tidy facts out. */
+export const cleanText = (raw) => {
+  if (typeof raw !== 'string') return '';
+  return raw
+    .replace(/&#39;|&#x27;/g, "'")
+    .replace(/&quot;|&#34;/g, '"')
+    .replace(/&amp;/g, '&')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 };
 
 export const siteName = (url) => {

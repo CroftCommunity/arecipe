@@ -1615,35 +1615,105 @@ hard way there:
 
 ---
 
-### Phase 9: Social graph, comments, interactions (ROADMAP — re-plan before executing)
+## M4 — Social layer (re-planned 2026-07-08)
 
-**Goal:** `app.arecipe.friend`, `app.arecipe.comment`, `interaction.cooked/saved`
-(app-scoped NSIDs renamed from the spec's `fyi.recipe.*` per the NSID resolution),
-affinity scoring, Jetstream live tail with polling fallback, unsigned→verified
-promotion, rate-limit handling. Spec Layers 6 + 7.
-**Parked idea (M1 checkpoint, 2026-07-07): structured ingredients as records.**
-The exchange lexicon keeps ingredients as free-text `string[]`; a future
-`app.arecipe.ingredient` entity (+ a starter pack of common ingredients
-published as records) could enable composition/grocery features — with
-dual-write of flattened strings into the `exchange.recipe.recipe` record to
-preserve interop. Deliberately deferred until we're walking the real data
-model; candidate for this phase's re-plan or later.
-**Depends on:** Phase 8.
-**Done when:** This phase is decomposed via its own phase-plan pass (Phase 0–style
-discovery on Jetstream availability + a fine phase breakdown), then executed. It is
-intentionally not sized to single-context granularity here — its shape depends on
-the module boundaries established in Phases 4–8.
+**Shape:** comprehensive plan, **stop-anywhere sequencing** (user-chosen). Each
+phase leaves a shippable increment; execution can halt after any one. Discovery
+ran first (below). Spec Layers 6–8. Ingredients-as-records stays parked
+(see the old note, now at the M4 tail).
 
----
+### M4 Phase 0: Discovery — ✅ DONE (2026-07-08)
 
-### Phase 10: Immune system / moderation (ROADMAP — re-plan before executing)
+- [x] **D7: Is Jetstream usable for the live feed?** ✅ Reachable via
+  browser-native `WebSocket` (`wss://jetstream1.us-east.bsky.network/subscribe`;
+  jetstream2/us-west as fallback). Event shape (VERIFIED): `{ did, time_us,
+  kind:'commit', commit:{ rev, operation, collection, rkey, record, cid } }` —
+  carries the record AND its cid, so feed items render AND Tier 2-verify.
+  `wantedCollections` filters by type; **`wantedDids` filters to specific repos**
+  (the friends feed — accepted, stays open); **`cursor=<time_us>` replays**
+  (offline catch-up — replayed 825 events from ~5s back). Polling fallback:
+  `com.atproto.repo.listRecords` per followed repo (already have the reader).
+- [x] **D8: The social lexicons are ours** (`app.arecipe.*`). recipe.exchange
+  defines no comment/friend/interaction types (D4: only recipe/collection/
+  defs/profile), so we define these — reusing `com.atproto.repo.strongRef`
+  (uri+cid, already in `refs.ts`) for recipe references. Field shapes drafted
+  per spec §Layer 6; confirm each before its phase writes a record.
+- [ ] **D9 (design, OPEN → PHASE-GATED 9b): unsigned→verified promotion.** How a
+  comment/interaction from someone NOT on Bluesky (app-scoped `app.arecipe.friend`
+  cold-start path) is shown vs one from a verifiable atproto identity. Resolve
+  before comments render others' content. *Recommended: show all, badge
+  provenance (reuse the silent-good/loud-bad surface) — decide at 9b.*
 
-**Goal:** Client-derived moderation — inherited mutes weighted by affinity, applied
-client-side with a legible inheritance path; optional labeler; canonical baseline
-lists. Spec Layers 8 + 9 (moderation parts). Bounded to 12–25 scale.
-**Depends on:** Phase 9.
-**Done when:** Decomposed via its own phase-plan pass, then executed. Candidate to
-run parallel with Phase 9 (disjoint write-sets) — decide at re-plan.
+### Phase 9a: Friends (social graph) — sequenced M4 #1
+
+**Goal:** `app.arecipe.friend` records (public follow naming a DID), a friends
+list on My recipes / account, and a friends **read** feed (their recipes via the
+existing reader). No live tail yet.
+**Changes:** `src/social/friends.ts` (create/list/remove strongRef-free DID
+records), friends UI, feed = `loadStarterFeed`-shaped multi-author read over
+friends.
+**Wiring test:** add a friend by handle → their recipes appear in a Friends feed;
+remove → they leave. @live: friend write to the test account, teardown-guarded.
+**Depends on:** Phase 8 (reader, DID resolution, guarded-write harness).
+**Done when:** friends persist as PDS records and drive a read feed. **Stop-point.**
+
+### Phase 9b: Comments (threaded) — sequenced M4 #2
+
+**Goal:** `app.arecipe.comment` (recipe strongRef + text + optional parent
+strongRef for threading), rendered on the recipe detail page; author your own.
+D9 (unsigned→verified) resolved here.
+**Wiring test:** comment on a recipe → appears threaded on its page; reply nests.
+@live write + guarded teardown.
+**Depends on:** 9a (identity/feed patterns), `refs.ts`.
+**Done when:** threaded comments read+write on recipe pages. **Stop-point.**
+
+### Phase 9c: Interactions (cooked / saved) — sequenced M4 #3
+
+**Goal:** `app.arecipe.interaction.cooked` (recipe strongRef, optional rating/
+notes/photos — reuse the Phase 7 EXIF-safe upload) and `…saved`; buttons + counts
+on recipe cards/detail; a "saved" view under My recipes.
+**Wiring test:** mark cooked/saved → reflected on the recipe + in My recipes.
+**Depends on:** 9a, 7 (blobs). **Done when:** interactions read+write. **Stop-point.**
+
+### Phase 9d: Live feed via Jetstream + affinity — sequenced M4 #4
+
+**Goal:** a live feed of friends' recent recipes/comments/interactions —
+Jetstream (`wantedDids`=friends, `cursor` for catch-up, Tier 2-verify each item)
+with the listRecords polling fallback; **affinity scoring** (interaction-derived
+weight) orders the feed. Rate-limit handling per the D7 findings.
+**Wiring test:** a friend's new record appears live in the feed (simulated via a
+test write); offline→online replays via cursor; fallback path covered when WS
+is blocked.
+**Depends on:** 9a–9c. **Done when:** live feed with graceful degradation.
+**Stop-point (M4 social core complete).**
+
+### Phase 10: Immune system / moderation — sequenced M4 #5 (spec Layer 8)
+
+**Goal:** the real mute system, **promoting the 5f exclusions-lite** into
+`app.arecipe.mute.*` (person/recipe/tag/list/listitem/listblock) — inherited
+mutes weighted by affinity, applied client-side with a legible inheritance path;
+canonical baseline lists; optional labeler. Bounded to 12–25 scale.
+**Depends on:** 9a (graph), 9d (affinity), 5f (overlay model — the seed).
+**Done when:** subscribable mute lists + affinity-weighted inheritance, all
+overrideable. **Stop-point (M4 complete).**
+
+**Concurrency:** the M4 spine is sequential (9a records → 9b/9c reference them →
+9d tails them → 10 weights them). 9b and 9c have plausibly disjoint write-sets
+(`comment.ts` vs `interaction.ts`) and could parallelize — decide at 9b/9c start
+per the parallel-dispatch protocol; default sequential.
+
+**Parked (from M1): structured ingredients as records** — a future
+`app.arecipe.ingredient` (+ starter pack), dual-writing flattened strings into
+`exchange.recipe.recipe` for interop. Revisit after M4 or when a
+composition/grocery feature is actually pulled.
+
+**M4 open questions (confirm severities before executing 9a):**
+- [RECOMMENDED: PHASE-GATED (9b)] D9 unsigned→verified promotion (above).
+- [RECOMMENDED: ADVISORY] Jetstream is a third-party dependency (Bluesky-run);
+  the polling fallback is the durability answer, but a self-hosted Jetstream is a
+  later resilience option (mirrors the handle-resolver third-party stance).
+- [RECOMMENDED: ADVISORY] Affinity algorithm specifics (weights, decay) are a
+  design-time tune in 9d, not an upfront decision.
 
 ---
 
@@ -2055,6 +2125,18 @@ an allowlist if it persists. Live click-through was run against the identical
 local build instead.
 
 ### M3 milestone reached — MLP shipped — 2026-07-08
+
+### M4 re-plan — 2026-07-08
+Comprehensive plan, stop-anywhere sequencing (user-chosen), discovery-first.
+D7 (Jetstream) + D8 (social lexicons are ours) probed and answered live; D9
+(unsigned→verified) surfaced as a PHASE-GATED design question for 9b. M4
+decomposed: 9a friends → 9b comments → 9c interactions → 9d live feed +
+affinity → 10 moderation (promotes 5f exclusions-lite into app.arecipe.mute.*).
+Each phase is a shippable stop-point. Spine sequential; 9b/9c a parallel
+candidate. Not yet executable-sized past 9a (later phases depend on 9a's
+record helpers) — each re-confirmed at its start per "no assumed behavior."
+Also holding: the M3 click-through punch-list (4 items) as near-term polish
+candidates.
 The Minimum Lovable Product is live at https://arecipe.app: a small group can
 find, author (draft-before-publish), photograph (EXIF-stripped), edit, and
 version recipes that live in their own atproto accounts and appear on
