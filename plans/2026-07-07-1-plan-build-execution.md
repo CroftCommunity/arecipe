@@ -2028,6 +2028,32 @@ first try / recovers on second / throws the second error) wraps the
 own-recipes `resolveDidDoc` + read; the recipe-page revision check was
 refactored onto the same helper (was open-coded). Gate green.
 
+### M3 live click-through punch-list — 2026-07-08
+Full user session walked in real Chrome (mobile viewport) against the shipped
+build — landing feed, recipe detail, dark mode, editor+draft, settings.
+Zero console errors; UX holds up. Findings (design/feel, none blocking):
+1. **Disabled Publish button looks enabled** — when signed out, Publish is
+   disabled but has no disabled styling, so it looks identical to Save draft.
+   Fix: `.button:disabled` (dimmed + not-allowed cursor). [smallest, clearest]
+2. **Photo-less hero is a large empty tile** — the official Greek salad has no
+   photo, so its detail banner (and its first-card slot) is a big brand-mark
+   placeholder. Options: shrink the placeholder banner on detail; and/or order
+   photo-bearing cards first in feeds; and/or give the seed an original photo.
+3. **First impression is a photo-less card** (arecipe.bsky.social is starter
+   author #1) — a food app's first card ideally shows food. Tied to #2.
+4. Minor: "Hide this recipe" renders as a full button, reads a touch primary
+   for a rare action; could be quieter.
+Deferred as a small backlog; candidates to fold into M4 or a quick polish pass.
+
+### INFRA NOTE — arecipe.app DNS-sinkholed from this network (2026-07-08)
+Mid-session, arecipe.app began resolving to 146.112.45.x (Cisco Umbrella /
+OpenDNS block range) from this network — connection resets. The site is
+healthy (github.io origin 200/301; two-device demo passed ~30 min prior);
+this is a network DNS filter blocking a newly-registered domain, typically
+temporary. Not an app defect. Verify from another network / cellular; request
+an allowlist if it persists. Live click-through was run against the identical
+local build instead.
+
 ### M3 milestone reached — MLP shipped — 2026-07-08
 The Minimum Lovable Product is live at https://arecipe.app: a small group can
 find, author (draft-before-publish), photograph (EXIF-stripped), edit, and
