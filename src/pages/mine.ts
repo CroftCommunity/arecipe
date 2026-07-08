@@ -9,7 +9,9 @@ import { log } from '../log.js';
 import { mountShell } from '../nav.js';
 import { createRecipeCache } from '../recipes/cache.js';
 import { createDraftStore } from '../recipes/drafts-local.js';
+import { listPdsDrafts } from '../recipes/drafts-sync.js';
 import { createRecipeReader } from '../recipes/read.js';
+import { requestPersistence } from '../storage-persist.js';
 import { renderRecipeList } from '../recipes/view.js';
 import { registerServiceWorker } from '../sw-register.js';
 
@@ -26,6 +28,7 @@ const main = async (): Promise<void> => {
 
   const content = el('section', 'panel');
   const { provider, agent } = await bootSession();
+  void requestPersistence();
 
   // Authoring entry + local drafts are for everyone — drafting needs no
   // account; publishing (in the editor) does.
@@ -83,6 +86,23 @@ const main = async (): Promise<void> => {
       const did = agent.did;
       if (did === undefined) return;
       const { pds, handle } = await resolveDidDoc(did);
+      // Eviction recovery (Phase 8): import PDS-backed drafts missing locally.
+      try {
+        const remote = await listPdsDrafts(pds, did);
+        let recovered = 0;
+        for (const draft of remote) {
+          if ((await drafts.get(draft.id)) === undefined) {
+            await drafts.save(draft.fields, draft.id);
+            recovered += 1;
+          }
+        }
+        if (recovered > 0) {
+          log.info('drafts', 'recovered from PDS', { count: recovered });
+          await renderDrafts();
+        }
+      } catch (err) {
+        log.warn('drafts', 'PDS draft recovery failed', { error: String(err) });
+      }
       const records = await createRecipeReader()({ pds, did });
       if (records.length === 0) {
         const none = el('p', 'empty-state', 'Nothing published yet — your first recipe is one Publish away.');
@@ -93,6 +113,19 @@ const main = async (): Promise<void> => {
       const cache = createRecipeCache();
       const entries = await Promise.all(records.map((r) => cache.put(r)));
       publishedList.replaceChildren(renderRecipeList(entries, { author: handle ?? did }));
+      // Edit affordance (Phase 8): plain rows (cards are links; no nesting).
+      for (const entry of entries) {
+        const row = el('div', 'draft-row');
+        row.dataset['testid'] = 'edit-row';
+        const editLink = el(
+          'a',
+          'draft-link',
+          `Edit: ${(entry.value as { name?: string }).name ?? '(untitled)'}`,
+        ) as HTMLAnchorElement;
+        editLink.href = `./editor.html?edit=${encodeURIComponent(entry.uri)}`;
+        row.append(editLink);
+        publishedList.append(row);
+      }
     })().catch((err: unknown) => {
       log.error('recipes', 'own recipes load failed', { error: String(err) });
       publishedList.append(el('p', 'status', `couldn’t load your recipes: ${String(err)}`));

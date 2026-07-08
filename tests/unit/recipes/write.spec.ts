@@ -32,6 +32,43 @@ describe('minutesToIso', () => {
   });
 });
 
+describe('recordToFields (edit mode, Phase 8)', () => {
+  it('maps a published record back to editor fields (ISO times → minutes)', async () => {
+    const { recordToFields } = await import('../../../src/recipes/write.js');
+    const fieldsBack = recordToFields({
+      name: 'Greek Salad',
+      text: 'A side.',
+      ingredients: ['1 cucumber', '2 pints tomatoes'],
+      instructions: ['Chop.', 'Toss.'],
+      prepTime: 'PT15M',
+      totalTime: 'PT1H15M',
+      recipeYield: '8',
+    });
+    expect(fieldsBack).toEqual({
+      name: 'Greek Salad',
+      text: 'A side.',
+      ingredients: '1 cucumber\n2 pints tomatoes',
+      instructions: 'Chop.\nToss.',
+      prepMinutes: 15,
+      totalMinutes: 75,
+      recipeYield: '8',
+    });
+  });
+
+  it('absent optionals map to zero/empty', async () => {
+    const { recordToFields } = await import('../../../src/recipes/write.js');
+    const fieldsBack = recordToFields({
+      name: 'X',
+      text: 'Y',
+      ingredients: ['a'],
+      instructions: ['b'],
+    });
+    expect(fieldsBack.prepMinutes).toBe(0);
+    expect(fieldsBack.totalMinutes).toBe(0);
+    expect(fieldsBack.recipeYield).toBe('');
+  });
+});
+
 describe('buildRecipeRecord', () => {
   it('builds a typed record with trimmed fields and timestamps', () => {
     const record = buildRecipeRecord(fields);

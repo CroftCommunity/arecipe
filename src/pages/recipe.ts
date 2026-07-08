@@ -10,6 +10,7 @@ import { mountShell } from '../nav.js';
 import { createRecipeCache, type CachedRecipe } from '../recipes/cache.js';
 import { createExclusions } from '../recipes/exclusions.js';
 import { createRecordReader } from '../recipes/read.js';
+import { isStale } from '../recipes/refs.js';
 import { renderRecipeDetail } from '../recipes/view.js';
 import { registerServiceWorker } from '../sw-register.js';
 
@@ -28,7 +29,9 @@ const parseAtUri = (uri: string): ParsedAtUri => {
   return { did: match[1]!, collection: match[2]!, rkey: match[3]! };
 };
 
-const loadRecipe = async (uri: string): Promise<{ entry: CachedRecipe; author: string }> => {
+const loadRecipe = async (
+  uri: string,
+): Promise<{ entry: CachedRecipe; author: string; fromCache: boolean }> => {
   const { did, rkey } = parseAtUri(uri);
   const byParam = new URLSearchParams(window.location.search).get('by');
   const cache = createRecipeCache();
@@ -36,7 +39,7 @@ const loadRecipe = async (uri: string): Promise<{ entry: CachedRecipe; author: s
   const cached = await cache.get(uri);
   if (cached !== undefined) {
     log.debug('recipes', 'detail served from cache', { uri });
-    return { entry: cached, author: byParam ?? did };
+    return { entry: cached, author: byParam ?? did, fromCache: true };
   }
 
   // Cold link: fetch, verify, cache — same trust path as any read.
@@ -44,7 +47,37 @@ const loadRecipe = async (uri: string): Promise<{ entry: CachedRecipe; author: s
   const { pds, handle } = await resolveDidDoc(did);
   const record = await createRecordReader()({ pds, did, rkey });
   const entry = await cache.put(record);
-  return { entry, author: byParam ?? handle ?? did };
+  return { entry, author: byParam ?? handle ?? did, fromCache: false };
+};
+
+/** Versioning (Phase 8): a cached view pins a CID; if the live record moved
+ * on, offer a quiet refresh. Both edges matter: same CID → no indicator. */
+const checkForNewerRevision = async (
+  uri: string,
+  pinnedCid: string,
+  onStale: (refresh: () => Promise<CachedRecipe>) => void,
+): Promise<void> => {
+  const { did, rkey } = parseAtUri(uri);
+  const attempt = async (): Promise<void> => {
+    const { pds } = await resolveDidDoc(did);
+    const record = await createRecordReader()({ pds, did, rkey });
+    if (!isStale({ pinnedCid, currentCid: record.cid })) return;
+    log.info('recipes', 'newer revision available', { uri, pinnedCid, currentCid: record.cid });
+    onStale(async () => createRecipeCache().put(record));
+  };
+  try {
+    await attempt();
+  } catch (firstErr) {
+    // Best-effort but not silently fragile: one retry, then a warn so a
+    // missed staleness is diagnosable from the console.
+    log.debug('recipes', 'revision check retrying', { error: String(firstErr) });
+    await new Promise((r) => setTimeout(r, 1_500));
+    try {
+      await attempt();
+    } catch (err) {
+      log.warn('recipes', 'revision check failed', { uri, error: String(err) });
+    }
+  }
 };
 
 const main = async (): Promise<void> => {
@@ -64,10 +97,33 @@ const main = async (): Promise<void> => {
     return;
   }
   try {
-    const { entry, author } = await loadRecipe(uri);
+    const { entry, author, fromCache } = await loadRecipe(uri);
     const name = (entry.value as { name?: string }).name;
     if (name !== undefined) document.title = `${name} — arecipe`;
     content.replaceChildren(renderRecipeDetail(entry, { author }));
+    if (fromCache) {
+      // Background revision check against the live record (quiet on match).
+      void checkForNewerRevision(uri, entry.cid, (refresh) => {
+        const note = document.createElement('p');
+        note.className = 'status';
+        note.dataset['testid'] = 'stale-indicator';
+        note.textContent = 'this recipe was updated since you last viewed it · ';
+        const refreshLink = document.createElement('button');
+        refreshLink.type = 'button';
+        refreshLink.className = 'button';
+        refreshLink.dataset['testid'] = 'refresh-recipe';
+        refreshLink.textContent = 'Show latest';
+        refreshLink.addEventListener('click', () => {
+          void refresh().then((fresh) => {
+            content.replaceChildren(renderRecipeDetail(fresh, { author }));
+          });
+        });
+        note.append(refreshLink);
+        content.prepend(note);
+      }).catch((err: unknown) => {
+        log.debug('recipes', 'revision check failed', { error: String(err) });
+      });
+    }
     // Exclusion (mute-lite): quiet, reversible in Settings.
     const exclusions = createExclusions();
     const hideButton = document.createElement('button');

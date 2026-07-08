@@ -28,7 +28,8 @@ feasibility amendment on 2026-07-07 (see Review Log).
 | 5e Starter packs (lite) | ✅ | Phase 5e close-out commit | Zero-input feed: 72 verified recipes from 4 curated authors (incl. official arecipe.bsky.social); settings toggles + profile links; seeding pending creds |
 | 6 Authoring (MLP core) | ✅ | Phase 6 close-out commit | editor + local drafts + Publish→PDS (@live 5.6s); race bug caught+fixed; brand placeholder |
 | 7 Photos (EXIF-stripped) | ✅ | Phase 7 close-out commit | Editor photo → canvas re-encode (EXIF provably gone on real PDS bytes) → embed; placeholder-on-failure |
-| 8–8c (M3 set) | planned | | 8 draft-sync/versioning → 8b offline PWA → 8c hosted client + physical two-device demo (M3 exit) |
+| 8 Draft-sync + versioning | ✅ | Phase 8 close-out commit | PDS draft backup + eviction recovery (@live-proven); EDIT shipped; stale-cache indicator both edges; PRACTICES.md started |
+| 8b, 8c | planned | | 8b offline PWA → 8c hosted client + physical two-device demo (M3 exit) |
 | 9–12 | roadmap | | re-plan before execution |
 
 ---
@@ -1359,7 +1360,33 @@ runs.
 
 ---
 
-### Phase 8: Drafts (two-tier) + recipe versioning
+### Phase 8: Drafts (two-tier) + recipe versioning — ✅ SHIPPED (2026-07-08, Phase 8 close-out commit)
+
+**Delivered, with two reconciliations.** (1) The spec's versioning test
+assumed *editing* existed, but Phase 6 shipped create-only — so Phase 8
+delivered **edit** (`editor.html?edit=<uri>`: public-read prefill,
+`putRecord` same-rkey update preserving `createdAt`, "Edit:" rows under
+Published) as versioning's prerequisite. (2) With no referencing records
+until Phase 9, the honest strongRef consumer today is **the cache**: a
+cached detail view pins its CID; a background revision check (retry-once,
+warn on final failure) offers "updated since you last viewed · Show latest"
+— both edges tested (same CID stays quiet). `refs.ts` strongRef helpers
+ship for Phase 9's comments/interactions. **Drafts:** `app.arecipe.draft`
+records (public — editor disclosure line shipped per the accepted
+decision), rkey = local draft id so re-saves overwrite; Save-draft backs up
+when signed in; My recipes imports PDS drafts missing locally (eviction
+recovery); publish removes both copies. `navigator.storage.persist()`
+requested + logged, never asserted. **@live journey (9.3 s):** draft
+synced → IndexedDB wiped → recovered from PDS → published → edited on
+device A → device B's stale cache noticed v2 and refreshed. Guarded purge
+extended to `app.arecipe.draft`. One flake investigated en route: the
+revision check swallowed transient errors at debug — hardened to
+retry-once + warn. `docs/PRACTICES.md` started this phase (user request):
+the peadoubleueh-successor practices doc, 11 proven patterns.
+
+*(Original spec below.)*
+
+### Phase 8 (original spec): Drafts (two-tier) + recipe versioning
 
 **Goal:** In-progress work survives storage eviction, and cross-record references
 survive recipe edits.

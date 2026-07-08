@@ -77,6 +77,53 @@ export const buildRecipeRecord = (fields: EditorFields): RecipeRecordOut => {
   return record;
 };
 
+/** Published record → editor fields (edit mode). ISO durations → minutes. */
+export const recordToFields = (value: {
+  name?: string;
+  text?: string;
+  ingredients?: string[];
+  instructions?: string[];
+  prepTime?: string;
+  totalTime?: string;
+  recipeYield?: string;
+}): EditorFields => {
+  const isoToMinutes = (iso: string | undefined): number => {
+    if (iso === undefined) return 0;
+    const match = /^PT(?:(\d+)H)?(?:(\d+)M)?(?:\d+S)?$/.exec(iso);
+    if (match === null) return 0;
+    return Number(match[1] ?? 0) * 60 + Number(match[2] ?? 0);
+  };
+  return {
+    name: value.name ?? '',
+    text: value.text ?? '',
+    ingredients: (value.ingredients ?? []).join('\n'),
+    instructions: (value.instructions ?? []).join('\n'),
+    prepMinutes: isoToMinutes(value.prepTime),
+    totalMinutes: isoToMinutes(value.totalTime),
+    recipeYield: value.recipeYield ?? '',
+  };
+};
+
+/** Update an existing record in place (same rkey): the CID changes, the
+ * AT-URI does not — that's what the staleness indicator detects. */
+export const updateRecipe = async (
+  agent: Agent,
+  args: { rkey: string; record: RecipeRecordOut; createdAt: string },
+): Promise<{ uri: string; cid: string }> => {
+  const did = agent.did;
+  if (did === undefined) throw new Error('no signed-in account to publish from');
+  const record = { ...args.record, createdAt: args.createdAt }; // preserve original
+  log.info('recipes', 'updating', { rkey: args.rkey, name: record.name });
+  const res = await agent.com.atproto.repo.putRecord({
+    repo: did,
+    collection: RECIPE_COLLECTION,
+    rkey: args.rkey,
+    record,
+  });
+  log.info('recipes', 'updated', { uri: res.data.uri, cid: res.data.cid });
+  return { uri: res.data.uri, cid: res.data.cid };
+};
+
 /** Publish to the signed-in account's repo. Rkey is PDS-minted (a TID). */
 export const publishRecipe = async (
   agent: Agent,

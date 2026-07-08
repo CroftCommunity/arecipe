@@ -6,14 +6,24 @@ import { bootSession } from '../auth/boot.js';
 import { mountBuildStamp } from '../build-stamp.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
+import { resolveDidDoc } from '../identity/did.js';
 import { createDraftStore } from '../recipes/drafts-local.js';
+import { removeDraftFromPds, syncDraftToPds } from '../recipes/drafts-sync.js';
+import { createRecordReader } from '../recipes/read.js';
+import { requestPersistence } from '../storage-persist.js';
 import {
   buildImagesEmbed,
   prepareImage,
   uploadRecipeImage,
   validateImageInput,
 } from '../recipes/images-upload.js';
-import { buildRecipeRecord, publishRecipe, type EditorFields } from '../recipes/write.js';
+import {
+  buildRecipeRecord,
+  publishRecipe,
+  recordToFields,
+  updateRecipe,
+  type EditorFields,
+} from '../recipes/write.js';
 import { registerServiceWorker } from '../sw-register.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -152,31 +162,74 @@ const main = async (): Promise<void> => {
   void mountBuildStamp(app);
   void registerServiceWorker();
 
+  void requestPersistence();
   const drafts = createDraftStore();
-  let draftId = new URLSearchParams(window.location.search).get('draft') ?? undefined;
+  const params = new URLSearchParams(window.location.search);
+  let draftId = params.get('draft') ?? undefined;
   if (draftId !== undefined) {
     const existing = await drafts.get(draftId);
     if (existing !== undefined) fillFields(fields, existing.fields);
     else status.textContent = 'draft not found — starting fresh';
   }
 
+  // Edit mode (Phase 8): load a published recipe by AT-URI (public read),
+  // Publish becomes an in-place update (same rkey → new CID).
+  const editUri = params.get('edit');
+  let editContext: { rkey: string; createdAt: string } | null = null;
+  if (editUri !== null) {
+    try {
+      const match = /^at:\/\/([^/]+)\/[^/]+\/([^/]+)$/.exec(editUri);
+      if (match === null) throw new Error(`not a valid at:// URI: ${editUri}`);
+      const [, did, rkey] = match as unknown as [string, string, string];
+      const { pds } = await resolveDidDoc(did);
+      const record = await createRecordReader()({ pds, did, rkey });
+      fillFields(fields, recordToFields(record.value));
+      editContext = { rkey, createdAt: (record.value['createdAt'] as string) ?? new Date().toISOString() };
+      content.querySelector('.page-title')!.textContent = 'Edit recipe';
+      log.debug('recipes', 'edit mode', { uri: editUri });
+    } catch (err) {
+      status.textContent = `couldn’t load recipe to edit: ${String(err)}`;
+    }
+  }
+
+  const { agent } = await bootSession();
+
   saveButton.addEventListener('click', () => {
     void drafts
       .save(readFields(fields), draftId)
-      .then((draft) => {
+      .then(async (draft) => {
         draftId = draft.id;
         // The URL names the draft so a reload resumes it.
         const url = new URL(window.location.href);
         url.searchParams.set('draft', draft.id);
         window.history.replaceState(null, '', url);
         status.textContent = `draft saved ${draft.savedAt}`;
+        // Backup to the PDS when signed in (public — disclosed below).
+        if (agent !== null) {
+          try {
+            await syncDraftToPds(agent, draft);
+            status.textContent = `draft saved ${draft.savedAt} · backed up to your account`;
+          } catch (err) {
+            log.warn('drafts', 'PDS sync failed', { error: String(err) });
+            status.textContent = `draft saved locally — account backup failed: ${String(err)}`;
+          }
+        }
       })
       .catch((err: unknown) => {
         status.textContent = `draft save failed: ${String(err)}`;
       });
   });
 
-  const { agent } = await bootSession();
+  if (agent !== null) {
+    // Public-drafts disclosure (accepted decision, M1 checkpoint).
+    const disclosure = el(
+      'p',
+      'status',
+      'Drafts also back up to your account for safekeeping — like everything on your PDS, they are publicly readable.',
+    );
+    disclosure.dataset['testid'] = 'draft-disclosure';
+    actions.after(disclosure);
+  }
   if (agent === null) {
     publishButton.disabled = true;
     publishButton.title = 'Sign in (My recipes) to publish — drafts save locally';
@@ -194,9 +247,15 @@ const main = async (): Promise<void> => {
           const blobRef = await uploadRecipeImage(boundAgent, prepared);
           record.embed = buildImagesEmbed(blobRef, prepared);
         }
-        status.textContent = 'publishing…';
-        const { uri } = await publishRecipe(boundAgent, record);
-        if (draftId !== undefined) await drafts.remove(draftId);
+        status.textContent = editContext === null ? 'publishing…' : 'updating…';
+        const { uri } =
+          editContext === null
+            ? await publishRecipe(boundAgent, record)
+            : await updateRecipe(boundAgent, { ...editContext, record });
+        if (draftId !== undefined) {
+          await drafts.remove(draftId);
+          await removeDraftFromPds(boundAgent, draftId);
+        }
         status.textContent = `published ${uri}`;
         window.location.href = './mine.html';
       })().catch((err: unknown) => {

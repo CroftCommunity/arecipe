@@ -106,6 +106,50 @@ test('an unresolvable handle surfaces the failure in the status line', async ({ 
   await expect(page.getByTestId('recipes-status')).toContainText('Unable to resolve handle');
 });
 
+test('edit mode prefills the editor from a published record (Phase 8)', async ({ page }) => {
+  await routeFixtures(page);
+  const uri = `at://${AUTHOR_DID}/exchange.recipe.recipe/01JQJ5RW51ZVEW72XN6GSRWC8D`;
+  await page.goto(`/editor.html?edit=${encodeURIComponent(uri)}`);
+  await expect(page.locator('.page-title')).toHaveText('Edit recipe', { timeout: 15_000 });
+  await expect(page.getByTestId('editor-name')).toHaveValue(
+    'White Chocolate Strawberry Sourdough Sweet Bread',
+  );
+  await expect(page.getByTestId('editor-ingredients')).toHaveValue(/bread flour/);
+  await expect(page.getByTestId('publish')).toBeDisabled(); // signed out
+});
+
+test('revision staleness: same CID stays quiet; a new CID offers the latest (Phase 8)', async ({
+  page,
+}) => {
+  await routeFixtures(page);
+  const uri = `at://${AUTHOR_DID}/exchange.recipe.recipe/01JQJ5RW51ZVEW72XN6GSRWC8D`;
+  // Visit once (cold → cached), then reload with the SAME revision: the
+  // background check runs and must stay quiet (the negative edge).
+  await page.goto(`/recipe.html?u=${encodeURIComponent(uri)}`);
+  await expect(page.locator('h2')).toContainText('White Chocolate', { timeout: 15_000 });
+  await page.reload();
+  await expect(page.locator('h2')).toContainText('White Chocolate');
+  await page.waitForTimeout(1_500); // give the revision check time to finish
+  await expect(page.getByTestId('stale-indicator')).toHaveCount(0);
+
+  // Now the live record moves on (new CID + name): the indicator appears
+  // and "Show latest" renders the new revision.
+  const v2 = JSON.parse(atprotoFixture('getRecord-exchange.recipe.recipe.json')) as {
+    cid: string;
+    value: { name: string };
+  };
+  v2.cid = 'bafyreinewrevisionnewrevisionnewrevision';
+  v2.value.name = 'White Chocolate Strawberry Sourdough Sweet Bread (v2)';
+  await page.unroute(`${AUTHOR_PDS}/**`);
+  await page.route(`${AUTHOR_PDS}/**`, (route) =>
+    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(v2) }),
+  );
+  await page.reload();
+  await expect(page.getByTestId('stale-indicator')).toBeVisible({ timeout: 15_000 });
+  await page.getByTestId('refresh-recipe').click();
+  await expect(page.locator('h2')).toContainText('(v2)');
+});
+
 test('intact cards are clean; detail carries the human provenance line', async ({ page }) => {
   await routeFixtures(page);
   await page.goto('/');

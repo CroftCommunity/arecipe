@@ -46,6 +46,10 @@ The executable build plan lives at
 - [docs/BUILD-PLAN.md](docs/BUILD-PLAN.md) — phased build order (Phase 0 read-only
   interop → Phase 4 launch), TDD-driven, dependency-respecting.
 
+- [docs/PRACTICES.md](docs/PRACTICES.md) — development practices proven in this
+  repo (deploy verification, test tiers, guarded writes, fixture discipline);
+  successor to the peadoubleueh lessons docs.
+
 - [docs/OUTREACH.md](docs/OUTREACH.md) — SEO and socialization: the honest niche
   target, the LLM-retrieval angle, and the six-month beachhead criteria.
 
