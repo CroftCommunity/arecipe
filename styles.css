@@ -380,6 +380,29 @@ body {
   gap: var(--s-2);
 }
 
+/* Segmented control (Tiles | Details): two joined buttons, one active. */
+.segmented {
+  display: inline-flex;
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-pill);
+  overflow: hidden;
+}
+
+.segmented-option {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  padding: 0.15rem var(--s-3);
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.segmented-option--active {
+  background: var(--enamel);
+  color: var(--paper, #fff);
+}
+
 /* Toggle pill: same vocabulary as .chip, but interactive. */
 .browse-toggle {
   display: inline-flex;

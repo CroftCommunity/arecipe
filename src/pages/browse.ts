@@ -12,7 +12,7 @@ import { createStarterPrefs, loadStarterFeed } from '../recipes/starter.js';
 import { createRecipeReader } from '../recipes/read.js';
 import { createDietPreference } from '../recipes/diet-preference.js';
 import { createBrowsePrefs, matchesFilter, type BrowseState } from './browse-state.js';
-import { renderRecipeList, type RenderOptions } from '../recipes/view.js';
+import { renderRecipeDetailsList, renderRecipeList, type RenderOptions } from '../recipes/view.js';
 import { registerServiceWorker } from '../sw-register.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -42,6 +42,16 @@ const main = (): void => {
   // section — diet is a persisted preference set there, not a Browse filter.
   const toolbar = el('div', 'browse-toolbar');
   const controls = el('div', 'browse-controls');
+  // View-mode segmented control (Phase 5): Tiles | Details.
+  const viewSegmented = el('div', 'segmented');
+  const viewTiles = el('button', 'segmented-option', 'Tiles') as HTMLButtonElement;
+  viewTiles.type = 'button';
+  viewTiles.dataset['testid'] = 'view-tiles';
+  const viewDetails = el('button', 'segmented-option', 'Details') as HTMLButtonElement;
+  viewDetails.type = 'button';
+  viewDetails.dataset['testid'] = 'view-details';
+  viewSegmented.append(viewTiles, viewDetails);
+  controls.append(viewSegmented);
   // Photos-only toggle (Phase 3): the first live filter. A styled checkbox
   // pill consistent with .chip.
   const photosToggleLabel = el('label', 'browse-toggle');
@@ -138,16 +148,30 @@ const main = (): void => {
     const options: RenderOptions = {};
     if (current.author !== undefined) options.author = current.author;
     if (current.authorsByDid !== undefined) options.authorsByDid = current.authorsByDid;
-    listContainer.replaceChildren(renderRecipeList(shown, options));
+    const render = state.view === 'details' ? renderRecipeDetailsList : renderRecipeList;
+    listContainer.replaceChildren(render(shown, options));
     log.debug('browse', 'render', {
       kind: current.kind,
+      view: state.view,
       shown: shown.length,
       total: kept.length,
       filtered: isFiltered(diet),
     });
   };
 
-  // Initialize the photos-only control from prefs and re-render on change.
+  // Reflect the active view on the segmented control (aria-pressed + class).
+  const reflectViewControl = (): void => {
+    for (const [btn, mode] of [
+      [viewTiles, 'tiles'],
+      [viewDetails, 'details'],
+    ] as const) {
+      const active = state.view === mode;
+      btn.classList.toggle('segmented-option--active', active);
+      btn.setAttribute('aria-pressed', String(active));
+    }
+  };
+
+  // Initialize the controls from prefs and re-render on change.
   photosToggle.checked = state.photosOnly;
   photosToggle.addEventListener('change', () => {
     state = { ...state, photosOnly: photosToggle.checked };
@@ -155,6 +179,18 @@ const main = (): void => {
     log.debug('browse', 'filter changed', { photosOnly: state.photosOnly });
     renderCurrent();
   });
+
+  const setView = (view: BrowseState['view']): void => {
+    if (state.view === view) return;
+    state = { ...state, view };
+    browsePrefs.save(state);
+    reflectViewControl();
+    log.debug('browse', 'view mode', { view });
+    renderCurrent();
+  };
+  viewTiles.addEventListener('click', () => setView('tiles'));
+  viewDetails.addEventListener('click', () => setView('details'));
+  reflectViewControl();
 
   const showEntries = (entries: CachedRecipe[], author: string, fetchedCount?: number): void => {
     current = { entries, kind: 'search', author, fetchedCount };

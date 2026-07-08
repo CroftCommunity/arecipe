@@ -61,6 +61,36 @@ test('photos-only hides the image-less recipe and updates the count (wiring)', a
   await expect(page.getByTestId('recipes-status')).toContainText('starter pack recipes');
 });
 
+test('view mode: Tiles is default; Details renders rows; persists (wiring)', async ({ page }) => {
+  await routeMixedFeed(page);
+  await page.goto('/');
+  await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
+  // Default is Tiles (a grid), not rows.
+  await expect(page.locator('.recipe-grid')).toBeVisible();
+  await expect(page.locator('.recipe-rows')).toHaveCount(0);
+
+  // Switch to Details: rows replace the grid, same four recipes.
+  await page.getByTestId('view-details').click();
+  await expect(page.locator('.recipe-rows')).toBeVisible();
+  await expect(page.locator('.recipe-grid')).toHaveCount(0);
+  await expect(page.getByTestId('recipe-item')).toHaveCount(4);
+
+  // The mode persists across reload.
+  await page.reload();
+  await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator('.recipe-rows')).toBeVisible();
+});
+
+test('Details view composes with photos-only', async ({ page }) => {
+  await routeMixedFeed(page);
+  await page.goto('/');
+  await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
+  await page.getByTestId('view-details').click();
+  await page.getByTestId('photos-only').check();
+  await expect(page.locator('.recipe-rows')).toBeVisible();
+  await expect(page.getByTestId('recipe-item')).toHaveCount(3); // image-less row dropped
+});
+
 test('photos-only choice persists across reload', async ({ page }) => {
   await routeMixedFeed(page);
   await page.goto('/');
