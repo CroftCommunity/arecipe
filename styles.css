@@ -496,7 +496,32 @@ body {
 .diet-pref-link {
   font-family: var(--mono);
   font-size: var(--t-caption);
-  opacity: 0.75;
+  /* Explicit themed color: without it the anchor fell back to the UA default
+     link blue, unreadable on the dark --tile background. --enamel has a light
+     and a dark variant, so it reads in both themes. */
+  color: var(--enamel);
+}
+
+/* Reset control: a link-styled button in the count block. Same themed color as
+   the diet link so it reads in dark mode; the middot separates it from the
+   "N of M shown" count. */
+.reset-filters-link {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  color: var(--enamel);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.reset-sep {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  color: var(--ink);
+  opacity: 0.5;
+  margin: 0 var(--s-1);
 }
 
 /* ---- recipe cards ---- */

@@ -61,6 +61,31 @@ test('photos-only hides the image-less recipe and updates the count (wiring)', a
   await expect(page.getByTestId('recipes-status')).toContainText('starter pack recipes');
 });
 
+test('reset filters clears active browse filters; status drops the verified count (wiring)', async ({
+  page,
+}) => {
+  await routeMixedFeed(page);
+  await page.goto('/');
+  await expect(page.getByTestId('recipe-item')).toHaveCount(4);
+  // No browse filter → no visible reset control.
+  await expect(page.getByTestId('reset-filters')).toBeHidden();
+
+  // Apply a filter: the reset control appears; the status reads "N of M shown"
+  // with NO verified count (per the trust-surface simplification).
+  await page.getByTestId('photos-only').check();
+  await expect(page.getByTestId('recipe-item')).toHaveCount(3);
+  const status = page.getByTestId('recipes-status');
+  await expect(status).toContainText('3 of 4 shown');
+  await expect(status).not.toContainText('verified');
+  await expect(page.getByTestId('reset-filters')).toBeVisible();
+
+  // Reset: full list back, photos-only unchecked, control hidden again.
+  await page.getByTestId('reset-filters').click();
+  await expect(page.getByTestId('recipe-item')).toHaveCount(4);
+  await expect(page.getByTestId('photos-only')).not.toBeChecked();
+  await expect(page.getByTestId('reset-filters')).toBeHidden();
+});
+
 test('view mode: Tiles is default; Details renders rows; persists (wiring)', async ({ page }) => {
   await routeMixedFeed(page);
   await page.goto('/');

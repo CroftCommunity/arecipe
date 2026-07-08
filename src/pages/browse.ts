@@ -71,9 +71,18 @@ const main = (): void => {
   const facetsContainer = el('div', 'browse-facets');
   controls.append(facetsContainer);
   const countBlock = el('div', 'browse-count');
+  // Reset control: shown only when a Browse-owned filter is active, rendered
+  // ahead of the count as "reset filters · N of M shown". Clears photos/facets;
+  // the diet preference is Settings-owned (see the diet link) and is not reset.
+  const resetBtn = el('button', 'reset-filters-link', 'reset filters') as HTMLButtonElement;
+  resetBtn.type = 'button';
+  resetBtn.dataset['testid'] = 'reset-filters';
+  resetBtn.hidden = true;
+  const resetSep = el('span', 'reset-sep', '·');
+  resetSep.hidden = true;
   const dietLink = el('a', 'diet-pref-link', 'set dietary preference ↗') as HTMLAnchorElement;
   dietLink.href = './settings.html#diet-preference';
-  countBlock.append(recipesStatus, dietLink);
+  countBlock.append(resetBtn, resetSep, recipesStatus, dietLink);
   toolbar.append(controls, countBlock);
   const listContainer = el('div');
   form.append(input, findButton);
@@ -157,6 +166,11 @@ const main = (): void => {
   const isFiltered = (s: BrowseState, diet: string[]): boolean =>
     s.photosOnly || s.facets.cuisine.length > 0 || s.facets.category.length > 0 || diet.length > 0;
 
+  // Browse-owned filters only (photos + facets) — the reset control's scope.
+  // Diet is the Settings-owned app-wide preference, deliberately excluded.
+  const hasBrowseFilters = (s: BrowseState): boolean =>
+    s.photosOnly || s.facets.cuisine.length > 0 || s.facets.category.length > 0;
+
   const renderCurrent = (): void => {
     if (current === null) return;
     const kept = withoutHidden(current.entries);
@@ -164,13 +178,19 @@ const main = (): void => {
     const effective = effectiveState();
     const shown = kept.filter((e) => matchesFilter(e.value, { state: effective, diet }));
     const verified = shown.filter((e) => e.verified).length;
-    // When a filter is active the honest count is "N of M shown"; with no
+    // When a filter is active the honest count is "N of M shown" (the verified
+    // count is dropped here — the reset control takes that slot); with no
     // filter, the original per-path string is preserved byte-identical.
     recipesStatus.textContent = isFiltered(effective, diet)
-      ? `${shown.length} of ${kept.length} shown · ${verified} verified`
+      ? `${shown.length} of ${kept.length} shown`
       : current.kind === 'search'
         ? `${current.fetchedCount ?? current.entries.length} recipes cached (${verified} verified)`
         : `${kept.length} starter pack recipes (${verified} verified)${current.statusSuffix ?? ''}`;
+    // Show the reset control only when there are Browse-owned filters to clear
+    // (a diet-only narrowing shows the count but is reset via Settings).
+    const showReset = hasBrowseFilters(effective);
+    resetBtn.hidden = !showReset;
+    resetSep.hidden = !showReset;
     const options: RenderOptions = {};
     if (current.author !== undefined) options.author = current.author;
     if (current.authorsByDid !== undefined) options.authorsByDid = current.authorsByDid;
@@ -275,6 +295,16 @@ const main = (): void => {
   viewTiles.addEventListener('click', () => setView('tiles'));
   viewDetails.addEventListener('click', () => setView('details'));
   reflectViewControl();
+
+  // Reset the Browse-owned filters (photos + facets) back to none; view mode
+  // and the Settings diet preference are left untouched.
+  resetBtn.addEventListener('click', () => {
+    state = { ...state, photosOnly: false, facets: { cuisine: [], category: [] } };
+    browsePrefs.save(state);
+    photosToggle.checked = false;
+    log.info('browse', 'filters reset');
+    showCurrent(); // rebuild the (now-empty) facet dropdowns + re-render
+  });
 
   const showEntries = (entries: CachedRecipe[], author: string, fetchedCount?: number): void => {
     current = { entries, kind: 'search', author, fetchedCount };
