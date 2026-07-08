@@ -11,6 +11,7 @@ import { createRecipeCache } from '../recipes/cache.js';
 import { createDraftStore } from '../recipes/drafts-local.js';
 import { listPdsDrafts } from '../recipes/drafts-sync.js';
 import { createRecipeReader } from '../recipes/read.js';
+import { retryOnce } from '../retry.js';
 import { requestPersistence } from '../storage-persist.js';
 import { renderRecipeList } from '../recipes/view.js';
 import { registerServiceWorker } from '../sw-register.js';
@@ -85,7 +86,9 @@ const main = async (): Promise<void> => {
     void (async () => {
       const did = agent.did;
       if (did === undefined) return;
-      const { pds, handle } = await resolveDidDoc(did);
+      // Retry once: these fire right after the OAuth redirect settles, where
+      // the first fetch can transiently fail (observed at the M3 demo).
+      const { pds, handle } = await retryOnce(() => resolveDidDoc(did));
       // Eviction recovery (Phase 8): import PDS-backed drafts missing locally.
       try {
         const remote = await listPdsDrafts(pds, did);
@@ -103,7 +106,7 @@ const main = async (): Promise<void> => {
       } catch (err) {
         log.warn('drafts', 'PDS draft recovery failed', { error: String(err) });
       }
-      const records = await createRecipeReader()({ pds, did });
+      const records = await retryOnce(() => createRecipeReader()({ pds, did }));
       if (records.length === 0) {
         const none = el('p', 'empty-state', 'Nothing published yet — your first recipe is one Publish away.');
         none.dataset['testid'] = 'mine-empty';

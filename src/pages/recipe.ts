@@ -11,6 +11,7 @@ import { createRecipeCache, type CachedRecipe } from '../recipes/cache.js';
 import { createExclusions } from '../recipes/exclusions.js';
 import { createRecordReader } from '../recipes/read.js';
 import { isStale } from '../recipes/refs.js';
+import { retryOnce } from '../retry.js';
 import { renderRecipeDetail } from '../recipes/view.js';
 import { registerServiceWorker } from '../sw-register.js';
 
@@ -58,25 +59,18 @@ const checkForNewerRevision = async (
   onStale: (refresh: () => Promise<CachedRecipe>) => void,
 ): Promise<void> => {
   const { did, rkey } = parseAtUri(uri);
-  const attempt = async (): Promise<void> => {
-    const { pds } = await resolveDidDoc(did);
-    const record = await createRecordReader()({ pds, did, rkey });
-    if (!isStale({ pinnedCid, currentCid: record.cid })) return;
-    log.info('recipes', 'newer revision available', { uri, pinnedCid, currentCid: record.cid });
-    onStale(async () => createRecipeCache().put(record));
-  };
   try {
-    await attempt();
-  } catch (firstErr) {
-    // Best-effort but not silently fragile: one retry, then a warn so a
-    // missed staleness is diagnosable from the console.
-    log.debug('recipes', 'revision check retrying', { error: String(firstErr) });
-    await new Promise((r) => setTimeout(r, 1_500));
-    try {
-      await attempt();
-    } catch (err) {
-      log.warn('recipes', 'revision check failed', { uri, error: String(err) });
-    }
+    // retryOnce: best-effort, tolerant of a transient first failure; the
+    // final warn keeps a missed staleness diagnosable from the console.
+    await retryOnce(async () => {
+      const { pds } = await resolveDidDoc(did);
+      const record = await createRecordReader()({ pds, did, rkey });
+      if (!isStale({ pinnedCid, currentCid: record.cid })) return;
+      log.info('recipes', 'newer revision available', { uri, pinnedCid, currentCid: record.cid });
+      onStale(async () => createRecipeCache().put(record));
+    });
+  } catch (err) {
+    log.warn('recipes', 'revision check failed', { uri, error: String(err) });
   }
 };
 

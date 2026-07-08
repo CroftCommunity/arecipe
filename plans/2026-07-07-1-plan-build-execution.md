@@ -2021,6 +2021,13 @@ Assumptions (five new/updated entries) and inline on the D-tasks. Highlights:
   confirmed or sharpened the existing specs (scope note on Phase 3, rkey
   default on Phase 6, EXIF note on Phase 7). Phase 1 is unblocked.
 
+### Post-M3 polish: retry the transient own-repo fetch — 2026-07-08
+The M3-demo transient (My-recipes "Published" own-repo fetch failing once
+post-OAuth-redirect) is fixed. New `src/retry.ts` `retryOnce` (TDD: succeeds
+first try / recovers on second / throws the second error) wraps the
+own-recipes `resolveDidDoc` + read; the recipe-page revision check was
+refactored onto the same helper (was open-coded). Gate green.
+
 ### M3 milestone reached — MLP shipped — 2026-07-08
 The Minimum Lovable Product is live at https://arecipe.app: a small group can
 find, author (draft-before-publish), photograph (EXIF-stripped), edit, and
