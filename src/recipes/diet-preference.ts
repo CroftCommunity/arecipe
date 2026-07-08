@@ -15,6 +15,18 @@ const STORAGE_KEY = 'diet-preference';
 /** Selected, normalized diet tokens (e.g. ['dietVegetarian', 'dietVegan']). */
 export type DietPreference = string[];
 
+/** The canonical diet vocabulary the Settings control offers. Tokens are the
+ * NORMALIZED form `recipeFacets` produces (bare, no `#` prefix, no doubled
+ * `Diet` suffix), so a preference matches a recipe's `suitableForDiet` after
+ * normalization. */
+export const DIET_OPTIONS: readonly { token: string; label: string }[] = [
+  { token: 'dietVegetarian', label: 'Vegetarian' },
+  { token: 'dietVegan', label: 'Vegan' },
+  { token: 'dietGlutenFree', label: 'Gluten-free' },
+  { token: 'dietDairyFree', label: 'Dairy-free' },
+  { token: 'dietLowCarb', label: 'Low-carb' },
+];
+
 export type DietPreferenceStore = {
   /** The stored preference, or `[]` when unset/unreadable (= show all). */
   load: () => DietPreference;

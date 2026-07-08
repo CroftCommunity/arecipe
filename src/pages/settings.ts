@@ -5,6 +5,7 @@
 import { formatBuildStamp, mountBuildStamp, type BuildInfo } from '../build-stamp.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
+import { createDietPreference, DIET_OPTIONS } from '../recipes/diet-preference.js';
 import { createExclusions } from '../recipes/exclusions.js';
 import { createStarterPrefs, STARTER_AUTHORS } from '../recipes/starter.js';
 import { createSocialPrefs } from '../social/prefs.js';
@@ -126,6 +127,37 @@ const main = async (): Promise<void> => {
     starter.append(row);
   }
 
+  // "Only show me": the app-wide dietary preference. Written here, read by
+  // Browse's renderCurrent. The id is the anchor the Browse count links to.
+  const dietary = section('Only show me', 'diet-preference');
+  dietary.id = 'diet-preference';
+  dietary.append(
+    el(
+      'p',
+      'status',
+      'Your standing dietary preference. Browse hides recipes that don’t match. Leave all unchecked to show everything.',
+    ),
+  );
+  const dietPref = createDietPreference();
+  const selectedDiet = new Set(dietPref.load());
+  const dietBoxes: HTMLInputElement[] = [];
+  for (const option of DIET_OPTIONS) {
+    const row = el('label', 'starter-row');
+    row.dataset['testid'] = 'diet-row';
+    const box = document.createElement('input');
+    box.type = 'checkbox';
+    box.dataset['token'] = option.token;
+    box.checked = selectedDiet.has(option.token);
+    box.addEventListener('change', () => {
+      const chosen = dietBoxes.filter((b) => b.checked).map((b) => b.dataset['token'] ?? '');
+      dietPref.save(chosen);
+      log.debug('diet', 'toggled', { token: option.token, on: box.checked });
+    });
+    dietBoxes.push(box);
+    row.append(box, el('span', undefined, option.label));
+    dietary.append(row);
+  }
+
   const social = section('Social', 'social-settings');
   social.append(
     el(
@@ -193,7 +225,7 @@ const main = async (): Promise<void> => {
     ),
   );
 
-  content.append(build, updates, starter, social, hiddenSection, integrity, about);
+  content.append(build, updates, starter, dietary, social, hiddenSection, integrity, about);
   mountShell(app, content);
   void mountBuildStamp(app);
   log.debug('shell', 'mounted', { page: 'settings' });

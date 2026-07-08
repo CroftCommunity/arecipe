@@ -5,7 +5,7 @@
 // - saving an empty preference clears it back to the default
 // - storage failure degrades to "no preference" without throwing
 import { describe, expect, it } from 'vitest';
-import { createDietPreference } from '../../../src/recipes/diet-preference.js';
+import { createDietPreference, DIET_OPTIONS } from '../../../src/recipes/diet-preference.js';
 
 const memoryStorage = (): Pick<Storage, 'getItem' | 'setItem' | 'removeItem'> => {
   const store = new Map<string, string>();
@@ -51,5 +51,12 @@ describe('diet preference', () => {
     const pref = createDietPreference({ storage: brokenStorage });
     expect(pref.load()).toEqual([]);
     expect(() => pref.save(['dietVegan'])).not.toThrow();
+  });
+
+  it('exposes the canonical diet vocabulary (normalized tokens + labels) for Settings', () => {
+    const tokens = DIET_OPTIONS.map((o) => o.token);
+    expect(tokens).toContain('dietVegetarian');
+    expect(tokens).toContain('dietVegan');
+    expect(DIET_OPTIONS.find((o) => o.token === 'dietVegetarian')?.label).toBe('Vegetarian');
   });
 });
