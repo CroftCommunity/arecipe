@@ -1641,6 +1641,48 @@ EXIF-safe upload (cooked photos), the guarded `@live` purge harness (writes),
 and the `renderRecipeList/Detail` views. New third-party dependency: Jetstream
 (Bluesky-run) — the `listRecords` polling fallback is the durability answer.
 
+**★ Cookbook re-plan (2026-07-08, supersedes the friend-based model below).**
+Talked out with the user; the M4 social model is reframed around a **Cookbook**:
+- **Cookbook** = your own recipes + a bounded, user-chosen **reach**. Sources:
+  **starter-pack cooks** + **Bluesky follows** + **Bluesky followers**.
+  **DROP our `app.arecipe.friend` concept — use Bsky primitives** (user decision).
+  "Friend" was our lexicon (9a); it competed with Bsky's graph and muddled the
+  model. Adding a cook = following on Bsky / toggling a starter; no arecipe-native
+  friend record.
+- **Browse stays broader** than the cookbook — starter packs + search + wider
+  discovery, NOT limited by cookbook scope, stays zero-auth. (Explore-the-world
+  vs my-people's-kitchen.)
+- **Two orthogonal cookbook settings:** (1) **reach** — which sources + like-graph
+  **depth** (network effect: circle → recipes they liked → the cooks behind those);
+  (2) **social signals** — likes / comments shown *on* recipes, independent of reach.
+- **Feed = a view** ("newest in your cookbook"), not a dial. **Value order:
+  new-recipe feed > likes > comments** (comments most opt-in).
+- **Likes = a discovery engine** (the like-graph), not just a count.
+- **Nav:** the shipped **"Friends" tab (9a) → "Cookbook" tab** (`friends.html` →
+  `cookbook.html`; redirect the old path).
+- **UI lab:** `ui-lab/social-scope.html` (throwaway, not deployed) prototypes the
+  two-axis settings + preview; iterate there before wiring settings.
+
+**Discovery (2026-07-08, verified) — Bsky graph endpoints, browser-reachable:**
+- **Follows:** `listRecords?collection=app.bsky.graph.follow` on your PDS —
+  HTTP 200, `access-control-allow-origin: *`, records `{subject:<did>, createdAt}`.
+  AppView-free (direct repo read).
+- **Followers:** `app.bsky.graph.getFollowers?actor=<did>` on `public.api.bsky.app`
+  — HTTP 200, CORS `*`, `{followers:[{did, handle}]}` (handle may be
+  `handle.invalid`; DID always present). The one accepted AppView dependency.
+
+**Reshape implications (to execute):**
+- **9a:** drop `app.arecipe.friend` (friends.ts add/remove/records, the friend
+  `@live` write + its guarded purge). Keep the extracted `loadAuthorsFeed`.
+- New **`src/social/cookbook.ts`** — shared scope: resolves cookbook member repos
+  from starters + follows + followers (+ you), honoring the reach config. Consumed
+  by the Cookbook tab, the recipe page (9b comments / 9c likes discovery), the feed.
+- **9b/9c discovery** switches from `listFriends(app.arecipe.friend)` to the
+  cookbook scope. Comment/interaction records + their guarded purges stay.
+- **Settings** gains the two-axis cookbook controls (reach + social signals).
+- The friend-based text in the 9a/9b/9c sections below is **superseded** by this
+  note (left in place for history; do not re-implement `app.arecipe.friend`).
+
 **M4 cross-phase conventions (added Pass 3, 2026-07-08).** The M0–M3 cross-phase
 conventions (line ~426) enumerate phases 1–8/3b explicitly and do not name the M4
 phases; these extend them to 9a–10:
@@ -1884,18 +1926,26 @@ linked to profiles. **Validation:** Broad (external write). **Stop-point.**
 notes/photos — reuse the Phase 7 EXIF-safe `prepareImage`/`uploadRecipeImage`)
 and `…saved`; buttons + counts on recipe cards/detail; a "Saved" view under My
 recipes.
-**Added 2026-07-08 (user) — the "like" interaction + Hide Likes.** A third
-interaction kind, `…liked`, surfaced as: a subtle heart top-right of the recipe
-image on the Browse tiles (tap to like) and `Foo Recipe · N likes` on the
-title/name line (tile + detail). Counts are **friends-scoped** by the same
-backendless discovery as comments (you can only count likes from repos you know
-— you + friends), so "N likes" means "N you + friends" at 12–25 scale; name it
-honestly in the copy. A **Hide Likes** toggle joins the 9b "Social" settings
-panel (`src/social/prefs.ts` — reserve the key there; off by default). **Open at
-9c start — confirm with user:** is `liked` *additive* to cooked/saved (three
-kinds) or does it fold/replace one? (Explained 2026-07-08: like = lightweight
-public approval; cooked = "I made this" + rating/notes/photo; saved = private
-bookmark — semantically distinct, hence the additive default recommendation.)
+**Reshaped 2026-07-08 (user decisions) — likes + saved; cooked deferred.**
+- **Kinds: `liked` + `saved` only — `cooked` is DEFERRED** (it was the heaviest:
+  ratings/notes/photos; can return later). `saved` = private bookmark with a
+  "Saved" view under My recipes; `liked` = one-tap public approval (heart +
+  count).
+- **`liked` surfaces:** `Foo Recipe · N likes` on the name/title line (Browse
+  tiles + detail) and a heart on the recipe **image**. **Counts are
+  friends-scoped** (same backendless boundary as comments — you can only count
+  likes from repos you know, you + friends); copy must be honest, not a
+  pretend-global count.
+- **Liking happens ONLY on the recipe detail page — NOT from Browse.** Browse
+  ships zero auth code (a tested guarantee) and liking is an auth'd write. So
+  Browse tiles show the heart + count **read-only** (display); tapping a tile
+  opens `recipe.html`, where the heart actually likes (the recipe page is
+  already session-aware with deferred auth). Browse stays a pure read surface —
+  the "Browse ships zero auth code" e2e stays valid unchanged.
+- **Hide Likes** toggle joins the 9b "Social" settings panel (`src/social/
+  prefs.ts` — reserve the key; off by default), hides the hearts + counts.
+- Wiring split as 9a/9b: hermetic renders counts from routed fixtures; `@live`
+  proves the like write (+ guarded `app.arecipe.interaction` purge).
 **Changes (planned; re-confirm at start):** `src/social/interactions.ts`
 (write/list/count), buttons in `src/pages/recipe.ts` + `src/recipes/view.ts`
 card chips, a saved list in `src/pages/mine.ts`.
@@ -2083,27 +2133,33 @@ probe** of the chosen index library (trust-surface budget), the same bar
 `@ipld/dag-cbor` was held to. (Origin: user raised Astro-for-search 2026-07-08;
 ruled out for the reasons above.)
 
-**Backlog (filed 2026-07-08): themed "no meal image" card standin** — use
-`assets/no_meal_image_standin.png` (a light/dark **split** asset, like the
-`logo-light`/`logo-dark` pair) as the placeholder shown on recipe cards/tiles
-that have no photo, swapped by theme (the pre-paint `data-theme` +
-`prefers-color-scheme` machinery already drives the logo pair — reuse it). Today
-`photoWrapEl` (in `src/recipes/view.ts`) renders no-photo cards without a themed
-standin. Small, self-contained; can ride the next `view.ts`/`styles.css`-touching
-phase or stand alone. (User-added asset 2026-07-08.)
+**✅ DONE (2026-07-08, `030f57f`): themed "no meal image" card standin** — split
+the user-supplied 1024² contact sheet into `assets/no-meal-{light,dark}.png`
+(labels cropped, transparency kept) and pointed `placeholderEl` (in
+`src/recipes/view.ts`) at them instead of the wordmark logo, reusing the same
+light/dark CSS pair mechanism. Precached for offline. The contact-sheet source
+stays untracked (not shipped). Unit test updated (both variants asserted).
 
-**Backlog (filed 2026-07-08): lazy-load auth on the recipe page (code-split)** —
-Phase 9b made `src/pages/recipe.ts` session-aware for commenting, which pulls
-`bootSession` → `@atproto/api` into the bundle and took the **shareable
-cold-link recipe page from 49K/17Kgz to 930K/194Kgz** (the same weight M1 flagged
-for `@atproto/api`). The recipe detail renders from a light path (cache/read/
-view/refs); only the comment section needs auth. Fix: dynamic-`import()` the
-auth/comment machinery so the detail ships light (~49K) and the heavy chunk loads
-after render. Requires **esbuild `splitting: true` + `chunkNames` + adding the
-emitted chunk(s) to the service-worker precache list** in `scripts/build.mjs` —
-a build-infra change worth its own focused pass (probe esbuild splitting first;
-no-assumed-behavior). Related precedent: the "Browse ships zero auth code" e2e.
-(Deferred from 9b, user-confirmed 2026-07-08.)
+**✅ DONE (2026-07-08): lazy-load auth on the recipe page (code-split)** — the
+recipe page now defers `bootSession` (and its `@atproto/api` dependency) behind a
+dynamic `import()` in `mountComments`: the detail + the recipe author's comments
+render from the light read path, then the auth client loads as a split chunk only
+after (signed-in → compose/reply + friends' comments). Implementation:
+- `scripts/build.mjs`: `splitting: true` + `chunkNames`. Bonus — `@atproto/api`
+  now dedupes into ONE shared chunk (~895KB) instead of a copy per auth page.
+  Per-page ENTRY bundles dropped to single-digit KB (recipe 8K, browse 3K, …);
+  note build-info `pages[].bytes` now reports the entry only, not entry+chunks.
+- Verified via the esbuild metafile: the heavy atproto chunk is NOT a static
+  import of the recipe entry (loads only on the deferred `import()`); browse/
+  settings never import it; mine/friends/account/editor still load it (they need
+  auth on load).
+- SW precache excludes chunks > 150KB (the atproto chunk) — it can't be used
+  offline anyway (OAuth needs the network) and the fetch handler runtime-caches
+  it on first use; precaching it bloated every install and defeated the split.
+  Build logs the deferred chunk (no silent caps).
+- `playwright.config.ts`: `workers: 2` — with more precache files per install,
+  the default worker count starved concurrent no-cache precache fetches on the
+  shared dev server, blanking the offline boot. (User-confirmed 2026-07-08.)
 
 ### M4 Documentation Impact
 

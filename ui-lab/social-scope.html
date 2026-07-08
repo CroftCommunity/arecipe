@@ -1,0 +1,254 @@
+<!doctype html>
+<!--
+  UI LAB — social scope + reach (Phase 9c/9d exploration). MOCK DATA ONLY, no
+  atproto, self-contained (open the file directly). NOT in the build's page
+  list, so it never deploys. Throwaway/reference: iterate on the settings UX
+  here, then promote the agreed shape into settings + a shared social-scope
+  module. Palette approximates the enamelware system (docs/DESIGN.md).
+-->
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>arecipe — social scope UI lab</title>
+    <style>
+      :root {
+        --enamel: #175e54; --yolk: #e4a11b; --rust: #b5451f;
+        --bg: #f4efe4; --surface: #fffdf8; --ink: #1b2b28; --muted: #5b6b66;
+        --line: #d9d2c2; --chip: #e9e3d3;
+      }
+      html[data-theme='dark'] {
+        --enamel: #57b9a6; --yolk: #e9b44c; --rust: #e07a52;
+        --bg: #0e1917; --surface: #16211f; --ink: #e9ece8; --muted: #9db0aa;
+        --line: #26322f; --chip: #1e2a27;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0; font: 15px/1.5 system-ui, -apple-system, sans-serif;
+        background: var(--bg); color: var(--ink);
+      }
+      header {
+        display: flex; align-items: center; gap: 12px; padding: 14px 20px;
+        border-bottom: 1px solid var(--line); background: var(--surface);
+      }
+      header h1 { font-size: 17px; margin: 0; flex: 1; }
+      header .brand-a { color: var(--enamel); font-weight: 700; }
+      .lab-tag {
+        font-size: 11px; text-transform: uppercase; letter-spacing: .08em;
+        color: var(--muted); border: 1px solid var(--line); border-radius: 999px;
+        padding: 2px 8px;
+      }
+      button.ghost {
+        background: none; border: 1px solid var(--line); color: var(--ink);
+        border-radius: 8px; padding: 6px 10px; cursor: pointer; font: inherit;
+      }
+      main { display: grid; grid-template-columns: 340px 1fr; gap: 0; min-height: calc(100vh - 55px); }
+      .controls { padding: 20px; border-right: 1px solid var(--line); background: var(--surface); }
+      .preview { padding: 20px 24px; }
+      .group { margin-bottom: 26px; }
+      .group > h2 {
+        font-size: 12px; text-transform: uppercase; letter-spacing: .07em;
+        color: var(--muted); margin: 0 0 4px;
+      }
+      .group > .hint { font-size: 12.5px; color: var(--muted); margin: 0 0 12px; }
+      label.row {
+        display: flex; align-items: baseline; gap: 9px; padding: 7px 0; cursor: pointer;
+      }
+      label.row input { margin-top: 2px; accent-color: var(--enamel); }
+      label.row .sub { display: block; font-size: 12px; color: var(--muted); }
+      .depmark { color: var(--yolk); font-size: 11px; }
+      .preview h2.section { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 22px 0 10px; }
+      .summary {
+        background: var(--chip); border: 1px solid var(--line); border-radius: 10px;
+        padding: 12px 14px; font-size: 13.5px; color: var(--ink); margin-bottom: 6px;
+      }
+      .summary b { color: var(--enamel); }
+      .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+      .card {
+        border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+        background: var(--surface); display: flex; flex-direction: column;
+      }
+      .card .thumb {
+        height: 92px; background:
+          radial-gradient(circle at 30% 40%, color-mix(in srgb, var(--enamel) 22%, transparent), transparent 60%),
+          var(--chip);
+        display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 12px;
+      }
+      .card .body { padding: 10px 12px; }
+      .card .title { font-weight: 650; font-size: 14px; }
+      .card .nameline { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+      .card .heart { color: var(--rust); }
+      .card .via {
+        margin-top: 7px; font-size: 11.5px; color: var(--muted);
+        border-top: 1px dashed var(--line); padding-top: 6px;
+      }
+      .card .via .who { color: var(--enamel); }
+      .feed-item { padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+      .feed-item .who { color: var(--enamel); font-weight: 600; }
+      .feed-item .verb { color: var(--muted); }
+      .empty { color: var(--muted); font-style: italic; padding: 10px 0; }
+      code { background: var(--chip); padding: 1px 5px; border-radius: 5px; font-size: 12.5px; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1><span class="brand-a">a</span>recipe — social scope</h1>
+      <span class="lab-tag">UI lab · mock data</span>
+      <button class="ghost" id="theme">◐ theme</button>
+    </header>
+    <main>
+      <section class="controls">
+        <p class="hint" style="margin-top:0">These settings govern your <b style="color:var(--enamel)">Cookbook</b> — your own recipes + a bounded, chosen reach. <b>Browse stays broader</b> (starter packs, search, wider discovery) and is <em>not</em> limited by this scope. Below: the two groups stock the cookbook; <b style="color:var(--enamel)">Social signals</b> is separate — it only changes what shows <em>on</em> a recipe, never which recipes appear.</p>
+        <div class="group">
+          <h2>Your cookbook — where recipes come from</h2>
+          <p class="hint">Which repos stock your cookbook. AppView-less, so this is a bounded, known set you choose.</p>
+          <label class="row"><input type="checkbox" id="src-cooks" checked /><span>Starter-pack cooks<span class="sub">curated set</span></span></label>
+          <label class="row"><input type="checkbox" id="src-friends" checked /><span>arecipe friends<span class="sub">app.arecipe.friend — your repo</span></span></label>
+          <label class="row"><input type="checkbox" id="src-follows" checked /><span>Bluesky follows<span class="sub">app.bsky.graph.follow — your repo</span></span></label>
+          <label class="row"><input type="checkbox" id="src-followers" checked /><span>Bluesky followers<span class="sub">needs Bluesky AppView (getFollowers)</span></span></label>
+        </div>
+
+        <div class="group">
+          <h2>Reach depth <span class="depmark">◆ the network effect</span></h2>
+          <p class="hint">How many hops along the like-graph. Likes turn your circle into a discovery engine (needs social ≥ Likes).</p>
+          <label class="row"><input type="radio" name="depth" value="0" /><span>Just my circle<span class="sub">recipes authored by the set above</span></span></label>
+          <label class="row"><input type="radio" name="depth" value="1" checked /><span>+ recipes my circle liked<span class="sub">surfaces recipes from cooks you don't follow</span></span></label>
+          <label class="row"><input type="radio" name="depth" value="2" /><span>+ cooks behind those recipes<span class="sub">us → friend → liked recipe → that cook</span></span></label>
+        </div>
+
+        <div class="group">
+          <h2>How much social integration</h2>
+          <p class="hint">Ascending by appetite — the new-recipe feed is the headline; comments are the chattiest, most opt-in. Cumulative (each level includes the ones above it).</p>
+          <label class="row"><input type="radio" name="social" value="off" /><span>Off<span class="sub">just your circle's recipes — no feed, likes, comments, or discovery</span></span></label>
+          <label class="row"><input type="radio" name="social" value="feed" /><span>Friends' new-recipe feed<span class="sub">the headline: a stream when your circle publishes — the one atom that isn't a like or comment</span></span></label>
+          <label class="row"><input type="radio" name="social" value="likes" checked /><span>+ Likes<span class="sub">heart + friends-scoped count + the like-discovery network effect</span></span></label>
+          <label class="row"><input type="radio" name="social" value="comments" /><span>+ Comments<span class="sub">conversation — least essential, most opt-in</span></span></label>
+        </div>
+      </section>
+
+      <section class="preview">
+        <div class="summary" id="summary"></div>
+
+        <h2 class="section">Your Cookbook tab — the recipes in it</h2>
+        <div class="grid" id="cards"></div>
+
+        <h2 class="section" id="feed-head" hidden>Newest in your cookbook (a view — always available)</h2>
+        <div id="feed"></div>
+      </section>
+    </main>
+
+    <script>
+      // ---- Mock world -------------------------------------------------------
+      // People in (or reachable from) your circle.
+      const cooks = ['emma.cook', 'frank.cook'];       // starter pack
+      const friends = ['alice.friend'];                 // arecipe friends
+      const follows = ['carol.follow'];                 // bluesky follows
+      const followers = ['dave.fan'];                   // bluesky followers
+      // Recipes: author + who (in your circle) liked/commented + when.
+      const RECIPES = [
+        { id: 'r1', title: 'Enamel Pot Beans', cook: 'emma.cook', likedBy: ['carol.follow'], comments: 2, day: 5 },
+        { id: 'r2', title: 'Skillet Cornbread', cook: 'carol.follow', likedBy: ['alice.friend', 'dave.fan'], comments: 0, day: 4 },
+        { id: 'r3', title: 'Midnight Toast', cook: 'grace.stranger', likedBy: ['alice.friend'], comments: 1, day: 3 },
+        { id: 'r4', title: 'Grace’s Focaccia', cook: 'grace.stranger', likedBy: [], comments: 0, day: 2 },
+        { id: 'r5', title: 'Heidi’s Ramen', cook: 'heidi.stranger', likedBy: ['dave.fan'], comments: 3, day: 1 },
+        { id: 'r6', title: 'Frank’s Chili', cook: 'frank.cook', likedBy: [], comments: 0, day: 6 },
+        { id: 'r0', title: 'My Weeknight Dal', cook: 'you', likedBy: ['alice.friend'], comments: 1, day: 7 },
+      ];
+
+      const $ = (id) => document.getElementById(id);
+      const val = (name) => document.querySelector(`input[name=${name}]:checked`).value;
+
+      function circle() {
+        const s = new Set(['you']); // your own recipes are always in your cookbook
+        if ($('src-cooks').checked) cooks.forEach((h) => s.add(h));
+        if ($('src-friends').checked) friends.forEach((h) => s.add(h));
+        if ($('src-follows').checked) follows.forEach((h) => s.add(h));
+        if ($('src-followers').checked) followers.forEach((h) => s.add(h));
+        return s;
+      }
+
+      function compute() {
+        const social = val('social');
+        // Reach depth is INDEPENDENT of the social dial: the like-graph is a
+        // discovery mechanism (reach), separate from whether like counts show.
+        const depth = Number(val('depth'));
+        const set = circle();
+        const chosen = new Map(); // id -> {recipe, via}
+
+        // depth 0: recipes authored by someone in the circle
+        for (const r of RECIPES) if (set.has(r.cook)) chosen.set(r.id, { r, via: null });
+
+        // depth 1: recipes LIKED by someone in the circle
+        if (depth >= 1)
+          for (const r of RECIPES) {
+            const liker = r.likedBy.find((h) => set.has(h));
+            if (liker && !chosen.has(r.id)) chosen.set(r.id, { r, via: `surfaced because ${liker} liked it` });
+          }
+
+        // depth 2: ALL recipes by cooks discovered via a circle-member's like
+        if (depth >= 2) {
+          const discoveredCooks = new Set();
+          for (const r of RECIPES) {
+            const liker = r.likedBy.find((h) => set.has(h));
+            if (liker && !set.has(r.cook)) discoveredCooks.add(r.cook);
+          }
+          for (const r of RECIPES)
+            if (discoveredCooks.has(r.cook) && !chosen.has(r.id))
+              chosen.set(r.id, { r, via: `cook ${r.cook} discovered via a friend's like` });
+        }
+        return { social, depth, set, items: [...chosen.values()] };
+      }
+
+      function render() {
+        const { social, depth, set, items } = compute();
+        const showLikes = social === 'likes' || social === 'comments';
+        const showComments = social === 'comments';
+
+        $('summary').innerHTML =
+          `Your cookbook: <b>${set.size}</b> sources (incl. you) · reach depth <b>${depth}</b> · ` +
+          `<b>${items.length}</b> recipes`;
+
+        $('cards').innerHTML =
+          items.length === 0
+            ? '<p class="empty">No sources selected.</p>'
+            : items
+                .sort((a, b) => b.r.day - a.r.day)
+                .map(({ r, via }) => {
+                  const n = r.likedBy.filter((h) => set.has(h)).length;
+                  const likeLine = showLikes ? ` · <span class="heart">♥</span> ${n} ${n === 1 ? 'like' : 'likes'}` : '';
+                  const cmt = showComments && r.comments > 0 ? ` · 💬 ${r.comments}` : '';
+                  // Reach provenance shows whenever depth surfaced it — independent
+                  // of whether like COUNTS are displayed (social).
+                  const viaLine = via ? `<div class="via">${via}</div>` : '';
+                  return `<div class="card"><div class="thumb">🍳</div><div class="body">
+                    <div class="title">${r.title}</div>
+                    <div class="nameline">${r.cook}${likeLine}${cmt}</div>
+                    ${viaLine}
+                  </div></div>`;
+                })
+                .join('');
+
+        // The feed is a VIEW of your cookbook, not a dial — always available.
+        // New-recipe events always show; like events only when likes are on.
+        $('feed-head').hidden = false;
+        const events = [];
+        for (const r of RECIPES)
+          if (set.has(r.cook)) events.push({ day: r.day, html: `<span class="who">${r.cook}</span> <span class="verb">published</span> ${r.title}` });
+        if (showLikes)
+          for (const r of RECIPES)
+            for (const h of r.likedBy) if (set.has(h)) events.push({ day: r.day, html: `<span class="who">${h}</span> <span class="verb">liked</span> ${r.title}` });
+        $('feed').innerHTML = events
+          .sort((a, b) => b.day - a.day)
+          .map((e) => `<div class="feed-item">${e.html}</div>`)
+          .join('');
+      }
+
+      document.querySelectorAll('input').forEach((i) => i.addEventListener('change', render));
+      $('theme').addEventListener('click', () => {
+        const el = document.documentElement;
+        el.dataset.theme = el.dataset.theme === 'dark' ? 'light' : 'dark';
+      });
+      render();
+    </script>
+  </body>
+</html>

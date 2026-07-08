@@ -44,13 +44,17 @@ describe('renderRecipeList (link cards)', () => {
     expect(el.querySelector('.card-photo--empty img')).not.toBeNull();
   });
 
-  it('photo-less recipes get the brand-mark placeholder, not an emoji', () => {
+  it('photo-less recipes get the themed no-meal standin (theme pair), not an emoji', () => {
     const bare = { ...fixture.value };
     delete bare['embed'];
     const el = renderRecipeList([entry({ value: bare })]);
-    const placeholder = el.querySelector<HTMLImageElement>('.card-photo--empty img');
-    expect(placeholder?.getAttribute('src')).toContain('logo-');
-    expect(placeholder?.getAttribute('alt')).toBe('');
+    const marks = el.querySelectorAll<HTMLImageElement>('.card-photo--empty img');
+    const srcs = [...marks].map((m) => m.getAttribute('src'));
+    // A light/dark pair (CSS shows the right one), pointing at the no-meal
+    // standin — not the wordmark logo, and never an emoji.
+    expect(srcs).toContain('./assets/no-meal-light.png');
+    expect(srcs).toContain('./assets/no-meal-dark.png');
+    expect(marks[0]?.getAttribute('alt')).toBe('');
   });
 
   it('mixed-author grids resolve by= per card from authorsByDid (5e)', () => {

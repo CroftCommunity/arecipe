@@ -58,10 +58,12 @@ const attributionEl = (value: RecipeValue): HTMLElement | null => {
 
 const placeholderEl = (): HTMLElement => {
   const placeholder = el('div', 'card-photo card-photo--empty');
+  // Themed "no meal image" standin (butterfly-spatula), a light/dark pair like
+  // the wordmark logo — CSS shows the variant that suits the current theme.
   for (const variant of ['light', 'dark'] as const) {
     const mark = document.createElement('img');
     mark.className = `placeholder-mark logo--${variant}`;
-    mark.src = `./assets/logo-${variant}.png`;
+    mark.src = `./assets/no-meal-${variant}.png`;
     mark.alt = '';
     placeholder.append(mark);
   }
