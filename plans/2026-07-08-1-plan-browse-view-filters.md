@@ -12,7 +12,7 @@
 | 2 Browse-state core | ✅ SHIPPED | `fef5f29` | `recipeFacets`/`matchesFilter`/`availableFacets`/`createBrowsePrefs` + shared `createDietPreference`; 18 unit tests. |
 | 3 Photos-only | ✅ SHIPPED | `bc9488e` | Photos-only toggle filters via `matchesFilter`; diet-pref applied; `N of M shown` when filtered; new `browse.spec.ts` + mixed fixture. |
 | 4 Details renderer | ✅ SHIPPED | `7e13878` | `renderRecipeDetailsList` (row=link, thumb+name+desc+facet chips); shares `recipe-item` testid; 6 unit tests. Wired in Phase 5. |
-| 5 View-mode wiring | ⬜ pending | | |
+| 5 View-mode wiring | ✅ SHIPPED | `f7a0b4b` | Segmented Tiles/Details toggle; `renderCurrent` picks renderer from `state.view`; persisted; composes with photos-only. 2 e2e cases. |
 | 6 Facet dropdowns | ⬜ pending | | |
 | 7 Label filtering | ⬜ pending | | |
 | 8 Settings diet pref | ⬜ pending | | |
@@ -313,7 +313,12 @@ wired in Phase 5.
 2. **Verification:** `npx vitest run tests/unit/recipes/view.spec.ts`.
 **Validation:** Narrow→Moderate. Unit tests + a screenshot pass once wired (Phase 5).
 
-### Phase 5: View-mode toggle wiring (wired)
+### Phase 5: View-mode toggle wiring (wired) — ✅ SHIPPED (`f7a0b4b`)
+**Delivered:** `.segmented` [Tiles | Details] buttons (`view-tiles`/`view-details` testids,
+`aria-pressed` + `--active` class); `renderCurrent` selects `renderRecipeDetailsList` vs
+`renderRecipeList` from `state.view`; `setView` persists + reflects + re-renders from held
+`current.entries`. e2e: default Tiles, Details renders `.recipe-rows`, persists across reload,
+composes with photos-only. Full hermetic suite 37 green.
 **Goal:** A Tiles/Details segmented toggle in the toolbar that switches which renderer
 `renderCurrent()` uses, persisted across sessions and applied to both render paths.
 **Changes:**
