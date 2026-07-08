@@ -9,7 +9,7 @@
 |-------|---------|--------|------|
 | 0 Discovery | ✅ done | (pre-exec) | Compact bar, two dropdowns, diet in Settings. |
 | 1 Header + render seam | ✅ SHIPPED | `a3d9ae9` | `renderCurrent()` seam; `.browse-toolbar` with right-aligned count + `set dietary preference ↗` link; dropped `· N hidden`. |
-| 2 Browse-state core | ⬜ pending | | |
+| 2 Browse-state core | ✅ SHIPPED | `fef5f29` | `recipeFacets`/`matchesFilter`/`availableFacets`/`createBrowsePrefs` + shared `createDietPreference`; 18 unit tests. |
 | 3 Photos-only | ⬜ pending | | |
 | 4 Details renderer | ⬜ pending | | |
 | 5 View-mode wiring | ⬜ pending | | |
@@ -217,7 +217,12 @@ count right-aligned inside it.
 2. **Verification:** `npx playwright test tests/e2e/starter.spec.ts` (green, incl. the new no-"hidden"/toolbar assertion).
 **Validation:** Moderate. Wiring e2e + run `npm run serve` and eyeball the toolbar alignment in the real bundle (light + dark theme).
 
-### Phase 2: Browse-state core (pure)
+### Phase 2: Browse-state core (pure) — ✅ SHIPPED (`fef5f29`)
+**Delivered:** `src/recipes/diet-preference.ts` (shared store) + `src/pages/browse-state.ts`
+(`recipeFacets` with `…Diet`-suffix strip + `side dish`→`side` normalization; `matchesFilter`
+OR-within/AND-across + photos-only + diet AND'd across tokens; `availableFacets` distinct+sorted;
+defensive `createBrowsePrefs`). `log.warn` on storage-catch per Pass 3. 18 unit tests; typecheck +
+lint clean; full unit suite 162 green. No wiring this phase — Phase 3 is the gate.
 **Goal:** The pure heart of the feature: extract a recipe's facets, evaluate a recipe against
 a filter state, and load/save browse preferences defensively. No DOM, no rendering.
 **Data-model note (confirmed in walk-through):** dietary labels are a **persisted personal
