@@ -662,3 +662,20 @@ a.card {
   border-radius: var(--r-m);
   border: var(--stroke) solid var(--line);
 }
+
+/* Update toast (8b): asks, never ambushes. Fixed bar, not a modal. */
+.update-toast {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(var(--s-6) + env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  background: var(--card);
+  border: var(--stroke) solid var(--enamel);
+  border-radius: var(--r-l);
+  padding: var(--s-2) var(--s-4);
+  box-shadow: 0 4px 14px #0003;
+  z-index: 20;
+}

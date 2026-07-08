@@ -1,34 +1,32 @@
-// Phase 5c: theme mode logic. Behaviors:
-// - modes cycle auto → light → dark → auto (one-tap toggle)
-// - auto resolves via the system preference; explicit modes ignore it
-// - each mode has a distinct glyph + label for the toggle button
+// Phase 5c theming, revised: a clean 2-state toggle that always visibly
+// flips (the 3-state auto/light/dark cycle had a dead click — "auto" and
+// "light" look identical on a light-mode OS). First load still follows the
+// system; the first tap flips whatever you currently see.
 import { describe, expect, it } from 'vitest';
-import { cycleMode, modeGlyph, resolveTheme } from '../../src/theme.js';
+import { nextTheme, resolveInitial, toggleGlyph } from '../../src/theme.js';
 
-describe('cycleMode', () => {
-  it('cycles auto → light → dark → auto', () => {
-    expect(cycleMode('auto')).toBe('light');
-    expect(cycleMode('light')).toBe('dark');
-    expect(cycleMode('dark')).toBe('auto');
+describe('resolveInitial', () => {
+  it('an explicit stored choice wins over the system preference', () => {
+    expect(resolveInitial('dark', false)).toBe('dark');
+    expect(resolveInitial('light', true)).toBe('light');
+  });
+
+  it('no stored choice follows prefers-color-scheme', () => {
+    expect(resolveInitial(null, true)).toBe('dark');
+    expect(resolveInitial(null, false)).toBe('light');
   });
 });
 
-describe('resolveTheme', () => {
-  it.each([
-    ['auto', true, 'dark'],
-    ['auto', false, 'light'],
-    ['light', true, 'light'],
-    ['light', false, 'light'],
-    ['dark', true, 'dark'],
-    ['dark', false, 'dark'],
-  ] as const)('mode %s with prefersDark=%s → %s', (mode, prefersDark, expected) => {
-    expect(resolveTheme(mode, prefersDark)).toBe(expected);
+describe('nextTheme', () => {
+  it('always flips the currently shown theme', () => {
+    expect(nextTheme('light')).toBe('dark');
+    expect(nextTheme('dark')).toBe('light');
   });
 });
 
-describe('modeGlyph', () => {
-  it('gives each mode a distinct glyph', () => {
-    const glyphs = new Set([modeGlyph('auto'), modeGlyph('light'), modeGlyph('dark')]);
-    expect(glyphs.size).toBe(3);
+describe('toggleGlyph', () => {
+  it('offers what the tap will switch TO', () => {
+    // Currently light → the button offers dark (moon); vice versa.
+    expect(toggleGlyph('light')).not.toBe(toggleGlyph('dark'));
   });
 });

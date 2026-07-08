@@ -48,6 +48,43 @@ const main = async (): Promise<void> => {
     log.warn('build', 'build-info.json missing or invalid', { error: String(err) });
   }
 
+  const updates = section('Updates & storage', 'updates');
+  const checkButton = el('button', 'button', 'Check for updates') as HTMLButtonElement;
+  checkButton.type = 'button';
+  checkButton.dataset['testid'] = 'check-updates';
+  const updateStatus = el('p', 'status');
+  updateStatus.dataset['testid'] = 'update-status';
+  checkButton.addEventListener('click', () => {
+    void (async () => {
+      updateStatus.textContent = 'checking…';
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (reg === undefined) {
+        updateStatus.textContent = 'no service worker registered';
+        return;
+      }
+      await reg.update();
+      updateStatus.textContent =
+        reg.waiting !== null || reg.installing !== null
+          ? 'update found — the toast will offer it'
+          : 'you are on the latest build';
+    })().catch((err: unknown) => {
+      updateStatus.textContent = `update check failed: ${String(err)}`;
+    });
+  });
+  updates.append(checkButton, updateStatus);
+  void (async () => {
+    try {
+      const estimate = await navigator.storage.estimate();
+      const mb = (n: number | undefined): string =>
+        n === undefined ? '?' : `${(n / 1024 / 1024).toFixed(1)} MB`;
+      updates.append(
+        el('p', 'status', `local storage: ${mb(estimate.usage)} used of ${mb(estimate.quota)} available`),
+      );
+    } catch {
+      /* estimate unsupported — nothing to show */
+    }
+  })();
+
   const integrity = section('How recipes are checked', 'integrity-explainer');
   integrity.append(
     el(
@@ -133,7 +170,7 @@ const main = async (): Promise<void> => {
     ),
   );
 
-  content.append(build, starter, hiddenSection, integrity, about);
+  content.append(build, updates, starter, hiddenSection, integrity, about);
   mountShell(app, content);
   void mountBuildStamp(app);
   log.debug('shell', 'mounted', { page: 'settings' });

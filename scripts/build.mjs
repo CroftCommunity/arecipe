@@ -1,39 +1,114 @@
-// Build: bundle one entry per destination page (page-per-destination — the
-// Browse page ships zero auth code), plus the SW, copy the shell files, and
-// emit dist/build-info.json so the running app can show which build it is
-// and how big (see src/build-stamp.ts). Version = UTC date + short git SHA.
+// Build (Phase 8b shape): page bundles + styles get CONTENT-HASHED names
+// injected into stable-named HTML (the peadoubleueh cache-buster: a deploy
+// changes URLs, so stale JS is structurally impossible). The service worker
+// is compiled with the build version + the stable-shell precache list baked
+// in. build-info.json stays stable-named and uncached (deploy checks).
 import { execSync } from 'node:child_process';
-import { copyFileSync, cpSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import {
+  copyFileSync,
+  cpSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { gzipSync } from 'node:zlib';
 import { buildSync } from 'esbuild';
 
 const PAGES = ['browse', 'mine', 'settings', 'account', 'recipe', 'editor'];
-const HTML = ['index.html', 'mine.html', 'settings.html', 'account.html', 'recipe.html', 'editor.html'];
+const HTML = {
+  'index.html': 'browse',
+  'mine.html': 'mine',
+  'settings.html': 'settings',
+  'account.html': 'account',
+  'recipe.html': 'recipe',
+  'editor.html': 'editor',
+};
 
+rmSync('dist', { recursive: true, force: true }); // no stale artifacts
 mkdirSync('dist', { recursive: true });
-buildSync({
+
+// Page bundles with content hashes.
+const result = buildSync({
   entryPoints: PAGES.map((p) => `src/pages/${p}.ts`),
   bundle: true,
   minify: true,
   format: 'esm',
+  entryNames: '[name]-[hash]',
   outdir: 'dist',
+  metafile: true,
 });
-buildSync({ entryPoints: ['src/sw.ts'], bundle: true, minify: true, outfile: 'dist/sw.js' });
-for (const file of [...HTML, 'styles.css']) copyFileSync(file, `dist/${file}`);
+const bundleOf = {};
+for (const [outPath, meta] of Object.entries(result.metafile.outputs)) {
+  const entry = meta.entryPoint;
+  if (entry === undefined) continue;
+  const page = entry.replace('src/pages/', '').replace('.ts', '');
+  bundleOf[page] = outPath.replace('dist/', '');
+}
+
+// Hashed styles.
+const cssBytes = readFileSync('styles.css');
+const cssName = `styles-${createHash('sha256').update(cssBytes).digest('hex').slice(0, 8)}.css`;
+writeFileSync(`dist/${cssName}`, cssBytes);
+
+// HTML with hashed refs injected.
+for (const [file, page] of Object.entries(HTML)) {
+  let html = readFileSync(file, 'utf8');
+  html = html.replace(`./${page}.js`, `./${bundleOf[page]}`);
+  html = html.replace('./styles.css', `./${cssName}`);
+  writeFileSync(`dist/${file}`, html);
+}
+copyFileSync('manifest.webmanifest', 'dist/manifest.webmanifest');
+copyFileSync('CNAME', 'dist/CNAME'); // custom domain survives every deploy
 cpSync('assets', 'dist/assets', { recursive: true });
 
+// Version + per-page sizes.
 const sha = execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim();
 const now = new Date();
 const date = now.toISOString().slice(0, 10).replaceAll('-', '.');
+const version = `${date}-${sha}`;
 const pages = Object.fromEntries(
   PAGES.map((p) => {
-    const bytes = readFileSync(`dist/${p}.js`);
-    return [p, { bytes: bytes.length, gzipBytes: gzipSync(bytes).length }];
+    const bytes = readFileSync(`dist/${bundleOf[p]}`);
+    return [p, { bytes: bytes.length, gzipBytes: gzipSync(bytes).length, file: bundleOf[p] }];
   }),
 );
+
+// Service worker: version + stable-shell precache baked in. Stable names
+// only — hashed assets cache on first fetch.
+const precache = [
+  './', // the bare origin navigation ('/') must hit the cache too
+  // Current hashed assets: the build knows their exact names, so precaching
+  // is safe (and closes the first-visit gap where the page loads before the
+  // SW controls). Old versions vanish with their version-named cache.
+  ...Object.values(bundleOf).map((f) => `./${f}`),
+  `./${cssName}`,
+  ...Object.keys(HTML).map((f) => `./${f}`),
+  './manifest.webmanifest',
+  './assets/fonts/fonts.css',
+  ...readdirSync('assets/fonts')
+    .filter((f) => f.endsWith('.woff2'))
+    .map((f) => `./assets/fonts/${f}`),
+  ...readdirSync('assets/icons').map((f) => `./assets/icons/${f}`),
+  './assets/logo-light.png',
+  './assets/logo-dark.png',
+];
+buildSync({
+  entryPoints: ['src/sw.ts'],
+  bundle: true,
+  minify: true,
+  outfile: 'dist/sw.js',
+  define: {
+    __BUILD_VERSION__: JSON.stringify(version),
+    __PRECACHE__: JSON.stringify(precache),
+  },
+});
+
 // mainBytes = the landing page (browse) — what most visitors download first.
 const info = {
-  version: `${date}-${sha}`,
+  version,
   builtAt: now.toISOString(),
   mainBytes: pages['browse'].bytes,
   mainGzipBytes: pages['browse'].gzipBytes,
@@ -41,6 +116,8 @@ const info = {
 };
 writeFileSync('dist/build-info.json', JSON.stringify(info));
 console.log(
-  `built ${info.version}: ` +
-    PAGES.map((p) => `${p}.js ${(pages[p].bytes / 1024).toFixed(0)}K/${(pages[p].gzipBytes / 1024).toFixed(0)}Kgz`).join(' · '),
+  `built ${version}: ` +
+    PAGES.map(
+      (p) => `${p} ${(pages[p].bytes / 1024).toFixed(0)}K/${(pages[p].gzipBytes / 1024).toFixed(0)}Kgz`,
+    ).join(' · '),
 );

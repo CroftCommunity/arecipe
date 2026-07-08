@@ -29,7 +29,8 @@ feasibility amendment on 2026-07-07 (see Review Log).
 | 6 Authoring (MLP core) | ✅ | Phase 6 close-out commit | editor + local drafts + Publish→PDS (@live 5.6s); race bug caught+fixed; brand placeholder |
 | 7 Photos (EXIF-stripped) | ✅ | Phase 7 close-out commit | Editor photo → canvas re-encode (EXIF provably gone on real PDS bytes) → embed; placeholder-on-failure |
 | 8 Draft-sync + versioning | ✅ | Phase 8 close-out commit | PDS draft backup + eviction recovery (@live-proven); EDIT shipped; stale-cache indicator both edges; PRACTICES.md started |
-| 8b, 8c | planned | | 8b offline PWA → 8c hosted client + physical two-device demo (M3 exit) |
+| 8b Offline PWA | ✅ | Phase 8b close-out commit | Hashed assets, versioned cache-first SW, update toast, manifest+maskable icons, self-hosted fonts, offline starter fallback; theme→2-state; CNAME baked |
+| 8c | planned | | hosted client-metadata.json (deployed sign-in) + physical two-device demo (M3 exit) |
 | 9–12 | roadmap | | re-plan before execution |
 
 ---
@@ -1430,7 +1431,35 @@ rather than relying on real eviction. Added by the feasibility amendment:
 
 ---
 
-### Phase 8b: Offline shell — cache-first SW + PWA manifest (spec'd at the M2/M3 re-plan, 2026-07-07)
+### Phase 8b: Offline shell — cache-first SW + PWA manifest — ✅ SHIPPED (2026-07-08, Phase 8b close-out commit)
+
+**Delivered.** Content-hashed page bundles + styles injected into stable-named
+HTML (the peadoubleueh cache-buster); real service worker with
+version-named caches (from `build-info` via esbuild define), per-asset-
+tolerant precache of the stable shell, activate-time deletion of old
+versions; **cache-first navigations** (app-shell — robust offline; a
+network-first navigate handler was found to fail the whole navigation under
+emulated offline, and cache-first is the correct pattern anyway) with
+`ignoreSearch` so `recipe.html?u=…` matches its precached document;
+**cross-origin requests never touched** (Playwright fixtures + PDS/CDN
+behave identically with/without the SW — the interception gotcha resolved by
+construction). Update flow: a waiting worker surfaces the blockdoku-style
+"Update available → Update now" toast (asks, never ambushes; applies via
+SKIP_WAITING + one controlled reload). Manifest + maskable icons
+(installable); **fonts self-hosted** (subsetted woff2 in-repo — the Google
+Fonts dependency is gone). Starter feed gains an offline fallback: per-author
+network failure serves previously-cached copies from IndexedDB ("showing
+saved copies"), reported honestly. Settings § Updates & storage: manual
+update check + storage estimate. `CNAME` (arecipe.app) baked into the build
+so the custom domain survives every deploy. Two @live-adjacent hardenings:
+the offline-reload SW-control settling race (retry) and the emulated-offline
+navigate bug. **Also revised the theme toggle** to a 2-state light⇄dark flip
+(the 3-state auto/light/dark cycle had a dead click when the OS matched —
+user-reported); first load still follows `prefers-color-scheme`.
+
+*(Original spec below.)*
+
+### Phase 8b (original spec): Offline shell — cache-first SW + PWA manifest
 
 **Goal:** arecipe.app is a fully offline-capable, installable PWA: the app
 shell loads with no network, previously found recipes render from IndexedDB,

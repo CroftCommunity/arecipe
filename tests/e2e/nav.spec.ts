@@ -32,7 +32,14 @@ test('account page shows the signed-out state with a pointer to sign in', async 
 });
 
 test('the Browse document ships zero auth code (bundle split)', () => {
-  const browse = readFileSync(new URL('../../dist/browse.js', import.meta.url), 'utf8');
+  // Hashed bundle names (8b): find the browse bundle via build-info.
+  const info = JSON.parse(
+    readFileSync(new URL('../../dist/build-info.json', import.meta.url), 'utf8'),
+  ) as { pages: Record<string, { file: string }> };
+  const browse = readFileSync(
+    new URL(`../../dist/${info.pages['browse']!.file}`, import.meta.url),
+    'utf8',
+  );
   expect(browse).not.toContain('oauth');
   expect(browse.length).toBeLessThan(200_000); // sanity: an order smaller than the auth pages
 });

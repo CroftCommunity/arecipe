@@ -114,7 +114,9 @@ const main = (): void => {
     const verified = kept.filter((e) => e.verified).length;
     const failed =
       feed.failedAuthors.length === 0 ? '' : ` — ${feed.failedAuthors.join(', ')} unavailable`;
-    recipesStatus.textContent = `${kept.length} starter pack recipes (${verified} verified)${failed}${hiddenNote(hidden)}`;
+    const offline =
+      feed.cachedAuthors.length === 0 ? '' : ` · showing saved copies (offline)`;
+    recipesStatus.textContent = `${kept.length} starter pack recipes (${verified} verified)${failed}${offline}${hiddenNote(hidden)}`;
     listContainer.replaceChildren(renderRecipeList(kept, { authorsByDid: feed.authorsByDid }));
   };
 

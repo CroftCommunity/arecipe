@@ -71,26 +71,46 @@ export type StarterFeed = {
   failedAuthors: string[];
 };
 
+export type StarterFeedResult = StarterFeed & {
+  /** Authors served from the IndexedDB cache because the network failed. */
+  cachedAuthors: string[];
+};
+
 /** Load the enabled authors' recipes. A multi-source feed degrades on
- * per-author failure (logged + reported) — it does not blank the page. */
-export const loadStarterFeed = async (authors: StarterAuthor[]): Promise<StarterFeed> => {
+ * per-author failure: first fall back to previously cached copies (offline
+ * survival, 8b), and only report an author fully unavailable when nothing
+ * is cached either. Never blanks the page. */
+export const loadStarterFeed = async (authors: StarterAuthor[]): Promise<StarterFeedResult> => {
   const cache = createRecipeCache();
   const read = createRecipeReader();
   const authorsByDid: Record<string, string> = {};
   const failedAuthors: string[] = [];
+  const cachedAuthors: string[] = [];
+  const cachedByDid = async (did: string): Promise<CachedRecipe[]> =>
+    (await cache.list()).filter((e) => e.uri.split('/')[2] === did);
+
   const perAuthor = await Promise.all(
     authors.map(async (author) => {
+      authorsByDid[author.did] = author.handle;
       try {
         const { pds } = await resolveDidDoc(author.did);
         const records = await read({ pds, did: author.did });
-        authorsByDid[author.did] = author.handle;
-        return Promise.all(records.map((r) => cache.put(r)));
+        return await Promise.all(records.map((r) => cache.put(r)));
       } catch (err) {
+        const cached = await cachedByDid(author.did);
+        if (cached.length > 0) {
+          log.info('starter', 'author served from cache (offline)', {
+            handle: author.handle,
+            count: cached.length,
+          });
+          cachedAuthors.push(author.handle);
+          return cached;
+        }
         log.warn('starter', 'author feed failed', { handle: author.handle, error: String(err) });
         failedAuthors.push(author.handle);
         return [];
       }
     }),
   );
-  return { entries: perAuthor.flat(), authorsByDid, failedAuthors };
+  return { entries: perAuthor.flat(), authorsByDid, failedAuthors, cachedAuthors };
 };
