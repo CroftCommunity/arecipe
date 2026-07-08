@@ -8,7 +8,7 @@
 | Phase | Outcome | Commit | Note |
 |-------|---------|--------|------|
 | 0 Discovery | ✅ done | (pre-exec) | Compact bar, two dropdowns, diet in Settings. |
-| 1 Header + render seam | ✅ SHIPPED | `9fb24f9` | `renderCurrent()` seam; `.browse-toolbar` with right-aligned count + `set dietary preference ↗` link; dropped `· N hidden`. |
+| 1 Header + render seam | ✅ SHIPPED | `a3d9ae9` | `renderCurrent()` seam; `.browse-toolbar` with right-aligned count + `set dietary preference ↗` link; dropped `· N hidden`. |
 | 2 Browse-state core | ⬜ pending | | |
 | 3 Photos-only | ⬜ pending | | |
 | 4 Details renderer | ⬜ pending | | |
@@ -185,7 +185,7 @@ have been adjusted to match. This is the only phase allowed to restructure later
   (arrow ↗ = "opens the setting"). `renderCurrent` still *applies* the stored diet preference.
 - Prototype (`scratchpad/mock/`) disposition: **throwaway** — delete after build starts.
 
-### Phase 1: Header polish + single render seam — ✅ SHIPPED (`9fb24f9`)
+### Phase 1: Header polish + single render seam — ✅ SHIPPED (`a3d9ae9`)
 **Delivered:** `renderCurrent()` seam with a `Current` record carrying `kind`
 (`search`/`starter`) + `fetchedCount` + `statusSuffix` so both status strings
 reconstruct faithfully (Pass 3 gap). `.browse-toolbar` > `.browse-count`
