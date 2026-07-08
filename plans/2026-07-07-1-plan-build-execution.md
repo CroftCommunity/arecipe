@@ -1639,6 +1639,41 @@ EXIF-safe upload (cooked photos), the guarded `@live` purge harness (writes),
 and the `renderRecipeList/Detail` views. New third-party dependency: Jetstream
 (Bluesky-run) — the `listRecords` polling fallback is the durability answer.
 
+**M4 cross-phase conventions (added Pass 3, 2026-07-08).** The M0–M3 cross-phase
+conventions (line ~426) enumerate phases 1–8/3b explicitly and do not name the M4
+phases; these extend them to 9a–10:
+
+- **Tests-first (RED before production code) applies to every M4 implementation
+  phase (9a, 9b, 9c/9c-i/9c-ii, 9d, 10).** Unit tests and the phase's wiring test
+  are written and watched failing before any production code; the `Changes` bullets
+  list production files before tests for readability, not as execution order. 9e is
+  the sole exception — it is a Discovery-Exemption spike (a perf measurement + go/no-go
+  report, not production code), so no TDD applies to the spike itself; any code that
+  survives a "go" verdict gets TDD in the follow-up build.
+- **Each M4 phase that touches a failure-prone boundary carries a Diagnostic logging
+  line** through `src/log.ts` (`[arecipe]` leveled, `?debug=1` / `localStorage.debug`
+  gated) — the M0–M3 observability convention, restated because every M4 phase crosses
+  a risky boundary (a PDS write, the polled feed, or mute application) that must be
+  debuggable from the console with no backend to inspect. Note the Phase 3b discovery
+  gotcha (`?debug=1` does not survive an OAuth redirect); M4 writes are not in the
+  redirect path, so the URL flag is fine, but reuse the `localStorage.debug` flag if a
+  flow ever crosses sign-in.
+- **New `@live` spec modules tolerate a missing `.env` at import** (reuse `readEnv`
+  from `tests/e2e/helpers/live.ts`, whose read is already tolerant) so the hermetic
+  push CI — which lists but never runs `@live` specs — does not throw at collection.
+- **Guarded-purge extension for markerless collections (Pass 3 finding).** The
+  existing purge (inline in `tests/e2e/publish-live.spec.ts`) is single-collection and
+  matches a `MARKER` substring in `record.value.name`. The M4 record types
+  (`app.arecipe.friend` = `{subject, createdAt}`, and comment/interaction/mute) have no
+  user-facing `name` field, so the marker layer does not transfer. Recommended default:
+  keep the hard `TEST_DID` guard as the safety boundary and purge the **whole**
+  `app.arecipe.{friend,comment,interaction,mute}` collection on the dedicated test
+  account (the account is test-only, so every record in those collections is
+  test-created). 9a both generalizes the purge into a shared multi-collection helper
+  (see `tests/e2e/helpers/live.ts`) and folds the `docs/PRACTICES.md` note. If a marker
+  is wanted anyway, add a synthetic field to our own lexicon rather than relying on
+  `name`. See the Review Log for why this is a recommended default, not a blocker.
+
 ### M4 Phase 0: Discovery — ✅ DONE (2026-07-08)
 
 - [x] **D7: Is Jetstream usable for the live feed?** ✅ Reachable via
@@ -1714,9 +1749,19 @@ starter tests). Friend-of-a-non-atproto-handle → `createResolver` fails loud.
    that cook's recipes show in the Friends feed; removing deletes the record and
    the cards.
 2. **Verification:** `npm test -- friends` + the friends wiring e2e green;
-   `npm run test:live` friend round-trip green.
+   `npm run test:live` friend round-trip green. **Extraction guard:** the
+   existing 5e starter suite (`npm test -- starter` + the starter e2e in
+   `tests/e2e/starter.spec.ts`) must stay green after the `loadStarterFeed`
+   loader is moved to `feed.ts` — this is the behavior-preserving proof for the
+   refactor and is a required part of 9a's gate, not an optional check. Watch
+   the friends wiring test fail first (RED) before writing `friends.ts`.
 **Validation:** Broad — real friend write/read/remove against the test account
 (external mutation); confirm the record on the PDS and that teardown removed it.
+Extend the guarded `@live` purge into a shared multi-collection helper (in
+`tests/e2e/helpers/live.ts`) hard-scoped to `TEST_DID`
+(`did:plc:xyfhcaweaeyew3zrgk6jaln7`), covering `app.arecipe.friend` now and
+comment/interaction/mute as later phases land (see the M4 cross-phase
+guarded-purge note for the markerless-collection guard).
 **Stop-point.**
 
 ### Phase 9b: Comments (threaded) — sequenced M4 #2
@@ -1742,6 +1787,18 @@ nests under its parent. `@live` write + guarded teardown (purge extended).
 **Shared-state contract:** writes `app.arecipe.comment` to the signed-in PDS
 (guarded test account). Shares `recipe.ts`/`view.ts` with 9c → **sequential
 with 9c** (see Concurrency).
+**Diagnostic logging (Pass 3):** comment write at info (recipe uri, parent uri
+if a reply); thread-build fallback (a parent AT-URI that no longer resolves —
+render orphaned at top level rather than dropping) at warn; list/read failure
+at error. The threaded read must be debuggable from the console.
+**Mutation resistance (Pass 3):** the threading test asserts BOTH edges of the
+mutable-vs-pinned split settled in Phase 8 — (a) a comment whose parent recipe
+was *edited* still resolves and renders because the parent thread reference is
+by **AT-URI** (mutation: pin it to a CID → the test must go red when an edited
+parent stops resolving); (b) the recipe **strongRef** (uri+cid) still flags an
+altered recipe body loud (reuse the Phase 8 same-CID/new-CID assertion). Name
+the reply-nesting boundary too: a top-level comment (no parent), a direct reply,
+and a reply-to-a-reply, so a flattened-threading regression fails.
 **Done when:** threaded comments read+write on recipe pages, author names
 linked to profiles. **Validation:** Broad (external write). **Stop-point.**
 
@@ -1764,6 +1821,20 @@ a cooked photo round-trips EXIF-stripped (reuse the Phase 7 fixture assertion).
 execution: 9c-i write+recipe-page, 9c-ii card counts + Saved view.)
 **Shared-state contract:** writes `app.arecipe.interaction.*` + blobs to the
 guarded test account. Shares `recipe.ts`/`view.ts` with 9b → **sequential**.
+**Diagnostic logging (Pass 3):** cooked/saved write at info (recipe uri, kind);
+blob upload reuses the Phase 7 upload logging; count-aggregation read failure at
+warn (degrade to a hidden/zero count, never blank the card); interaction list
+failure at error.
+**Mutation resistance (Pass 3):** count logic asserts edges, not a single point
+— zero interactions renders no chip (or an explicit 0 per the design call), one
+renders 1, and the toggle is idempotent (marking cooked twice does not double the
+count / create a second record). The cooked-photo test reuses the Phase 7 fixture
+assertion that EXIF is provably gone on the uploaded bytes (both edges: a
+GPS-bearing input, and the stripped output).
+**Sizing (Pass 3):** confirmed 4+ files → **split at execution** as already
+flagged (9c-i = write path + recipe-page buttons; 9c-ii = card counts + Saved
+view). Each sub-phase keeps its logic surface ≤3 `.ts` and gets its own wiring
+test and stop-point.
 **Done when:** interactions read+write with counts and a Saved view.
 **Validation:** Broad (external write + blob). **Stop-point.**
 
@@ -1790,9 +1861,22 @@ re-polls; offline shows cached copies.
 **Write-set:** `src/pages/friends.ts`, `src/social/feed.ts` (merge+sort), tests.
 **Shared-state contract:** reads only (public `listRecords`); IndexedDB cache.
 No PDS writes, no WebSocket, no new ambient state.
+**Diagnostic logging (Pass 3):** poll start at debug (friend count); per-friend
+result at debug (handle, record count, or cache-fallback); merge result at info
+(total items, sources served-live vs served-from-cache); per-author failure at
+warn reusing the `loadStarterFeed` fallback (cached copies offline, never blank).
+The polled feed must be debuggable from the console — which friend was slow,
+which served stale.
+**Mutation resistance (Pass 3):** the merge+sort test asserts ordering with
+interleaved timestamps across ≥2 friends (e.g. friend A older/newer than friend
+B), so a flipped or stable-but-wrong comparator fails — not a single
+already-sorted list. Assert the offline edge too: with the network down, cached
+copies render and are marked as saved copies (both edges: live vs cached).
+Each merged item stays Tier 2-verified (reuse the Phase 4 verify assertion).
 **Risks:** N friends = N requests per refresh (fine at 12–25; note if it grows).
 **Done when:** merged chronological friends feed, polled, offline-tolerant.
-**Validation:** Moderate — real multi-friend feed load + offline check.
+**Validation:** Moderate — real multi-friend feed load + offline check (read-only;
+Moderate is correctly calibrated — no external mutation).
 **Stop-point (M4 social core complete without live-tail).**
 
 ### Phase 9e (OPTIONAL): Jetstream live-tail — spike-gated
@@ -1805,7 +1889,15 @@ cost, build `src/social/jetstream.ts` (subscribe `wantedDids`×`wantedCollection
 `cursor` persistence, backoff reconnect, Tier 2-verify, degrade to 9d polling
 on failure). Otherwise, don't — polling stands. **Depends on:** 9d. **Done
 when:** a spike report says go/no-go; if go, live updates layer onto the polled
-feed without replacing it. **Validation:** the spike IS the gate.
+feed without replacing it.
+**Validation (Pass 3 — honesty check):** this phase is a Discovery-Exemption
+spike, so "the spike IS the gate" is honest: its deliverable is a **written
+go/no-go report** (measured memory/CPU/battery + reconnect behavior on a real
+phone over hours, against the polling baseline), **not a test suite**. No
+production code and no TDD until a "go" verdict; on "go", the build that follows
+gets normal TDD (unit + wiring test) and layers `jetstream.ts` onto — never
+replacing — 9d's polling. On "no-go", nothing ships and polling stands. 9e is
+off the M4 critical path; skipping it entirely leaves M4 complete.
 
 ### Phase 10: Immune system / moderation — sequenced M4 #5 (spec Layer 8)
 
@@ -1824,12 +1916,32 @@ management UI in settings.
 optional, only if 9d affinity ships.)
 **Read-set:** `src/recipes/exclusions.ts`, `src/social/friends.ts`,
 `src/pages/settings.ts`.
-**Write-set:** `src/social/mutes.ts`, `src/pages/settings.ts`,
-feed/render filters, tests.
+**Write-set:** `src/social/mutes.ts`, `src/pages/settings.ts`, and the
+filter-application sites — name them explicitly: `src/social/feed.ts` (feed
+filtering) and `src/recipes/view.ts` (render-time hiding). That is 4 files →
+**flag a split at execution (Pass 3):** 10-i = `mutes.ts` records + the
+subscription/inheritance resolver (+ its `@live` guarded write); 10-ii = the
+settings mute-management UI + applying the filter in `feed.ts`/`view.ts`. Confirm
+the shape at 10 start (deferred, like 9b–9d); keep each sub-phase's logic surface
+≤3 `.ts`.
 **Shared-state contract:** writes `app.arecipe.mute.*` to the guarded test
-account; reads friends' public mute lists.
+account (extends the 9a shared multi-collection purge to `app.arecipe.mute`);
+reads friends' public mute lists.
+**Diagnostic logging (Pass 3):** mute add/remove and list-subscribe/unsubscribe
+at info; inheritance resolution at debug (which subscribed list contributed each
+applied mute — the "legible inheritance path" must be reconstructable from logs);
+a friend's mute list that fails to resolve at warn (degrade to your own mutes,
+never over- or under-hide silently).
+**Mutation resistance (Pass 3):** assert BOTH edges of presence-based
+inheritance — (a) a recipe/person is hidden when you subscribe to a list that
+mutes it; (b) the *same* item is visible when you do not subscribe, and visible
+again when you explicitly override an inherited mute (the 5f both-edges model).
+Boundary: a directly-muted item, an inherited-muted item, and an
+inherited-then-overridden item must render differently, so a regression that
+ignores overrides or over-applies inheritance fails.
 **Done when:** subscribable mute lists + presence-based inheritance, all
-overrideable (both edges, per the 5f model). **Validation:** Broad.
+overrideable (both edges, per the 5f model). **Validation:** Broad (external
+write of `app.arecipe.mute.*` to the guarded test account).
 **Stop-point (M4 complete).**
 
 ### M4 Concurrency Map
@@ -1845,7 +1957,18 @@ Sequential spine: 9a → 9b → 9c → 9d → [9e optional] → 10.
   chips live on the same detail page). Shared write-set → the hard rule forbids
   parallel. (The pre-Pass-2 note calling them a "parallel candidate" was wrong —
   it hadn't compared write-sets.)
-- **9d, 10** build on all prior. No disjoint subgraphs worth parallelizing.
+- **9d** writes `src/social/feed.ts` + `src/pages/friends.ts` — both also written
+  by 9a; sequential ordering (9a before 9d) makes the overlap safe.
+- **10** writes `src/social/feed.ts` (shared with 9a/9d) and `src/recipes/view.ts`
+  (shared with 9b/9c) as filter-application sites, plus `src/social/mutes.ts` +
+  `src/pages/settings.ts`. These overlaps with earlier phases are exactly why 10
+  is last on the spine — the hard rule forbids running it beside any phase it
+  shares a write-set with.
+- No disjoint subgraphs worth parallelizing. Write-set disjointness re-checked at
+  Pass 3 against the (now explicit) per-phase Write-sets: every adjacent pair on
+  the spine shares at least one file (9a↔9d on `feed.ts`/`friends.ts`; 9b↔9c and
+  9b/9c↔10 on `recipe.ts`/`view.ts`; 9a↔10 on `feed.ts`), so the spine is
+  sequential by construction, not by default.
 All phases sequential; reason recorded above. No worktree/parallel dispatch for
 M4 — so no re-entry-verification fields are required per phase.
 
@@ -1857,8 +1980,12 @@ composition/grocery feature is actually pulled.
 ### M4 Documentation Impact
 
 - `docs/DESIGN.md` — a "Friends" 3rd nav destination changes the top-bar/tab
-  narrative; the mute UI and comment/interaction surfaces need design entries.
-  Handled in 9a (nav) and 10 (mute UI), same-phase.
+  narrative (handled in **9a**, same-phase). The comment surface on the recipe
+  page gets its DESIGN entry in **9b**, the interaction (cooked/saved chips +
+  Saved view) surface in **9c**, and the mute-management UI in **10** — each in
+  the phase that makes the design narrative stale, not deferred to a trailing
+  docs phase (Pass 3: the earlier "handled in 9a/10" lumping would have left
+  9b/9c design surfaces undocumented until a later phase touched DESIGN.md).
 - `docs/PRACTICES.md` — the guarded-`@live`-purge pattern generalizes across
   collections (recipe, draft, friend, comment, interaction, mute); fold a
   "guarded multi-collection purge" note when 9a extends it.
@@ -2455,3 +2582,109 @@ UI-pattern research. Outcomes:
   ingredients are free-text `string[]` — no structure in the exchange lexicon.
   Structured-ingredient records parked (Phase 9 note). **Draft-before-publish
   added to Phase 6** (author + save locally without publishing).
+
+### M4 Pass 3: Quality Gates — 2026-07-08
+
+Scope: the M4 block only (`## M4 — Social layer` through Phase 10). M0–M3
+(Phases 0–8c, all ✅ SHIPPED, live at https://arecipe.app) were NOT re-gated.
+All M4 open questions were already RESOLVED and user-confirmed in the 2026-07-08
+Pass 1+2 walk-through; Pass 3 surfaced no new BLOCKING questions. Fixes applied
+additively — no phase reorder, no reasoning rewrite. Spot-checked the codebase:
+every reuse surface named in the plan exists as described (`loadStarterFeed`
+in `starter.ts`, `strongRefOf`/`isStale` in `refs.ts`, `createResolver`,
+`resolveDidDoc`, `prepareImage`/`uploadRecipeImage`, `createExclusions`,
+`renderRecipeList/Detail`; `recipe.ts`+`view.ts` confirmed the genuinely shared
+9b/9c surface; the guarded purge is currently inline in `publish-live.spec.ts`,
+single-collection + `MARKER`-on-`name`).
+
+**TDD ordering:**
+- The M0–M3 tests-first convention enumerates phases 1–8/3b and did not name the
+  M4 phases. Added an **M4 cross-phase conventions block** extending tests-first
+  (RED before production, watch it fail) to 9a, 9b, 9c/9c-i/9c-ii, 9d, 10, with
+  9e explicitly exempt (Discovery-Exemption spike — report, not code).
+- 9a already carries full executable detail (specific behaviors, a wiring test
+  through the Friends page entry point, a Verification that exercises the page +
+  `@live` round-trip) — confirmed it meets the full bar. 9b–10 held to the
+  deferred bar (sized-but-"re-confirm shape at start", since their file shape
+  depends on 9a's record helpers); each names a wiring test through its page and
+  a validation tier, which is the correct bar for them.
+- 9a: named the **5e starter suite** (`npm test -- starter` + `starter.spec.ts`)
+  as the required behavior-preserving guard for the `loadStarterFeed`→`feed.ts`
+  extraction, and made "watch the friends wiring test fail first" explicit.
+
+**Observability:**
+- 9a already had a Diagnostic logging line. Added them to **9b** (comment write /
+  orphaned-parent fallback / read failure), **9c** (cooked-saved write / count-agg
+  failure / list failure), **9d** (poll start / per-friend result / merge result /
+  per-author fallback — the polled feed debuggable from the console), and **10**
+  (mute add-remove / inheritance resolution at debug for the legible path /
+  failed friend-list resolve). All through `src/log.ts`, `?debug=1`-gated. Noted
+  the 3b gotcha (URL debug flag doesn't survive an OAuth redirect; M4 writes are
+  off that path).
+
+**Debugging readiness:**
+- Every M4 phase is a declared stop-point with its own gate — natural checkpoints
+  already present; no change needed beyond the logging above.
+
+**Validation calibration:**
+- 9a/9b/9c/10 Broad (external PDS mutation, guarded test account) — correct.
+- 9d Moderate (read-only polled feed + offline) — confirmed correctly calibrated
+  and annotated why (no external mutation).
+- 9e: confirmed "the spike IS the gate" is honest and made it explicit — the
+  deliverable is a written go/no-go report (real-phone perf over hours vs the
+  polling baseline), not a test suite; no TDD until a "go" verdict; on no-go
+  nothing ships and polling stands; 9e is off the M4 critical path.
+
+**Concurrency honesty:**
+- M4 Concurrency Map accounts for every phase (9a→9b→9c→9d→[9e]→10). Re-checked
+  write-set disjointness directly against the per-phase Write-sets after Pass 3
+  edits: **9b/9c both write `src/pages/recipe.ts` AND `src/recipes/view.ts`**
+  (confirmed in source — the comment section and interaction chips live on the
+  same detail page) → sequential is correct. 9d is source-file writes only
+  (`feed.ts`+`friends.ts`, shared with 9a) with **no PDS writes**. Named Phase
+  10's previously-vague "feed/render filters" write-set as `src/social/feed.ts`
+  + `src/recipes/view.ts`, which surfaces its overlaps with 9a/9d and 9b/9c and
+  confirms 10 must be last. Every adjacent pair on the spine shares ≥1 file → the
+  sequential spine is by construction, not by default. All sequential → no
+  worktree/parallel dispatch → no re-entry-verification fields required (stated).
+  No new parallel candidates worth pulling.
+
+**Sizing (≤3 logic .ts):**
+- 9a: logic surface = 3 new `.ts` (`friends.ts`, `feed.ts`, `pages/friends.ts`);
+  `nav.ts` is a small registration and `starter.ts` an import swap — page-scaffold
+  overhead mirrors 5b (acceptable). ✓
+- 9b: 3 files (`comments.ts`, `recipe.ts`, `view.ts`). ✓
+- 9c: 4+ files → split into 9c-i / 9c-ii already flagged; reinforced each
+  sub-phase keeps ≤3 `.ts` + its own wiring test + stop-point.
+- 9d: 2 files. ✓
+- 10: naming the filter sites makes it 4 files → **flagged a 10-i / 10-ii split**
+  (records+resolver vs UI+filter-application), consistent with the 9c precedent.
+
+**Documentation impact:**
+- Corrected a same-phase-doc violation: DESIGN.md entries for the comment surface
+  and interaction surface had been lumped under 9a/10; **rescheduled the comment
+  DESIGN entry into 9b and the interaction DESIGN entry into 9c** (each in the
+  phase that makes the narrative stale). PRACTICES.md (guarded multi-collection
+  purge) stays in 9a; README page entries in 9a. No trailing docs phase.
+
+**Guarded-purge finding (new, resolved with a recommended default — not a
+blocker):**
+- The existing purge matches a `MARKER` substring in `record.value.name`. The M4
+  record types (`app.arecipe.friend` = `{subject, createdAt}`, plus
+  comment/interaction/mute) have **no `name` field**, so the marker layer does not
+  transfer. Recommended default (recorded in the M4 cross-phase block and 9a):
+  keep the hard `TEST_DID` guard as the safety boundary and purge the **whole**
+  `app.arecipe.*` collection on the dedicated test account (every record there is
+  test-created), generalizing the purge into a shared `tests/e2e/helpers/live.ts`
+  multi-collection helper. This has a clear safe default and does not gate
+  execution — surfaced for the user to override if a synthetic marker field is
+  preferred instead.
+
+**Coherence:**
+- The M4 block still solves the stated problem (spec Layers 6–8, no backend,
+  polling-first feed). No scope creep — affinity deferred, Jetstream optional,
+  D9 dropped, all as decided. Reasoning holds; no rewrite.
+
+**Confirmed ready:** yes. No BLOCKING or unreviewed open questions remain in the
+M4 block; the one new item (markerless guarded-purge) is resolved with a
+recommended default and flagged for optional override.
