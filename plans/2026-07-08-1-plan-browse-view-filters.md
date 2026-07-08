@@ -14,7 +14,7 @@
 | 4 Details renderer | ✅ SHIPPED | `7e13878` | `renderRecipeDetailsList` (row=link, thumb+name+desc+facet chips); shares `recipe-item` testid; 6 unit tests. Wired in Phase 5. |
 | 5 View-mode wiring | ✅ SHIPPED | `f7a0b4b` | Segmented Tiles/Details toggle; `renderCurrent` picks renderer from `state.view`; persisted; composes with photos-only. 2 e2e cases. |
 | 6 Facet dropdowns | ✅ SHIPPED | `14fe0d5` | `renderFacetDropdown` (details name=browse-facet, checkbox options w/ data-dimension/value; null when empty). 4 unit tests. Wired in Phase 7. |
-| 7 Label filtering | ⬜ pending | | |
+| 7 Label filtering | ✅ SHIPPED | `e172c99` | Meal/Cuisine dropdowns wired; facet change refreshes count+list only (panel stays open); inert stale facets; outside-click close; DESIGN note. 4 e2e; full gate green. |
 | 8 Settings diet pref | ⬜ pending | | |
 | 9 Record data hygiene | ⬜ pending | | |
 
@@ -364,7 +364,16 @@ wired in Phase 7.
 > tags). Dietary labels are NOT here; they are the app-wide "Only show me" preference set in
 > Settings (Phase 8) and already applied by `renderCurrent` from Phase 3 on.
 
-### Phase 7: Label filtering wiring (wired) + docs note
+### Phase 7: Label filtering wiring (wired) + docs note — ✅ SHIPPED (`e172c99`)
+**Delivered:** `.browse-facets` holds `Meal ▾` + `Cuisine ▾` built from
+`availableFacets(withoutHidden(current.entries))` via `renderFacetDropdown`; `rebuildToolbarFacets`
+runs on feed/search change (through `showCurrent`), never on facet change. Event-delegated
+checkbox `change` updates `state.facets` + persists + `renderCurrent()` (count+list only → panel
+stays open for multi-select). Document-level outside-click closes open dropdowns. `effectiveState`
+intersects selected facets with what the current feed offers, so a stale selection is inert (kept
+in state, not filtering to empty). OR-within / AND-across. Added the DESIGN.md browse-toolbar note
+(scheduled here, not deferred). 4 e2e cases; full `npm test` gate green incl. the zero-auth
+bundle-split test.
 **Goal:** Wire the facet chips into the toolbar and `renderCurrent()`, computing available
 facets from the current entries and applying `matchesFilter`; persist selections. Complete
 the feature.
