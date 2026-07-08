@@ -11,7 +11,7 @@
 | 1 Header + render seam | ✅ SHIPPED | `a3d9ae9` | `renderCurrent()` seam; `.browse-toolbar` with right-aligned count + `set dietary preference ↗` link; dropped `· N hidden`. |
 | 2 Browse-state core | ✅ SHIPPED | `fef5f29` | `recipeFacets`/`matchesFilter`/`availableFacets`/`createBrowsePrefs` + shared `createDietPreference`; 18 unit tests. |
 | 3 Photos-only | ✅ SHIPPED | `bc9488e` | Photos-only toggle filters via `matchesFilter`; diet-pref applied; `N of M shown` when filtered; new `browse.spec.ts` + mixed fixture. |
-| 4 Details renderer | ⬜ pending | | |
+| 4 Details renderer | ✅ SHIPPED | `7e13878` | `renderRecipeDetailsList` (row=link, thumb+name+desc+facet chips); shares `recipe-item` testid; 6 unit tests. Wired in Phase 5. |
 | 5 View-mode wiring | ⬜ pending | | |
 | 6 Facet dropdowns | ⬜ pending | | |
 | 7 Label filtering | ⬜ pending | | |
@@ -289,7 +289,11 @@ recipes with an image — applied through `renderCurrent()` so it works on both 
 2. **Verification:** `npx playwright test tests/e2e/browse.spec.ts -g "photos"`.
 **Validation:** Moderate. e2e wiring + manual `npm run serve` check that the toggle filters the real feed.
 
-### Phase 4: Details list renderer (view)
+### Phase 4: Details list renderer (view) — ✅ SHIPPED (`7e13878`)
+**Delivered:** `renderRecipeDetailsList` → `.recipe-rows > a.recipe-row` (thumb via `photoWrapEl`,
+`.card-title`, `.recipe-row-text` description, `.recipe-row-chips` from `recipeFacets` with the
+`diet` prefix stripped). Row is the anchor (no nested links); ALTERED stamp/warning like cards;
+`recipe-item` testid shared so `renderCurrent` counts are view-agnostic. 6 happy-dom tests.
 **Goal:** The Details view render function — one row per recipe (thumbnail + name +
 description + label chips), each row linking to `recipe.html` like a card. Render only;
 wired in Phase 5.
