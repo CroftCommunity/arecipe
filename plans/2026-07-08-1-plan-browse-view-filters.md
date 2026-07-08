@@ -176,13 +176,16 @@ count right-aligned inside it.
 - [ ] `src/pages/browse.ts` — introduce `let current: { entries: CachedRecipe[]; author?: string; authorsByDid?: Record<string,string> } | null` and a `renderCurrent()` that renders `current` via `renderRecipeList`; `showEntries` and `showStarterFeed` set `current` and call it. Remove `hiddenNote` usage from the displayed string (keep `withoutHidden` filtering). Wrap the count `<p data-testid=recipes-status>` in a `.browse-toolbar` bar, count right-aligned, with a `set dietary preference ↗` link (→ `./settings.html`, to the dietary section) beneath the count.
 - [ ] `styles.css` — `.browse-toolbar` (flex row, count pushed right via `margin-left:auto` / `justify-content` + `.status` right-aligned).
 - [ ] `tests/e2e/starter.spec.ts` — extend an existing assertion (or add one) that the status text has no "hidden" substring and the toolbar exists. (Editing this file is allowed — it is Browse's own suite, not the other agent's.)
+
+> **Pass 3 status-string note (GAP found reading `browse.ts`):** the two paths emit **two different, non-interchangeable status strings** — search: `"N recipes cached (V verified)"` (uses a `fetchedCount` distinct from `entries.length`); starter: `"N starter pack recipes (V verified)"` **plus** `failed` (`— X, Y unavailable`) and `offline` (`· showing saved copies (offline)`) suffixes. The `current` shape above cannot reconstruct either string. Phase 1 must carry the status inputs, e.g. `current: { entries; author?; authorsByDid?; kind: 'search' | 'starter'; fetchedCount?: number; statusSuffix?: string }`, and `renderCurrent()` rebuilds the correct string from `kind` + verified-count of the (filtered) kept set. Without this, funnelling both paths through one seam silently loses the search-vs-starter wording and the failed/offline suffixes. The `set dietary preference ↗` link needs a fragment target — add `id="diet-preference"` to the Settings section in **Phase 8** and point the link at `./settings.html#diet-preference` (documented cross-phase so Phase 8 doesn't drop the anchor).
+- [ ] `src/pages/browse.ts` — `log.debug('browse', 'render', { kind, shown, total })` inside `renderCurrent()` (gated debug level, matching the `log.debug('starter'|'social', …)` convention in `settings.ts`) so a "wrong count / empty feed" report is traceable from the console alone (the project's stated logging contract, `src/log.ts:1-5`).
 **Call chain:** page load → `main()` → `showStarterFeed()` / form submit → `showEntries()` → `renderCurrent()` → `renderRecipeList` → DOM `.browse-toolbar` + `.recipe-grid`.
 **Wiring test:** e2e (starter fixtures): load Browse, assert `[data-testid=recipes-status]` contains `starter pack recipes` and does **not** contain `hidden`, and `.browse-toolbar` is present with the status right-aligned (assert computed style or a marker class).
 **Depends on:** none.
 **Read-set:** `src/pages/browse.ts`, `src/recipes/view.ts`, `src/recipes/exclusions.ts`, `styles.css`, `tests/e2e/starter.spec.ts`.
 **Write-set:** `src/pages/browse.ts`, `styles.css`, `tests/e2e/starter.spec.ts`.
 **Shared-state contract:** No shared mutable state beyond the file write-set. Runs on the working tree; no git/process/network ambient state touched.
-**Risks:** The two render paths diverge subtly (search passes `author`, starter passes `authorsByDid`); `renderCurrent` must carry both. Existing starter e2e asserts the old status string — update it, don't leave it asserting "hidden".
+**Risks:** The two render paths diverge subtly (search passes `author`, starter passes `authorsByDid`); `renderCurrent` must carry both. Existing starter e2e asserts the old status string — update it, don't leave it asserting "hidden". **Regression trap (Pass 3):** `starter.spec.ts` lines 114/117 assert the *search-path* count with **exact** `toHaveText('3 recipes cached (3 verified)')` (not `toContainText`). Any change to the search-path count wording — including the toolbar wrap and the Phase 3 "N of M shown" variant — is a breaking assertion. Phase 1 must keep the unfiltered search string byte-identical (`N recipes cached (V verified)`), and re-run the race test after the seam refactor to confirm it still passes.
 **Done when:**
 1. **Behavioral:** Loading Browse shows the count right-aligned in a toolbar with no "hidden" text; a subsequent handle search re-renders through the same seam.
 2. **Verification:** `npx playwright test tests/e2e/starter.spec.ts` (green, incl. the new no-"hidden"/toolbar assertion).
@@ -205,6 +208,8 @@ both.
 - [ ] `tests/unit/recipes/diet-preference.spec.ts` — round-trip; empty = match-all; private-mode degradation.
 - [ ] `tests/unit/pages/browse-state.spec.ts` — table-driven: facet extraction from real record shapes **incl. normalization** (`dietGlutenFreeDiet`→`dietGlutenFree`, `side dish`→`side`); predicate truth table (empty state matches all; single-dimension OR; cross-dimension AND; photos-only excludes image-less; **diet preference intersects** — a vegetarian preference drops non-vegetarian recipes); prefs round-trip; `availableFacets` distinct+sorted.
 
+> **Pass 3 observability note:** the defensive `catch` in `createDietPreference`/`createBrowsePrefs` must not swallow silently — call `log.warn('browse', 'prefs load/save failed', { key, error })` in the catch before degrading to defaults. `warn` always emits (not debug-gated — `src/log.ts:2`), matching the project contract that "a backendless failure is debuggable from the console alone". This is a code detail, not a new test: the round-trip/degradation tests already inject a throwing storage; assert only the returned default, not the log call (behavior, not implementation). TDD ordering unchanged — the throwing-storage test is written RED first.
+
 > Note: 4 files here nudges the split threshold, but `diet-preference.ts` is small and its
 > spec is tiny; the cluster is one cohesive "browse-state + shared diet pref" unit. If it
 > feels heavy in execution, land `diet-preference.ts` + its spec as a separate sub-step first.
@@ -226,7 +231,9 @@ recipes with an image — applied through `renderCurrent()` so it works on both 
 **Changes:**
 - [ ] `src/pages/browse.ts` — add a photos-only toggle control to the toolbar; on change, persist via `createBrowsePrefs` and call `renderCurrent()`, which now filters `current.entries` through `matchesFilter({ state, diet })` before handing to the renderer. **`renderCurrent` reads the app-wide diet preference** (`createDietPreference().load()`, empty default = show all) and passes it in — so Browse honors the Settings diet preference from this phase on, even before the Settings UI (Phase 8) exists. Initialize the toggle from prefs on load.
 - [ ] `styles.css` — `.browse-toggle` (pill/switch styling consistent with chips).
-- [ ] `tests/e2e/browse.spec.ts` — **new** hermetic suite (routed fixtures, patterned on `starter.spec.ts`) with a mixed fixture where some records have an `embed` and one does not; assert toggling "Photos only" hides the image-less card and the count updates; assert the choice persists across reload.
+- [ ] `tests/e2e/browse.spec.ts` — **new** hermetic suite (routed fixtures, patterned on `starter.spec.ts`) with a mixed fixture where some records have an `embed` and one does not; assert toggling "Photos only" hides the image-less card and the count updates; assert the choice persists across reload. **Mutation-resistance (Pass 3):** assert the count at the *edges*, not one point — off = full count string (original wording), on = the filtered `N of M shown` string with N < M and N = (records that have an image). One image-less record in the fixture makes N and M differ so a "count never recomputes" mutation is caught.
+
+> **Pass 3 count-string note:** this phase resolves the "N of M shown" open question. When **no** filter is active the string must stay byte-identical to the originals (`N starter pack recipes (V verified)` / `N recipes cached (V verified)`) — see the Phase 1 regression trap: `starter.spec.ts` exact-matches the search string. Switch to `N of M shown · V verified` only when a filter (photos-only / facet / diet) is active. Add a debug log `log.debug('browse', 'filter changed', { photosOnly })` in the toggle handler (console-traceability convention).
 - [ ] `tests/fixtures/atproto/listRecords-browse-mixed.json` — **new** fixture: several records varying `recipeCuisine`/`recipeCategory`/`suitableForDiet` and image presence (one with no `embed`). Reused by Phases 5 and 7.
 **Call chain:** toolbar toggle `change` → persist + `renderCurrent()` → `matchesFilter` (Phase 2) → `renderRecipeList` → DOM grid with image-less card removed.
 **Wiring test:** the `tests/e2e/browse.spec.ts` "photos only hides image-less recipe" case — RED before wiring, GREEN after.
@@ -264,7 +271,7 @@ wired in Phase 5.
 **Goal:** A Tiles/Details segmented toggle in the toolbar that switches which renderer
 `renderCurrent()` uses, persisted across sessions and applied to both render paths.
 **Changes:**
-- [ ] `src/pages/browse.ts` — add the view-mode segmented control to the toolbar; `renderCurrent()` chooses `renderRecipeList` vs `renderRecipeDetailsList` from `BrowseState.view`; persist on change; initialize from prefs.
+- [ ] `src/pages/browse.ts` — add the view-mode segmented control to the toolbar; `renderCurrent()` chooses `renderRecipeList` vs `renderRecipeDetailsList` from `BrowseState.view`; persist on change; initialize from prefs. Log `log.debug('browse', 'view mode', { view })` on change (console-traceability convention).
 - [ ] `tests/e2e/browse.spec.ts` — add a case: default is Tiles (`.recipe-grid`); clicking Details renders `.recipe-rows`; the mode persists across reload.
 **Call chain:** toolbar view toggle `click` → persist + `renderCurrent()` → `renderRecipeDetailsList` (Phase 4) → DOM `.recipe-rows`.
 **Wiring test:** the `tests/e2e/browse.spec.ts` "switch to Details renders rows" case.
@@ -294,7 +301,7 @@ wired in Phase 7.
 **Shared-state contract:** None.
 **Risks:** Cuisine dimension may have many values (open question on presentation). Chips are buttons, not links — no nested-anchor issue.
 **Done when:**
-1. **Behavioral:** `renderFacetChips` renders grouped toggle chips with correct pressed state.
+1. **Behavioral:** `renderFacetDropdown` renders one `<details>` per dimension with one checkbox per available value, correct `checked` state per `selected`, the dimension label in the `<summary>`, and empty `available` → the dropdown omitted. (Pass 3: was "renderFacetChips" — stale name from the pre-Phase-0 chips design; the Phase 0 decision is two dropdowns.)
 2. **Verification:** `npx vitest run tests/unit/recipes/view.spec.ts`.
 **Validation:** Narrow→Moderate. Unit tests + screenshot once wired.
 
@@ -307,7 +314,7 @@ wired in Phase 7.
 facets from the current entries and applying `matchesFilter`; persist selections. Complete
 the feature.
 **Changes:**
-- [ ] `src/pages/browse.ts` — build the `Meal ▾` + `Cuisine ▾` dropdowns from `availableFacets(current.entries)` (via `renderFacetDropdown`); on a dropdown checkbox `change`, update `BrowseState.facets`, persist, and refresh **only the count + list** (not the toolbar) so the open dropdown survives multi-select; add a document-level click handler that closes an open facet `<details>` on outside-click; initialize from prefs; recompute available facets whenever `current` changes (feed vs search). Structural re-render (rebuild toolbar) happens only on view-mode / photos-only / feed changes.
+- [ ] `src/pages/browse.ts` — build the `Meal ▾` + `Cuisine ▾` dropdowns from `availableFacets(current.entries)` (via `renderFacetDropdown`); on a dropdown checkbox `change`, update `BrowseState.facets`, persist, and refresh **only the count + list** (not the toolbar) so the open dropdown survives multi-select; add a document-level click handler that closes an open facet `<details>` on outside-click; initialize from prefs; recompute available facets whenever `current` changes (feed vs search). Structural re-render (rebuild toolbar) happens only on view-mode / photos-only / feed changes. Log `log.debug('browse', 'facets changed', { dimension, selected })` on change.
 - [ ] `tests/e2e/browse.spec.ts` — add cases using `listRecords-browse-mixed.json`: selecting `vegetarian` narrows to vegetarian recipes; adding `breakfast` yields `vegetarian AND (breakfast)`; selecting two categories is OR within the dimension; selections persist across reload.
 - [ ] `docs/DESIGN.md` — (ADVISORY, only if confirmed) one line noting Browse view-mode + label filtering.
 **Call chain:** dropdown checkbox `change` → update `BrowseState.facets` + persist + `renderCurrent()` → `matchesFilter` (Phase 2) → active renderer → filtered DOM.
@@ -328,23 +335,22 @@ store; because `renderCurrent` (Phase 3) already reads it, setting it here filte
 **Changes:**
 - [ ] `src/pages/settings.ts` — add an "Only show me" section (multi-select of diet tokens:
   vegetarian, vegan, gluten-free, …) bound to `createDietPreference` load/save; consistent
-  with the existing starter-pack settings controls.
+  with the existing starter-pack settings controls. **Confirmed pattern (Pass 3, read `settings.ts` in full):** reuse the existing `section(title, testid)` helper → `section('Only show me', 'diet-preference')`, then `starter-row`-style `<label>` + `<input type=checkbox>` rows exactly like the Starter pack (`settings.ts:103-127`) and Social (`:129-148`) sections; on `change` call `createDietPreference().save(...)` and `log.debug('diet', 'toggled', { token, on })` (mirrors `log.debug('starter'|'social', 'toggled', …)`). Insert into the final `content.append(build, updates, starter, social, …)` list (recommend after `social`). **Add `box.id = 'diet-preference'`** (or set it on the `<section>`) so the Browse `set dietary preference ↗` link (`./settings.html#diet-preference`, Phase 1) lands on it.
 - [ ] `styles.css` — minimal styling reusing settings/chip patterns (may be no-op if reusing).
-- [ ] `tests/e2e/settings.spec.ts` (or the existing settings e2e) — setting a diet preference
-  persists; and an integration assertion that with a vegetarian preference set, Browse hides
-  non-vegetarian recipes (drive via routed fixtures).
+- [ ] `tests/e2e/settings.spec.ts` — **NEW file** (Pass 3: there is no `settings.spec.ts` today — Settings behavior is currently exercised inside `starter.spec.ts:55-66,120-127`; the cross-page diet test warrants its own file). Setting a diet preference persists across reload; and an integration assertion that with a vegetarian preference set, Browse hides non-vegetarian recipes (drive via the `listRecords-browse-mixed.json` routed fixture from Phase 3 so vegetarian/non-vegetarian variance exists).
 **Call chain:** Settings control `change` → `createDietPreference().save()` → (localStorage
 `diet-preference`) → Browse `renderCurrent` reads it → `matchesFilter` drops non-matching.
 **Wiring test:** e2e — set vegetarian in Settings, navigate to Browse, assert non-vegetarian
 recipes are gone (RED before wiring, GREEN after).
 **Depends on:** Phase 2 (`diet-preference.ts`), Phase 3 (Browse reads the preference).
 **Read-set:** `src/recipes/diet-preference.ts`, `src/pages/settings.ts`.
-**Write-set:** `src/pages/settings.ts`, `styles.css`, `tests/e2e/settings.spec.ts`.
+**Write-set:** `src/pages/settings.ts`, `styles.css`, `tests/e2e/settings.spec.ts` (**new file**).
 **Shared-state contract:** localStorage key `diet-preference` (app-wide; also read by Browse).
 No other ambient state.
 **Risks:** Cross-page state (Settings writes, Browse reads) — the e2e must exercise both
-pages to prove the wiring, not just that Settings persists. Confirm `settings.ts` structure
-during execution (not yet read in depth — see Open Questions).
+pages to prove the wiring, not just that Settings persists. `settings.ts` structure confirmed
+in Pass 3 (see Changes) — the reusable `section`/`starter-row` pattern is in place; no
+structural unknown remains.
 **Done when:**
 1. **Behavioral:** Setting "Only show me: vegetarian" in Settings makes Browse show only
    vegetarian recipes on next visit; clearing it restores all.
@@ -375,7 +381,18 @@ records (own account only).
 **Shared-state contract:** Writes to the arecipe.bsky.social PDS via app-password (guarded to
 that account); localStorage untouched; no git/process state. **Independent of the UI phases'
 write-set** (`src/*`, `styles.css`, `tests/*`) — could run before, after, or in parallel with
-them; listed last for simplicity.
+them; listed last for simplicity. **Parallel-safety invariant (Pass 3):** the live-PDS write
+is *not* observed by any UI phase because all UI e2e is **hermetic** — `page.route` stubs
+`plc.directory/**` and every PDS with fixtures (`starter.spec.ts`, `browse.spec.ts`), never
+hitting arecipe.bsky.social. So even the display-time normalization tests (Phase 2) and the
+mixed-fixture e2e (Phases 3/5/7) are insensitive to whether Phase 9 has run. Invariants: does
+not touch the working tree's `src/*`/`tests/*`/`styles.css`; does not run `git checkout`/`stash`/
+`rebase`; binds no ports; the only mutation is `putRecord` on the guarded account.
+**Re-entry verification (only if actually parallelized):** worktree HEAD unchanged from
+pre-dispatch SHA; `git status` shows only the two `spike/import/*` files modified; a
+post-run `listRecords` readback shows the corrected `recipeCategory: "side"` and no
+`…Diet`-suffixed diet token on the account. (Executed sequentially/last as planned, no
+re-entry check is required.)
 **Risks:** Outward, hard-to-reverse writes to the live account — dry-run + idempotent +
 preserve `createdAt`, same discipline as the import. Only the seed is affected today.
 **Done when:**
@@ -400,9 +417,11 @@ preserve `createdAt`, same discipline as the import. Only the seed is affected t
   me" preference, distinct from transient filters? **Yes** — confirmed in walk-through.
   Location: **Settings** (app-wide default), read by Browse. Reflected in Phase 2 (shared
   `diet-preference.ts`), Phase 3 (Browse reads it), Phase 8 (Settings UI).
-- [RECOMMENDED: PHASE-GATED (Phase 8)] `src/pages/settings.ts` structure not yet read in
-  depth. *Rationale: the Settings phase assumes a controls pattern to reuse; verify before
-  Phase 8 (or in Phase 0). Low risk — settings is an existing page with toggle controls.*
+- [CONFIRMED: resolved-in-Pass-3] `src/pages/settings.ts` structure. *Resolved: read in full
+  during Pass 3. Reusable `section(title, testid)` helper + `starter-row` checkbox pattern
+  (`settings.ts:103-148`); the diet section mirrors Starter pack / Social. No settings.spec.ts
+  exists — Phase 8 adds one (settings is currently tested inside `starter.spec.ts`). Anchor
+  `id=diet-preference` needed for the Browse ↗ link. Folded into Phase 8's Changes.*
 - [CONFIRMED: ADVISORY] Facet semantics OR-within-dimension / AND-across-dimensions. *Accepted as recommended.*
 - [CONFIRMED: ADVISORY] Default view mode = Tiles, photos-only = off, persistence in `localStorage`. *Accepted as recommended.*
 - [CONFIRMED: ADVISORY] Keep hiding `exclusions` recipes, only removing the visible `· N hidden` note. *Accepted as recommended.*
@@ -513,3 +532,67 @@ Rationale: another agent is actively committing to `main` in the primary working
 (`~/git/chasemp/CroftC/arecipe`), so a plain in-place branch switch would move HEAD under
 them. The worktree isolates this work; it will be merged into `main` locally and pushed when
 ready (per user). All Phase 0–8 file paths above are relative to the worktree.
+
+### Pass 3: Quality Gates — 2026-07-08
+Spot-checked the worktree (`browse-view-filters` @ `29537f6`): `browse.ts`, `present.ts`,
+`view.ts`, `settings.ts`, `starter.spec.ts`, `src/log.ts` read; all touch-points exist,
+new files (`browse-state.ts`, `diet-preference.ts`, `listRecords-browse-mixed.json`,
+`fix-metadata.mjs`) correctly absent. Applied additively — no phase reordering.
+**TDD ordering:**
+- Confirmed every phase is test-first and every *wiring* phase (1/3/5/7/8) carries an e2e
+  wiring test that drives the built bundle; library phases (2/4/6) are explicitly gated by
+  their consuming wiring phase (isolation-trap note holds). No changes needed to the ordering.
+- Added mutation-resistance edges to Phase 3's count e2e (assert full-count vs
+  `N of M shown` at both edges, N < M via the image-less fixture record) so a
+  "count never recomputes" mutation is caught rather than surviving a single-point assertion.
+- Fixed a stale test name in Phase 6 Done-when (`renderFacetChips` → `renderFacetDropdown`,
+  the post-Phase-0 two-dropdown design) and named the specific behaviors (checked state,
+  summary label, empty-available omission).
+- Noted logging assertions stay behavior-only (assert the degraded default, not the log call).
+**Observability:**
+- The plan had **zero** logging despite `src/log.ts` being a first-class project convention
+  ("a backendless failure is debuggable from the console alone"; warn/error always emit,
+  debug/info gated by `?debug`). Added, matching the existing `log.debug('starter'|'social',
+  'toggled', …)` / `log.warn('build', …)` usage: `log.warn` in the prefs modules' storage
+  catch (Phase 2, before degrading to defaults), and `log.debug('browse', …)` on
+  render/filter/view/facet changes (Phases 1/3/5/7) and `log.debug('diet', …)` on the
+  Settings toggle (Phase 8).
+**Debugging readiness:**
+- Surfaced a **status-string reconstruction gap** in Phase 1: `renderCurrent`'s `current`
+  shape could not rebuild the two distinct status strings (search `N recipes cached` +
+  `fetchedCount`, starter `N starter pack recipes` + failed/offline suffixes). Extended the
+  `current` shape to carry `kind`/`fetchedCount`/`statusSuffix`.
+- Surfaced a **regression trap**: `starter.spec.ts:114/117` exact-matches the search count via
+  `toHaveText`; flagged that Phase 1 must keep the unfiltered search string byte-identical and
+  re-run the race test after the seam refactor, and that Phase 3's `N of M shown` variant must
+  only apply when a filter is active.
+- Per-phase commit checkpoints + phase-scoped e2e already isolate which phase broke; unchanged.
+**Validation calibration:**
+- Every phase declares a strategy calibrated to scope (Narrow for pure logic, Moderate for
+  wired UI, Broad for the cross-page Settings→Browse and full-suite Phase 7). Phase 9's live
+  irreversible PDS write is validated by dry-run + `listRecords` readback (the external check),
+  which is the right tier despite the "Moderate" label. No recalibration needed.
+- Phase 0 (done): `throwaway` disposition declared and honored; discovery tasks were concrete
+  and their outputs are wired into Phases 1/2/6/7/8 and the Review Log.
+**Concurrency honesty:**
+- Concurrency Map accounts for all phases (0–8 sequential spine; 9 independent). Re-verified
+  write-set disjointness after Pass 3 edits: UI phases write `src/*`/`styles.css`/`tests/*`;
+  Phase 9 writes `spike/import/*` + the live PDS — disjoint. Sequential spine is genuinely
+  dependency-bound (4 and 6 share `view.ts`; 4 depends on 2; no missed parallelism worth
+  restructuring). Converted Phase 9's contract from a files-only claim to explicit
+  **invariants** and added the key one: hermetic UI e2e (`page.route` fixtures) never observes
+  the live PDS, so Phase 9's write cannot perturb any UI phase's tests. Added a re-entry
+  verification checklist for the (optional) parallelized case.
+**Documentation impact:**
+- Documentation Impact section present and honest (grepped; no required doc change; the one
+  advisory `docs/DESIGN.md` line is scheduled in Phase 7, not a deferred docs phase). New
+  source/test files are not doc-cross-referenced — verified. No change needed.
+**Coherence:**
+- Plan still solves the original 5-point ask; Phases 8–9 are justified extensions (diet
+  preference = ask #3; Phase 9 = the normalization discovery) recorded as CONFIRMED. Resolved
+  the Phase 8 `settings.ts`-structure open question during Pass 3 (read in full): the
+  `section`/`starter-row` pattern is reusable, no `settings.spec.ts` exists today (settings is
+  tested inside `starter.spec.ts`), and the ↗ link needs an `id=diet-preference` anchor — all
+  folded into Phase 8.
+**Confirmed ready:** yes — no BLOCKING items remain; all open questions are CONFIRMED. Phase 3
+and Phase 8 carry PHASE-GATED count-string / anchor details now written into those phases.
