@@ -16,7 +16,7 @@
 | 6 Facet dropdowns | ✅ SHIPPED | `14fe0d5` | `renderFacetDropdown` (details name=browse-facet, checkbox options w/ data-dimension/value; null when empty). 4 unit tests. Wired in Phase 7. |
 | 7 Label filtering | ✅ SHIPPED | `e172c99` | Meal/Cuisine dropdowns wired; facet change refreshes count+list only (panel stays open); inert stale facets; outside-click close; DESIGN note. 4 e2e; full gate green. |
 | 8 Settings diet pref | ✅ SHIPPED | `6e7644e` | "Only show me" section (id=diet-preference) writes `diet-preference`; Browse reads it cross-page. `DIET_OPTIONS` vocab. 2 e2e + 1 unit. |
-| 9 Record data hygiene | ⬜ pending | | |
+| 9 Record data hygiene | 🟡 CODE SHIPPED | `c33dbd0` | Ops script + transform test (4 node --test) done; **live dry-run/write pending** (no .env in worktree; irreversible external write awaits go). |
 
 ## Problem Statement
 
