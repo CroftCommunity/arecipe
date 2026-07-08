@@ -7,7 +7,9 @@ test('tabs navigate between documents and native back works (wiring)', async ({ 
   await page.goto('/');
   await page.getByTestId('tab-mine').click();
   await expect(page).toHaveURL(/mine\.html$/);
-  await expect(page.getByTestId('mine-empty')).toBeVisible();
+  // Signed out, My recipes leads with the Sign in section (not a buried note).
+  await expect(page.getByTestId('signin-section')).toBeVisible();
+  await expect(page.getByTestId('oauth-signin')).toBeVisible();
   // Native back returns to Browse — no SPA router, no trapped state.
   await page.goBack();
   await expect(page.getByTestId('handle-input')).toBeVisible();

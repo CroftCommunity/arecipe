@@ -134,6 +134,18 @@ const main = async (): Promise<void> => {
       publishedList.append(el('p', 'status', `couldn’t load your recipes: ${String(err)}`));
     });
   } else if (provider !== null) {
+    // Signed out: LEAD with a clear Sign in section, above New recipe / Drafts —
+    // signing in shouldn't feel like "logging in for a draft." Drafting needs no
+    // account (that's what the New recipe / Drafts below are for); signing in is
+    // for saving recipes to your account and seeing your Cookbook.
+    const signin = el('section', 'signin-lead');
+    signin.dataset['testid'] = 'signin-section';
+    signin.append(el('h3', 'section-title', 'Sign in'));
+    const intro = el(
+      'p',
+      'status',
+      'Sign in with your Bluesky handle to save recipes to your account and see your Cookbook. Browsing and drafting work without an account.',
+    );
     const form = el('form', 'lookup') as HTMLFormElement;
     const input = document.createElement('input');
     input.type = 'text';
@@ -145,9 +157,8 @@ const main = async (): Promise<void> => {
     const status = el('p', 'status');
     status.dataset['testid'] = 'signin-status';
     form.append(input, signInButton);
-    const empty = el('p', 'empty-state', 'Sign in to keep your recipes here.');
-    empty.dataset['testid'] = 'mine-empty';
-    content.append(form, status, empty);
+    signin.append(intro, form, status);
+    content.prepend(signin); // lead the page with sign-in, before New recipe / Drafts
     form.addEventListener('submit', (event) => {
       event.preventDefault();
       status.textContent = 'redirecting to sign-in…';
