@@ -10,7 +10,7 @@
 | 0 Discovery | ✅ done | (pre-exec) | Compact bar, two dropdowns, diet in Settings. |
 | 1 Header + render seam | ✅ SHIPPED | `a3d9ae9` | `renderCurrent()` seam; `.browse-toolbar` with right-aligned count + `set dietary preference ↗` link; dropped `· N hidden`. |
 | 2 Browse-state core | ✅ SHIPPED | `fef5f29` | `recipeFacets`/`matchesFilter`/`availableFacets`/`createBrowsePrefs` + shared `createDietPreference`; 18 unit tests. |
-| 3 Photos-only | ⬜ pending | | |
+| 3 Photos-only | ✅ SHIPPED | `bc9488e` | Photos-only toggle filters via `matchesFilter`; diet-pref applied; `N of M shown` when filtered; new `browse.spec.ts` + mixed fixture. |
 | 4 Details renderer | ⬜ pending | | |
 | 5 View-mode wiring | ⬜ pending | | |
 | 6 Facet dropdowns | ⬜ pending | | |
@@ -256,7 +256,18 @@ both.
 2. **Verification:** `npx vitest run tests/unit/pages/browse-state.spec.ts`.
 **Validation:** Narrow. Unit tests are sufficient (pure logic).
 
-### Phase 3: Photos-only toggle (wired)
+### Phase 3: Photos-only toggle (wired) — ✅ SHIPPED (`bc9488e`)
+**Delivered:** `.browse-controls` with a `Photos only` toggle pill; `renderCurrent` filters via
+`matchesFilter` and reads `createDietPreference().load()` (empty default); filtered count
+`N of M shown · V verified`, unfiltered strings preserved byte-identical (race test still green).
+`createBrowsePrefs` persists the toggle. New `tests/e2e/browse.spec.ts` (routes mixed fixture to
+arecipe, empty for other starter authors) + `listRecords-browse-mixed.json` — fixture CIDs use a
+valid `$link` so `recomputeCid`/`CID.parse` succeeds (discovery below). Count edges asserted
+(4→3→4, "3 of 4 shown"). Full hermetic suite 35 green.
+**Discovery:** the mixed fixture initially rendered zero cards — `cache.put` recomputes the CID,
+and `fromLexJson` runs `CID.parse` on each image `ref.$link`; a hand-mangled `$link` throws and
+drops the record. Fix: use a real, parseable CID for image refs in fixtures. (The record-level
+`cid` string can be arbitrary — it's only string-compared for `verified`.)
 **Goal:** First live filter. A "Photos only" toggle in the toolbar that, when on, shows only
 recipes with an image — applied through `renderCurrent()` so it works on both feed and search.
 **Changes:**
