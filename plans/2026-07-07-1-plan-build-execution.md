@@ -34,6 +34,7 @@ feasibility amendment on 2026-07-07 (see Review Log).
 | 9a Friends (social graph) | ✅ | Phase 9a close-out commit | `app.arecipe.friend` follows; feed.ts loader extracted (starter guard green); 3rd nav tab; `?did=` cold-view; guarded multi-collection purge; @live add→appear→remove green |
 | 9b Comments (threaded) | ✅ | Phase 9b close-out commit | `app.arecipe.comment` friends-scoped threaded comments on the recipe page (AT-URI threading, pinned recipe strongRef); Social settings panel + Hide Comments; @live comment→reply-nests green. Recipe-page bundle 49K→930K (code-split backlogged) |
 | 9c–12 | roadmap | | re-plan before execution (9c re-confirm shape at start; 9c adds likes + Hide Likes) |
+| Cookbook reshape (CB1–CB7) | planned | | Re-planned 2026-07-08 (Pass 1+2). Supersedes the friend model: `cookbook.ts` scope (starters+follows+followers+you), drop `app.arecipe.friend`, rename Friends→Cookbook, two-axis settings. See "### Cookbook reshape" |
 
 ---
 
@@ -1681,7 +1682,11 @@ Talked out with the user; the M4 social model is reframed around a **Cookbook**:
   cookbook scope. Comment/interaction records + their guarded purges stay.
 - **Settings** gains the two-axis cookbook controls (reach + social signals).
 - The friend-based text in the 9a/9b/9c sections below is **superseded** by this
-  note (left in place for history; do not re-implement `app.arecipe.friend`).
+  note (left in place for history; do not re-implement `app.arecipe.friend`). The
+  executable reshape is decomposed into phases **CB1–CB7** in the
+  "### Cookbook reshape" section immediately below (Pass 1 + Pass 2 applied
+  2026-07-08); those phases are the source of truth for what to build, 9a/9b/9c
+  for what shipped.
 
 **M4 cross-phase conventions (added Pass 3, 2026-07-08).** The M0–M3 cross-phase
 conventions (line ~426) enumerate phases 1–8/3b explicitly and do not name the M4
@@ -1745,7 +1750,517 @@ phases; these extend them to 9a–10:
   from the spec's "works even if you're not on Bluesky" language — out of scope
   for M4.) Simplifies 9b.
 
-### Phase 9a: Friends (social graph) — ✅ SHIPPED (2026-07-08, Phase 9a close-out commit) — sequenced M4 #1
+### Cookbook reshape — executable phases (Pass 1 + Pass 2, 2026-07-08)
+
+> These phases (CB1–CB7) are the source of truth for the M4 social layer going
+> forward. They **supersede** the friend-based Phases 9a/9b/9c below (kept for
+> history, banners added). 9b (comments) shipped and is *migrated* here; 9c
+> (interactions) is built-but-parked in the working tree and is *landed* here;
+> 9a's `app.arecipe.friend` is *dropped*. 9d (feed) and 10 (mutes) are re-pointed
+> at the cookbook scope at milestone altitude (CB5, CB7). See the ★ Cookbook
+> re-plan note above for the settled model and DECIDED items (do not re-litigate).
+
+**Problem.** M4 shipped a friends model built on our own `app.arecipe.friend`
+lexicon (9a) that competed with Bluesky's native graph and muddled "who's in my
+world." Comments (9b) and the parked interactions (9c) discover content by
+walking that friend list. The reshape replaces the arecipe-native friend concept
+with a **Cookbook**: your own recipes + a bounded, user-chosen reach drawn from
+**Bluesky primitives** (starter-pack cooks + your Bluesky follows + your Bluesky
+followers) + you. Browse stays broader and zero-auth; the cookbook is
+"my-people's-kitchen."
+
+**Approach.** Introduce one shared scope module (`src/social/cookbook.ts`,
+depth-0 membership) that resolves member repos from the enabled sources, and
+route every friends-scoped consumer through it: the recipe page's comment (CB1)
+and interaction (CB2) discovery, the renamed Cookbook tab/page (CB3), settings
+(CB4), the feed (CB5), and mutes (CB7). Drop `app.arecipe.friend` once nothing
+imports `listFriends` (CB3, after CB1+CB2 migrate `recipe.ts`). Reuse proven
+surfaces: `STARTER_AUTHORS`/`createStarterPrefs` (starter.ts), `resolveDidDoc`
+(did.ts), `loadAuthorsFeed` (feed.ts), `strongRefOf`/`isStale` (refs.ts),
+`renderRecipeList/Detail` (view.ts), the guarded `purgeCollection` (live.ts).
+
+**Reasoning (why this decomposition + sequencing).** The reshape is sequential
+by two hard constraints: (1) **the shared module must exist before its
+consumers** — CB1 builds `cookbook.ts` and wires its first consumer in the same
+phase (no dead code); (2) **`app.arecipe.friend` cannot be dropped while
+`recipe.ts` still imports `listFriends`** — the parked interactions path
+(`mountInteractions`) imports it too, so CB1 (comment discovery) and CB2
+(interaction discovery) must both migrate `recipe.ts` before CB3 deletes
+`friends.ts`. Everything else follows from what each phase leaves shippable:
+CB1 keeps shipped comments working under the new model; CB2 lands the parked
+likes/saved; CB3 flips the tab + removes the dead lexicon; CB4 makes the reach
+legible; CB5/CB7 re-point the feed and mutes; CB6 is optional discovery depth.
+**Depth (the like-graph network effect) is deferred to CB6** — depth-0
+membership is the committed scope; depth 1/2 needs likes (CB2) + the feed (CB5)
+and is perf/relevance-gated, exactly like Jetstream (old 9e, folded into CB6).
+
+**Verified against the codebase (2026-07-08).** `listFriends` is imported by
+`src/pages/friends.ts`, `src/pages/recipe.ts` (both `mountComments` and the
+parked `mountInteractions`); no other importers. `resolveCookbook`/`cookbook.ts`
+/`bsky.graph`/`getFollowers` appear nowhere in `src`/`tests` yet — the module is
+genuinely new. The Bsky graph endpoints are the ones the ★ note records as
+verified (do not re-probe): follows via `listRecords?collection=app.bsky.graph.follow`
+on the repo's PDS (`{subject,createdAt}`), followers via
+`app.bsky.graph.getFollowers?actor=<did>` on `public.api.bsky.app`
+(`{followers:[{did,handle}]}`, `handle` may be `handle.invalid`, `did` always
+present). `resolveDidDoc(did)` returns `{pds, handle}`; `loadAuthorsFeed` takes
+`FeedAuthor[]` (`{handle, did}`) and resolves each PDS internally.
+
+**Re-grounded against current `main` (2026-07-08, after the browse-view-filters
+track landed — 24 commits, plan `2026-07-08-1-plan-browse-view-filters.md`).**
+This CB re-plan was first drafted against a checkout that was behind `main`; the
+following now-shipped surfaces were folded in on re-grounding (none invalidate the
+CB decomposition — they add reuse surfaces and one CB4 reconciliation):
+- **`recipe.ts` deferred-auth split is already live.** `mountComments` renders the
+  author's comments first, then loads `bootSession` via a dynamic `import()` split
+  chunk. CB1/CB2 build directly on this (the parked 9c-i already extends it with a
+  shared memoized `getAgent`) — no change to the CB1/CB2 plan.
+- **`settings.ts` gained an "Only show me" diet-preference section** (`createDietPreference`
+  + `DIET_OPTIONS` from `src/recipes/diet-preference.ts`, section id `diet-preference`).
+  Settings order is now: build, updates, integrity, **Starter pack**, **Only show
+  me (diet)**, **Social** (hide comments/likes), Hidden recipes, About. **CB4 is
+  updated** to reconcile with this third preference surface (see CB4).
+- **New reuse surfaces** (browse track): `src/pages/browse-state.ts`
+  (`BrowseState`, `matchesFilter`, `availableFacets`, `createBrowsePrefs` —
+  view-mode + facet filtering), `src/recipes/diet-preference.ts`
+  (`createDietPreference`, `DIET_OPTIONS`), and `src/recipes/view.ts` now also
+  exports `renderRecipeDetailsList` + `renderFacetDropdown` beside
+  `renderRecipeList`/`renderRecipeDetail`. The Cookbook page (CB3) and feed (CB5)
+  can reuse the view-mode/facet machinery and MUST honor the diet preference the
+  same way Browse does (see CB5).
+- **Unchanged and still valid:** the browse track did NOT touch `nav.ts`,
+  `feed.ts`, `friends.ts`, `comments.ts`, `starter.ts`, `identity/did.ts` — every
+  CB claim on those holds as written.
+
+**CB cross-phase conventions.** The M4 cross-phase conventions above (tests-first
+RED-before-production, `?debug=1`/`localStorage.debug`-gated `[arecipe]` logging,
+`.env`-tolerant `@live` modules via `readEnv`, guarded whole-collection purge
+hard-scoped to `TEST_DID`) apply unchanged to CB1–CB7. The reads-hermetic /
+writes-`@live` wiring split (9a/9b precedent) also carries: follows/followers are
+public repo/AppView reads → hermetically routable with fixtures; writes
+(interactions) proven `@live`.
+
+---
+
+#### CB1 — Cookbook scope module (`src/social/cookbook.ts`, depth-0) + migrate comment discovery
+
+**Goal:** A shared module that resolves the cookbook's member repos (depth 0:
+direct membership) from the enabled sources — starter-pack cooks + your Bluesky
+follows + your Bluesky followers + you — honoring an injectable reach config, and
+its first consumer: the recipe page's **comment** discovery switches off
+`listFriends(app.arecipe.friend)` onto the cookbook scope.
+
+**Changes:**
+- [ ] `src/social/cookbook.ts` — new. Shapes:
+  - `type CookbookSource = 'you' | 'starter' | 'follow' | 'follower'`
+  - `type CookbookMember = { did: string; handle?: string; sources: CookbookSource[] }`
+  - `type ReachConfig = { starters: boolean; follows: boolean; followers: boolean }`
+    (depth is **not** a field here — deferred to CB6; see open questions)
+  - `resolveCookbook(args: { you?: { did: string; pds: string }; config?: ReachConfig; starters?: FeedAuthor[]; fetchFn?: typeof fetch; appView?: string }): Promise<CookbookMember[]>`
+  - **starters:** `args.starters ?? createStarterPrefs().enabledAuthors()` (reuse
+    5e; the starter section already toggles these).
+  - **follows:** `${you.pds}/xrpc/com.atproto.repo.listRecords?repo=<you.did>&collection=app.bsky.graph.follow` → `records[].value.subject` (public read; works for any `you`, incl. the cold-view `?did=`).
+  - **followers:** `${appView}/xrpc/app.bsky.graph.getFollowers?actor=<you.did>` (`appView` default `https://public.api.bsky.app`) → `followers[].{did,handle}`; keep the DID even when `handle === 'handle.invalid'`.
+  - **you:** `{did, sources:['you']}` when `you` is provided.
+  - Merge/dedup by DID, **union** the `sources` tags; **degrade-not-blank per
+    source** (a source that throws logs `warn` and contributes nothing — never
+    fails the whole cookbook), mirroring `loadAuthorsFeed`'s contract.
+- [ ] `tests/unit/social/cookbook.spec.ts` — routed `fetchFn`/`appView` fixtures:
+  dedup edge (a DID that is both a follow and a follower → one member, two source
+  tags); per-source failure edge (follows HTTP 500 → followers + starters still
+  resolve); config-off edge (`followers:false` → no `getFollowers` call);
+  `handle.invalid` follower keeps its DID.
+- [ ] `src/pages/recipe.ts` — in `mountComments`, replace
+  `const friends = await listFriends({pds, did: me}); for (friend) addRepo(friend.subject)`
+  with `const members = await resolveCookbook({you:{did:me,pds}}); for (member) addRepo(member.did)`.
+  (`mountInteractions` still on `listFriends` until CB2 — both are migrated before
+  CB3 drops the import.)
+
+**Call chain:** recipe page (signed in) → `getAgent()` → `resolveDidDoc(me)` →
+`resolveCookbook({you})` → per-member `addRepo(member.did)` → `loadRecipeComments`.
+**Wiring test:** `@live` — the recipe page's comment section surfaces a comment
+authored by one of the test account's **real Bluesky follows** on a shared recipe
+(was: an `app.arecipe.friend`), proving the entry point reaches the new scope
+module through the deferred-auth path. Hermetic: the recipe-comment cold path
+(author-repo only, no session) is unchanged, and `cookbook.spec.ts` proves the
+module over routed fixtures. (Per the 9a/9b split, the signed-in discovery path is
+`@live`; there is no injectable hermetic agent on the recipe page.)
+**Depends on:** 9b (shipped comments), `starter.ts`, `did.ts`, `feed.ts` (FeedAuthor).
+**Read-set:** `src/recipes/starter.ts`, `src/identity/did.ts`, `src/social/feed.ts`,
+`src/pages/recipe.ts`.
+**Write-set:** `src/social/cookbook.ts`, `tests/unit/social/cookbook.spec.ts`,
+`src/pages/recipe.ts` (mountComments discovery only), `tests/e2e/comments-live.spec.ts`
+(assert a follow-scoped comment). (2 logic `.ts` touched — within budget.)
+**Shared-state contract:** reads only (public `listRecords` + `getFollowers`); no
+PDS writes; no ports; reads localStorage (starter/reach prefs). No cross-tab state.
+**Diagnostic logging:** per-source resolve at `debug` (source, member count); a
+source that fails at `warn` (degrade path); merged member count at `info`. The
+scope must be reconstructable from the console (which source contributed whom).
+**Mutation resistance:** assert the three edges above (dedup union, per-source
+degrade, config-off skip) — not a single happy-path assertion that survives an
+"always include everything" regression.
+**Done when:**
+1. **Behavioral:** signed in, the recipe page's comments include comments from
+   your Bluesky **follows** (not `app.arecipe.friend`); a follow with no comment
+   contributes nothing (no error).
+2. **Verification:** `npm test -- cookbook` (unit) + `npm run test:live -- comments`
+   (follow-scoped comment appears) green; hermetic suite green (no regression).
+**Validation:** Moderate — reads real follows/followers `@live` (no external
+mutation); confirm the merged member set in the console log matches the account.
+**Test-tier coverage (Pass 3):** CB1 shipping alone is covered by (a) the hermetic
+`cookbook.spec.ts` unit tests (the module's edges, no creds — runs in push CI) and
+(b) the `@live` recipe-comment discovery gate (the entry-point wiring, run locally
+with `.env`). The scope module's *hermetic entry-point* wiring proof arrives at CB3
+(the `cookbook.html?did=` cold-view over routed fixtures) — so if execution stops
+after CB1, note in the commit that the scope wiring is unit + `@live` only until CB3
+adds the hermetic cold-view. This is the 9a/9b reads-hermetic/writes-`@live` split,
+not a coverage gap.
+**Stop-point.**
+
+---
+
+#### CB2 — Land interactions (likes + saved) on the cookbook scope
+
+**Goal:** Commit the parked 9c-i (`interactions.ts` + recipe-page like/save +
+`prefs.hideLikes`), migrate `mountInteractions` discovery to `resolveCookbook`,
+and **re-prove the `@live` like WRITE now roots** (the parked write "was not
+landing — unrooted"; re-test in the reworked flow). After CB2, `recipe.ts`
+imports no `listFriends`.
+
+**Changes (re-confirm the parked shape at start):**
+- [ ] Commit `src/social/interactions.ts` (+ `tests/unit/social/interactions.spec.ts`,
+  already green): `buildInteractionRecord`/`listInteractionsFor`/`loadRecipeInteractions`/
+  `summarize`/`findInteractionRkey`/`addInteraction`/`removeInteraction`; kinds
+  `liked`+`saved` (cooked deferred); counts friends-scoped (now cookbook-scoped).
+- [ ] `src/pages/recipe.ts` — in `mountInteractions`, swap `listFriends` →
+  `resolveCookbook` (same edit shape as CB1); keep the shared memoized `getAgent`
+  deferred-auth load (comments + interactions share one `@atproto/api` chunk).
+- [ ] `src/social/prefs.ts` — commit the parked `hideLikes`/`setHideLikes` (key
+  already reserved). The settings **toggle** is CB4; the recipe surface honors
+  the pref now.
+- [ ] **Investigate the "unrooted" like write** at execution: the record carries
+  `recipe: strongRefOf(entry)` (uri+cid) — confirm the write lands rooted to the
+  recipe and toggles cleanly against a real recipe on the test PDS. Record the
+  root cause in the close-out (report-outcomes discipline).
+- [ ] `tests/e2e/interactions-live.spec.ts` + `tests/e2e/interactions.spec.ts`
+  (parked) — commit; extend `purgeCollection` usage to `app.arecipe.interaction`.
+
+**Call chain:** recipe page → shared `getAgent()` → `resolveCookbook` → per-member
+`addRepo` → `loadRecipeInteractions` → `summarize`; like/save button →
+`addInteraction`/`removeInteraction` → `refresh`.
+**Wiring test:** `@live` — like a recipe → `app.arecipe.interaction` record on the
+test PDS → the count reflects it → unlike → record gone (guarded purge). Hermetic
+— counts render from routed fixtures; Browse tiles show the heart+count read-only
+(the "Browse ships zero auth code" e2e stays valid unchanged).
+**Depends on:** CB1 (cookbook scope), the parked 9c-i code, `refs.ts`.
+**Read-set:** `src/pages/recipe.ts`, `src/social/interactions.ts`, `src/recipes/refs.ts`,
+`src/social/cookbook.ts`, `src/identity/did.ts`.
+**Write-set:** `src/social/interactions.ts`, `src/pages/recipe.ts` (mountInteractions),
+`src/social/prefs.ts`, `tests/unit/social/interactions.spec.ts`,
+`tests/e2e/interactions{,-live}.spec.ts`, guarded-purge entry in
+`tests/e2e/helpers/live.ts`. (3 logic `.ts`; `interactions.ts` already exists.)
+**Shared-state contract:** writes `app.arecipe.interaction` to the guarded test
+account (`TEST_DID`); no ports; localStorage for `hideLikes`.
+**Diagnostic logging:** like/save write at `info` (recipe uri, kind); count-agg
+read failure at `warn` (degrade to hidden/zero, never blank the card); toggle
+failure at `error`. Reuse from the parked code.
+**Mutation resistance:** count edges (0 → no/explicit-0 chip, 1 → "1 like",
+idempotent double-like → one record/count); toggle-off removes exactly the
+viewer's own record.
+**Done when:**
+1. **Behavioral:** on the recipe page you can like/unlike and save/unsave; the
+   like count is cookbook-scoped and honest; Browse shows read-only counts.
+2. **Verification:** `npm test -- interactions` + `npm run test:live -- interactions`
+   (like write roots + toggles) green; the Browse-zero-auth e2e still green.
+**Validation:** Broad — external `app.arecipe.interaction` write to the guarded
+test account; confirm the record roots to the recipe and teardown removed it.
+**Sizing:** if committing the parked surface + migration + settings exceeds one
+context, split CB2-i (interactions.ts + recipe-page migration + `@live` like
+re-test) / CB2-ii (Browse card counts + the Saved view under My recipes). Each
+sub-phase ≤3 logic `.ts`, own wiring test, own stop-point.
+**Stop-point.**
+
+---
+
+#### CB3 — Rename Friends → Cookbook + Cookbook page rework + DROP `app.arecipe.friend`
+
+**Goal:** The 3rd nav tab and its page become the **Cookbook**; membership is by
+**source** (not add/remove-friend); the `app.arecipe.friend` lexicon and all its
+machinery are removed. Safe now: after CB1+CB2 nothing imports `listFriends`
+except the friends page itself, which this phase replaces.
+
+**Changes:**
+- [ ] Rename `src/pages/friends.ts` → `src/pages/cookbook.ts` and rework: drop the
+  add/remove-friend form; render cookbook **members** (from `resolveCookbook`) with
+  source provenance + Bluesky profile links; render the members' recipes via
+  `loadAuthorsFeed` (map members → `FeedAuthor` by resolving handles); keep the
+  shareable **`?did=` cold-view** (any account's cookbook, hermetic seam).
+- [ ] Rename `friends.html` → `cookbook.html`; add a `friends.html` **redirect
+  stub** (`<script>location.replace('./cookbook.html'+location.search)</script>`),
+  kept in the HTML/precache list so old links, bookmarks, and the SW navigate
+  handler resolve offline. (Decided: a static stub, not an SW-rewrite — simplest,
+  works offline, one file.)
+- [ ] `src/nav.ts` — `DESTINATIONS`: `Friends`→`Cookbook`, `href './cookbook.html'`,
+  `testid 'tab-cookbook'`, `match /\/cookbook\.html$/`.
+- [ ] `scripts/build.mjs` — `PAGES`: `friends`→`cookbook`; `HTML` map:
+  `cookbook.html → cookbook`; keep `friends.html` as a static passthrough (the
+  redirect stub has no JS bundle to hash).
+- [ ] **Delete `src/social/friends.ts`** (`FRIEND_COLLECTION`, `buildFriendRecord`,
+  `listFriends`, `findFriendRkey`, `addFriend`, `removeFriend`, `loadFriendsFeed`).
+  `loadAuthorsFeed` already lives in `feed.ts` (unaffected).
+- [ ] Tests: delete `tests/e2e/friends-live.spec.ts` (friend `@live` write + friend
+  purge) and `tests/unit/social/friends.spec.ts`; rework `tests/e2e/friends.spec.ts`
+  → `tests/e2e/cookbook.spec.ts` (cold-view over follows/followers/starter+PDS
+  fixtures); update `tests/unit/nav.spec.ts` (`tab-cookbook`, `./cookbook.html`,
+  `/cookbook.html` active-match).
+- [ ] Remove `app.arecipe.friend` from the guarded multi-collection purge list
+  (keep comment/interaction/mute).
+- [ ] Docs: `docs/DESIGN.md` (Friends → Cookbook destination narrative), `README.md`
+  (page list: `friends.html`→`cookbook.html` + redirect note), `docs/PRACTICES.md`
+  (purge collections: drop friend).
+
+**Call chain:** Cookbook tab → `cookbook.html` → `cookbook.ts` → `resolveCookbook`
+→ render members + `loadAuthorsFeed` → `renderRecipeList`.
+**Wiring test:** hermetic — `cookbook.html?did=<did>` cold-view renders the member
+list + their recipes via `resolveCookbook` over routed follows/followers/starter +
+PDS fixtures (the scope module's hermetic wiring proof, through the page entry
+point); `tab-cookbook` navigates; loading old `friends.html` redirects to
+`cookbook.html` (assert URL after `location.replace`).
+**Depends on:** CB1, CB2 (recipe.ts fully off `listFriends`).
+**Read-set:** `src/social/cookbook.ts`, `src/social/feed.ts`, `src/recipes/starter.ts`,
+`src/identity/did.ts`, `src/nav.ts`, `scripts/build.mjs`, `src/sw.ts`.
+**Write-set:** `src/pages/cookbook.ts` (renamed), `cookbook.html`, `friends.html`
+(→ redirect stub), `src/nav.ts`, `scripts/build.mjs`, delete `src/social/friends.ts`,
+delete/rework the friends specs, `tests/unit/nav.spec.ts`, `docs/DESIGN.md`,
+`README.md`, `docs/PRACTICES.md`.
+**Shared-state contract:** SW cache (a version bump ships the rename; the
+`friends.html` stub precaches); no PDS writes; no ports.
+**Diagnostic logging:** page mount at `debug` (view: cold vs signed-in); reuse the
+CB1 scope-resolution logging (no new boundary).
+**Mutation resistance:** the redirect edge (old `friends.html` → `cookbook.html`,
+query preserved) and the cold-view edge (an account's members render) are both
+asserted; a no-op redirect or an empty member list must fail.
+**Sizing:** 4+ files → **split at execution:** CB3-i (rename plumbing —
+nav/build/html + `friends.html` redirect stub + page rename to the new source
+model) / CB3-ii (delete `app.arecipe.friend` machinery + rework/delete its specs +
+docs). Each ≤3 logic `.ts`, own wiring test, own stop-point.
+**Done when:**
+1. **Behavioral:** the 3rd tab reads "Cookbook"; the page shows membership by
+   source + the members' feed; old `friends.html` redirects; no
+   `app.arecipe.friend` code remains (`grep -r 'app.arecipe.friend\|listFriends'
+   src` is empty).
+2. **Verification:** `npm test -- nav` + the `cookbook.spec.ts` cold-view e2e +
+   the redirect e2e green; full hermetic suite green (friend specs removed, not
+   red).
+**Validation:** Moderate — read-only page + a redirect; the friend WRITE surface is
+being *removed*, not added, so no `@live` write tier is needed here.
+**Stop-point.**
+
+---
+
+#### CB4 — Settings: two-axis controls (reach + social signals)
+
+**Goal:** Promote the UI-lab's two-axis controls (`ui-lab/social-scope.html`) into
+`settings.html` legibly. **Axis 1 — reach:** source toggles (starter cooks
+[= the existing Starter-pack section], Bluesky follows, Bluesky followers)
+[+ depth — see open questions]. **Axis 2 — social signals:** show/hide likes and
+comments *on* recipes, independent of reach — reconciled with the existing Social
+panel (Hide Comments) + `prefs.hideLikes`.
+
+**Changes (re-confirm shape at start):**
+- [ ] Reach config store — extend `src/social/prefs.ts` (or a sibling
+  `src/social/reach.ts`) with `ReachConfig` persistence (localStorage, same
+  defensive posture as starter/social prefs; **default all sources on**). This is
+  the config `resolveCookbook` reads (CB1 defaults all-on until this lands).
+  Decided: localStorage now (matches starter/social prefs); a synced
+  `app.arecipe.*` reach record is a later option, not this phase.
+- [ ] `src/pages/settings.ts` — a "Your cookbook (reach)" section: the existing
+  **Starter pack** section becomes the "starter cooks" reach source (fold or
+  cross-reference — do not duplicate the author toggles), plus new Bluesky
+  **follows** / **followers** source toggles. In the **Social** section, add the
+  **Hide Likes** toggle beside Hide Comments (the parked `prefs.hideLikes` key).
+- [ ] **Reconcile with the existing "Only show me" (diet-preference) section**
+  (re-ground 2026-07-08): the diet preference is an app-wide *content* filter
+  (which recipes, by dietary suitability), **orthogonal to both cookbook axes** —
+  it is neither a reach source (which people) nor a social signal (what shows on a
+  recipe). Leave it as its own Settings section; do NOT fold it into reach. Result:
+  Settings carries three related-but-distinct preference groups — **reach** (starter
+  cooks + follows + followers), **social signals** (hide likes/comments), and
+  **diet** ("Only show me", unchanged). Cross-link them with clear section copy so
+  the three are legibly different (the lab's two axes + the pre-existing diet
+  filter).
+- [ ] Copy honesty: counts are cookbook-scoped ("you + your reach"), never a
+  pretend-global number (ties to CB2's like copy).
+
+**Call chain:** settings toggle → reach/social pref write → next `resolveCookbook`
+/ recipe-surface read reflects it.
+**Wiring test:** hermetic — toggling a reach source in settings changes what
+`resolveCookbook` returns (settings→cookbook read-through) and the Cookbook page /
+feed reflects it; the **Hide Likes** toggle hides the recipe-page like surface
+(mirrors the shipped Hide Comments test).
+**Depends on:** CB1 (config shape), CB2 (Hide Likes surface exists), CB3 (Cookbook
+page).
+**Read-set:** `src/pages/settings.ts`, `src/social/prefs.ts`, `src/recipes/starter.ts`,
+`src/social/cookbook.ts`.
+**Write-set:** `src/social/prefs.ts` (or `src/social/reach.ts`), `src/pages/settings.ts`,
+`tests/unit/social/prefs.spec.ts`, `tests/e2e/settings*.spec.ts`.
+**Shared-state contract:** localStorage only; no PDS writes; no ports.
+**Diagnostic logging:** reach-source toggle + signal toggle at `debug` (key,
+value), reusing the existing settings toggle logging.
+**Mutation resistance:** a source toggled off is absent from the resolved cookbook
+(and its recipes leave the feed), toggled on returns — both edges, not a single
+default-on assertion. Hide Likes both edges (surface present when off, absent when
+on).
+**Done when:**
+1. **Behavioral:** settings exposes reach source toggles + likes/comments signal
+   toggles; each governs the cookbook membership / recipe surfaces observably.
+2. **Verification:** `npm test -- prefs` + the settings reach/signal e2e green.
+**Validation:** Moderate — localStorage-backed UI; confirm the read-through to the
+Cookbook feed in a real browser.
+**Stop-point.**
+
+---
+
+#### CB5 — Cookbook feed view (re-plan of Phase 9d; milestone-altitude, re-confirm at start)
+
+**Goal:** "**Newest in your cookbook**" — a VIEW (not a dial) over the cookbook
+members' recipes, merged newest-first, each Tier 2-verified, **polled** on load
+with a manual refresh, offline-tolerant (8b cache fallback). Lives on the Cookbook
+tab (`cookbook.html`). Value order per the ★ note: the new-recipe feed is the
+headline (above likes, above comments). Supersedes the "friends activity feed"
+framing of 9d — same polled mechanism, now over cookbook scope via
+`resolveCookbook` + `loadAuthorsFeed`.
+**Reuses:** `resolveCookbook` (members), `loadAuthorsFeed` (merge+verify+cache),
+the 8b offline fallback, and (re-ground 2026-07-08) the browse-track view layer —
+`renderRecipeList`/`renderRecipeDetailsList` + `renderFacetDropdown` (view.ts) and
+`browse-state.ts` (`matchesFilter`/`availableFacets`/`createBrowsePrefs`) for
+view-mode + facet filtering. **The cookbook feed MUST honor the app-wide diet
+preference** (`createDietPreference` + `matchesFilter`) the same way Browse does,
+so "Only show me" applies consistently across Browse and the Cookbook — confirm
+this at CB5 start. **Depends on:** CB1 (scope), CB3 (Cookbook page).
+**Kept milestone-altitude** because its file shape is settled by CB1/CB3 and it
+adds no new record type; the 9d Diagnostic-logging / mutation-resistance
+(interleaved-timestamp merge, offline edge) notes carry over verbatim.
+**Done when:** decomposed at CB5 start into executable detail, then built:
+merged chronological cookbook feed, polled, offline-tolerant, on the Cookbook tab.
+**Validation:** Moderate (read-only feed + offline). **Stop-point (cookbook social
+core complete without depth/live-tail).**
+
+---
+
+#### CB6 — (OPTIONAL) Reach depth (like-graph 1/2) + Jetstream live-tail — spike-gated
+
+**Only if a spike justifies it.** Two optional enrichments, both off the critical
+path (skipping CB6 leaves M4 complete):
+- **Reach depth (the network effect):** depth 1 = recipes your circle *liked*
+  (read cookbook members' `app.arecipe.interaction` `liked` records, resolve the
+  liked recipes); depth 2 = the cooks *behind* those recipes (resolve non-member
+  authors → new members). Adds a `depth` field to `ReachConfig` + the depth radio
+  to CB4's settings, and the like-graph walk to `cookbook.ts`. **Depends on:** CB2
+  (likes exist) + CB5 (feed). Perf/relevance-gated: depth-2 fetches non-member
+  repos and can fan out — measure the read cost at the target scale before
+  committing, and cap with a logged "showing first N" (no silent truncation).
+- **Jetstream live-tail (old Phase 9e):** the perf-gated live-update layer over the
+  polled feed (`wantedDids`×`wantedCollections`, cursor replay, Tier-2 verify,
+  degrade to CB5 polling). Discovery-Exemption spike → written go/no-go report,
+  then TDD on a "go".
+**Done when:** each sub-item's spike says go/no-go; on go, it layers onto — never
+replaces — the depth-0 cookbook + polled feed.
+
+---
+
+#### CB7 — Mutes over the cookbook scope (re-plan of Phase 10; milestone-altitude, re-confirm at start)
+
+**Goal:** The real mute system (spec Layer 8), promoting `exclusions.ts` (5f
+mute-lite) into `app.arecipe.mute.*`, with presence-based inheritance now scoped
+to **cookbook members** (not `app.arecipe.friend`). Everything in the Phase 10
+spec below stands (records + inheritance resolver + settings mute-management UI +
+filter-application at `feed.ts`/`view.ts`, the 10-i/10-ii split, Broad `@live`
+validation with the guarded purge) with one substitution: the graph it reads for
+inherited mutes is the cookbook scope. **Depends on:** CB1 (scope), 5f (overlay
+seed). **Kept milestone-altitude** — re-confirm at CB7 start; the reshape does not
+force new detail beyond re-pointing the graph.
+**Done when:** decomposed at CB7 start, then built: subscribable mute lists +
+presence-based inheritance over cookbook members, all overrideable (both edges).
+**Validation:** Broad (external `app.arecipe.mute.*` write). **Stop-point (M4
+complete).**
+
+---
+
+#### Cookbook reshape Concurrency Map
+
+Sequential spine: **CB1 → CB2 → CB3 → CB4 → CB5 → [CB6 optional] → CB7.**
+All phases sequential; reasons:
+- **CB1 → CB2:** both write `src/pages/recipe.ts` (mountComments, then
+  mountInteractions discovery) — shared write-set → the hard rule forbids parallel.
+- **CB2 → CB3:** CB3 deletes `src/social/friends.ts`/`listFriends`, which CB1's
+  and CB2's `recipe.ts` edits must have migrated off first. Ordering makes the
+  delete safe.
+- **CB3 → CB4:** CB4 reads the reach config `resolveCookbook` consumes and toggles
+  the CB2/CB3 surfaces; CB3 owns the Cookbook page CB4's read-through targets.
+- **CB4 → CB5:** CB5's feed lives on `src/pages/cookbook.ts` (written by CB3) and
+  reads the reach config (CB4). Shared page write-set with CB3.
+- **CB5 → CB7:** CB7 writes `src/social/feed.ts` + `src/recipes/view.ts` as
+  filter-application sites (shared with CB5's feed work and CB2's view chips) — last
+  on the spine by construction, as Phase 10 already is.
+- **CB6 optional**, off the critical path.
+No worktree/parallel dispatch → no re-entry-verification fields required (stated,
+matching the M4 map). `src/pages/recipe.ts` (CB1, CB2) and `src/pages/cookbook.ts`
+(CB3, CB5) are the shared hot files that force the sequence — not a default.
+
+#### Cookbook reshape Documentation Impact
+
+- `docs/DESIGN.md` — Friends → Cookbook destination narrative + the settings
+  model. **CB3** (destination). **CB4** (settings): document the three distinct
+  preference groups now on the page — **reach** (starter cooks + follows +
+  followers), **social signals** (hide likes/comments), and the pre-existing
+  **diet** ("Only show me") content filter — and how they differ (who vs what-shows
+  vs which-recipes). Each in the phase that makes the narrative stale.
+- `README.md` — page list: `friends.html` → `cookbook.html` + the redirect stub.
+  **CB3.**
+- `docs/PRACTICES.md` — guarded multi-collection purge: drop `app.arecipe.friend`,
+  keep comment/interaction/mute. **CB3** (drop), **CB2** (add interaction).
+- `ui-lab/social-scope.html` — throwaway reference (not deployed, not in the build
+  page list); note it still lists an "arecipe friends" source that the reshape
+  **drops** — the promoted settings (CB4) use starters + follows + followers only.
+  No build/doc reference to update; left as-is for provenance.
+- New `src/social/cookbook.ts` (+ optional `reach.ts`): grepped — no references
+  outside the phases that create them.
+- The M4 Documentation Impact and Concurrency Map sections below still describe the
+  friend-based 9a–10; they are **superseded** by these two subsections for CB work
+  (kept for history).
+
+#### Cookbook reshape — open questions (walk through before executing CB1)
+
+- [CONFIRMED: PHASE-GATED (CB1) — user, 2026-07-08] **All three sources feed
+  per-recipe discovery, with a logged cap.** `resolveCookbook` includes
+  starters+follows+followers (+you); per-recipe comment/like discovery reads the
+  first N resolved members with a logged "reading first N" (no silent truncation);
+  the Cookbook feed reads all members. *Rationale: honors the DECIDED cookbook
+  model at M4's 12–25 scale; the cap bounds the per-recipe read fan-out without a
+  behavioral carve-out. CB1 must implement the cap + the log line; pick N at CB1
+  start (a small default, e.g. ~50, is fine — the cap is a safety bound, not a
+  product limit at this scale). If the cap bites in use, the fallback
+  (followers→feed-only) is a later, reversible narrowing.*
+- [CONFIRMED: PHASE-GATED (CB4) — user, 2026-07-08] **Defer the reach-depth
+  control to CB6.** CB4 ships source toggles (starters/follows/followers) + social
+  signals (hide likes / hide comments) only; the like-graph depth radio (0/1/2)
+  lands in CB6 alongside the code that honors it, so settings never shows a dead
+  control. *Consequence: `ReachConfig` in CB1 carries no `depth` field (CB6 adds
+  it); CB4's settings section is source toggles + signals, matching the lab minus
+  the depth group.*
+- [CONFIRMED: ADVISORY — user, 2026-07-08] **Reach config in localStorage now**
+  (matches `createStarterPrefs`/`createSocialPrefs` — same degrade posture, no new
+  lexicon; per-device). *A synced `app.arecipe.*` reach record is a clean later add
+  if cross-device reach is wanted.*
+
+**All 3 Cookbook-reshape open questions confirmed with the user (2026-07-08):**
+2 PHASE-GATED (CB1 followers+cap; CB4 depth deferred to CB6), 1 ADVISORY (reach
+storage = localStorage). No BLOCKING items. CB1 is ready to start on approval.
+
+---
+
+### Phase 9a: Friends (social graph) — ✅ SHIPPED (2026-07-08, Phase 9a close-out commit) — sequenced M4 #1  ⛔ SUPERSEDED by the Cookbook reshape (CB1–CB7 above): `app.arecipe.friend` is dropped at CB3
 
 **Delivered:** as specced, with the user-confirmed Option A wiring split (see the
 "Wiring split" note below). `loadStarterFeed` was extracted to
@@ -1840,7 +2355,7 @@ comment/interaction/mute as later phases land (see the M4 cross-phase
 guarded-purge note for the markerless-collection guard).
 **Stop-point.**
 
-### Phase 9b: Comments (threaded) — ✅ SHIPPED (2026-07-08, Phase 9b close-out commit) — sequenced M4 #2
+### Phase 9b: Comments (threaded) — ✅ SHIPPED (2026-07-08, Phase 9b close-out commit) — sequenced M4 #2  ⚠️ SUPERSEDED discovery: comment discovery is migrated off `listFriends` onto the cookbook scope at CB1 (the comment records + threading + `@live` write are unchanged)
 
 **Delivered:** friends-scoped threaded comments on the recipe page.
 `src/social/comments.ts`: `buildCommentRecord`/`listCommentsFor`/`buildThread`/
@@ -1920,7 +2435,7 @@ and a reply-to-a-reply, so a flattened-threading regression fails.
 **Done when:** threaded comments read+write on recipe pages, author names
 linked to profiles. **Validation:** Broad (external write). **Stop-point.**
 
-### Phase 9c: Interactions (cooked / saved) — sequenced M4 #3
+### Phase 9c: Interactions (cooked / saved) — sequenced M4 #3  ⚠️ SUPERSEDED: the built-but-parked likes/saved is *landed* on the cookbook scope at CB2 (discovery migrated off `listFriends`; the `@live` like write is re-tested for the unrooted-write issue)
 
 **Goal:** `app.arecipe.interaction.cooked` (recipe strongRef, optional rating/
 notes/photos — reuse the Phase 7 EXIF-safe `prepareImage`/`uploadRecipeImage`)
@@ -2872,3 +3387,262 @@ blocker):**
 **Confirmed ready:** yes. No BLOCKING or unreviewed open questions remain in the
 M4 block; the one new item (markerless guarded-purge) is resolved with a
 recommended default and flagged for optional override.
+
+### M4 Cookbook reshape — Pass 1 + Pass 2 (combined) — 2026-07-08
+
+Scope: re-planned the M4 social layer around the **Cookbook** model (talked out
+with the user 2026-07-08; DECIDED items in the ★ Cookbook re-plan note — not
+re-litigated). Ran Pass 1 (reasoning + executable phases) and Pass 2 (gap
+analysis) in one context, grounded in the actual codebase. Produced the new
+"### Cookbook reshape" section (phases **CB1–CB7**) that supersedes the
+friend-based 9a/9b/9c specs; added ⛔/⚠️ SUPERSEDED banners to 9a/9b/9c (text kept
+for history) and an Outcome Summary row. Analysis only — no code; the parked 9c-i
+stays uncommitted.
+
+**Pass 1 added:**
+- The Cookbook reshape Problem / Approach / Reasoning (why sequential; the two
+  hard ordering constraints), a Verified-against-the-codebase block, and CB
+  cross-phase conventions.
+- Full executable field sets on **CB1** (cookbook.ts scope module + comment
+  migration), **CB2** (land parked interactions + re-test the unrooted `@live`
+  like write), **CB3** (rename Friends→Cookbook + page rework + drop
+  `app.arecipe.friend`), **CB4** (two-axis settings): Goal, Changes, Call chain,
+  Wiring test, Depends-on, Read/Write-set, Shared-state contract, Diagnostic
+  logging, Mutation resistance, two-tier Done-when, Validation, Stop-point.
+- Milestone-altitude CB5 (feed, re-plan of 9d), CB6 (optional depth + Jetstream),
+  CB7 (mutes, re-plan of 10), each "re-confirm shape at start" per "no assumed
+  behavior."
+- A Cookbook reshape Concurrency Map + Documentation Impact subsection.
+
+**Pass 2 found (and fixed):**
+- **listFriends drop hazard.** The parked `mountInteractions` in `recipe.ts`
+  imports `listFriends` alongside `mountComments`. Dropping `app.arecipe.friend`
+  before *both* are migrated would break the parked interaction path → sequenced
+  CB1 (comments) → CB2 (interactions) → CB3 (drop). Verified `listFriends` has no
+  other importers (`src/pages/friends.ts` is the page CB3 replaces).
+- **Scope-module wiring is @live for the recipe page, hermetic for the Cookbook
+  page.** The recipe page's signed-in discovery has no injectable hermetic agent
+  (9a/9b precedent), so CB1's wiring proof is `@live`; the hermetic proof of
+  `resolveCookbook` is the `cookbook.html?did=` cold-view (CB3) over routed
+  follows/followers fixtures + unit tests. Recorded both so neither is mistaken
+  for the other.
+- **`recipe.ts` and `pages/cookbook.ts` are the shared hot files** forcing the
+  sequence (CB1+CB2 on recipe.ts; CB3+CB5 on cookbook.ts) — the spine is
+  sequential by construction, not default.
+- **Settings reconciliation:** the existing Starter-pack section *is* the reach
+  "starter cooks" toggle — CB4 folds/cross-references it rather than duplicating;
+  the Social panel's Hide Comments + parked `prefs.hideLikes` are the axis-2
+  signals. Prevented a duplicate starter-toggle surface.
+- **Docs + tests that go stale on the drop** were pulled into CB3's write-set
+  (DESIGN.md, README, PRACTICES.md, the friend unit/e2e/live specs, nav.spec.ts,
+  the guarded-purge collection list) rather than left to a trailing cleanup.
+- **Depth is not depth-0.** The like-graph network effect (depth 1/2) needs likes
+  (CB2) + the feed (CB5) and fans out to non-member repos → separated into the
+  optional CB6 with a perf gate and a logged cap; `ReachConfig` in CB1 carries no
+  `depth` field.
+- **Codebase grounding confirmed:** `resolveCookbook`/`cookbook.ts`/`bsky.graph`/
+  `getFollowers` are genuinely new (absent from src/tests); `STARTER_AUTHORS`/
+  `createStarterPrefs`, `resolveDidDoc`→`{pds,handle}`, `loadAuthorsFeed(FeedAuthor[])`,
+  `strongRefOf`/`isStale`, `purgeCollection`(TEST_DID-guarded) all exist as the
+  reshape assumes. The Bsky graph endpoints match the ★ note's verified shapes
+  (not re-probed, per instruction).
+
+**Concurrency:** All CB phases sequential; map recorded with per-edge reasons. No
+parallel candidates (every adjacent pair shares `recipe.ts` or `pages/cookbook.ts`
+or a config read). No worktree dispatch → no re-entry-verification fields.
+
+**Confirmed:** the Cookbook model is coherent with the shipped surfaces (Browse
+stays zero-auth and broader; comments/likes friends-scoped → now cookbook-scoped
+with honest copy; feed is a view). Each CB phase is a shippable stop-point
+(stop-anywhere sequencing holds). Every phase reuses an existing surface.
+
+**Open questions (3) — walked with the user one at a time, all CONFIRMED
+(2026-07-08):** (1) PHASE-GATED CB1 — all sources feed per-recipe discovery with a
+logged cap (no silent truncation); (2) PHASE-GATED CB4 — depth control deferred to
+CB6 (ReachConfig carries no `depth` field until then); (3) ADVISORY — reach config
+in localStorage. No BLOCKING items; CB1 ready to start on approval.
+
+### M4 Cookbook reshape — re-grounded against current main — 2026-07-08
+
+The CB1–CB7 re-plan above was first drafted against a local checkout that was **24
+commits behind `origin/main`**. The intervening commits are the shipped
+**browse-view-filters** track (its own plan, `plans/2026-07-08-1-plan-browse-view-filters.md`):
+view modes, photos-only, Meal/Cuisine facets, and a Settings "Only show me" diet
+preference. Fast-forwarded to `origin/main` (clean — none of the parked/uncommitted
+files were touched upstream), then re-verified every CB codebase claim against the
+now-current source. Analysis only; additive edits, no CB phase reorder.
+
+**Found (and folded in):**
+- The browse track changed `recipe.ts` (the deferred-auth `mountComments` split —
+  CB1/CB2 already build on it; no change), `settings.ts` (added the "Only show me"
+  diet-preference section), and `view.ts` (added `renderRecipeDetailsList` +
+  `renderFacetDropdown`); it added `browse-state.ts` + `diet-preference.ts`.
+- It did NOT touch `nav.ts`, `feed.ts`, `friends.ts`, `comments.ts`, `starter.ts`,
+  `identity/did.ts` — every CB claim on those still holds.
+
+**Changed:**
+- Added a "Re-grounded against current `main`" note to the CB **Verified against
+  the codebase** block (what changed, what's still valid).
+- **CB4** now reconciles with the existing **diet-preference** section: diet is an
+  app-wide *content* filter, orthogonal to both cookbook axes (reach = who, signals
+  = what shows), kept as its own Settings section — Settings ends up with three
+  distinct groups (reach / social signals / diet), cross-linked with clear copy.
+- **CB5** now names the browse-track view layer (`renderRecipeDetailsList`,
+  `renderFacetDropdown`, `browse-state.ts`) as reuse surfaces and requires the
+  cookbook feed to honor the app-wide diet preference the way Browse does.
+
+**Confirmed:** no CB phase decomposition or sequencing change; the 3 CONFIRMED open
+questions stand. The CB block is ready for a fresh-context Pass 3 (add a line to the
+Pass 3 prompt: re-verify against current `main`, incl. the browse-view-filters
+surfaces) then execution at CB1.
+
+**Unrelated observation (filed, not fixed):** during the Browse work, e2e logs show
+self-hosted fonts 404 on a doubled path (`assets/fonts/assets/fonts/*.woff2`) — a
+pre-existing issue on `main` (fonts fall back to system), not caused by this work.
+Worth its own small fix pass.
+
+### M4 Cookbook reshape Pass 3: Quality Gates — 2026-07-08
+
+Scope: the CB1–CB7 block only (the friend-model 9a/9b/9c and M0–M3 were gated in
+their own prior passes). Run in the same context as the Pass 1+2 re-plan +
+re-grounding (the skill prefers fresh eyes for Pass 3; noted the tradeoff, applied
+the gate checklist rigorously rather than leaning on prior reasoning). Codebase
+spot-checked post-fast-forward (current `main`). Additive fixes only; no phase
+reorder, no reasoning rewrite.
+
+**TDD ordering:**
+- Confirmed the CB cross-phase conventions already impose tests-first (RED before
+  production, watch it fail) on CB1–CB4 and the CB2/CB3 sub-splits; CB5–CB7 held to
+  the deferred "re-confirm shape at start" bar (each names a wiring test + a
+  validation tier, correct for milestone-altitude phases).
+- Specificity: each executable phase names concrete behaviors (CB1 dedup/per-source-
+  degrade/config-off/`handle.invalid`; CB2 count 0/1/idempotent; CB3 redirect +
+  cold-view; CB4 both-edges of each toggle) — not "write tests for X". No vague
+  specs.
+- Wiring/verification: every executable phase's Verification runs through an entry
+  point (recipe page / cookbook page / settings), not an isolated module. **Made
+  CB1's test-tier explicit** (hermetic unit + `@live` entry-point now; hermetic
+  entry-point via CB3's cold-view) so a stop-after-CB1 commit isn't misread as
+  under-tested — it's the 9a/9b reads-hermetic/writes-`@live` split.
+- Mutation resistance: CB1–CB4 name boundary edges, not single points. No defects.
+
+**Observability:** confirmed per-phase Diagnostic-logging lines through `src/log.ts`
+(`?debug`/`localStorage.debug`-gated) on every risky boundary — CB1 per-source
+resolve/degrade/merged-count, CB2 write/count-agg/toggle, CB3 mount, CB4 toggles.
+The CB1 member **cap** must be reconstructable from the log (already required). No
+additions needed.
+
+**Debugging readiness:** every CB phase is a declared stop-point with its own gate
+(commit-per-phase). No change.
+
+**Validation calibration:** CB1 Moderate (real-network reads, no mutation), CB2
+Broad (external `app.arecipe.interaction` write), CB3 Moderate (read-only page +
+redirect; the friend WRITE surface is *removed*), CB4 Moderate (localStorage UI) —
+all correctly scoped. No Phase 0 in the CB block (M4 discovery D7–D9 already done).
+
+**Concurrency honesty:** CB Concurrency Map accounts for CB1–CB7, all sequential
+with per-edge reasons. Re-checked write-set disjointness against current per-phase
+Write-sets after the re-grounding: `recipe.ts` (CB1 comments, CB2 interactions) and
+`pages/cookbook.ts` (CB3 page, CB5 feed) are the shared hot files forcing the
+sequence. **Noted:** CB4's write-set (`settings.ts` + `prefs.ts`/`reach.ts`) is
+actually *disjoint* from CB1–CB3, but CB4 is sequential by *dependency* (needs CB1's
+config shape, CB2's Hide-Likes surface, CB3's Cookbook page for its read-through
+test), not by write-set — so no parallel restructure (and stop-anywhere sequencing
+is user-chosen; worktree overhead isn't worth it for a solo dev). All sequential →
+no parallel sets → no shared-state-invariant / re-entry-verification fields required.
+
+**Documentation impact:** CB Documentation Impact schedules DESIGN.md/README/
+PRACTICES.md updates in the phase that makes each stale (CB3 destination + drop;
+CB4 settings; CB2 interaction purge) — no trailing docs phase. **Extended the
+DESIGN.md CB4 entry** to document the three distinct settings groups (reach / social
+signals / the pre-existing diet filter) surfaced by the re-grounding.
+
+**Coherence:** the CB block still solves the stated problem (Cookbook = your recipes
++ bounded Bsky-primitive reach; Browse broader + zero-auth; no backend). No scope
+creep — depth deferred to CB6, Jetstream optional, diet kept as its own orthogonal
+filter. Reasoning holds; no rewrite.
+
+**Confirmed ready:** yes. The 3 open questions are all CONFIRMED (2026-07-08); no
+BLOCKING items. Two PHASE-GATED items remain flags on their phases — CB1 (all
+sources feed per-recipe discovery, implement the logged member cap) and CB4 (depth
+control deferred to CB6, `ReachConfig` has no `depth` field). CB1 is ready to
+execute.
+
+### CB1 execution — landed + verified (commit pending) — 2026-07-08
+
+Built `src/social/cookbook.ts` (`resolveCookbook`, depth-0 membership: you +
+starters + Bluesky follows + followers; source-tagged; priority-ordered you →
+starter → follow → follower; degrade-not-blank per source) TDD-first —
+`tests/unit/social/cookbook.spec.ts` 6/6 (dedup/union, per-source degrade,
+config-off, `handle.invalid`, priority order, no-`you`). Migrated `recipe.ts`
+`mountComments` discovery `listFriends` → `resolveCookbook`, with the CONFIRMED
+per-recipe **logged member cap** (`COOKBOOK_DISCOVERY_CAP = 50`; favors high-signal
+sources; logs when it truncates — never silent).
+
+**Verified:** typecheck ✓, lint ✓, unit 191 ✓ (+6), build ✓, hermetic e2e
+(comments + recipes) 9 ✓, and the **`@live` comment gate green** (real OAuth →
+`mountComments` runs `resolveCookbook` against the real PDS follows + AppView
+followers, comment write/appear/reply-nest, records verified on the PDS + purged).
+So the cookbook scope is proven live from the entry point.
+
+**Commit-strategy finding (recipe.ts CB1/CB2 fusion).** The parked 9c-i already
+refactored `mountComments` onto a shared `getAgent` loader and added
+`mountInteractions` in the same file. CB1's `mountComments` migration is
+interleaved with that parked refactor in one uncommitted `recipe.ts` diff, so a
+clean "CB1-only" commit is impractical. Resolution options recorded for the user:
+- **(A) Fold CB1+CB2's recipe.ts discovery migration into one commit** — also
+  migrate `mountInteractions` `listFriends` → `resolveCookbook` (same edit shape),
+  run the `@live` interaction gate (incl. the parked "unrooted like write"
+  investigation), and commit cookbook.ts + recipe.ts (both surfaces) +
+  interactions.ts + prefs (+`hideLikes`) + tests. Coherent `recipe.ts`; matches the
+  working tree; pulls CB2's discovery migration forward (CB2's card-counts + Saved
+  view remain).
+- **(B) Leave CB1 + parked 9c-i uncommitted (WIP)** — CB1 is verified; defer the
+  commit until CB2 is executed properly, then commit both.
+`friends.ts`/`listFriends` stays until CB3 (both `mountComments` and
+`mountInteractions` must be off it first — the drop-hazard the CB ordering guards).
+
+### CB1 shipped + CB2 (discovery/write core) shipped + no-meal image — 2026-07-08
+
+Resolved the recipe.ts CB1/CB2 fusion by **Option A** (user-chosen): folded CB2's
+discovery migration in and committed CB1+CB2 core together.
+
+**CB1 — SHIPPED.** `src/social/cookbook.ts` (`resolveCookbook`, depth-0) + the
+`mountComments` discovery migration off `listFriends`. Unit 6/6; hermetic green;
+**`@live` comment gate green** (real OAuth → cookbook scope reached against the
+real PDS follows + AppView followers).
+
+**CB2 (core) — SHIPPED with a flagged flake.** Migrated `mountInteractions`
+discovery `listFriends` → `resolveCookbook` (recipe.ts now imports no
+`listFriends`; `friends.ts` stays until CB3). Landed the parked likes/saved
+(`interactions.ts` + `prefs.hideLikes` + unit/e2e specs). **Optimistic-UI
+hardening:** new `withOwnInteraction` (unit-tested, 4 edges) — `mountInteractions`
+reflects the viewer's own like/save from the write result and no longer re-reads
+immediately (that immediate `listRecords` raced the PDS read-after-write). One
+clean `@live` run proved like→count `1`→unlike→count `0` with the record verified
+on the PDS then purged. **Remaining CB2 (deferred, as planned):** Browse card
+counts + the Saved view under My recipes.
+
+**⚠️ TODO (filed) — `@live` like gate is flaky.** Intermittently the like click
+does not complete the write (no `adding` log, no `toggle failed` error) → count
+stays `0`. It is NOT read-after-write (the optimistic fix left it unchanged; the
+write isn't attempted on the failing runs). Suspected: a timing race on the
+concurrent-async recipe page (two `void mount*()` calls sharing the deferred
+`getAgent`, multiple refreshes) and/or auth-server **rate-limiting** from ~6 rapid
+`@live` OAuth logins in one session (the plan's known caveat: reuse cached
+sessions / space runs out). Records are correct (clean pass + hermetic + unit);
+this is test-reliability/timing, not a data defect. **Investigate fresh** (rate-
+limit-reset session; instrument the click→toggle→addInteraction path; consider a
+"mount ready" signal for the e2e or making the recipe page's social mounts
+sequential). CB1's `@live` comment gate uses the same page and passed.
+
+**No-meal placeholder image — refreshed.** Split the new 1024² contact sheet
+`assets/no_meal_image_standin.png` (VERSION 1 light / VERSION 2 dark, cutlery-
+butterfly) into `assets/no-meal-{light,dark}.png` (384×400, transparent, labels
+cropped, identical tight crop). Source stays untracked; `view.spec.ts` green;
+build precaches the pair. (Same process as the 2026-07-08 `030f57f` standin.)
+
+**Gate before commit:** full hermetic `npm test` PASS — lint, typecheck, unit
+(29 files / 195 tests), build, e2e (45). `@live` comment gate green; `@live` like
+gate flaky (filed above). Committed to `main` (chasemp identity); code + this plan
+in separate commits per repo convention.
