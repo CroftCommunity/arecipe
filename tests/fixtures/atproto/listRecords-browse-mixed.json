@@ -1,0 +1,112 @@
+{
+  "records": [
+    {
+      "uri": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/browsemixed0001",
+      "cid": "bafyreibrowsemixed0001aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "value": {
+        "$type": "exchange.recipe.recipe",
+        "name": "Greek Salad",
+        "text": "A bright vegetarian Greek dinner salad.",
+        "recipeCuisine": "greek",
+        "recipeCategory": "dinner",
+        "suitableForDiet": ["exchange.recipe.defs#dietVegetarian"],
+        "ingredients": ["cucumber", "tomato", "feta"],
+        "instructions": ["chop", "toss"],
+        "createdAt": "2026-07-01T00:00:00.000Z",
+        "updatedAt": "2026-07-01T00:00:00.000Z",
+        "embed": {
+          "$type": "exchange.recipe.recipe#imagesEmbed",
+          "images": [
+            {
+              "alt": "Recipe photo",
+              "image": {
+                "ref": { "$link": "bafkreidtrbx6wbmsf6wlh73jyjsmhzdltngje2bleot5brgqkygnluyxcq" },
+                "size": 100000,
+                "$type": "blob",
+                "mimeType": "image/jpeg"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "uri": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/browsemixed0002",
+      "cid": "bafyreibrowsemixed0002aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "value": {
+        "$type": "exchange.recipe.recipe",
+        "name": "American Pancakes",
+        "text": "Fluffy breakfast pancakes.",
+        "recipeCuisine": "american",
+        "recipeCategory": "breakfast",
+        "ingredients": ["flour", "milk", "egg"],
+        "instructions": ["mix", "griddle"],
+        "createdAt": "2026-07-02T00:00:00.000Z",
+        "updatedAt": "2026-07-02T00:00:00.000Z",
+        "embed": {
+          "$type": "exchange.recipe.recipe#imagesEmbed",
+          "images": [
+            {
+              "alt": "Recipe photo",
+              "image": {
+                "ref": { "$link": "bafkreidtrbx6wbmsf6wlh73jyjsmhzdltngje2bleot5brgqkygnluyxcq" },
+                "size": 100000,
+                "$type": "blob",
+                "mimeType": "image/jpeg"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "uri": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/browsemixed0003",
+      "cid": "bafyreibrowsemixed0003aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "value": {
+        "$type": "exchange.recipe.recipe",
+        "name": "Italian Minestrone",
+        "text": "A vegetarian Italian dinner soup with no photo.",
+        "recipeCuisine": "italian",
+        "recipeCategory": "dinner",
+        "suitableForDiet": ["exchange.recipe.defs#dietVegetarian"],
+        "ingredients": ["beans", "pasta", "tomato"],
+        "instructions": ["simmer"],
+        "createdAt": "2026-07-03T00:00:00.000Z",
+        "updatedAt": "2026-07-03T00:00:00.000Z"
+      }
+    },
+    {
+      "uri": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/browsemixed0004",
+      "cid": "bafyreibrowsemixed0004aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "value": {
+        "$type": "exchange.recipe.recipe",
+        "name": "Greek Vegan Lunch Bowl",
+        "text": "A vegan Greek lunch bowl.",
+        "recipeCuisine": "greek",
+        "recipeCategory": "lunch",
+        "suitableForDiet": [
+          "exchange.recipe.defs#dietVegetarian",
+          "exchange.recipe.defs#dietVegan"
+        ],
+        "ingredients": ["chickpeas", "greens", "lemon"],
+        "instructions": ["combine"],
+        "createdAt": "2026-07-04T00:00:00.000Z",
+        "updatedAt": "2026-07-04T00:00:00.000Z",
+        "embed": {
+          "$type": "exchange.recipe.recipe#imagesEmbed",
+          "images": [
+            {
+              "alt": "Recipe photo",
+              "image": {
+                "ref": { "$link": "bafkreidtrbx6wbmsf6wlh73jyjsmhzdltngje2bleot5brgqkygnluyxcq" },
+                "size": 100000,
+                "$type": "blob",
+                "mimeType": "image/jpeg"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

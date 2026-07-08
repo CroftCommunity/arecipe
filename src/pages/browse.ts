@@ -10,6 +10,8 @@ import { createRecipeCache, type CachedRecipe } from '../recipes/cache.js';
 import { createExclusions } from '../recipes/exclusions.js';
 import { createStarterPrefs, loadStarterFeed } from '../recipes/starter.js';
 import { createRecipeReader } from '../recipes/read.js';
+import { createDietPreference } from '../recipes/diet-preference.js';
+import { createBrowsePrefs, matchesFilter, type BrowseState } from './browse-state.js';
 import { renderRecipeList, type RenderOptions } from '../recipes/view.js';
 import { registerServiceWorker } from '../sw-register.js';
 
@@ -39,11 +41,20 @@ const main = (): void => {
   // block pushed right. The count carries a link to the Settings dietary
   // section — diet is a persisted preference set there, not a Browse filter.
   const toolbar = el('div', 'browse-toolbar');
+  const controls = el('div', 'browse-controls');
+  // Photos-only toggle (Phase 3): the first live filter. A styled checkbox
+  // pill consistent with .chip.
+  const photosToggleLabel = el('label', 'browse-toggle');
+  const photosToggle = document.createElement('input');
+  photosToggle.type = 'checkbox';
+  photosToggle.dataset['testid'] = 'photos-only';
+  photosToggleLabel.append(photosToggle, document.createTextNode('Photos only'));
+  controls.append(photosToggleLabel);
   const countBlock = el('div', 'browse-count');
   const dietLink = el('a', 'diet-pref-link', 'set dietary preference ↗') as HTMLAnchorElement;
   dietLink.href = './settings.html#diet-preference';
   countBlock.append(recipesStatus, dietLink);
-  toolbar.append(countBlock);
+  toolbar.append(controls, countBlock);
   const listContainer = el('div');
   form.append(input, findButton);
   content.append(form, toolbar, listContainer);
@@ -97,24 +108,53 @@ const main = (): void => {
   };
   let current: Current | null = null;
 
+  // Persisted transient browse state (view/photos-only/facets) and the
+  // app-wide diet preference (set in Settings, read here). renderCurrent
+  // applies both so Browse honors the diet preference from this phase on,
+  // before the Settings UI (Phase 8) exists.
+  const browsePrefs = createBrowsePrefs();
+  const dietPreference = createDietPreference();
+  let state: BrowseState = browsePrefs.load();
+
+  const isFiltered = (diet: string[]): boolean =>
+    state.photosOnly ||
+    state.facets.cuisine.length > 0 ||
+    state.facets.category.length > 0 ||
+    diet.length > 0;
+
   const renderCurrent = (): void => {
     if (current === null) return;
     const kept = withoutHidden(current.entries);
-    const verified = kept.filter((e) => e.verified).length;
-    recipesStatus.textContent =
-      current.kind === 'search'
+    const diet = dietPreference.load();
+    const shown = kept.filter((e) => matchesFilter(e.value, { state, diet }));
+    const verified = shown.filter((e) => e.verified).length;
+    // When a filter is active the honest count is "N of M shown"; with no
+    // filter, the original per-path string is preserved byte-identical.
+    recipesStatus.textContent = isFiltered(diet)
+      ? `${shown.length} of ${kept.length} shown · ${verified} verified`
+      : current.kind === 'search'
         ? `${current.fetchedCount ?? current.entries.length} recipes cached (${verified} verified)`
         : `${kept.length} starter pack recipes (${verified} verified)${current.statusSuffix ?? ''}`;
     const options: RenderOptions = {};
     if (current.author !== undefined) options.author = current.author;
     if (current.authorsByDid !== undefined) options.authorsByDid = current.authorsByDid;
-    listContainer.replaceChildren(renderRecipeList(kept, options));
+    listContainer.replaceChildren(renderRecipeList(shown, options));
     log.debug('browse', 'render', {
       kind: current.kind,
-      shown: kept.length,
-      total: current.entries.length,
+      shown: shown.length,
+      total: kept.length,
+      filtered: isFiltered(diet),
     });
   };
+
+  // Initialize the photos-only control from prefs and re-render on change.
+  photosToggle.checked = state.photosOnly;
+  photosToggle.addEventListener('change', () => {
+    state = { ...state, photosOnly: photosToggle.checked };
+    browsePrefs.save(state);
+    log.debug('browse', 'filter changed', { photosOnly: state.photosOnly });
+    renderCurrent();
+  });
 
   const showEntries = (entries: CachedRecipe[], author: string, fetchedCount?: number): void => {
     current = { entries, kind: 'search', author, fetchedCount };

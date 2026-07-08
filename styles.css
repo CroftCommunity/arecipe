@@ -373,6 +373,32 @@ body {
   margin: var(--s-2) 0;
 }
 
+.browse-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+/* Toggle pill: same vocabulary as .chip, but interactive. */
+.browse-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  padding: 0.15rem var(--s-2);
+  border-radius: var(--r-pill);
+  background: var(--enamel-soft);
+  color: var(--enamel);
+  cursor: pointer;
+  user-select: none;
+}
+
+.browse-toggle input {
+  accent-color: var(--enamel);
+}
+
 .browse-count {
   margin-left: auto;
   text-align: right;
