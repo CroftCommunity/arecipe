@@ -112,13 +112,15 @@ files are not cross-referenced by docs.)
 
 ## Concurrency Map
 
-**All phases sequential.** Reason: every phase after Phase 2 reads or writes the same small
-set of files (`browse-state.ts`, `browse.ts`, `view.ts`, `view.spec.ts`, `styles.css`), and
-each wiring phase builds on the seam and state introduced by the previous. There is no
-disjoint write-set to parallelize, and no shared ambient state beyond the working tree.
-Parallelism was considered and rejected on write-set overlap.
+**UI phases sequential; the ops phase is independent.** Phases 1–8 each read/write the same
+small set of files (`browse-state.ts`, `browse.ts`, `view.ts`, `view.spec.ts`, `styles.css`,
+`settings.ts`) and build on the seam/state introduced by the previous, so they are sequential
+(write-set overlap, rejected for parallelism). **Phase 9 (record data hygiene)** has a
+disjoint write-set (`spike/import/*` + the live PDS, no `src/*` overlap) and no shared ambient
+state with the UI phases, so it *could* run in parallel or at any point; it is listed last for
+simplicity, not dependency. All work happens on the `browse-view-filters` worktree.
 
-Sequential spine: Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6 → Phase 7.
+Sequential spine: Phase 0 → 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8. Phase 9 independent (any time).
 
 ## Phases
 
@@ -199,9 +201,9 @@ both.
   Settings): `type DietPreference = string[]` (selected diet tokens, e.g. `['dietVegetarian']`);
   `createDietPreference({storage?})` with `load()/save()` (defensive try/catch, key
   `diet-preference`); empty = "no preference / show all".
-- [ ] `src/pages/browse-state.ts` — `recipeFacets(value): { cuisine: string|null; category: string|null; diet: string[]; hasImage: boolean }` (diet tokens stripped via `#`-split; `hasImage` from `firstImageCid`); `type BrowseState = { view: 'tiles'|'details'; photosOnly: boolean; facets: { cuisine: string[]; category: string[] } }` (**transient**, no diet); `matchesFilter(value, { state, diet }): boolean` — OR-within-dimension / AND-across-dimensions for the transient facets, AND photos-only, AND the app-wide `diet` preference (recipe must satisfy every selected diet token); `createBrowsePrefs({storage?})` (keys `browse-view-mode`, `browse-photos-only`, `browse-facets`); `availableFacets(entries): { cuisine: string[]; category: string[] }` (distinct, sorted).
+- [ ] `src/pages/browse-state.ts` — `recipeFacets(value): { cuisine: string|null; category: string|null; diet: string[]; hasImage: boolean }` (diet tokens stripped via `#`-split **and normalized**: drop a trailing `Diet` so `dietLowCarbDiet`→`dietLowCarb`, `dietGlutenFreeDiet`→`dietGlutenFree`; canonicalize the `side dish`→`side` category; this makes filtering/grouping robust to the malformed wild records we can't edit — e.g. recipe.exchange's Gingerbread Cookies); `hasImage` from `firstImageCid`; `type BrowseState = { view: 'tiles'|'details'; photosOnly: boolean; facets: { cuisine: string[]; category: string[] } }` (**transient**, no diet); `matchesFilter(value, { state, diet }): boolean` — OR-within-dimension / AND-across-dimensions for the transient facets, AND photos-only, AND the app-wide `diet` preference (recipe must satisfy every selected diet token); `createBrowsePrefs({storage?})` (keys `browse-view-mode`, `browse-photos-only`, `browse-facets`); `availableFacets(entries): { cuisine: string[]; category: string[] }` (distinct, sorted).
 - [ ] `tests/unit/recipes/diet-preference.spec.ts` — round-trip; empty = match-all; private-mode degradation.
-- [ ] `tests/unit/pages/browse-state.spec.ts` — table-driven: facet extraction from real record shapes; predicate truth table (empty state matches all; single-dimension OR; cross-dimension AND; photos-only excludes image-less; **diet preference intersects** — a vegetarian preference drops non-vegetarian recipes); prefs round-trip; `availableFacets` distinct+sorted.
+- [ ] `tests/unit/pages/browse-state.spec.ts` — table-driven: facet extraction from real record shapes **incl. normalization** (`dietGlutenFreeDiet`→`dietGlutenFree`, `side dish`→`side`); predicate truth table (empty state matches all; single-dimension OR; cross-dimension AND; photos-only excludes image-less; **diet preference intersects** — a vegetarian preference drops non-vegetarian recipes); prefs round-trip; `availableFacets` distinct+sorted.
 
 > Note: 4 files here nudges the split threshold, but `diet-preference.ts` is small and its
 > spec is tiny; the cluster is one cohesive "browse-state + shared diet pref" unit. If it
@@ -281,7 +283,7 @@ wired in Phase 5.
 Phase 0 decision: two separate dropdowns, not chips), reflecting selected state. Render only;
 wired in Phase 7.
 **Changes:**
-- [ ] `src/recipes/view.ts` — `renderFacetDropdown(dimension, available, selected): HTMLElement` producing a `<details class="facet-dd">` with a `<summary>` label (e.g. "Meal ▾") and a panel of checkbox options; each option carries `data-dimension` + `data-value`, checked per `selected`. Called once per dimension (meal, cuisine).
+- [ ] `src/recipes/view.ts` — `renderFacetDropdown(dimension, available, selected): HTMLElement` producing a `<details class="facet-dd" name="browse-facet">` with a `<summary>` label (e.g. "Meal ▾") and a panel of checkbox options; each option carries `data-dimension` + `data-value`, checked per `selected`. Called once per dimension (meal, cuisine). **Interaction contract (from Phase 0):** (a) shared `name="browse-facet"` so only one of Meal/Cuisine is open at a time (native exclusive accordion); (b) ticking an option must NOT collapse the panel — multi-select is cumulative, so the wiring (Phase 7) updates the filter + count + list *without* rebuilding the dropdown; (c) clicking outside the open panel (or re-clicking its summary) closes it.
 - [ ] `styles.css` — `.facet-dd` / `.facet-dd-panel` (native `<details>` popover styling, consistent with the app; light + dark).
 - [ ] `tests/unit/recipes/view.spec.ts` — `describe('renderFacetDropdown')`: renders one checkbox per available value; selected values are `checked`; empty `available` → the dropdown is omitted (or renders disabled); summary shows the dimension label.
 **Call chain:** (render library) consumed by Phase 7. Not wired here.
@@ -305,7 +307,7 @@ wired in Phase 7.
 facets from the current entries and applying `matchesFilter`; persist selections. Complete
 the feature.
 **Changes:**
-- [ ] `src/pages/browse.ts` — build the `Meal ▾` + `Cuisine ▾` dropdowns from `availableFacets(current.entries)` (via `renderFacetDropdown`); on a dropdown checkbox `change`, update `BrowseState.facets`, persist, and `renderCurrent()`; initialize from prefs; recompute available facets whenever `current` changes (feed vs search).
+- [ ] `src/pages/browse.ts` — build the `Meal ▾` + `Cuisine ▾` dropdowns from `availableFacets(current.entries)` (via `renderFacetDropdown`); on a dropdown checkbox `change`, update `BrowseState.facets`, persist, and refresh **only the count + list** (not the toolbar) so the open dropdown survives multi-select; add a document-level click handler that closes an open facet `<details>` on outside-click; initialize from prefs; recompute available facets whenever `current` changes (feed vs search). Structural re-render (rebuild toolbar) happens only on view-mode / photos-only / feed changes.
 - [ ] `tests/e2e/browse.spec.ts` — add cases using `listRecords-browse-mixed.json`: selecting `vegetarian` narrows to vegetarian recipes; adding `breakfast` yields `vegetarian AND (breakfast)`; selecting two categories is OR within the dimension; selections persist across reload.
 - [ ] `docs/DESIGN.md` — (ADVISORY, only if confirmed) one line noting Browse view-mode + label filtering.
 **Call chain:** dropdown checkbox `change` → update `BrowseState.facets` + persist + `renderCurrent()` → `matchesFilter` (Phase 2) → active renderer → filtered DOM.
@@ -348,6 +350,40 @@ during execution (not yet read in depth — see Open Questions).
    vegetarian recipes on next visit; clearing it restores all.
 2. **Verification:** `npx playwright test tests/e2e/settings.spec.ts -g "diet"`.
 **Validation:** Broad (cross-page). e2e across Settings→Browse + manual serve check.
+
+### Phase 9: Record data hygiene (ops, independent)
+**Goal:** Correct the malformed metadata on records **we own** (arecipe.bsky.social) so the
+raw data is clean, not just normalized at display time. Foreign records we cannot edit
+(recipe.exchange's Gingerbread Cookies) are covered only by the Phase 2 code normalization —
+documented, not fixed.
+**Changes:**
+- [ ] `spike/import/fix-metadata.mjs` — **new** ops script (non-production, matches the import
+  tooling): audit arecipe.bsky.social `exchange.recipe.recipe` records for `recipeCategory ==
+  'side dish'` (→ `side`) and any `suitableForDiet` token ending in `Diet` (→ strip suffix);
+  `putRecord` the corrections (preserve `createdAt`, bump `updatedAt`), idempotent, `--dry-run`
+  first. Currently: 1 record (the seed "Greek Cucumber Tomato Feta Salad", `side dish`→`side`).
+- [ ] `spike/import/fix-metadata.test.mjs` — unit test the pure transform (category/diet
+  correction) with `node --test`, RED→GREEN, before the network runner.
+**Call chain:** `node fix-metadata.mjs` → login (app pw) → listRecords → correct in memory →
+putRecord. Ops entry point, not the app.
+**Wiring test:** dry-run prints the 1 planned correction; post-run, a listRecords readback
+shows no `side dish` category on the account.
+**Depends on:** none (independent of the UI phases). Uses `.env` creds like the import.
+**Read-set:** live arecipe.bsky.social records; `spike/import/*` (pattern reference).
+**Write-set:** `spike/import/fix-metadata.mjs`, `spike/import/fix-metadata.test.mjs`; live PDS
+records (own account only).
+**Shared-state contract:** Writes to the arecipe.bsky.social PDS via app-password (guarded to
+that account); localStorage untouched; no git/process state. **Independent of the UI phases'
+write-set** (`src/*`, `styles.css`, `tests/*`) — could run before, after, or in parallel with
+them; listed last for simplicity.
+**Risks:** Outward, hard-to-reverse writes to the live account — dry-run + idempotent +
+preserve `createdAt`, same discipline as the import. Only the seed is affected today.
+**Done when:**
+1. **Behavioral:** The seed record on arecipe.bsky.social carries `recipeCategory: "side"`;
+   no owned record has a malformed diet token.
+2. **Verification:** `node spike/import/fix-metadata.mjs --dry-run` then live readback via
+   listRecords shows the corrected value.
+**Validation:** Moderate. Unit test (pure transform) + dry-run review + live readback.
 
 ## Open Questions
 
@@ -450,6 +486,25 @@ questions.
 - Phases 6–7 scoped explicitly to transient filters (cuisine/meal/tags), diet excluded.
 - Added a PHASE-GATED question to read `settings.ts` structure before Phase 8.
 **Concurrency:** no changes — still sequential (Phase 8 depends on 2+3).
+
+### Phase 0 prototype refinements — 2026-07-08
+**Found (from driving the prototype):**
+- Chose **compact bar (C)**; split filters into **separate Meal ▾ and Cuisine ▾ dropdowns**;
+  removed diet from the toolbar (Settings-only) with a `set dietary preference ↗` link by the
+  count. (Recorded in the Phase 0 DECISION block; Phases 1/6/7 updated.)
+- Dropdown interaction: multi-select must keep the panel open (cumulative), only one of the
+  two open at a time, close on outside-click / summary re-click. The naive "rebuild toolbar
+  on every change" collapses the panel — so Phase 7 refreshes count+list only on facet
+  change and rebuilds structurally only on view/photos/feed changes. Recorded in Phase 6's
+  interaction contract and Phase 7's changes.
+**Changed:**
+- Added **Phase 9: Record data hygiene (ops)** to fix the 1 owned malformed record (seed's
+  `side dish`→`side`); folded display-time normalization into Phase 2's `recipeFacets`
+  (`…Diet` suffix strip, `side dish`→`side`) so foreign records we can't edit
+  (recipe.exchange's Gingerbread Cookies) still group/filter correctly.
+- Concurrency Map updated: UI phases 0–8 sequential; Phase 9 independent (disjoint
+  `spike/import` + PDS write-set).
+**Concurrency:** Phase 9 flagged independent; UI spine unchanged.
 
 ### Branch/worktree isolation — 2026-07-08
 This feature is developed on branch **`browse-view-filters`** in a git **worktree** at
