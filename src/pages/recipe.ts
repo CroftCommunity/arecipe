@@ -3,7 +3,11 @@
 // author's PDS from the DID, fetches the record, Tier 2-verifies it, and
 // caches it like any other read.
 
-import { bootSession } from '../auth/boot.js';
+// NOTE: bootSession (and its heavy @atproto/api dependency) is imported
+// DYNAMICALLY inside mountComments — the shareable recipe page renders its
+// detail from the light read path, and the auth client loads only after, as a
+// split chunk. Do not add a static `import ... boot.js` here (it would pull
+// @atproto/api back into the recipe entry bundle).
 import { mountBuildStamp } from '../build-stamp.js';
 import { resolveDidDoc } from '../identity/did.js';
 import { log } from '../log.js';
@@ -87,7 +91,6 @@ const mountComments = async (
   content: HTMLElement,
   entry: CachedRecipe,
   uri: string,
-  agent: Agent | null,
 ): Promise<void> => {
   if (createSocialPrefs().hideComments()) {
     log.debug('comments', 'comment section hidden by social pref');
@@ -114,6 +117,7 @@ const mountComments = async (
     }
   };
 
+  let agent: Agent | null = null;
   let replyParent: string | null = null;
   let replyingNote: HTMLElement | null = null;
   let textarea: HTMLTextAreaElement | null = null;
@@ -135,10 +139,24 @@ const mountComments = async (
     );
   };
 
-  // Discovery set: the recipe author always; you + your friends when signed in.
+  // Render the recipe author's comments FIRST with no auth loaded — the
+  // shareable page stays light; the recipe detail is already on screen.
   await addRepo(parseAtUri(uri).did);
-  if (agent?.did !== undefined) {
-    const me = agent.did;
+  await refresh();
+
+  // Now load the auth client as a split chunk (deferred so @atproto/api never
+  // sits in the recipe entry bundle). Signed in → add you + your friends to
+  // discovery and enable composing; signed out → a sign-in pointer.
+  try {
+    const boot = await import('../auth/boot.js');
+    agent = (await boot.bootSession()).agent;
+  } catch (err) {
+    log.warn('comments', 'auth client load failed', { error: String(err) });
+  }
+
+  const signedInAgent = agent;
+  if (signedInAgent?.did !== undefined) {
+    const me = signedInAgent.did;
     await addRepo(me);
     try {
       const { pds } = await resolveDidDoc(me);
@@ -177,7 +195,7 @@ const mountComments = async (
       if (text === '') return;
       status.textContent = 'posting…';
       const parent = replyParent ?? undefined;
-      void addComment(agent, { recipe: strongRefOf(entry), text, parent })
+      void addComment(signedInAgent, { recipe: strongRefOf(entry), text, parent })
         .then(async () => {
           if (textarea !== null) textarea.value = '';
           replyParent = null;
@@ -190,13 +208,13 @@ const mountComments = async (
           status.textContent = `couldn’t post: ${String(err)}`;
         });
     });
+    // Re-render with the enriched discovery set (you + friends) + reply buttons.
+    await refresh();
   } else {
     const note = el('p', 'status', 'Sign in on My recipes to join the conversation.');
     note.dataset['testid'] = 'comment-signed-out';
     box.append(note);
   }
-
-  await refresh();
 };
 
 const main = async (): Promise<void> => {
@@ -215,8 +233,6 @@ const main = async (): Promise<void> => {
     status.textContent = 'No recipe given — pick one from Browse.';
     return;
   }
-  // Session is optional here: reading is public; commenting (9b) needs it.
-  const { agent } = await bootSession();
   try {
     const { entry, author, fromCache } = await loadRecipe(uri);
     const name = (entry.value as { name?: string }).name;
@@ -260,11 +276,12 @@ const main = async (): Promise<void> => {
     });
     content.append(hideButton);
 
-    // Comments (9b): friends-scoped, below the recipe.
-    void mountComments(content, entry, uri, agent).catch((err: unknown) => {
+    // Comments (9b): friends-scoped, below the recipe. Loads its own auth
+    // client as a deferred chunk (keeps @atproto/api out of the entry bundle).
+    void mountComments(content, entry, uri).catch((err: unknown) => {
       log.error('comments', 'comment section failed', { uri, error: String(err) });
     });
-    log.debug('shell', 'mounted', { page: 'recipe', uri, signedIn: agent !== null });
+    log.debug('shell', 'mounted', { page: 'recipe', uri });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     log.error('recipes', 'detail load failed', { uri, error: message });

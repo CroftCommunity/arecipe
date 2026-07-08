@@ -37,6 +37,11 @@ const result = buildSync({
   bundle: true,
   minify: true,
   format: 'esm',
+  // Code-splitting: dynamic import()s (recipe.ts defers the heavy auth client)
+  // become shared chunks, and code common to multiple pages (@atproto/api)
+  // dedupes into one chunk instead of being copied into every auth-bearing page.
+  splitting: true,
+  chunkNames: 'chunk-[hash]',
   entryNames: '[name]-[hash]',
   outdir: 'dist',
   metafile: true,
@@ -80,12 +85,30 @@ const pages = Object.fromEntries(
 
 // Service worker: version + stable-shell precache baked in. Stable names
 // only — hashed assets cache on first fetch.
+// Precache the light shell — page entries + their small shared chunks. Large
+// vendor chunks (the ~870KB @atproto/api client, split out by recipe.ts's
+// deferred import) are NOT precached: they'd bloat every SW install for a
+// capability you can't use offline anyway (OAuth needs the network), and the
+// fetch handler runtime-caches them on first use. This keeps the code-split's
+// benefit — the heavy client is downloaded only when a page actually needs it.
+const HEAVY_CHUNK_BYTES = 150 * 1024;
+const jsToPrecache = [];
+const jsDeferred = [];
+for (const k of Object.keys(result.metafile.outputs).filter((k) => k.endsWith('.js'))) {
+  const f = k.replace('dist/', '');
+  (readFileSync(`dist/${f}`).length > HEAVY_CHUNK_BYTES ? jsDeferred : jsToPrecache).push(f);
+}
+if (jsDeferred.length > 0) {
+  // No silent caps: say what's deferred to runtime caching.
+  console.log(`SW precache: deferring ${jsDeferred.length} heavy chunk(s) to runtime cache — ${jsDeferred.join(', ')}`);
+}
 const precache = [
   './', // the bare origin navigation ('/') must hit the cache too
   // Current hashed assets: the build knows their exact names, so precaching
   // is safe (and closes the first-visit gap where the page loads before the
   // SW controls). Old versions vanish with their version-named cache.
-  ...Object.values(bundleOf).map((f) => `./${f}`),
+  // Page entries + light shared chunks (heavy vendor chunks runtime-cache).
+  ...jsToPrecache.map((f) => `./${f}`),
   `./${cssName}`,
   ...Object.keys(HTML).map((f) => `./${f}`),
   './manifest.webmanifest',

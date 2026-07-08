@@ -2083,27 +2083,33 @@ probe** of the chosen index library (trust-surface budget), the same bar
 `@ipld/dag-cbor` was held to. (Origin: user raised Astro-for-search 2026-07-08;
 ruled out for the reasons above.)
 
-**Backlog (filed 2026-07-08): themed "no meal image" card standin** — use
-`assets/no_meal_image_standin.png` (a light/dark **split** asset, like the
-`logo-light`/`logo-dark` pair) as the placeholder shown on recipe cards/tiles
-that have no photo, swapped by theme (the pre-paint `data-theme` +
-`prefers-color-scheme` machinery already drives the logo pair — reuse it). Today
-`photoWrapEl` (in `src/recipes/view.ts`) renders no-photo cards without a themed
-standin. Small, self-contained; can ride the next `view.ts`/`styles.css`-touching
-phase or stand alone. (User-added asset 2026-07-08.)
+**✅ DONE (2026-07-08, `030f57f`): themed "no meal image" card standin** — split
+the user-supplied 1024² contact sheet into `assets/no-meal-{light,dark}.png`
+(labels cropped, transparency kept) and pointed `placeholderEl` (in
+`src/recipes/view.ts`) at them instead of the wordmark logo, reusing the same
+light/dark CSS pair mechanism. Precached for offline. The contact-sheet source
+stays untracked (not shipped). Unit test updated (both variants asserted).
 
-**Backlog (filed 2026-07-08): lazy-load auth on the recipe page (code-split)** —
-Phase 9b made `src/pages/recipe.ts` session-aware for commenting, which pulls
-`bootSession` → `@atproto/api` into the bundle and took the **shareable
-cold-link recipe page from 49K/17Kgz to 930K/194Kgz** (the same weight M1 flagged
-for `@atproto/api`). The recipe detail renders from a light path (cache/read/
-view/refs); only the comment section needs auth. Fix: dynamic-`import()` the
-auth/comment machinery so the detail ships light (~49K) and the heavy chunk loads
-after render. Requires **esbuild `splitting: true` + `chunkNames` + adding the
-emitted chunk(s) to the service-worker precache list** in `scripts/build.mjs` —
-a build-infra change worth its own focused pass (probe esbuild splitting first;
-no-assumed-behavior). Related precedent: the "Browse ships zero auth code" e2e.
-(Deferred from 9b, user-confirmed 2026-07-08.)
+**✅ DONE (2026-07-08): lazy-load auth on the recipe page (code-split)** — the
+recipe page now defers `bootSession` (and its `@atproto/api` dependency) behind a
+dynamic `import()` in `mountComments`: the detail + the recipe author's comments
+render from the light read path, then the auth client loads as a split chunk only
+after (signed-in → compose/reply + friends' comments). Implementation:
+- `scripts/build.mjs`: `splitting: true` + `chunkNames`. Bonus — `@atproto/api`
+  now dedupes into ONE shared chunk (~895KB) instead of a copy per auth page.
+  Per-page ENTRY bundles dropped to single-digit KB (recipe 8K, browse 3K, …);
+  note build-info `pages[].bytes` now reports the entry only, not entry+chunks.
+- Verified via the esbuild metafile: the heavy atproto chunk is NOT a static
+  import of the recipe entry (loads only on the deferred `import()`); browse/
+  settings never import it; mine/friends/account/editor still load it (they need
+  auth on load).
+- SW precache excludes chunks > 150KB (the atproto chunk) — it can't be used
+  offline anyway (OAuth needs the network) and the fetch handler runtime-caches
+  it on first use; precaching it bloated every install and defeated the split.
+  Build logs the deferred chunk (no silent caps).
+- `playwright.config.ts`: `workers: 2` — with more precache files per install,
+  the default worker count starved concurrent no-cache precache fetches on the
+  shared dev server, blanking the offline boot. (User-confirmed 2026-07-08.)
 
 ### M4 Documentation Impact
 
