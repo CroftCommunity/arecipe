@@ -139,6 +139,14 @@ to be implemented with the page-per-destination restructure:
 - **Mobile nav goes to the bottom**: primary destinations render as a
   bottom tab bar on small screens (thumb reach — mealplanner does this),
   top tabs on wide screens. Same destinations, responsive placement.
+- **Friends is a third top-level destination** (M4/9a): Browse · Friends ·
+  My recipes. The Friends page adds friends by handle (a public
+  `app.arecipe.friend` follow naming a DID) and shows their recipes as a
+  read feed. It also answers `friends.html?did=<did>` as a shareable,
+  signed-out **cold-view** of any account's public friends feed — the same
+  page-not-modal, real-URL discipline as `recipe.html?u=`. Trying it as a
+  full tab is deliberate (evaluate in use; drop to a sub-surface if it
+  doesn't earn the slot).
 - **Settings split in two, cross-linked** (blockdoku: `settings.html` ↔
   `gamesettings.html`, both linked from index, each links back home and
   sideways):

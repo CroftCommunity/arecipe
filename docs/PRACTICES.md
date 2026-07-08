@@ -43,6 +43,17 @@ test records carry a marker in a visible field; (3) cleanup is a **pre-run
 purge** of marker-matching records, not teardown-only — teardown doesn't
 run when a test crashes.
 
+**Guarded multi-collection purge (M4/9a).** The recipe suite matches a
+`MARKER` substring in `record.value.name`. The M4 social record types
+(`app.arecipe.friend`, and later comment/interaction/mute) carry no
+user-facing `name`, so the marker layer does not transfer. There, the
+safety boundary is the asserted `TEST_DID` **plus** the fact that the
+account is test-only, so every record in those collections is
+test-created — the purge deletes the **whole** collection. The shared
+helper is `purgeCollection(collection, { handle, appPassword, match? })`
+in `tests/e2e/helpers/live.ts`: `match` narrows when a collection supports
+a marker; omit it to purge all. Always keep the hard `TEST_DID` assertion.
+
 ## Never let a test dump a secret
 
 Playwright failure logs print element state, including a filled password

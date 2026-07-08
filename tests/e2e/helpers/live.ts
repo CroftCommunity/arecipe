@@ -6,6 +6,59 @@
 import { readFileSync } from 'node:fs';
 import type { Page } from '@playwright/test';
 
+/** The ONLY repo any @live suite may write to or purge — the dedicated test
+ * account (did:plc:xyfhcaweaeyew3zrgk6jaln7). Every guarded mutation asserts
+ * the session DID matches this before touching a record. */
+export const TEST_DID = 'did:plc:xyfhcaweaeyew3zrgk6jaln7';
+
+type Session = { did: string; accessJwt: string };
+
+/** App-password login for cleanup, hard-guarded to the test account. */
+const cleanupLogin = async (handle: string, appPassword: string): Promise<Session> => {
+  const res = await fetch('https://bsky.social/xrpc/com.atproto.server.createSession', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ identifier: handle, password: appPassword }),
+  });
+  const session = (await res.json()) as Session & { error?: string };
+  if (session.error !== undefined) throw new Error(`cleanup login failed: ${session.error}`);
+  if (session.did !== TEST_DID) {
+    throw new Error(`SAFETY: cleanup session is ${session.did}, expected the test account`);
+  }
+  return session;
+};
+
+/**
+ * Guarded purge of an app.arecipe.* collection on the test account. The M4
+ * social record types (friend/comment/interaction/mute) carry no user-facing
+ * `name` field, so the recipe suite's MARKER-substring guard does not transfer
+ * — the safety boundary here is the hard TEST_DID check plus the fact that the
+ * account is test-only, so every record in these collections is test-created.
+ * Pass a `match` predicate to narrow (e.g. a marker) when a collection supports
+ * one; the default deletes every record in the collection.
+ */
+export const purgeCollection = async (
+  collection: string,
+  opts: { handle: string; appPassword: string; match?: (value: Record<string, unknown>) => boolean },
+): Promise<void> => {
+  const session = await cleanupLogin(opts.handle, opts.appPassword);
+  const list = (await (
+    await fetch(
+      `https://bsky.social/xrpc/com.atproto.repo.listRecords?repo=${TEST_DID}&collection=${encodeURIComponent(collection)}&limit=100`,
+      { headers: { authorization: `Bearer ${session.accessJwt}` } },
+    )
+  ).json()) as { records?: { uri: string; value: Record<string, unknown> }[] };
+  for (const record of list.records ?? []) {
+    if (opts.match !== undefined && !opts.match(record.value)) continue;
+    const rkey = record.uri.split('/').pop() ?? '';
+    await fetch('https://bsky.social/xrpc/com.atproto.repo.deleteRecord', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `Bearer ${session.accessJwt}` },
+      body: JSON.stringify({ repo: TEST_DID, collection, rkey }),
+    });
+  }
+};
+
 /** Tolerant read: .env is absent in CI, where the @live tier never runs. */
 export const readEnv = (): Record<string, string> => {
   try {

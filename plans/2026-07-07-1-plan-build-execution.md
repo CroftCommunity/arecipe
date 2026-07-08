@@ -31,7 +31,8 @@ feasibility amendment on 2026-07-07 (see Review Log).
 | 8 Draft-sync + versioning | ✅ | Phase 8 close-out commit | PDS draft backup + eviction recovery (@live-proven); EDIT shipped; stale-cache indicator both edges; PRACTICES.md started |
 | 8b Offline PWA | ✅ | Phase 8b close-out commit | Hashed assets, versioned cache-first SW, update toast, manifest+maskable icons, self-hosted fonts, offline starter fallback; theme→2-state; CNAME baked |
 | 8c Hosted OAuth client (M3 EXIT) | ✅ | `a03205c` | Real OAuth on arecipe.app; two independent devices signed into the same account, same recipes. **MLP shipped.** |
-| 9–12 | roadmap | | re-plan before execution |
+| 9a Friends (social graph) | ✅ | Phase 9a close-out commit | `app.arecipe.friend` follows; feed.ts loader extracted (starter guard green); 3rd nav tab; `?did=` cold-view; guarded multi-collection purge; @live add→appear→remove green |
+| 9b–12 | roadmap | | re-plan before execution (9b/9c re-confirm shape at start) |
 
 ---
 
@@ -1701,7 +1702,23 @@ phases; these extend them to 9a–10:
   from the spec's "works even if you're not on Bluesky" language — out of scope
   for M4.) Simplifies 9b.
 
-### Phase 9a: Friends (social graph) — sequenced M4 #1
+### Phase 9a: Friends (social graph) — ✅ SHIPPED (2026-07-08, Phase 9a close-out commit) — sequenced M4 #1
+
+**Delivered:** as specced, with the user-confirmed Option A wiring split (see the
+"Wiring split" note below). `loadStarterFeed` was extracted to
+`src/social/feed.ts` as `loadAuthorsFeed` (behavior-preserving — `starter.ts`
+re-exports it; the 5e starter suite stayed green as the guard). `src/social/
+friends.ts` provides `buildFriendRecord`/`listFriends`/`findFriendRkey` (unit-
+tested, both edges) + `addFriend`/`removeFriend` (proven `@live`) +
+`loadFriendsFeed`. `src/pages/friends.ts` + `friends.html` add the three states
+(cold-view `?did=`, signed-in add/remove, signed-out gate); Friends is the 3rd
+nav tab. The guarded purge generalized into `purgeCollection` in
+`tests/e2e/helpers/live.ts` (markerless whole-collection purge, hard-scoped to
+`TEST_DID`). Hermetic wiring (Friends-tab nav, signed-out gate, `?did=` read
+feed) + `@live` write path (real add `rdur.dev` → recipes appear → remove →
+record gone, 9.9s) both green; full hermetic suite (30 e2e + unit) green, no
+regressions. Docs updated same-phase: DESIGN.md (Friends destination),
+PRACTICES.md (guarded multi-collection purge), README (page list).
 
 **Goal:** `app.arecipe.friend` records (a public follow naming a DID), a friends
 list to add/remove by handle, and a friends **read** feed (their recipes via the
@@ -1725,6 +1742,22 @@ existing multi-author reader). No live tail yet — that's 9d.
 **Wiring test:** hermetic e2e — add a friend by handle (routed fixture) → their
 recipes appear in the Friends feed; remove → they leave. `@live`: friend write
 to the test account, guarded purge extended to `app.arecipe.friend`.
+**Wiring split — resolved 2026-07-08 (execution finding, user-confirmed).** The
+hermetic "add→appear→remove" as written assumed an injectable signed-in `Agent`
+in hermetic e2e; no such seam exists (mirroring Phase 6, every write is proven in
+the `@live` tier, hermetic covers the signed-out + read paths). Resolution
+(Option A, matches the Pass 3 calibration — writes Broad/@live, reads Moderate):
+- **Hermetic (push CI, no creds):** the Friends tab exists and navigates; the
+  signed-out state shows the "sign in to add friends" gate; and the friends
+  **read feed** renders via a shareable **`friends.html?did=<did>` cold-view**
+  (mirrors `recipe.html?u=`) over routed plc/PDS fixtures — a genuinely useful
+  affordance (view/share any account's public friends feed), which also makes the
+  read path hermetically testable without auth.
+- **`@live` (local gate, `.env` creds):** the real `addFriend` → record on the
+  test PDS → their recipes show in the feed → `removeFriend` → record gone, with
+  the guarded whole-collection purge (hard-scoped to `TEST_DID`).
+The add/remove **write** buttons are gated on a signed-in session on the page as
+usual; their proof lives in `@live`, not hermetic.
 **Depends on:** Phase 8 (reader, `resolveDidDoc`, guarded-write harness),
 `createResolver`.
 **Read-set:** `src/recipes/read.ts`, `src/identity/resolve.ts`,

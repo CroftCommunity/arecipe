@@ -4,12 +4,10 @@
 // Phase 9). Handles + DIDs are baked; each author's PDS is resolved fresh
 // from plc.directory (the DID document is the source of truth).
 
-import { log } from '../log.js';
-import { createRecipeCache, type CachedRecipe } from './cache.js';
-import { createRecipeReader } from './read.js';
-import { resolveDidDoc } from '../identity/did.js';
+import { loadAuthorsFeed, type AuthorsFeedResult, type FeedAuthor } from '../social/feed.js';
 
-export type StarterAuthor = { handle: string; did: string };
+/** A starter author is just a feed author (handle + DID). */
+export type StarterAuthor = FeedAuthor;
 
 /** Probed live 2026-07-07 — see the plan's Phase 5e entry. First entry is
  * the official application account (general data store on its PDS). */
@@ -65,52 +63,10 @@ export const createStarterPrefs = (opts: { storage?: StorageLike } = {}): Starte
   };
 };
 
-export type StarterFeed = {
-  entries: CachedRecipe[];
-  authorsByDid: Record<string, string>;
-  failedAuthors: string[];
-};
+/** The starter feed's result shape is the generic authors-feed result. */
+export type StarterFeedResult = AuthorsFeedResult;
 
-export type StarterFeedResult = StarterFeed & {
-  /** Authors served from the IndexedDB cache because the network failed. */
-  cachedAuthors: string[];
-};
-
-/** Load the enabled authors' recipes. A multi-source feed degrades on
- * per-author failure: first fall back to previously cached copies (offline
- * survival, 8b), and only report an author fully unavailable when nothing
- * is cached either. Never blanks the page. */
-export const loadStarterFeed = async (authors: StarterAuthor[]): Promise<StarterFeedResult> => {
-  const cache = createRecipeCache();
-  const read = createRecipeReader();
-  const authorsByDid: Record<string, string> = {};
-  const failedAuthors: string[] = [];
-  const cachedAuthors: string[] = [];
-  const cachedByDid = async (did: string): Promise<CachedRecipe[]> =>
-    (await cache.list()).filter((e) => e.uri.split('/')[2] === did);
-
-  const perAuthor = await Promise.all(
-    authors.map(async (author) => {
-      authorsByDid[author.did] = author.handle;
-      try {
-        const { pds } = await resolveDidDoc(author.did);
-        const records = await read({ pds, did: author.did });
-        return await Promise.all(records.map((r) => cache.put(r)));
-      } catch (err) {
-        const cached = await cachedByDid(author.did);
-        if (cached.length > 0) {
-          log.info('starter', 'author served from cache (offline)', {
-            handle: author.handle,
-            count: cached.length,
-          });
-          cachedAuthors.push(author.handle);
-          return cached;
-        }
-        log.warn('starter', 'author feed failed', { handle: author.handle, error: String(err) });
-        failedAuthors.push(author.handle);
-        return [];
-      }
-    }),
-  );
-  return { entries: perAuthor.flat(), authorsByDid, failedAuthors, cachedAuthors };
-};
+/** Load the enabled authors' recipes. Thin alias over the shared multi-author
+ * loader (src/social/feed.ts) — the starter pack and the friends feed (9a)
+ * share one loader. The degrade-not-blank contract lives there. */
+export const loadStarterFeed = loadAuthorsFeed;

@@ -17,10 +17,11 @@ import {
 import { gzipSync } from 'node:zlib';
 import { buildSync } from 'esbuild';
 
-const PAGES = ['browse', 'mine', 'settings', 'account', 'recipe', 'editor'];
+const PAGES = ['browse', 'mine', 'friends', 'settings', 'account', 'recipe', 'editor'];
 const HTML = {
   'index.html': 'browse',
   'mine.html': 'mine',
+  'friends.html': 'friends',
   'settings.html': 'settings',
   'account.html': 'account',
   'recipe.html': 'recipe',
