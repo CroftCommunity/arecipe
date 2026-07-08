@@ -239,6 +239,41 @@ export const renderRecipeDetailsList = (
   return container;
 };
 
+export type FacetDimension = 'cuisine' | 'category';
+
+/**
+ * A multi-select filter dropdown (Meal ▾ / Cuisine ▾). A native `<details>`
+ * with a shared `name="browse-facet"` so only one opens at a time (exclusive
+ * accordion). Each option is a checkbox carrying `data-dimension`/`data-value`
+ * for the wiring layer (Phase 7) to read on change. Returns null when there is
+ * nothing to filter by, so the caller can omit an empty control.
+ */
+export const renderFacetDropdown = (opts: {
+  dimension: FacetDimension;
+  label: string;
+  available: readonly string[];
+  selected: readonly string[];
+}): HTMLElement | null => {
+  if (opts.available.length === 0) return null;
+  const details = el('details', 'facet-dd');
+  details.setAttribute('name', 'browse-facet');
+  details.dataset['dimension'] = opts.dimension;
+  const summary = el('summary', 'facet-dd-summary', `${opts.label} ▾`);
+  const panel = el('div', 'facet-dd-panel');
+  for (const value of opts.available) {
+    const option = el('label', 'facet-dd-option');
+    const box = document.createElement('input');
+    box.type = 'checkbox';
+    box.dataset['dimension'] = opts.dimension;
+    box.dataset['value'] = value;
+    box.checked = opts.selected.includes(value);
+    option.append(box, document.createTextNode(value));
+    panel.append(option);
+  }
+  details.append(summary, panel);
+  return details;
+};
+
 /** Render one recipe in full: banner, title, chips, ingredients-first detail. */
 export const renderRecipeDetail = (
   entry: CachedRecipe,

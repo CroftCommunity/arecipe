@@ -5,6 +5,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
+  renderFacetDropdown,
   renderRecipeDetail,
   renderRecipeDetailsList,
   renderRecipeList,
@@ -127,6 +128,52 @@ describe('renderRecipeDetailsList (Details view rows)', () => {
       entry({ uri: 'at://did:plc:o/exchange.recipe.recipe/2' }),
     ]);
     expect(el.querySelectorAll('a.recipe-row')).toHaveLength(2);
+  });
+});
+
+describe('renderFacetDropdown', () => {
+  it('renders one checkbox option per available value, in a details with the dimension label', () => {
+    const dd = renderFacetDropdown({
+      dimension: 'category',
+      label: 'Meal',
+      available: ['breakfast', 'dinner', 'lunch'],
+      selected: [],
+    });
+    expect(dd?.tagName.toLowerCase()).toBe('details');
+    expect(dd?.querySelector('summary')?.textContent).toContain('Meal');
+    const boxes = dd?.querySelectorAll<HTMLInputElement>('input[type=checkbox]');
+    expect(boxes).toHaveLength(3);
+    const values = Array.from(boxes ?? []).map((b) => b.dataset['value']);
+    expect(values).toEqual(['breakfast', 'dinner', 'lunch']);
+  });
+
+  it('marks selected values as checked and carries data-dimension/data-value', () => {
+    const dd = renderFacetDropdown({
+      dimension: 'cuisine',
+      label: 'Cuisine',
+      available: ['greek', 'italian'],
+      selected: ['greek'],
+    });
+    const greek = dd?.querySelector<HTMLInputElement>('input[data-value=greek]');
+    const italian = dd?.querySelector<HTMLInputElement>('input[data-value=italian]');
+    expect(greek?.checked).toBe(true);
+    expect(italian?.checked).toBe(false);
+    expect(greek?.dataset['dimension']).toBe('cuisine');
+  });
+
+  it('shares name="browse-facet" so only one dropdown opens at a time (exclusive accordion)', () => {
+    const dd = renderFacetDropdown({
+      dimension: 'category',
+      label: 'Meal',
+      available: ['dinner'],
+      selected: [],
+    });
+    expect(dd?.getAttribute('name')).toBe('browse-facet');
+  });
+
+  it('omits the dropdown entirely when there are no available values', () => {
+    const dd = renderFacetDropdown({ dimension: 'cuisine', label: 'Cuisine', available: [], selected: [] });
+    expect(dd).toBeNull();
   });
 });
 
