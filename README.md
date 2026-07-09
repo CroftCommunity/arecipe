@@ -46,6 +46,10 @@ The executable build plan lives at
 
 ## Docs
 
+- [docs/SECURITY.md](docs/SECURITY.md) — security posture: the backendless
+  atproto trust model, DPoP-bound credentials and library-owned storage, and the
+  CSP/SRI/zero-third-party XSS defense.
+
 - [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md) — philosophy and goals: incentive alignment
   through design, the three-commitments/six-tests model, and the bounded claims.
 

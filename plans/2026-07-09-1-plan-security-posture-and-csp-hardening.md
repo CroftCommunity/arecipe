@@ -8,7 +8,7 @@ Phase 0 discovery ✅ complete. Phases 1–4 pending.
 | Phase | Outcome | Ref | Note |
 |-------|---------|-----|------|
 | 0 Discovery | ✅ complete | — | D2/D3/D4 hermetic; D1 read+PDS path proven; `@live` auth slice → Phase 2 gate |
-| 1 Narrative | ⏳ pending | — | `docs/SECURITY.md` + README/DESIGN links |
+| 1 Narrative | ✅ shipped | `17aecd2` | `docs/SECURITY.md` + README/DESIGN links; all claims source-cited |
 | 2 CSP + hashing | ⏳ pending | — | build.mjs meta injection; **needs `@live` sign-in-under-CSP to close** |
 | 3 SRI | ⏳ pending | — | entry module + both stylesheets |
 | 4 Zero-3p guard | ⏳ pending | — | structural test guard |
@@ -375,7 +375,17 @@ Assumptions / Open Questions reflect it.
 **Stop-point — report findings; user reviews before Phase 1 if the connect-src
 decision (OQ1) is non-obvious.**
 
-### Phase 1: Security-posture narrative (`docs/SECURITY.md`)
+### Phase 1: Security-posture narrative (`docs/SECURITY.md`) — ✅ SHIPPED (`17aecd2`)
+
+**Delivered (2026-07-09):** `docs/SECURITY.md` created (threat model, backendless
+model, authentication, session storage, XSS-primary-defense with per-control
+status markers, blast-radius, residual risks, references); README `## Docs`
+entry added; DESIGN.md integrity bullet cross-references it. Every technical
+claim carries a `file:line` or named-decision citation; all citations and links
+re-verified (CI deploy job `ci.yml:31/53`; auth citations in
+`src/auth/oauth-client.ts`, `session-provider.ts`, `session-hint.ts`;
+`client-metadata.json`; `browser-oauth-client.d.ts:8`). CSP/SRI/zero-3p markers
+read NOT YET IMPLEMENTED, to be flipped by Phases 2–4.
 
 **Goal:** A durable, standalone security narrative — largely auth + storage
 oriented — that makes the backendless SPA/PWA/atproto trade-offs explicit for

@@ -192,7 +192,9 @@ to be implemented with the page-per-destination restructure:
   - **App management** — the PWA machinery: version/build stamp, update
     check, cache/storage, install, About. arecipe additions: the
     integrity-check explainer and (later) signed-release verification
-    live here.
+    live here. The security posture behind these integrity guarantees —
+    auth, credential storage, and the CSP/SRI XSS defense — is documented
+    in [SECURITY.md](SECURITY.md).
   - **Domain settings** — account (sign in/out, handle), display prefs,
     recipe defaults.
 - **Native light/dark**: honor `prefers-color-scheme` by default with a
