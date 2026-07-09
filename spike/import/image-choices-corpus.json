@@ -742,10 +742,10 @@
     "attributionRequired": true
   },
   "Bouillabaisse": {
-    "file": "bouillabaisse-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Marseille_518_Poissonni%C3%A8re_vendeuse_de_bouillabaisse.jpg",
-    "license": "Public domain",
-    "artist": "Unknown early 1900s",
+    "file": "bouillabaisse-2.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Bouillabaisse_de_chez_Fonfon_dans_un_restaurant_du_Vieux-Port_(Marseille)_en_novembre_2022.JPG",
+    "license": "CC0",
+    "artist": "Benoît Prieur",
     "attributionRequired": false
   },
   "Vichyssoise": {
@@ -872,6 +872,13 @@
     "commons": "https://commons.wikimedia.org/wiki/File:Muslos_de_pollo.jpg",
     "license": "CC BY-SA 4.0",
     "artist": "Juan Emilio Prades Bel",
+    "attributionRequired": true
+  },
+  "Reine de Saba": {
+    "file": "reine-de-saba-0.jpg",
+    "commons": "https://commons.wikimedia.org/wiki/File:Almond_chocolate_cake.jpg",
+    "license": "CC BY-SA 4.0",
+    "artist": "Rajeeb (Marajozkee)",
     "attributionRequired": true
   }
 }
