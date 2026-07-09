@@ -1,11 +1,9 @@
 # Recipe model extensions — alternative versions, multiple fun facts, dual methods
 
-**Status:** Pass 1 resolved · Phase 0 discovery COMPLETE · **Pass 2 gap analysis COMPLETE
-2026-07-09** — added Phase 1b (dishKey normalization), split Phase 4 → 4a/4b/4c (build wiring),
-expanded Phase 6 (funFact→funFacts pooling). Pass 2 questions all confirmed: cross-set grouping
-= YES (live+imported), browse = collapse-versions+pagination (new Phase 4d), dishKey =
-auto-propose+review. No feature code yet. **Next: Pass 3 (quality gates), then execute Phase 1.**
-Worktree `recipe-import-batch`.
+**Status:** Pass 1 · Phase 0 discovery · Pass 2 gap analysis · **Pass 3 quality gates ALL
+COMPLETE 2026-07-09. Plan is READY FOR EXECUTION — no unresolved BLOCKING items.** 10 phases
+(0 done), all sequential, test-first; 10 open questions all user-confirmed. **Next: execute
+Phase 1 (shared types in `src/recipes/model.ts`).** Worktree `recipe-import-batch`.
 
 ## Problem Statement
 
@@ -153,11 +151,12 @@ future TODO behind the open-world probe. Client-only name grouping — fragile; 
 ## Documentation Impact
 
 - `docs/DESIGN.md` — add a section on the version model (dishKey grouping, methods-as-
-  versions) and the `dish.html` compare-and-pick page + fun-fact cycler, when the UI phases
-  land (scheduled in Phases 3–4, not deferred).
-- **README page inventory — CHANGES.** Phase 4 adds a new top-level `dish.html` page; the
-  page list / build entry-points doc must gain it (handled in Phase 4). This supersedes the
-  earlier "no README change" note.
+  versions) and the `dish.html` compare-and-pick page + fun-fact cycler. **Scheduled in Phase 4b**
+  (where `dish.html` becomes real), not deferred.
+- **`README.md:31-36` — page inventory.** These lines enumerate every top-level page
+  (`index.html`/Browse, `cookbook.html`, `mine.html`, `settings.html`, `recipe.html`,
+  `editor.html`). Phase 4b adds `dish.html` and **updates this list in the same phase**
+  (verified location; supersedes the earlier "no README change" note).
 - `tests/fixtures/lexicons/exchange.recipe.recipe.json` — only if D1 forces a formal lexicon
   extension (unlikely given the open-world/overlay decision); otherwise untouched.
 - If D1 selects the overlay, a new `app.arecipe.*` lexicon fixture/doc (Phase 1).
@@ -178,6 +177,14 @@ own user-review checkpoint, so it stays on the spine. No worktree/parallel dispa
 if adopted later, the only live-mutating phase (6) must never run concurrently with anything.
 
 ## Phases
+
+**Execution notes (Pass 3):** Every phase is **test-first (RED → GREEN)** — the named
+wiring/unit test is written and observed failing before the implementation. Phases 1 and 2 are
+foundational component phases (shared types; a pure renderer) with no entry point of their own;
+their entry-point wiring test lands in Phase 3 (funFacts render on the recipe page) and Phase 4
+(grouping used by dish.html/browse) — this deferral is intentional, not a missing wiring test.
+Test locations follow existing convention: unit → `tests/unit/recipes/*.spec.ts`, e2e →
+`tests/e2e/*.spec.ts` (Playwright with route-mocked `getRecord`/`listRecords`).
 
 ### Phase 0: Discovery (BLOCKING gate for the schema strategy) — COMPLETE 2026-07-09
 **Goal:** Settle the three unknowns that shape every later phase.
@@ -229,9 +236,15 @@ mislabeled `banana-bread-mug-cake` (a mug cake, not banana bread) and the mangle
 `spike/import/build-dishkeys.mjs` (+ test) + `spike/import/dishkeys.json` (data). **Shared-state:**
 read-only against live PDS (no writes). **Wiring test:** unit — grouping is deterministic and
 the review report lists every multi-version group; no dish appears under two keys.
+**Edges (mutation-resistant tests):** single-version dish → group of exactly 1 (no false
+merge); two records with similar names but distinct dishes → do NOT collide; a variant name
+maps to its canonical key via the alias table; an already-clean `dish` slug is preserved;
+`banana-bread-mug-cake` is NOT pooled into `banana-bread`. **Logging:** the report prints every
+proposed multi-version group + any record that matched no alias (needs human eyes).
 **Done when:** `dishkeys.json` exists, the user has reviewed the proposed groups, and every
-imported + live record maps to exactly one `dishKey`. **Validation:** Moderate (human review of
-groupings is the real gate). **Disposition:** `dishkeys.json` is kept (feeds Phase 6).
+imported + live record maps to exactly one `dishKey` (`vitest run tests/unit/recipes` green).
+**Validation:** Moderate (human review of groupings is the real gate). **Disposition:**
+`dishkeys.json` is kept (feeds Phase 6).
 
 ### Phase 2: Fun-fact renderer (view)
 **Goal:** `renderFunFacts(facts): HTMLElement` — a "Did you know?" element that cycles
@@ -255,8 +268,12 @@ single ~50-record page would silently miss versions. (2) a pure `groupByDishKey(
 `siblingsOf(dishKey, records)` helper in `model.ts`. **Read-set:** `read.ts`. **Write-set:**
 `src/recipes/read.ts` + `src/recipes/model.ts` + their unit tests. **Shared-state:** none.
 **Wiring test:** unit — paginator concatenates multi-page `listRecords` (mock 2 pages); grouping
-buckets by `dishKey`. **Validation:** Moderate. NOTE: browse.ts also uses the single-page reader
-(pre-existing ~50 truncation) — see Open Question on whether browse adopts pagination here.
+buckets by `dishKey`. **Edges:** 0 records → `[]`; exactly 1 page (response has no `cursor`) →
+single fetch, no loop; 2 pages (cursor then absent) → concatenated, loop terminates; grouping a
+`dishKey` with 1 member vs 2+ members. **Logging:** `log.debug('recipes', 'paged', {pages, total})`
+so a short read is diagnosable. **Verification:** `vitest run tests/unit/recipes/read.spec.ts`.
+**Validation:** Moderate. NOTE: browse.ts's single-page truncation is fixed in Phase 4d, which
+adopts this paginated reader.
 
 ### Phase 4b: Compare-and-pick page (`dish.html`) — PRIMARY version mechanism, main risk
 **Goal:** New `dish.html?key=<dishKey>` page: uses 4a's paginated reader + grouping to list a
@@ -266,10 +283,15 @@ pattern. **Build wiring (Pass 2 — REQUIRED):** add `'dish'` to `PAGES` and `'d
 to `HTML` in `scripts/build.mjs`, and create the top-level `dish.html` (referencing `./dish.js`
 + `./styles.css`, mirroring `recipe.html`); SW precache picks it up via the `HTML` map.
 **Read-set:** `read.ts`, `model.ts`, `view.ts`, `recipe.html`. **Write-set:** `src/pages/dish.ts`
-(new), `dish.html` (new), `scripts/build.mjs` (edit PAGES+HTML) + e2e spec. **Shared-state:**
-none. **Wiring test:** e2e — `npm run build` emits `dist/dish.html` + a hashed `dish` bundle; a
-`dishKey` with 2+ versions renders the compare page and picking swaps content; a method-dual
-dish shows both method siblings. **Validation:** Broad (build + serve + e2e, not just unit).
+(new), `dish.html` (new), `scripts/build.mjs` (edit PAGES+HTML), **`README.md:31-36` (add
+`dish.html` to the page inventory)**, **`docs/DESIGN.md` (version model + compare page section)**
++ e2e spec. **Shared-state:** none. **Doc updates happen in THIS phase** (not deferred) since
+this is where `dish.html` becomes real. **Wiring test:** e2e — `npm run build` emits
+`dist/dish.html` + a hashed `dish` bundle (assert the file exists in `dist/`); a `dishKey` with
+2+ versions renders the compare page and picking swaps content; a `dishKey` with 1 member
+renders gracefully (no empty switcher); a method-dual dish shows both method siblings.
+**Verification:** `npm run build && npx playwright test tests/e2e/dish.spec.ts`.
+**Validation:** Broad (build + serve + e2e, not just unit).
 
 ### Phase 4c: "Other versions" link from the recipe page
 **Goal:** recipe.ts discovers whether the current record's `dishKey` has siblings (via 4a) and,
@@ -277,7 +299,9 @@ if so, `renderRecipeDetail` shows an "other versions →" link to `dish.html?key
 optional `RenderOptions` field (e.g. `siblingCount`/`dishKey`). **Read-set:** `read.ts`,
 `model.ts`. **Write-set:** `src/pages/recipe.ts` + `src/recipes/view.ts` (RenderOptions + link) +
 e2e/unit. **Shared-state:** none. **Wiring test:** e2e — a multi-version recipe shows the link;
-a single-version one does not. **Validation:** Moderate.
+a single-version one does not. **Edges:** siblingCount 0 → no link; 1 (self only) → no link; 2+
+→ link with the right `?key=`. **Verification:** `npx playwright test tests/e2e/recipes.spec.ts`.
+**Validation:** Moderate.
 
 ### Phase 4d: Browse version-collapse + pagination (Pass 2 — confirmed)
 **Goal:** browse.ts groups records by `dishKey` (4a's helper) and renders **one card per dish**
@@ -287,7 +311,10 @@ render as a normal card (no badge). **Read-set:** `read.ts`, `model.ts`. **Write
 `src/pages/browse.ts` (+ `src/pages/browse-state.ts` if the feed shape changes) + e2e
 (`tests/e2e/browse.spec.ts`). **Shared-state:** none. **Wiring test:** e2e — a corpus with a
 multi-version dish shows one badged card; clicking opens `dish.html`; pagination loads beyond
-page 1. **Validation:** Broad (touches the landing page + existing browse.spec must stay green).
+page 1. **Edges:** single-version dish → normal card, NO badge; multi-version → badge shows the
+correct count; empty feed → empty state; the **existing `browse.spec.ts` assertions stay green**
+(regression guard on the card layout). **Verification:** `npm run build && npx playwright test
+tests/e2e/browse.spec.ts`. **Validation:** Broad (landing page; regression-sensitive).
 
 ### Phase 5 (optional): Inline version flip on the recipe page
 **Goal:** Secondary convenience — an inline version toggle on `recipe.ts` that swaps the
@@ -312,9 +339,16 @@ e2e — inline toggle swaps content. **Validation:** Moderate.
 live PDS. **Write-set:** `spike/import/add-funfacts-dishkey.mjs`, `spike/import/publish-*.mjs`
 (+ tests) — **and LIVE records on arecipe.bsky.social** (the only ambient/live mutation in the
 plan). **Shared-state:** live PDS repo — dry-run + idempotent + pilot-before-bulk are the
-guards; no other phase writes live. **Wiring test:** dry-run prints planned edits; pilot
-readback confirms fields persist, funFacts pooled correctly, images attach, and `dish.html`
-renders the live group. **Validation:** Broad (live writes; confirm first, pilot before bulk).
+guards; no other phase writes live. **Edges (mutation-resistant):** funFacts pooling **dedupes
+identical facts** and unions across N versions; a dish with 1 fact → `funFacts` length 1; a
+version with no fact → contributes nothing (no empty entry); re-running the migration is
+idempotent (no dupe facts, no dupe records — check by `dishKey`+`versionLabel`). **Logging /
+checkpoints:** dry-run prints, per record, the planned `dishKey` + funFacts count + versionLabel;
+the live run logs each created/updated URI; **the pilot is an explicit STOP-and-verify checkpoint
+before bulk** (confirm on bsky.app + `dish.html`). **Wiring test:** dry-run prints planned edits;
+pilot readback (`getRecord`) confirms fields persist, funFacts pooled/deduped correctly, images
+attach, and `dish.html` renders the live group. **Validation:** Broad (live writes; dry-run +
+idempotent + pilot-before-bulk; confirm first).
 
 ## Resolved Decisions (2026-07-09)
 
@@ -423,3 +457,30 @@ spans live + imported. (2) **browse = collapse versions + pagination** (the larg
 **added Phase 4d** (one badged card per dish; browse adopts the paginated reader). (3) **dishKey
 = auto-propose + user review** (Phase 1b). Concurrency spine updated to include 4d (kept
 sequential; depends on 4a and points at 4b's dish.html).
+
+### Pass 3: Quality Gates — 2026-07-09
+**TDD ordering:** Added a test-first preamble to the Phases section (every phase RED→GREEN;
+wiring test written failing first). Flagged Phases 1 & 2 as foundational component phases whose
+entry-point wiring is intentionally exercised in Phases 3/4 (not a missing wiring test).
+**Observability:** Added logging notes — 4a paginator logs `{pages, total}`; Phase 6 dry-run
+logs per-record planned `dishKey`/funFacts count/versionLabel and the live run logs each URI.
+**Debugging readiness:** Phase 6 pilot made an explicit STOP-and-verify checkpoint before bulk;
+idempotency re-run check added.
+**Validation calibration:** Confirmed calibration — narrow (unit) for 1/2/4a; broad (build+e2e)
+for 4b/4d; broad+live for 6. Added explicit `Verification:` commands to 1b/4a/4b/4c/4d.
+**Mutation resistance:** Named boundary/edge cases for every branching phase — 1b (single vs
+multi, no false merge, mug-cake not pooled), 4a (0/1/2-page pagination, group size 1 vs 2+),
+4c (siblingCount 0/1/2+), 4d (badge only when >1; browse.spec regression guard), 6 (funFacts
+dedupe/union, idempotent re-run).
+**Concurrency honesty:** Map confirmed; sequential plan. All 10 phases accounted for; per-phase
+write-sets present; no parallel sets (so no invariant/re-entry checks needed). 4d is write-
+disjoint from the view.ts phases but kept sequential (depends on 4a; links to 4b's dish.html).
+**Discovery:** Phase 0 complete; all D-tasks concrete, answered firsthand, dispositions declared
+(`throwaway`), outputs wired to Verified Assumptions.
+**Coherence:** Plan still solves the stated problem. Scope grew (Phase 1b, 4d) but each traces to
+a confirmed decision or a Pass-2 data-reality finding — not creep.
+**Documentation impact:** `docs/DESIGN.md` + `README.md:31-36` both pinned to Phase 4b (same
+phase that makes `dish.html` real); `scripts/build.mjs` wiring in 4b. No end-of-plan docs phase.
+**Confirmed ready:** YES. All 10 open questions (7 Pass-1 + 3 Pass-2) user-confirmed; no
+unresolved BLOCKING items (the BLOCKING lexicon question was settled by D1; cross-set grouping
+is a confirmed YES implemented via Phase 1b's review checkpoint). Ready to execute Phase 1.
