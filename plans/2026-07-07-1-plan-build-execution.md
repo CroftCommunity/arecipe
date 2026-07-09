@@ -134,6 +134,45 @@ This is a decision the maintainer should make, gated before the scaffold phase.
   horizontal layer), so directionality is validated early and often. See the Milestones
   section.
 
+- **OAuth secret storage: the DPoP binding + non-extractable key IS the storage
+  defense; CSP/SRI is primary; at-rest encryption is demoted (2026-07-09).** The
+  original worry — "how do we safely store OAuth content in a strictly PWA/SPA
+  with no backend?" — is largely answered by the protocol, not by encrypting the
+  refresh token:
+  - **atproto OAuth is DPoP sender-constrained.** Redeeming the refresh token
+    requires a DPoP proof signed by the bound key (jkt); it is not a portable
+    bearer secret. The **DPoP private key is generated `extractable: false`**
+    (WebCrypto) and cannot be exported. So an *exfiltrated* refresh token (XSS
+    reading IndexedDB and POSTing it out, a stolen disk image, a cloud backup) is
+    **inert off-device** — `exportKey()` fails on the key, so the token can't be
+    redeemed elsewhere. That is the storage threat we cared about, and it is
+    already covered.
+  - **Encrypting the refresh token at rest adds little** on top of that (it would
+    encrypt a token already useless without the non-extractable key) — and it is
+    **not even available with `BrowserOAuthClient`**, which hard-codes its
+    IndexedDB session store (its options `Omit` `sessionStore`/`stateStore` —
+    `browser-oauth-client.d.ts`). Encrypting would mean dropping to the base
+    `@atproto/oauth-client` with a custom encrypted `sessionStore`, giving up the
+    Phase-0-proven cross-tab refresh coordination — not worth it at this scale.
+  - **The real residual threat is an active same-origin adversary** (live XSS,
+    malicious extension) that *uses* the key in place — and **no at-rest scheme
+    defends against it** (the decrypting code is the code the attacker controls).
+    So the security budget goes where the leak actually is: **prevent XSS** —
+    strict CSP, SRI on every asset, zero third-party scripts, a small auditable
+    bundle (already arecipe's trust story; treat it as the *primary* secret-
+    storage defense) — plus **bound the blast radius** (atproto refresh-token
+    rotation + short access-token lifetime + a visible "sign out everywhere"/
+    revoke).
+  - **Desktop and mobile are identical** under this model: the protection is the
+    DPoP key + CSP, both platform-agnostic. No biometric/passcode is needed for
+    the exfiltration threat.
+  - **WebAuthn PRF (spec Layer 5) is demoted to optional defense-in-depth**, only
+    for a shared-device / forensic-tool requirement — and it is blocked by
+    `BrowserOAuthClient`'s fixed store (above). Revisit only if such a requirement
+    appears. (A full unencrypted profile clone on an unlocked machine is a
+    physical-device threat out of scope for a private-group cookbook — handled by
+    OS disk encryption + device lock.)
+
 ## Reference to review at the UI/UX checkpoint (M1) — not now
 
 - **`github.com/chasemp/mealplanner`** (source) and **`https://mealplanner.523.life/`**
@@ -313,7 +352,15 @@ This is a decision the maintainer should make, gated before the scaffold phase.
   `arecipe.app`, so all app-scoped NSIDs become `app.arecipe.*`**, and the spec's
   `arecipe.fyi` DNS-authority mentions should converge on `arecipe.app` (the spec's
   Layer 3 already uses it). Spec is v0.3 draft; upstream edits are the maintainer's
-  call — tracked here so they aren't lost.
+  call — tracked here so they aren't lost. (4) **Layer 5 reframe (2026-07-09):**
+  the spec frames plaintext-vs-WebAuthn-PRF as *the* refresh-token-storage
+  decision. Erratum: the **DPoP sender-constraint + non-extractable DPoP key** is
+  the actual storage defense (an exfiltrated refresh token is inert off-device),
+  so at-rest encryption is low-value and PRF is optional defense-in-depth; CSP/SRI
+  + XSS-prevention is the primary defense. Also: `BrowserOAuthClient` hard-codes
+  its session store, so app-controlled refresh-token encryption (which Layer 5
+  assumes) isn't available without dropping to the base client. See Decisions
+  Locked → "OAuth secret storage."
 
 - No `agents.md`/`CLAUDE.md` equivalents exist in this repo (those live in the
   coding-agents repo, not here). No cross-references to update there.
@@ -3687,3 +3734,29 @@ tests), build, e2e (46). Committed to `main` (chasemp); code + plan separate.
 view remain), CB3 ✅. Remaining: CB4 (two-axis settings), CB5 (cookbook feed
 re-plan), CB6 (optional depth/Jetstream), CB7 (mutes re-plan). The @live like-gate
 flake TODO still stands.
+
+### Decision recorded: OAuth secret storage posture — 2026-07-09
+
+Folded in the reasoning from a security-design discussion (how to safely store
+OAuth content in a strictly no-backend PWA/SPA). Recorded as a Decisions Locked
+entry ("OAuth secret storage") + a Layer 5 spec erratum (Documentation Impact).
+Key points:
+- **DPoP sender-constraint + non-extractable DPoP key is the storage defense.** An
+  exfiltrated refresh token is inert off-device (can't produce a DPoP proof; the
+  key can't be exported). This already answers the "safely store the secret"
+  concern for the exfiltration threat — the one we actually worried about.
+- **At-rest refresh-token encryption is low-value AND unavailable** with
+  `BrowserOAuthClient` (fixed session store; options `Omit` `sessionStore` —
+  verified in `browser-oauth-client.d.ts`). It would require the base
+  `@atproto/oauth-client` + a custom store, losing the Phase-0-proven cross-tab
+  coordination.
+- **Primary defense = XSS prevention** (strict CSP, SRI, no third-party scripts,
+  small auditable bundle — already the trust story) + blast-radius limits
+  (rotation, short access tokens, visible revoke). No at-rest scheme stops an
+  active same-origin adversary.
+- **WebAuthn PRF (spec Layer 5) demoted to optional** shared-device hardening;
+  desktop == mobile under this model (DPoP key + CSP, platform-agnostic).
+Follow-ups this surfaces (not yet planned): a **CSP/SRI hardening** item (make the
+primary defense real — it belongs in the Phase 11 trust/delivery work or its own
+pass) and a **"sign out everywhere"/revoke** affordance. Analysis/doc only — no
+code changed.

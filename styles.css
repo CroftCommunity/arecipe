@@ -93,10 +93,34 @@ body {
 /* ---- header ---- */
 
 .topbar {
+  position: relative;
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  padding: var(--s-4) 0 var(--s-1);
+  min-height: 4rem;
+  padding: var(--s-3) 0 var(--s-2);
+  isolation: isolate; /* keep the wash behind only the header content */
+}
+
+/* Watercolor banner wash: the countryside art at low opacity behind the
+   header, masked so it fades out toward the wordmark (left) and the controls
+   (right). The busy deck/pie side never sits solid under the top-right
+   controls, so text stays legible. Delivered via the external stylesheet +
+   a same-origin image (CSP: style-src 'self', img-src 'self'). */
+.topbar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: url(./assets/top-banner.jpg) center 55% / cover no-repeat;
+  opacity: 0.49;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 24%, #000 76%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 24%, #000 76%, transparent);
+  pointer-events: none;
+}
+
+[data-theme='dark'] .topbar::before {
+  opacity: 0.43;
 }
 
 .wordmark {

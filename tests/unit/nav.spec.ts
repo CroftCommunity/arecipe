@@ -26,10 +26,12 @@ describe('renderTopbar', () => {
     });
   };
 
-  it('shows a Sign in link to My recipes when there is no session hint', () => {
+  it('shows a Sign in link to the dedicated sign-in page when there is no session hint', () => {
     stubHint(null);
     const bar = renderTopbar();
-    expect(bar.querySelector('[data-testid=nav-signin]')?.getAttribute('href')).toBe('./mine.html');
+    expect(bar.querySelector('[data-testid=nav-signin]')?.getAttribute('href')).toBe(
+      './signin.html',
+    );
     expect(bar.querySelector('[data-testid=nav-account]')).toBeNull();
   });
 

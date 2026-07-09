@@ -102,15 +102,22 @@ export const walkAuthPages = async (
   }
 };
 
-/** Full interactive login: sign-in lives on mine.html (5b); the OAuth
- * callback round-trips back there. */
+/** Full interactive login: sign-in lives on the dedicated signin.html. The
+ * OAuth callback round-trips back there; signin.ts completes it and forwards a
+ * live session to Cookbook. We wait for that forward — it fires only after the
+ * session restores, so it doubles as a "session is persisted" signal — then
+ * land the caller on mine.html, the signed-in page that renders `signed-in-did`
+ * (cookbook.html does not). Every @live suite asserts `signed-in-did` right
+ * after this returns, so the landing page matters. */
 export const signIn = async (
   page: Page,
   opts: { handle: string; password: string; origin: string },
 ): Promise<void> => {
-  await page.goto('/mine.html');
+  await page.goto('/signin.html');
   await page.getByTestId('handle-input').fill(opts.handle);
   await page.getByTestId('oauth-signin').click();
   await page.waitForURL(/bsky\.social/, { timeout: 30_000 });
   await walkAuthPages(page, opts.origin, opts.password);
+  await page.waitForURL(/cookbook\.html/, { timeout: 30_000 });
+  await page.goto('/mine.html');
 };

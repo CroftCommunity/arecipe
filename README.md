@@ -32,7 +32,9 @@ Page-per-destination (no router): each top-level surface is its own document —
 `index.html` (Browse), `cookbook.html` (Cookbook — your own recipes plus a
 bounded reach: starter cooks + who you follow/your followers on Bluesky, and
 their recipes; `?did=<did>` is a shareable public view of anyone's cookbook.
-The legacy `friends.html` redirects here), `mine.html` (My recipes + sign-in),
+The legacy `friends.html` redirects here), `mine.html` (My recipes — drafting is
+account-free; no longer hosts the login form), `signin.html` (the dedicated
+sign-in page — atproto OAuth, forwards to Cookbook on success),
 `settings.html`, plus `recipe.html`, `dish.html` (compare a dish's alternative
 versions side by side — the recipe page's "View All"), and `editor.html`.
 
@@ -44,6 +46,10 @@ The executable build plan lives at
 [plans/2026-07-07-1-plan-build-execution.md](plans/2026-07-07-1-plan-build-execution.md).
 
 ## Docs
+
+- [docs/SECURITY.md](docs/SECURITY.md) — security posture: the backendless
+  atproto trust model, DPoP-bound credentials and library-owned storage, and the
+  CSP/SRI/zero-third-party XSS defense.
 
 - [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md) — philosophy and goals: incentive alignment
   through design, the three-commitments/six-tests model, and the bounded claims.

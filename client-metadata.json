@@ -3,7 +3,7 @@
   "client_name": "arecipe",
   "client_uri": "https://arecipe.app",
   "logo_uri": "https://arecipe.app/assets/icons/icon-192.png",
-  "redirect_uris": ["https://arecipe.app/mine.html"],
+  "redirect_uris": ["https://arecipe.app/signin.html"],
   "scope": "atproto transition:generic",
   "grant_types": ["authorization_code", "refresh_token"],
   "response_types": ["code"],
