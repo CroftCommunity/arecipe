@@ -53,6 +53,11 @@ const cards = catalog
       <p class="desc">${esc(rec.text)}</p>
       ${noImgs}
       <div class="opts">${opts}${none}</div>
+      <div class="reterm-row">
+        <label>🚩 Way off? Re-fetch with a better search term:
+          <input class="reterm" type="text" placeholder="e.g. Clam chowder"></label>
+        <span class="reterm-hint">(exported as retryTerm — I'll re-search these)</span>
+      </div>
     </section>`;
   })
   .join('\n');
@@ -96,6 +101,10 @@ const html = `<!doctype html>
   .meta .artist { color: #9aa4ad; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .opt-none { display: flex; align-items: center; justify-content: center; min-height: 160px; }
   .opt-none .none-box { color: #9aa4ad; }
+  .reterm-row { margin-top: 12px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 13px; color: #b6bec6; }
+  .reterm { font: inherit; padding: 6px 9px; border-radius: 6px; border: 1px solid #3a434d; background: #0f1215; color: #e7e9ea; min-width: 240px; }
+  .recipe:has(.reterm:not(:placeholder-shown)) { border-color: #e0a458; box-shadow: 0 0 0 2px #e0a45833; }
+  .reterm-hint { color: #6b747c; font-size: 12px; }
   dialog { background: #1b1f24; color: #e7e9ea; border: 1px solid #2b3138; border-radius: 12px; width: min(680px, 92vw); }
   dialog textarea { width: 100%; height: 320px; background: #0f1215; color: #e7e9ea; border: 1px solid #2b3138;
     border-radius: 8px; font: 12px/1.4 ui-monospace, monospace; padding: 10px; }
@@ -124,15 +133,18 @@ const html = `<!doctype html>
   const collect = () => {
     const picks = {};
     document.querySelectorAll('.recipe').forEach((r) => {
-      const sel = r.querySelector('input:checked');
-      if (!sel || !sel.value) return;
-      picks[r.dataset.name] = {
-        file: sel.value,
-        commons: sel.dataset.page,
-        license: sel.dataset.license,
-        artist: sel.dataset.artist,
-        attributionRequired: sel.dataset.attr === '1',
-      };
+      const sel = r.querySelector('input[type=radio]:checked');
+      const reterm = r.querySelector('.reterm');
+      const entry = {};
+      if (sel && sel.value) {
+        entry.file = sel.value;
+        entry.commons = sel.dataset.page;
+        entry.license = sel.dataset.license;
+        entry.artist = sel.dataset.artist;
+        entry.attributionRequired = sel.dataset.attr === '1';
+      }
+      if (reterm && reterm.value.trim()) entry.retryTerm = reterm.value.trim();
+      if (Object.keys(entry).length) picks[r.dataset.name] = entry;
     });
     return picks;
   };
