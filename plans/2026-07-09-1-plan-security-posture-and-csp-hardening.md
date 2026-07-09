@@ -8,7 +8,7 @@ Phase 0 discovery ✅ complete. Phases 1–4 pending.
 | Phase | Outcome | Ref | Note |
 |-------|---------|-----|------|
 | 0 Discovery | ✅ complete | — | D2/D3/D4 hermetic; D1 read+PDS path proven; `@live` auth slice → Phase 2 gate |
-| 1 Narrative | ✅ shipped | `17aecd2` | `docs/SECURITY.md` + README/DESIGN links; all claims source-cited |
+| 1 Narrative | ✅ shipped | `cf32b5e` | `docs/SECURITY.md` + README/DESIGN links; all claims source-cited |
 | 2 CSP + hashing | ⏳ pending | — | build.mjs meta injection; **needs `@live` sign-in-under-CSP to close** |
 | 3 SRI | ⏳ pending | — | entry module + both stylesheets |
 | 4 Zero-3p guard | ⏳ pending | — | structural test guard |
@@ -375,7 +375,7 @@ Assumptions / Open Questions reflect it.
 **Stop-point — report findings; user reviews before Phase 1 if the connect-src
 decision (OQ1) is non-obvious.**
 
-### Phase 1: Security-posture narrative (`docs/SECURITY.md`) — ✅ SHIPPED (`17aecd2`)
+### Phase 1: Security-posture narrative (`docs/SECURITY.md`) — ✅ SHIPPED (`cf32b5e`)
 
 **Delivered (2026-07-09):** `docs/SECURITY.md` created (threat model, backendless
 model, authentication, session storage, XSS-primary-defense with per-control
