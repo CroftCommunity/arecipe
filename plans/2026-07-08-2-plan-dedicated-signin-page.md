@@ -319,3 +319,20 @@ exception (atomic auth cutover) with its justification.
 **Confirmed:** the loopback-derives-redirect fact makes Phase 1 genuinely safe and
 loopback-provable; the risk is fully isolated to Phase 2's single `redirect_uris`
 value; the design never depends on the unverified multi-redirect selection.
+
+### Note: OAuth secret-storage posture (recorded 2026-07-09)
+
+Relevant to this plan since sign-in is where OAuth secrets are minted/persisted.
+The storage-security reasoning is recorded canonically in
+`plans/2026-07-07-1-plan-build-execution.md` → Decisions Locked → "OAuth secret
+storage" (+ Layer 5 spec erratum). Summary bearing on `signin.ts`:
+- The DPoP sender-constraint + non-extractable DPoP key make an exfiltrated
+  refresh token inert off-device — the storage threat is covered by the protocol,
+  not by encrypting the token. `signin.ts` should NOT try to hand-roll refresh-
+  token encryption (BrowserOAuthClient owns the store; its options `Omit`
+  `sessionStore`). It just runs `bootSession`/`init()` as designed.
+- The primary defense is XSS prevention (CSP/SRI/no-3p/small bundle) — a
+  cross-cutting hardening item, not part of this page's scope, but the sign-in
+  page must not weaken it (no third-party scripts, no inline handlers that would
+  force a loose CSP).
+- WebAuthn PRF is optional/out-of-scope here.
