@@ -96,6 +96,8 @@ test('a cold recipe link renders with no prior cache (shareable URLs)', async ({
     timeout: 15_000,
   });
   await expect(page.getByTestId('provenance')).toContainText('as published by somechef.example.com');
+  // Single-version recipe (fixture has no dishKey): no flip bar (Phase 4c).
+  await expect(page.getByTestId('version-bar')).toHaveCount(0);
 });
 
 test('an unresolvable handle surfaces the failure in the status line', async ({ page }) => {

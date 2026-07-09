@@ -4,8 +4,8 @@
 COMPLETE 2026-07-09. Plan is READY FOR EXECUTION — no unresolved BLOCKING items.** 10 phases
 (0 + 1 + 1b + 2 + 3 + 4a done). **UI design REVISED 2026-07-09 via mockups** (`docs/mockups/`):
 inline flip primary, grid = View All, + Focus mode + Settings fun-facts toggle; comments stay
-per-version (dish-level deferred). Phases 0–4b done. **Next: Phase 4c (inline version flip on the
-recipe page — PRIMARY UX).** Worktree `recipe-import-batch`.
+per-version (dish-level deferred). Phases 0–4c done (flip live). **Next: Phase 4d (⛶ Focus mode).**
+Worktree `recipe-import-batch`.
 
 ## Problem Statement
 
@@ -360,7 +360,17 @@ hashed `dish` bundle (assert file exists); a `dishKey` with 2+ versions renders 
 1 member renders gracefully; a method-dual dish shows both method siblings.
 **Verification:** `npm run build && npx playwright test tests/e2e/dish.spec.ts`. **Validation:** Broad.
 
-### Phase 4c: Inline version flip on the recipe page — PRIMARY UX
+### Phase 4c: Inline version flip on the recipe page — PRIMARY UX — COMPLETE 2026-07-09
+**Outcome:** `renderVersionBar` (view.ts): `‹ index of total ›` + `▦ View All` link, prev/next call
+`onNav(±1)`. `recipe.ts` refactored — per-version render extracted into `paintVersion(host,…)`
+(detail + staleness[initial only] + hide button + comments + interactions), and `mountVersionFlip`
+discovers siblings **after** the detail is up (background; skips the list fetch entirely when the
+record has no `dishKey`). When ≥2 versions: inserts the bar above the detail; flipping repaints the
+host for the chosen version (per-version comments/interactions re-mount), updates the title, and
+`replaceState`s the URL so it stays shareable. Order: `primaryVersion` first then rkey. 1 view unit
+test + a `version-flip.spec.ts` e2e (bar shows "1 of 2", next swaps title+ingredients, URL updates,
+View All href) + a no-bar guard on the single-version cold link. Full **217 unit + 53 non-live e2e**
+green; typecheck + lint clean; no regression to comments/interactions/staleness.
 **Goal:** On `recipe.ts`, discover the current record's siblings by `dishKey` (4a's paginated reader
 + `siblingsOf`) and render the **version control bar above the banner**: `‹ N of M ›` cycler (shown
 ONLY when M > 1) on the left, **▦ View All** (→ `dish.html?key=`) on the right. Flipping swaps the

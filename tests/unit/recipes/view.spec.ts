@@ -11,6 +11,7 @@ import {
   renderRecipeDetail,
   renderRecipeDetailsList,
   renderRecipeList,
+  renderVersionBar,
 } from '../../../src/recipes/view.js';
 import type { CachedRecipe } from '../../../src/recipes/cache.js';
 
@@ -323,6 +324,20 @@ describe('image credit (Commons attribution)', () => {
     expect(credit?.querySelector('a')?.getAttribute('href')).toBe(
       'https://commons.wikimedia.org/wiki/File:Pico.jpg',
     );
+  });
+});
+
+describe('renderVersionBar (inline flip control)', () => {
+  it('shows "index of total" and a View All link, and calls onNav on prev/next', () => {
+    const calls: number[] = [];
+    const bar = renderVersionBar({ index: 0, total: 3, viewAllHref: './dish.html?key=banana-bread', onNav: (d) => calls.push(d) });
+    expect(bar.querySelector('[data-testid=version-count]')?.textContent).toBe('1 of 3');
+    expect(bar.querySelector<HTMLAnchorElement>('[data-testid=view-all]')?.getAttribute('href')).toBe(
+      './dish.html?key=banana-bread',
+    );
+    bar.querySelector<HTMLButtonElement>('[data-testid=version-next]')?.click();
+    bar.querySelector<HTMLButtonElement>('[data-testid=version-prev]')?.click();
+    expect(calls).toEqual([1, -1]);
   });
 });
 

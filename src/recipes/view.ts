@@ -259,6 +259,38 @@ const pooledFunFacts = (entries: CachedRecipe[]): FunFact[] => {
   return out;
 };
 
+/** The inline version-flip control bar (recipe page, above the banner). Shows
+ *  `‹ index of total ›` on the left and a `▦ View All` link on the right;
+ *  prev/next call `onNav(-1|+1)`. Rendered only when a dish has >1 version. */
+export const renderVersionBar = (opts: {
+  index: number;
+  total: number;
+  viewAllHref: string;
+  onNav: (delta: number) => void;
+}): HTMLElement => {
+  const bar = el('div', 'version-bar');
+  bar.dataset['testid'] = 'version-bar';
+  const nav = el('span', 'version-nav');
+  const prev = el('button', 'version-prev', '‹') as HTMLButtonElement;
+  prev.type = 'button';
+  prev.dataset['testid'] = 'version-prev';
+  prev.setAttribute('aria-label', 'Previous version');
+  const count = el('span', 'version-count', `${opts.index + 1} of ${opts.total}`);
+  count.dataset['testid'] = 'version-count';
+  const next = el('button', 'version-next', '›') as HTMLButtonElement;
+  next.type = 'button';
+  next.dataset['testid'] = 'version-next';
+  next.setAttribute('aria-label', 'Next version');
+  prev.addEventListener('click', () => opts.onNav(-1));
+  next.addEventListener('click', () => opts.onNav(1));
+  nav.append(prev, count, next);
+  const viewAll = el('a', 'version-viewall', '▦ View All') as HTMLAnchorElement;
+  viewAll.href = opts.viewAllHref;
+  viewAll.dataset['testid'] = 'view-all';
+  bar.append(nav, viewAll);
+  return bar;
+};
+
 export type DishCompareOptions = RenderOptions & { dishName?: string };
 
 /** The "View All" grid (dish.html): a dish's versions as compare cards, with the

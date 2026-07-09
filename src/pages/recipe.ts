@@ -14,10 +14,11 @@ import { log } from '../log.js';
 import { mountShell } from '../nav.js';
 import { createRecipeCache, type CachedRecipe } from '../recipes/cache.js';
 import { createExclusions } from '../recipes/exclusions.js';
-import { createRecordReader } from '../recipes/read.js';
+import { dishKeyOf, isPrimaryVersion, siblingsOf } from '../recipes/model.js';
+import { createRecipeReader, createRecordReader } from '../recipes/read.js';
 import { isStale, strongRefOf } from '../recipes/refs.js';
 import { retryOnce } from '../retry.js';
-import { renderRecipeDetail } from '../recipes/view.js';
+import { renderRecipeDetail, renderVersionBar } from '../recipes/view.js';
 import { addComment, buildThread, loadRecipeComments, type CommentRepo } from '../social/comments.js';
 import { renderComments } from '../social/comments-view.js';
 import { resolveCookbook } from '../social/cookbook.js';
@@ -367,6 +368,135 @@ const mountInteractions = async (
   }
 };
 
+/** Shared deferred auth loader — comments + interactions fetch @atproto/api (a
+ * split chunk) at most once, only after the detail is on screen. */
+const makeAgentLoader = (): AgentLoader => {
+  let agentPromise: Promise<Agent | null> | null = null;
+  return () => {
+    agentPromise ??= (async () => {
+      try {
+        const boot = await import('../auth/boot.js');
+        return (await boot.bootSession()).agent;
+      } catch (err) {
+        log.warn('recipes', 'auth client load failed', { error: String(err) });
+        return null;
+      }
+    })();
+    return agentPromise;
+  };
+};
+
+/** Render one version into `host`: detail + (initial only) staleness check +
+ * hide button + social sections. Called for the initial recipe and on every
+ * version flip, so comments/interactions re-mount for the shown version. */
+const paintVersion = (
+  host: HTMLElement,
+  entry: CachedRecipe,
+  uri: string,
+  author: string,
+  getAgent: AgentLoader,
+  opts: { checkStale: boolean },
+): void => {
+  host.replaceChildren(renderRecipeDetail(entry, { author }));
+  if (opts.checkStale) {
+    void checkForNewerRevision(uri, entry.cid, (refresh) => {
+      const note = document.createElement('p');
+      note.className = 'status';
+      note.dataset['testid'] = 'stale-indicator';
+      note.textContent = 'this recipe was updated since you last viewed it · ';
+      const refreshLink = document.createElement('button');
+      refreshLink.type = 'button';
+      refreshLink.className = 'button';
+      refreshLink.dataset['testid'] = 'refresh-recipe';
+      refreshLink.textContent = 'Show latest';
+      refreshLink.addEventListener('click', () => {
+        void refresh().then((fresh) => paintVersion(host, fresh, uri, author, getAgent, { checkStale: false }));
+      });
+      note.append(refreshLink);
+      host.prepend(note);
+    }).catch((err: unknown) => {
+      log.debug('recipes', 'revision check failed', { error: String(err) });
+    });
+  }
+  // Exclusion (mute-lite): quiet, reversible in Settings. Per-version.
+  const exclusions = createExclusions();
+  const hideButton = document.createElement('button');
+  hideButton.type = 'button';
+  hideButton.className = 'button';
+  hideButton.dataset['testid'] = 'hide-recipe';
+  const label = (): string => (exclusions.isHidden(uri) ? 'Unhide this recipe' : 'Hide this recipe');
+  hideButton.textContent = label();
+  hideButton.addEventListener('click', () => {
+    if (exclusions.isHidden(uri)) exclusions.unhide(uri);
+    else exclusions.hide(uri);
+    hideButton.textContent = label();
+    log.info('exclusions', 'toggled', { uri, hidden: exclusions.isHidden(uri) });
+  });
+  host.append(hideButton);
+
+  void mountComments(host, entry, uri, getAgent).catch((err: unknown) => {
+    log.error('comments', 'comment section failed', { uri, error: String(err) });
+  });
+  void mountInteractions(host, entry, uri, getAgent).catch((err: unknown) => {
+    log.error('interactions', 'interaction section failed', { uri, error: String(err) });
+  });
+};
+
+/** After the initial version renders, discover the dish's sibling versions and,
+ * if there's more than one, add the flip bar above the detail. Flipping repaints
+ * the host for the chosen version (per-version comments/interactions) and updates
+ * the URL so the view stays shareable. Order: primaryVersion first, then rkey. */
+const mountVersionFlip = async (
+  content: HTMLElement,
+  host: HTMLElement,
+  uri: string,
+  entry: CachedRecipe,
+  author: string,
+  getAgent: AgentLoader,
+): Promise<void> => {
+  const key = dishKeyOf(entry.value);
+  if (key === undefined) return; // no dishKey → single, no bar (also skips the list fetch)
+  const { did } = parseAtUri(uri);
+  const { pds } = await resolveDidDoc(did);
+  const all = await createRecipeReader()({ pds, did });
+  const siblings = siblingsOf(key, all).sort(
+    (a, b) =>
+      Number(isPrimaryVersion(b.value)) - Number(isPrimaryVersion(a.value)) || a.uri.localeCompare(b.uri),
+  );
+  if (siblings.length < 2) return;
+
+  const viewAllHref = `./dish.html?key=${encodeURIComponent(key)}&did=${encodeURIComponent(did)}&by=${encodeURIComponent(author)}`;
+  const cache = createRecipeCache();
+  let current = Math.max(0, siblings.findIndex((r) => r.uri === uri));
+  let bar: HTMLElement | null = null;
+
+  const mountBar = (): void => {
+    const next = renderVersionBar({
+      index: current,
+      total: siblings.length,
+      viewAllHref,
+      onNav: (delta) => void flipTo((current + delta + siblings.length) % siblings.length),
+    });
+    if (bar === null) content.insertBefore(next, host);
+    else bar.replaceWith(next);
+    bar = next;
+  };
+
+  const flipTo = async (index: number): Promise<void> => {
+    current = index;
+    const record = siblings[index];
+    if (record === undefined) return;
+    const versionEntry = await cache.put(record);
+    const name = (versionEntry.value as { name?: string }).name;
+    if (name !== undefined) document.title = `${name} — arecipe`;
+    window.history.replaceState(null, '', `?u=${encodeURIComponent(record.uri)}&by=${encodeURIComponent(author)}`);
+    paintVersion(host, versionEntry, record.uri, author, getAgent, { checkStale: false });
+    mountBar();
+  };
+
+  mountBar();
+};
+
 const main = async (): Promise<void> => {
   const app = document.getElementById('app');
   if (app === null) throw new Error('shell mount point #app missing');
@@ -387,68 +517,15 @@ const main = async (): Promise<void> => {
     const { entry, author, fromCache } = await loadRecipe(uri);
     const name = (entry.value as { name?: string }).name;
     if (name !== undefined) document.title = `${name} — arecipe`;
-    content.replaceChildren(renderRecipeDetail(entry, { author }));
-    if (fromCache) {
-      // Background revision check against the live record (quiet on match).
-      void checkForNewerRevision(uri, entry.cid, (refresh) => {
-        const note = document.createElement('p');
-        note.className = 'status';
-        note.dataset['testid'] = 'stale-indicator';
-        note.textContent = 'this recipe was updated since you last viewed it · ';
-        const refreshLink = document.createElement('button');
-        refreshLink.type = 'button';
-        refreshLink.className = 'button';
-        refreshLink.dataset['testid'] = 'refresh-recipe';
-        refreshLink.textContent = 'Show latest';
-        refreshLink.addEventListener('click', () => {
-          void refresh().then((fresh) => {
-            content.replaceChildren(renderRecipeDetail(fresh, { author }));
-          });
-        });
-        note.append(refreshLink);
-        content.prepend(note);
-      }).catch((err: unknown) => {
-        log.debug('recipes', 'revision check failed', { error: String(err) });
-      });
-    }
-    // Exclusion (mute-lite): quiet, reversible in Settings.
-    const exclusions = createExclusions();
-    const hideButton = document.createElement('button');
-    hideButton.type = 'button';
-    hideButton.className = 'button';
-    hideButton.dataset['testid'] = 'hide-recipe';
-    hideButton.textContent = exclusions.isHidden(uri) ? 'Unhide this recipe' : 'Hide this recipe';
-    hideButton.addEventListener('click', () => {
-      if (exclusions.isHidden(uri)) exclusions.unhide(uri);
-      else exclusions.hide(uri);
-      hideButton.textContent = exclusions.isHidden(uri) ? 'Unhide this recipe' : 'Hide this recipe';
-      log.info('exclusions', 'toggled', { uri, hidden: exclusions.isHidden(uri) });
-    });
-    content.append(hideButton);
-
-    // Social sections (9b comments, 9c interactions) share ONE deferred auth
-    // load: @atproto/api is fetched (as a split chunk) at most once, and only
-    // after the recipe detail is on screen — the shareable page stays light.
-    let agentPromise: Promise<Agent | null> | null = null;
-    const getAgent: AgentLoader = () => {
-      agentPromise ??= (async () => {
-        try {
-          const boot = await import('../auth/boot.js');
-          return (await boot.bootSession()).agent;
-        } catch (err) {
-          log.warn('recipes', 'auth client load failed', { error: String(err) });
-          return null;
-        }
-      })();
-      return agentPromise;
-    };
-    void mountComments(content, entry, uri, getAgent).catch((err: unknown) => {
-      log.error('comments', 'comment section failed', { uri, error: String(err) });
-    });
-    void mountInteractions(content, entry, uri, getAgent).catch((err: unknown) => {
-      log.error('interactions', 'interaction section failed', { uri, error: String(err) });
-    });
+    const getAgent = makeAgentLoader();
+    const host = el('section', 'version-host');
+    content.replaceChildren(host);
+    paintVersion(host, entry, uri, author, getAgent, { checkStale: fromCache });
     log.debug('shell', 'mounted', { page: 'recipe', uri });
+    // Sibling discovery is a background enhancement — the detail is already up.
+    void mountVersionFlip(content, host, uri, entry, author, getAgent).catch((err: unknown) => {
+      log.debug('recipes', 'version flip setup failed', { uri, error: String(err) });
+    });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     log.error('recipes', 'detail load failed', { uri, error: message });
