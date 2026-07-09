@@ -93,8 +93,9 @@ recipe page stays the simple landing (one real recipe). The **primary** version 
 **inline flip**: a `‹ N of M ›` control bar above the banner (shown only when M > 1) that swaps
 the image, title, ingredients, and instructions **in place**; `▦ View All` (right side) opens the
 secondary `dish.html?key=<dishKey>` **grid** for deliberate side-by-side compare; a `⛶ Focus`
-button opens a full-screen cook view of the current version. Landing/flip order = **most-liked
-first** (default fallback if like counts unavailable). **Fun facts** are pooled per dish, shown
+button opens a full-screen cook view of the current version. Landing/flip order = a **stable
+default** (`primaryVersion` then published order); most-liked-first is a Deferred TODO. **Fun facts**
+are pooled per dish, shown
 just above Comments, and gated by a **Settings "Include fun facts" toggle** (on by default).
 **Comments stay per-version** (no change to the `app.arecipe.comment` model); **dish-level shared
 comments are a Deferred TODO** (see below). Reference mockups live in `docs/mockups/`. This inverts
@@ -356,9 +357,9 @@ hashed `dish` bundle (assert file exists); a `dishKey` with 2+ versions renders 
 ONLY when M > 1) on the left, **▦ View All** (→ `dish.html?key=`) on the right. Flipping swaps the
 banner image, title, lede, ingredients, instructions, and provenance **in place**; the pooled fun
 facts and the (per-version) comments do NOT belong to the swap — fun facts are dish-pooled, comments
-are per current version. **Landing/flip order = most-liked first** (fetch per-sibling like counts
-via `interactions.ts`; fall back to a stable default — `primaryVersion` then published order — if
-counts are unavailable). **Read-set:** `read.ts`, `model.ts`, `interactions.ts`. **Write-set:**
+are per current version. **Landing/flip order = a stable default** — `primaryVersion` first, then
+published/rkey order. (Most-liked-first ordering is a **Deferred TODO** — avoids fetching per-sibling
+like counts on load for now.) **Read-set:** `read.ts`, `model.ts`. **Write-set:**
 `src/pages/recipe.ts` + `src/recipes/view.ts` (control bar + swap) + e2e/unit. **Shared-state:** none.
 **Wiring test:** e2e — a 2+-version recipe shows the bar; `›` swaps image+ingredients+instructions;
 a single-version recipe shows NO bar; View All links to the right `?key=`. **Edges:** M=1 → no bar;
@@ -455,6 +456,9 @@ All seven open questions were walked through and decided:
   own plan. For now, flipping versions shows that version's own comments.
 - **Remember-a-default version.** The compare/flip is navigate-only; persisting a user's preferred
   version per dish (localStorage) is a possible later enhancement.
+- **Most-liked-first version ordering.** Phase 4c lands a stable default order (`primaryVersion`
+  then published). Ordering the flip by per-version like counts (from `interactions.ts`) is
+  deferred — it adds per-sibling like-count reads on recipe load (user call 2026-07-09).
 
 ## Open Questions (reopened + resolved in Pass 2, 2026-07-09)
 
@@ -584,7 +588,9 @@ After Phases 0–4a shipped, the user reviewed static mockups (`docs/mockups/rec
 - **New Settings "Include fun facts" toggle** (Phase 5, on by default, gates fun facts everywhere).
 - **Comments stay per-version**; dish-level shared comments moved to **Deferred TODOs** (user call —
   avoids reworking the live `app.arecipe.comment` model now).
-- **Landing/flip order = most-liked first** (fallback default).
+- **Landing/flip order = stable default** now (`primaryVersion` then published); most-liked-first
+  ordering and dish-level comments both moved to Deferred TODOs; Focus uses the Fullscreen API with
+  a full-viewport overlay fallback.
 Phases 0–4a unaffected (model, fun-fact render+wire, pagination+grouping all stand). Spine is now
 0→1→1b→2→3→4a→4b→4c→4d→4e→5→6. Mockups committed to `docs/mockups/` as the reference artifacts.
 Ready to resume at Phase 4b.
