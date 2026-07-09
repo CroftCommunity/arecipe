@@ -7,6 +7,7 @@
 
 import { recipeFacets } from '../pages/browse-state.js';
 import type { CachedRecipe } from './cache.js';
+import type { FunFact } from './model.js';
 import { firstImageCid, firstImageCredit, formatDuration, formatPublishedDate, thumbUrl } from './present.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -21,6 +22,54 @@ const listEl = (tag: 'ul' | 'ol', testid: string, items: string[]): HTMLElement 
   list.dataset['testid'] = testid;
   for (const item of items) list.append(el('li', undefined, item));
   return list;
+};
+
+/** "Did you know?" cycler over a dish's pooled fun facts. Returns null when
+ *  there are none, so callers append unconditionally. A single fact shows no
+ *  navigation; multiple facts get a next button + "i / n" counter that advances
+ *  (wrapping) in place. Render-only; pooling/discovery happens upstream. */
+export const renderFunFacts = (facts: FunFact[]): HTMLElement | null => {
+  if (facts.length === 0) return null;
+  const section = el('section', 'fun-facts');
+  section.dataset['testid'] = 'fun-facts';
+  section.append(el('h3', 'fun-facts-heading', 'Did you know?'));
+  const body = el('div', 'fun-fact-body');
+  section.append(body);
+
+  let countEl: HTMLElement | undefined;
+  let index = 0;
+  const paint = (): void => {
+    const fact = facts[index];
+    if (fact === undefined) return;
+    body.replaceChildren();
+    const text = el('p', 'fun-fact-text', fact.text);
+    text.dataset['testid'] = 'fun-fact-text';
+    body.append(text);
+    if (fact.source !== undefined && fact.source !== '') {
+      const source = el('span', 'fun-fact-source', `— ${fact.source}`);
+      source.dataset['testid'] = 'fun-fact-source';
+      body.append(source);
+    }
+    if (countEl !== undefined) countEl.textContent = `${index + 1} / ${facts.length}`;
+  };
+
+  if (facts.length > 1) {
+    const nav = el('div', 'fun-fact-nav');
+    countEl = el('span', 'fun-fact-count');
+    countEl.dataset['testid'] = 'fun-fact-count';
+    const next = el('button', 'fun-fact-next', 'Next') as HTMLButtonElement;
+    next.type = 'button';
+    next.dataset['testid'] = 'fun-fact-next';
+    next.addEventListener('click', () => {
+      index = (index + 1) % facts.length;
+      paint();
+    });
+    nav.append(countEl, next);
+    section.append(nav);
+  }
+
+  paint();
+  return section;
 };
 
 type RecipeValue = {

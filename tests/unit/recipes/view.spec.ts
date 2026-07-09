@@ -6,6 +6,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
   renderFacetDropdown,
+  renderFunFacts,
   renderRecipeDetail,
   renderRecipeDetailsList,
   renderRecipeList,
@@ -301,5 +302,43 @@ describe('image credit (Commons attribution)', () => {
     expect(credit?.querySelector('a')?.getAttribute('href')).toBe(
       'https://commons.wikimedia.org/wiki/File:Pico.jpg',
     );
+  });
+});
+
+describe('renderFunFacts (Did you know? cycler)', () => {
+  it('returns null when there are no facts (omitted, not an empty box)', () => {
+    expect(renderFunFacts([])).toBeNull();
+  });
+
+  it('renders a single fact with no next control', () => {
+    const el = renderFunFacts([{ text: 'Banana bread boomed in the 1930s.' }]);
+    expect(el?.querySelector('[data-testid=fun-fact-text]')?.textContent).toBe(
+      'Banana bread boomed in the 1930s.',
+    );
+    expect(el?.querySelector('[data-testid=fun-fact-next]')).toBeNull();
+  });
+
+  it('shows a source when present and omits it when absent', () => {
+    const withSrc = renderFunFacts([{ text: 'A fact.', source: 'Larousse' }]);
+    expect(withSrc?.querySelector('[data-testid=fun-fact-source]')?.textContent).toContain('Larousse');
+    const noSrc = renderFunFacts([{ text: 'A fact.' }]);
+    expect(noSrc?.querySelector('[data-testid=fun-fact-source]')).toBeNull();
+  });
+
+  it('cycles through multiple facts on next, wrapping past the last', () => {
+    const el = renderFunFacts([{ text: 'one' }, { text: 'two' }, { text: 'three' }]);
+    const textOf = () => el?.querySelector('[data-testid=fun-fact-text]')?.textContent;
+    const countOf = () => el?.querySelector('[data-testid=fun-fact-count]')?.textContent;
+    const next = el?.querySelector<HTMLButtonElement>('[data-testid=fun-fact-next]');
+    expect(textOf()).toBe('one');
+    expect(countOf()).toBe('1 / 3');
+    next?.click();
+    expect(textOf()).toBe('two');
+    expect(countOf()).toBe('2 / 3');
+    next?.click();
+    expect(textOf()).toBe('three');
+    next?.click(); // wrap
+    expect(textOf()).toBe('one');
+    expect(countOf()).toBe('1 / 3');
   });
 });

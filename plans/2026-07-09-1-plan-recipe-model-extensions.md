@@ -2,8 +2,8 @@
 
 **Status:** Pass 1 · Phase 0 discovery · Pass 2 gap analysis · **Pass 3 quality gates ALL
 COMPLETE 2026-07-09. Plan is READY FOR EXECUTION — no unresolved BLOCKING items.** 10 phases
-(0 + 1 + 1b done), all sequential, test-first; 10 open questions all user-confirmed. **Next:
-Phase 2 (fun-fact renderer in `src/recipes/view.ts`).** Worktree `recipe-import-batch`.
+(0 + 1 + 1b + 2 done), all sequential, test-first; 10 open questions all user-confirmed. **Next:
+Phase 3 (wire funFacts into `renderRecipeDetail`).** Worktree `recipe-import-batch`.
 
 ## Problem Statement
 
@@ -267,7 +267,12 @@ imported + live record maps to exactly one `dishKey` (`vitest run tests/unit/rec
 **Validation:** Moderate (human review of groupings is the real gate). **Disposition:**
 `dishkeys.json` is kept (feeds Phase 6).
 
-### Phase 2: Fun-fact renderer (view)
+### Phase 2: Fun-fact renderer (view) — COMPLETE 2026-07-09
+**Outcome:** `renderFunFacts(facts: FunFact[]): HTMLElement | null` in `src/recipes/view.ts` —
+a "Did you know?" section; null when empty; a single fact shows no nav; multiple facts get a
+`fun-fact-next` button + `fun-fact-count` "i / n" that cycles (wrapping) in place; source shown
+when present. 4 happy-dom unit tests in `tests/unit/recipes/view.spec.ts` (28 total there),
+typecheck + lint clean, full 208-test suite green. Render-only — wired in Phase 3.
 **Goal:** `renderFunFacts(facts): HTMLElement` — a "Did you know?" element that cycles
 `funFacts[]` (next/prev or shuffle), omitted when empty. Render-only. **Wiring test:** none
 (gated by Phase 3). **Validation:** Narrow (happy-dom unit tests).
