@@ -1,8 +1,15 @@
 # arecipe — Dedicated sign-in page
 
-Passes run: Pass 1 (base) + Pass 2 (gap analysis) combined in one context,
-2026-07-08. Analysis only — no code. Pass 3 (quality gates) can follow in a fresh
-context before execution.
+Passes run: Pass 1 (base) + Pass 2 (gap analysis) combined 2026-07-08; Pass 3
+(quality gates) 2026-07-09. **Status: executing** — Phase 1 shipped, Phase 2
+pending.
+
+## Outcome Summary
+
+| Phase | Outcome | Commit | Note |
+|-------|---------|--------|------|
+| 1 — dormant sign-in page | ✅ SHIPPED | `188d60c` | `signin.html` + `signin.ts` live on loopback, hosted-inert; hermetic wiring green + one-off loopback OAuth→Cookbook verified. |
+| 2 — atomic hosted cutover | ⏳ pending | — | Carries the confirmed PHASE-GATED manual post-deploy sign-in check. |
 
 ## Problem Statement
 
@@ -141,7 +148,7 @@ Sequential spine: **Phase 1 → Phase 2.**
 gate). The interactive OAuth flow is proven where it IS the feature — here, on
 `signin.html` — in the `@live`/loopback tier, not hermetically.
 
-### Phase 1: Add the dormant sign-in page (loopback-provable, hosted-inert)
+### Phase 1: Add the dormant sign-in page (loopback-provable, hosted-inert) — ✅ SHIPPED (`188d60c`)
 
 **Goal:** `signin.html` + `src/pages/signin.ts` exist and fully work on loopback;
 nothing links to them yet; hosted `client-metadata.json` is unchanged, so the
@@ -231,6 +238,12 @@ pointer to `signin.html`, keeping account-free drafting).
   `signin.html`, which forwards to Cookbook.)
 - [ ] `src/nav.ts` — signed-out top-right auth link href → `./signin.html`.
 - [ ] `src/pages/cookbook.ts` — the signed-out gate's sign-in link → `./signin.html`.
+- [ ] `src/pages/account.ts` — the signed-out note "Not signed in — sign in from
+  My recipes." (`account-signed-out`, `account.ts:39`) → repoint at the sign-in
+  page ("sign in" → `./signin.html`). Found mid-execution during Phase 1 (a
+  fourth stale "sign in from My recipes" reference the Pass 1/2 write-set
+  missed); folded into the atomic cutover so no signed-out surface still points
+  at `mine.html` for login.
 - [ ] `src/pages/mine.ts` — remove the inline sign-in section. Note (Pass 3)
   `mine.ts` has **two** signed-out branches: the `provider !== null` branch
   (currently leads with the sign-in form) → replace with a short pointer
@@ -263,14 +276,15 @@ form). `@live`/loopback: a real sign-in via `signin.html` lands on Cookbook.
 **Read-set:** `src/pages/signin.ts`, `src/nav.ts`, `src/pages/cookbook.ts`,
 `src/pages/mine.ts`, `client-metadata.json`, `tests/e2e/helpers/live.ts`.
 **Write-set:** `client-metadata.json`, `src/nav.ts`, `src/pages/cookbook.ts`,
-`src/pages/mine.ts`, `tests/e2e/helpers/live.ts`, `tests/e2e/nav.spec.ts`,
-`docs/DESIGN.md`, `README.md`. **Exceeds the 4-file rule — documented exception:**
+`src/pages/account.ts`, `src/pages/mine.ts`, `tests/e2e/helpers/live.ts`,
+`tests/e2e/nav.spec.ts`, `docs/DESIGN.md`, `README.md`. **Exceeds the 4-file
+rule — documented exception:**
 this is an atomic auth-config cutover; splitting it would leave hosted sign-in
 pointing at an unregistered `redirect_uri` (broken login) mid-way. The edits are
 individually small (link repoints + a config value + a form→pointer swap).
 *(Pass 3 honesty note: the atomicity-critical core is `client-metadata.json` +
-the "Sign in" link/form files (`nav.ts`, `cookbook.ts`, `mine.ts`) — a
-half-cutover there breaks production login. `live.ts`/`nav.spec.ts` ride the
+the "Sign in" link/form files (`nav.ts`, `cookbook.ts`, `account.ts`,
+`mine.ts`) — a half-cutover there breaks production login. `live.ts`/`nav.spec.ts` ride the
 same commit to keep the hermetic + `@live` tiers green; `docs/DESIGN.md` /
 `README.md` ride by the same-phase docs convention, not by deploy-atomicity. All
 low-complexity; none introduce new logic.)*
@@ -449,6 +463,31 @@ not point at `signin.html`. Phase 2 `mine.ts` item updated to lock it.
 **Confirmed ready:** yes — Phase 1 ready to execute on approval; Phase 2 carries
 the confirmed PHASE-GATED manual sign-in gate. The one new ADVISORY does not gate
 execution (recommendation recorded; Phase-2-gated at most).
+
+### Phase 1 execution — 2026-07-09 (`188d60c`)
+**Shipped:** `signin.html` + `src/pages/signin.ts` (three branches:
+agent-present→forward to Cookbook; signed-out→dedicated form; `provider ===
+null`→terminal "unavailable" note per the confirmed ADVISORY), registered in
+`scripts/build.mjs` (`PAGES` + `HTML` → hashed bundle + SW precache). Modeled on
+`account.ts` (shell mount, build stamp, SW register) + `mine.ts`'s form.
+**TDD:** wrote `tests/e2e/signin.spec.ts` first, watched it RED (`/signin.html`
+404 → empty title), then implemented to GREEN. Page-level logging added per Pass
+3: submit `.catch` → `log.error('auth','sign-in failed')`, forward →
+`log.info('auth','signed in — forwarding')`; the provider/boot layer already
+emits initiated/restored/restore-failed.
+**Validation (Moderate):** hermetic full suite green (50 e2e incl. `signin.spec`,
++ lint/typecheck/unit/build). Loopback interactive OAuth verified once locally
+via a throwaway `@live` spec (sign-in on `/signin.html` → real bsky.social
+consent → callback completes on `signin.html` → forwards to `cookbook.html`);
+throwaway deleted after the run (disposition honored).
+**Mid-execution finding:** `account.ts:39` carries a fourth stale "sign in from
+My recipes" reference (`account-signed-out`) the Pass 1/2 write-set missed.
+Folded into Phase 2 (write-set + Documentation Impact + Changes) so the atomic
+cutover leaves NO signed-out surface pointing at `mine.html` for login. The
+existing `nav.spec.ts` account assertion (`/sign in/i`) stays green if the note
+keeps that phrasing; Phase 2 should also assert the `./signin.html` href.
+**Deviation from spec:** none in the four planned changes; Phase 1 shipped as
+specified. The only addition is the Phase 2 scope bump above.
 
 ### Note: OAuth secret-storage posture (recorded 2026-07-09)
 
