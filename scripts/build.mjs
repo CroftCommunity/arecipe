@@ -96,11 +96,34 @@ const injectCsp = (html) =>
     `$1\n    <meta http-equiv="Content-Security-Policy" content="${cspFor(html)}" />`,
   );
 
-// HTML with hashed refs + CSP injected.
+// --- Subresource Integrity (Phase 3) ---------------------------------------
+// sha384 integrity on the entry ES module + both stylesheets, computed from the
+// exact bytes served. Scope is bounded: code-split import() chunks carry no HTML
+// tag, so HTML integrity is not expressible on them (Phase 0 D3) — documented in
+// docs/SECURITY.md, not silently skipped. crossorigin="anonymous" is required
+// for the browser to run the integrity check.
+const sri = (bytes) => `sha384-${createHash('sha384').update(bytes).digest('base64')}`;
+const stylesSri = sri(cssBytes);
+const fontsSri = sri(readFileSync('assets/fonts/fonts.css'));
+
+// HTML with hashed refs + CSP + SRI injected.
 for (const [file, page] of Object.entries(HTML)) {
   let html = readFileSync(file, 'utf8');
   html = html.replace(`./${page}.js`, `./${bundleOf[page]}`);
   html = html.replace('./styles.css', `./${cssName}`);
+  const entrySri = sri(readFileSync(`dist/${bundleOf[page]}`));
+  html = html.replace(
+    `<script type="module" src="./${bundleOf[page]}"></script>`,
+    `<script type="module" src="./${bundleOf[page]}" integrity="${entrySri}" crossorigin="anonymous"></script>`,
+  );
+  html = html.replace(
+    `<link rel="stylesheet" href="./${cssName}" />`,
+    `<link rel="stylesheet" href="./${cssName}" integrity="${stylesSri}" crossorigin="anonymous" />`,
+  );
+  html = html.replace(
+    `<link rel="stylesheet" href="./assets/fonts/fonts.css" />`,
+    `<link rel="stylesheet" href="./assets/fonts/fonts.css" integrity="${fontsSri}" crossorigin="anonymous" />`,
+  );
   html = injectCsp(html);
   writeFileSync(`dist/${file}`, html);
 }

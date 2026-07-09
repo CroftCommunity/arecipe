@@ -131,3 +131,58 @@ test.describe('CSP: enforcing policy admits every document (Phase 2)', () => {
     expect(cspAt).toBeLessThan(scriptAt);
   });
 });
+
+// Phase 3: SRI on the entry ES module + both stylesheets. An SRI mismatch
+// blocks the subresource (browser console error, not a CSP violation), so the
+// proof is twofold — the integrity attrs are present AND nothing fails
+// integrity at load (entry mismatch would blank the page; a stylesheet mismatch
+// would surface a console error). Code-split import() chunks are out of scope
+// (no HTML tag to carry integrity — Phase 0 D3), documented in SECURITY.md.
+test.describe('SRI: entry module + both stylesheets (Phase 3)', () => {
+  for (const doc of SHELLS) {
+    test(`${doc}: sha384 integrity present + nothing fails integrity`, async ({ page }) => {
+      const sriErrors: string[] = [];
+      page.on('console', (m) => {
+        if (m.type() === 'error' && /integrity|digest|subresource/i.test(m.text())) {
+          sriErrors.push(m.text());
+        }
+      });
+      await page.goto(`/${doc}`, { waitUntil: 'load' });
+      // Render proof for the entry module: a wrong entry digest blocks the
+      // module, so a live render means its integrity is correct, not just present.
+      if (doc === 'signin.html') {
+        await expect(page.getByTestId('handle-input')).toBeVisible();
+      } else {
+        await expect(page.locator('#app')).toBeAttached();
+      }
+      await page.waitForTimeout(300);
+
+      const attrs = await page.evaluate(() => {
+        const entry = document.querySelector('script[type="module"][src]');
+        const links = [...document.querySelectorAll('link[rel="stylesheet"]')];
+        return {
+          entry: {
+            integrity: entry?.getAttribute('integrity') ?? null,
+            crossorigin: entry?.getAttribute('crossorigin') ?? null,
+          },
+          links: links.map((l) => ({
+            href: l.getAttribute('href'),
+            integrity: l.getAttribute('integrity'),
+            crossorigin: l.getAttribute('crossorigin'),
+          })),
+        };
+      });
+
+      expect(attrs.entry.integrity, `${doc}: entry module integrity`).toMatch(/^sha384-/);
+      expect(attrs.entry.crossorigin, `${doc}: entry module crossorigin`).toBe('anonymous');
+      // Both stylesheets (styles + fonts) carry integrity.
+      expect(attrs.links.length, `${doc}: at least two stylesheets`).toBeGreaterThanOrEqual(2);
+      for (const l of attrs.links) {
+        expect(l.integrity, `${doc}: stylesheet ${l.href} integrity`).toMatch(/^sha384-/);
+        expect(l.crossorigin, `${doc}: stylesheet ${l.href} crossorigin`).toBe('anonymous');
+      }
+      // Nothing failed its integrity check at load (covers stylesheets too).
+      expect(sriErrors, `${doc}: SRI errors: ${JSON.stringify(sriErrors)}`).toEqual([]);
+    });
+  }
+});

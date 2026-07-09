@@ -1,7 +1,7 @@
 # arecipe — Security posture narrative + primary XSS hardening (CSP/SRI)
 
 **Status: IN EXECUTION.** Passes 1–3 complete (`efabd22`, `4ad4290`, `5b89fba`).
-Phases 0–2 ✅ complete (discovery, narrative, enforcing CSP). Phases 3–4 pending.
+Phases 0–3 ✅ complete (discovery, narrative, enforcing CSP, SRI). Phase 4 pending.
 
 ## Outcome Summary
 
@@ -10,7 +10,7 @@ Phases 0–2 ✅ complete (discovery, narrative, enforcing CSP). Phases 3–4 pe
 | 0 Discovery | ✅ complete | — | D2/D3/D4 hermetic; D1 read+PDS path proven; `@live` auth slice → Phase 2 gate |
 | 1 Narrative | ✅ shipped | `cf32b5e` | `docs/SECURITY.md` + README/DESIGN links; all claims source-cited |
 | 2 CSP + hashing | ✅ shipped | `ceee042` | enforcing CSP on all 9 docs; hermetic green; `@live` auth/publish pass under CSP (3 unrelated `@live` flakes confirmed pre-existing via no-CSP baseline) |
-| 3 SRI | ⏳ pending | — | entry module + both stylesheets |
+| 3 SRI | ✅ shipped | `__PH3_SHA__` | sha384 integrity on entry module + both stylesheets; chunks documented uncovered |
 | 4 Zero-3p guard | ⏳ pending | — | structural test guard |
 
 **Surfaced, out of scope (needs triage/tracking):** custom fonts 404 in
@@ -562,7 +562,20 @@ loads app-wide; hermetic no-violations across all pages + a loopback auth run
 under CSP.
 **Stop-point.**
 
-### Phase 3: SRI on entry scripts + styles
+### Phase 3: SRI on entry scripts + styles — ✅ SHIPPED (`__PH3_SHA__`)
+
+**Delivered (2026-07-09):** `scripts/build.mjs` `sri()` adds
+`integrity="sha384-…" crossorigin="anonymous"` to the entry ES module and both
+stylesheets (`styles.css` from `cssBytes`; `assets/fonts/fonts.css` from source
+bytes), computed from the served bytes. `csp.spec.ts` extended (8 SRI tests):
+per shell, asserts sha384 integrity + `crossorigin=anonymous` on the entry module
+and both stylesheets, the page renders (entry-mismatch would blank it), and no
+subresource fails its integrity check at load (covers the stylesheets, whose
+mismatch would not blank the page). Code-split `import()` chunks left uncovered
+(D3: no HTML tag), documented in `docs/SECURITY.md`. SRI status flipped to
+IMPLEMENTED. Verification: hermetic `npm test` green (unit 193, e2e 69, exit 0).
+
+
 
 **Goal:** `build.mjs` adds `integrity=` (+ `crossorigin`) to the entry
 `<script type="module" src>` and `<link rel="stylesheet">` in each built shell,
