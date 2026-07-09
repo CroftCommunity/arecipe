@@ -1010,3 +1010,109 @@ a.card {
 .recipe-controls { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.75rem; }
 .version-nav { display: inline-flex; align-items: center; gap: 0.4rem; border: 1px solid var(--line); border-radius: var(--r-pill); padding: 0.15rem 0.4rem; }
 .version-count { font-size: var(--t-caption); white-space: nowrap; padding: 0 0.3rem; }
+
+/* ---- reference page (kitchen charts) ----
+   Static conversion/roasting charts transcribed from the scanned reference
+   cards. Card idiom mirrors .settings-section; each section is a scroll
+   target (id) so a chart is directly linkable, with a copyable "#" anchor. */
+.ref-head {
+  text-align: center;
+  margin: var(--s-5) 0 var(--s-6);
+}
+.ref-head h1 {
+  font-family: var(--display);
+  font-size: var(--t-wordmark);
+  color: var(--enamel);
+  margin: 0 0 var(--s-2);
+}
+.ref-head p {
+  margin: 0;
+  opacity: 0.75;
+}
+.ref-card {
+  background: var(--card);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-l);
+  padding: var(--s-5);
+  margin-bottom: var(--s-5);
+  scroll-margin-top: var(--s-4); /* clear of the top of the viewport on #anchor jumps */
+}
+.ref-card h2 {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: var(--t-section);
+  color: var(--enamel);
+  margin: 0 0 var(--s-4);
+}
+/* Copyable in-page anchor: quiet until the heading is hovered/focused. */
+.ref-anchor {
+  color: var(--enamel);
+  text-decoration: none;
+  font-weight: 700;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+.ref-card h2:hover .ref-anchor,
+.ref-anchor:focus-visible,
+.ref-card:target .ref-anchor {
+  opacity: 0.6;
+}
+.ref-anchor:hover {
+  opacity: 1;
+}
+/* The targeted chart gets a soft enamel wash so a deep link lands obviously. */
+.ref-card:target {
+  border-color: var(--enamel);
+  background: var(--enamel-soft);
+}
+.ref-cols {
+  display: grid;
+  gap: var(--s-5) var(--s-6);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 40rem) {
+  .ref-cols.two {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+table.ref {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-body);
+}
+table.ref th {
+  text-align: left;
+  font-weight: 700;
+  border-bottom: var(--stroke) solid var(--enamel);
+  padding: var(--s-2) var(--s-3);
+  vertical-align: bottom;
+}
+table.ref td {
+  padding: var(--s-2) var(--s-3);
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+table.ref tr:last-child td {
+  border-bottom: none;
+}
+table.ref.pairs td:first-child {
+  font-weight: 700;
+  width: 45%;
+}
+table.ref.pairs td.eq {
+  color: var(--enamel);
+  width: 1.5rem;
+  text-align: center;
+  font-weight: 700;
+}
+.ref-note {
+  margin: var(--s-3) 0 0;
+  font-size: var(--t-caption);
+  opacity: 0.7;
+}
+.ref-foot {
+  text-align: center;
+  font-size: var(--t-stamp);
+  opacity: 0.55;
+  margin-top: var(--s-6);
+}

@@ -11,3 +11,7 @@ __pycache__/
 
 # Local recipe-import working files (not part of the app)
 import/
+
+# Extracted reference-card scans (source artifacts; the data lives in the
+# reference page — the raw scans stay in import/References.zip)
+references/

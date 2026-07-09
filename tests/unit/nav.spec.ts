@@ -61,7 +61,7 @@ describe('renderTopbar', () => {
 });
 
 describe('renderTabs', () => {
-  it('renders Browse, Cookbook, and My recipes as links', () => {
+  it('renders Browse, Cookbook, My recipes, and Reference as links', () => {
     const tabs = renderTabs('/index.html');
     expect(tabs.querySelector('[data-testid=tab-browse]')?.getAttribute('href')).toBe(
       './index.html',
@@ -70,6 +70,9 @@ describe('renderTabs', () => {
       './cookbook.html',
     );
     expect(tabs.querySelector('[data-testid=tab-mine]')?.getAttribute('href')).toBe('./mine.html');
+    expect(tabs.querySelector('[data-testid=tab-reference]')?.getAttribute('href')).toBe(
+      './reference.html',
+    );
   });
 
   it.each([
@@ -80,6 +83,8 @@ describe('renderTabs', () => {
     ['/arecipe/cookbook.html', 'tab-cookbook'],
     ['/mine.html', 'tab-mine'],
     ['/arecipe/mine.html', 'tab-mine'],
+    ['/reference.html', 'tab-reference'],
+    ['/arecipe/reference.html', 'tab-reference'],
   ])('marks the active tab for %s', (pathname, expected) => {
     const tabs = renderTabs(pathname);
     const active = tabs.querySelector('.tab--active');

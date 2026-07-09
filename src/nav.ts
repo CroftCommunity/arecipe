@@ -65,6 +65,12 @@ const DESTINATIONS = [
   { label: 'Browse', href: './index.html', testid: 'tab-browse', match: /(^|\/)(index\.html)?$/ },
   { label: 'Cookbook', href: './cookbook.html', testid: 'tab-cookbook', match: /\/cookbook\.html$/ },
   { label: 'My recipes', href: './mine.html', testid: 'tab-mine', match: /\/mine\.html$/ },
+  {
+    label: 'Reference',
+    href: './reference.html',
+    testid: 'tab-reference',
+    match: /\/reference\.html$/,
+  },
 ] as const;
 
 export const renderTabs = (pathname: string): HTMLElement => {
