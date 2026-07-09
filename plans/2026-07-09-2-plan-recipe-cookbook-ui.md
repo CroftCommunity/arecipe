@@ -137,16 +137,38 @@ same code.
 ## Verified Assumptions
 
 - **Interactions model.** `app.arecipe.interaction` records carry `kind`
-  (`'liked'|'saved'`), a recipe `strongRef`, `createdAt`
-  (`interactions.ts:16-52`). `summarize` computes a deduped cookbook-scoped
-  `likeCount` + `youLiked`/`youSaved` (`:111-123`). Add/remove =
+  (`'liked'|'saved'`, `interactions.ts:16`; `KINDS` is module-private at `:17`,
+  not exported), a recipe `strongRef`, `createdAt`. `summarize` (`:111-123`)
+  returns `{likeCount, youLiked, youSaved}`; add/remove =
   `createRecord`/`deleteRecord` (`:155-201`). Confirmed by reading the file.
-- **A "liked recipes" feed is buildable from own records.** `listInteractionsFor`
-  can read the viewer's own repo filtered to `kind:'liked'`
-  (`interactions.ts:55-85`); each record holds the recipe `strongRef` (uri+cid),
-  so the liked-recipes feed = load those recipe URIs. (Phase 0 D2 confirms the
-  load path + caching reuse.) Confirmed by reading; the batch-load path is the
-  discovery item.
+  **[Pass 2 correction]** `summarize` dedupes likers **by author DID**
+  (`:115` `new Set(...map(i=>i.author))`) over *whatever interactions it is
+  handed* — it does **not** scope to a cookbook or recipe itself. The
+  cookbook-scoping is emergent: `loadRecipeInteractions` (`:89-107`) is the
+  aggregator that narrows by `recipeUri` and by the cookbook `repos` passed in,
+  then hands the result to `summarize`. So "cookbook-scoped like count" is a
+  property of the *caller*, not of `summarize`. Phase 3 (overlay) is
+  presentation-only and does not touch this scoping.
+- **A "liked recipes" feed needs a NEW by-ref loader (not just reuse).**
+  `listInteractionsFor(target, {kind:'liked'})` (`interactions.ts:55-58`) reads
+  the viewer's own repo and returns `Interaction[]`, each carrying a recipe
+  `strongRef` (uri+cid) — **but the value can fall back to `{uri:'',cid:''}`
+  when a record lacks `recipe` (`:77`), so empties must be filtered out.**
+  **[Pass 2 correction]** There is **no by-URI / by-strongRef batch recipe
+  loader anywhere.** The existing feed path `loadAuthorsFeed` (`social/feed.ts:33`)
+  loads **by author**: `resolveDidDoc(author.did)` → `createRecipeReader` reads
+  that repo's recipes → `cache.put` → `CachedRecipe[]` (using `createRecipeCache`
+  `recipes/cache.ts:79` + `createRecordReader`/`createRecipeReader`
+  `recipes/read.ts:45,64` + `resolveDidDoc` `identity/did.ts`). The liked feed
+  is keyed by **recipe URI**, not by author, so Phase 9 must build a new
+  `loadLikedFeed(interactions) → CachedRecipe[]` that (1) filters empty refs,
+  (2) parses each `at://did/exchange.recipe.recipe/rkey`, (3) `resolveDidDoc(did)`
+  → pds (**cross-PDS: a liked recipe may live on another PDS**), (4)
+  `createRecordReader({pds,did,rkey})`, (5) `cache.put` → `CachedRecipe`, then
+  (6) `renderRecipeList`. It reuses the same *primitives* as `loadAuthorsFeed`
+  but is a genuinely new function, with a discovery **cap**. Designing this
+  signature is Phase 0 D2's real job (the path does not yet exist); true
+  cross-PDS behavior needs `@live` to verify.
 - **Save is half-wired.** Recipe page renders a save toggle (`recipe.ts:272`,
   `:300`, `:365`); no view lists saved recipes (`mine.ts` = Drafts only).
   Confirmed by grep — no `Saved` view anywhere in `src/`.
@@ -176,31 +198,70 @@ same code.
 
 ## Documentation Impact
 
-- No app docs (`README.md`, `docs/*.md`) reference the specific functions/pages
-  being changed in a way that goes stale (grep before Phase 1 to confirm —
-  recorded as a Phase 0 step). `docs/DESIGN.md` describes the Browse toolbar and
-  trust-surface generally; if the toolbar becomes shared or Cookbook gains it,
-  add a one-line note in the phase that lands it (Phase 8).
-- New source modules (shared toolbar, shared members-view, liked-feed helper)
-  are code, not docs; no doc index lists them.
-- **Phase 0 D0:** `grep -rn` the touched symbols/pages across `README.md`,
-  `docs/`, and other skills to confirm the above; record findings here.
+**[Pass 2 — D0 grep run early; real hits found. The Pass 1 claim "no app docs
+go stale" was wrong.]** `.claude/` is empty. Symbols with NO doc hits (code-only,
+nothing goes stale): `Alchemy`, `Hide this recipe`, `cookbook-members`,
+`renderMembersList`, the `browse-toolbar` class. New source modules (shared
+toolbar, members-view, liked-feed) are code, not docs. Real prose that DOES go
+stale, mapped to the phase that makes it stale:
+
+- `README.md:32-38` — page inventory incl. `:35` "`mine.html` (My recipes —
+  drafting is account-free…)". The "My recipes" label → **Phase 11a** (rename to
+  Alchemy).
+- `docs/DESIGN.md:148` — canonical nav list "Browse · Cookbook · My recipes." →
+  **Phase 11a**.
+- `docs/DESIGN.md:167`, `:169-171` — "a section on My recipes…"; "**My recipes
+  stays account-free for drafting**: signed out it shows New recipe + local
+  Drafts plus a short pointer to signin.html." → **Phase 11a** (rename;
+  New-recipe affordance already exists, see Phase 11a note).
+- `docs/DESIGN.md:147-156` — "The page shows your cookbook members (with a source
+  badge) and their recipes as a read feed." Members move off Cookbook → **Phase 6**
+  (update to: members live on Account; Cookbook = feed + toolbar).
+- `docs/DESIGN.md:92-96` — "**Browse toolbar**: a compact control bar…" described
+  as Browse-only. Cookbook gains the same bar → **Phase 8** (note the toolbar is
+  now shared Browse+Cookbook).
+- `docs/DESIGN.md:178-188` — comments "below the recipe", cookbook-scoped, plus
+  the "Hide likes / Hide comments" social prefs. Low impact; if Phase 2 removes
+  the save affordance and any DESIGN prose describes a save/bookmark UI, update
+  it in **Phase 2** (grep DESIGN.md for a save/bookmark *UI* mention; the
+  `saved` hits in `docs/sources/*`, `STACK.md`, `BUILD-PLAN.md` are
+  **lexicon/spec** level — the atproto `interaction.saved` record still exists,
+  we just stop writing/reading it in the UI, so those spec docs do NOT go stale).
+- **Doc updates ride the phase that makes them stale** (per template) — not a
+  trailing docs phase.
 
 ## Concurrency Map
 
-Sequential spine: **Phase 0 → 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10.**
+Sequential spine: **Phase 0 → 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11a →
+11b → 11c.** (**[Pass 2]** Phase 11 split into 11a/11b/11c — see Phase 11.)
 
 - Nearly every phase writes `styles.css` and/or `src/recipes/view.ts` and/or a
   page file, and phases 7→8→9→10 form a hard chain (extract toolbar → Cookbook
   adopts it → filter uses it → button sits on it). So sequential is **required
   by the write-sets**, not merely chosen.
+- **[Pass 2]** The new 11a/11b/11c chain is sequential by shared write-sets:
+  11a writes `mine.ts`; 11c writes `mine.ts` (the status filter) + `editor.ts`;
+  11b writes `drafts-local.ts` + `drafts-sync.ts` (the data model 11c's UI
+  reads). `mine.ts` is shared across 11a/11c → sequential.
 - Candidate parallelism considered and rejected: the link-color fix (Phase 1)
   is genuinely independent (only `styles.css` + maybe one class), and the
   Account members extraction (Phase 6) is largely disjoint from the recipe
   cluster — but both touch `styles.css`, and running a fleet here isn't worth
-  the worktree/merge overhead for ~10 small edits by one executor. Default
-  sequential; revisit only if the user wants parallel execution.
+  the worktree/merge overhead for ~12 small edits by one executor. **[Pass 2]**
+  Re-checked after the gap analysis added phases: still no parallel set worth
+  opting into — the extractions (6, 7) and the data-model split (11b) each feed
+  a downstream consumer on the same files. Default sequential; revisit only if
+  the user wants parallel execution.
 - All sequential → no worktrees, no re-entry-verification fields.
+- **[Pass 3 — concurrency honesty re-check]** Re-walked every phase write-set
+  after the Pass 3 additions (no files moved between phases in Pass 3). The
+  sequential spine holds and is *required*, not merely chosen: `styles.css` is
+  written by Phases 1/3/4/5/8/10 (and maybe 11c); `cookbook.ts` by 6/8/9/10;
+  `view.ts` by 3/4; `mine.ts` by 11a/11c; `browse-state.ts` feeds 7→8→9. Every
+  adjacent pair shares ≥1 write-set entry or a producer→consumer data
+  dependency, so no two phases have disjoint write-sets → no parallel set is
+  admissible under the hard rule. Map confirmed; sequential plan, no re-entry
+  verification needed (no worktrees dispatched).
 
 ## Phases
 
@@ -210,31 +271,68 @@ the gate; `@live` (real-PDS) only where the write path is the feature (likes,
 liked-feed). CSP stays intact — styling in `styles.css` only, no inline styles.
 Every phase commits when green; the plan doc's status is synced per phase.
 
+**[Pass 3 — cross-phase conventions added]:**
+- **File-count ceiling counts *source* files.** The ≤3–4 ceiling counts
+  production/source files (`.ts`/`.css`/`.html`); the test file(s) each phase
+  writes and any cosmetic doc-label edits ride along and do **not** count
+  toward the ceiling. This is the convention Pass 2 already used when it wrote
+  "= 3 files" for Phases 6/7. Under it, every phase is ≤4 source files
+  (verified in the Pass 3 log). Stated explicitly so execution doesn't
+  mis-count tests and split unnecessarily.
+- **Gate command is `npm test`** = `lint && typecheck && test:unit && build &&
+  test:e2e` (confirmed `package.json:15`); the build step is required because
+  e2e runs over the built `dist`. `@live` is grep-inverted out of the hermetic
+  e2e run (`playwright.config.ts:14`) and only runs under `LIVE=1 npm run
+  test:live`. A phase's "`npm test` green" already means the full hermetic tier.
+- **Observability spine is `src/log.ts`**: `log.<level>(component, message,
+  {data})`. `debug`/`info` are gated behind `?debug=1` (or a `debug`
+  localStorage entry); `warn`/`error` **always emit**. So any *user-impacting*
+  drop or redirect must log at `warn`/`info` (per-phase notes below name the
+  exact calls). Mirror the established `feed.ts` pattern (`:52` info cache-serve,
+  `:59` warn per-author failure).
+- **Two silence classes, deliberately distinguished** (see per-phase notes):
+  (a) *silent-by-design* — dropping/defaulting **expected legacy** data as
+  normal operation (Phase 2 legacy `saved` filter-drop, Phase 11b status
+  default) needs **no** log; (b) *must-not-be-silent* — dropping **wanted**
+  data the user asked for (Phase 9 discovery cap, Phase 9 per-ref cross-PDS
+  failures) **must** `log.warn` the drop. Truncation of wanted data without a
+  log is the anti-pattern; defaulting legacy records is not.
+
 ### Phase 0: Discovery
 
 **Goal:** Resolve the reusability/data unknowns and confirm the interpretation
 open questions before committing to the toolbar/liked-feed phases.
 
-- [ ] **D0: Documentation + reference grep.** `grep -rn` the touched pages and
-      symbols (recipe/cookbook/account, `renderMembersList`, `saved`, toolbar)
-      across `README.md`, `docs/`, and `.claude/`. **Success:** the
-      Documentation Impact section reflects real findings. **Disposition:**
-      findings → plan.
+- [x] **D0: Documentation + reference grep.** *(Run in Pass 2 — findings folded
+      into Documentation Impact above.)* `grep -rn` the touched pages and
+      symbols across `README.md`, `docs/`, `.claude/`. **Result:** `.claude/`
+      empty; real stale prose in `README.md:32-38` and `docs/DESIGN.md:92-96,
+      147-156,148,167,169-171` mapped to Phases 6/8/11a; `saved` hits are
+      lexicon-level (no stale UI doc). Re-confirm during execution only if the
+      docs changed since Pass 2.
 - [ ] **D1: Is the Browse toolbar cleanly extractable?** Read `browse.ts`
       end-to-end + `browse-state.ts`. Determine the exact inputs a shared
       `renderToolbar` needs (state, facets, callbacks) and what stays
       page-specific. **Success:** a concrete extraction shape (signature + which
       state is shared vs injected) written into Phase 7. **Disposition:**
       throwaway notes.
-- [ ] **D2: Can we build a "liked recipes" feed from own records?** Confirm
-      `listInteractionsFor(ownRepo, kind:'liked')` returns the recipe strongRefs
-      and that the existing recipe-load/cache path can batch-load them for a
-      feed (reuse `renderRecipeList`). Note rate/cap behavior. **Success:** a
-      confirmed data path for Phase 9 (+ whether it needs `@live` to verify).
-      **Disposition:** throwaway probe.
-- [ ] **D3: Confirm the interpretation OQs** (OQ1/OQ2/OQ3/OQ5/OQ6) with the
-      user — these change phase structure. **Success:** each resolved in Open
-      Questions. **Disposition:** N/A (decisions).
+- [ ] **D2: Design the "liked recipes" by-ref loader.** **[Pass 2 sharpened]**
+      Pass 2 confirmed the load path does **not exist** — `loadAuthorsFeed`
+      (`social/feed.ts:33`) loads by *author*, and no by-URI/by-strongRef loader
+      exists. So D2 is a *design* task, not a *confirm* task. Read `social/feed.ts`
+      + `recipes/cache.ts` + `recipes/read.ts`; produce the concrete signature
+      and steps for `loadLikedFeed(interactions) → CachedRecipe[]`: filter empty
+      refs (`{uri:'',cid:''}`), parse `at://did/exchange.recipe.recipe/rkey`,
+      `resolveDidDoc(did)`→pds (cross-PDS), `createRecordReader`, `cache.put`,
+      `renderRecipeList`. Decide the **discovery cap** (how many liked records to
+      resolve/load). **Success:** the loader signature + cap written into Phase 9;
+      note that real cross-PDS verification needs `@live`. **Disposition:**
+      throwaway probe (design notes; the real loader is built TDD in Phase 9).
+- [x] **D3: Confirm the interpretation OQs.** OQ1/2/3/5/6 CONFIRMED in Pass 1;
+      **OQ10–OQ13 CONFIRMED by the user in Pass 2** (see Open Questions). All
+      interpretation OQs are now resolved — no BLOCKING interpretation gate
+      remains for Phase 0. Only D1 (toolbar shape) + D2 (liked-loader design)
+      stay as code-discovery tasks.
 
 **Read-set:** `src/pages/{browse,cookbook,account,recipe,editor,mine}.ts`,
 `src/recipes/{view,browse-state,exclusions}.ts`, `src/social/{interactions,
@@ -242,9 +340,24 @@ cookbook,comments-view}.ts`, `styles.css`.
 **Write-set:** throwaway probe notes; no production files.
 **Shared-state contract:** read-only exploration; `@live` probe for D2 reuses
 one session if run.
-**Done when:** D0-D2 answered with evidence; D3 OQs confirmed by the user.
+**Done when:** D1 (toolbar shape) + D2 (liked-loader design) answered with
+evidence. **[Pass 2]** D0 + D3 already complete (D0 grep folded into
+Documentation Impact; D3 OQs all confirmed) — Phase 0's remaining work is the two
+code-discovery probes only, no interpretation gate.
 **Validation:** Discovery (Exemption applies).
-**Stop-point — report; user confirms OQs before Phase 1.**
+**[Pass 3 — discovery concreteness + exemption boundary]:** D1/D2 each carry a
+question, a probe, success criteria, and a **`throwaway`** disposition (the real
+loader is built TDD in Phase 9) — concrete and answerable. The Discovery
+Exemption is correctly bounded: **no TDD, no wiring test, no commit-per-item for
+D1/D2** — they produce design notes written back into Phases 7 and 9, not
+production code. RED-before-GREEN begins at Phase 1. These are **not** resolvable
+in this no-code planning pass (D1 is code-reading; D2's cross-PDS behavior needs
+`@live`), so deferring them to execution's stop-point is correct — not a Pass 3
+miss. **One hand-off to make explicit:** D2 must decide the concrete **discovery
+cap value** and write it into Phase 9, because Phase 9's `log.warn('liked-feed',
+'liked set capped', …)` depends on that number being fixed before the loader is
+built.
+**Stop-point — report D1/D2 findings before Phase 1.**
 
 ### Phase 1: Consistent, theme-aware link color (dark-mode fix)
 
@@ -265,9 +378,33 @@ dark value (`#5cb3a1`-ish), not the UA blue. RED before the CSS lands.
 **Shared-state contract:** none beyond files.
 **Risks:** over-broad `a{}` recoloring buttons-styled-as-links or card links —
 scope to content contexts; verify Browse/nav unaffected by the full e2e run.
+**[Pass 2 — risk is lower than it reads]** A bare global `a { color:
+var(--enamel) }` is actually **safe**: `styles.css` has no existing `a{}` rule
+(only `a.card` at `:696`, which sets `color:inherit` at `:699` and wins on
+specificity → cards unaffected); every other "link" (`.nav-auth` `:194`,
+`.diet-pref-link` `:550`, `.reset-filters-link` `:559`, `.draft-link` `:952`,
+`.nav-gear`) is class-scoped with its own `color:var(--enamel)` → all more
+specific than bare `a`, so none change. Buttons are `<button>`, not `<a>` → not
+touched. So the simplest fix (global `a{color:var(--enamel)}` + hover) covers
+`.comment-author` (`comments-view.ts:31`, an `<a>` with no color) with no
+collateral. `comments-view.ts` needs **no** change (the `.comment-author` class
+already exists). **Wiring-test fixture:** reuse the existing hermetic
+`tests/e2e/comments.spec.ts` comment fixture (it already renders `comment-item`)
+rather than inventing a stub DOM.
+**[Pass 3 — assertion robustness]:** Do **not** hardcode the hex (`#5cb3a1`) in
+the wiring test — it is brittle against a token-value change. Assert the
+discriminating facts instead: (a) `.comment-author` computed `color` is **not**
+the UA link blue, and (b) it **equals** the computed `color` of an element known
+to resolve `--enamel` (e.g. `.provenance-author` or `.nav-auth`) rendered in the
+same theme. That both fails RED (today `.comment-author` has no color → UA blue,
+so it differs from the enamel reference) and survives a future token retune.
+Run the assertion in **both** themes (the token has light `#175e54` + dark
+`#5cb3a1` variants) so a one-theme regression can't hide.
 **Done when:** 1) links are enamel in both themes; 2) `npm test` green incl. the
 new contrast assertion.
 **Validation:** Narrow-plus — visual check in both themes + full e2e regression.
+**CSP:** styling stays in `styles.css` (one `a{}`-family rule); no inline
+`style=`/`.style`, no remote asset. Intact.
 **Stop-point.**
 
 ### Phase 2: Remove "saved"; like is the only interaction
@@ -288,10 +425,38 @@ save-button present (`save-button` testid absent). RED first (button exists).
 **Read-set:** `interactions.ts`, `recipe.ts`, interaction tests.
 **Write-set:** `interactions.ts`, `recipe.ts`, tests.
 **Shared-state contract:** `@live` like write path unchanged; save write removed.
-**Risks:** unit tests asserting `youSaved`/`KINDS` length — update them.
+**[Pass 2 — exact breaking tests to update in this phase]:**
+- `tests/unit/social/interactions.spec.ts` (hermetic) — 6 assertions + the type
+  import break: `:18` imports `InteractionKind` (union loses `'saved'` →
+  typecheck); `:44-46` "builds a saved record"; `:98-104` `youSaved` edges;
+  `:106-111`; `:117-121` `findInteractionRkey('saved')`; `:151-155` "saving does
+  not drop your like". Rewrite to like-only.
+- `tests/e2e/interactions.spec.ts:66` (hermetic) —
+  `expect(getByTestId('save-button')).toBeHidden()` in the "signed-out read-only
+  like count" test; drop the save-button assertion.
+- **Read-tolerance is automatic:** `listInteractionsFor` filters by
+  `KINDS.includes` (`:82`); removing `'saved'` from `KINDS` means legacy `saved`
+  records simply fail the filter and are ignored — confirm no path throws on an
+  unknown kind. `KINDS` is module-private, so no external test asserts its length.
+- `summarize`'s `youSaved` field is removed; its only consumer is the recipe
+  page `saveBtn` (removed here) — grep for other `youSaved` readers before
+  deleting.
+**Risks:** unit tests asserting `youSaved` — update them (enumerated above).
+**[Pass 3 — observability + debugging]:**
+- **Legacy `saved` drop is silent-by-design (class (a)) — no log.** After
+  `'saved'` leaves `KINDS`, `listInteractionsFor`'s `.filter(i =>
+  KINDS.includes(i.kind))` (`interactions.ts:82`) drops legacy `saved` records
+  as ordinary filtering — not lost user data, so no `log.warn` is warranted.
+  Confirm only that no path *throws* on the now-unknown kind (the filter can't;
+  it evaluates `false`). This is the deliberate contrast with Phase 9's cap,
+  which drops wanted data and must log.
+- **If RED stays red:** the `save-button`-absent assertion failing GREEN usually
+  means a second render path still mounts the save toggle — grep `recipe.ts`
+  for every `saveBtn`/`save-button` construction site, not just `:272`.
 **Done when:** 1) recipe page shows like only, save gone; 2) `npm test` green;
 3) `@live` like still writes/removes.
 **Validation:** Moderate — hermetic + a like `@live` toggle.
+**CSP:** no styling change; no inline styles introduced. Intact.
 **Stop-point.**
 
 ### Phase 3: Like heart as an image overlay (upper-right)
@@ -315,9 +480,44 @@ positioned top-right, and still toggles; count visible.
 **Shared-state contract:** none beyond files.
 **Risks:** overlay over a light image area hurts contrast → scrim; placeholder
 (no image) case → OQ7 placement.
-**Done when:** 1) heart overlays the image top-right and toggles; 2) `npm test`
-green.
+**[Pass 2 — resolved details]:**
+- **DOM timing works via `querySelector`, no `view.ts` return-value change
+  needed.** `recipe.ts` does `content.replaceChildren(renderRecipeDetail(...))`
+  (`:390/:405`), then calls `mountInteractions` at `:448` — so `.photo-wrap--banner`
+  already exists in `content` when interactions mount. The overlay can
+  `content.querySelector('.photo-wrap--banner')` and append there. The listed
+  `view.ts` change ("expose a hook/slot") is **optional** — prefer querySelector
+  to keep `view.ts` untouched (it also avoids affecting the sole other overlay,
+  `imageCreditOverlay`). If `view.ts` is left unchanged, Phase 3 shrinks to
+  `recipe.ts` + `styles.css` (2 files).
+- **The count's new home must be decided:** today `like-count` is a sibling
+  `<span data-testid=like-count>` inside the `.interactions` `<section>`
+  (`recipe.ts:270`), which currently has **no CSS** (`.interactions` is unstyled).
+  OQ7 says the control "never moves" — so put **both** the heart and its count in
+  the `.like-overlay`. Keep the `like-count`/`like-button` testids so
+  `interactions.spec.ts:62/:65` and `interactions-live.spec.ts` survive
+  unchanged (they assert text/state, not position).
+- **Two overlays share `.photo-wrap--banner`:** `imageCreditOverlay`
+  (`.photo-credit`, bottom, `styles.css:887`) and the new `.like-overlay`
+  (top-right). `.photo-wrap` is already `position:relative` (`:741`) — so the
+  new overlay has its positioning context; just ensure top-right vs bottom don't
+  collide, and don't disturb `view.spec.ts:281,296` (which assert the existing
+  credit overlay).
+**[Pass 3 — debugging readiness]:** If the "like is a descendant of
+`.photo-wrap--banner`" assertion stays RED, check the **mount ordering**:
+`mountInteractions` (`recipe.ts:448`) must run *after*
+`content.replaceChildren(renderRecipeDetail(...))` (`:390/:405`), so
+`content.querySelector('.photo-wrap--banner')` is non-null when the overlay
+appends. A null querySelector silently appends nowhere (or throws on
+`.append`) — log `log.warn('recipe', 'banner node missing for like overlay')`
+on the null branch so the placeholder/no-photo path is diagnosable, and confirm
+the placeholder case still renders a `.photo-wrap--banner` (OQ7 needs the same
+node to exist with no image).
+**Done when:** 1) heart+count overlay the image top-right and toggle; 2) same
+top-right spot on the no-photo placeholder (OQ7); 3) `npm test` green.
 **Validation:** Moderate — hermetic + visual both themes + placeholder case.
+**CSP:** `.like-overlay` positioning/scrim is a `styles.css` class; no inline
+`style=`/`.style`. Intact.
 **Stop-point.**
 
 ### Phase 4: "Hide" on the title line, with confirmation
@@ -341,9 +541,32 @@ cancel does nothing. RED first.
 **Shared-state contract:** `localStorage` `hidden-recipes` (exclusions) — same
 as today.
 **Risks:** title-row layout on narrow screens (wrap); confirm UX (OQ5).
-**Done when:** 1) Hide is inline-right of the title, confirms before hiding;
-2) `npm test` green incl. the confirm flow.
+**[Pass 2 — resolved details]:**
+- **`renderRecipeDetail` has a single caller** (`recipe.ts:390/:405`, confirmed
+  by grep) — so adding a title-row slot to it affects no other page. Safe.
+- **Wiring:** the Hide button is today `content.append`-ed at `recipe.ts:427` as
+  a *sibling* of the detail article (not inside it). To sit on the title row it
+  must move *into* the article. Two options: (a) `view.ts` renders
+  `.recipe-title-row` (h2 + empty `.title-control-slot`), and `recipe.ts`
+  `content.querySelector('.title-control-slot')` then injects the built control;
+  or (b) `renderRecipeDetail` takes an optional `titleControl` node param. Prefer
+  (a) — keeps `recipe.ts` owning the exclusions/confirm logic. Remove the old
+  `:427` append.
+- **Preserve the unhide path.** Today the button toggles hide⇄unhide by state
+  (`recipe.ts:421-426`). OQ5's two-step confirm is for **Hide**; when the recipe
+  is already hidden the control should offer one-tap **Unhide** (no confirm).
+  Design the inline control for both states.
+**[Pass 3 — debugging readiness]:** If the confirm-flow e2e stays RED, check the
+**two-step state** is driven by swapping DOM/text in the control (Hide →
+"Hide? · Confirm / Cancel"), not by a native `confirm()` (OQ5 forbids it and it
+would hang the hermetic run). Assert both edges: Confirm → `exclusions.hide`
+called (recipe hidden); Cancel → control reverts and `exclusions.hide` **not**
+called. `exclusions.hide/unhide` already log — keep those.
+**Done when:** 1) Hide is inline-right of the title, confirms before hiding
+(unhide stays one-tap); 2) `npm test` green incl. the confirm flow.
 **Validation:** Moderate — hermetic + manual narrow-screen check.
+**CSP:** `.recipe-title-row` flex is a `styles.css` rule; no inline styles.
+Intact.
 **Stop-point.**
 
 ### Phase 5: Center + style the comment section
@@ -364,11 +587,35 @@ focus), not UA default. RED first.
 **Read-set:** `styles.css`, `recipe.ts`.
 **Write-set:** `styles.css` (+ maybe `recipe.ts`).
 **Shared-state contract:** none beyond files.
-**Risks:** centering the whole comments block vs just the composer — confirm
-intent in Phase 0 (OQ8 lightweight).
-**Done when:** 1) comments centered + composer styled in both themes; 2)
-`npm test` green.
+**Risks:** centering the whole comments block vs just the composer — resolved by
+OQ8 (center the whole block).
+**[Pass 2 — confirmed CSS-only; target classes exist in the DOM already]:**
+- `.comments` `<section>` is created in `recipe.ts:123` (`mountComments`),
+  wrapping the `Comments` heading + `.comments-thread` (`comments-view.ts:68`) +
+  the composer. So OQ8's "center the whole block" = one rule on `.comments`
+  (max-width + margin auto). No `recipe.ts` change needed — the wrapper exists.
+- Composer classes exist: `.comment-compose` form (`recipe.ts:199`), textarea
+  `.comment-text` (`recipe.ts:202`, placeholder "Add a comment…"). Mirror the
+  `.editor input, .editor textarea` rule (`styles.css:921-929`:
+  `border:var(--stroke) solid var(--line); border-radius:var(--r-m);
+  background:var(--card)`).
+- **None of `.comments`/`.comment-compose`/`.comment-text`/`.comment-author`
+  exist in `styles.css` yet** — Phase 5 *creates* these rules, it doesn't modify
+  existing ones. So Phase 5 = `styles.css` only (drop the `recipe.ts` "maybe").
+**[Pass 3 — assertion robustness]:** As in Phase 1, don't hardcode a hex/px in
+the wiring test. Assert the discriminating facts: (a) `.comments` has a bounded
+width and auto side-margins (computed `margin-left === margin-right` and
+`> 0` at a wide viewport, or `max-width` set) — proves centering; (b) the
+`.comment-text` textarea's computed `border-color` **equals** that of a known
+`.editor textarea` reference (the rule it mirrors, `styles.css:921-929`), not
+the UA default — proves the composer picked up the design-system border. Both
+fail RED today (no `.comments`/`.comment-text` rules exist yet). Run in both
+themes.
+**Done when:** 1) whole `.comments` block centered at a readable max-width +
+composer styled in both themes; 2) `npm test` green.
 **Validation:** Narrow-plus — visual both themes + e2e.
+**CSP:** new `.comments`/`.comment-compose`/`.comment-text` rules live in
+`styles.css`; no inline styles. Intact.
 **Stop-point.**
 
 ### Phase 6: Move the cookbook-members list to Account (off Cookbook)
@@ -383,20 +630,102 @@ becomes the recipe feed + toolbar; Account becomes "who's in your cookbook".
   `membersMount` insertion in `showCookbook` (`:110-111`); keep the feed.
 - [ ] `src/pages/account.ts` — mount the shared members view (signed-in) below
   the Account heading; signed-out shows nothing (or a sign-in pointer).
+- [ ] **[Pass 3 — doc edit as an explicit change item, not just Done-when]**
+  `docs/DESIGN.md:147-156` — update "The page shows your cookbook members…" to:
+  members live on **Account**; Cookbook = feed + toolbar; signed-out Cookbook
+  redirects to Browse. (Mapped here in Documentation Impact; made a checklist
+  item so it can't be skipped.)
 **Call chain:** account page (signed in) → shared members view → list renders;
-cookbook page → feed only (no members).
-**Wiring test:** e2e — signed-in Account shows `cookbook-members` (explainer +
-Settings link); Cookbook no longer renders `cookbook-members`. RED first
-(Account has none; Cookbook still has it).
+cookbook page → feed only (no members); **cookbook page signed-out → redirect →
+Browse (`index.html`).**
+**Wiring test:** e2e — **three** assertions, all RED first: (1) signed-in
+Account shows `cookbook-members` (explainer + Settings link) — Account has none
+today; (2) signed-in Cookbook no longer renders `cookbook-members` — it does
+today; (3) **signed-out visiting `cookbook.html` lands on `index.html`
+(Browse)** — today it renders the `cookbook-signed-out` gate. Assertion (3) is
+**hermetic** (signed-out is the no-auth path — no live creds needed), so the
+redirect behavior change is fully covered in the gate tier, not deferred to
+`@live`.
 **Depends on:** Phase 5.
 **Read-set:** `cookbook.ts`, `account.ts`, `social/cookbook.ts`.
 **Write-set:** new shared module, `cookbook.ts`, `account.ts`.
 **Shared-state contract:** reach prefs read (same as Cookbook today).
 **Risks:** any test asserting members on Cookbook must move to Account; Account
 signed-out state (members absent) — handle.
-**Done when:** 1) Account shows the list signed-in, Cookbook shows none; 2)
-`npm test` green; 3) `@live` signed-in Account renders members.
-**Validation:** Moderate — hermetic + `@live` signed-in render.
+**[Pass 2 — gaps]:**
+- **Extract the orchestration, not just the leaf renderers.** `renderMembersList`
+  + `membersToAuthors` are pure-ish, but the members list is *assembled* in
+  `showCookbook` (`cookbook.ts:108-111`): `resolveCookbook({you, config})` →
+  `membersToAuthors(members)` → `renderMembersList(members, authors)`, with reach
+  prefs (`createReachPrefs().load()`) + `resolveDidDoc`/`retryOnce` async. Account
+  (`account.ts`, 56 lines, no cookbook imports today) has none of that. So the
+  new module should export a **`mountMembersList(container, you, config)`** that
+  does resolve→authors→render (plus empty/error handling), not just the two leaf
+  functions — otherwise Account re-implements the async orchestration and drifts.
+- **Cookbook still needs `resolveCookbook` + `membersToAuthors` for its FEED.**
+  The feed is built from the members' authors (`renderFeedInto(feedContainer,
+  authors)`, `cookbook.ts:112`). Phase 6 removes only the members *render* +
+  `membersMount` insert (`:110-111`); it must **keep** the resolve→authors chain
+  that feeds `renderFeedInto`. Make this explicit so the executor doesn't delete
+  the feed's data source.
+- **[OQ10 CONFIRMED — routing changes, not just a move]:** members render on
+  Account only, on **all** Cookbook paths there are no members. Additionally:
+  - **Signed-out Cookbook → redirect to Browse.** Replace today's
+    `cookbook-signed-out` gate (`cookbook.ts:146-164`) with a redirect to
+    `index.html`. This is a behavior change beyond the members move — call it out
+    as its own change item. `tests/e2e/cookbook.spec.ts` signed-out assertions
+    (`cookbook-signed-out`/`cookbook-signin-link`) retarget to the redirect.
+  - **`?did=` cold-view is no longer a members surface.** Drop members from the
+    cold-view path (`:126-141`); `tests/e2e/cookbook.spec.ts:92-103` (asserts
+    `cookbook-member` on the cold-view) retargets to the feed or is removed.
+  - Account shows "the Bluesky account associations" = the members list.
+- `tests/unit/social/cookbook.spec.ts` tests `resolveCookbook` (module logic) and
+  survives (still reached by the feed + Account). No test asserts the Cookbook
+  *explainer* text.
+- **Explainer + Settings link move too:** the "Your starter cooks plus who you
+  follow…" note + `Settings ↗` link (`cookbook.ts:168-175`) go with the members
+  view to Account.
+- **Styles:** members list reuses `.friends-list`/`.friend-row`/`.friend-link`/
+  `.chip` (already in `styles.css`) — Phase 6 likely needs **no** `styles.css`
+  change. **[Pass 2 — write-set note]** with the signed-out redirect + cold-view
+  edit, Phase 6 writes the new members module + `cookbook.ts` + `account.ts` = 3
+  files; if the redirect + members-removal in `cookbook.ts` feels large, the
+  signed-out redirect can split into its own tiny phase (6b) — size at execution.
+**[Pass 3 — observability, redirect idiom, split trigger, debugging]:**
+- **Redirect must log (behavior-change trace).** The signed-out branch
+  (`cookbook.ts:146`, `agent === null || agent.did === undefined`) currently
+  ends by logging `log.debug('shell','mounted',{page:'cookbook',signedIn:false})`.
+  Replace the gate with the redirect and log it at **info** so "why did I land
+  on Browse?" is answerable from the console: `log.info('cookbook', 'signed-out
+  → redirecting to Browse')` immediately before navigating. Use
+  `window.location.replace('./index.html')` (not `.href`) so the signed-out
+  Cookbook URL doesn't sit in history and bounce the back-button into a redirect
+  loop. Redirect **before** `mountShell`/`return` so no cookbook shell flashes.
+- **Split trigger (was "size at execution" — now concrete).** Keep Phase 6
+  whole (3 source files: new `cookbook-members-view.ts` + `cookbook.ts` +
+  `account.ts`). Split the redirect into **Phase 6b** only if, at execution,
+  *either*: (i) the `cookbook.ts` diff has to touch **all three** of the
+  signed-out gate (`:146-164`), the cold-view members block (`:126-141`), and
+  the `showCookbook` members mount (`:110-111`) in one commit and the diff no
+  longer reads cleanly; or (ii) the `cookbook.spec.ts` retargets
+  (`cookbook-signed-out`/`cookbook-signin-link` → redirect, and `:92-103`
+  cold-view `cookbook-member`) plus the new Account members spec push the test
+  churn past what one reviewable commit should carry. Otherwise ship as one.
+- **If the redirect e2e stays RED:** confirm the redirect fires on the
+  `agent===null||agent.did===undefined` branch *before* any `content.append`/
+  `mountShell`, and that the Playwright assertion **waits for navigation** to
+  `index.html` (`await page.waitForURL(/index\.html$/)`) rather than reading the
+  URL synchronously.
+**Done when:** 1) Account shows the members list signed-in; Cookbook shows no
+members on any path; signed-out Cookbook redirects to Browse; 2)
+`docs/DESIGN.md:147-156` updated (change item above); 3) `npm test` green
+(retargeted cookbook specs, incl. the hermetic redirect assertion); 4) `@live`
+signed-in Account renders members.
+**Validation:** Moderate — hermetic (incl. the redirect, no creds) + `@live`
+signed-in render. *The routing change is fully covered hermetically; `@live`
+only exercises the members-render-with-real-graph path.*
+**CSP:** members list reuses existing `.friends-list`/`.friend-row`/`.chip`
+classes → no `styles.css` change, no inline styles. Intact.
 **Stop-point.**
 
 ### Phase 7: Extract the Browse toolbar into a shared component
@@ -415,13 +744,66 @@ Browse behavior unchanged.
 **Wiring test:** the existing `browse.spec` toolbar assertions (view toggle,
 facets, count) pass unchanged against the refactor.
 **Depends on:** Phase 6, Phase 0 D1.
-**Read-set:** `browse.ts`, `browse-state.ts`, `view.ts`.
-**Write-set:** new `toolbar.ts`, `browse.ts`.
-**Shared-state contract:** `createBrowsePrefs` localStorage (unchanged).
+**Read-set:** `browse.ts`, `src/pages/browse-state.ts` (**[Pass 2]** the path is
+`src/pages/`, not `src/recipes/`), `view.ts`.
+**Write-set:** new `toolbar.ts`, `browse.ts`, `browse-state.ts` (OQ11 confirmed
+separate keys → parameterize `createBrowsePrefs(prefix)`; Browse passes
+`'browse'`, unchanged behavior). = 3 files.
+**Shared-state contract:** `createBrowsePrefs` localStorage
+(`browse-view-mode`/`browse-photos-only`/`browse-facets`, `browse-state.ts:115-117`).
+**[Pass 2 — pinned `renderToolbar` shape (from D1 facts)]:**
+- **Stays in `browse.ts` (page-specific, NOT in the shared toolbar):** the
+  `handle-input`/`find-recipes` search form (`browse.ts:35-42`), the `last-find`
+  sessionStorage restore, the starter-feed path, the `Current.kind` status
+  strings, and the `set dietary preference ↗` link (diet is a Settings pref).
+- **Injected into `renderToolbar({...})`:** `state: BrowseState` (or `prefs`);
+  the `entries` list to count + derive facets from (`availableFacets(entries)`,
+  `browse-state.ts:102`); a `diet: string[]` source; callbacks `onViewChange`,
+  `onPhotosToggle`, `onFacetChange(dimension, value, checked)`, `onReset`; a
+  count-string strategy (page-specific text); and a `showDietLink` boolean
+  (Browse=true, Cookbook likely false).
+- **Preserve exactly** (regression guard = `tests/e2e/browse.spec.ts`): testids
+  `view-tiles`/`view-details`/`photos-only`/`reset-filters`/`recipes-status`, and
+  selectors `.recipe-grid`/`.recipe-rows`/`details.facet-dd[data-dimension=…]`/
+  `input[data-dimension=…][data-value=…]`. Keep the two re-render seams
+  (`renderCurrent` for filter/view changes that keep dropdowns open;
+  `showCurrent`=rebuild-facets+render for feed/reset changes).
+- **Class name:** the CSS is hard-named `.browse-toolbar`/`.browse-controls`/
+  `.browse-count` (`styles.css:409+`). To avoid CSS churn AND an odd class on
+  Cookbook, have `renderToolbar` emit the **existing `browse-toolbar` class**
+  (it's a CSS hook, not user copy) — zero `styles.css` change in Phase 7, and
+  Cookbook reuses the same hook in Phase 8. (Renaming to a neutral `.toolbar`
+  would touch `styles.css` + both pages for no user-visible gain.)
+- **localStorage keys (OQ11 CONFIRMED — separate):** parameterize
+  `createBrowsePrefs(prefix)` in `browse-state.ts`; the three key constants
+  become `${prefix}-view-mode`/`-photos-only`/`-facets`. Browse passes `'browse'`
+  (keys unchanged → no migration); Cookbook passes `'cookbook'` in Phase 8. This
+  is why `browse-state.ts` is in the Phase 7 write-set.
 **Risks:** subtle Browse regressions — the full `browse.spec` is the guard.
+**[Pass 3 — TDD shape is characterization, not RED-first (call this out so
+tdd-guardian doesn't flag it, and so nobody manufactures a fake failing test)]:**
+Phase 7 is a **behavior-preserving extraction** — there is no new behavior to
+drive RED→GREEN. Its "wiring test" is the **existing** `browse.spec.ts` suite,
+which is GREEN before and must stay GREEN after (a characterization/regression
+guard, not a new failing test). The correct sequence is: (1) confirm
+`browse.spec.ts` is GREEN on the pre-refactor tree (baseline); (2) extract
+`renderToolbar`; (3) confirm the same suite is still GREEN, unchanged. If a
+`browse.spec` assertion is *edited* to make it pass, that is a regression being
+masked — revert and fix the extraction instead. This is the one phase legitimately
+exempt from "write a failing test first," on the same principle as the Phase 0
+Discovery Exemption: no behavior change ⇒ no new RED.
+**If a `browse.spec` assertion goes RED:** the extraction changed DOM or
+behavior. Check (a) emitted testids/classes are byte-identical
+(`view-tiles`/`view-details`/`photos-only`/`reset-filters`/`recipes-status`,
+`.browse-toolbar`/`.recipe-grid`/`.recipe-rows`), and (b) the two re-render
+seams are preserved — `renderCurrent` (filter/view change, dropdowns stay open)
+vs `showCurrent` (feed/reset, rebuild facets). A collapsed seam is the most
+likely regression.
 **Done when:** 1) Browse works identically via the shared toolbar; 2) `npm test`
-green (browse suite unchanged).
+green (browse suite unchanged, **not** edited).
 **Validation:** Moderate — hermetic; Browse is the highest-regression-risk here.
+**CSP:** `renderToolbar` emits the existing `.browse-toolbar` hook → zero
+`styles.css` change; no inline styles. Intact.
 **Stop-point.**
 
 ### Phase 8: Cookbook adopts the toolbar (Tiles/Details + facets + count)
@@ -434,18 +816,50 @@ green (browse suite unchanged).
   `matchesFilter`/`availableFacets` over the cookbook entries).
 - [ ] `styles.css` — reuse existing `.browse-toolbar` styles (add a shared
   class if the selector is Browse-specific).
+- [ ] **[Pass 3 — doc edit as an explicit change item]** `docs/DESIGN.md:92-96`
+  — the "Browse toolbar" description (currently Browse-only) gains a note that
+  the bar is now shared Browse+Cookbook. (Already in Done-when + Documentation
+  Impact; promoted to a checklist item so it rides this phase, not a trailing
+  docs pass.)
 **Call chain:** Cookbook → shared toolbar → filtered/toggled cookbook feed.
 **Wiring test:** e2e cookbook — toggle Tiles/Details changes the feed render;
 a facet filter narrows it; count reflects.
 **Depends on:** Phase 7.
 **Read-set:** `cookbook.ts`, `browse-state.ts`, `toolbar.ts`, `styles.css`.
 **Write-set:** `cookbook.ts`, `styles.css`.
-**Shared-state contract:** cookbook view prefs (localStorage) — decide shared
-vs separate key from Browse (Phase 0/OQ).
+**Shared-state contract:** cookbook view prefs in its **own** `cookbook-*`
+localStorage keys (OQ11 confirmed) — `createBrowsePrefs('cookbook')`,
+independent of Browse. Ties to OQ10's "settings they left" (persisted per-page).
 **Risks:** facet availability differs for the cookbook feed — derive from its
 own entries.
-**Done when:** 1) Cookbook has a working toolbar; 2) `npm test` green.
+**[Pass 2 — gaps]:**
+- **Toolbar only exists signed-in / cold-view — not signed-out.** Signed-out
+  Cookbook renders just the gate (`cookbook.ts:146-164`, `cookbook-signed-out`),
+  no feed/toolbar. So the toolbar mounts on the signed-in path (`showCookbook`)
+  and, if desired, the public cold-view (`?did=`, `:126-141`). Confirm the
+  toolbar is added to **both** feed-bearing paths, not just `showCookbook`.
+- **Cookbook must build its own `BrowseState`+prefs+handlers** — today it calls
+  `renderRecipeList(feed.entries)` directly with none of Browse's state plumbing.
+  Facets are data-compatible: `availableFacets(feed.entries)` and
+  `matchesFilter(entry.value, …)` are page-agnostic pure functions over
+  `CachedRecipe[]` (feed entries are exactly `CachedRecipe[]`). Cookbook adds the
+  `view`/`photosOnly`/`facets` state + the `renderCurrent`/`showCurrent` seams.
+- **Cookbook uses only `renderRecipeList` today; the Details view needs
+  `renderRecipeDetailsList`** — wire both so the Tiles/Details toggle works.
+- **Doc:** update `docs/DESIGN.md:92-96` (Browse toolbar) to note the bar is now
+  shared Browse+Cookbook.
+**[Pass 3 — mutation resistance + CSP]:** The Tiles/Details toggle and facet
+filter are branching behavior — assert **edges**, not one happy point: (a)
+Tiles renders `.recipe-grid` and Details renders `.recipe-rows` (both
+directions, not just one); (b) applying a `Meal` facet **reduces** the count and
+**excludes** a known non-matching entry (assert a specific recipe disappears),
+and clearing it restores the full count. A single "toggle changes something"
+assertion would survive a mutation that swaps the two views.
+**Done when:** 1) Cookbook (signed-in + cold-view) has a working toolbar; 2)
+`docs/DESIGN.md:92-96` updated; 3) `npm test` green.
 **Validation:** Moderate — hermetic + `@live` cookbook feed toggle.
+**CSP:** reuses `.browse-toolbar` styles in `styles.css`; no inline styles.
+Intact.
 **Stop-point.**
 
 ### Phase 9: Cookbook source filter — my recipes / liked (either·or)
@@ -463,14 +877,72 @@ my liked recipes (per OQ6 semantics).
 **Wiring test:** e2e — selecting "Liked" shows only hearted recipes; "Mine"
 shows only created; signed-out hides the control. RED first.
 **Depends on:** Phase 8, Phase 0 D2.
-**Read-set:** `cookbook.ts`, `interactions.ts`, recipe load path.
-**Write-set:** new `liked-feed.ts`, `cookbook.ts`, tests.
+**Read-set:** `cookbook.ts`, `interactions.ts`, `social/feed.ts`,
+`recipes/{cache,read}.ts`, `identity/did.ts` (the loader primitives).
+**Write-set:** new `liked-feed.ts` (`loadLikedFeed`), `cookbook.ts`, tests.
 **Shared-state contract:** `@live` reads own `liked` records.
-**Risks:** liked recipes may be others' recipes (cross-PDS load) — reuse the
-resolve/load path; cap like discovery.
-**Done when:** 1) mine/liked/either filter works; 2) `npm test` green; 3)
-`@live` liked feed lists hearted recipes.
+**[Pass 2 — the source control is NOT a uniform filter]:**
+- **Mine and All are in-memory filters over the already-loaded authors feed;
+  Liked is a separate fetch.** "All" = the loaded `loadAuthorsFeed(authors)`
+  (members + you). "Mine" = filter that feed to your own DID (client-side,
+  cheap). "Liked" pulls from a **different source** — your `liked` interaction
+  records → `loadLikedFeed` (the new by-ref loader, see Verified Assumptions /
+  D2) — and can include recipes **not** in the feed (recipes you liked whose
+  authors aren't cookbook members). So the three states are not symmetric; Phase
+  9 must treat "Liked" as a data-fetch swap, "Mine"/"All" as filters.
+- **Liked load is LAZY (OQ12 CONFIRMED).** "All" (the default) = members + your
+  published (the authors feed) with **no** liked load. `loadLikedFeed` runs only
+  when the user selects the **Liked** filter — so the common Cookbook open stays
+  cheap and avoids a cross-PDS call until asked. (This defers OQ6's "your liked in
+  All" fetch; it does not change what Liked shows.)
+- **Signed-out:** no toolbar at all (Phase 8), so no source control — consistent.
+- **Empty states:** signed-in with zero likes → "Liked" shows an empty state
+  ("no liked recipes yet"); "Mine" with no published → empty. Add both.
+- **Cap:** `loadLikedFeed` caps how many liked refs it resolves/loads (D2) — if
+  capped, `log()` what was dropped (no silent truncation).
+**Risks:** liked recipes may be others' recipes (cross-PDS load) — the new
+by-ref loader resolves each ref's DID→PDS; cap like discovery.
+**[Pass 3 — observability (must-not-be-silent), mutation resistance, debugging]:**
+- **`loadLikedFeed` must log at the two lossy boundaries** (class (b) —
+  dropping *wanted* data), mirroring `feed.ts` (`:52`/`:59`):
+  1. **Per-ref cross-PDS failure:** wrap each `resolveDidDoc(did)` /
+     `createRecordReader` in a per-ref try so one bad ref doesn't blank the
+     feed, and `log.warn('liked-feed', 'ref load failed', {uri, error})` on
+     failure (a liked recipe silently vanishing is exactly the cross-PDS bug
+     `@live` exists to catch).
+  2. **Discovery cap drop:** when the liked-record set exceeds the cap, resolve
+     only the cap and `log.warn('liked-feed', 'liked set capped', {total,
+     loaded, dropped})` — **no silent truncation.** (`warn` always emits, so
+     the drop is visible without `?debug=1`.) An **empty-ref skip**
+     (`{uri:'',cid:''}` from `interactions.ts:77`) is normal filtering, not a
+     drop → `log.debug` at most.
+- **Mutation resistance for the 3-state control** (All/Mine/Liked branch):
+  assert the **discriminating** facts so a swapped-branch mutation dies:
+  - **Mine** shows a recipe authored by you **and excludes** a known
+    member-authored recipe that appears in All.
+  - **All** **includes** that member-authored recipe (proves Mine's filter
+    actually narrows, not that both are coincidentally equal).
+  - **Liked** shows a hearted recipe **and** at least one whose author is **not
+    a cookbook member** (the cross-PDS case) — proving it's a separate fetch,
+    not a filter over the authors feed.
+- **If the liked-feed wiring test stays RED, walk the loader in order:** (a) the
+  empty-ref filter isn't dropping *all* refs (log the pre/post count); (b)
+  `at://did/exchange.recipe.recipe/rkey` parses to `{did, rkey}` (guard a
+  malformed URI); (c) `resolveDidDoc(did)` returns a `pds` (cross-PDS —
+  `did.ts:11`), and `createRecordReader({pds, did, rkey})` reads; (d) the cap is
+  not `0`; (e) `cache.put` then `renderRecipeList` actually receives the
+  `CachedRecipe[]`. Each stage logs, so the console pinpoints the break.
+**Done when:** 1) All (members+published, no eager liked) / Mine / Liked
+(lazy-loaded) work; 2) empty states render; 3) `npm test` green; 4) `@live`
+liked feed lists hearted recipes (incl. a cross-PDS one, and confirm the
+per-ref warn fires for a deliberately unresolvable ref).
 **Validation:** Broad — hermetic + `@live` (real liked records, cross-PDS load).
+Broad is correct: this is the only phase that fetches from a PDS the viewer
+doesn't own, so tests alone cannot prove the cross-PDS path — the `@live`
+cross-PDS liked recipe is the load-bearing check.
+**CSP:** the source control reuses toolbar styles in `styles.css`; the loader is
+pure data (no styling). No inline styles, no new remote assets (fetches are
+same-lexicon PDS reads over the existing transport). Intact.
 **Stop-point.**
 
 ### Phase 10: "New Recipe" button → builder page
@@ -492,38 +964,172 @@ to the builder page (URL + heading).
 **Write-set:** `cookbook.ts`, `editor.html`/`editor.ts` (if retitle), `styles.css`.
 **Shared-state contract:** none beyond files.
 **Risks:** low — a navigation button.
-**Done when:** 1) button opens the builder; 2) `npm test` green.
+**[Pass 2 — placement across Cookbook paths]:**
+- OQ2 confirmed: **no editor retitle** — Phase 10 is `cookbook.ts` + `styles.css`
+  only (drop the `editor.html`/`editor.ts` change item).
+- The button lives on the toolbar, which only renders on feed-bearing paths. On
+  the **cold-view** (`?did=<someone-else>`) the toolbar shows *someone else's*
+  cookbook — a "New Recipe" button there is odd. Show the button only on the
+  viewer's **own signed-in** Cookbook, not the cold-view. (Signed-out has no
+  toolbar at all.) Mirrors Alchemy, which already has its own `new-recipe`
+  button (`mine.ts:36-39`).
+**Done when:** 1) button opens the builder from the own signed-in Cookbook; 2)
+`npm test` green.
 **Validation:** Narrow — hermetic navigation test.
+**CSP:** right-align is a `styles.css` rule reusing button styles; the button is
+an `<a href="./editor.html">`/`navigate`, no inline styles, same-origin nav.
+Intact.
 **Stop-point.**
 
-### Phase 11: "My recipes" → "Alchemy" (drafting workspace)
+### Phase 11 — split into 11a / 11b / 11c
 
-**Goal:** Rename the My-recipes destination to **Alchemy** — the create/edit/
-save/publish workspace — with its own New Recipe button and a top tag toolbar
-(tag scope per OQ9).
+**[Pass 2 — OQ9 anticipated the split; sizing against the facts forces a 3-way
+split, not 2-way.]** The draft `status` field spans **4 files** (`drafts-local.ts`
++ `drafts-sync.ts` + `editor.ts` + `mine.ts`), over the ≤3 target. Splitting the
+status work into a data-model phase (11b) and a UI phase (11c) keeps each ≤3
+files and puts the data model first (TDD-friendly). Also: **the "New Recipe"
+button already exists on `mine.ts:36-39`** (`new-recipe` testid → `./editor.html`)
+— so 11a's button work is essentially "confirm it's present," not "add it."
+
+### Phase 11a: Rename "My recipes" → "Alchemy"
+
+**Goal:** The destination reads **Alchemy**; the page gains an "Alchemy" heading;
+the existing drafts + New-Recipe + published flow is unchanged.
 **Changes:**
 - [ ] `src/nav.ts` — rename the `DESTINATIONS` label "My recipes" → "Alchemy"
-  (keep `mine.html` as the file/route unless a rename is requested; the tab
-  label + match are what change). Update `tab-mine` testid usage if renamed.
-- [ ] `src/pages/mine.ts` — retitle the page to "Alchemy"; add a **New Recipe**
-  button (→ `editor.html`, same target as Cookbook's, OQ2); keep the Drafts
-  list + create/edit/save/publish flow; mount the tag toolbar (OQ9).
-- [ ] `styles.css` — toolbar/button layout on the page (reuse toolbar/button
-  styles from Phase 7).
-**Call chain:** Alchemy tab → drafts + New Recipe (→ editor) + tag toolbar.
-**Wiring test:** e2e — the nav tab reads "Alchemy"; the page shows Drafts + a
-New Recipe button that navigates to the builder; the tag toolbar renders.
-RED first (tab still says "My recipes").
-**Depends on:** Phase 10 (shared New-Recipe button pattern), OQ9 (tags).
-**Read-set:** `nav.ts`, `mine.ts`, `editor.ts`, `toolbar.ts`, `styles.css`.
-**Write-set:** `nav.ts`, `mine.ts`, `styles.css`.
-**Shared-state contract:** local drafts store (unchanged).
-**Risks:** nav tests assert the "My recipes" label/testid across pages — update
-them repo-wide; the tag toolbar depends on OQ9's answer (may split into its own
-phase if tags need a new recipe field).
-**Done when:** 1) the tab is "Alchemy" with drafts + New Recipe + tag toolbar;
-2) `npm test` green.
-**Validation:** Moderate — hermetic; nav-label regression across pages.
+  (`:67`). **Keep `href:'./mine.html'` and `testid:'tab-mine'` and the
+  `/mine\.html$/` `match`** — active-tab matching is by **pathname regex**
+  (`nav.ts:76`), not label, so the route/testid stay and only the visible label
+  changes.
+- [ ] `src/pages/mine.ts` — add a `page-title` heading "Alchemy" (the page has
+  **none** today); confirm the existing `new-recipe` button (`:36-39`) and Drafts
+  section stay. No new button needed.
+- [ ] Docs — `README.md:35`, `docs/DESIGN.md:148,167,169-171` "My recipes" → "Alchemy".
+**Call chain:** nav render → "Alchemy" tab → `mine.html` page (heading + drafts +
+existing New Recipe).
+**Wiring test:** `tests/e2e/nav.spec.ts` — the tab label reads "Alchemy" and
+navigates to `mine.html`; `mine.ts` shows the "Alchemy" heading. RED first.
+**Depends on:** Phase 10.
+**Read-set:** `nav.ts`, `mine.ts`, nav tests.
+**Write-set:** `nav.ts`, `mine.ts` (+ docs).
+**Shared-state contract:** none beyond files.
+**[Pass 2 — test impact is small, not "repo-wide."]** The `tab-mine` testid +
+`./mine.html` href assertions **survive** (kept). Only these change:
+- `tests/unit/nav.spec.ts:64` — test *title* "…and My recipes as links" (cosmetic;
+  no visible-label text assertion exists today, only href/testid at `:72,:81-82`
+  — verify none asserts label text, then it's title-only).
+- `tests/e2e/editor.spec.ts:27` — title "drafts appear on My recipes…" (cosmetic).
+- `tests/e2e/publish-live.spec.ts:58` (**@live**) — title mentions "My recipes"
+  (cosmetic).
+Rename the cosmetic titles for clarity; no DOM assertion breaks if `tab-mine` +
+route are kept.
+**[Pass 3 — doc coverage confirmed + CSP]:** The doc edits (`README.md:35`,
+`docs/DESIGN.md:148,167,169-171`) are already a top-level Change checklist item
+here — this is the model the other doc-bearing phases (6, 8) were brought up to.
+No styling change; a heading uses existing `page-title` class → CSP intact.
+**Done when:** 1) tab reads "Alchemy", routes to `mine.html`, page has the
+heading; 2) docs updated; 3) `npm test` green.
+**Validation:** Narrow-plus — hermetic; confirm no visible-label assertion breaks.
+**Stop-point.**
+
+### Phase 11b: Draft `status` data model (widen from the hardcoded literal)
+
+**Goal:** A draft can carry a `status` from a small set; the local store and the
+PDS backup persist it. **No UI yet** (11c adds the control + filter).
+**Changes:**
+- [ ] `src/recipes/drafts-local.ts` — add `status: 'draft'|'cooking'|'ready'`
+  (OQ13) to the local `Draft` type (`:8-12`, currently `{id, fields, savedAt}` —
+  no status); default to `'draft'` on save when absent (backward-tolerant for
+  existing drafts — all legacy records read as `'draft'`).
+- [ ] `src/recipes/drafts-sync.ts` — widen `DraftRecord.status` from the literal
+  `'draft'` (`:15`) to `'draft'|'cooking'|'ready'`; `draftToRecord` (`:22`) reads
+  the local draft's `status` instead of hardcoding `'draft'`. (`published` is NOT
+  in this enum — it is derived from publication, not stored on a draft.)
+- [ ] `tests/unit` — draft round-trip (local save/load + `draftToRecord`) carries
+  the status; legacy status-less drafts default cleanly.
+**Call chain:** `drafts.save(draft)` → local `Draft.status` → `draftToRecord` →
+`app.arecipe.draft.status` on the PDS.
+**Wiring test:** unit — save a draft with a non-default status, reload from the
+store and build its record; assert `status` survives both hops. RED first (type
+is the literal `'draft'`).
+**Depends on:** Phase 11a, **OQ13** (the status value set).
+**Read-set:** `drafts-local.ts`, `drafts-sync.ts`, draft tests.
+**Write-set:** `drafts-local.ts`, `drafts-sync.ts`, tests.
+**Shared-state contract:** IndexedDB `arecipe-drafts` store + `app.arecipe.draft`
+PDS records (**PUBLIC by nature** — status is disclosed; no new privacy surface).
+**Risks:** existing local drafts + already-synced PDS records have no `status` —
+read-tolerate (default), don't error. **Drafts only** — the published recipe
+lexicon (`exchange.recipe.recipe`) is untouched.
+**[Pass 3 — why the wiring test is a UNIT test here (not an isolation-trap
+defect), observability, mutation resistance]:**
+- **Unit *is* the wiring test for 11b, and that's correct** — 11b ships **no
+  UI** (11c adds the editor control + Alchemy filter). The entry point that
+  exists at this phase is the **drafts store's public API**, so the wiring test
+  drives the real call chain end-to-end across the persistence hop:
+  `drafts.save(draft-with-status)` → local `Draft.status` → reload from the
+  store → `draftToRecord` → assert `status` on the built record. That is an
+  entry-point test, not an isolated-module test — the isolation trap is "a
+  component with only its own unit test that nothing calls," and here the store
+  API *is* what 11c will call. The **e2e** entry-point coverage arrives in 11c
+  (which `Depends on: 11b`). Flagging so tdd-guardian/pr-reviewer don't misread
+  11b's unit-only gate as the wiring gap.
+- **Default-migration is silent-by-design (class (a)) — no log.** A legacy
+  status-less draft reading as `'draft'` via `status ?? 'draft'` is a normal
+  default, not data loss; no `log.warn`. (Contrast Phase 9's cap.)
+- **Mutation resistance:** assert **both** edges so a mutation that hardcodes
+  `'draft'` again dies: (a) a legacy/absent-status draft round-trips to
+  `'draft'` (the default), **and** (b) a draft saved with a **non-default**
+  status (`'cooking'`) round-trips as `'cooking'` through both hops — not just
+  the default path. Also assert `'published'` is **rejected/absent** from the
+  settable enum (OQ13 — it's derived, never stored).
+- **If the round-trip test stays RED:** check `draftToRecord` reads
+  `draft.status ?? 'draft'` (not the old hardcoded `'draft'` literal at
+  `drafts-sync.ts:22`) and that the local `Draft` type widened past the literal
+  (`drafts-local.ts:8-12`) so TypeScript accepts `'cooking'`.
+**Done when:** 1) status persists local↔PDS with a safe default; 2) `npm test`
+green (incl. a `@live` draft-sync check that the status round-trips, reusing
+`drafts-live.spec.ts`).
+**Validation:** Moderate — hermetic unit + `@live` draft sync round-trip.
+**CSP:** no UI/styling in 11b; data-model only. N/A → intact.
+**Stop-point.**
+
+### Phase 11c: Alchemy status control + filter (UI)
+
+**Goal:** The editor lets you set a draft's status; Alchemy filters the drafts
+list by status.
+**Changes:**
+- [ ] `src/pages/editor.ts` — add a status control (select/segmented) over
+  `draft`/`cooking`/`ready` that writes the draft's `status` on save (uses the
+  11b field). Editor sets no status today.
+- [ ] `src/pages/mine.ts` — mount a status filter toolbar above the Drafts list;
+  filter `drafts.list()` by the selected status (`draft`/`cooking`/`ready`). A
+  **`published`** filter bucket, if shown, sources from the **Published section**
+  (`mine.ts:80-135`), not from `draft.status` (OQ13 — published is derived).
+  (Reuse toolbar/button styles from Phase 7; add a small `styles.css` rule only
+  if needed.)
+- [ ] `tests` — e2e: set a status in the editor, see it filtered in Alchemy.
+**Call chain:** editor status control → `drafts.save` (status) → Alchemy filter
+→ filtered Drafts list.
+**Wiring test:** e2e — create two drafts with different statuses; the Alchemy
+status filter narrows the Drafts list to the selected status. RED first.
+**Depends on:** Phase 11b.
+**Read-set:** `editor.ts`, `mine.ts`, `drafts-local.ts`, toolbar/`styles.css`.
+**Write-set:** `editor.ts`, `mine.ts` (+ `styles.css` only if a new rule is needed).
+**Shared-state contract:** local drafts store (read/write, unchanged shape beyond 11b).
+**Risks:** the Alchemy filter is **drafts-only**; do not touch the Published
+section's data. Freeform authorable tags on published recipes remain a separate,
+deferred feature (per OQ9).
+**[Pass 3 — mutation resistance + CSP]:** The wiring test already names the right
+edge (two drafts, different statuses, filter narrows to the selected one) — keep
+it edge-shaped: assert the selected-status draft is **present** and the
+other-status draft is **absent** after filtering (both directions), and that
+clearing the filter restores both. A one-sided "the ready draft shows" assertion
+would survive a mutation that stops excluding non-matching drafts. If a
+`published` bucket is surfaced, assert it sources from the Published section, not
+`draft.status`. **CSP:** reuse Phase 7 toolbar/button styles; add a `styles.css`
+rule only if needed — no inline styles. Intact.
+**Done when:** 1) editor sets status, Alchemy filters by it; 2) `npm test` green.
+**Validation:** Moderate — hermetic e2e.
 **Stop-point (all items complete).**
 
 ## Open Questions
@@ -587,6 +1193,42 @@ phase if tags need a new recipe field).
   it). Authorable freeform tags on published recipes remain a separate,
   deferred feature.
 
+**New questions surfaced by Pass 2 (need the user's call):**
+
+- [CONFIRMED: PHASE-GATED (Phase 6) — user, 2026-07-09] **OQ10 — members render
+  ONLY on Account; there is no public cookbook cold-view.** The user's routing
+  rule: **logged-in users** hit *their own* Cookbook (with whatever toolbar
+  settings they left — see OQ11 separate keys); **anonymous/signed-out** visitors
+  hit **Browse**; the **Account** page shows the **Bluesky account associations**
+  (the members list). Consequences for Phase 6: members are removed from Cookbook
+  on **all** paths and live only on Account; the signed-out Cookbook **redirects
+  to Browse** (replacing today's `cookbook-signed-out` gate at
+  `cookbook.ts:146-164`); the `?did=` cold-view members rendering
+  (`cookbook.ts:126-141`) is no longer a members surface, so
+  `tests/e2e/cookbook.spec.ts:92-103` (asserts `cookbook-member` on the cold-view)
+  is retargeted to the feed / removed. *Note: the anon→Browse redirect is a
+  behavior change beyond a pure move; flagged inside Phase 6.*
+- [CONFIRMED: PHASE-GATED (Phase 8) — user, 2026-07-09] **OQ11 — Cookbook gets its
+  own `cookbook-*` localStorage keys.** Parameterize `createBrowsePrefs(prefix)`
+  (`browse-state.ts:133`) so Cookbook persists view/photos/facets independently
+  of Browse — a Details/facet choice on one page does not bleed into the other.
+  This makes `browse-state.ts` part of Phase 7's write-set.
+- [CONFIRMED: PHASE-GATED (Phase 9) — user, 2026-07-09] **OQ12 — the liked load is
+  LAZY.** "All" = members + your published (the authors feed); the liked set folds
+  in only when the **Liked** filter is engaged. Keeps the common/default Cookbook
+  open cheap (no cross-PDS liked load until asked). Does not change OQ6's
+  semantics — only defers the liked fetch.
+- [CONFIRMED: BLOCKING (before Phase 11b) — user, 2026-07-09] **OQ13 — draft
+  status set = `draft` (default) · `cooking` · `ready`; `published` is a
+  DERIVED meta-status, not a settable draft status.** A recipe that has been
+  published reads as "published" because it *is* published (it lives in the
+  Published section) — it is not stored on the draft or chosen in the editor.
+  So the settable enum widened in `drafts-sync.ts`/`drafts-local.ts` is
+  `draft|cooking|ready`; keeping `draft` as the default means existing local +
+  already-synced PDS records (all `'draft'`) stay valid with no migration. The
+  Alchemy status filter (11c) may surface a "published" bucket sourced from the
+  **Published section**, not from `draft.status`.
+
 ## Review Log
 
 ### Pass 1: Base plan — 2026-07-09
@@ -617,3 +1259,213 @@ field (rides the existing `app.arecipe.draft` `status`); OQ4 turned Phase 6 from
 also-show into a move (off Cookbook). Developed + committed on branch
 `recipe-cookbook-ui` off `027a4f9`, isolated from another plan deploying to
 `main`. Ready for Pass 2 (gap analysis) in a fresh context.
+
+### Pass 2: Gap Analysis — 2026-07-09
+
+Verified every file:line claim against the branch (parallel read-only sweep of
+`interactions.ts`, `recipe.ts`, `view.ts`, `browse.ts`, `browse-state.ts`,
+`cookbook.ts`, `account.ts`, `mine.ts`, `nav.ts`, `editor.ts`, `drafts-local.ts`,
+`drafts-sync.ts`, `feed.ts`, `cache.ts`, `read.ts`, `styles.css`, the full
+`tests/` tree, `README.md`, `docs/`).
+
+**Found:**
+- **Liked-feed loader does not exist (Phase 9 / D2 mis-scoped).** `loadAuthorsFeed`
+  (`feed.ts:33`) loads **by author**; there is no by-URI/by-strongRef loader
+  anywhere. Phase 9 must **build** a new `loadLikedFeed(interactions)→CachedRecipe[]`
+  from the same primitives (`resolveDidDoc`+`createRecordReader`+`createRecipeCache`),
+  with cross-PDS DID→PDS resolution per ref, empty-ref filtering (`interactions.ts:77`
+  fallback), and a discovery cap. D2 recast from "confirm the path" to "design the
+  loader".
+- **The source control is not a uniform filter (Phase 9).** Mine/All are
+  in-memory filters over the loaded authors feed; Liked is a separate fetch that
+  can surface non-member recipes. And OQ6's "All includes your liked" forces a
+  liked union into the **default** view → cross-PDS load on every Cookbook open
+  (→ OQ12).
+- **`summarize` is not cookbook-scoped itself** — it dedupes likers by author DID
+  over whatever it's handed; `loadRecipeInteractions` does the scoping. Corrected
+  in Verified Assumptions (presentation-only for Phase 3).
+- **Documentation Impact was wrong** ("no app docs go stale"). D0 grep found real
+  stale prose: `README.md:32-38`, `docs/DESIGN.md:92-96,147-156,148,167,169-171`.
+  Rewrote the section and assigned each doc edit to Phases 6/8/11a. (`saved` hits
+  are lexicon-level — not stale.)
+- **Phase 6 under-extracts.** The members list is *orchestrated* in `showCookbook`
+  (`resolveCookbook`→`membersToAuthors`→`renderMembersList` + reach prefs + async);
+  Account has none of that. The new module must expose `mountMembersList(...)`
+  (resolve+render), and `cookbook.ts` must **keep** `resolveCookbook`/
+  `membersToAuthors` because the **feed** depends on them.
+- **Cold-view members have no home (Phase 6).** The public `?did=` view renders
+  members + a test asserts it; Account can't host arbitrary-DID members. → OQ10.
+- **Phase 11 is 4 files → split 3-way**, not 2. The draft `status` field spans
+  `drafts-local.ts`+`drafts-sync.ts`+`editor.ts`+`mine.ts`. Split into 11a (rename),
+  11b (status data model), 11c (status UI). Also: **the "New Recipe" button already
+  exists** on `mine.ts:36-39` — 11a doesn't add it.
+- **Nav rename is low-breakage**, not "repo-wide": `tab-mine` testid + `mine.html`
+  route are kept (match is by pathname regex), so only 3 cosmetic test *titles*
+  change.
+- **Phase 2 exact test breakage enumerated:** `unit/social/interactions.spec.ts`
+  (type import + 6 assertions) + `e2e/interactions.spec.ts:66`.
+- **Toolbar localStorage keys collide** if Cookbook reuses Browse's prefs → OQ11.
+- Smaller resolved details folded into phases: Phase 1 global `a{}` is safe
+  (all anchors class-scoped); Phase 3 overlay via `querySelector` (no `view.ts`
+  change needed) + count rides the overlay + coexists with `.photo-credit`;
+  Phase 4 `renderRecipeDetail` has a single caller (safe) + preserve the unhide
+  path; Phase 5 is CSS-only (`.comments`/`.comment-compose` DOM already exists);
+  Phase 10 drops the editor-retitle item (OQ2) and shows the button only on the
+  own signed-in Cookbook.
+
+**Concurrency:**
+- No changes to the sequential model — confirmed still required by shared
+  write-sets. Re-checked after adding phases: the new 11a/11b/11c chain is
+  sequential (`mine.ts` shared by 11a/11c; 11b's data model feeds 11c). Updated
+  the spine to `…→10→11a→11b→11c`. No parallel set worth opting into.
+
+**Changed:**
+- Verified Assumptions: corrected `summarize` scoping; rewrote the liked-feed
+  assumption to record that the loader must be built.
+- Documentation Impact: rewritten with real D0 findings mapped to phases.
+- Phase 0: D0 marked run (findings folded in); D2 recast as a design task; D3
+  narrowed to the new OQs only.
+- Phases 1–10: added `[Pass 2]` gap/resolution notes (no reordering, no reasoning
+  rewrite).
+- Phase 11 → **11a / 11b / 11c** (additive split; anticipated by OQ9).
+- Open Questions: added OQ10 (cold-view members), OQ11 (toolbar prefs keys),
+  OQ12 (liked-load timing), OQ13 (draft status set).
+- Concurrency Map spine updated for the 11-split.
+
+**Confirmed:**
+- The nine Pass-1 OQs still hold — not re-walked.
+- Phase ordering (low-risk link fix first; toolbar chain 7→8→9→10 last) is sound.
+- The image-overlay precedent (`.photo-wrap` is `position:relative` at
+  `styles.css:741`; `imageCreditOverlay` already overlays the banner) holds.
+- CSP posture intact — every added rule lives in `styles.css`; no inline styles,
+  no new remote assets, in any phase.
+- `availableFacets`/`matchesFilter` are page-agnostic pure functions over
+  `CachedRecipe[]` → cleanly reusable by Cookbook (Phase 8).
+- `@live` convention confirmed (title-substring `@live`, `playwright.config.ts:13-14`;
+  `LIVE=1 npm run test:live`); Phases 2/6/8/9/11b correctly gate their write-path
+  checks on `@live`.
+
+**OQ walk-through (Pass 2, 2026-07-09) — all four new questions CONFIRMED:**
+- **OQ10** — user reframed beyond the recommendation: members on **Account only**;
+  **anon → Browse** (signed-out Cookbook redirects, replacing the gate); no public
+  cookbook cold-view members surface. Propagated into Phase 6 (routing change +
+  test retargets; flagged possible 6b split for the redirect).
+- **OQ11** — separate `cookbook-*` keys (as recommended). `browse-state.ts` added
+  to Phase 7 write-set (`createBrowsePrefs(prefix)`).
+- **OQ12** — lazy liked load (as recommended). Phase 9 "All" = members+published;
+  liked loads only on the Liked filter.
+- **OQ13** — user set the values `draft`/`cooking`/`ready` (chose "cooking" over
+  the recommended "testing"); `published` is a **derived** meta-status (not
+  stored/settable). Propagated into Phase 11b/11c.
+The nine Pass-1 OQs were not re-walked (unchanged, already confirmed).
+
+### Pass 3: Quality Gates — 2026-07-09
+
+Fresh context; plan doc as sole handoff. Analysis only — no production code
+written or run. All fixes applied **additively** (`[Pass 3]`-tagged notes, no
+phase reorder, no reasoning rewrite). Spot-checked the branch: `package.json`
+test scripts, `playwright.config.ts:13-14` `@live` grep-invert, `src/log.ts`
+signature + gating, `feed.ts` logging pattern, `cookbook.ts:146` signed-out
+gate, `interactions.ts:82` `KINDS` filter, `identity/did.ts:11` `resolveDidDoc`,
+redirect idioms — all as Pass 2 recorded; nothing drifted.
+
+**TDD ordering:**
+- Confirmed every implementation phase has a wiring test that exercises the
+  **entry point** (page/nav/store API), not an isolated module, and states
+  RED-first. No isolation-trap defects.
+- **Named two legitimate TDD-shape exceptions so tdd-guardian/pr-reviewer don't
+  misfire, and so no one manufactures a fake RED:** (1) **Phase 7** is a
+  behavior-preserving extraction — its "wiring test" is the *existing*
+  `browse.spec` suite held GREEN→GREEN (characterization/regression), not a new
+  RED; editing a browse assertion to pass = masking a regression. (2)
+  **Phase 11b** ships no UI, so its **unit** round-trip test *is* the
+  entry-point wiring test (entry point = the drafts store public API that 11c
+  will call); e2e entry-point coverage lands in 11c.
+- **Mutation resistance:** added edge/boundary specifications to the branching
+  phases so single-point assertions can't survive a one-line mutation —
+  Phase 8 (Tiles↔Details both directions; facet excludes a named entry),
+  Phase 9 (Mine excludes a member recipe / All includes it / Liked shows a
+  non-member cross-PDS recipe), Phase 11b (default *and* non-default status both
+  round-trip; `published` rejected), Phase 11c (selected present + other absent,
+  both directions). Phase 1/Phase 5 CSS assertions de-brittled: compare computed
+  values to a known token-bearing element instead of hardcoding hex/px.
+
+**Observability:**
+- Established a cross-phase observability convention on `src/log.ts`
+  (`log.<level>(component, message, {data})`; debug/info gated behind `?debug=1`,
+  warn/error always emit) and a **two-silence-class** rule:
+  *silent-by-design* (dropping expected legacy data — Phase 2 `saved` filter,
+  Phase 11b status default → no log) vs *must-not-be-silent* (dropping wanted
+  data — Phase 9 cap + per-ref cross-PDS failure → `log.warn`).
+- **Phase 9:** named the exact `log.warn('liked-feed', …)` calls for per-ref
+  failure and the discovery-cap drop (no silent truncation); empty-ref skip →
+  `debug`.
+- **Phase 6:** the signed-out→Browse redirect now logs `log.info('cookbook',
+  'signed-out → redirecting to Browse')` and uses `location.replace` (no
+  back-button loop).
+- **Phase 3:** null-banner branch logs `log.warn` so the overlay-mount/no-photo
+  path is diagnosable.
+
+**Debugging readiness:**
+- Added a concrete "if RED stays red, check X" to every non-obvious phase:
+  Phase 2 (second save-mount site), Phase 3 (mount ordering vs
+  `replaceChildren`), Phase 4 (two-step state not native `confirm()`), Phase 6
+  (redirect fires pre-`mountShell`; test waits for navigation), Phase 7 (testid
+  byte-identity + the two re-render seams), Phase 9 (5-stage loader walk), 11b
+  (`?? 'draft'` + widened type).
+
+**Validation calibration:**
+- Every phase declares a strategy; all calibrated to scope. Confirmed the two
+  the prompt flagged: **Phase 9 = Broad** is correct (only phase fetching from a
+  PDS the viewer doesn't own — the `@live` cross-PDS liked recipe is
+  load-bearing, tests alone can't prove it). **Phase 6 = Moderate** is correct,
+  but its behavior-change (anon→Browse redirect) was under-covered in the wiring
+  test — **strengthened**: the redirect is now a third RED-first hermetic
+  assertion (signed-out needs no creds), so the routing change is fully covered
+  in the gate tier and `@live` only exercises the real-graph members render.
+- `@live` gate placement (Phases 2/6/8/9/11b) confirmed correct — each is a
+  real read/write-a-PDS feature; hermetic tier stays `@live`-free via the
+  config grep-invert.
+
+**Concurrency honesty:**
+- Map confirmed; sequential plan. Re-walked write-sets after Pass 3 (no files
+  moved). Every adjacent phase pair shares a write-set entry or a
+  producer→consumer dependency (`styles.css`, `cookbook.ts`, `view.ts`,
+  `mine.ts`, `browse-state.ts` chain) → no admissible parallel set under the
+  hard rule. No worktrees → no re-entry verification needed.
+
+**Discovery (Phase 0):**
+- D1/D2 are concrete (question/probe/success) with `throwaway` dispositions and
+  the exemption correctly bounded (no TDD/commit for the probes; RED-first
+  starts at Phase 1). Confirmed they are **not** resolvable in a no-code
+  planning pass (D1 code-reading, D2 needs `@live`) — deferral to execution's
+  stop-point is correct. Added the explicit hand-off: D2 fixes the discovery
+  **cap value** and writes it into Phase 9 (Phase 9's cap-drop `log.warn`
+  depends on it).
+
+**Coherence:**
+- Plan still solves the original problem; no scope creep. File-count ceiling
+  made explicit (counts *source* files; tests + cosmetic doc edits ride along) —
+  under it every phase is ≤4 source files. Re-checked the phases the prompt
+  flagged: **Phase 6** = 3 source (members-view + `cookbook.ts` + `account.ts`);
+  kept whole with a **concrete 6b split trigger** replacing "size at execution".
+  **Phase 9** = 2 source (`liked-feed.ts` + `cookbook.ts`) + tests. **11a** = 2
+  (`nav.ts` + `mine.ts`), **11b** = 2 (`drafts-local.ts` + `drafts-sync.ts`),
+  **11c** = 2 (`editor.ts` + `mine.ts`). All within ceiling.
+- **CSP guardrail:** added a per-phase CSP confirmation line to every phase.
+  Confirmed **no** phase introduces inline `style=`/`.style`/`<style>` or a new
+  remote asset — all styling stays in `styles.css`; the one class rename risk
+  (toolbar) is avoided by reusing the existing `.browse-toolbar` hook. Posture
+  from the security plan preserved.
+
+**Documentation impact:**
+- Every doc edit rides the phase that makes it stale (no trailing docs phase).
+  **Fixed a gap:** the `docs/DESIGN.md` edits for Phase 6 (`:147-156`) and
+  Phase 8 (`:92-96`) lived only in prose/Done-when — **promoted both to explicit
+  Change checklist items** so they can't be skipped, matching Phase 11a's model
+  (which already listed docs as a change item).
+
+**Confirmed ready:** yes — pending the two already-CONFIRMED BLOCKING items that
+gate specific phases (OQ3 nav rename before the phases that reference Alchemy;
+OQ13 before Phase 11b), both resolved by the user in Pass 2. No new open
+questions surfaced by Pass 3.
