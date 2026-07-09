@@ -1,7 +1,9 @@
 # arecipe — Security posture narrative + primary XSS hardening (CSP/SRI)
 
-**Status: IN EXECUTION.** Passes 1–3 complete (`efabd22`, `4ad4290`, `5b89fba`).
-Phases 0–3 ✅ complete (discovery, narrative, enforcing CSP, SRI). Phase 4 pending.
+**Status: CLOSED — shipped in full.** Passes 1–3 (`efabd22`, `4ad4290`,
+`5b89fba`); Phases 0–4 all ✅ (discovery, narrative, enforcing CSP, SRI, zero-3p
+guard). Nothing deferred except the pre-existing out-of-scope font bug (below).
+Not pushed.
 
 ## Outcome Summary
 
@@ -11,7 +13,7 @@ Phases 0–3 ✅ complete (discovery, narrative, enforcing CSP, SRI). Phase 4 pe
 | 1 Narrative | ✅ shipped | `cf32b5e` | `docs/SECURITY.md` + README/DESIGN links; all claims source-cited |
 | 2 CSP + hashing | ✅ shipped | `ceee042` | enforcing CSP on all 9 docs; hermetic green; `@live` auth/publish pass under CSP (3 unrelated `@live` flakes confirmed pre-existing via no-CSP baseline) |
 | 3 SRI | ✅ shipped | `ab20147` | sha384 integrity on entry module + both stylesheets; chunks documented uncovered |
-| 4 Zero-3p guard | ⏳ pending | — | structural test guard |
+| 4 Zero-3p guard | ✅ shipped | `__PH4_SHA__` | structural guard: no cross-origin script; script-src = self+hashes only |
 
 **Surfaced, out of scope (needs triage/tracking):** custom fonts 404 in
 production — `assets/fonts/fonts.css` uses `url(./assets/fonts/X.woff2)` but is
@@ -614,7 +616,19 @@ the render-still-works assertion across all pages.
 render pass across all pages is sufficient (no external integration).
 **Stop-point.**
 
-### Phase 4: Zero-third-party enforcement
+### Phase 4: Zero-third-party enforcement — ✅ SHIPPED (`__PH4_SHA__`)
+
+**Delivered (2026-07-09):** `tests/e2e/csp.spec.ts` gains a structural guard over
+all 9 built documents — every `<script src>` must be same-origin (relative), and
+each `script-src` must contain only `'self'` + sha256 inline hashes (no host,
+scheme, wildcard, or `'unsafe-*'`). RED proof performed: a deliberate
+`<script src="https://evil.example/x.js">` injected into `dist/mine.html` failed
+the guard as expected (`script src … must be same-origin`), then the clean build
+was restored. `docs/SECURITY.md` zero-3p claim flipped to ENFORCED BY TEST,
+naming the guard. Verification: hermetic `npm test` green (unit 193, e2e 78,
+exit 0).
+
+
 
 **Goal:** A test that structurally forbids third-party script origins and keeps
 the CSP allowlist honest, plus the narrative's zero-3p claim made enforceable.
@@ -882,3 +896,45 @@ Summary). Pre-existing, CSP-independent. Needs its own triage/tracking (no
 **Phase 0 stop-point:** findings reported; awaiting user go-ahead for Phase 1
 (the OQ1 connect-src decision was already confirmed and is now evidence-backed, so
 no re-decision is required).
+
+### Plan close-out — 2026-07-09
+**Shipped:** Both plan goals met. (1) `docs/SECURITY.md` — a durable,
+auth/storage-oriented security narrative for the backendless SPA/PWA-on-atproto
+model (threat model, DPoP + non-extractable key, library-owned storage, XSS-as-
+primary-defense with live status, blast-radius, residual risks), every claim
+`file:line`-cited, linked from README + DESIGN, referencing (not duplicating) the
+locked OAuth-secret-storage decision. (2) The primary XSS defense it names, built
+into `scripts/build.mjs`: a strict enforcing `<meta>` CSP on all 9 documents
+(`default-src 'none'`; `script-src 'self'` + per-document sha256 inline hashes,
+no `unsafe-inline`/`unsafe-eval`; the OQ1 `connect-src` with the `https:` breadth
+for arbitrary PDS; `friends.html` handled explicitly outside the HTML map);
+sha384 SRI on the entry ES module + both stylesheets; and a structural zero-3p
+guard. Enforced by `tests/e2e/csp.spec.ts` (27 tests: CSP no-violations across
+all 9 docs, SRI presence + no-integrity-failure, zero-3p guard). Full hermetic
+gate green throughout (unit 193, e2e 78); `@live` under CSP confirmed sign-in +
+DPoP publish work. Commits: `cf32b5e` (P1), `ceee042` (P2), `ab20147` (P3),
+plus P4 and doc-sync commits. Not pushed.
+
+**Stopped or skipped:** Nothing in scope was skipped. The pure OAuth-redirect-UI-
+under-CSP was not driven interactively (no automated OAuth consent path), but is
+covered functionally by `auth-live` passing under CSP; a manual local sign-in
+before a production deploy remains a cheap belt-and-suspenders check. Deliberately
+out of scope and named as future items (unchanged): global "sign out everywhere",
+dependency-audit automation, SW cache-poisoning hardening, and the deferred JS
+frame-buster (clickjacking is undefendable via `<meta>` on Pages).
+
+**Discoveries:** (1) A `<meta>` CSP does not govern inline scripts that *precede*
+it (D2) — this drove injecting the meta immediately after `<meta charset>` rather
+than the literal "first child" the plan specified; charset stays first, the
+policy still precedes every inline script. (2) The OQ1 `https:` `connect-src`
+breadth is not just defensible but *necessary*: the hermetic read path contacted
+four distinct dynamic PDS hosts a fixed allowlist would have blocked. (3) Three
+`@live` tests fail with or without CSP — a no-CSP baseline failed the identical
+three, proving they are pre-existing flakiness (real-PDS write consistency,
+rate-limits, single-use refresh-token state), not CSP regressions; without the
+baseline this would have looked like a CSP break. (4) **Out of scope but real:**
+custom fonts 404 in production — `assets/fonts/fonts.css` references
+`url(./assets/fonts/X.woff2)` while itself served from `/assets/fonts/`, so the
+browser resolves a doubled path and 404s (system-font fallback). CSP-independent;
+flagged for separate triage (no `TODO.md` exists in this repo — recorded here and
+in the Outcome Summary).

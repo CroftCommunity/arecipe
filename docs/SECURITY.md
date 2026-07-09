@@ -137,8 +137,10 @@ preventing XSS. Four controls, each with its current implementation status
   `tests/e2e/csp.spec.ts` asserts the attributes are present and that nothing
   fails its integrity check at load.
 - **Zero third-party scripts.** Every script is first-party, same-origin, and
-  in the small auditable bundle. **Status: NOT YET IMPLEMENTED as an enforced
-  test (Phase 4).**
+  in the small auditable bundle. **Status: ENFORCED BY TEST.**
+  `tests/e2e/csp.spec.ts` guards every built document: no `<script src>` may be
+  cross-origin, and each `script-src` must contain only `'self'` + sha256 inline
+  hashes — no host allowlist, scheme, wildcard, or `'unsafe-*'` can creep in.
 - **Small, auditable bundle.** A minimal dependency surface keeps the code an
   auditor can actually read. Ongoing discipline, not a single control.
 

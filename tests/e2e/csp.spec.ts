@@ -9,6 +9,7 @@
 // no CSP exists, so the RED driver here is the meta-presence / hash /
 // connect-src assertions — they fail against a no-CSP build.
 import { expect, test, type Page } from '@playwright/test';
+import { readFileSync } from 'node:fs';
 
 // The three inline-script hashes confirmed byte-exact against the browser in
 // Phase 0 D2. Each shell must admit the theme pre-paint block; index.html also
@@ -183,6 +184,46 @@ test.describe('SRI: entry module + both stylesheets (Phase 3)', () => {
       }
       // Nothing failed its integrity check at load (covers stylesheets too).
       expect(sriErrors, `${doc}: SRI errors: ${JSON.stringify(sriErrors)}`).toEqual([]);
+    });
+  }
+});
+
+// Phase 4: zero-third-party enforcement. A structural guard over the BUILT
+// output — every <script src> must be same-origin (relative), and each
+// document's CSP script-src must contain only 'self' + sha256 inline hashes,
+// never a host allowlist, scheme, wildcard, or 'unsafe-*'. This is the guard
+// that fails the moment a third-party script or a stray script-src host is
+// introduced. It is green against today's output, so its RED proof is the
+// deliberate third-party <script> injection recorded in the plan's Verification.
+test.describe('Zero third-party scripts (Phase 4)', () => {
+  const DOCS = [...SHELLS, 'friends.html'];
+  for (const doc of DOCS) {
+    test(`${doc}: every script is same-origin + script-src is self+hashes only`, () => {
+      const html = readFileSync(`dist/${doc}`, 'utf8');
+
+      // (1) Every <script src="…"> is same-origin (relative). No scheme, no //.
+      const srcs = [...html.matchAll(/<script[^>]*\bsrc="([^"]*)"/gi)].map((m) => m[1]);
+      for (const src of srcs) {
+        expect(src, `${doc}: script src "${src}" must be same-origin (relative)`).toMatch(/^\.?\//);
+        expect(src, `${doc}: script src "${src}" must not be cross-origin`).not.toMatch(/^(https?:)?\/\//i);
+      }
+
+      // (2) CSP script-src = 'self' + only sha256 hashes.
+      const csp = html.match(/Content-Security-Policy" content="([^"]*)"/i)?.[1] ?? '';
+      const scriptSrc = csp
+        .split(';')
+        .map((s) => s.trim())
+        .find((s) => s.startsWith('script-src '));
+      expect(scriptSrc, `${doc}: has a script-src directive`).toBeTruthy();
+      const tokens = (scriptSrc ?? '').replace('script-src ', '').trim().split(/\s+/);
+      for (const tok of tokens) {
+        const ok = tok === "'self'" || /^'sha256-[A-Za-z0-9+/=]+'$/.test(tok);
+        expect(ok, `${doc}: script-src token "${tok}" must be 'self' or a sha256 hash`).toBe(true);
+      }
+      expect(tokens, `${doc}: script-src includes 'self'`).toContain("'self'");
+      expect(scriptSrc, `${doc}: script-src has no unsafe/host/scheme/wildcard`).not.toMatch(
+        /unsafe-inline|unsafe-eval|wasm-unsafe-eval|https?:|\*/i,
+      );
     });
   }
 });
