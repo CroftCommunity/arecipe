@@ -1,8 +1,10 @@
 # Recipe model extensions — alternative versions, multiple fun facts, dual methods
 
-**Status:** Pass 1 resolved + **Phase 0 discovery COMPLETE 2026-07-09** — open-world path
-confirmed live (D1), discovery mechanism + a pagination gap identified (D2), ownership
-confirmed (D3). No feature code yet. Next: Pass 2 or Phase 1. Worktree `recipe-import-batch`.
+**Status:** Pass 1 resolved · Phase 0 discovery COMPLETE · **Pass 2 gap analysis COMPLETE
+2026-07-09** — added Phase 1b (dishKey normalization), split Phase 4 → 4a/4b/4c (build wiring),
+expanded Phase 6 (funFact→funFacts pooling); reopened 3 questions (1 BLOCKING: cross-set
+grouping). No feature code yet. Next: confirm the 3 reopened questions, then Pass 3 or Phase 1.
+Worktree `recipe-import-batch`.
 
 ## Problem Statement
 
@@ -12,9 +14,12 @@ records** on arecipe.bsky.social. Three modeling needs have emerged that the cur
 
 1. **Alternative versions of the same dish (cross-source).** We deliberately keep
    *multiple* recipes for one dish rather than picking a "winner" — e.g. chocolate
-   chip cookies exist in 3 batches, boeuf bourguignon in 2. 12 cross-file alt-version
-   groups are already identified (via `altOf`/`dishKey`). The user wants a recipe-page
-   **version switcher** (inline "flip", and/or a deeper compare-and-pick page).
+   chip cookies exist across batches, banana bread in several, boeuf bourguignon in 2.
+   The user wants a recipe-page **version switcher** (inline "flip", and/or a deeper
+   compare-and-pick page). **[Pass 2 correction]** The alt-version groups are *not* yet
+   encoded as usable data — see the Pass 2 gap: `dish`/`altOf` are inconsistent across
+   files and grouping by them yields only 1 accidental group. A canonical `dishKey`
+   normalization across all 177 records (new Phase 1b) is a prerequisite.
 2. **Multiple fun facts per dish.** Each source contributes its own fun fact, so a
    merged dish accrues several. The user wants `funFact` → **`funFacts[]`**, cycled/
    picked with the same pattern as versions. The lexicon has **no fun-fact field at
@@ -120,8 +125,26 @@ future TODO behind the open-world probe. Client-only name grouping — fragile; 
   (read `recipe.ts`); it has **no** sibling-version discovery today.
 - `src/recipes/view.ts` `renderRecipeDetail` builds the detail DOM; `chipsEl`/`recipeFacets`
   and the trust surface exist (read in full earlier).
-- Import JSON already carries `dish` slug, `altOf` (12 cross-file groups), and dessert
-  `methods[]`; `pds-funfacts.json` has facts for all 41 live records keyed by rkey.
+- **[Pass 2 — CORRECTED]** Import JSON carries a `funFact` (SINGULAR string, not `funFacts[]`),
+  dessert carries `methods[]`, and `dish`/`altOf` fields exist but are **inconsistent and not
+  group-usable**: `own-batch` has neither field; `artisan-baking` `altOf` is free text
+  ("brownie", "cinnamon roll"); `julia-child` `dish` is a mangled slug ("cr-me-br-l-e") with a
+  scrambled `altOf` ("brulee creme"); the same dish gets a different `dish` slug per file.
+  Grouping by `dish`/`altOf` across the 6 files yields **1** group (boeuf-bourguignon), not 12.
+  → canonical `dishKey` must be derived/normalized (Phase 1b), and `funFact`→`funFacts[]`
+  conversion + per-dishKey pooling happens at publish (Phase 6).
+- **[Pass 2 — VERIFIED]** `pds-funfacts.json` = `{ _meta, funFacts: [{ rkey, name, funFact }×41] }`
+  (one singular fact per live record). Many live records (Banana Bread, Beef Bourguignon, Mac
+  and Cheese, Apple Pie, Caesar Salad, Enchiladas, Meatloaf…) share a dish with imported
+  recipes → version groups + fun-fact pools span **live + imported** (all 177 records).
+- **[Pass 2 — VERIFIED]** Pages are wired in `scripts/build.mjs`: `PAGES` array + `HTML` map
+  (`index.html`→`browse`; there is no `browse.html`), and SW precache derives from `HTML`.
+  A new `dish.html` page requires editing BOTH plus creating the top-level `dish.html` file.
+- **[Pass 2 — VERIFIED]** `renderRecipeDetail(entry: CachedRecipe, options: RenderOptions = {})`
+  (view.ts:280) is the single detail-render path; recipe.ts calls it at :390 (cache) and :405
+  (fresh). It reads `entry.value`, so `funFacts`/`dishKey` can be read from the record with no
+  signature change; a "sibling exists?" flag for the versions link needs a new `RenderOptions`
+  field (recipe.ts must discover siblings and pass it). No existing funFact/version UI in src.
 - Lexicon namespace `exchange.recipe.*` is owned by recipe.exchange (ECOSYSTEM); arecipe
   is a consumer. **Whether arecipe may amend it, or only add open-world fields, is an
   open question** (cite the FACTCHECK/ECOSYSTEM as source of truth before deciding).
@@ -141,12 +164,15 @@ future TODO behind the open-world probe. Client-only name grouping — fragile; 
 
 ## Concurrency Map
 
-Sequential spine: Phase 0 → 1 → 2 → 3 → 4 → (5) → 6. The UI phases (2–5) all touch
-`view.ts` and/or `recipe.ts`/`dish.ts` (shared write-set) so they are sequential. Phase 6
-(migration + pilot publish) has a disjoint write-set (`spike/import/*` + live PDS) but is
-listed last because publishing should follow the UI being able to render the new fields.
-**All phases sequential** — write-sets overlap on `view.ts`/`recipe.ts` for the UI phases;
-migration is gated on the schema decision (Phase 0/1).
+Sequential spine: Phase 0 → 1 → 1b → 2 → 3 → 4a → 4b → 4c → (5) → 6.
+**All phases sequential.** Rationale from the per-phase write-sets: Phases 1/1b write `model.ts`
+which 2/3/4a read; Phases 2/3/4c all write `src/recipes/view.ts` (shared write-set → cannot
+parallelize); 4b depends on 4a's paginator+grouping and edits `scripts/build.mjs`; 6 depends on
+`dishkeys.json` (1b) and the UI phases (to render the pilot) and is the only phase that mutates
+live PDS state. **Candidate parallelism considered and rejected:** 1b (spike tooling) is
+write-disjoint from 1/2 (src) and *could* run alongside them — but it gates 4b/6 and needs its
+own user-review checkpoint, so it stays on the spine. No worktree/parallel dispatch planned;
+if adopted later, the only live-mutating phase (6) must never run concurrently with anything.
 
 ## Phases
 
@@ -182,46 +208,100 @@ optional `primaryVersion`) as shared TS types + JSON-schema notes; align the imp
 `src/recipes/model.ts`); overlay-record type/fixture if applicable. **Wiring test:** a
 type-level + unit test that a record with the new fields parses and the old records (no new
 fields) still parse. **Validation:** Narrow.
+**Read-set:** `src/recipes/read.ts` (RecipeValue). **Write-set:** `src/recipes/model.ts` (new)
++ its unit test. **Shared-state:** none. **Done when:** `import { DishKey, FunFact, RecipeExt }`
+compiles and `npx vitest run tests/unit/recipes/model.spec.ts` passes; old records still parse.
+
+### Phase 1b: Canonical dishKey normalization (NEW — Pass 2; prereq for Phases 4 & 6)
+**Goal:** Produce a **reviewed** canonical-`dishKey` mapping covering **all 177 records** (136
+imported across 6 files + 41 live), reconciling name/slug variants so true alternates share one
+key and unrelated dishes don't collide. Because the existing `dish`/`altOf` fields are
+inconsistent (Verified Assumptions), this is a curation step, not a field-copy: a script
+proposes keys (slugify(name) + a synonym/alias table), emits a `spike/import/dishkeys.json`
+mapping (`{ recordRef → dishKey, version groups }`) plus a human-review report of proposed
+groups, and the user confirms/edits the groupings (esp. cross-set live↔imported: e.g. does live
+"Beef Bourguignon" group with imported boeuf-bourguignon? "Banana Bread" ×4?). Also flags the
+mislabeled `banana-bread-mug-cake` (a mug cake, not banana bread) and the mangled julia slugs.
+**Read-set:** `spike/import/*.json`, live `listRecords`, `pds-funfacts.json`. **Write-set:**
+`spike/import/build-dishkeys.mjs` (+ test) + `spike/import/dishkeys.json` (data). **Shared-state:**
+read-only against live PDS (no writes). **Wiring test:** unit — grouping is deterministic and
+the review report lists every multi-version group; no dish appears under two keys.
+**Done when:** `dishkeys.json` exists, the user has reviewed the proposed groups, and every
+imported + live record maps to exactly one `dishKey`. **Validation:** Moderate (human review of
+groupings is the real gate). **Disposition:** `dishkeys.json` is kept (feeds Phase 6).
 
 ### Phase 2: Fun-fact renderer (view)
 **Goal:** `renderFunFacts(facts): HTMLElement` — a "Did you know?" element that cycles
 `funFacts[]` (next/prev or shuffle), omitted when empty. Render-only. **Wiring test:** none
 (gated by Phase 3). **Validation:** Narrow (happy-dom unit tests).
+**Read-set:** `model.ts`. **Write-set:** `src/recipes/view.ts` (add `renderFunFacts`) + a unit
+test. **Shared-state:** none. **Done when:** `renderFunFacts([...])` returns a cycling element;
+empty → returns null/omitted; `vitest run tests/unit/recipes` passes.
 
-### Phase 3: Fun-facts on the recipe page (wired) + pooling
-**Goal:** recipe.ts passes the record's `funFacts` into `renderRecipeDetail`; the cycler
-shows on real records. (Facts are denormalized per record, so no cross-record pooling needed
-at read time.) **Wiring test:** e2e — a recipe with multiple facts shows the cycler and
-advances. **Validation:** Moderate.
+### Phase 3: Fun-facts on the recipe page (wired)
+**Goal:** `renderRecipeDetail` reads `value.funFacts` and appends the Phase-2 cycler; recipe.ts
+needs no change (facts are denormalized on the record). Cycler shows on real records.
+**Read-set:** `model.ts`, `view.ts`. **Write-set:** `src/recipes/view.ts` (wire the cycler into
+`renderRecipeDetail`) + e2e spec. **Shared-state:** none. **Wiring test:** e2e (`tests/e2e/`) —
+load a recipe fixture with multiple facts; the cycler shows and advances. **Validation:** Moderate.
 
-### Phase 4: Compare-and-pick page (`dish.html`) — PRIMARY version mechanism, main risk
-**Prereq (from D2):** extend `createRecipeReader` (read.ts:64) with **cursor pagination**
-(loop with `limit=100` + `cursor` like `publish-batch.mjs` does) so all of a dish's siblings
-are in the fetched set; a single-page read would silently miss versions past ~50 records.
-**Goal:** New `dish.html?key=<dishKey>` page: discovers a dish's version records by `dishKey`
-(mechanism from D2 — feed grouping / `listRecords` filter over the single repo), lists them
-**side by side** to compare and pick (this is where method-labeled siblings — "Microwave" vs
-"Oven" — surface too), and pools the fun facts across them with the same compare/pick pattern.
-The recipe page (`recipe.ts`) gains an "other versions →" link to `dish.html` when a record's
-`dishKey` has siblings. **Changes:** new `src/pages/dish.ts` + `dish.html` entry; a small
-addition to `recipe.ts`/`view.ts` for the link. **Wiring test:** e2e — a dish with 2+ versions
-renders the compare page with all versions and switching/picking works; a method-dual dish
-shows both method siblings. **Validation:** Broad.
+### Phase 4a: Paginated reads + version-grouping helper (prereq for 4b/4c)
+**Goal:** (1) extend `createRecipeReader` (read.ts:64) with **cursor pagination** (loop
+`limit=100` + `cursor`, like `publish-batch.mjs`) so all of a dish's siblings are fetched — a
+single ~50-record page would silently miss versions. (2) a pure `groupByDishKey(records)` /
+`siblingsOf(dishKey, records)` helper in `model.ts`. **Read-set:** `read.ts`. **Write-set:**
+`src/recipes/read.ts` + `src/recipes/model.ts` + their unit tests. **Shared-state:** none.
+**Wiring test:** unit — paginator concatenates multi-page `listRecords` (mock 2 pages); grouping
+buckets by `dishKey`. **Validation:** Moderate. NOTE: browse.ts also uses the single-page reader
+(pre-existing ~50 truncation) — see Open Question on whether browse adopts pagination here.
+
+### Phase 4b: Compare-and-pick page (`dish.html`) — PRIMARY version mechanism, main risk
+**Goal:** New `dish.html?key=<dishKey>` page: uses 4a's paginated reader + grouping to list a
+dish's version records **side by side** to compare and pick (method-labeled siblings —
+"Microwave"/"Oven" — surface here too), pooling the dish's fun facts with the same compare/pick
+pattern. **Build wiring (Pass 2 — REQUIRED):** add `'dish'` to `PAGES` and `'dish.html':'dish'`
+to `HTML` in `scripts/build.mjs`, and create the top-level `dish.html` (referencing `./dish.js`
++ `./styles.css`, mirroring `recipe.html`); SW precache picks it up via the `HTML` map.
+**Read-set:** `read.ts`, `model.ts`, `view.ts`, `recipe.html`. **Write-set:** `src/pages/dish.ts`
+(new), `dish.html` (new), `scripts/build.mjs` (edit PAGES+HTML) + e2e spec. **Shared-state:**
+none. **Wiring test:** e2e — `npm run build` emits `dist/dish.html` + a hashed `dish` bundle; a
+`dishKey` with 2+ versions renders the compare page and picking swaps content; a method-dual
+dish shows both method siblings. **Validation:** Broad (build + serve + e2e, not just unit).
+
+### Phase 4c: "Other versions" link from the recipe page
+**Goal:** recipe.ts discovers whether the current record's `dishKey` has siblings (via 4a) and,
+if so, `renderRecipeDetail` shows an "other versions →" link to `dish.html?key=`. Requires a new
+optional `RenderOptions` field (e.g. `siblingCount`/`dishKey`). **Read-set:** `read.ts`,
+`model.ts`. **Write-set:** `src/pages/recipe.ts` + `src/recipes/view.ts` (RenderOptions + link) +
+e2e/unit. **Shared-state:** none. **Wiring test:** e2e — a multi-version recipe shows the link;
+a single-version one does not. **Validation:** Moderate.
 
 ### Phase 5 (optional): Inline version flip on the recipe page
 **Goal:** Secondary convenience — an inline version toggle on `recipe.ts` that swaps the
-detail in place without visiting `dish.html`. Only if wanted after Phase 4. **Wiring test:**
+detail in place without visiting `dish.html`. Only if wanted after Phase 4b/4c. **Write-set:**
+`src/pages/recipe.ts` + `src/recipes/view.ts` + e2e. **Shared-state:** none. **Wiring test:**
 e2e — inline toggle swaps content. **Validation:** Moderate.
 
 ### Phase 6: Migration ops + pilot publish → bulk
-**Goal:** (a) `spike/import/add-funfacts-dishkey.mjs` adds `funFacts` (from `pds-funfacts.json`)
-+ `dishKey` to the 41 live records (dry-run first, idempotent, preserve `createdAt`); (b) a
-publisher that **splits dessert `methods[]` into sibling version records** (method
-`versionLabel`) and carries `dishKey`/`funFacts`/`versionLabel` on every imported record;
-(c) publish a **pilot batch** (one version group + a few singles), verify end-to-end on live
-records, **then** bulk-publish the rest. **Wiring test:** dry-run prints planned edits;
-pilot readback confirms fields persist, images attach, and the compare page renders the live
-group. **Validation:** Broad (live writes; confirm first, pilot before bulk).
+**Depends on:** Phase 1b (`dishkeys.json`) and the UI phases (so the pilot renders). Uses
+`funFacts` pooled **per dishKey across live + imported** (Pass 2). **Goal:**
+- (a) `spike/import/add-funfacts-dishkey.mjs` adds `funFacts` (converted from the live record's
+  single `pds-funfacts.json` fact + any pooled siblings) + `dishKey` (from `dishkeys.json`) to
+  the 41 live records — dry-run first, idempotent, preserve `createdAt`, bump `updatedAt`.
+- (b) a publisher that, per imported record: maps `dish`→`dishKey` (via `dishkeys.json`),
+  converts `funFact`(string)→`funFacts[]`, **pools funFacts per dishKey across the dish's
+  versions incl. live records** and denormalizes the union onto each, assigns `versionLabel`
+  (source/style; for desserts **splits `methods[]` into two sibling records** with method
+  labels sharing the recipe's dishKey), and attaches images (`image-choices-corpus.json`).
+- (c) publish a **pilot batch** (one multi-version group — e.g. banana bread across live +
+  imported — plus a few singles), verify end-to-end on live records, **then** bulk-publish.
+**Read-set:** `spike/import/*.json`, `dishkeys.json`, `pds-funfacts.json`, `image-choices-corpus.json`,
+live PDS. **Write-set:** `spike/import/add-funfacts-dishkey.mjs`, `spike/import/publish-*.mjs`
+(+ tests) — **and LIVE records on arecipe.bsky.social** (the only ambient/live mutation in the
+plan). **Shared-state:** live PDS repo — dry-run + idempotent + pilot-before-bulk are the
+guards; no other phase writes live. **Wiring test:** dry-run prints planned edits; pilot
+readback confirms fields persist, funFacts pooled correctly, images attach, and `dish.html`
+renders the live group. **Validation:** Broad (live writes; confirm first, pilot before bulk).
 
 ## Resolved Decisions (2026-07-09)
 
@@ -240,6 +320,24 @@ All seven open questions were walked through and decided:
 6. **Switcher UI → deep compare-and-pick page first (Phase 4, primary);** inline flip is a
    secondary optional Phase 5.
 7. **Publish scope → pilot batch first, then bulk** (Phase 6).
+
+## Open Questions (reopened in Pass 2)
+
+- [RECOMMENDED: BLOCKING (Phase 1b)] **Cross-set grouping scope.** Should live records group
+  with imported ones under a shared `dishKey` (e.g. live "Beef Bourguignon" + imported
+  boeuf-bourguignon; "Banana Bread" ×4 across live/artisan/frugal/own)? This defines the
+  version groups AND the fun-fact pools. *Recommend yes (group live+imported), confirmed via the
+  Phase 1b review report — but it's the user's curation call, dish by dish.*
+- [RECOMMENDED: PHASE-GATED (Phase 4a)] **Browse presentation of multi-version dishes + browse
+  pagination.** Post-import, browse will show N separate cards for a multi-version dish and (with
+  no pagination) truncate at ~50 of 177 records. Options: (a) leave browse as-is (every version
+  is its own card) + add pagination; (b) collapse versions into one card with a count badge.
+  *Recommend (a)+pagination for v1; collapsing is a larger browse change. Pre-existing 50-cap is
+  a real bug surfaced here.*
+- [RECOMMENDED: PHASE-GATED (Phase 1b)] **dishKey normalization ownership.** Auto-derived
+  (slugify + alias table) with user review, vs a fully hand-curated map. *Recommend
+  auto-propose + user-review (the review report is the gate); mangled slugs (julia) and
+  mislabels (`banana-bread-mug-cake`) must be caught.*
 
 ## Review Log
 
@@ -272,3 +370,40 @@ fields); discovery = client-side `dishKey` grouping over `listRecords`. Surfaced
 **D3:** ownership confirmed (arecipe is a consumer; open-world, no amendment). All BLOCKING
 unknowns resolved; the plan's schema strategy holds. Next: Pass 2 gap analysis, or begin
 Phase 1 (schema/types).
+
+### Pass 2: Gap Analysis — 2026-07-09
+**Found:**
+- **Data foundation gap (biggest):** the "12 alt-version groups via `altOf`/`dishKey`" premise
+  is false. `dish`/`altOf` are inconsistent across the 6 files (own-batch: neither; artisan:
+  free-text `altOf`; julia: mangled slug + scrambled `altOf`; same dish → different slug per
+  file). Grouping by them yields **1** group (boeuf-bourguignon), not 12. Versions + fun-fact
+  pooling have no usable key today.
+- Version groups + fun-fact pools span **live + imported** (41 live records overlap imported
+  dishes: Banana Bread, Beef Bourguignon, Mac and Cheese, Apple Pie, Caesar Salad, Enchiladas…).
+- Import JSON has `funFact` **singular**, not `funFacts[]` → conversion + per-dishKey pooling
+  needed at publish.
+- **Build wiring:** a new `dish.html` requires editing `scripts/build.mjs` (`PAGES` + `HTML`)
+  and creating the top-level `dish.html` — an Isolation-Trap risk the Pass-1 Phase 4 omitted.
+- **Phase 4 oversized** (6+ files) — violates the 4-file rule.
+- `pds-funfacts.json` verified valid (`{_meta, funFacts:[{rkey,name,funFact}×41]}`);
+  `renderRecipeDetail(entry, options)` verified as the single render path (recipe.ts:390/405).
+**Concurrency:**
+- Map re-derived for renumbered phases; still **all sequential**. Documented that 2/3/4c share
+  `view.ts` (cannot parallelize) and 6 is the only live-mutating phase. Considered 1b‖1/2 and
+  rejected (1b gates 4b/6 + needs a review checkpoint). Added per-phase Read/Write-set +
+  Shared-state contracts to every phase.
+**Changed:**
+- **Added Phase 1b** (canonical `dishKey` normalization across all 177 records, user-reviewed
+  `dishkeys.json`) as a prereq for Phases 4 & 6.
+- **Split Phase 4 → 4a** (paginated reader + grouping helper), **4b** (dish.html + build wiring),
+  **4c** (recipe "other versions" link + `RenderOptions` field).
+- Expanded Phase 6: `funFact`→`funFacts[]` conversion, per-dishKey pooling across live+imported,
+  `dish`→`dishKey` mapping via `dishkeys.json`, image attach, dessert `methods[]`→sibling split.
+- Corrected Problem Statement bullet 1 + Verified Assumptions (dish/altOf reality, funfacts
+  shape, build wiring, render signature).
+- **Reopened 3 open questions** (cross-set grouping scope [BLOCKING], browse presentation +
+  pagination, dishKey normalization ownership).
+**Confirmed:**
+- Open-world reads need no parser changes (read.ts already tolerant). Phase 1 types are additive.
+- `renderRecipeDetail` is the single detail-render path → fun facts + versions link wire once.
+- No pre-existing funFact/version UI → no in-app back-compat burden.
