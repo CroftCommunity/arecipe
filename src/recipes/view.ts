@@ -7,7 +7,7 @@
 
 import { recipeFacets } from '../pages/browse-state.js';
 import type { CachedRecipe } from './cache.js';
-import { funFactsOf, type FunFact } from './model.js';
+import { funFactsOf, versionLabelOf, type FunFact } from './model.js';
 import { firstImageCid, firstImageCredit, formatDuration, formatPublishedDate, thumbUrl } from './present.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -242,6 +242,57 @@ export const renderRecipeList = (
   container.dataset['testid'] = 'recipe-list';
   for (const entry of entries) container.append(renderCard(entry, options));
   return container;
+};
+
+/** Union of a dish's fun facts across all its version records, deduped by text
+ *  (facts are denormalized per record, so siblings usually overlap). */
+const pooledFunFacts = (entries: CachedRecipe[]): FunFact[] => {
+  const seen = new Set<string>();
+  const out: FunFact[] = [];
+  for (const entry of entries) {
+    for (const fact of funFactsOf(entry.value as RecipeValue)) {
+      if (seen.has(fact.text)) continue;
+      seen.add(fact.text);
+      out.push(fact);
+    }
+  }
+  return out;
+};
+
+export type DishCompareOptions = RenderOptions & { dishName?: string };
+
+/** The "View All" grid (dish.html): a dish's versions as compare cards, with the
+ *  pooled fun facts on top. Each card links to that version's own recipe page. */
+export const renderDishCompare = (
+  entries: CachedRecipe[],
+  options: DishCompareOptions = {},
+): HTMLElement => {
+  const section = el('section', 'dish-compare');
+  const head = el('div', 'dish-head');
+  const title = el('h1', 'dish-title', options.dishName ?? (entries[0]?.value as RecipeValue)?.name ?? 'Dish');
+  title.dataset['testid'] = 'dish-title';
+  const count = el('span', 'dish-count', `${entries.length} version${entries.length === 1 ? '' : 's'}`);
+  count.dataset['testid'] = 'dish-count';
+  head.append(title, count);
+  section.append(head);
+
+  const facts = renderFunFacts(pooledFunFacts(entries));
+  if (facts !== null) section.append(facts);
+
+  const grid = el('section', 'recipe-grid');
+  grid.dataset['testid'] = 'version-grid';
+  for (const entry of entries) {
+    const card = renderCard(entry, options);
+    card.dataset['testid'] = 'version-card';
+    const label = versionLabelOf(entry.value);
+    if (label !== undefined) {
+      const badge = el('span', 'version-label', label);
+      card.insertBefore(badge, card.querySelector('.card-title'));
+    }
+    grid.append(card);
+  }
+  section.append(grid);
+  return section;
 };
 
 /** Small label chips from a recipe's facets (category, cuisine, diet). Diet

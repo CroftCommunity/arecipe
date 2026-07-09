@@ -195,3 +195,21 @@ to be implemented with the page-per-destination restructure:
 - `prefers-reduced-motion` respected; motion is at most a 120ms border/color
   ease anywhere.
 - Mobile-first: single-column detail below 40rem; touch targets ≥ 40px.
+
+## Recipe versions, fun facts & focus (recipe-model-extensions)
+
+A dish can have multiple alternative recipes (cross-source or dual-method) — we
+keep them all rather than picking a winner. They're grouped by an open-world
+`dishKey` field on each `exchange.recipe.recipe` record (see `docs/LEXICONS.md`).
+
+- **Recipe page is the simple landing.** A `‹ N of M ›` control bar sits above
+  the banner (only when M > 1); flipping swaps the image, title, ingredients,
+  and instructions in place. Default order: `primaryVersion` first, then
+  published order (most-liked-first is a deferred TODO).
+- **View All** (`dish.html?key=<dishKey>&did=<did>`) opens the compare grid —
+  the versions side by side as cards, each linking to its own recipe page.
+- **⛶ Focus** opens a distraction-free full-screen cook view of the current
+  version (image + ingredients + instructions only).
+- **Fun facts** are pooled per dish (deduped across versions), shown just above
+  Comments, and hidden entirely by the Settings "Include fun facts" toggle
+  (on by default). Comments are per-version (dish-level sharing is a TODO).

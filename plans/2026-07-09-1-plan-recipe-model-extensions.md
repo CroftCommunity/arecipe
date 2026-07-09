@@ -4,8 +4,8 @@
 COMPLETE 2026-07-09. Plan is READY FOR EXECUTION — no unresolved BLOCKING items.** 10 phases
 (0 + 1 + 1b + 2 + 3 + 4a done). **UI design REVISED 2026-07-09 via mockups** (`docs/mockups/`):
 inline flip primary, grid = View All, + Focus mode + Settings fun-facts toggle; comments stay
-per-version (dish-level deferred). **Next: Phase 4b (`dish.html` grid + build wiring).** Worktree
-`recipe-import-batch`.
+per-version (dish-level deferred). Phases 0–4b done. **Next: Phase 4c (inline version flip on the
+recipe page — PRIMARY UX).** Worktree `recipe-import-batch`.
 
 ## Problem Statement
 
@@ -335,7 +335,16 @@ adopts this paginated reader.
 > `docs/mockups/dish-mockup.html` (grid). Comments stay **per-version** (no model change);
 > dish-level shared comments are a **Deferred TODO**. See the reordered phases below.
 
-### Phase 4b: `dish.html` compare grid — the "View All" target (build wiring, main risk)
+### Phase 4b: `dish.html` compare grid — the "View All" target (build wiring, main risk) — COMPLETE 2026-07-09
+**Outcome:** New `src/pages/dish.ts` + top-level `dish.html`; `scripts/build.mjs` PAGES+HTML wired
+(build emits `dist/dish.html` + a hashed `dish` bundle, verified). `dish.html?key=<dishKey>&did=<did>&by=<handle>`
+resolves the repo PDS, paginates `listRecords`, `siblingsOf(key)`, sorts (primaryVersion first then
+rkey), verifies via cache.put, and renders `renderDishCompare` (new in view.ts): dish title + "N
+versions" + pooled/deduped fun facts + a grid of version compare cards (versionLabel badge, photo,
+chips, links to each version's recipe page). 2 happy-dom unit tests + 3 e2e (`tests/e2e/dish.spec.ts`
+with `listRecords-versions.json` fixture): grid renders 2 cards, primary sorts first, pooled facts
+1/2, card links to recipe.html, unknown key → "No versions found". Docs updated same-phase
+(`README.md` page list + `docs/DESIGN.md`). Full 216 unit + build + dish e2e green.
 **Goal:** New `dish.html?key=<dishKey>` grid page (the mockup's compare view): uses 4a's paginated
 reader + grouping to list a dish's versions **side by side as compare cards** (photo, versionLabel,
 at-a-glance times/serves/ingredient-count, source, "View full recipe →"), with the pooled fun-fact

@@ -5,6 +5,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
+  renderDishCompare,
   renderFacetDropdown,
   renderFunFacts,
   renderRecipeDetail,
@@ -322,6 +323,35 @@ describe('image credit (Commons attribution)', () => {
     expect(credit?.querySelector('a')?.getAttribute('href')).toBe(
       'https://commons.wikimedia.org/wiki/File:Pico.jpg',
     );
+  });
+});
+
+describe('renderDishCompare (View All grid)', () => {
+  const ver = (rkey: string, name: string, extra: Record<string, unknown> = {}): CachedRecipe =>
+    entry({ uri: `at://did:plc:26tsx5juuss4yealylyfbj4h/exchange.recipe.recipe/${rkey}`, value: { ...fixture.value, name, ...extra } });
+
+  it('renders a header with the dish name and version count, and one card per version', () => {
+    const el = renderDishCompare(
+      [ver('1', 'My Favorite Banana Bread', { versionLabel: 'My Favorite' }), ver('2', 'Classic Banana Bread', { versionLabel: 'Classic' })],
+      { dishName: 'Banana Bread', author: 'arecipe.bsky.social' },
+    );
+    expect(el.querySelector('[data-testid=dish-title]')?.textContent).toBe('Banana Bread');
+    expect(el.querySelector('[data-testid=dish-count]')?.textContent).toContain('2');
+    const cards = el.querySelectorAll('[data-testid=version-card]');
+    expect(cards).toHaveLength(2);
+    expect(cards[0]?.getAttribute('href')).toContain('recipe.html?u=');
+    expect(cards[0]?.textContent).toContain('My Favorite');
+  });
+
+  it('pools fun facts across versions, deduped', () => {
+    const el = renderDishCompare(
+      [ver('1', 'A', { funFacts: [{ text: 'shared' }, { text: 'from A' }] }), ver('2', 'B', { funFacts: [{ text: 'shared' }, { text: 'from B' }] })],
+      { dishName: 'Dish' },
+    );
+    const facts = el.querySelector('[data-testid=fun-facts]');
+    expect(facts).not.toBeNull();
+    // 3 unique facts (shared deduped) → the cycler shows a count of 3
+    expect(el.querySelector('[data-testid=fun-fact-count]')?.textContent).toBe('1 / 3');
   });
 });
 

@@ -33,7 +33,8 @@ Page-per-destination (no router): each top-level surface is its own document —
 bounded reach: starter cooks + who you follow/your followers on Bluesky, and
 their recipes; `?did=<did>` is a shareable public view of anyone's cookbook.
 The legacy `friends.html` redirects here), `mine.html` (My recipes + sign-in),
-`settings.html`, plus `recipe.html` and `editor.html`.
+`settings.html`, plus `recipe.html`, `dish.html` (compare a dish's alternative
+versions side by side — the recipe page's "View All"), and `editor.html`.
 
 Diagnostic logging: append `?debug=1` (or set any `localStorage` `debug`
 entry) to see `[arecipe]` debug/info console logs; production stays quiet

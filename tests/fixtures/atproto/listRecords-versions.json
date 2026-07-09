@@ -1,0 +1,40 @@
+{
+  "records": [
+    {
+      "uri": "at://did:plc:26tsx5juuss4yealylyfbj4h/exchange.recipe.recipe/ver1",
+      "cid": "bafyreiaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "value": {
+        "$type": "exchange.recipe.recipe",
+        "name": "My Favorite Banana Bread",
+        "text": "A moist, everyday loaf.",
+        "ingredients": ["3 ripe bananas", "1 1/2 cups flour"],
+        "instructions": ["Mash bananas.", "Mix and bake 55 minutes."],
+        "createdAt": "2026-01-01T00:00:00Z",
+        "updatedAt": "2026-01-01T00:00:00Z",
+        "dishKey": "banana-bread",
+        "versionLabel": "My Favorite",
+        "primaryVersion": true,
+        "funFacts": [{ "text": "Banana bread boomed in 1930s Depression kitchens." }]
+      }
+    },
+    {
+      "uri": "at://did:plc:26tsx5juuss4yealylyfbj4h/exchange.recipe.recipe/ver2",
+      "cid": "bafyreibbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "value": {
+        "$type": "exchange.recipe.recipe",
+        "name": "Classic Moist Banana Bread",
+        "text": "A foolproof bakery-style loaf.",
+        "ingredients": ["3 ripe bananas", "1 1/2 cups flour", "1/2 cup walnuts"],
+        "instructions": ["Mash bananas.", "Fold in walnuts.", "Bake 60 minutes."],
+        "createdAt": "2026-01-02T00:00:00Z",
+        "updatedAt": "2026-01-02T00:00:00Z",
+        "dishKey": "banana-bread",
+        "versionLabel": "Classic",
+        "funFacts": [
+          { "text": "Banana bread boomed in 1930s Depression kitchens." },
+          { "text": "Walnuts add crunch and richness." }
+        ]
+      }
+    }
+  ]
+}
