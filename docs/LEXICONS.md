@@ -20,18 +20,43 @@ forerunner exists, not yet a PDS record) · **dropped** (was considered/used, no
 
 ---
 
-## `exchange.recipe.*` — consumed (owned by recipe.exchange)
+## `exchange.recipe.*` — the recipe.exchange ecosystem (consumed)
 
-| NSID | Status | Purpose | Where |
-|------|--------|---------|-------|
-| `exchange.recipe.recipe` | live | The recipe record (the core object arecipe reads/publishes). | `src/recipes/read.ts`; fixture `tests/fixtures/lexicons/exchange.recipe.recipe.json` |
-| `exchange.recipe.defs` | consumed | Shared defs referenced by the recipe record (e.g. the `imagesEmbed` union). | fixture `tests/fixtures/lexicons/exchange.recipe.defs.json` |
-| `exchange.recipe.profile` | consumed | Author/profile record type in the recipe namespace. | fixture `…/exchange.recipe.profile.json` |
-| `exchange.recipe.collection` | consumed | A collection/cookbook grouping record. | fixture `…/exchange.recipe.collection.json` |
+`exchange.recipe.*` is the **shared, open recipe namespace** that arecipe is built on. It is
+**owned and published by recipe.exchange**, an independent project — arecipe is one *consumer*
+of a lexicon meant for many clients. This is the whole point of the atproto model: the data
+(recipes) lives in users' PDS repos under a community lexicon, and any app can read/write it.
 
-Required fields of `exchange.recipe.recipe`: `name`, `text`, `ingredients`, `instructions`,
-`createdAt`, `updatedAt`. The fixture declares no `additionalProperties: false`, and the live
-PDS was **proven to accept and round-trip unknown fields** (see the extension table below).
+**Authority & resolution** (captured firsthand 2026-07-07 — `tests/fixtures/lexicons/PROBE-NOTES.md`):
+- Publisher DID: **`did:plc:4cx7ts7lqgjtsfquo53qo3sz`**, PDS `poisonpie.us-west.host.bsky.network`.
+- Canonical resolution: DNS TXT `_lexicon.recipe.exchange` → that DID → `com.atproto.repo.getRecord`
+  on `com.atproto.lexicon.schema` (the atproto-native way lexicons are published on-network).
+- Website mirror: `https://recipe.exchange/lexicons/<nsid>.json` (HTTP 200). The website is the
+  *leading edge* — it can carry fields not yet in the canonical PDS record (see skew below).
+
+**The four NSIDs recipe.exchange defines:**
+
+| NSID | Kind | Purpose / surface |
+|------|------|-------------------|
+| `exchange.recipe.recipe` | record | The recipe. Required: `name`, `text`, `ingredients[]`, `instructions[]`, `createdAt`, `updatedAt`. Optional: `attribution` (union), `embed`→`#imagesEmbed` (blob images), `prepTime`/`cookTime`/`totalTime`, `recipeYield`, `recipeCategory`, `recipeCuisine`, `cookingMethod`, `nutrition` (obj), `suitableForDiet[]`, `keywords[]`, `langs[]` (website-only). Local defs: `main`, `imagesEmbed`, `image`, `view`, `viewImage`. |
+| `exchange.recipe.defs` | tokens | The shared **controlled vocabulary** (~110 enum tokens) the recipe record's fields draw from: `cookingMethod*` (Baking, Frying, NoCook…), `diet*` (Vegan, GlutenFree, Keto…), `category*` (Dessert, Entree, Snack…), `cuisine*` (Italian, Thai, TexMex…), `attribution*`, `license*` (CreativeCommonsBy…, PublicDomain), `profileType*`, `businessType*`. |
+| `exchange.recipe.profile` | record | Author/business profile. Props: `profileType`, `businessType`, `about`, `email`, `phone`, `address`, `links`, `createdAt`, `updatedAt`. |
+| `exchange.recipe.collection` | record | A cookbook/collection grouping recipes. Props: `name`, `text`, `langs`, `recipes` (refs), `createdAt`, `updatedAt`. |
+
+arecipe currently reads/writes only `exchange.recipe.recipe` (`src/recipes/read.ts`); it holds
+local fixture copies of all four (`tests/fixtures/lexicons/*.json`) as the schema-of-record for
+validation and tests.
+
+**Two practice-vs-spec caveats arecipe must honor (from PROBE-NOTES):**
+- **rkey:** the record declares `key: tid`, but real recipe.exchange records use **26-char
+  ULID** rkeys (e.g. `01JQJ5RW51ZVEW72XN6GSRWC8D`), not 13-char TIDs. PDSs don't enforce the
+  declared key type. Phase 6 (publish) must decide ULID (match practice) vs TID (match spec).
+- **website↔canonical skew:** the website lexicon adds `langs`; otherwise byte-identical to the
+  canonical PDS record. Open-world validation makes the skew harmless.
+
+The recipe record's fixture declares no `additionalProperties: false`, and the live PDS was
+**proven to accept and round-trip unknown fields** (D1 probe) — which is what makes arecipe's
+open-world extension fields (below) safe without touching recipe.exchange's lexicon.
 
 ### arecipe open-world extension fields on `exchange.recipe.recipe`
 
@@ -85,4 +110,13 @@ ever revived, register the new NSID here first.
 | `com.atproto.repo.{createRecord,getRecord,listRecords,deleteRecord}` | Repo XRPC methods (record CRUD). |
 | `com.atproto.server.createSession` | Auth (app-password session for ops tooling). |
 
-_Last updated: 2026-07-09 (recipe-model-extensions Pass 3 / NSID docs pass)._
+## Cross-references
+
+- `tests/fixtures/lexicons/PROBE-NOTES.md` — firsthand D4 capture of the recipe.exchange
+  lexicons (resolution paths, field map, rkey/skew caveats). Source of truth for the
+  `exchange.recipe.*` surface above; re-verify against it rather than re-probing.
+- `tests/fixtures/lexicons/*.json` — the four `exchange.recipe.*` schemas held locally.
+- `discovery/alpha/ECOSYSTEM.md` — related-projects register (broader atproto ecosystem).
+- `plans/2026-07-09-1-plan-recipe-model-extensions.md` — the open-world extension-field work.
+
+_Last updated: 2026-07-09 (NSID docs pass — expanded with the recipe.exchange ecosystem overview)._
