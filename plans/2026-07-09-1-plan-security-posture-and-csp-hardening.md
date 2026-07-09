@@ -197,7 +197,13 @@ unverified-behavior trap the planning discipline exists to force into a probe.
   No edit to the build-execution plan required (grepped — it is a decision
   ledger, not a live doc to restate).
 - No file is renamed or removed; the CSP/SRI phases edit `scripts/build.mjs` and
-  add tests (no doc references to those beyond this plan).
+  add tests. Grepped for stale references (Pass 3, 2026-07-09): `docs/PRACTICES.md:11`
+  mentions `scripts/build.mjs`, but in a deploy-versioning context (the build-SHA /
+  "deploy is DONE when the live origin serves that SHA" rule) — **not** the
+  HTML-injection pass these phases touch, so it is not made stale and needs no
+  update. No doc references `tests/e2e/csp.spec.ts` or `docs/SECURITY.md` (the
+  latter does not yet exist; no pre-existing or broken links found in `README.md`
+  or `docs/`).
 
 ## Concurrency Map
 
@@ -398,6 +404,15 @@ report-only), validated by a hermetic no-violations pass.
   `<head>` child, and its `script-src` contains the expected hash(es) and the
   OQ1 `connect-src`. The empty-violations assertion is the real gate; a present
   meta string alone proves nothing.
+  - **Written RED-first (TDD ordering note):** run `csp.spec.ts` against the
+    current no-CSP `dist` and watch it fail — the RED driver is the
+    meta-present / first-`<head>`-child / `script-src`-contains-hashes /
+    `connect-src`-matches assertions (all fail when no meta exists). The
+    zero-`securitypolicyviolation` assertion is *trivially green before any CSP
+    exists* (no policy → no violations) and only becomes load-bearing after
+    injection, where it goes RED if the policy over-tightens. Do not write the
+    violations assertion alone and mistake its pre-implementation green for a
+    passing test.
 
 **Call chain:** `npm run build` → HTML pass in `build.mjs` → dist shells carry
 the CSP meta → browser enforces on load. Entry point = loading any page.
@@ -427,9 +442,11 @@ relied on inline injection (none found, but the regression run is the proof).
 1. **Behavioral:** every built page loads and functions with the CSP enforced;
    no `securitypolicyviolation` fires across the 8 pages; a loopback sign-in
    still completes under CSP.
-2. **Verification:** `npm test` hermetic green incl. `csp.spec.ts`; a local
-   loopback `@live` sign-in under the enforced CSP (the auth flow is the highest
-   CSP-risk path).
+2. **Verification:** `npm test` hermetic green incl. `csp.spec.ts` (the `test`
+   script runs `npm run build` before `test:e2e`, so the spec always runs against
+   a freshly-built `dist`; Playwright auto-discovers the new spec via its
+   `tests/e2e/**` glob — no registration step); a local loopback `@live` sign-in
+   under the enforced CSP (the auth flow is the highest CSP-risk path).
 **Validation:** Broad — a policy that ships to production and can break page
 loads app-wide; hermetic no-violations across all pages + a loopback auth run
 under CSP.
@@ -490,7 +507,11 @@ the CSP allowlist honest, plus the narrative's zero-3p claim made enforceable.
 **Call chain:** test-only guard over the built output; entry point = the build
 artifact the test reads.
 **Wiring test:** the assertion itself is the guard; it fails if a third-party
-script origin or a stray `script-src` host is introduced.
+script origin or a stray `script-src` host is introduced. **TDD ordering note:**
+this guard is green against today's zero-3p output, so its RED proof is the
+deliberate third-party `<script>` injection called out in Verification — run that
+injection and watch the suite fail *before* trusting the green. A guard never
+exercised against a real violation is untested.
 **Depends on:** Phase 2 (CSP string), Phase 3.
 **Read-set:** built `dist` shells, `scripts/build.mjs`.
 **Write-set:** `tests/e2e/csp.spec.ts`, `docs/SECURITY.md`.
@@ -603,3 +624,97 @@ future items.
   consistent with the measured network surface. The five Pass 1 open questions
   are unchanged — no new open questions surfaced (the gaps were fillable without
   a user decision). Phase sizing still ≤ 3 files each after the additions.
+
+### Pass 3: Quality Gates — 2026-07-09
+Fresh context; plan doc as sole handoff. Spot-checked the codebase — every cited
+`file:line` still resolves and every Verified Assumption holds: no CSP/`integrity=`
+in any shell; `docs/SECURITY.md` absent (root `SECURITY.md` absent); `build.mjs`
+HTML pass at `scripts/build.mjs:64` with `friends.html` copied verbatim at line 71
+*outside* the loop (confirms the Phase 2 friends.html item); inline-script tally
+= pre-paint in all 8 shells + a 2nd (landing) block in `index.html` + the
+`friends.html` stub → the three distinct hashes; `resolve.ts:39/45/46`,
+`did.ts:12`, `build-stamp.ts:51`, `browser-oauth-client.d.ts:8` (`Omit
+sessionStore`), `session-provider.ts` per-session-only `signOut` — all accurate;
+no `eval`/`new Function`/`WebAssembly` in `dist/*.js`; no `on*=` handlers;
+`csp.spec.ts` not yet present (Phase 2 creates it); both referenced plan files
+present; `docs/DESIGN.md:84–88` integrity-check explainer (+ line 194) exists as
+the Phase 1 cross-ref anchor.
+
+**TDD ordering:**
+- Phase 2: added an explicit RED-first note. The zero-`securitypolicyviolation`
+  assertion is *trivially green before any CSP exists* (no policy → no
+  violations), so it cannot be the RED driver — the RED comes from the
+  meta-present / first-`<head>`-child / hash-contains / `connect-src`-matches
+  assertions, which fail against the current no-CSP `dist`. Flagged the trap of
+  writing the violations assertion alone and mistaking its pre-implementation
+  green for a pass. This is the one place the "watch it fail" discipline could
+  silently no-op, so it is now called out in the phase.
+- Phase 4: added a note that the zero-3p guard is green against today's output;
+  its RED proof is the deliberate third-party `<script>` injection (already in
+  Verification) — run and watch it fail before trusting the green.
+- Phases 0 (Discovery exemption), 1 (doc → source-accuracy review), and 3
+  (integrity-present + render-proof, RED via the integrity-present assertion)
+  were already correctly ordered; no change.
+
+**Observability:**
+- Confirmed the plan adds no runtime logging (CSP is build-time) and correctly
+  does not invent any. The observability story is stated in Phase 1's
+  residual-risks section as intended: (a) the pre-ship hermetic no-violations
+  pass is the compensating control for (b) the documented no-`report-uri`/
+  `report-to` blindspot (production CSP violations are not centrally observed).
+  Both present; no change.
+
+**Debugging readiness:**
+- Every phase is a marked stop-point. Phase 2 (production CSP, silent blank-page
+  risk) already calls out revert-readiness and the *full* e2e regression run (not
+  just `csp.spec`); added a Verification note that `npm test` runs `npm run build`
+  before `test:e2e` (spec runs against fresh `dist`) and that Playwright
+  auto-discovers the new spec via its `tests/e2e/**` glob — so a "green" run is
+  provably exercising the new policy, not skipping the spec.
+
+**Validation calibration:**
+- Confirmed honest and scope-matched: Phase 0 Discovery (exemption), Phase 1
+  Narrow-plus (doc + source-accuracy review), Phase 2 Broad (all-pages
+  no-violations + loopback `@live` under CSP), Phase 3 Moderate (render pass
+  across all pages), Phase 4 Narrow (guard + deliberate-violation check). Every
+  Phase 0 D-item has a concrete question/probe/success-criteria and a declared
+  disposition (D1/D2/D3 `throwaway`, D4 findings→VA); none is `promote`, so no
+  follow-up TDD phase is owed. D4's spec portion (meta ignores `frame-ancestors`/
+  `report-uri`/`sandbox`) is essentially known, but its host-specific half (Pages
+  sets no `X-Frame-Options`) genuinely needs the probe — left as-is.
+
+**Concurrency honesty:**
+- Map confirmed; sequential plan. Re-checked write-sets directly: Phase 1 writes
+  {`docs/SECURITY.md`, `README.md`, `docs/DESIGN.md`}; Phases 2–3 write
+  {`scripts/build.mjs`, `tests/e2e/csp.spec.ts`, `docs/SECURITY.md`}; Phase 4
+  writes {`tests/e2e/csp.spec.ts`, `docs/SECURITY.md`}. All four share the
+  `docs/SECURITY.md` status-flip write, and 2–4 additionally share `build.mjs` +
+  `csp.spec.ts` — so sequential is genuinely *required by the write-sets*, and no
+  parallel candidate was missed (nothing can parallelize while every phase writes
+  `docs/SECURITY.md`). All-sequential → no re-entry-verification fields needed;
+  correctly omitted. No change.
+
+**Discovery:**
+- Phase 0 reviewed above under Validation calibration — concrete, answerable,
+  dispositions complete. No change.
+
+**Coherence:**
+- Still solves both goals (write the narrative + implement the primary XSS
+  defense, coupled via in-phase status flips so the doc never overstates the
+  posture). No scope creep — global revoke / dependency-audit / SW hardening
+  remain explicitly out and named as future items. Sizing still ≤ 3 files per
+  phase after the additions (all additions were prose notes + one corrected
+  Documentation Impact bullet; no new files).
+
+**Documentation impact:**
+- `docs/SECURITY.md` is NEW in Phase 1, with README link + DESIGN cross-ref in
+  the same phase; the CSP/SRI status fields are flipped in-phase by Phases 2–4
+  (no trailing docs phase). Corrected one inaccuracy: the section claimed "no doc
+  references" to the touched files, but `docs/PRACTICES.md:11` does reference
+  `scripts/build.mjs` — in a deploy-versioning context unrelated to the
+  HTML/CSP pass, so not made stale. Rewrote the bullet to record the grep result
+  accurately (per the gate: a "grepped — found, not stale" record beats a blanket
+  "none").
+
+**Confirmed ready:** yes — all five open questions previously confirmed by the
+user; no BLOCKING items. Execution starts at Phase 0.
