@@ -1,0 +1,215 @@
+{
+  "_meta": {
+    "purpose": "Researched fun facts for recipes ALREADY on arecipe.bsky.social. Prep only — NOT published; the funFact lexicon field does not exist yet (pending the recipe-model design pass). Apply via a Phase-9-style putRecord op once the field lands.",
+    "account": "arecipe.bsky.social (did:plc:spfl4xaktvvchr2cqp2r2xvp)",
+    "factCheck": "Verified 2026-07-09: sloppy joe, cobb salad, refried-beans mistranslation, barbacoa->barbecue, buffalo wings 1964, chicken tikka masala (UK), butter chicken (Moti Mahal), moussaka (Tselementes 1920s), carbonara (post-WWII Rome). Others from established culinary history; \"Legend says\" used only where grounded and not contradicted.",
+    "count": 41
+  },
+  "funFacts": [
+    {
+      "rkey": "3mq5jqipayd25",
+      "name": "Banana Bread",
+      "funFact": "Banana bread took off in 1930s Depression kitchens — thrift plus the new mass-market baking soda made mashing up overripe bananas irresistible."
+    },
+    {
+      "rkey": "3mq5jqilnnx24",
+      "name": "Sloppy Joes",
+      "funFact": "Commonly credited to a cook named Joe in Sioux City, Iowa in the 1930s, who added tomato sauce to a loose-meat sandwich (a Havana bar owner also claims a version)."
+    },
+    {
+      "rkey": "3mq5jqii7em26",
+      "name": "Coleslaw",
+      "funFact": "The name comes straight from the Dutch 'koolsla' — 'kool' (cabbage) + 'sla' (salad)."
+    },
+    {
+      "rkey": "3mq5jqien552c",
+      "name": "Chili con Carne",
+      "funFact": "Chili is the official state dish of Texas, and a traditional Texas 'bowl of red' contains no beans at all."
+    },
+    {
+      "rkey": "3mq5jqi5eou26",
+      "name": "Caesar Salad",
+      "funFact": "Invented in Tijuana, Mexico in 1924 by Italian immigrant Caesar Cardini — not in Italy, and nothing to do with Julius Caesar."
+    },
+    {
+      "rkey": "3mq5jqhzvee26",
+      "name": "Cobb Salad",
+      "funFact": "Legend says restaurateur Robert Cobb threw it together from Brown Derby fridge leftovers late one night in 1930s Hollywood."
+    },
+    {
+      "rkey": "3mq5jqhsg452s",
+      "name": "Southern Fried Chicken",
+      "funFact": "It blends two traditions: Scottish deep-frying and the seasoning and technique of West African cooks in the American South."
+    },
+    {
+      "rkey": "3mq5jqhoxpw2p",
+      "name": "BBQ Pulled Pork",
+      "funFact": "'Barbecue' itself comes from the Taino word 'barbacoa' — a wooden frame for slow-cooking meat over smoke, seen by Spanish explorers in the Caribbean."
+    },
+    {
+      "rkey": "3mq5jqhlgfs2d",
+      "name": "Mac and Cheese",
+      "funFact": "Thomas Jefferson helped popularize mac and cheese in America, serving it at an 1802 White House dinner after falling for pasta in Europe."
+    },
+    {
+      "rkey": "3mq5jqhhuk52o",
+      "name": "Chilaquiles Rojos",
+      "funFact": "The name is Nahuatl (Aztec) for roughly 'chilis and greens' — and it's a thrifty way to use up day-old tortillas."
+    },
+    {
+      "rkey": "3mq5jqhefry2j",
+      "name": "Huevos Rancheros",
+      "funFact": "The name means 'rancher's eggs' — a hearty mid-morning breakfast served on rural Mexican farms."
+    },
+    {
+      "rkey": "3mq5jqh57iq2g",
+      "name": "Salsa Verde",
+      "funFact": "It's built on the tomatillo, a husk-wrapped fruit the Aztecs cultivated long before the red tomato dominated Mexican kitchens."
+    },
+    {
+      "rkey": "3mq5jqgw25s22",
+      "name": "Birria Tacos",
+      "funFact": "Birria is a celebration stew from Jalisco, traditionally made with goat; the viral crispy 'quesabirria' taco is a much newer U.S. spin."
+    },
+    {
+      "rkey": "3mq5jqgsju222",
+      "name": "Ground Beef Tacos",
+      "funFact": "The crunchy hard-shell taco is largely a U.S. creation — popularized by Glen Bell (Taco Bell) in the 1950s, apart from Mexico's soft corn tortillas."
+    },
+    {
+      "rkey": "3mq5jqgl6xy2f",
+      "name": "Chicken Fajitas",
+      "funFact": "'Fajita' comes from the Spanish 'faja' (strip/belt), for the skirt steak Texas ranch hands originally grilled."
+    },
+    {
+      "rkey": "3mq5jqghkwq2j",
+      "name": "Mexican Rice",
+      "funFact": "In Mexico this tomato-tinted rice is called 'sopa seca' — a 'dry soup' course served before the main dish."
+    },
+    {
+      "rkey": "3mq5jqgacjk2d",
+      "name": "Refried Beans",
+      "funFact": "'Refried' is a mistranslation: 'frijoles refritos' means 'well-fried,' not fried twice — the Spanish 're-' here is emphasis."
+    },
+    {
+      "rkey": "3mq5jqfywyi2f",
+      "name": "Elote",
+      "funFact": "Grilled Mexican street corn celebrates maize, which was domesticated in Mexico roughly 9,000 years ago."
+    },
+    {
+      "rkey": "3mq5jqfvfpi2f",
+      "name": "Pork Tamales",
+      "funFact": "Tamales are pre-Columbian fast food: corn-husk-wrapped parcels the Aztecs and Maya carried to work and made communally for feasts."
+    },
+    {
+      "rkey": "3mq5jqfo5kn2c",
+      "name": "Pozole Rojo",
+      "funFact": "Pozole is built on hominy — corn treated with lime (nixtamalization) — and was a ceremonial dish in Aztec times."
+    },
+    {
+      "rkey": "3mq5jqfkjc62p",
+      "name": "Chicken Enchiladas",
+      "funFact": "Wrapping food in tortillas is ancient Mesoamerican practice: people in the Valley of Mexico ate small fish rolled in tortillas long before Spanish contact."
+    },
+    {
+      "rkey": "3mq5jqfcvgs22",
+      "name": "Cheese Enchiladas",
+      "funFact": "'Enchilada' simply means 'seasoned with chili' — the dish traces back to the corn-tortilla wraps of the Maya and Aztecs."
+    },
+    {
+      "rkey": "3mq5jqf3kkq2f",
+      "name": "Beef Barbacoa",
+      "funFact": "The word 'barbecue' descends from 'barbacoa,' a Taino term for the wooden frame used to slow-cook meat over smoke."
+    },
+    {
+      "rkey": "3mq5jqeu5iv2s",
+      "name": "Carnitas",
+      "funFact": "Carnitas ('little meats') come from Michoacan, where pork is gently confit-cooked in its own fat until tender then crisped."
+    },
+    {
+      "rkey": "3mq5jqeqo7d25",
+      "name": "Pico de Gallo",
+      "funFact": "Its name means 'rooster's beak' in Spanish — nobody's certain why, though eating it pinched between fingers is one theory."
+    },
+    {
+      "rkey": "3mq5jqen2us2d",
+      "name": "Guacamole",
+      "funFact": "The name is Nahuatl: 'ahuacamolli' — 'avocado sauce' — a dish the Aztecs were making centuries ago."
+    },
+    {
+      "rkey": "3mq5is6tnbw26",
+      "name": "Apple Pie",
+      "funFact": "Apple pie isn't American in origin: the earliest recorded recipe is English, c. 1381, with no sugar and a hard 'coffin' crust meant as a baking vessel."
+    },
+    {
+      "rkey": "3mq5is6mad62o",
+      "name": "Classic Meatloaf",
+      "funFact": "Minced-meat loaves date back to Roman cookbooks; the American meatloaf surged during the Depression as a way to stretch a little meat."
+    },
+    {
+      "rkey": "3mq5is6itmt2c",
+      "name": "Crispy Baked Buffalo Wings",
+      "funFact": "Buffalo wings were invented in 1964 at the Anchor Bar in Buffalo, New York, when Teressa Bellissimo fried up wings as a late-night snack."
+    },
+    {
+      "rkey": "3mq5is6bhcd2c",
+      "name": "Tacos al Pastor",
+      "funFact": "'Al pastor' means 'shepherd style' — the spit-roasted pork technique came from Lebanese immigrants' shawarma, adapted with Mexican chilis."
+    },
+    {
+      "rkey": "3mq5is65z5227",
+      "name": "Mango Sticky Rice",
+      "funFact": "Thailand's beloved 'khao niao mamuang' peaks in the hot season, when mangoes are ripe and paired with coconut-soaked glutinous rice."
+    },
+    {
+      "rkey": "3mq5is62got2c",
+      "name": "Chicken Biryani",
+      "funFact": "Biryani descends from Mughal-era layered rice dishes, finished with the sealed-pot 'dum' method that steams meat and rice together."
+    },
+    {
+      "rkey": "3mq5is5wwbx2j",
+      "name": "Chicken Tikka Masala",
+      "funFact": "Widely believed to have been invented in Britain (Glasgow, 1970s); in 2001 a UK foreign secretary called it 'a true British national dish.'"
+    },
+    {
+      "rkey": "3mq5is5pic227",
+      "name": "Butter Chicken",
+      "funFact": "Born at Delhi's Moti Mahal in the 1950s, when cooks simmered leftover tandoori chicken in a buttery tomato gravy to keep it from drying out."
+    },
+    {
+      "rkey": "3mq5is5ibwo2o",
+      "name": "Coq au Vin",
+      "funFact": "The dish was designed to tenderize a tough old rooster ('coq') by long, slow braising in acidic red wine."
+    },
+    {
+      "rkey": "3mq5is5eths27",
+      "name": "Beef Bourguignon",
+      "funFact": "A rustic Burgundy peasant stew for tenderizing tough beef, later elevated to haute cuisine by chef Auguste Escoffier."
+    },
+    {
+      "rkey": "3mq5is55isv2d",
+      "name": "Greek Chicken Souvlaki with Tzatziki",
+      "funFact": "'Souvlaki' means 'little skewer' — Greeks have grilled meat on skewers since antiquity (charred skewer sets survive from the Bronze Age)."
+    },
+    {
+      "rkey": "3mq5is4w7j32c",
+      "name": "Moussaka",
+      "funFact": "The béchamel-topped moussaka Greeks know today was created in the 1920s by French-trained chef Nikolaos Tselementes."
+    },
+    {
+      "rkey": "3mq5is4srz62h",
+      "name": "Spaghetti Carbonara",
+      "funFact": "Carbonara's origin is fiercely debated; the best-supported theory ties it to 1944 Rome, marrying local pasta with American ration bacon and eggs."
+    },
+    {
+      "rkey": "3mq5is4lhxi22",
+      "name": "Pad Thai",
+      "funFact": "Pad Thai was promoted by the Thai government in the 1930s-40s to build national identity and cut rice consumption during hard times."
+    },
+    {
+      "rkey": "3mq3m2skev52f",
+      "name": "Greek Cucumber Tomato Feta Salad",
+      "funFact": "'Horiatiki' means 'village salad' — authentically it has no lettuce and is crowned with a whole slab of feta."
+    }
+  ]
+}
