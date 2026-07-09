@@ -1,7 +1,8 @@
 # Recipe model extensions — alternative versions, multiple fun facts, dual methods
 
-**Status:** Pass 1 (design) — **all open questions resolved 2026-07-09** (see Resolved
-Decisions). No code yet. Worktree `recipe-import-batch`.
+**Status:** Pass 1 resolved + **Phase 0 discovery COMPLETE 2026-07-09** — open-world path
+confirmed live (D1), discovery mechanism + a pagination gap identified (D2), ownership
+confirmed (D3). No feature code yet. Next: Pass 2 or Phase 1. Worktree `recipe-import-batch`.
 
 ## Problem Statement
 
@@ -106,8 +107,14 @@ future TODO behind the open-world probe. Client-only name grouping — fragile; 
 - `exchange.recipe.recipe` record def: `required = [name, text, ingredients, instructions,
   createdAt, updatedAt]`; properties are a fixed set with **no** `funFact(s)`, `methods`,
   `dishKey`, or `variantOf` (read `tests/fixtures/lexicons/exchange.recipe.recipe.json`).
-- The record def does **not** declare `additionalProperties: false` in the fixture — but
-  whether the live PDS *validates* unknown fields on putRecord is **UNVERIFIED** (Phase 0).
+- The record def does **not** declare `additionalProperties: false` in the fixture. **VERIFIED
+  (Phase 0 D1, 2026-07-09):** the live bsky.social PDS accepts unknown fields (`dishKey`,
+  `versionLabel`, `primaryVersion`, `funFacts[]`) on an `exchange.recipe.recipe` createRecord;
+  they survive getRecord byte-identical with matching CID. Open-world path confirmed.
+- **VERIFIED (Phase 0 D2):** `src/recipes/read.ts` already preserves unknown fields (open-world
+  `RecipeValue`); but `createRecipeReader` does a single non-paginated `listRecords` (no
+  `limit`/`cursor`) — only the first ~50 records. Pagination needed for correct sibling
+  discovery once the repo exceeds one page (Phase 4 prereq).
 - `src/pages/recipe.ts` loads a single record by `recipe.html?u=<at-uri>`, cache-first,
   resolves DID→PDS→getRecord, `cache.put`, renders `renderRecipeDetail(entry,{author})`
   (read `recipe.ts`); it has **no** sibling-version discovery today.
@@ -143,26 +150,29 @@ migration is gated on the schema decision (Phase 0/1).
 
 ## Phases
 
-### Phase 0: Discovery (BLOCKING gate for the schema strategy)
+### Phase 0: Discovery (BLOCKING gate for the schema strategy) — COMPLETE 2026-07-09
 **Goal:** Settle the three unknowns that shape every later phase.
-- [ ] **D1: Does the PDS accept extra/unknown fields on `exchange.recipe.recipe`?**
-  - **Probe:** With `.env` creds, `putRecord` a THROWAWAY test record to arecipe.bsky.social
-    carrying `funFacts: [...]`, `dishKey`, and `methods: [...]`; read it back via getRecord;
-    confirm the fields persist and CID verification still passes; then delete the test record.
-  - **Success criteria:** Extra fields survive round-trip and verify → open-world path is
-    viable. Rejected/stripped → fall back to lexicon amendment / permissive nesting.
-  - **Disposition:** `throwaway` (delete the probe record; keep the finding).
-- [ ] **D2: How does the recipe page discover sibling versions?**
-  - **Probe:** Read `recipe.ts` + the Browse feed cache path; confirm whether the browse
-    `CachedRecipe[]` is reachable from the recipe page (session/cache) and whether a
-    `dishKey`-filtered lookup is feasible without excessive fetches.
-  - **Success criteria:** A concrete discovery mechanism (in-memory group, active lookup,
-    or hybrid) chosen and its fetch cost understood.
-  - **Disposition:** `throwaway`.
-- [ ] **D3: Lexicon ownership/strictness.** Confirm from FACTCHECK/ECOSYSTEM whether arecipe
-  may extend `exchange.recipe.*` or must stay open-world. **Disposition:** `throwaway`.
-**Done when:** D1–D3 resolved with firsthand evidence; the schema strategy (open-world vs
-amendment) and discovery mechanism are chosen; later phases updated to match.
+- [x] **D1: Does the PDS accept extra/unknown fields on `exchange.recipe.recipe`?** **YES.**
+  A throwaway record was `createRecord`ed to arecipe.bsky.social carrying `dishKey`,
+  `versionLabel`, `primaryVersion`, and `funFacts` (array of `{text, source?}`). All four
+  survived a `getRecord` round-trip **byte-identical**; `cid` matched create → readback; the
+  probe record was deleted. **Tier 1 (open-world fields) is confirmed viable — no overlay
+  needed.** (Probe: scratchpad `d1-probe.mjs`, disposition `throwaway`, done.)
+- [x] **D2: How do the pages discover sibling versions?** **Client-side `dishKey` grouping
+  over `listRecords`.** `src/recipes/read.ts` is already open-world: `RecipeValue` has
+  `[key: string]: unknown`, `validateRecipeValue` only enforces the required fields, and
+  unknown extras are preserved — so `dishKey`/`funFacts`/`versionLabel` flow through
+  `createRecipeReader`/`createRecordReader` with **zero parser changes**. Cold links use
+  `createRecordReader` (getRecord → one record carrying `dishKey`); `dish.html` then calls
+  `createRecipeReader` and filters by `dishKey`. **GAP FOUND:** `createRecipeReader`
+  (read.ts:64) issues a **single** `listRecords` with **no `limit`/`cursor`** → only the PDS
+  default first page (~50). With ~177 records post-import, siblings on later pages are missed
+  (and `browse.ts` likely already truncates at 50). Pagination is now Phase 4 scope.
+- [x] **D3: Lexicon ownership/strictness.** Confirmed: open-world is already the codebase's
+  established model (read.ts header comment; browse filters read defensively) and D1 proves
+  the PDS tolerates extras. arecipe stays a **consumer** of `exchange.recipe.*`; no amendment.
+**Done when:** ✅ D1–D3 resolved with firsthand evidence; strategy = **open-world fields**,
+discovery = **`dishKey` grouping over paginated `listRecords`**. Later phases updated to match.
 
 ### Phase 1: Schema + shared types
 **Goal:** Lock the field shapes (`dishKey`, `versionLabel`, `funFacts[]` of `{text, source?}`,
@@ -185,6 +195,9 @@ at read time.) **Wiring test:** e2e — a recipe with multiple facts shows the c
 advances. **Validation:** Moderate.
 
 ### Phase 4: Compare-and-pick page (`dish.html`) — PRIMARY version mechanism, main risk
+**Prereq (from D2):** extend `createRecipeReader` (read.ts:64) with **cursor pagination**
+(loop with `limit=100` + `cursor` like `publish-batch.mjs` does) so all of a dish's siblings
+are in the fetched set; a single-page read would silently miss versions past ~50 records.
 **Goal:** New `dish.html?key=<dishKey>` page: discovers a dish's version records by `dishKey`
 (mechanism from D2 — feed grouping / `listRecords` filter over the single repo), lists them
 **side by side** to compare and pick (this is where method-labeled siblings — "Microwave" vs
@@ -248,3 +261,14 @@ to optional Phase 5), and **self-contained records** (denormalized `funFacts[]` 
 tier-2 fallback if the D1 probe fails; publish is pilot-then-bulk. Phases renumbered 0–6;
 Documentation Impact now flags a new `dish.html` page. Ready for Pass 2 (gap analysis) or
 Phase 0 execution.
+
+### Phase 0 execution — 2026-07-09
+Ran all three discovery tasks. **D1:** live createRecord/getRecord/delete probe against
+arecipe.bsky.social proved the PDS accepts open-world extras (`dishKey`, `versionLabel`,
+`primaryVersion`, `funFacts[]`) intact with matching CID — **tier 1 confirmed, overlay
+fallback not needed.** **D2:** `read.ts` already open-world (no parser changes for the new
+fields); discovery = client-side `dishKey` grouping over `listRecords`. Surfaced a real gap —
+`createRecipeReader` doesn't paginate (single ~50-record page), added as a Phase 4 prereq.
+**D3:** ownership confirmed (arecipe is a consumer; open-world, no amendment). All BLOCKING
+unknowns resolved; the plan's schema strategy holds. Next: Pass 2 gap analysis, or begin
+Phase 1 (schema/types).
