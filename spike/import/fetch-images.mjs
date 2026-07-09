@@ -126,7 +126,7 @@ const catalog = [];
 const flush = () => writeFileSync(catalogPath, JSON.stringify(catalog, null, 2));
 
 for (const rec of recs) {
-  const term = searchTerm(rec.name);
+  const term = rec.term ?? searchTerm(rec.name); // per-recipe override wins
   if (isComplete(prior.get(rec.name))) {
     catalog.push(prior.get(rec.name));
     console.log(`${rec.name}  -> reused ${prior.get(rec.name).options.length} images`);
