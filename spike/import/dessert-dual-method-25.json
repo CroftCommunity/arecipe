@@ -7,7 +7,7 @@
       "methods": "methods[] holds the parallel preparation pathways. method.kind = 'rapid' | 'traditional'. This is a SECOND axis of 'alternative' (same recipe, two ways) distinct from cross-source alternative versions (altOf). The combined design pass will decide how both map to the lexicon + a recipe-page switcher.",
       "altOf": "altOf names a beginner-25 (own-batch.json) dish this is an alternative version of, where they are the same dish. Used to build version-flipping. Cousins (different flavor/format) are noted but not linked.",
       "times": "prepTime/cookTime/totalTime are the provided active times (total = prep + thermal). Long chilling/freezing/proofing is captured separately in chillTime and excluded from totalTime.",
-      "funFactCheck": "PENDING — funFacts here come from the source 'Historical Context' sections and are NOT yet fact-checked. Suspect claims to verify before publish: chocolate truffles 'served at Louis XIV banquets'; avocado 'aphrodisiac / 10,000 years'; key lime 'lineage to Malaysia'; sorbet raw-egg-float 'egg trick'; affogato/thermal-physics phrasing. Do NOT publish funFact until fact-checked (same bar as beginner-25) and the storage design lands.",
+      "funFactCheck": "Fact-checked 2026-07-09. The shakiest source claims were already excluded during structuring: chocolate truffles 'Louis XIV banquets' (anachronistic — truffles are ~1890s), avocado 'aphrodisiac/10,000 years', key lime 'Malaysia lineage', and the raw-egg-float sorbet trick. Retained science/history was verified via web: Depression/wacky-cake eggless origin, condensed milk ~60% water removed, chia swells ~12x, agar 2g≈7g gelatin + bromelain breaks gelatin (not agar), key lime pie late-1800s no-bake origin, sucrose caramelizes ~320F. One correction: lemon-curd pith bitterness de-attributed from 'naringin' (a grapefruit compound). 0 discarded — all 25 retain a fun fact. NOTE: funFact still has no PDS field — do not publish the field until the storage design lands.",
       "diet": "Rice Krispie Treats NOT vegetarian (marshmallow gelatin). vegan tagged only where fully plant-based as written (avocado mousse, chia pudding, fruit sorbet). gluten-free tagged for naturally flourless recipes.",
       "images": "No embed images yet — Wikimedia Commons image-compare pass runs before publish."
     },
@@ -526,7 +526,7 @@
       "prepTime": "PT5M",
       "cookTime": "PT5M",
       "totalTime": "PT10M",
-      "funFact": "Use fresh lemon juice, not bottled — bottled lacks the volatile terpenes behind fresh lemon's aroma. Zest only the yellow, not the bitter white pith (high in naringin). Whisking cold butter in off the heat both stops the cooking and emulsifies the curd glossy.",
+      "funFact": "Use fresh lemon juice, not bottled — bottled lacks the volatile terpenes behind fresh lemon's aroma. Zest only the yellow, not the bitter white pith. Whisking cold butter in off the heat both stops the cooking and emulsifies the curd glossy.",
       "reference": { "url": "https://bakingwithbutter.com/how-to-make-lemon-curd/" },
       "attribution": { "type": "website", "name": "Baking with Butter", "url": "https://bakingwithbutter.com/how-to-make-lemon-curd/", "notes": "Method adapted from the source; description rewritten for beginners." },
       "altOf": null
