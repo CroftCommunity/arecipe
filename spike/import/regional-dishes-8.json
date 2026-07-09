@@ -1,0 +1,394 @@
+{
+  "_meta": {
+    "batch": "regional-dishes",
+    "source": "regional-dishes-8.json",
+    "provenance": "Traditional regional/national dishes; tourism/culinary references.",
+    "count": 8,
+    "notes": {
+      "enrichmentPending": "cuisine (where null), diet[], keywords[], prep/cook/total times, and altOf cross-links are NOT yet set — pending an enrichment pass. Fun facts are NOT yet fact-checked.",
+      "stepSegmentation": "instructions were sentence-split from the source prep paragraphs (PDF text has no inline step numbers); wording is faithful but step boundaries are approximate."
+    }
+  },
+  "recipes": [
+    {
+      "name": "Neapolitan Pizza",
+      "dish": "neapolitan-pizza",
+      "serves": "3",
+      "region": "Campania",
+      "country": "Italy",
+      "description": "A classic, thin-crust pizza topped with fresh, simple ingredients, exhibiting the perfect balance of chewy crust and bright tomato acidity.",
+      "ingredients": [
+        "500g Tipo 00 Flour",
+        "325ml Warm Water",
+        "3g Active Dry Yeast",
+        "10g Sea Salt",
+        "200g Canned San Marzano Tomatoes (crushed)",
+        "150g Fresh Mozzarella di Bufala (sliced)",
+        "Fresh Basil Leaves",
+        "Extra Virgin Olive Oil"
+      ],
+      "instructions": [
+        "Dissolve yeast and salt in warm water. Gradually add flour and knead for 15 mins until smooth.",
+        "Divide dough into 3 balls; let rise at room temperature for 8 hours.",
+        "Stretch dough by hand into thin circles, leaving a thicker rim (cornicione).",
+        "Spread crushed tomatoes over dough, top with mozzarella and fresh basil, and drizzle with olive oil.",
+        "Bake in a preheated pizza oven at 900°F (480°C) for 90 seconds, or in a home oven at maximum temperature on a pizza stone for 7-10 minutes."
+      ],
+      "cuisine": "italian",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "regional",
+        "italy"
+      ],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Authentic Neapolitan Pizza is protected by the European Union as a Traditional Speciality Guaranteed (TSG) dish and its art is UNESCO intangible heritage.",
+      "reference": {
+        "url": "https://www.gamberorossointernational.com"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "gamberorossointernational.com",
+        "url": "https://www.gamberorossointernational.com",
+        "notes": "Traditional regional dish; description rewritten. Reference is a culinary/tourism source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Pad Thai",
+      "dish": "pad-thai",
+      "serves": "2",
+      "region": "Central Thailand",
+      "country": "Thailand",
+      "description": "A vibrant, sweet-savory stir-fried rice noodle dish featuring balanced notes of tamarind, fish sauce, and palm sugar, ubiquitous in Thai street food culture.",
+      "ingredients": [
+        "120g Dried Rice Noodles",
+        "100g Firm Tofu or Shrimp",
+        "2 tbsp Tamarind Paste",
+        "2 tbsp Fish Sauce",
+        "1.5 tbsp Palm Sugar",
+        "1 Large Egg",
+        "50g Fresh Bean Sprouts",
+        "20g Garlic Chives (cut into lengths)",
+        "2 tbsp Crushed Roasted Peanuts",
+        "Lime wedges"
+      ],
+      "instructions": [
+        "Soak rice noodles in lukewarm water for 30-45 minutes until pliable but firm.",
+        "Whisk tamarind paste, fish sauce, and palm sugar over low heat to form the sauce base.",
+        "Heat oil in a wok, stir-fry shrimp or tofu until lightly browned.",
+        "Push protein aside, crack egg into wok, and scramble.",
+        "Add drained noodles and tamarind sauce. Stir-fry rapidly until noodles absorb liquid.",
+        "Toss in bean sprouts and garlic chives for 1 minute. Serve hot, garnished with crushed peanuts and lime."
+      ],
+      "cuisine": "thai",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "regional",
+        "thailand"
+      ],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Pad Thai was actively promoted by the Thai government in the 1930s to foster national identity and reduce rice consumption during economic hardships.",
+      "reference": {
+        "url": "https://www.tourismthailand.org"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "tourismthailand.org",
+        "url": "https://www.tourismthailand.org",
+        "notes": "Traditional regional dish; description rewritten. Reference is a culinary/tourism source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Tacos al Pastor",
+      "dish": "tacos-al-pastor",
+      "serves": "5",
+      "region": "Mexico City",
+      "country": "Mexico",
+      "description": "Thinly sliced, marinated pork cooked on a vertical spit, heavily influenced by Lebanese shawarma tradition but local-focused with authentic Mexican spices.",
+      "ingredients": [
+        "1kg Pork Shoulder (sliced thin)",
+        "3 Dried Guajillo Chiles (seeded & softened)",
+        "2 tbsp Achiote Paste",
+        "1/2 cup Fresh Pineapple Juice",
+        "2 tbsp White Vinegar",
+        "1 tsp Dried Oregano",
+        "1 Fresh Pineapple (peeled & sliced)",
+        "Small Corn Tortillas",
+        "Finely chopped cilantro and white onion"
+      ],
+      "instructions": [
+        "Blend guajillo chiles, achiote paste, pineapple juice, vinegar, and oregano into a smooth marinade.",
+        "Coat pork slices in the marinade; cover and refrigerate for at least 4 hours (ideally overnight).",
+        "Layer meat slices closely tightly together to roast. In a home kitchen, sear in a smoking-hot skillet or layer on skewers and roast at 400°F (200°C) until charred.",
+        "Thinly slice the cooked meat.",
+        "Warm corn tortillas, pile on sliced pork, and top with chopped onion, cilantro, and a small wedge of roasted pineapple."
+      ],
+      "cuisine": "mexican",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "regional",
+        "mexico"
+      ],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "The phrase 'Al Pastor' translates literally to 'in the style of the shepherd', nodding to the Lebanese immigrant origins of the cooking method.",
+      "reference": {
+        "url": "https://www.visitmexico.com"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "visitmexico.com",
+        "url": "https://www.visitmexico.com",
+        "notes": "Traditional regional dish; description rewritten. Reference is a culinary/tourism source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Boeuf Bourguignon",
+      "dish": "boeuf-bourguignon",
+      "serves": "6",
+      "region": "Burgundy",
+      "country": "France",
+      "description": "An exemplary, slow-braised French beef stew cooked elegantly in rich red Burgundy wine, beef stock, and aromatic root vegetables.",
+      "ingredients": [
+        "1.5kg Beef Chuck (cut into 2-inch cubes)",
+        "750ml Red Burgundy Wine (Pinot Noir)",
+        "200g Bacon Lardons",
+        "1 Large Yellow Onion (chopped)",
+        "2 Large Carrots (sliced)",
+        "2 tbsp All-Purpose Flour",
+        "500ml Beef Stock",
+        "250g Fresh Mushrooms (halved)",
+        "15 Fresh Pearl Onions",
+        "Herb Bouquet Garni"
+      ],
+      "instructions": [
+        "Crisp bacon lardons in a large Dutch oven; remove and reserve. Brown beef cubes in the rendered bacon fat, then remove.",
+        "Sauté chopped onions and carrots in the remaining fat until soft.",
+        "Return beef to pot, sprinkle with flour, and toss to coat for 2 minutes.",
+        "Pour in wine and beef stock. Add bouquet garni and cooked bacon. Bring to a simmer.",
+        "Cover and braise in a preheated oven at 325°F (160°C) for 2.5 to 3 hours until beef is fork-tender.",
+        "Sauté pearl onions and mushrooms separately; fold into stew 15 minutes before serving."
+      ],
+      "cuisine": "french",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "regional",
+        "france"
+      ],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "What started as a rustic peasant dish to tenderize tough cuts of meat was elevated to haute cuisine by legendary chef Auguste Escoffier in the early 20th century.",
+      "reference": {
+        "url": "https://www.france.fr"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "france.fr",
+        "url": "https://www.france.fr",
+        "notes": "Traditional regional dish; description rewritten. Reference is a culinary/tourism source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Feijoada",
+      "dish": "feijoada",
+      "serves": "8",
+      "region": "Rio de Janeiro",
+      "country": "Brazil",
+      "description": "A deeply flavorful, heavy stew of black beans, pork, and beef, considered the absolute pinnacle of Brazilian comfort food.",
+      "ingredients": [
+        "500g Dry Black Beans",
+        "300g Pork Ribs (cut into pieces)",
+        "200g Carne Seca or Corned Beef (cubed)",
+        "150g Paio or Smoked Spicy Sausage (sliced)",
+        "150g Smoked Bacon (chopped)",
+        "2 Large Onions (finely chopped)",
+        "4 Cloves Garlic (minced)",
+        "3 Bay Leaves",
+        "1 Whole Orange (peeled)"
+      ],
+      "instructions": [
+        "Soak dry black beans and salted meats separately in water overnight. Drain before cooking.",
+        "In a very large heavy pot, combine beans, meats, bay leaves, and the whole orange. Cover completely with water.",
+        "Bring to a boil, then reduce heat to low. Cover and simmer gently for approximately 2 to 2.5 hours until beans are tender.",
+        "In a skillet, fry bacon, then cook chopped onions and garlic until translucent.",
+        "Ladle a cup of beans from the main pot into the skillet, mash them to create a paste, and pour back into the stew to thicken it.",
+        "Simmer uncovered for another 20 minutes. Discard orange and serve with rice."
+      ],
+      "cuisine": "brazilian",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "regional",
+        "brazil"
+      ],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Feijoada is widely celebrated as Brazil's national dish, traditionally eaten at leisure during Saturday afternoons with family.",
+      "reference": {
+        "url": "https://www.visitbrasil.com"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "visitbrasil.com",
+        "url": "https://www.visitbrasil.com",
+        "notes": "Traditional regional dish; description rewritten. Reference is a culinary/tourism source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Hyderabadi Biryani",
+      "dish": "hyderabadi-biryani",
+      "serves": "6",
+      "region": "Telangana",
+      "country": "India",
+      "description": "A regal, highly aromatic rice dish made with long-grain basmati rice and marinated meat, slow-cooked together using the classic sealed 'dum' technique.",
+      "ingredients": [
+        "1kg Long-Grain Basmati Rice",
+        "1kg Chicken or Mutton Pieces",
+        "200g Plain Yogurt",
+        "2 tbsp Ginger-Garlic Paste",
+        "4 Large Onions (sliced and deep-fried until golden)",
+        "1 tsp Saffron Threads (soaked in 1/4 cup warm milk)",
+        "1 cup Mixed Fresh Mint & Cilantro (chopped)",
+        "4 tbsp Ghee (clarified butter)",
+        "Whole Spices (cardamom, cloves, cinnamon, bay leaves)"
+      ],
+      "instructions": [
+        "Marinate meat with yogurt, ginger-garlic paste, half the fried onions, mint, cilantro, and biryani spices for 2+ hours.",
+        "Parboil basmati rice with whole spices until it is only 70% cooked; drain thoroughly.",
+        "In a heavy-bottomed pot, layer the marinated raw meat at the bottom.",
+        "Layer the parboiled rice over the meat. Top with remaining fried onions, chopped herbs, melted ghee, and saffron milk.",
+        "Seal the pot tightly with dough or foil, cover with a heavy lid, and cook on low heat (Dum) for 45 minutes allowing the steam to cook everything perfectly."
+      ],
+      "cuisine": "indian",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "regional",
+        "india"
+      ],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "The historic Nizams of Hyderabad boasted legendary royal kitchens where chefs created nearly 50 distinctive variations using unique meats like quail and deer.",
+      "reference": {
+        "url": "https://www.incredibleindia.org"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "incredibleindia.org",
+        "url": "https://www.incredibleindia.org",
+        "notes": "Traditional regional dish; description rewritten. Reference is a culinary/tourism source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "New England Clam Chowder",
+      "dish": "new-england-clam-chowder",
+      "serves": "4",
+      "region": "New England",
+      "country": "United States",
+      "description": "A thick, velvety, and rich seafood soup featuring tender clams, salty pork, and hearty potatoes in a smooth cream base.",
+      "ingredients": [
+        "400g Canned Chopped Clams (reserve juice)",
+        "150g Salt Pork or Thick Bacon (diced)",
+        "1 Medium Yellow Onion (finely diced)",
+        "2 Large Russet Potatoes (peeled & cubed)",
+        "250ml Heavy Cream",
+        "250ml Reserved Clam Juice / Seafood Stock",
+        "2 tbsp All-Purpose Flour",
+        "2 tbsp Unsalted Butter",
+        "Fresh Thyme & Black Pepper"
+      ],
+      "instructions": [
+        "Render diced bacon/salt pork in a heavy pot until beautifully crisp; remove bacon and set aside.",
+        "Add butter to the fat, then sauté the diced onions until translucent.",
+        "Sprinkle in flour, stirring constantly for 2 minutes to create a smooth roux base.",
+        "Slowly whisk in the reserved clam juice and seafood stock to avoid lumps. Add cubed potatoes and thyme.",
+        "Simmer gently for 15 minutes until potatoes are completely tender.",
+        "Reduce heat to low, stir in chopped clams and heavy cream. Warm through for 5 minutes without boiling. Garnish with bacon."
+      ],
+      "cuisine": "american",
+      "category": "soup",
+      "diet": [],
+      "keywords": [
+        "regional",
+        "united-states"
+      ],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Traditional New England chowder strictly forbids tomatoes. In 1939, a statutory bill was introduced in Maine to make adding tomatoes to clam chowder illegal.",
+      "reference": {
+        "url": "https://www.visitne.com"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "visitne.com",
+        "url": "https://www.visitne.com",
+        "notes": "Traditional regional dish; description rewritten. Reference is a culinary/tourism source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Edomae Sushi",
+      "dish": "edomae-sushi",
+      "serves": "2",
+      "region": "Tokyo (Kanto)",
+      "country": "Japan",
+      "description": "The quintessential style of modern sushi, featuring precisely seasoned vinegared rice topped with fresh, traditionally cured or treated seafood.",
+      "ingredients": [
+        "300g Japanese Short-Grain Rice",
+        "3 tbsp Rice Vinegar",
+        "1.5 tbsp Sugar",
+        "1 tsp Salt",
+        "200g Sushi-Grade Raw Fish (Tuna, Salmon, or Sea Bass)",
+        "Soy Sauce (for serving)",
+        "Wasabi Paste",
+        "Pickled Ginger (Gari)"
+      ],
+      "instructions": [
+        "Rinse rice multiple times until water runs clear; cook in a rice cooker with slightly less water than normal.",
+        "Mix rice vinegar, sugar, and salt over low heat until dissolved. Fold gently into cooked hot rice using a slicing motion; cool to body temp.",
+        "Slice fresh fish at a 45-degree angle into clean, uniform rectangles.",
+        "Wet hands with water-vinegar mix. Shape a small oblong ball of rice (approx. 20g) in your palm.",
+        "Dab a tiny speck of wasabi onto the fish slice, place fish over the rice ball, and press gently with two fingers to mold together perfectly."
+      ],
+      "cuisine": "japanese",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "regional",
+        "japan"
+      ],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Edomae means 'in front of Edo' (old Tokyo). It originated as a quick, portable fast-food option sold from street stalls for busy laborers in the 19th century.",
+      "reference": {
+        "url": "https://www.japan.travel"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "japan.travel",
+        "url": "https://www.japan.travel",
+        "notes": "Traditional regional dish; description rewritten. Reference is a culinary/tourism source."
+      },
+      "altOf": null
+    }
+  ]
+}

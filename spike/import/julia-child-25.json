@@ -1,0 +1,1128 @@
+{
+  "_meta": {
+    "batch": "julia-child",
+    "source": "julia-child-25.json",
+    "provenance": "Adapted homage to Julia Child; French classics, methods rewritten.",
+    "count": 25,
+    "notes": {
+      "enrichmentPending": "cuisine (where null), diet[], keywords[], prep/cook/total times, and altOf cross-links are NOT yet set — pending an enrichment pass. Fun facts are NOT yet fact-checked.",
+      "stepSegmentation": "instructions were sentence-split from the source prep paragraphs (PDF text has no inline step numbers); wording is faithful but step boundaries are approximate."
+    }
+  },
+  "recipes": [
+    {
+      "name": "Boeuf Bourguignon",
+      "dish": "boeuf-bourguignon",
+      "serves": "6",
+      "description": "The quintessential French beef stew, slow-simmered in a full-bodied red wine broth, enriched with smoky bacon lardons, caramelized pearl onions, and golden-sautéed mushrooms.",
+      "ingredients": [
+        "6 slices Thick-cut bacon, sliced into lardons",
+        "3 lbs Beef chuck or stew meat, dried and cut into 2-inch cubes",
+        "1 large Carrot, sliced into rounds",
+        "1 large Yellow onion, sliced",
+        "2 tbsp All-purpose flour",
+        "3 cups Dry red wine (Pinot Noir , Burgundy, or Chianti)",
+        "2 to 3 cups Beef stock, preferably unsalted",
+        "1 tbsp Tomato paste",
+        "2 cloves Garlic, smashed and minced",
+        "1 sprig Fresh thyme (or 1/2 tsp dried)",
+        "1 Bay leaf",
+        "24 small White pearl onions, peeled",
+        "1 lb Fresh white or cremini mushrooms, quartered",
+        "2 tbsp Unsalted butter"
+      ],
+      "instructions": [
+        "Render the bacon lardons in a large, heavy-bottomed Dutch oven over medium heat until crisp and golden brown.",
+        "Remove with a slotted spoon and set aside.",
+        "Pat the beef cubes completely dry with paper towels to ensure a proper sear . Working in small batches to avoid crowding, brown the meat deeply on all sides in the hot bacon fat, then transfer to a plate.",
+        "Toss the sliced carrot and onion into the same pot, sautéing until light brown and softened.",
+        "Return the seared beef and bacon back to the pot.",
+        "Season with a pinch of salt and pepper , then sprinkle the flour evenly over the top.",
+        "Toss gently to coat and cook for 2 minutes over medium- high heat to eliminate the raw flour taste.",
+        "Pour in the red wine and enough beef stock so that the meat is just barely submerged.",
+        "Incorporate the tomato paste, minced garlic, thyme, and bay leaf.",
+        "Bring the liquid to a gentle boil on the stovetop, then cover with a tight lid and place in a preheated oven at 325°F (165°C) for 2.5 to 3 hours, until the beef is wonderfully fork-tender . While the beef cooks, braise the peeled pearl onions in a small skillet with a splash of stock and a knob of butter until tender . In another pan, sauté the mushrooms in butter until browned.",
+        "Stir the warm pearl onions and sautéed mushrooms into the stew just before serving.",
+        "Skim any excess fat from the surface and serve hot."
+      ],
+      "cuisine": "french",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "This was the historic dish featured in the very first episode of Julia Child's groundbreaking television show, 'The French Chef', in 1963.",
+      "reference": {
+        "url": "https://www.pbs.org/food/features/julia-child-boeuf-bourguignon/7.8."
+      },
+      "attribution": {
+        "type": "person",
+        "name": "Julia Child (adapted)",
+        "url": "https://www.pbs.org/food/features/julia-child-boeuf-bourguignon/7.8.",
+        "notes": "Adapted homage to Julia Child; methods rewritten. Reference verifies the classic formula."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Coq au Vin",
+      "dish": "coq-au-vin",
+      "serves": "4 TO 6",
+      "description": "A comforting rustic classic featuring chicken pieces slow-braised in rich red wine with bacon, aromatic vegetables, and a glossy, velvety reduction sauce.",
+      "ingredients": [
+        "3 to 4 lbs Chicken bone-in pieces (thighs, drumsticks, breasts)",
+        "4 oz Thick-cut bacon, cut into strips",
+        "1/4 cup Cognac or brandy (optional)",
+        "3 cups Dry red wine (Burgundy or Pinot Noir)",
+        "2 cups Beef stock",
+        "1 tbsp Tomato paste",
+        "2 cloves Garlic, crushed",
+        "1/2 tsp Thyme",
+        "1 Bay leaf",
+        "12 to 15 Small pearl onions, peeled",
+        "1/2 lb Button mushrooms, halved",
+        "3 tbsp All-purpose flour blended with 2 tbsp softened butter (Beurre Manié)"
+      ],
+      "instructions": [
+        "Sauté the bacon strips in a large skillet or heavy pot until crisp.",
+        "Remove the bacon and set it aside, leaving the rendered fat in the pan.",
+        "Season the chicken pieces with salt and pepper , then sear them thoroughly in the hot bacon fat until the skin turns deep golden brown.",
+        "If using Cognac, pour it over the chicken, carefully ignite with a match, and let the flames subside.",
+        "Pour the red wine and beef stock over the chicken.",
+        "Stir in the tomato paste, crushed garlic, thyme, and bay leaf.",
+        "Bring to a simmer , cover , and cook gently on the stove over low heat for about 30 to 40 minutes.",
+        "In a separate small skillet, lightly brown the pearl onions and mushrooms in a touch of butter until they are tender . Transfer the cooked chicken pieces to a warm platter . Whisk the flour-butter mixture (beurre manié) into the simmering cooking liquid to thicken it into a glossy, smooth sauce.",
+        "Re-incorporate the chicken, bacon, onions, and mushrooms back into the thickened sauce, let it warm through for 5 minutes, and serve."
+      ],
+      "cuisine": "french",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Traditionally, this recipe was invented to tenderize tough, older roosters (coq) by marinating and long-braising them in highly acidic red wine.",
+      "reference": {
+        "url": "https://www.pbs.org/food/recipes/coq-au-vin/"
+      },
+      "attribution": {
+        "type": "person",
+        "name": "Julia Child (adapted)",
+        "url": "https://www.pbs.org/food/recipes/coq-au-vin/",
+        "notes": "Adapted homage to Julia Child; methods rewritten. Reference verifies the classic formula."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Mousse au Chocolat",
+      "dish": "mousse-au-chocolat",
+      "serves": "6",
+      "description": "An incredibly airy yet decadent dessert crafted with high-quality dark chocolate, whipped egg whites, and a touch of strong coffee or orange liqueur .",
+      "ingredients": [
+        "6 oz High-quality semisweet or bittersweet chocolate, chopped",
+        "6 tbsp Unsalted butter , softened",
+        "4 Large eggs, carefully separated",
+        "3/4 cup Granulated sugar , divided",
+        "2 tbsp Strong brewed coffee or dark rum",
+        "1 pinch Salt"
+      ],
+      "instructions": [
+        "Melt the chopped chocolate and coffee together in a heatproof bowl set over a pot of barely simmering water (a double boiler), stirring until uniform.",
+        "Remove from heat and beat in the softened butter one tablespoon at a time.",
+        "Whisk the egg yolks with 1/2 cup of the granulated sugar until the mixture becomes pale yellow, thick, and forms a ribbon when lifted.",
+        "Gently fold the warm melted chocolate mixture into the beaten egg yolks until fully integrated.",
+        "In a separate clean bowl, whip the egg whites with a pinch of salt until they form soft peaks.",
+        "Gradually sprinkle in the remaining 1/4 cup of sugar , continuing to whip until stiff, glossy peaks form.",
+        "Stir one-quarter of the whipped egg whites directly into the chocolate base to lighten its texture.",
+        "With a delicate hand, fold the remaining egg whites into the chocolate mixture using a rubber spatula just until no white streaks remain.",
+        "Pour into serving glasses and chill for at least 4 hours before serving."
+      ],
+      "cuisine": "french",
+      "category": "dessert",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Julia's secret to the perfect texture was whipping the egg yolks thoroughly with sugar until they reached the 'ribbon stage' before adding any chocolate.",
+      "reference": {
+        "url": "https://www.nytimes.com/recipes/1014542/julia-childs-chocolate-mousse.html1.2.3.4.5.6."
+      },
+      "attribution": {
+        "type": "person",
+        "name": "Julia Child (adapted)",
+        "url": "https://www.nytimes.com/recipes/1014542/julia-childs-chocolate-mousse.html1.2.3.4.5.6.",
+        "notes": "Adapted homage to Julia Child; methods rewritten. Reference verifies the classic formula."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Soupe à l'Oignon",
+      "dish": "soupe-l-oignon",
+      "serves": "4 TO 6",
+      "description": "A deeply flavorful soup built on a foundation of heavily caramelized onions, rich beef broth, and crunchy croutons blanketed in melted, bubbly Gruyère.",
+      "ingredients": [
+        "1.5 lbs Yellow onions, thinly sliced (about 5-6 cups)",
+        "3 tbsp Unsalted butter",
+        "1 tbsp Olive oil",
+        "1/2 tsp Sugar",
+        "1 tbsp All-purpose flour",
+        "6 cups High-quality beef stock",
+        "1/2 cup Dry white wine or dry vermouth",
+        "1 slice per bowl Hard French bread or baguette, toasted",
+        "1.5 cups Gruyère cheese, grated"
+      ],
+      "instructions": [
+        "Melt the butter and oil together in a large, heavy soup pot.",
+        "Add the sliced onions and cook over low heat for 15 minutes with the lid on to soften them.",
+        "Remove the lid, stir in the sugar , and turn the heat up slightly to medium.",
+        "Cook for an additional 30 to 40 minutes, stirring frequently, until the onions turn a rich, deep mahogany brown.",
+        "Sprinkle the flour over the caramelized onions and stir constantly for 2 minutes to cook the starch.",
+        "Slowly pour in the dry white wine followed by the beef stock, scraping up any delicious browned bits stuck to the bottom of the pot.",
+        "Bring to a simmer and cook uncovered for 30 minutes.",
+        "Taste and adjust seasoning with salt and pepper . Ladle the soup into oven-safe ceramic bowls.",
+        "Float a slice of toasted French bread on top of each bowl, cover generously with the grated Gruyère cheese, and place under a preheated broiler until the cheese is melted, golden, and bubbling."
+      ],
+      "cuisine": "french",
+      "category": "soup",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "The slow caramelization process converts the onions' natural starches into sugars, which is why patience is vital—rushing this step spoils the deep flavor base.",
+      "reference": {
+        "url": "https://www.food.com/recipe/julia-childs-french-onion-soup-soupe-loignon-gratin-ee-2321441.2.3.4.5.6."
+      },
+      "attribution": {
+        "type": "person",
+        "name": "Julia Child (adapted)",
+        "url": "https://www.food.com/recipe/julia-childs-french-onion-soup-soupe-loignon-gratin-ee-2321441.2.3.4.5.6.",
+        "notes": "Adapted homage to Julia Child; methods rewritten. Reference verifies the classic formula."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Quiche Lorraine",
+      "dish": "quiche-lorraine",
+      "serves": "6",
+      "description": "A delicate, silky egg custard rich with heavy cream, savory bacon lardons, and a hint of nutmeg, baked in a flaky, crisp pastry crust.",
+      "ingredients": [
+        "1 9-inch unbaked pastry crust shell, par-baked",
+        "6 oz Thick-cut bacon, diced",
+        "3 Large eggs",
+        "1.5 cups Heavy cream or half-and-half",
+        "1/2 tsp Salt",
+        "1 pinch Ground nutmeg",
+        "1 pinch White pepper",
+        "1 cup Gruyère or Swiss cheese, shredded (optional)"
+      ],
+      "instructions": [
+        "Preheat the oven to 375°F (190°C).",
+        "Sauté the diced bacon in a skillet over medium heat until cooked through but not completely shattered-crisp.",
+        "Drain on paper towels.",
+        "Scatter the cooked bacon (and shredded cheese, if using) evenly along the bottom of the pre-baked pastry shell.",
+        "In a mixing bowl, vigorously whisk together the eggs, heavy cream, salt, nutmeg, and white pepper until completely uniform and light.",
+        "Carefully pour the liquid custard mixture into the pastry shell over the bacon layer . Place the quiche in the center of the oven and bake for 30 to 35 minutes, until the custard has puffed up, turned golden on top, and only wobbles slightly in the very center when shaken.",
+        "Allow the quiche to cool for 10 minutes before slicing to let the custard set properly.",
+        "Serve warm or at room temperature."
+      ],
+      "cuisine": "french",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Authentic, original regional recipes for Quiche Lorraine from northeastern France did not contain any cheese at all—only heavy cream, eggs, and smoked pork bacon.",
+      "reference": {
+        "url": "https://www.marthastewart.com/318534/quiche-lorraine1.2.3.4.5.6."
+      },
+      "attribution": {
+        "type": "person",
+        "name": "Julia Child (adapted)",
+        "url": "https://www.marthastewart.com/318534/quiche-lorraine1.2.3.4.5.6.",
+        "notes": "Adapted homage to Julia Child; methods rewritten. Reference verifies the classic formula."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Sole Meunière",
+      "dish": "sole-meuni-re",
+      "serves": "2",
+      "description": "A masterclass in elegant simplicity: delicate flatfish fillets lightly dredged in flour , pan-fried in butter , and finished with a bright brown butter and lemon sauce.",
+      "ingredients": [
+        "2 large Dover sole fillets (or other delicate white fish like petrale sole)",
+        "1/2 cup All-purpose flour , for dredging",
+        "4 tbsp Unsalted butter , divided",
+        "1 tbsp Fresh lemon juice",
+        "2 tbsp Fresh flat-leaf parsley, finely chopped",
+        "To taste Salt and freshly ground black pepper"
+      ],
+      "instructions": [
+        "Thoroughly pat the fish fillets dry with paper towels.",
+        "Season both sides of the fish evenly with salt and pepper . Spread the flour onto a wide plate.",
+        "Gently dredge each fillet through the flour , shaking off any excess so only a very thin, translucent coating remains.",
+        "Melt 2 tablespoons of the butter in a wide, heavy skillet over medium-high heat.",
+        "Wait until the foam subsides and the butter is hot but not smoking.",
+        "Lay the fillets into the skillet.",
+        "Cook for 2 to 3 minutes per side, turning carefully with a fish spatula, until the crust is golden and the flesh flakes easily.",
+        "Transfer the cooked fish to a warm serving platter and scatter the fresh parsley over the top.",
+        "Wipe the skillet out quickly, add the remaining 2 tablespoons of butter , and heat until it foams and turns a nutty golden-brown color . Immediately stir in the lemon juice and pour this sizzling brown butter sauce directly over the fish."
+      ],
+      "cuisine": "french",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "This exact dish was Julia Child's very first meal upon arriving in France in 1948. She later described it as 'an culinary revelation' that altered the course of her entire life.",
+      "reference": {
+        "url": "https://www.nytimes.com/2006/05/17/dining/17appe.html1.2.3.4.5.6."
+      },
+      "attribution": {
+        "type": "person",
+        "name": "Julia Child (adapted)",
+        "url": "https://www.nytimes.com/2006/05/17/dining/17appe.html1.2.3.4.5.6.",
+        "notes": "Adapted homage to Julia Child; methods rewritten. Reference verifies the classic formula."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Ratatouille",
+      "dish": "ratatouille",
+      "serves": "6",
+      "description": "A vibrant summer medley of eggplant, zucchini, peppers, and tomatoes, cooked independently to preserve their distinct textures before being combined into a harmonious stew.",
+      "ingredients": [
+        "1 lb Eggplant, sliced into rounds or batons",
+        "1 lb Zucchini, sliced",
+        "1 tsp Salt, plus more to taste",
+        "4 tbsp Olive oil, divided",
+        "1 large Yellow onion, sliced",
+        "2 Bell peppers (one red, one green), sliced into strips",
+        "2 cloves Garlic, minced",
+        "1 lb Ripe tomatoes, peeled, seeded, and chopped",
+        "3 tbsp Fresh parsley and basil, chopped"
+      ],
+      "instructions": [
+        "Toss the sliced eggplant and zucchini with a teaspoon of salt and let them sit in a colander for 20 minutes to draw out excess moisture.",
+        "Pat completely dry with a towel.",
+        "Heat 2 tablespoons of olive oil in a skillet.",
+        "Sauté the eggplant and zucchini slices in batches until lightly browned on both sides, then remove and set aside.",
+        "Add another tablespoon of oil to the pan and sauté the onions and bell peppers for about 10 minutes until soft.",
+        "Stir in the minced garlic and season with salt.",
+        "Lay the chopped tomato flesh over the onions and peppers.",
+        "Cover and cook over low heat for 5 minutes until the tomatoes begin to break down into a sauce.",
+        "Uncover and cook for another 5 minutes to reduce the liquid, then stir in the cooked eggplant and zucchini.",
+        "Simmer everything together gently over low heat for 15 to 20 minutes so the flavors marry together without turning the vegetables into mush.",
+        "Stir in the fresh herbs before serving."
+      ],
+      "cuisine": "french",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Julia stressed cooking the vegetables separately first because dumping them all into a pot at once steams them, resulting in a soggy, waterlogged texture.",
+      "reference": {
+        "url": "https://food52.com/recipes/14105-julia-child-s-ratatouille1.2.3.4.5.6."
+      },
+      "attribution": {
+        "type": "person",
+        "name": "Julia Child (adapted)",
+        "url": "https://food52.com/recipes/14105-julia-child-s-ratatouille1.2.3.4.5.6.",
+        "notes": "Adapted homage to Julia Child; methods rewritten. Reference verifies the classic formula."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Gratin Dauphinois",
+      "dish": "gratin-dauphinois",
+      "serves": "6",
+      "description": "Thinly sliced potatoes baked slowly in a seasoned bath of milk, heavy cream, and garlic, resulting in a rich, velvety side dish with a golden crust.",
+      "ingredients": [
+        "2 lbs Russet or Yukon Gold potatoes, peeled",
+        "1 clove Garlic, cut in half",
+        "2 tbsp Unsalted butter",
+        "1 cup Heavy cream",
+        "1 cup Whole milk",
+        "1 tsp Salt",
+        "1/4 tsp Ground nutmeg",
+        "1 cup Gruyère cheese, shredded"
+      ],
+      "instructions": [
+        "Preheat the oven to 375°F (190°C).",
+        "Slice the peeled potatoes very thinly (about 1/8-inch thick) using a mandoline or a sharp chef's knife.",
+        "Do not rinse them; the starch helps thicken the cream.",
+        "Rub the inside of a shallow baking dish vigorously with the cut sides of the garlic clove, then grease the dish generously with one tablespoon of the butter . In a saucepan, combine the milk, heavy cream, salt, pepper , and ground nutmeg.",
+        "Bring to a bare simmer . Arrange one-third of the potato slices in overlapping layers along the bottom of the prepared dish.",
+        "Pour a third of the warm cream mixture over them and sprinkle with a third of the cheese.",
+        "Repeat the layers twice more, finishing with a generous layer of cheese and dotting the remaining butter across the top.",
+        "Bake in the preheated oven for 50 to 60 minutes, until the potatoes are tender when pierced with a knife and the top is a deep, bubbling golden brown."
+      ],
+      "cuisine": "french",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "While traditionalists from the Dauphiné region argue that real gratin contains no cheese at all, Julia championed adding Gruyère for an American palate.",
+      "reference": {
+        "url": "https://www.epicurious.com/recipes/food/views/gratin-dauphinois-3652131.2.3.4.5.6."
+      },
+      "attribution": {
+        "type": "person",
+        "name": "Julia Child (adapted)",
+        "url": "https://www.epicurious.com/recipes/food/views/gratin-dauphinois-3652131.2.3.4.5.6.",
+        "notes": "Adapted homage to Julia Child; methods rewritten. Reference verifies the classic formula."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Clafoutis aux Cerises",
+      "dish": "clafoutis-aux-cerises",
+      "serves": "6",
+      "description": "A rustic, elegant French dessert consisting of sweet dark cherries blanketed in a smooth, pancake-like batter that bakes into a warm, puffy custard.",
+      "ingredients": [
+        "1.25 cups Whole milk",
+        "1/3 cup Granulated sugar",
+        "3 Large eggs",
+        "1 tbsp Vanilla extract",
+        "1/8 tsp Almond extract",
+        "1/2 cup All-purpose flour",
+        "3 cups Fresh sweet black cherries, pitted",
+        "Powdered sugar For dusting"
+      ],
+      "instructions": [
+        "Preheat your oven to 350°F (175°C) and grease a 9-inch round baking dish or pie pan with butter . In a blender , combine the milk, eggs, sugar , flour , vanilla extract, and almond extract.",
+        "Blend at high speed for 1 minute until completely smooth and frothy.",
+        "Pour a thin layer of the batter (about 1/4 inch) into the bottom of the greased baking dish.",
+        "Place the dish on a hot stovetop burner for 1 to 2 minutes until a film of batter sets at the bottom, then remove from heat.",
+        "Spread the sweet cherries evenly over this set layer of batter . Pour the remaining liquid batter carefully over the top of the cherries.",
+        "Bake in the center of the oven for 45 to 50 minutes until the clafoutis is puffed up, golden brown around the edges, and a toothpick inserted into the custard center comes out clean.",
+        "Dust with powdered sugar and serve warm."
+      ],
+      "cuisine": "french",
+      "category": "dessert",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "In traditional French country style, the cherries are left unpitted because the pits contain amygdalin, which releases a subtle, almond-like aroma during baking.",
+      "reference": {
+        "url": "https://www.splendidtable.org/story/2014/05/16/julia-childs-berry-clafoutis1.2.3.4.5.6."
+      },
+      "attribution": {
+        "type": "person",
+        "name": "Julia Child (adapted)",
+        "url": "https://www.splendidtable.org/story/2014/05/16/julia-childs-berry-clafoutis1.2.3.4.5.6.",
+        "notes": "Adapted homage to Julia Child; methods rewritten. Reference verifies the classic formula."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Tarte Tatin",
+      "dish": "tarte-tatin",
+      "serves": "8",
+      "description": "A legendary dessert featuring firm apples caramelized deeply in butter and sugar , baked underneath a pastry lid, and inverted dramatically while hot.",
+      "ingredients": [
+        "6 to 8 Large, firm apples (like Granny Smith or Golden Delicious), peeled and quartered",
+        "6 tbsp Unsalted butter , softened",
+        "1 cup Granulated sugar",
+        "1 sheet Puff pastry, rolled into a 10-inch circle"
+      ],
+      "instructions": [
+        "Spread the softened butter thickly over the bottom of a heavy, oven-safe 9-inch skillet or Tarte Tatin pan.",
+        "Sprinkle the granulated sugar evenly over the butter . Pack the apple quarters tightly into the skillet, standing them up on their sides in concentric circles.",
+        "They will shrink as they cook, so crowd them together as much as possible.",
+        "Place the skillet over medium heat on the stovetop.",
+        "Cook un-stirred for 20 to 25 minutes, allowing the butter and sugar to bubble and transform into a rich, amber-colored caramel liquid.",
+        "Remove the skillet from the heat and let it cool for 10 minutes.",
+        "Preheat your oven to 400°F (200°C).",
+        "Drape the circle of puff pastry carefully over the top of the caramelized apples, tucking the excess edges down inside the rim of the skillet.",
+        "Bake for 25 to 30 minutes until the pastry is crisp and deeply golden.",
+        "Let cool for 5 minutes, then place a large serving plate over the skillet and confidently invert it to release the tart."
+      ],
+      "cuisine": "french",
+      "category": "dessert",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "This famous dessert was created by accident at the Hotel Tatin in France when Stephanie Tatin overcooked apples and tried to rescue them by slapping pastry on top.",
+      "reference": {
+        "url": "https://www.foodandwine.com/recipes/tarte-tatin1.2.3.4.5.6."
+      },
+      "attribution": {
+        "type": "person",
+        "name": "Julia Child (adapted)",
+        "url": "https://www.foodandwine.com/recipes/tarte-tatin1.2.3.4.5.6.",
+        "notes": "Adapted homage to Julia Child; methods rewritten. Reference verifies the classic formula."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Poulet Rôti",
+      "dish": "poulet-r-ti",
+      "serves": "4",
+      "description": "The golden standard of home cooking: a whole roasted chicken with crisp, buttery skin and exceptionally juicy flesh, seasoned simply with salt and herbs.",
+      "ingredients": [
+        "1 whole Roaster chicken (about 3.5 to 4 lbs)",
+        "3 tbsp Unsalted butter , softened",
+        "1 tsp Salt",
+        "3 sprigs Fresh thyme",
+        "1 small Yellow onion, quartered",
+        "1 small Carrot, chopped"
+      ],
+      "instructions": [
+        "Preheat the oven to 425°F (220°C).",
+        "Thoroughly pat the inside and outside of the chicken dry with paper towels to ensure crisp skin.",
+        "Season the interior cavity with salt, then stuff it with the quartered onion and fresh thyme sprigs.",
+        "Truss the chicken snugly with kitchen twine to ensure even cooking.",
+        "Rub the exterior skin of the chicken entirely with the softened butter , and season generously with salt and pepper . Place the chicken breast-side up on a rack inside a roasting pan, scattering the chopped carrot and any remaining onion around the bottom of the pan.",
+        "Roast the chicken, turning it occasionally onto its sides if following classic technique, or leave breast-side up, basting every 20 minutes with the pan juices.",
+        "Bake for roughly 1 hour and 15 minutes, or until the internal temperature of the thigh reads 165°F (74°C) and the juices run clear . Let rest for 15 minutes before carving."
+      ],
+      "cuisine": "french",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Julia believed you could judge the quality of a chef or a restaurant based solely on the execution of their simple roast chicken.",
+      "reference": {
+        "url": "https://www.epicurious.com/recipes/food/views/roast-chicken-1031311.2.3.4.5.6."
+      },
+      "attribution": {
+        "type": "person",
+        "name": "Julia Child (adapted)",
+        "url": "https://www.epicurious.com/recipes/food/views/roast-chicken-1031311.2.3.4.5.6.",
+        "notes": "Adapted homage to Julia Child; methods rewritten. Reference verifies the classic formula."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Salade Niçoise",
+      "dish": "salade-ni-oise",
+      "serves": "4",
+      "description": "A beautifully arranged, vibrant main course salad featuring tender potatoes, crisp green beans, hard-boiled eggs, and oil-packed tuna, all dressed in a sharp dijon vinaigrette.",
+      "ingredients": [
+        "1 head Boston or butter lettuce, washed and dried",
+        "2 cans High-quality tuna packed in olive oil, drained",
+        "3 Hard-boiled eggs, quartered",
+        "1/2 lb Small red potatoes, boiled and sliced",
+        "1/4 lb Green beans (haricots verts), blanched",
+        "2 medium Ripe tomatoes, cut into wedges",
+        "1/4 cup Niçoise olives",
+        "6 to 8 Anchovy fillets (optional)",
+        "1/2 cup Olive oil blended with 2 tbsp red wine vinegar and 1 tsp Dijon mustard"
+      ],
+      "instructions": [
+        "Whisk the olive oil, red wine vinegar , Dijon mustard, salt, and pepper together in a small bowl to create the vinaigrette.",
+        "Toss the sliced, cooked potatoes and blanched green beans separately in a spoonful of the vinaigrette while they are still warm to maximize flavor absorption.",
+        "Line a large, shallow serving platter with the crisp leaves of Boston lettuce.",
+        "Artfully arrange the ingredients in separate sections or rows over the lettuce base: clusters of potatoes, green beans, tomato wedges, quartered eggs, and chunks of oil-packed tuna.",
+        "Garnish the top of the platter with the small black Niçoise olives and optional anchovy fillets.",
+        "Drizzle the remaining vinaigrette over the entire assembled platter just before presenting to your guests."
+      ],
+      "cuisine": "french",
+      "category": "salad",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "A true Niçoise salad is traditionally 'composed' (arranged neatly in sections on a platter) rather than tossed together in a chaotic bowl.",
+      "reference": {
+        "url": "https://www.foodnetwork.com/recipes/claire-robinson/salade-nicoise-recipe-19236401.2.3.4.5.6."
+      },
+      "attribution": {
+        "type": "person",
+        "name": "Julia Child (adapted)",
+        "url": "https://www.foodnetwork.com/recipes/claire-robinson/salade-nicoise-recipe-19236401.2.3.4.5.6.",
+        "notes": "Adapted homage to Julia Child; methods rewritten. Reference verifies the classic formula."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Crêpes Suzette",
+      "dish": "cr-pes-suzette",
+      "serves": "4",
+      "description": "Paper-thin French pancakes folded and simmered in a luxurious sauce of caramelized sugar , orange juice, and butter , spectacularly flambéed with Grand Marnier .",
+      "ingredients": [
+        "12 Pre-made thin sweet crêpes",
+        "6 tbsp Unsalted butter",
+        "1/4 cup Granulated sugar",
+        "1 tbsp Fresh orange zest",
+        "1/2 cup Freshly squeezed orange juice",
+        "3 tbsp Grand Marnier or Triple Sec",
+        "2 tbsp Cognac or Brandy"
+      ],
+      "instructions": [
+        "Melt the butter in a wide skillet or flambé pan over medium heat.",
+        "Add the sugar and orange zest, stirring until the sugar melts and begins to lightly caramelize.",
+        "Pour in the fresh orange juice and simmer for 2 minutes to create a smooth, bubbling, aromatic syrup.",
+        "Take one crêpe at a time, lay it into the hot syrup to coat, then fold it in half and in half again to form a triangle.",
+        "Push it to the side of the pan and repeat with the remaining crêpes.",
+        "Pour the Grand Marnier and Cognac over the folded crêpes in the pan.",
+        "Let it warm through for 10 seconds without stirring.",
+        "Carefully tilt the pan away from you and ignite the alcohol vapors with a long match or lighter . Gently swirl the pan as the blue flames burn off, spooning the flaming sauce over the crêpes until the fire extinguishes naturally.",
+        "Serve immediately while roaring hot."
+      ],
+      "cuisine": "french",
+      "category": "dessert",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "This dramatic dessert was allegedly created by mistake in 1895 when a young waiter accidentally set fire to a dessert he was preparing for the Prince of Wales.",
+      "reference": {
+        "url": "https://www.bbc.co.uk/food/recipes/crepes_suzette_603811.2.3.4.5.6."
+      },
+      "attribution": {
+        "type": "person",
+        "name": "Julia Child (adapted)",
+        "url": "https://www.bbc.co.uk/food/recipes/crepes_suzette_603811.2.3.4.5.6.",
+        "notes": "Adapted homage to Julia Child; methods rewritten. Reference verifies the classic formula."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Soufflé au Fromage",
+      "dish": "souffl-au-fromage",
+      "serves": "4",
+      "description": "The ultimate test of kitchen technique: a dramatic, sky-high baked masterpiece with a golden crust and a light, airy center flavored with sharp cheese.",
+      "ingredients": [
+        "3 tbsp Unsalted butter , plus more for coating",
+        "3 tbsp All-purpose flour",
+        "1 cup Hot whole milk",
+        "4 large Egg yolks",
+        "5 large Egg whites",
+        "1 cup Gruyère or sharp Cheddar cheese, finely grated",
+        "1/4 tsp Salt and a pinch of cayenne pepper",
+        "2 tbsp Grated Parmesan cheese"
+      ],
+      "instructions": [
+        "Preheat the oven to 400°F (200°C).",
+        "Butter a 6-cup soufflé dish thoroughly, coating it up to the very rim.",
+        "Sprinkle the Parmesan cheese inside, swirling to coat the bottom and sides completely.",
+        "Melt 3 tablespoons of butter in a saucepan over medium heat.",
+        "Whisk in the flour and cook for 1 minute without browning to form a roux.",
+        "Slowly pour in the hot milk while whisking constantly.",
+        "Cook until the mixture thickens into a dense, smooth white sauce (Béchamel).",
+        "Remove from heat and season with salt, pepper , and cayenne.",
+        "Whisk the egg yolks into the warm sauce one at a time, blending thoroughly.",
+        "Stir in the finely grated Gruyère cheese.",
+        "In a pristine bowl, whip the egg whites until they form stiff, upright peaks.",
+        "Stir a quarter of the egg whites into the cheese base to loosen it.",
+        "Carefully fold in the remaining whites using a rubber spatula.",
+        "Pour into the dish, lower oven heat to 375°F (190°C), and bake for 30 minutes without opening the door ."
+      ],
+      "cuisine": "french",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Julia famously assured anxious home cooks that a soufflé doesn't fall from bad luck—it falls because the oven door was opened too early, letting cold air collapse the air pockets.",
+      "reference": {
+        "url": "https://www.foodnetwork.com/recipes/classic-cheese-souffle-36446181.2.3.4.5.6."
+      },
+      "attribution": {
+        "type": "person",
+        "name": "Julia Child (adapted)",
+        "url": "https://www.foodnetwork.com/recipes/classic-cheese-souffle-36446181.2.3.4.5.6.",
+        "notes": "Adapted homage to Julia Child; methods rewritten. Reference verifies the classic formula."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Bouillabaisse",
+      "dish": "bouillabaisse",
+      "serves": "6",
+      "description": "A complex, aromatic fisherman's stew from Marseille, featuring assorted fish and shellfish simmered in a rich broth spiced with saffron, fennel, and orange peel.",
+      "ingredients": [
+        "3 lbs Assorted firm and delicate fish fillets (cod, halibut, red snapper , sea bass)",
+        "1 lb Shellfish (shrimp, mussels, clams, cleaned)",
+        "1/4 cup Olive oil",
+        "1 cup Leeks, white parts sliced",
+        "1 cup Yellow onion, chopped",
+        "2 cloves Garlic, crushed",
+        "2 large Tomatoes, chopped",
+        "1 strip Dried orange peel",
+        "1/2 tsp Saffron threads",
+        "1/2 tsp Fennel seeds",
+        "6 cups Fish stock or water"
+      ],
+      "instructions": [
+        "Heat the olive oil in a very large, deep pot.",
+        "Sauté the sliced leeks, onions, and crushed garlic over medium heat until softened and aromatic.",
+        "Add the chopped tomatoes, orange peel strip, saffron threads, fennel seeds, and fish stock to the pot.",
+        "Bring to a rolling boil and cook for 15 minutes to emulsify the oil and stock.",
+        "Add the thickest, firmest pieces of fish (like halibut or snapper) to the boiling broth first, as they require more time.",
+        "After 5 minutes, add the more delicate fish fillets along with the cleaned shrimp, mussels, and clams.",
+        "Boil rapidly for another 5 to 7 minutes until the fish flakes easily and the clam and mussel shells pop wide open.",
+        "Discard any shells that fail to open.",
+        "Serve the hot seafood and broth accompanied by slices of toasted baguette slathered in spicy garlic-saffron mayonnaise (rouille)."
+      ],
+      "cuisine": "french",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Authentic Bouillabaisse must be boiled rapidly rather than simmered; the fierce boiling action forces the olive oil and water to emulsify into a unified broth.",
+      "reference": {
+        "url": "https://www.simplyrecipes.com/recipes/bouillabaisse/1.2.3.4.5.6."
+      },
+      "attribution": {
+        "type": "person",
+        "name": "Julia Child (adapted)",
+        "url": "https://www.simplyrecipes.com/recipes/bouillabaisse/1.2.3.4.5.6.",
+        "notes": "Adapted homage to Julia Child; methods rewritten. Reference verifies the classic formula."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Vichyssoise",
+      "dish": "vichyssoise",
+      "serves": "6",
+      "description": "An incredibly smooth, elegant, and refreshing cold soup made from pureed leeks and potatoes, enriched with heavy cream and fresh chives.",
+      "ingredients": [
+        "3 cups Leeks, white and pale green parts only, sliced",
+        "3 cups Russet potatoes, peeled and diced",
+        "4 cups Chicken stock or vegetable broth",
+        "1 tsp Salt",
+        "1 cup Heavy cream",
+        "3 tbsp Fresh chives, finely minced"
+      ],
+      "instructions": [
+        "In a large saucepan, combine the sliced leeks, diced potatoes, chicken stock, and salt.",
+        "Bring the liquid to a boil over high heat.",
+        "Reduce the heat to low, cover the pot, and let it simmer gently for 20 to 25 minutes until the potatoes are completely tender and break apart easily.",
+        "Remove the soup from the heat and allow it to cool slightly.",
+        "Puree the soup using an immersion blender , or transfer it in batches to a stand blender , processing until completely silky and smooth with no lumps remaining.",
+        "Stir in the heavy cream.",
+        "Pour the soup into a container , cover , and refrigerate for at least 4 hours, or until thoroughly chilled.",
+        "Taste the chilled soup and add extra salt if needed (cold dulls flavor perception).",
+        "Serve in chilled bowls garnished with a generous sprinkle of minced chives."
+      ],
+      "cuisine": "french",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Although it sounds strictly French, this cold variant was actually invented in New York City in 1917 by a French chef at the Ritz-Carlton who missed his mother's warm soup.",
+      "reference": {
+        "url": "https://www.tasteofhome.com/recipes/classic-vichyssoise/1.2.3.4.5.6."
+      },
+      "attribution": {
+        "type": "person",
+        "name": "Julia Child (adapted)",
+        "url": "https://www.tasteofhome.com/recipes/classic-vichyssoise/1.2.3.4.5.6.",
+        "notes": "Adapted homage to Julia Child; methods rewritten. Reference verifies the classic formula."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Reine de Saba",
+      "dish": "reine-de-saba",
+      "serves": "8",
+      "description": "A magnificent, dense chocolate cake with a velvety, slightly underbaked interior , flavored with pulverized almonds and a splash of rum.",
+      "ingredients": [
+        "4 oz Semisweet baking chocolate, chopped",
+        "2 tbsp Rum or strong coffee",
+        "1/2 cup Unsalted butter , softened",
+        "1/2 cup Granulated sugar",
+        "3 Large eggs, separated",
+        "1/3 cup Blanched almonds, ground into a fine flour",
+        "1/2 cup Cake flour , sifted"
+      ],
+      "instructions": [
+        "Preheat the oven to 350°F (175°C).",
+        "Butter and flour an 8-inch round cake pan.",
+        "Melt the chocolate and rum together over a double boiler , stirring until smooth.",
+        "In a large bowl, cream the softened butter and sugar together until light, fluffy, and pale.",
+        "Beat the egg yolks into the creamed butter mixture one at a time.",
+        "Then, fold in the warm melted chocolate followed by the finely ground almonds.",
+        "Whip the egg whites in a clean bowl until stiff peaks form.",
+        "Fold one-fourth of the whites into the thick chocolate batter to lighten it.",
+        "Alternately fold the remaining egg whites and the sifted cake flour into the batter very gently until just combined.",
+        "Pour into the pan and bake for 25 minutes.",
+        "The center should wobble slightly when shaken—do not overbake.",
+        "Let cool completely before unmolding and icing with chocolate ganache."
+      ],
+      "cuisine": "french",
+      "category": "dessert",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "This was the very first French cake Julia Child ever baked, and she chose it to display her baking expertise on early promotional book tours.",
+      "reference": {
+        "url": "https://www.food.com/recipe/julia-childs-reine-de-saba-queen-of-sheba-cake-2484391.2.3.4.5.6."
+      },
+      "attribution": {
+        "type": "person",
+        "name": "Julia Child (adapted)",
+        "url": "https://www.food.com/recipe/julia-childs-reine-de-saba-queen-of-sheba-cake-2484391.2.3.4.5.6.",
+        "notes": "Adapted homage to Julia Child; methods rewritten. Reference verifies the classic formula."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Hollandaise Sauce",
+      "dish": "hollandaise-sauce",
+      "serves": "4",
+      "description": "A rich, creamy, and buttery mother sauce stabilized by egg yolks and brightened with a splash of fresh lemon juice.",
+      "ingredients": [
+        "3 large Egg yolks",
+        "1 tbsp Fresh lemon juice",
+        "1/2 cup Unsalted butter (1 stick), melted and very warm",
+        "1 pinch Salt and a dash of cayenne pepper"
+      ],
+      "instructions": [
+        "Add the egg yolks, lemon juice, and salt into a blender container . Cover and blend at high speed for 5 seconds to combine.",
+        "With the blender running continuously at high speed, remove the center cap from the lid and begin pouring the hot melted butter in a very thin, slow, steady stream.",
+        "Continue blending for another 10 to 15 seconds until the sauce emulsifies into a thick, creamy, pale-yellow sauce.",
+        "Taste and stir in a pinch of cayenne pepper or extra lemon juice if desired.",
+        "Keep warm by placing the blender jar into a bowl of warm water until ready to serve over eggs or asparagus."
+      ],
+      "cuisine": "french",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "While traditional double-boiler whisking takes minutes of exhausting arm work, Julia popularized this foolproof blender method to save time and prevent curdling.",
+      "reference": {
+        "url": "https://www.marthastewart.com/344331/blender-hollandaise-sauce1.2.3.4."
+      },
+      "attribution": {
+        "type": "person",
+        "name": "Julia Child (adapted)",
+        "url": "https://www.marthastewart.com/344331/blender-hollandaise-sauce1.2.3.4.",
+        "notes": "Adapted homage to Julia Child; methods rewritten. Reference verifies the classic formula."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Cassoulet",
+      "dish": "cassoulet",
+      "serves": "8 TO 10",
+      "description": "An ultimate slow-cooked feast consisting of creamy white beans baked for hours with pork shoulder , sausage, and rich duck confit under a crunchy breadcrumb crust.",
+      "ingredients": [
+        "1 lb Dry white beans (cannellini or great northern), soaked overnight",
+        "1 lb Pork shoulder , cut into chunks",
+        "4 Duck confit legs, meat pulled from bones",
+        "1 lb Garlic sausage or kielbasa, sliced",
+        "1 large Onion, chopped",
+        "2 Carrots, diced",
+        "3 cloves Garlic, minced",
+        "2 cups Chicken stock",
+        "1 cup Fresh breadcrumbs"
+      ],
+      "instructions": [
+        "Simmer the pre-soaked beans in water for 45 minutes until slightly tender , then drain.",
+        "In a large pot, sear the pork shoulder chunks and sliced sausage in a little oil until browned.",
+        "Remove the meat and cook the onion, carrots, and garlic in the fat.",
+        "Stir the drained beans into the vegetables and pour in the chicken stock.",
+        "Simmer for 10 minutes.",
+        "In a massive ceramic baking casserole, layer the components: start with a layer of beans and veggies, add the seared pork and sausage, follow with another bean layer , add the duck confit, and top with the remaining beans.",
+        "Sprinkle the fresh breadcrumbs in a thick layer over the top.",
+        "Bake uncovered at 300°F (150°C) for 2.5 to 3 hours.",
+        "Periodically use a spoon to break the crust that forms on top, allowing it to mix back into the beans, creating incredible depth."
+      ],
+      "cuisine": "french",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "The name comes from the 'cassole', the traditional conical earthenware pot crafted in the south of France specifically to bake this heavy winter stew.",
+      "reference": {
+        "url": "https://www.serious调s.com/traditional-cassoulet-recipe1.2.3.4.5.6."
+      },
+      "attribution": {
+        "type": "person",
+        "name": "Julia Child (adapted)",
+        "url": "https://www.serious调s.com/traditional-cassoulet-recipe1.2.3.4.5.6.",
+        "notes": "Adapted homage to Julia Child; methods rewritten. Reference verifies the classic formula."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Pâté de Campagne",
+      "dish": "p-t-de-campagne",
+      "serves": "12",
+      "description": "A rustic, seasoned terrine of ground pork, veal, and bacon, infused with brandy and spices, pressed and served cold with cornichons.",
+      "ingredients": [
+        "1 lb Ground pork shoulder",
+        "1/2 lb Ground veal or beef",
+        "1/2 lb Pork fat back, finely minced",
+        "1/2 cup Good brandy or cognac",
+        "2 cloves Garlic, minced",
+        "1 Egg, beaten",
+        "1 tsp Thyme leaves",
+        "1/2 tsp Allspice",
+        "12 slices Bacon, to line the mold"
+      ],
+      "instructions": [
+        "In a large mixing bowl, vigorously mix together the ground pork, ground veal, minced fat back, brandy, minced garlic, beaten egg, thyme, allspice, salt, and pepper until a uniform paste forms.",
+        "Line the bottom and sides of a standard loaf pan or terrine mold completely with overlapping slices of raw bacon, leaving some overhang.",
+        "Pack the seasoned meat mixture firmly into the lined pan, smoothing out any trapped air pockets.",
+        "Fold the overhanging bacon slices back over the top of the meat to completely enclose the pâté. Cover the pan tightly with aluminum foil and place it inside a larger roasting pan filled with boiling water (a water bath).",
+        "Bake at 325°F (165°C) for 1.5 to 2 hours.",
+        "Remove from the oven, place a heavy weight (like food cans) on top of the foil to compress the pâté as it cools, and chill overnight before slicing."
+      ],
+      "cuisine": "french",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Compressing the pâté with weights while cooling is crucial because it forces out air bubbles, creating a dense, professional sliceable texture.",
+      "reference": {
+        "url": "https://www.foodandwine.com/recipes/country-pate1.2.3.4.5.6."
+      },
+      "attribution": {
+        "type": "person",
+        "name": "Julia Child (adapted)",
+        "url": "https://www.foodandwine.com/recipes/country-pate1.2.3.4.5.6.",
+        "notes": "Adapted homage to Julia Child; methods rewritten. Reference verifies the classic formula."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Navarin Printanier",
+      "dish": "navarin-printanier",
+      "serves": "6",
+      "description": "A lighter , elegant brown lamb stew loaded with tender spring vegetables like turnips, carrots, peas, and baby potatoes in a savory herb broth.",
+      "ingredients": [
+        "3 lbs Lamb shoulder , cut into 2-inch chunks",
+        "2 tbsp Olive oil",
+        "1 tbsp Sugar (to caramelize the meat)",
+        "3 tbsp All-purpose flour",
+        "3 cups Beef or lamb stock",
+        "2 tbsp Tomato paste",
+        "2 cloves Garlic, minced",
+        "6 each Small baby carrots, small turnips, baby potatoes",
+        "1 cup Fresh green peas"
+      ],
+      "instructions": [
+        "Dry the lamb chunks completely and brown them thoroughly in hot oil inside a deep Dutch oven.",
+        "Sprinkle the sugar over the meat and toss over high heat for 2 minutes to glaze and caramelize the surfaces.",
+        "Dust the lamb with flour , toss to coat, and cook for 2 minutes.",
+        "Pour in the stock, tomato paste, and minced garlic, stirring well.",
+        "Bring to a boil, cover , and simmer very gently on low heat (or in a 325°F oven) for 1 hour . Add the carrots, turnips, and potatoes into the stew.",
+        "Cover and continue cooking for an additional 30 minutes until the meat and root vegetables are tender . Stir in the fresh green peas during the last 5 minutes of cooking so they stay bright green.",
+        "Serve hot in shallow bowls."
+      ],
+      "cuisine": "french",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "'Printanier' means spring-style in French, reflecting the historical tradition of cooking fresh new- crop vegetables alongside tender spring lamb.",
+      "reference": {
+        "url": "https://www.nytimes.com/1013589-navarin-of-lamb.html1.2.3.4.5.6."
+      },
+      "attribution": {
+        "type": "person",
+        "name": "Julia Child (adapted)",
+        "url": "https://www.nytimes.com/1013589-navarin-of-lamb.html1.2.3.4.5.6.",
+        "notes": "Adapted homage to Julia Child; methods rewritten. Reference verifies the classic formula."
+      },
+      "altOf": null
+    },
+    {
+      "name": "French Madeleines",
+      "dish": "french-madeleines",
+      "serves": "6",
+      "description": "Dainty, shell-shaped sponge cakes with a prominent characteristic hump, crisp edges, a soft crumb, and a delicate fragrance of fresh lemon zest.",
+      "ingredients": [
+        "2 Large eggs, room temperature",
+        "2/3 cup Granulated sugar",
+        "1 cup All-purpose flour , sifted",
+        "1 stick Unsalted butter (4 oz), melted and cooled",
+        "1 tbsp Fresh lemon zest",
+        "1 tsp Vanilla extract"
+      ],
+      "instructions": [
+        "Whisk the eggs and sugar together at high speed for 5 minutes using a stand mixer until the mixture expands into a thick, pale ribbon.",
+        "Gently fold the sifted flour into the egg mixture in three separate additions using a rubber spatula.",
+        "Stream the melted, cooled butter , lemon zest, and vanilla extract down the side of the bowl, folding carefully to incorporate without deflating the batter . Cover the batter tightly and refrigerate it for at least 1 hour (this thermal shock creates the iconic sponge hump).",
+        "Preheat your oven to 400°F (200°C).",
+        "Butter and flour a classic 12-shell madeleine pan.",
+        "Drop a tablespoon of chilled batter into each mold cavity.",
+        "Bake for 8 to 10 minutes until the madeleines develop their signature humps on top and the edges turn deep golden brown.",
+        "Unmold immediately."
+      ],
+      "cuisine": "french",
+      "category": "dessert",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "These iconic little cakes were immortalized by French writer Marcel Proust in his masterpiece novel as a trigger for powerful, nostalgic childhood memories.",
+      "reference": {
+        "url": "https://www.sallysbakingaddiction.com/madeleines/1.2.3.4.5.6."
+      },
+      "attribution": {
+        "type": "person",
+        "name": "Julia Child (adapted)",
+        "url": "https://www.sallysbakingaddiction.com/madeleines/1.2.3.4.5.6.",
+        "notes": "Adapted homage to Julia Child; methods rewritten. Reference verifies the classic formula."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Crème Brûlée",
+      "dish": "cr-me-br-l-e",
+      "serves": "4 TO 6",
+      "description": "The definitive creamy dessert consisting of a rich, velvety vanilla-bean custard base topped with a contrasting sheet of hard, brittle caramelized sugar .",
+      "ingredients": [
+        "2 cups Heavy cream",
+        "1 whole Vanilla bean, split lengthwise (or 1 tbsp extract)",
+        "5 large Egg yolks",
+        "1/2 cup Granulated sugar",
+        "1/4 cup Turbinado or superfine sugar , for torching"
+      ],
+      "instructions": [
+        "Preheat your oven to 325°F (165°C).",
+        "Pour the heavy cream into a saucepan, scrape the vanilla bean seeds into it, and heat until it just begins to scald.",
+        "Remove from heat and let infuse for 10 minutes.",
+        "Whisk the egg yolks and granulated sugar together in a medium bowl until blended but not frothy.",
+        "Slowly ladle the warm cream into the egg mixture, whisking constantly to temper the eggs and prevent scrambling.",
+        "Strain the liquid custard through a fine-mesh sieve into a pitcher , then pour equally into individual shallow ramekins.",
+        "Place the ramekins into a large baking pan and pour boiling water into the pan until it reaches halfway up the sides of the ramekins.",
+        "Bake for 30 to 35 minutes until the edges are set but the centers still jiggle slightly.",
+        "Remove from the water bath, cool, and chill in the refrigerator for 3 hours.",
+        "Before serving, sprinkle an even layer of turbinado sugar on top and melt with a kitchen torch until a glassy crust forms."
+      ],
+      "cuisine": "french",
+      "category": "dessert",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Tap the caramelized sugar crust with the back of your spoon—a perfectly torched crème brûlée should make a distinct, hollow 'crack' sound.",
+      "reference": {
+        "url": "https://www.foodnetwork.com/recipes/alton-brown/creme-brulee-recipe-19168271.2.3.4.5.6."
+      },
+      "attribution": {
+        "type": "person",
+        "name": "Julia Child (adapted)",
+        "url": "https://www.foodnetwork.com/recipes/alton-brown/creme-brulee-recipe-19168271.2.3.4.5.6.",
+        "notes": "Adapted homage to Julia Child; methods rewritten. Reference verifies the classic formula."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Potage Parmentier",
+      "dish": "potage-parmentier",
+      "serves": "4 TO 6",
+      "description": "A pure, silky soup representing the soul of French home cooking, relying entirely on the natural flavor pairing of leeks, potatoes, and butter .",
+      "ingredients": [
+        "3 cups Potatoes, peeled and sliced",
+        "3 cups Leeks, white and light green parts, washed and sliced",
+        "6 cups Water or light chicken stock",
+        "1.5 tsp Salt",
+        "3 tbsp Unsalted butter or heavy cream",
+        "2 tbsp Fresh parsley or chives, minced"
+      ],
+      "instructions": [
+        "Place the sliced potatoes, washed leeks, water or stock, and salt into a large, heavy soup pot.",
+        "Bring the liquid to a boil over high heat, then drop the flame down to low, cover the pot, and let it simmer for 40 to 50 minutes until the vegetables are completely soft.",
+        "Mash the vegetables directly in the pot with a fork or potato masher for a rustic texture, or process briefly with an immersion blender for a smoother consistency.",
+        "Remove from heat and stir in the fresh butter or heavy cream right before serving to give the soup a luxurious sheen.",
+        "Ladle into warm bowls and garnish with minced parsley or chives."
+      ],
+      "cuisine": "french",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "This basic recipe serves as the fundamental master base in French cooking; add watercress and it becomes Potage Cressonnière.",
+      "reference": {
+        "url": "https://www.food.com/recipe/julia-childs-potage-parmentier-leek-potato-soup-4192661.2.3.4.5."
+      },
+      "attribution": {
+        "type": "person",
+        "name": "Julia Child (adapted)",
+        "url": "https://www.food.com/recipe/julia-childs-potage-parmentier-leek-potato-soup-4192661.2.3.4.5.",
+        "notes": "Adapted homage to Julia Child; methods rewritten. Reference verifies the classic formula."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Daube de Boeuf",
+      "dish": "daube-de-boeuf",
+      "serves": "6",
+      "description": "A Mediterranean variation of beef stew marinating chuck roast in red wine, slow-cooked with tomatoes, garlic, orange peel, and black olives.",
+      "ingredients": [
+        "3 lbs Beef chuck roast, cut into 2-inch chunks",
+        "3 cups Robust red wine (like Côtes du Rhône)",
+        "2 tbsp Olive oil",
+        "4 oz Pork belly or salt pork, diced",
+        "2 Yellow onions, sliced",
+        "3 Carrots, sliced",
+        "4 cloves Garlic, minced",
+        "1 can (14 oz)Diced tomatoes with their juice",
+        "1 strip Fresh orange peel",
+        "1 cup Cured black olives (like Niçoise), pitted"
+      ],
+      "instructions": [
+        "Marinate the beef chunks in the red wine overnight in the refrigerator along with a few slices of onion and carrot.",
+        "Drain and thoroughly pat the meat dry, reserving the marinade liquid.",
+        "Render the diced pork belly in a heavy pot until crisp.",
+        "Remove the pork pork belly and sear the marinated beef chunks in the hot fat until well browned.",
+        "Sauté the remaining onions, carrots, and minced garlic in the same pot until fragrant.",
+        "Pour the reserved wine marinade into the pot, scraping up the browned bits.",
+        "Add the tomatoes, orange peel, seared beef, and pork belly back to the pot.",
+        "Bring to a simmer , cover tightly, and bake in a 325°F (165°C) oven for 3 hours until the beef melts in your mouth.",
+        "Stir in the pitted black olives during the final 15 minutes of cooking.",
+        "Remove the orange peel before serving."
+      ],
+      "cuisine": "french",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Unlike northern stews, a Daube traditionally uses olive oil instead of butter and incorporates sunny southern ingredients like orange rind and olives.",
+      "reference": {
+        "url": "https://www.saveur.com/article/Recipes/Classic-Beef-Daube/1.2.3.4.5.6."
+      },
+      "attribution": {
+        "type": "person",
+        "name": "Julia Child (adapted)",
+        "url": "https://www.saveur.com/article/Recipes/Classic-Beef-Daube/1.2.3.4.5.6.",
+        "notes": "Adapted homage to Julia Child; methods rewritten. Reference verifies the classic formula."
+      },
+      "altOf": null
+    }
+  ]
+}

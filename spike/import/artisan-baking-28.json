@@ -1,0 +1,1382 @@
+{
+  "_meta": {
+    "batch": "artisan-baking",
+    "source": "artisan-baking-28.json",
+    "provenance": "Adapted from published bakery/cooking sites (per-recipe reference URL).",
+    "count": 28,
+    "notes": {
+      "enrichmentPending": "cuisine (where null), diet[], keywords[], prep/cook/total times, and altOf cross-links are NOT yet set — pending an enrichment pass. Fun facts are NOT yet fact-checked.",
+      "stepSegmentation": "instructions were sentence-split from the source prep paragraphs (PDF text has no inline step numbers); wording is faithful but step boundaries are approximate."
+    }
+  },
+  "recipes": [
+    {
+      "name": "Classic Chocolate Chip Cookies",
+      "dish": "classic-chocolate-chip-cookies",
+      "serves": "24 cookies",
+      "description": "The ultimate comfort food—perfectly chewy in the center with crisp golden edges and packed with molten chocolate chips.",
+      "ingredients": [
+        "2 1/4 cups all-purpose flour",
+        "1/2 tsp baking soda",
+        "1 cup unsalted butter, softened to room temperature",
+        "1/2 cup granulated white sugar",
+        "1 cup packed light brown sugar",
+        "1 tsp salt",
+        "2 tsp pure vanilla extract",
+        "2 large eggs, room temperature",
+        "2 cups semi-sweet chocolate chips"
+      ],
+      "instructions": [
+        "Preheat oven to 375°F (190°C).",
+        "Line two large baking sheets with parchment paper.",
+        "Whisk flour and baking soda together in a medium bowl; set aside.",
+        "In a large bowl, cream the softened butter, granulated sugar, and brown sugar together using a mixer until smooth and fluffy (about 2 minutes).",
+        "Add the salt, vanilla extract, and eggs one at a time, beating well after each addition until fully incorporated.",
+        "Gradually mix in the dry ingredients at low speed until just combined.",
+        "Do not overmix.",
+        "Gently fold in the chocolate chips using a rubber spatula.",
+        "Drop rounded tablespoons of dough onto the prepared sheets, leaving about 2 inches of space between each cookie.",
+        "Bake for 9 to 11 minutes or until the edges are golden brown.",
+        "Let cool on the sheet for 5 minutes, then transfer to a wire rack to cool completely."
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Chocolate chip cookies were invented by mistake in 1938 by Ruth Wakefield at the Toll House Inn when she ran out of baker's chocolate and used chopped semi-sweet chunks instead.",
+      "reference": {
+        "url": "https://sallysbakingaddiction.com/the-girl-scout-cookie-championship-soft-chewy-chocolate-chip-cookies/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "sallysbakingaddiction.com",
+        "url": "https://sallysbakingaddiction.com/the-girl-scout-cookie-championship-soft-chewy-chocolate-chip-cookies/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Fudgy Cocoa Brownies",
+      "dish": "fudgy-cocoa-brownies",
+      "serves": "16 squares",
+      "description": "Rich, dense, and incredibly fudgy brownies with a shiny crinkle top, made completely from scratch with simple pantry staples.",
+      "ingredients": [
+        "10 tbsp (1 1/4 sticks) unsalted butter",
+        "1 1/4 cups granulated sugar",
+        "3/4 cup unsweetened cocoa powder",
+        "1/2 tsp salt",
+        "1 tsp pure vanilla extract",
+        "2 large eggs, cold",
+        "1/2 cup all-purpose flour",
+        "1/2 cup chocolate chunks or walnuts",
+        "(optional)"
+      ],
+      "instructions": [
+        "Preheat oven to 325°F (160°C).",
+        "Line an 8x8-inch baking pan with parchment paper, leaving an overhang on the sides.",
+        "In a heatproof bowl set over simmering water (or in the microwave), melt the butter with sugar, cocoa powder, and salt.",
+        "Stir until warm and smooth.",
+        "Remove from heat and let cool slightly until warm (not hot).",
+        "Stir in the vanilla extract.",
+        "Add the eggs one at a time, stirring vigorously after each until the batter looks shiny and well blended.",
+        "Add the flour and stir until just combined, then beat strongly with a spatula for 40 strokes to develop the structure.",
+        "Fold in mix-ins if using.",
+        "Spread the batter evenly into the prepared pan.",
+        "Bake for 20 to 22 minutes, or until a toothpick inserted in the center comes out with a few moist crumbs.",
+        "Do not overbake.",
+        "Let cool completely before slicing."
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Brownies were originally created in 1893 at the Palmer House Hotel in Chicago for the World's Columbian Exposition, designed as a portable dessert for ladies attending the fair.",
+      "reference": {
+        "url": "https://www.kingarthurbaking.com/recipes/fudge-brownies-recipe"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "kingarthurbaking.com",
+        "url": "https://www.kingarthurbaking.com/recipes/fudge-brownies-recipe",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Classic Moist Banana Bread",
+      "dish": "classic-moist-banana-bread",
+      "serves": "10 slices",
+      "description": "A foolproof, one-bowl banana bread recipe that turns out exceptionally moist, tender, and fragrant every single time.",
+      "ingredients": [
+        "3 ripe bananas, mashed thoroughly",
+        "1/3 cup unsalted butter, melted",
+        "3/4 cup granulated sugar (or half brown sugar)",
+        "1 large egg, beaten",
+        "1 tsp pure vanilla extract",
+        "1 tsp baking soda",
+        "Pinch of salt",
+        "1 1/2 cups all-purpose flour",
+        "1/2 cup chopped walnuts or pecans",
+        "(optional)"
+      ],
+      "instructions": [
+        "Preheat your oven to 350°F (175°C) and grease an 8.5x4.5-inch loaf pan generously.",
+        "In a large mixing bowl, mash the ripe bananas with a fork until completely smooth.",
+        "Stir the melted butter into the mashed bananas until fully combined.",
+        "Mix in the sugar, beaten egg, and vanilla extract.",
+        "Sprinkle the baking soda and salt over the mixture and stir in.",
+        "Add the flour last, folding gently with a spatula until just combined and no dry pockets remain.",
+        "Stir in nuts if desired.",
+        "Pour the batter into your prepared loaf pan.",
+        "Bake for 50 to 60 minutes, or until a toothpick inserted into the center comes out clean.",
+        "Let cool in the pan for 10 minutes, then transfer to a wire rack."
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Banana bread grew massively in popularity during the 1930s Great Depression because resourceful homemakers refused to throw away overripe, expensive bananas.",
+      "reference": {
+        "url": "https://www.simplyrecipes.com/recipes/did_you_know_banana_bread_was_invented_during_the_great_depression/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "simplyrecipes.com",
+        "url": "https://www.simplyrecipes.com/recipes/did_you_know_banana_bread_was_invented_during_the_great_depression/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Lemon Blueberry Scones",
+      "dish": "lemon-blueberry-scones",
+      "serves": "8 scones",
+      "description": "Flaky, buttery British-style scones bursting with fresh juicy blueberries and zesty lemon, finished with a sweet citrus glaze.",
+      "ingredients": [
+        "2 cups all-purpose flour",
+        "1/2 cup granulated sugar",
+        "2 1/2 tsp baking powder",
+        "1/2 tsp salt",
+        "1 tbsp fresh lemon zest",
+        "1/2 cup (1 stick) unsalted butter, frozen",
+        "1/2 cup heavy cream (plus 1 tbsp for brushing)",
+        "1 large egg",
+        "1 cup fresh blueberries",
+        "Glaze: 1 cup powdered sugar mixed with 2 tbsp lemon juice"
+      ],
+      "instructions": [
+        "Whisk flour, sugar, baking powder, salt, and lemon zest together in a large bowl.",
+        "Grate the frozen butter using a box grater and add it to the flour mixture.",
+        "Use a pastry cutter or your fingers to work the butter in until the mixture resembles coarse meal.",
+        "In a small bowl, whisk the heavy cream and egg together.",
+        "Pour over the flour mixture.",
+        "Gently fold the dough together with a spatula, adding the fresh blueberries halfway through.",
+        "Do not overwork or the berries will burst.",
+        "Turn the dough out onto a lightly floured surface and gently press into an 8-inch disc.",
+        "Cut into 8 equal wedges.",
+        "Place scones on a baking sheet lined with parchment paper.",
+        "Brush the tops lightly with a tablespoon of heavy cream.",
+        "Chill the shaped scones in the refrigerator for 15 minutes while preheating the oven to 400°F (204°C).",
+        "Bake for 18 to 22 minutes until golden brown.",
+        "Let cool slightly, then drizzle with the lemon glaze before serving."
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Scones originated in Scotland in the early 1500s. They were originally cooked on a griddle over an open fire and cut into wedge shapes called 'bannocks'.",
+      "reference": {
+        "url": "https://sallysbakingaddiction.com/my-favorite-blueberry-scones-recipe/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "sallysbakingaddiction.com",
+        "url": "https://sallysbakingaddiction.com/my-favorite-blueberry-scones-recipe/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Classic New York Cheesecake",
+      "dish": "classic-new-york-cheesecake",
+      "serves": "12 servings",
+      "description": "A dense, rich, and ultra-creamy cheesecake with a buttery graham cracker crust, baked using a gentle water bath to prevent cracks.",
+      "ingredients": [
+        "Crust: 1 1/2 cups graham cracker crumbs, 5 tbsp melted butter, 1/3 cup sugar",
+        "Filling: 32 oz (4 blocks) cream cheese, softened to room temperature",
+        "1 cup granulated sugar",
+        "1 cup sour cream, room temperature",
+        "1 tsp pure vanilla extract",
+        "1 tbsp fresh lemon juice",
+        "4 large eggs, room temperature"
+      ],
+      "instructions": [
+        "Preheat oven to 350°F (175°C).",
+        "Mix graham cracker crumbs, sugar, and melted butter.",
+        "Press firmly into the bottom of a 9-inch springform pan.",
+        "Bake for 10 minutes, then cool.",
+        "Reduce oven to 325°F (160°C).",
+        "Wrap the outside of the cooled springform pan tightly with 3 layers of heavy-duty aluminum foil to waterproof it.",
+        "In a large bowl, beat the cream cheese and sugar together on medium speed until perfectly smooth and creamy.",
+        "Do not overbeat to avoid whipping too much air.",
+        "Blend in the sour cream, vanilla extract, and lemon juice until smooth.",
+        "Add the eggs one at a time, mixing on low speed just until combined.",
+        "Pour the filling into the crust.",
+        "Place the springform pan inside a large roasting pan and pour boiling water into the roasting pan until it reaches halfway up the sides of the cake pan.",
+        "Bake for 75 to 90 minutes, or until the edges are set but the center still jiggles slightly.",
+        "Turn off the oven, crack the door open, and let the cheesecake cool inside the oven for 1 hour.",
+        "Remove, let cool completely at room temperature, then refrigerate for at least 6 hours before serving."
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "The ancient Greeks served a primitive form of cheesecake (made of flour, honey, and pounded cheese) to athletes during the first Olympic Games in 776 BC for energy.",
+      "reference": {
+        "url": "https://www.seriouseats.com/epic-new-york-cheesecake-from-the-baking-bible"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "seriouseats.com",
+        "url": "https://www.seriouseats.com/epic-new-york-cheesecake-from-the-baking-bible",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Double-Crust Apple Pie",
+      "dish": "double-crust-apple-pie",
+      "serves": "8 servings",
+      "description": "A quintessential dessert featuring a flaky, all-butter lattice crust over a mountain of thinly sliced apples tossed in warm spices.",
+      "ingredients": [
+        "Crust: 2 1/2 cups all-purpose flour, 1 tsp salt, 1 cup cold unsalted butter (cubed), 1/2 cup ice water",
+        "Filling: 3 lbs assorted baking apples",
+        "(peeled, cored, sliced thin)",
+        "3/4 cup granulated sugar",
+        "2 tbsp all-purpose flour",
+        "1 tsp ground cinnamon",
+        "1/4 tsp ground nutmeg",
+        "1 tbsp lemon juice",
+        "1 egg beaten with 1 tbsp water (for egg wash)"
+      ],
+      "instructions": [
+        "Make crust: Pulse flour and salt in a food processor.",
+        "Add cold butter cubes and pulse until pea-sized.",
+        "Drizzle in ice water until dough holds together.",
+        "Divide into two discs, wrap, and chill for 1 hour.",
+        "Preheat oven to 400°F (204°C).",
+        "In a large bowl, toss the sliced apples with sugar, flour, cinnamon, nutmeg, and lemon juice.",
+        "Roll out one dough disc on a floured surface and fit it into a 9-inch pie dish.",
+        "Pour the seasoned apple filling into the crust, mounding them slightly in the center.",
+        "Roll out the second disc of dough.",
+        "Cover the pie completely (venting the top) or cut into strips to weave a lattice top.",
+        "Trim, crimp, and seal the edges.",
+        "Brush the top crust evenly with the egg wash and sprinkle with a little sugar if desired.",
+        "Bake for 20 minutes, then reduce oven temperature to 375°F (190°C) and bake for an additional 40 to 50 minutes until the crust is golden and the filling bubbles through the vents."
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Apple pie is not originally American; the earliest recorded recipe for apple pie comes from England in 1381, and it contained no sugar at all.",
+      "reference": {
+        "url": "https://www.bonappetit.com/recipe/bas-best-apple-pie"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "bonappetit.com",
+        "url": "https://www.bonappetit.com/recipe/bas-best-apple-pie",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Fluffy Bakery-Style Cinnamon Rolls",
+      "dish": "fluffy-bakery-style-cinnamon-rolls",
+      "serves": "12 rolls",
+      "description": "Pillowy-soft, gooey yeast rolls layered with brown sugar and cinnamon cinnamon, draped in a rich vanilla cream cheese frosting.",
+      "ingredients": [
+        "Dough: 3/4 cup warm milk, 1 packet (2 1/4 tsp) active dry yeast, 1/3 cup sugar, 2 eggs, 1/3 cup melted butter, 4 cups bread flour, 1 tsp salt",
+        "Filling: 1/3 cup butter (softened), 1 cup brown sugar, 2 1/2 tbsp ground cinnamon",
+        "Frosting: 4 oz cream cheese, 1/4 cup butter, 1 1/2 cups powdered sugar, 1 tsp vanilla extract"
+      ],
+      "instructions": [
+        "Dissolve yeast and 1 tbsp sugar in warm milk; let sit for 5 minutes until frothy.",
+        "Whisk in eggs, remaining sugar, and melted butter.",
+        "Add flour and salt; stir until a dough forms.",
+        "Knead on a floured surface for 8 minutes until smooth and elastic.",
+        "Place in a greased bowl, cover, and let rise for 1 hour until doubled.",
+        "Punch down dough and roll out into a 12x18-inch rectangle.",
+        "Spread the softened butter evenly over the dough.",
+        "Combine brown sugar and cinnamon, then sprinkle it uniformly over the butter.",
+        "Roll the dough tightly from the long edge into a log.",
+        "Cut into 12 equal slices using a sharp knife or unflavored dental floss.",
+        "Place rolls in a greased 9x13-inch baking dish.",
+        "Cover and let rise again for 30-45 minutes.",
+        "Preheat oven to 350°F (175°C).",
+        "Bake the rolls for 20 to 25 minutes until lightly golden brown on top.",
+        "Beat frosting ingredients together until smooth.",
+        "Spread over the cinnamon rolls while they are still warm."
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Sweden celebrates 'Cinnamon Bun Day' (Kanelbullens dag) every single year on October 4th, a tradition started in 1999 to honor Swedish baking culture.",
+      "reference": {
+        "url": "https://www.ambrosia-baking.com"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "ambrosia-baking.com",
+        "url": "https://www.ambrosia-baking.com",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Bakery-Style Blueberry Muffins",
+      "dish": "bakery-style-blueberry-muffins",
+      "serves": "12 muffins",
+      "description": "Extra tall muffins with ultra-moist interiors and crisp, sugary streusel tops, loaded with plump blueberries.",
+      "ingredients": [
+        "Batter: 1 1/2 cups all-purpose flour, 3/4 cup granulated sugar, 1/2 tsp salt, 2 tsp baking powder",
+        "1/3 cup vegetable oil",
+        "1 large egg",
+        "1/3 cup milk",
+        "1 cup fresh blueberries",
+        "Streusel: 1/2 cup sugar, 1/3 cup flour, 1/4 cup butter (softened), 1 1/2 tsp cinnamon"
+      ],
+      "instructions": [
+        "Preheat oven to 400°F (204°C).",
+        "Grease a 12-cup muffin tin or line with paper liners.",
+        "Whisk flour, sugar, salt, and baking powder together in a large bowl.",
+        "Pour vegetable oil into a 1-cup measuring cup.",
+        "Add the egg and fill the remainder of the cup with milk.",
+        "Whisk to combine, then pour into the dry ingredients.",
+        "Fold the batter together gently with a fork until just combined (it will be thick and slightly lumpy).",
+        "Fold in the blueberries gently.",
+        "Divide the batter evenly among the 12 muffin cups.",
+        "Make streusel: Mix sugar, flour, butter, and cinnamon with a fork until crumbly.",
+        "Sprinkle a generous tablespoon over each muffin.",
+        "Bake for 15 to 20 minutes, or until a toothpick inserted in the center comes out clean.",
+        "Cool on a wire rack."
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Blueberry is the official state muffin of Minnesota, while Massachusetts claims the corn muffin and New York claims the apple muffin.",
+      "reference": {
+        "url": "https://www.inspiredtaste.net/18981/our-favorite-blueberry-muffin-recipe/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "inspiredtaste.net",
+        "url": "https://www.inspiredtaste.net/18981/our-favorite-blueberry-muffin-recipe/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Classic Multi-Layer Carrot Cake",
+      "dish": "classic-multi-layer-carrot-cake",
+      "serves": "12 servings",
+      "description": "An incredibly moist, finely spiced carrot cake packed with fresh grated carrots and pecans, layered with signature cream cheese icing.",
+      "ingredients": [
+        "Cake: 2 cups all-purpose flour, 2 tsp baking soda, 1/2 tsp salt, 2 tsp ground cinnamon",
+        "1 cup canola oil",
+        "1 cup granulated sugar",
+        "1 cup packed light brown sugar",
+        "1 tsp vanilla extract",
+        "4 large eggs, room temperature",
+        "3 cups freshly grated carrots (do not use pre-shredded)",
+        "1 cup chopped pecans",
+        "Frosting: 16 oz cream cheese, 1/2 cup butter, 4 1/2 cups powdered sugar, 1 tsp vanilla extract"
+      ],
+      "instructions": [
+        "Preheat oven to 350°F (175°C).",
+        "Grease and flour two 9-inch round cake pans.",
+        "Whisk flour, baking soda, salt, and cinnamon together in a medium bowl.",
+        "In a large bowl, whisk the oil, granulated sugar, brown sugar, and vanilla extract together.",
+        "Add eggs one at a time, whisking vigorously after each.",
+        "Add the dry ingredients to the wet ingredients and fold gently with a spatula until just combined.",
+        "Fold in the grated carrots and chopped pecans.",
+        "Divide batter evenly between the prepared pans.",
+        "Bake for 30 to 35 minutes until a toothpick inserted in the center comes out clean.",
+        "Let the cakes cool completely in the pans before removing.",
+        "Beat the frosting ingredients together until completely smooth and fluffy.",
+        "Frost the top of one cake layer, place the second layer on top, and frost the top and sides completely."
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Carrot cake evolved from sweet carrot puddings eaten by Europeans during the Middle Ages. Carrots were used as natural sweeteners because sugar was heavily rationed and expensive.",
+      "reference": {
+        "url": "https://sugarspunrun.com/best-carrot-cake-recipe/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "sugarspunrun.com",
+        "url": "https://sugarspunrun.com/best-carrot-cake-recipe/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Classic French Macarons",
+      "dish": "classic-french-macarons",
+      "serves": "20 macarons",
+      "description": "Elegant, delicate almond meringue shells with smooth shiny tops and characteristic 'feet', sandwiched together with a rich chocolate ganache.",
+      "ingredients": [
+        "Shells: 1 cup powdered sugar",
+        "3/4 cup almond flour (super-fine)",
+        "2 large egg whites, room temperature",
+        "1/4 cup granulated sugar",
+        "Pinch of cream of tartar",
+        "Ganache Filling: 1/2 cup heavy cream, 4 oz chopped semi-sweet chocolate"
+      ],
+      "instructions": [
+        "Sift the almond flour and powdered sugar together twice through a fine-mesh sieve into a large bowl; discard any large bits.",
+        "In a perfectly clean glass or metal bowl, beat egg whites and cream of tartar until soft peaks form.",
+        "Gradually add granulated sugar while beating on high speed until stiff, glossy peaks form.",
+        "Fold the dry ingredients into the egg whites in three batches using a rubber spatula.",
+        "Cut down the center and sweep around the bowl (the 'macaronage' step) until the batter falls off the spatula in a thick, continuous ribbon resembling molten lava.",
+        "Transfer batter to a piping bag fitted with a round tip.",
+        "Pipe 1.5-inch circles onto a baking sheet lined with a silicone mat.",
+        "Firmly tap the baking sheet against the counter 4-5 times to release trapped air bubbles.",
+        "Let the shells sit at room temperature for 45-60 minutes until a dry skin forms and they are no longer sticky to the touch.",
+        "Preheat oven to 300°F (150°C).",
+        "Bake for 14 to 16 minutes.",
+        "Let cool completely before removing from the mat.",
+        "Make filling: Bring cream to a simmer, pour over chopped chocolate, let sit for 2 minutes, then stir until smooth.",
+        "Let cool until spreadable.",
+        "Match identical shells, pipe a dollop of ganache onto one, and sandwich gently with the other."
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Macarons were actually born in Italy, introduced to France in the 16th century by the chefs of Queen Catherine de' Medici, before being transformed into the sandwich cookie we know today.",
+      "reference": {
+        "url": "https://www.bbcgoodfood.com/recipes/macarons"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "bbcgoodfood.com",
+        "url": "https://www.bbcgoodfood.com/recipes/macarons",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Southern Fresh Peach Cobbler",
+      "dish": "southern-fresh-peach-cobbler",
+      "serves": "8 servings",
+      "description": "Sweet, spiced summer peaches baked under a beautiful, tender, golden buttermilk biscuit topping.",
+      "ingredients": [
+        "Filling: 5 cups sliced fresh peaches",
+        "(peeled)",
+        "1/2 cup sugar",
+        "1 tbsp lemon juice",
+        "1 tsp cornstarch",
+        "1/2 tsp ground cinnamon",
+        "Topping: 1 cup all-purpose flour, 1/4 cup sugar, 1 tsp baking powder, 1/2 tsp baking soda, 1/4 cup cold butter (cubed), 1/2 cup buttermilk"
+      ],
+      "instructions": [
+        "Preheat oven to 375°F (190°C).",
+        "Grease an 8-inch square baking dish.",
+        "In a large saucepan, combine the fresh sliced peaches, sugar, lemon juice, cornstarch, and cinnamon.",
+        "Cook over medium heat for 5 minutes until the sugar dissolves and peaches begin to release juice.",
+        "Pour into the baking dish.",
+        "In a medium bowl, combine flour, sugar, baking powder, and baking soda.",
+        "Cut in the cold cubed butter using a pastry cutter or your fingers until the mixture resembles coarse crumbs.",
+        "Pour in the buttermilk and stir with a fork just until a soft dough forms.",
+        "Drop the dough by spoonfuls over the hot peach filling, leaving a few small gaps for steam to escape.",
+        "Bake for 30 to 35 minutes, or until the peach filling is bubbling vigorously and the biscuit topping is deeply golden brown.",
+        "Serve warm, ideally with vanilla ice cream."
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Early American settlers invented cobblers because they lacked the proper ingredients and structured brick ovens to create traditional English round pies, improvising with dropped dough instead.",
+      "reference": {
+        "url": "https://www.southernliving.com/recipes/fresh-peach-cobbler"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "southernliving.com",
+        "url": "https://www.southernliving.com/recipes/fresh-peach-cobbler",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Vanilla Bean Bakery Cupcakes",
+      "dish": "vanilla-bean-bakery-cupcakes",
+      "serves": "12 cupcakes",
+      "description": "Classic, delicate vanilla cupcakes with a remarkably soft crumb, crowned with silky-smooth real vanilla bean buttercream frosting.",
+      "ingredients": [
+        "Cupcakes: 1 1/4 cups all-purpose flour",
+        "1 1/4 tsp baking powder",
+        "1/2 tsp salt",
+        "3/4 cup granulated sugar",
+        "1/2 cup unsalted butter, softened",
+        "2 large eggs, room temperature",
+        "2 tsp vanilla bean paste (or extract)",
+        "1/2 cup whole milk",
+        "Frosting: 1 cup unsalted butter (softened), 3 cups powdered sugar, 2 tbsp heavy cream, 1 tsp vanilla bean paste"
+      ],
+      "instructions": [
+        "Preheat oven to 350°F (175°C) and line a 12-cup muffin pan with paper cupcake liners.",
+        "Whisk flour, baking powder, and salt together in a medium bowl.",
+        "In a large bowl, beat the softened butter and granulated sugar together on medium-high speed until light, pale, and fluffy (about 3-4 minutes).",
+        "Add eggs one at a time, beating well after each addition.",
+        "Mix in the vanilla bean paste.",
+        "With the mixer on low speed, alternate adding the dry flour mixture and the milk in batches, starting and ending with the flour.",
+        "Mix just until combined.",
+        "Divide batter evenly among the 12 cupcake liners, filling each about two-thirds full.",
+        "Bake for 18 to 20 minutes, or until a toothpick inserted into the center comes out clean.",
+        "Cool completely on a wire rack.",
+        "Make frosting: Beat the butter for 2 minutes until creamy.",
+        "Progressively add powdered sugar, heavy cream, and vanilla bean paste.",
+        "Beat on high for 3 minutes until smooth and pipeable.",
+        "Pipe onto cooled cupcakes."
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "The term 'cupcake' originally had two meanings: a cake actually baked in an individual earthenware cup, or a cake whose recipe measurements were calculated by the cupful (the 1-2-3-4 cake formula).",
+      "reference": {
+        "url": "https://natashaskitchen.com/perfect-vanilla-cupcakes-recipe/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "natashaskitchen.com",
+        "url": "https://natashaskitchen.com/perfect-vanilla-cupcakes-recipe/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Flaky Butter Croissants",
+      "dish": "flaky-butter-croissants",
+      "serves": "6 large croissants",
+      "description": "The ultimate home-baking milestone: incredibly flaky, golden pastry rolls laminated with layers of premium butter.",
+      "ingredients": [
+        "Dough: 2 cups all-purpose flour, 1 tbsp sugar, 1 tsp salt, 1 tsp instant yeast, 3/4 cup cold milk",
+        "Butter Layer: 3/4 cup (1.5 sticks) high- quality unsalted butter, cold",
+        "Egg Wash: 1 egg beaten with 1 tbsp milk"
+      ],
+      "instructions": [
+        "Mix flour, sugar, salt, yeast, and cold milk until a stiff dough forms.",
+        "Knead for 3 minutes, shape into a rectangle, wrap tightly, and refrigerate overnight.",
+        "Place cold butter between sheets of parchment paper and roll into a flat 6x6-inch square.",
+        "Chill for 30 minutes.",
+        "Roll the cold dough out onto a floured surface to a 10x6-inch rectangle.",
+        "Place the butter square in the center, fold the dough flaps over it, and seal edges.",
+        "Roll the dough into a 12x6-inch rectangle.",
+        "Fold into thirds like a letter (Turn 1).",
+        "Wrap and chill for 1 hour.",
+        "Repeat this rolling and folding process two more times (Turns 2 and 3), chilling for 1 hour between each turn.",
+        "Roll the final laminated dough out to a long 15x8-inch rectangle.",
+        "Cut into tall triangles.",
+        "Cut a tiny notch in the base of each triangle, roll tightly from base to tip, and curve the ends slightly into crescents.",
+        "Place on a baking sheet, cover loosely, and let rise at room temperature for 2 hours until puffy and shaky.",
+        "Preheat oven to 400°F (204°C).",
+        "Brush croissants with egg wash.",
+        "Bake for 10 minutes, reduce oven to 375°F (190°C), and bake for 12-15 minutes more until deep golden brown."
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Croissants actually originated in Austria as a crescent-shaped roll called the 'kipferl'. They were brought to France in the 1770s by Marie Antoinette, where French bakers adapted them with puff pastry techniques.",
+      "reference": {
+        "url": "https://www.baking-sense.com/2018/10/11/homemade-croissants/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "baking-sense.com",
+        "url": "https://www.baking-sense.com/2018/10/11/homemade-croissants/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "No-Knead Crusty Artisan Bread",
+      "dish": "no-knead-crusty-artisan-bread",
+      "serves": "8 servings",
+      "description": "A legendary, low-effort yeast bread that yields a shatteringly crisp crust and an airy, chewy, bakery-quality interior.",
+      "ingredients": [
+        "3 cups all-purpose or bread flour",
+        "1/4 tsp instant yeast",
+        "1 1/4 tsp fine sea salt",
+        "1 1/2 cups cool water",
+        "Extra flour or cornmeal for dusting"
+      ],
+      "instructions": [
+        "In a large bowl, whisk together the flour, instant yeast, and salt.",
+        "Pour in the cool water and stir with a wooden spoon or spatula until a shaggy, sticky dough forms and no dry flour remains (about 30 seconds).",
+        "Cover the bowl tightly with plastic wrap and let it sit at room temperature (around 70°F) for at least 12 hours, and up to 18 hours, until the surface is dotted with bubbles.",
+        "Turn dough out onto a floured surface.",
+        "Fold it over on itself once or twice.",
+        "Shape into a neat round ball.",
+        "Place on parchment paper, cover with a towel, and let rise for 2 hours.",
+        "After 1.5 hours of rising, place a heavy 4-to-6-quart covered Dutch oven into the oven and preheat to 450°F (230°C).",
+        "Carefully remove the blazing hot Dutch oven.",
+        "Lift the dough by the parchment paper and lower it into the pot.",
+        "Put the lid on.",
+        "Bake covered for 30 minutes.",
+        "Remove the lid and bake uncovered for an additional 15 to 20 minutes until the crust is deeply golden and blistered.",
+        "Cool completely before slicing."
+      ],
+      "cuisine": null,
+      "category": "bread",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "This recipe revolutionized home baking in 2006 when baker Jim Lahey shared it with the New York Times, proving that long fermentation replaces the manual need for kneading.",
+      "reference": {
+        "url": "https://www.nytimes.com/2006/11/08/dining/08mini.html"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "nytimes.com",
+        "url": "https://www.nytimes.com/2006/11/08/dining/08mini.html",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Garlic Herb Rosemary Focaccia",
+      "dish": "garlic-herb-rosemary-focaccia",
+      "serves": "10 servings",
+      "description": "A classic flat Italian bread, wonderfully crisp on the outside and soft inside, deeply dimpled and drenched in garlic-infused olive oil.",
+      "ingredients": [
+        "1 cup warm water",
+        "2 1/4 tsp (1 packet) active dry yeast",
+        "1 tsp honey or sugar",
+        "2 1/2 cups all-purpose flour",
+        "1 tsp fine sea salt",
+        "1/3 cup extra virgin olive oil (divided)",
+        "2 tbsp fresh rosemary, chopped",
+        "3 cloves garlic, minced",
+        "Coarse flaky sea salt for sprinkling"
+      ],
+      "instructions": [
+        "Whisk warm water, yeast, and honey in a large bowl.",
+        "Let stand for 5 minutes until foamy.",
+        "Add flour, fine salt, and 2 tbsp of olive oil.",
+        "Stir until a soft dough forms.",
+        "Knead on a floured surface for 5 minutes until smooth.",
+        "Shape into a ball, place in a greased bowl, cover, and let rise for 1 hour until doubled.",
+        "Pour 2 tablespoons of olive oil into a 9x13-inch rimmed baking sheet.",
+        "Transfer the dough to the baking pan and press it out to fit the dimensions.",
+        "Cover and let rise again for 20 minutes.",
+        "Meanwhile, warm the remaining olive oil with minced garlic and chopped rosemary in a small pan over low heat for 2 minutes to infuse flavor.",
+        "Preheat oven to 400°F (204°C).",
+        "Use your fingers to press deep dimples all the way down into the dough across the entire surface.",
+        "Drizzle the warm garlic-rosemary oil evenly over the dimpled dough.",
+        "Sprinkle generously with coarse flaky sea salt.",
+        "Bake for 20 minutes until the crust is beautifully golden brown.",
+        "Slice into squares and serve warm."
+      ],
+      "cuisine": null,
+      "category": "bread",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "The name focaccia stems from the Roman 'panis focacius', which means 'hearth bread', referring to the ancient practice of baking flatbread directly on the hot ashes of a central hearth.",
+      "reference": {
+        "url": "https://www.gimmesomeoven.com/rosemary-focaccia-bread/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "gimmesomeoven.com",
+        "url": "https://www.gimmesomeoven.com/rosemary-focaccia-bread/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Skillet Jalapeño Cheddar Cornbread",
+      "dish": "skillet-jalape-o-cheddar-cornbread",
+      "serves": "12 wedges",
+      "description": "A golden, moist cornbread baked in a cast-iron skillet for ultra-crisp edges, studded with sharp cheddar cheese and spicy jalapeño slices.",
+      "ingredients": [
+        "1 cup yellow cornmeal",
+        "1 cup all-purpose flour",
+        "1/4 cup sugar",
+        "1 tbsp baking powder",
+        "1 tsp salt",
+        "1 cup buttermilk",
+        "2 large eggs",
+        "1/2 cup (1 stick) unsalted butter, melted",
+        "1 cup sharp cheddar cheese, shredded",
+        "1 large jalapeño, seeded and finely diced",
+        "(plus extra slices for top)"
+      ],
+      "instructions": [
+        "Place a 10-inch cast-iron skillet in the oven and preheat to 400°F (204°C).",
+        "In a large bowl, whisk the cornmeal, flour, sugar, baking powder, and salt together.",
+        "In a medium bowl, whisk together the buttermilk, eggs, and melted butter.",
+        "Pour the wet ingredients into the dry ingredients and stir gently with a spatula until just combined.",
+        "Fold in the shredded cheddar cheese and diced jalapeños.",
+        "Carefully remove the hot skillet from the oven.",
+        "Drop a tablespoon of butter into it and swirl to coat the bottom and sides thoroughly.",
+        "Pour the cornbread batter into the hot skillet, smoothing the top.",
+        "Arrange optional jalapeño slices decoratively over the surface.",
+        "Bake for 20 to 25 minutes until the top is golden brown and a toothpick inserted into the center comes out clean.",
+        "Serve warm."
+      ],
+      "cuisine": null,
+      "category": "bread",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Baking cornbread in a preheated cast-iron skillet with hot fat is the traditional Southern secret that creates an incredibly crisp, fried bottom crust.",
+      "reference": {
+        "url": "https://www.foodnetwork.com/recipes/alexandra-guarnaschelli/cast-iron-cornbread-recipe-2012543"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "foodnetwork.com",
+        "url": "https://www.foodnetwork.com/recipes/alexandra-guarnaschelli/cast-iron-cornbread-recipe-2012543",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Classic Quiche Lorraine",
+      "dish": "classic-quiche-lorraine",
+      "serves": "8 slices",
+      "description": "An elegant, timeless French savory tart featuring a buttery, crisp pastry crust filled with rich egg custard, smoky bacon, and Gruyère cheese.",
+      "ingredients": [
+        "1 unbaked 9-inch pie crust (homemade or store-bought)",
+        "6 thick slices of bacon, chopped",
+        "1 cup Gruyère or Swiss cheese, shredded",
+        "1/2 cup heavy cream",
+        "1/2 cup whole milk",
+        "4 large eggs",
+        "1/4 tsp salt",
+        "1/8 tsp ground black pepper",
+        "Pinch of ground nutmeg"
+      ],
+      "instructions": [
+        "Preheat oven to 400°F (204°C).",
+        "Fit pastry dough into a 9-inch pie pan or tart pan.",
+        "Line with parchment paper, fill with pie weights, and blind bake for 15 minutes.",
+        "Remove weights and bake 5 minutes more.",
+        "Set aside; reduce oven to 350°F (175°C).",
+        "In a skillet over medium heat, cook chopped bacon until crisp.",
+        "Remove with a slotted spoon and drain on paper towels.",
+        "Sprinkle the cooked bacon and shredded Gruyère cheese evenly over the bottom of the baked pastry crust.",
+        "In a medium bowl, vigorously whisk together the eggs, heavy cream, milk, salt, pepper, and a pinch of nutmeg until fully uniform and slightly frothy.",
+        "Carefully pour the egg mixture into the pastry shell over the bacon and cheese.",
+        "Bake at 350°F for 35 to 40 minutes, or until the custard is set in the center and lightly golden on top.",
+        "Let cool for 10 minutes before slicing."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Despite its status as a cornerstone of French cuisine, quiche actually originated in the medieval German kingdom of Lothringen, which the French later conquered and renamed Lorraine.",
+      "reference": {
+        "url": "https://www.epicurious.com/recipes/food/views/quiche-lorraine-101851"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "epicurious.com",
+        "url": "https://www.epicurious.com/recipes/food/views/quiche-lorraine-101851",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Soft Chewy Pretzels",
+      "dish": "soft-chewy-pretzels",
+      "serves": "8 pretzels",
+      "description": "Authentic, dark golden Bavarian-style soft pretzels with a chewy texture, achieved via a quick baking soda bath before baking.",
+      "ingredients": [
+        "1 1/2 cups warm water",
+        "1 tbsp sugar",
+        "2 tsp kosher salt",
+        "1 packet active dry yeast",
+        "4 1/2 cups all-purpose flour",
+        "2 oz unsalted butter, melted",
+        "Bath: 10 cups water, 2/3 cup baking soda",
+        "Topping: Coarse pretzel salt"
+      ],
+      "instructions": [
+        "Combine water, sugar, and kosher salt in a bowl; sprinkle yeast on top.",
+        "Let sit for 5 minutes until foamy.",
+        "Add flour and melted butter; mix until a cohesive dough forms.",
+        "Knead dough on a floured surface for 5 minutes until smooth.",
+        "Place in a oiled bowl, cover, and let rise for 1 hour until doubled.",
+        "Preheat oven to 450°F (230°C).",
+        "Line two baking sheets with parchment paper and brush lightly with oil.",
+        "Divide dough into 8 equal pieces.",
+        "Roll each piece into a 24-inch long rope.",
+        "Make a U-shape, twist the ends together twice, and fold them back down to form a classic pretzel shape.",
+        "Bring 10 cups of water and 2/3 cup baking soda to a rolling boil in a large pot.",
+        "Drop pretzels into the boiling water one at a time for 30 seconds.",
+        "Remove with a slotted spatula and place onto the prepared baking sheets.",
+        "Sprinkle tops immediately with coarse pretzel salt.",
+        "Score a small slit in the bottom curve of each pretzel with a sharp knife.",
+        "Bake for 12 to 14 minutes until a deep, dark golden brown.",
+        "Transfer to a cooling rack."
+      ],
+      "cuisine": null,
+      "category": "bread",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Pretzels were invented by an Italian monk around 610 AD as a reward for children who memorized their prayers. The distinctive twists represent arms crossed across the chest in prayer.",
+      "reference": {
+        "url": "https://www.foodnetwork.com/recipes/alton-brown/homemade-soft-pretzels-recipe-1948242"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "foodnetwork.com",
+        "url": "https://www.foodnetwork.com/recipes/alton-brown/homemade-soft-pretzels-recipe-1948242",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Savory Cheddar Chive Scones",
+      "dish": "savory-cheddar-chive-scones",
+      "serves": "8 scones",
+      "description": "Buttery, ultra-flaky savory scones packed with sharp cheddar cheese and fresh green chives, perfect alongside soups or stews.",
+      "ingredients": [
+        "2 cups all-purpose flour",
+        "1 tbsp baking powder",
+        "1/2 tsp salt",
+        "1/4 tsp garlic powder",
+        "1/2 cup (1 stick) cold unsalted butter, cubed",
+        "1 cup sharp cheddar cheese, shredded",
+        "1/3 cup fresh chives, finely chopped",
+        "3/4 cup cold whole milk (plus 1 tbsp for brushing)"
+      ],
+      "instructions": [
+        "Preheat oven to 400°F (204°C).",
+        "Line a large baking sheet with parchment paper.",
+        "In a large bowl, whisk together the flour, baking powder, salt, and garlic powder.",
+        "Add cold cubed butter.",
+        "Use a pastry cutter or your fingertips to crush and blend the butter into the flour until it resembles coarse crumbs with some pea-sized pieces remaining.",
+        "Toss in the shredded cheddar cheese and chopped chives until distributed.",
+        "Pour in the cold milk.",
+        "Stir with a fork just until the dough gathers together into a shaggy mass.",
+        "Turn out onto a lightly floured counter and gently knead 3-4 times to form a cohesive ball.",
+        "Press firmly into a 7-inch round disc about 1 inch thick.",
+        "Cut the disc into 8 equal wedges using a sharp knife.",
+        "Space them out on the prepared baking sheet.",
+        "Brush the tops lightly with milk.",
+        "Bake for 15 to 18 minutes until golden brown on the tops and bottoms."
+      ],
+      "cuisine": null,
+      "category": "bread",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "The incredible flakiness of scones depends on keeping the butter completely cold. When cold butter hits a hot oven, the moisture inside steam-evaporates, expanding to form hundreds of delicate dough layers.",
+      "reference": {
+        "url": "https://smittenkitchen.com/2006/11/dream-a-little-dream-of-scone/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "smittenkitchen.com",
+        "url": "https://smittenkitchen.com/2006/11/dream-a-little-dream-of-scone/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Flaky Homemade Chicken Pot Pie",
+      "dish": "flaky-homemade-chicken-pot-pie",
+      "serves": "6 servings",
+      "description": "The ultimate savory comfort dish: a golden, crisp double crust holding a rich, creamy velouté filling of chicken and tender garden vegetables.",
+      "ingredients": [
+        "Crust: 2 unbaked 9-inch pie crusts",
+        "(homemade or store-bought)",
+        "Filling: 1/3 cup butter",
+        "1/3 cup chopped onion",
+        "1/3 cup all-purpose flour",
+        "1/2 tsp salt",
+        "1/4 tsp black pepper",
+        "1 3/4 cups chicken broth",
+        "1/2 cup milk",
+        "2 1/2 cups shredded cooked chicken breast",
+        "2 cups frozen mixed peas, carrots, and corn"
+      ],
+      "instructions": [
+        "Preheat oven to 425°F (220°C).",
+        "Roll out one pie crust and fit it into the bottom of a 9-inch pie plate.",
+        "In a medium saucepan, melt the butter over medium heat.",
+        "Add the chopped onion and cook for 2 minutes until tender.",
+        "Stir in the flour, salt, and pepper until a smooth paste forms.",
+        "Cook for 1 minute.",
+        "Slowly whisk in the chicken broth and milk.",
+        "Bring to a simmer, stirring constantly, until the sauce thickens smoothly.",
+        "Stir in the cooked chicken and frozen mixed vegetables.",
+        "Remove from heat.",
+        "Pour the warm chicken filling into the prepared bottom pie crust.",
+        "Roll out the second pie crust and place it over the top of the filling.",
+        "Trim, crimp, and pinch the edges to seal securely.",
+        "Cut 4 small slits in the center of the top crust to vent steam.",
+        "Bake for 35 to 40 minutes, or until the pastry is completely golden brown and the filling bubbles through the vents.",
+        "Let rest for 10 minutes before slicing."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "The ancient Romans made early prototypes of meat pies where the crust was incredibly thick and made entirely of flour and water, intended purely as a durable cooking vessel rather than to be eaten.",
+      "reference": {
+        "url": "https://www.delish.com/cooking/recipe/a53580/best-chicken-pot-pie-recipe/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "delish.com",
+        "url": "https://www.delish.com/cooking/recipe/a53580/best-chicken-pot-pie-recipe/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Spinach and Feta Puff Pastry Tarts",
+      "dish": "spinach-and-feta-puff-pastry-tarts",
+      "serves": "6 tarts",
+      "description": "Crisp, elegant puff pastry squares topped with a seasoned cream cheese spread, fresh spinach, and salty crumbled feta cheese.",
+      "ingredients": [
+        "1 sheet frozen puff pastry, thawed",
+        "4 oz cream cheese, softened",
+        "1 clove garlic, minced",
+        "2 cups fresh baby spinach, chopped",
+        "1/2 cup feta cheese, crumbled",
+        "1 tbsp olive oil",
+        "1 egg beaten with 1 tbsp water (egg wash)"
+      ],
+      "instructions": [
+        "Preheat oven to 400°F (204°C).",
+        "Line a large baking sheet with parchment paper.",
+        "Roll out the thawed puff pastry sheet into a large square on a floured surface.",
+        "Cut into 6 equal rectangles.",
+        "Place rectangles on the baking sheet.",
+        "Use a sharp knife to score a shallow border 1/2-inch inside the edge of each rectangle (do not cut all the way through).",
+        "Prick the interior centers with a fork.",
+        "In a small bowl, mix softened cream cheese and minced garlic until smooth.",
+        "Sauté chopped spinach in olive oil for 1 minute until wilted; squeeze out all excess moisture thoroughly.",
+        "Spread a tablespoon of the garlic cream cheese inside the scored border of each pastry.",
+        "Top with a layer of wilted spinach and a generous sprinkle of crumbled feta.",
+        "Brush the outer pastry borders with the egg wash.",
+        "Bake for 15 to 18 minutes until the edges are puffed up high and deeply golden.",
+        "Serve warm."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Classic puff pastry (pâte feuilletée) relies entirely on physical lamination. When folded properly, the dough contains up to 729 distinct, micro-thin layers of butter trapped between layers of dough.",
+      "reference": {
+        "url": "https://www.allrecipes.com/recipe/257223/spinach-and-feta-puff-pastry-bites/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "allrecipes.com",
+        "url": "https://www.allrecipes.com/recipe/257223/spinach-and-feta-puff-pastry-bites/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Rosemary Garlic Homemade Crackers",
+      "dish": "rosemary-garlic-homemade-crackers",
+      "serves": "8 servings",
+      "description": "Crisp, crunchy, and preservative-free homemade crackers infused with fresh rosemary and aromatic garlic powder.",
+      "ingredients": [
+        "2 cups all-purpose flour",
+        "1 tbsp fresh rosemary, finely chopped",
+        "1 tsp garlic powder",
+        "1 tsp fine sea salt",
+        "2 tbsp extra virgin olive oil",
+        "2/3 cup cold water",
+        "Coarse sea salt for topping"
+      ],
+      "instructions": [
+        "Preheat oven to 400°F (204°C).",
+        "Line two baking sheets with parchment paper.",
+        "In a large bowl, whisk together the flour, chopped rosemary, garlic powder, and fine sea salt.",
+        "Drizzle in the olive oil and cold water.",
+        "Stir with a fork until the ingredients hold together, then gather with your hands into a ball.",
+        "Divide the dough into two equal portions.",
+        "Working with one piece at a time, roll the dough directly onto a sheet of parchment paper until it is paper-thin (about 1/16th inch).",
+        "Lightly mist the surface of the rolled dough with water and sprinkle with coarse sea salt, pressing it in gently with a rolling pin.",
+        "Use a pizza cutter or sharp knife to cut the dough into 1.5-inch squares or diamonds.",
+        "Prick the center of each square with a fork.",
+        "Slide the parchment paper onto the baking sheets.",
+        "Bake for 12 to 15 minutes, swapping the sheets halfway through, until the edges are golden and the centers are completely crisp.",
+        "Let cool completely to achieve full crunch."
+      ],
+      "cuisine": null,
+      "category": "bread",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Crackers were invented in 1792 by John Pearson, who sought a durable biscuit that wouldn't spoil on long sea voyages. The sharp popping noise they made when baking inspired the name 'crackers'.",
+      "reference": {
+        "url": "https://minimalistbaker.com/7-ingredient-veggie-cracker-bites/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "minimalistbaker.com",
+        "url": "https://minimalistbaker.com/7-ingredient-veggie-cracker-bites/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Golden Flaky British Sausage Rolls",
+      "dish": "golden-flaky-british-sausage-rolls",
+      "serves": "8 large rolls",
+      "description": "An iconic British bakery favorite: seasoned pork sausage meat encased in crispy, puff pastry layers.",
+      "ingredients": [
+        "1 lb high-quality pork sausage meat",
+        "1 small onion, grated finely",
+        "1/2 cup breadcrumbs",
+        "1 tsp dried sage or thyme",
+        "1/2 tsp salt",
+        "1/4 tsp black pepper",
+        "2 sheets frozen puff pastry, thawed",
+        "1 egg, beaten (for egg wash)"
+      ],
+      "instructions": [
+        "Preheat oven to 400°F (204°C).",
+        "Line a large baking sheet with parchment paper.",
+        "In a large bowl, thoroughly mix the pork sausage meat, grated onion, breadcrumbs, dried sage, salt, and black pepper using your hands.",
+        "Lay out the two thawed sheets of puff pastry.",
+        "Cut each sheet in half vertically to create four long, equal rectangles.",
+        "Divide the sausage mixture into four equal portions.",
+        "Shape each portion into a long log down the center of each pastry rectangle.",
+        "Brush one long edge of the pastry with egg wash.",
+        "Roll the pastry tightly over the sausage log, sealing it firmly along the egg-washed edge.",
+        "Cut each long roll into 4 equal segments.",
+        "Cut 2-3 small diagonal slashes on top of each roll to allow steam to escape.",
+        "Place the sausage rolls seam-side down on the prepared sheet.",
+        "Brush the tops generously with the remaining egg wash.",
+        "Bake for 25 to 30 minutes, or until the pastry is puffed and deep golden brown, and the meat inside is fully cooked."
+      ],
+      "cuisine": null,
+      "category": "bread",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Sausage rolls became heavily popularized in London during the early 1800s as a cheap, portable street food during the Napoleonic Wars and remain a fundamental staple of British culture.",
+      "reference": {
+        "url": "https://www.recipetineats.com/special-pork-sausage-rolls/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "recipetineats.com",
+        "url": "https://www.recipetineats.com/special-pork-sausage-rolls/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Classic Southern Cheese Straws",
+      "dish": "classic-southern-cheese-straws",
+      "serves": "12 servings",
+      "description": "Crisp, buttery, and highly addictive snack straws made with sharp cheddar and a kick of cayenne pepper.",
+      "ingredients": [
+        "2 cups (8 oz) extra-sharp cheddar cheese, shredded",
+        "1/2 cup (1 stick) unsalted butter, softened",
+        "1 1/2 cups all-purpose flour",
+        "1 tsp salt",
+        "1/2 tsp cayenne pepper (adjust for heat)",
+        "1/2 tsp paprika"
+      ],
+      "instructions": [
+        "Preheat oven to 350°F (175°C).",
+        "Line two large baking sheets with parchment paper.",
+        "Ensure the cheese is freshly shredded and at room temperature.",
+        "In a stand mixer fitted with the paddle attachment, beat the cheese and softened butter together on medium speed until perfectly smooth and creamy.",
+        "In a separate bowl, whisk together the flour, salt, cayenne pepper, and paprika.",
+        "Turn the mixer to low speed and gradually add the flour mixture, beating just until a cohesive, soft dough forms.",
+        "Pack the dough into a cookie press fitted with a star disc (or a heavy piping bag fitted with a large open star tip).",
+        "Pipe the dough into long, neat 3-to-4-inch strips onto the prepared baking sheets, leaving 1/2 inch between each straw.",
+        "Bake for 12 to 15 minutes, or until the straws are set and the ends are just beginning to turn lightly golden.",
+        "Do not let them brown heavily.",
+        "Let cool completely on the baking sheet; they will become delightfully crisp and snappy as they cool."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Traditional cheese straws are an absolute staple of Southern hospitality, heavily featured at weddings, cocktail hours, and holiday parties across the American South since the 19th century.",
+      "reference": {
+        "url": "http://www.deepsouthdish.com/2010/12/traditional-southern-cheese-straws.html"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "deepsouthdish.com",
+        "url": "http://www.deepsouthdish.com/2010/12/traditional-southern-cheese-straws.html",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Bacon, Leek, and Gruyère Tart",
+      "dish": "bacon-leek-and-gruy-re-tart",
+      "serves": "6 servings",
+      "description": "An elegant, sophisticated open-faced tart layered with sweet sautéed leeks, smoky bacon, and rich melted Swiss Gruyère cheese.",
+      "ingredients": [
+        "1 sheet puff pastry or homemade shortcrust pastry, rolled thin",
+        "4 slices thick-cut bacon, diced",
+        "2 large leeks (white and light green parts only), washed and sliced",
+        "1 cup Gruyère cheese, shredded",
+        "2 large eggs",
+        "1/2 cup crème fraîche or heavy cream",
+        "1/4 tsp salt",
+        "1/4 tsp ground nutmeg"
+      ],
+      "instructions": [
+        "Preheat oven to 400°F (204°C).",
+        "Lay pastry into a 9-inch tart pan with a removable bottom, pressing it gently into the fluted edges.",
+        "Trim excess.",
+        "Prick bottom with a fork and chill for 10 minutes.",
+        "In a large skillet over medium heat, fry the diced bacon until crisp.",
+        "Remove with a slotted spoon to drain.",
+        "Pour off most of the bacon fat, leaving 1 tablespoon in the skillet.",
+        "Add the sliced leeks and sauté over medium-low heat for 8 to 10 minutes until completely soft, translucent, and sweet.",
+        "Spread the sautéed leeks and cooked bacon evenly across the bottom of the pastry shell.",
+        "Top with the shredded Gruyère cheese.",
+        "In a small bowl, whisk the eggs, crème fraîche, salt, and nutmeg together until completely uniform.",
+        "Pour the egg mixture carefully over the leeks and cheese.",
+        "Bake for 25 to 30 minutes, or until the pastry edges are golden brown and the center of the tart filling is set and lightly browned.",
+        "Serve warm or at room temperature."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Leeks belong to the allium family alongside onions and garlic. They were so highly prized by Roman Emperor Nero that he ate them daily to improve the quality of his singing voice.",
+      "reference": {
+        "url": "https://www.tartinebakery.com"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "tartinebakery.com",
+        "url": "https://www.tartinebakery.com",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Fudgy Chocolate Lava Cakes",
+      "dish": "fudgy-chocolate-lava-cakes",
+      "serves": "4 servings",
+      "description": "Decadent individual chocolate cakes with a rich, molten chocolate center that flows out beautifully when sliced.",
+      "ingredients": [
+        "1/2 cup (1 stick) unsalted butter",
+        "4 oz high-quality bittersweet chocolate, chopped",
+        "2 large eggs plus 2 large egg yolks",
+        "1/4 cup granulated sugar",
+        "Pinch of salt",
+        "2 tbsp all-purpose flour"
+      ],
+      "instructions": [
+        "Preheat oven to 425°F (218°C).",
+        "Butter four 6-ounce ramekins generously and dust the interiors with cocoa powder.",
+        "In a heatproof bowl, melt the butter and chopped chocolate together in the microwave or over a water bath until completely smooth.",
+        "In a medium bowl, vigorously whisk the whole eggs, egg yolks, sugar, and salt together until thick and pale yellow.",
+        "Whisk the melted chocolate mixture into the eggs, then gently fold in the flour until just combined.",
+        "Divide the rich batter evenly among the four prepared ramekins.",
+        "Bake for 12 to 14 minutes, or until the edges are firm but the exact centers still jiggle slightly.",
+        "Let cool for 1 minute, then invert onto dessert plates."
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "The molten lava cake was popularized in New York City in 1987 by chef Jean-Georges Vongerichten, who accidentally pulled a chocolate sponge cake out of the oven too early.",
+      "reference": {
+        "url": "https://www.marthastewart.com/341334/molten-chocolate-cakes"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "marthastewart.com",
+        "url": "https://www.marthastewart.com/341334/molten-chocolate-cakes",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Savory Stromboli",
+      "dish": "savory-stromboli",
+      "serves": "6 servings",
+      "description": "A rolled-up Italian-American favorite packed with layers of melted mozzarella, pepperoni, salami, and savory marinara sauce.",
+      "ingredients": [
+        "1 lb pizza dough, room temperature",
+        "1/2 cup marinara sauce",
+        "2 cups shredded mozzarella cheese",
+        "4 oz sliced pepperoni",
+        "4 oz sliced genoa salami",
+        "1 tsp Italian seasoning",
+        "1 egg, beaten (for egg wash)"
+      ],
+      "instructions": [
+        "Preheat oven to 400°F (204°C).",
+        "Line a large baking sheet with parchment paper.",
+        "Roll out the pizza dough on a floured surface into a large 10x15-inch rectangle.",
+        "Spread the marinara sauce evenly across the dough, leaving a 1- inch border along the edges.",
+        "Layer the shredded mozzarella, pepperoni slices, and salami slices uniformly over the sauce.",
+        "Sprinkle with Italian seasoning.",
+        "Starting from the long edge, roll the dough up tightly into a log, sealing the ends securely by tucking them under.",
+        "Transfer the log to the prepared baking sheet.",
+        "Brush the top with egg wash and cut 3-4 diagonal vents across the top.",
+        "Bake for 20 to 25 minutes until the crust is a deep golden brown and the cheese inside is bubbling out of the vents."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Stromboli was invented in 1950 by Nazzareno Romano in Philadelphia. He named the rolled pizza dough creation after the famous movie 'Stromboli' starring Ingrid Bergman.",
+      "reference": {
+        "url": "https://www.allrecipes.com/recipe/24519/easy-stromboli/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "allrecipes.com",
+        "url": "https://www.allrecipes.com/recipe/24519/easy-stromboli/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Classic Southern Buttermilk Biscuits",
+      "dish": "classic-southern-buttermilk-biscuits",
+      "serves": "8 biscuits",
+      "description": "Mile-high, incredibly flaky Southern biscuits made with cold butter and real tangy buttermilk, perfect with butter or gravy.",
+      "ingredients": [
+        "2 1/2 cups all-purpose flour",
+        "1 tbsp baking powder",
+        "1/2 tsp baking soda",
+        "1 tsp salt",
+        "1/2 cup (1 stick) unsalted butter, frozen",
+        "1 cup cold buttermilk"
+      ],
+      "instructions": [
+        "Preheat oven to 450°F (230°C).",
+        "Line a baking sheet with parchment paper.",
+        "In a large bowl, whisk together the flour, baking powder, baking soda, and salt.",
+        "Grate the frozen butter into the flour mixture and toss lightly with a fork to coat.",
+        "Pour in the cold buttermilk and stir gently just until a shaggy dough begins to form.",
+        "Turn out onto a floured counter.",
+        "Pat into a rectangle, then fold it in half.",
+        "Turn 90 degrees and repeat this process 5 times to build layers.",
+        "Pat dough down to 1 inch thick.",
+        "Cut into rounds using a sharp 2.5- inch biscuit cutter without twisting the cutter (twisting seals the edges and prevents rising).",
+        "Arrange biscuits closely together on the baking sheet so they touch (this helps them rise higher).",
+        "Bake for 12 to 15 minutes until the tops are beautifully golden brown.",
+        "Brush with additional melted butter if desired."
+      ],
+      "cuisine": null,
+      "category": "bread",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "The trick to mile-high biscuits is 'lamination'—folding the dough over on itself multiple times during shaping to build distinct structural layers.",
+      "reference": {
+        "url": "https://www.southernliving.com/food/breads/biscuits/southern-buttermilk-biscuits-recipe"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "southernliving.com",
+        "url": "https://www.southernliving.com/food/breads/biscuits/southern-buttermilk-biscuits-recipe",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    }
+  ]
+}

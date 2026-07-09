@@ -1,0 +1,1132 @@
+{
+  "_meta": {
+    "batch": "frugal-family",
+    "source": "frugal-family-25.json",
+    "provenance": "Budget family recipes adapted from published sites (per-recipe reference URL).",
+    "count": 25,
+    "notes": {
+      "enrichmentPending": "cuisine (where null), diet[], keywords[], prep/cook/total times, and altOf cross-links are NOT yet set — pending an enrichment pass. Fun facts are NOT yet fact-checked.",
+      "stepSegmentation": "instructions were sentence-split from the source prep paragraphs (PDF text has no inline step numbers); wording is faithful but step boundaries are approximate."
+    }
+  },
+  "recipes": [
+    {
+      "name": "Hearty Black Bean Quesadillas",
+      "dish": "hearty-black-bean-quesadillas",
+      "serves": "10 quesadillas",
+      "description": "A crispy, flavorful, and incredibly budget-friendly meal stuffed with black beans, corn, spices, and melted cheese. Excellent for large families or meal prep.",
+      "ingredients": [
+        "1 can (15oz) Black beans, rinsed and drained",
+        "1 cup Frozen corn (no need to thaw)",
+        "1/2 cup Red onion, finely diced",
+        "1 clove Garlic, minced",
+        "1/4 bunch Fresh cilantro, chopped",
+        "2 cups Shredded cheddar or Monterey Jack cheese",
+        "1 tbsp Taco seasoning mix",
+        "10 medium Flour tortillas (7-inch diameter)"
+      ],
+      "instructions": [
+        "In a large bowl, combine the drained black beans, frozen corn, diced red onion, minced garlic, chopped cilantro, shredded cheese, and taco seasoning.",
+        "Stir the mixture thoroughly until all ingredients are evenly distributed and coated in the seasoning.",
+        "Place about 1/3 cup of the filling onto one half of a flour tortilla, then fold the other half over to create a half-moon shape.",
+        "Heat a large skillet over medium heat.",
+        "Place the quesadilla in the dry skillet (or add a tiny brush of oil/ butter for extra crunch).",
+        "Cook for 3-4 minutes per side until the tortilla is golden brown, crispy, and the cheese inside is completely melted.",
+        "Repeat for remaining tortillas."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "These quesadillas are exceptionally freezer-friendly. You can stack them uncooked with a piece of parchment paper between each, seal them in a freezer bag, and store for up to 3 months. Cook directly from frozen on low-medium heat!",
+      "reference": {
+        "url": "https://www.budgetbytes.com/hearty-black-bean-quesadillas/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "budgetbytes.com",
+        "url": "https://www.budgetbytes.com/hearty-black-bean-quesadillas/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Classic Lentil & Vegetable Soup",
+      "dish": "classic-lentil-vegetable-soup",
+      "serves": "6 servings",
+      "description": "A deeply comforting, protein-packed soup made with low-cost green or brown lentils and hearty aromatic root vegetables. Perfect with a side of crusty bread.",
+      "ingredients": [
+        "1 cup Brown or green lentils, rinsed well",
+        "1 large Yellow onion, chopped",
+        "2 large Carrots, sliced into rounds",
+        "2 stalks Celery, sliced",
+        "2 cloves Garlic, minced",
+        "1 can (14.5oz) Diced tomatoes with juices",
+        "4 cups Vegetable or chicken broth",
+        "1 tsp Ground cumin",
+        "1 tsp Dried oregano",
+        "2 tbsp Olive oil or vegetable oil",
+        "To taste Salt and freshly ground black pepper"
+      ],
+      "instructions": [
+        "Heat the oil in a large pot or Dutch oven over medium heat.",
+        "Add the chopped onion, carrots, and celery.",
+        "Cook for about 5 minutes, stirring occasionally, until the veggies start to soften.",
+        "Add the minced garlic, ground cumin, and dried oregano.",
+        "Stir continuously for 1 minute until highly fragrant.",
+        "Pour in the diced tomatoes (with their juices), the rinsed lentils, and the broth.",
+        "Stir well to combine.",
+        "Bring the soup to a boil, then reduce the heat to low.",
+        "Cover the pot with a lid and let it simmer for 35-40 minutes, or until the lentils and vegetables are completely tender . Taste the broth and season generously with salt and pepper before serving warm."
+      ],
+      "cuisine": null,
+      "category": "soup",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Lentils are one of the oldest cultivated crops in human history, dating back over 9,000 years to ancient Mesopotamia. They require no soaking before cooking, making them much faster to prepare than dry beans.",
+      "reference": {
+        "url": "https://www.allrecipes.com/recipe/13978/lentil-soup/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "allrecipes.com",
+        "url": "https://www.allrecipes.com/recipe/13978/lentil-soup/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Shakshuka (Eggs in Spicy Tomato Sauce)",
+      "dish": "shakshuka-eggs-in-spicy-tomato-sauce",
+      "serves": "4 servings",
+      "description": "A traditional North African and Middle Eastern dish featuring gently poached eggs nestled in a rich, warmly spiced tomato and sweet bell pepper reduction.",
+      "ingredients": [
+        "1 tbsp Olive oil",
+        "1/2 large Yellow onion, diced",
+        "1/2 large Red or green bell pepper , chopped",
+        "2 cloves Garlic, minced",
+        "1 tsp Ground cumin",
+        "1 tsp Paprika (smoked or sweet)",
+        "1 can (28oz) Crushed or whole plum tomatoes",
+        "4 to 5 large Eggs",
+        "To taste Salt and black pepper",
+        "1 tbsp Fresh parsley or cilantro, chopped for garnish"
+      ],
+      "instructions": [
+        "Heat olive oil in a large, deep skillet or frying pan over medium heat.",
+        "Add the onion and bell pepper; cook for 5-7 minutes until soft.",
+        "Add the minced garlic, cumin, and paprika.",
+        "Cook for an additional 1 minute, stirring constantly to avoid burning the spices.",
+        "Pour in the canned tomatoes.",
+        "If using whole tomatoes, gently crush them with a wooden spoon.",
+        "Bring to a simmer and let cook uncovered for 10 minutes until the sauce thickens slightly.",
+        "Use a large spoon to make 4 or 5 small indentations (wells) in the simmering tomato sauce.",
+        "Carefully crack an egg into each well.",
+        "Turn the heat down to low, cover the skillet with a lid, and cook for 5-8 minutes until the egg whites are fully opaque and set, but the yolks are still soft and runny.",
+        "Garnish with fresh herbs."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "The word 'shakshuka' translates roughly to 'a haphazard mixture' or 'all shaken up' in Arabic slang, referencing how seamlessly the ingredients meld together into one pan.",
+      "reference": {
+        "url": "https://www.downshiftology.com/recipes/shakshuka/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "downshiftology.com",
+        "url": "https://www.downshiftology.com/recipes/shakshuka/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Vegetable Egg Fried Rice",
+      "dish": "vegetable-egg-fried-rice",
+      "serves": "4 servings",
+      "description": "The ultimate budget-friendly 'clean-out-the-fridge' meal that transforms cold, day-old cooked white rice into a savory, fast-paced restaurant quality dinner .",
+      "ingredients": [
+        "3 cups Cooked white rice, thoroughly chilled (day-old)",
+        "2 tbsp Vegetable or canola oil",
+        "1 cup Frozen peas and carrots mix, thawed",
+        "1/2 medium Yellow onion, finely diced",
+        "2 cloves Garlic, minced",
+        "3 large Eggs, whisked gently",
+        "3 tbsp Soy sauce (or to taste)",
+        "1 tbsp Toasted sesame oil (optional but recommended)",
+        "2 stalks Green onions, finely sliced"
+      ],
+      "instructions": [
+        "Heat one tablespoon of vegetable oil in a large skillet or wok over high heat.",
+        "Add the diced onion, garlic, and thawed peas and carrots.",
+        "Sauté for about 3 minutes until soft.",
+        "Push the vegetables to the outer edges of the pan to clear an empty circle in the middle.",
+        "Pour the whisked eggs into this space.",
+        "Scramble the eggs quickly with a spatula until fully cooked, then stir them directly into the surrounding vegetables.",
+        "Add the remaining tablespoon of vegetable oil to the pan, then dump in the cold, chilled rice.",
+        "Break up any large rice clumps with your spoon.",
+        "Drizzle the soy sauce and optional sesame oil across the top.",
+        "Toss and stir everything together continuously over high heat for 3-5 minutes until the rice absorbs the color and is heated through.",
+        "Garnish with green onions."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Using freshly cooked rice will make your fried rice mushy and sticky. Day-old rice is ideal because the grains have dehydrated slightly in the refrigerator , allowing them to fry up crisp and absorb sauces perfectly.",
+      "reference": {
+        "url": "https://www.gimmesomeoven.com/fried-rice-recipe/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "gimmesomeoven.com",
+        "url": "https://www.gimmesomeoven.com/fried-rice-recipe/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Classic Tuna Noodle Casserole",
+      "dish": "classic-tuna-noodle-casserole",
+      "serves": "6 servings",
+      "description": "A timeless, nostalgic American bake featuring tender egg noodles, canned tuna, and sweet peas baked inside a creamy, cheesy sauce with a delightfully crunchy top.",
+      "ingredients": [
+        "8 oz Dry egg noodles (or elbow macaroni)",
+        "2 cans (5oz ea) Tuna in water , drained well",
+        "1 can (10.5oz) Condensed cream of mushroom soup",
+        "1 cup Frozen sweet peas",
+        "1 cup Shredded cheddar cheese, divided",
+        "1/2 cup Whole milk or half-and-half",
+        "1/2 cup Crushed potato chips or breadcrumbs",
+        "1 tbsp Butter , cut into small dots"
+      ],
+      "instructions": [
+        "Preheat your oven to 375°F (190°C) and lightly grease a 9x13 inch baking dish.",
+        "Bring a large pot of salted water to a boil.",
+        "Cook the egg noodles according to the package instructions, then drain thoroughly.",
+        "In a large mixing bowl, whisk together the condensed cream of mushroom soup, milk, drained tuna flakes, frozen peas, and half (1/2 cup) of the shredded cheddar cheese.",
+        "Add the drained noodles into the bowl and stir gently until everything is fully coated in the cream mixture.",
+        "Transfer into the prepared baking dish.",
+        "Spread the remaining 1/2 cup of cheddar cheese across the top, followed by an even layer of crushed potato chips or breadcrumbs.",
+        "Dot with butter pieces and bake for 20 minutes until bubbling."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Tuna noodle casserole skyrocketed in popularity across mid-century America because Campbell's and other canned goods companies marketed it heavily as a cheap, lightning-fast weeknight solution for busy parents.",
+      "reference": {
+        "url": "https://www.allrecipes.com/recipe/17219/tuna-noodle-casserole-from-scratch/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "allrecipes.com",
+        "url": "https://www.allrecipes.com/recipe/17219/tuna-noodle-casserole-from-scratch/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Smoked Sausage & Cabbage Skillet",
+      "dish": "smoked-sausage-cabbage-skillet",
+      "serves": "4 servings",
+      "description": "A savory, smoky, and exceptionally economical one-pan dinner that coaxes incredible sweetness and flavor out of a humble, low-cost head of green cabbage.",
+      "ingredients": [
+        "1 lb Smoked sausage or Polish kielbasa, sliced into rounds",
+        "1 medium head Green cabbage, cored and chopped into bite-sized pieces",
+        "1 medium Yellow onion, sliced thin",
+        "2 tbsp Butter or vegetable oil",
+        "1 tbsp Apple cider vinegar",
+        "1 tsp Garlic powder",
+        "To taste Salt and cracked black pepper"
+      ],
+      "instructions": [
+        "Place a large, deep skillet or Dutch oven over medium-high heat.",
+        "Add the sliced sausage rounds and brown them for roughly 5 minutes, turning occasionally until crisp on the edges.",
+        "Remove the sausage from the skillet with a slotted spoon and set aside on a plate, leaving the rendered smoky fat inside the pan.",
+        "Turn heat down to medium, melt the butter into the hot pan fat, and add the onions and chopped cabbage.",
+        "Sauté the cabbage and onions for 12-15 minutes, stirring frequently.",
+        "The cabbage will shrink significantly and begin to brown and caramelize.",
+        "Stir the cooked sausage back into the cabbage.",
+        "Add the apple cider vinegar , garlic powder , salt, and pepper . Toss well and cook 2 more minutes until heated through."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Green cabbage is consistently ranked among the cheapest fresh vegetables per pound available at the supermarket. It is highly nutrient-dense, packed with Vitamin C, and keeps in the crisper drawer for weeks.",
+      "reference": {
+        "url": "https://www.budgetbytes.com/sausage-cabbage-skillet/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "budgetbytes.com",
+        "url": "https://www.budgetbytes.com/sausage-cabbage-skillet/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Creamy Potato Leek Soup",
+      "dish": "creamy-potato-leek-soup",
+      "serves": "6 servings",
+      "description": "A velvety, elegant, yet deeply affordable French-style comfort soup that transforms basic potatoes and leeks into a luxurious, silk-textured meal.",
+      "ingredients": [
+        "3 large Leeks, white and light green parts only, washed and sliced",
+        "2 lbs Russet potatoes, peeled and diced into cubes",
+        "2 tbsp Butter",
+        "4 cups Chicken or vegetable broth",
+        "2 cloves Garlic, minced",
+        "1/2 cup Heavy cream or whole milk",
+        "1 whole Dried bay leaf",
+        "To taste Salt and ground white or black pepper"
+      ],
+      "instructions": [
+        "Melt the butter in a large heavy-bottomed pot over medium heat.",
+        "Add the cleaned, sliced leeks and minced garlic.",
+        "Sauté for 8-10 minutes until soft and translucent, making sure they don't brown.",
+        "Add the cubed potatoes, broth, and the bay leaf to the pot.",
+        "Bring the mixture up to a rolling boil.",
+        "Once boiling, reduce the heat to low, cover the pot with its lid, and let it simmer for 20 minutes, or until the potato cubes easily fall apart when poked with a fork.",
+        "Turn off the heat and fish out the bay leaf.",
+        "Use an immersion blender (or carefully transfer in batches to a standard countertop blender) to puree the soup until completely smooth.",
+        "Stir in the heavy cream or milk, season well with salt and pepper , and simmer on low for an extra minute before serving."
+      ],
+      "cuisine": null,
+      "category": "soup",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Known classically in France as 'Potage Parmentier', this soup was named after Antoine-Augustin Parmentier , an 18th-century champion of the potato who successfully convinced the French public that potatoes weren't toxic.",
+      "reference": {
+        "url": "https://www.onceuponachef.com/recipes/potato-leek-soup.html/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "onceuponachef.com",
+        "url": "https://www.onceuponachef.com/recipes/potato-leek-soup.html/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Chana Masala (Authentic Chickpea Curry)",
+      "dish": "chana-masala-authentic-chickpea-curry",
+      "serves": "4 servings",
+      "description": "A vibrant, aromatic Northern Indian chickpea curry that delivers massive amounts of plant protein, complex fiber , and warming restaurant-style spices for pennies.",
+      "ingredients": [
+        "2 cans (15oz) Chickpeas (garbanzo beans), drained and rinsed",
+        "1 large Yellow onion, very finely chopped",
+        "1 can (14.5oz) Diced tomatoes with their juice",
+        "2 tbsp Vegetable or coconut oil",
+        "3 cloves Garlic, minced",
+        "1 inch Fresh ginger root, peeled and finely grated",
+        "1 tbsp Garam masala spice blend",
+        "1 tsp Ground coriander",
+        "1/2 tsp Ground turmeric",
+        "1/2 tsp Chili powder (adjust to heat preference)",
+        "1/2 cup Water",
+        "To taste Salt"
+      ],
+      "instructions": [
+        "Heat the oil in a large skillet or saucepan over medium heat.",
+        "Add the finely chopped onion and sauté for 5-7 minutes until soft, sweet, and golden brown.",
+        "Add the minced garlic and grated ginger , stirring constantly for 1 minute to prevent sticking.",
+        "Sprinkle in the garam masala, coriander , turmeric, and chili powder . Stir rapidly for 30 seconds to toast the spices in the oil and awaken their essential flavors.",
+        "Pour in the diced tomatoes with their juices.",
+        "Use your spoon to lightly crush them.",
+        "Simmer for 5 minutes until the mixture turns into a thick, fragrant paste.",
+        "Stir in the drained chickpeas and 1/2 cup of water . Cover with a lid, reduce heat to low, and let it simmer for 15 minutes so the chickpeas absorb the curry notes.",
+        "Serve with rice."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Chickpeas are incredible powerhouses for families on a budget. They are incredibly low-cost but provide substantial levels of iron, magnesium, and protein, making them an excellent red meat alternative.",
+      "reference": {
+        "url": "https://www.minimalistbaker.com/easy-chana-masala/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "minimalistbaker.com",
+        "url": "https://www.minimalistbaker.com/easy-chana-masala/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Slow Cooker Pulled Pork",
+      "dish": "slow-cooker-pulled-pork",
+      "serves": "10 servings",
+      "description": "Transform a tough, highly economical pork shoulder cut into ultra-tender , juicy shredded meat perfect for a crowd in sandwiches, tacos, or over baked potatoes.",
+      "ingredients": [
+        "4 to 5 lbs Pork shoulder (pork butt), bone-in or boneless",
+        "1 large Yellow onion, sliced into rings",
+        "2 tbsp Brown sugar",
+        "1 tbsp Chili powder",
+        "1 tbsp Smoked paprika",
+        "1 tsp Garlic powder",
+        "1 tsp Salt and 1/2 tsp black pepper",
+        "1 cup Your favorite store-bought BBQ sauce"
+      ],
+      "instructions": [
+        "Scatter the sliced onion rings evenly across the bottom of your slow cooker crock.",
+        "In a small bowl, mix together the brown sugar , chili powder , smoked paprika, garlic powder , salt, and black pepper to create a dry spice rub.",
+        "Pat the pork shoulder dry with paper towels, then rub the spice mixture firmly over all sides of the meat.",
+        "Place the seasoned pork on top of the onions.",
+        "Cover the slow cooker with its lid and cook on the LOW setting for 8 to 10 hours (or HIGH for 5 to 6 hours) until the meat easily detaches with a fork.",
+        "Transfer the pork to a large cutting board, discard any large fat caps or bones, and shred using two forks.",
+        "Toss the meat back into the slow cooker juices with the BBQ sauce."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Pork shoulder is cheap because it contains hard-working muscles wrapped in heavy connective tissue (collagen). Long, slow cooking melts this tough collagen down into rich gelatin, rendering the meat incredibly moist.",
+      "reference": {
+        "url": "https://www.recipetineats.com/pork-pulled-pork-slow-cooker/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "recipetineats.com",
+        "url": "https://www.recipetineats.com/pork-pulled-pork-slow-cooker/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Pasta Fagioli (Italian Pasta & Bean Soup)",
+      "dish": "pasta-fagioli-italian-pasta-bean-soup",
+      "serves": "6 servings",
+      "description": "A classic, rustic Italian comfort soup utilizing simple pantry items like small pasta shapes, canned beans, and a deeply aromatic tomato-herb broth.",
+      "ingredients": [
+        "1 cup Ditalini or small elbow macaroni pasta",
+        "1 can (15oz) Cannellini beans, drained and rinsed",
+        "1 can (15oz) Dark red kidney beans, drained and rinsed",
+        "1 can (14.5oz) Crushed or pureed tomatoes",
+        "2 tbsp Olive oil",
+        "1 medium Yellow onion, finely diced",
+        "2 medium Carrots, finely diced",
+        "2 stalks Celery, finely diced",
+        "2 cloves Garlic, minced",
+        "4 cups Vegetable or chicken broth",
+        "1 tsp Dried rosemary",
+        "1 tsp Dried thyme",
+        "To taste Salt and black pepper"
+      ],
+      "instructions": [
+        "Heat olive oil in a large pot or Dutch oven over medium heat.",
+        "Sauté the diced onion, carrots, and celery for roughly 5 minutes until glossy and beginning to soften.",
+        "Add the minced garlic and cook for 1 minute until fragrant.",
+        "Pour in the crushed tomatoes, broth, dried rosemary, and dried thyme.",
+        "Stir thoroughly, bring to a boil, then lower the heat and let simmer uncovered for 15 minutes.",
+        "Stir the rinsed cannellini beans, kidney beans, and the uncooked dry ditalini pasta directly into the hot simmering soup.",
+        "Continue to simmer for 10-12 minutes, stirring occasionally to prevent the pasta from sticking to the bottom, until the pasta is cooked al dente.",
+        "Season with salt and pepper ."
+      ],
+      "cuisine": null,
+      "category": "soup",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Known historically as 'cucina povera' (peasant cooking), Pasta e Fagioli was invented by Italian agricultural laborers who needed highly filling meals using only what grew in their gardens and dried beans from the cellar .",
+      "reference": {
+        "url": "https://www.cookingclassy.com/pasta-e-fagioli-soup/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "cookingclassy.com",
+        "url": "https://www.cookingclassy.com/pasta-e-fagioli-soup/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Sheet Pan Chicken Drumsticks & Root Veggies",
+      "dish": "sheet-pan-chicken-drumsticks-root-veggies",
+      "serves": "4 servings",
+      "description": "Chicken drumsticks represent the most affordable poultry cut available. Roasting them on a single sheet pan with potatoes and carrots keeps cleanup and costs minimal.",
+      "ingredients": [
+        "8 whole Chicken drumsticks (chicken legs)",
+        "4 large Russet potatoes, cut into thick wedges",
+        "4 large Carrots, cut into 1-inch thick chunks",
+        "3 tbsp Vegetable oil or olive oil, divided",
+        "1 tbsp Dried Italian seasoning mix",
+        "1 tsp Garlic powder",
+        "1 tsp Onion powder",
+        "To taste Salt and black pepper"
+      ],
+      "instructions": [
+        "Preheat your oven to 400°F (200°C) and grease a very large rimmed baking sheet with nonstick spray or oil.",
+        "In a large bowl, toss the potato wedges and carrot pieces with 1.5 tablespoons of oil, half of the Italian seasoning, garlic powder , salt, and pepper until well coated.",
+        "Spread the seasoned vegetables out into an even layer across the prepared baking sheet.",
+        "Pat the chicken drumsticks dry with paper towels.",
+        "Rub them with the remaining 1.5 tablespoons of oil and the rest of the spice mixture.",
+        "Nestle the drumsticks among the vegetables on the sheet pan.",
+        "Bake in the oven for 40-45 minutes, turning the veggies once halfway through, until the chicken skin is crisp and internal temperature hits 165°F."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Dark meat chicken cuts like drumsticks and thighs are significantly juicier , softer , and far more forgiving to overcooking than lean, expensive chicken breasts, thanks to their natural fat distribution.",
+      "reference": {
+        "url": "https://www.budgetbytes.com/sheet-pan-bbq-chicken-and-vegetables/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "budgetbytes.com",
+        "url": "https://www.budgetbytes.com/sheet-pan-bbq-chicken-and-vegetables/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Traditional Louisiana Red Beans and Rice",
+      "dish": "traditional-louisiana-red-beans-and-rice",
+      "serves": "6 servings",
+      "description": "A slow-cooked, rich Creole staple that coaxes unmatched savory depth out of a dry bag of kidney beans and the traditional aromatic 'Holy Trinity'.",
+      "ingredients": [
+        "1 lb Dry red kidney beans, soaked in water overnight and drained",
+        "1 large Yellow onion, chopped",
+        "1 large Green bell pepper , chopped",
+        "3 stalks Celery, chopped",
+        "3 cloves Garlic, minced",
+        "6 cups Water , vegetable stock, or chicken stock",
+        "1 whole Dried bay leaf",
+        "1 tbsp Creole or Cajun seasoning blend",
+        "2 tbsp Vegetable oil",
+        "4 cups Cooked long-grain white rice, for serving"
+      ],
+      "instructions": [
+        "Heat vegetable oil in a large, heavy pot or Dutch oven over medium heat.",
+        "Sauté the chopped onion, bell pepper , and celery (the Creole Holy Trinity) for about 7 minutes until soft.",
+        "Add the minced garlic and cook for 1 additional minute.",
+        "Add the soaked and drained kidney beans to the pot, followed by the water or stock, bay leaf, and Creole seasoning.",
+        "Stir well and bring the liquid to a rolling boil.",
+        "Reduce heat to low, place the lid on tilted slightly to let a little steam escape, and simmer gently for 1.5 to 2 hours until the beans are totally soft and the liquid turns creamy.",
+        "Use the back of a heavy wooden spoon to mash a couple of scoops of beans against the side of the pot to thicken the gravy.",
+        "Serve hot over scoops of cooked white rice."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "In old New Orleans, Mondays were traditionally 'wash days.' Homemakers left a pot of red beans simmering all day on the back of the stove while handling heavy laundry, adding the leftover bone from Sunday's baked ham.",
+      "reference": {
+        "url": "https://www.gimmesomeoven.com/red-beans-and-rice-recipe/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "gimmesomeoven.com",
+        "url": "https://www.gimmesomeoven.com/red-beans-and-rice-recipe/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Garden Vegetable Frittata",
+      "dish": "garden-vegetable-frittata",
+      "serves": "4 servings",
+      "description": "An Italian open-faced egg bake that provides an exceptionally nutritious, fast vehicle for clearing out seasonal vegetables or random leftover cheese ends.",
+      "ingredients": [
+        "8 large Eggs",
+        "1/4 cup Whole milk or water",
+        "1 cup Assorted chopped vegetables (spinach, peppers, onions, tomatoes)",
+        "1/2 cup Shredded cheddar , swiss, or mozzarella cheese",
+        "1 tbsp Olive oil or butter",
+        "To taste Salt and black pepper"
+      ],
+      "instructions": [
+        "Preheat your kitchen oven to 350°F (175°C).",
+        "In a large mixing bowl, vigorously whisk together the eggs, milk, salt, and pepper until the fluid is smooth and slightly frothy.",
+        "Heat the olive oil or butter in an oven-safe skillet (such as a seasoned cast-iron skillet) over medium heat.",
+        "Add your chopped vegetables and sauté for 3-5 minutes until tender . Pour the whisked egg mixture directly over the hot veggies in the skillet, tilting the pan briefly to ensure the eggs wrap around all the vegetables uniformly.",
+        "Top with shredded cheese.",
+        "Cook undisturbed on the stovetop for 2 minutes until the outer edges begin to pale and set.",
+        "Immediately transfer the skillet into the oven and bake for 12-15 minutes until the center is stable."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "The word 'frittata' originates from the Italian verb 'friggere', which means 'to fry'. It was originally a casual term used to describe any quick egg preparation in a frying pan.",
+      "reference": {
+        "url": "https://www.loveandlemons.com/frittata-recipe/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "loveandlemons.com",
+        "url": "https://www.loveandlemons.com/frittata-recipe/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Savory Cottage Pie (Beef & Lentil Hybrid)",
+      "dish": "savory-cottage-pie-beef-lentil-hybrid",
+      "serves": "6 servings",
+      "description": "This smart hybrid recipe cuts your grocery bill in half by blending lean ground beef with cheap brown lentils, topped with a comforting blanket of fluffy mashed potatoes.",
+      "ingredients": [
+        "1/2 lb Lean ground beef",
+        "1 cup Dry brown lentils, pre-boiled in water until tender and drained",
+        "1 large Yellow onion, finely chopped",
+        "2 cloves Garlic, minced",
+        "1 cup Frozen peas and carrots mix",
+        "2 tbsp Tomato paste",
+        "1 cup Beef broth or water",
+        "4 large Russet potatoes, peeled and quartered",
+        "1/4 cup Milk",
+        "2 tbsp Butter",
+        "To taste Salt and black pepper"
+      ],
+      "instructions": [
+        "Place the quartered potatoes in a pot of salted water , bring to a boil, and cook for 15 minutes until tender . Drain, then mash thoroughly with the milk, butter , salt, and pepper . Set aside.",
+        "In a separate large skillet, brown the ground beef and chopped onion over medium-high heat.",
+        "Drain away any excess rendered fat.",
+        "Stir in the minced garlic, cooked brown lentils, frozen peas and carrots, tomato paste, and beef broth.",
+        "Bring to a simmer and cook for 8-10 minutes until a thick gravy forms.",
+        "Pour the beef and lentil mixture into an 8x8 inch square baking dish, smoothing it into a flat layer . Spoon the mashed potatoes over the top, smoothing them out with a fork to create little ridges.",
+        "Bake at 400°F (200°C) for 20 minutes until the potato peaks are beautifully golden."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "While often called 'Shepherd's Pie', technically that title only applies if the dish uses ground lamb (as shepherds guard sheep). When ground beef or alternative proteins are utilized, it is historically called a 'Cottage Pie'.",
+      "reference": {
+        "url": "https://www.budgetbytes.com/vegetarian-shepherds-pie/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "budgetbytes.com",
+        "url": "https://www.budgetbytes.com/vegetarian-shepherds-pie/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Quick Savory Peanut Noodles",
+      "dish": "quick-savory-peanut-noodles",
+      "serves": "4 servings",
+      "description": "A rapid, deeply comforting Asian-style noodle dish that uses standard box spaghetti and basic pantry fats to construct an insanely rich, nutty sauce.",
+      "ingredients": [
+        "8 oz Dry spaghetti, linguine, or fettuccine noodles",
+        "1/3 cup Creamy smooth peanut butter",
+        "3 tbsp Warm water",
+        "2 tbsp Soy sauce",
+        "1 tbsp Honey or dark brown sugar",
+        "1 clove Garlic, minced",
+        "1 tsp Fresh ginger , grated fine",
+        "1 tsp Rice vinegar or lime juice",
+        "2 stalks Green onions, finely sliced for garnish"
+      ],
+      "instructions": [
+        "Bring a large pot of water to a rolling boil.",
+        "Cook your spaghetti noodles according to the timing specified on the box packaging, then drain well.",
+        "While the pasta cooks, add the creamy peanut butter and warm water to a medium mixing bowl.",
+        "Whisk them together vigorously until the peanut butter thins out into a smooth cream.",
+        "Add the soy sauce, honey or brown sugar , minced garlic, grated ginger , and rice vinegar to the peanut mixture.",
+        "Whisk well until a glossy, fluid sauce forms.",
+        "Dump the hot, freshly drained noodles directly into the bowl containing the peanut sauce.",
+        "Toss the pasta continuously for a minute or two until the noodles completely absorb the sauce.",
+        "Garnish with green onions and serve warm or cold."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Peanut sauces are core pillars of Indonesian, Malaysian, and Thai culinary history. This Westernized adaptation provides an incredibly cheap way to replicate those rich flavor profiles using standard kitchen items.",
+      "reference": {
+        "url": "https://www.budgetbytes.com/cold-peanut-noodle-salad/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "budgetbytes.com",
+        "url": "https://www.budgetbytes.com/cold-peanut-noodle-salad/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Chili Cornbread Skillet Casserole",
+      "dish": "chili-cornbread-skillet-casserole",
+      "serves": "6 servings",
+      "description": "A hearty, warm, and comforting family favorite that bakes a sweet layer of golden cornbread directly on top of a bubbling, savory bean and beef chili base.",
+      "ingredients": [
+        "1/2 lb Ground beef (or ground turkey)",
+        "1 can (15oz) Black beans or kidney beans, drained",
+        "1 can (14.5oz) Tomato sauce or crushed tomatoes",
+        "1 tbsp Chili powder",
+        "1 box (8.5oz) Jiffy Corn Muffin Mix",
+        "1 large Egg (for the cornbread mix)",
+        "1/3 cup Milk (for the cornbread mix)",
+        "1/2 cup Shredded cheddar cheese"
+      ],
+      "instructions": [
+        "Preheat your oven to 400°F (200°C).",
+        "In an oven-safe skillet or standard frying pan, brown the ground beef over medium heat along with the chili powder . Drain away any grease.",
+        "Stir the drained canned beans and tomato sauce directly into the seasoned beef.",
+        "Simmer on low heat for 5 minutes, then level the surface out flat.",
+        "In a separate bowl, stir together the cornbread muffin mix, egg, and milk until just combined (some lumps are fine).",
+        "Pour the cornbread liquid evenly over the hot chili base in the skillet.",
+        "Bake in the oven for 18-20 minutes until the cornbread crust is golden and a toothpick inserted into the bread layer comes out clean.",
+        "Top with cheese for the final 2 minutes."
+      ],
+      "cuisine": null,
+      "category": "bread",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "This recipe is a highly streamlined evolution of the vintage 'Tamale Pie', a dish that originated in Texas in the early 1900s as a creative way to serve chili with a grain stretcher .",
+      "reference": {
+        "url": "https://www.allrecipes.com/recipe/231265/chili-cornbread-bake/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "allrecipes.com",
+        "url": "https://www.allrecipes.com/recipe/231265/chili-cornbread-bake/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Three-Bean Sweet Potato Chili",
+      "dish": "three-bean-sweet-potato-chili",
+      "serves": "6 servings",
+      "description": "A thick, chunky, nutrient-dense vegetarian chili featuring sweet potatoes and a trio of budget-friendly beans packed with complex fiber and smoky depth.",
+      "ingredients": [
+        "1 large Sweet potato, peeled and cut into small cubes",
+        "1 can (15oz) Black beans, rinsed and drained",
+        "1 can (15oz) Dark red kidney beans, rinsed and drained",
+        "1 can (15oz) Pinto beans, rinsed and drained",
+        "1 can (28oz) Diced tomatoes in juice",
+        "1 medium Yellow onion, chopped",
+        "2 tbsp Chili powder",
+        "1 tsp Ground cumin",
+        "3 cups Vegetable broth or water",
+        "1 tbsp Vegetable oil",
+        "To taste Salt"
+      ],
+      "instructions": [
+        "Heat the vegetable oil in a large, heavy soup pot over medium heat.",
+        "Sauté the chopped onion for 4 minutes until clear . Add the small sweet potato cubes, chili powder , and ground cumin to the pot.",
+        "Stir continuously for 1 minute to let the spices coat the vegetables.",
+        "Pour in the diced tomatoes, all three cans of drained beans, and the vegetable broth.",
+        "Stir everything together thoroughly.",
+        "Bring the chili up to a boil, then immediately turn the heat down to low.",
+        "Cover the pot with a tight lid and let it simmer for 25-30 minutes, stirring occasionally, until the sweet potato cubes are perfectly fork-tender and the broth has thickened into a rich gravy."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Sweet potatoes lend a wonderful, natural, creamy sweetness that cuts through the sharp acidity of canned tomatoes beautifully, completely eliminating the need to add refined sugars to balance your chili.",
+      "reference": {
+        "url": "https://www.budgetbytes.com/sweet-potato-chili/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "budgetbytes.com",
+        "url": "https://www.budgetbytes.com/sweet-potato-chili/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Cheesy Family Baked Ziti",
+      "dish": "cheesy-family-baked-ziti",
+      "serves": "8 servings",
+      "description": "A crowd-pleasing, ultra-affordable Italian-American bake that easily satisfies a massive household using pasta, jarred marinara, and gooey melted cheese.",
+      "ingredients": [
+        "1 lb Dry ziti or penne pasta",
+        "1 jar (24oz) Your favorite brand of marinara sauce",
+        "1 can (14.5oz) Diced tomatoes (un-drained)",
+        "2 cups Shredded mozzarella cheese, divided",
+        "1/2 cup Grated parmesan cheese",
+        "1 tsp Dried Italian seasoning mix",
+        "To taste Salt and black pepper"
+      ],
+      "instructions": [
+        "Preheat your oven to 375°F (190°C) and grease a large 9x13 inch baking dish.",
+        "Boil a large pot of salted water . Cook the ziti pasta until it is just shy of al dente (about 2 minutes less than box directions), then drain.",
+        "In a very large bowl, combine the boiled pasta, jar of marinara sauce, un-drained diced tomatoes, Italian seasoning, and 1 cup of the shredded mozzarella cheese.",
+        "Toss gently.",
+        "Pour the pasta mixture into the prepared baking dish, smoothing out the top.",
+        "Scatter the remaining 1 cup of mozzarella and the parmesan cheese over the top surface.",
+        "Bake uncovered for 20-25 minutes until the cheese is bubbling and golden on the edges."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Unlike traditional lasagna, which requires tedious layering of flat noodles and delicate fillings, baked ziti delivers an identical, luxurious comfort-food profile with zero structural assembly required.",
+      "reference": {
+        "url": "https://www.allrecipes.com/recipe/218084/classic-baked-ziti/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "allrecipes.com",
+        "url": "https://www.allrecipes.com/recipe/218084/classic-baked-ziti/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Depression-Era Wacky Chocolate Cake",
+      "dish": "depression-era-wacky-chocolate-cake",
+      "serves": "9 servings",
+      "description": "A legendary, magically moist chocolate cake created out of historical necessity that uses absolutely no eggs, butter , milk, or mixing bowls. Pure kitchen chemistry!",
+      "ingredients": [
+        "1.5 cups All-purpose flour",
+        "1 cup Granulated white sugar",
+        "3 tbsp Unsweetened cocoa powder",
+        "1 tsp Baking soda",
+        "1/2 tsp Salt",
+        "1 tsp White vinegar",
+        "1 tsp Pure vanilla extract",
+        "5 tbsp Vegetable oil or canola oil",
+        "1 cup Cold water"
+      ],
+      "instructions": [
+        "Preheat your kitchen oven to 350°F (175°C).",
+        "Do not grease or spray an 8x8 inch square baking pan.",
+        "Dump the flour , sugar , cocoa powder , baking soda, and salt directly into the dry baking pan.",
+        "Whisk them together inside the pan until fully blended.",
+        "Use a spoon to create three separate indentations (wells/divots) in the dry powder mix.",
+        "Pour the white vinegar into the first well, vanilla extract into the second, and vegetable oil into the third.",
+        "Pour the cold water across the entire surface of the pan over all ingredients.",
+        "Grab a standard kitchen fork and mix everything together thoroughly right inside the pan until a smooth liquid cake batter forms.",
+        "Bake for 30-35 minutes until a toothpick inserted in the center comes out clean."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "This cake rises completely without eggs! The magic lies in the instant chemical reaction between the acid (vinegar) and the base (baking soda), creating thousands of tiny carbon dioxide bubbles that lift the crumb perfectly.",
+      "reference": {
+        "url": "https://www.tastingtable.com/1378778/depression-era-vegan-vinegar-cake/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "tastingtable.com",
+        "url": "https://www.tastingtable.com/1378778/depression-era-vegan-vinegar-cake/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Frugal Overripe Banana Bread",
+      "dish": "frugal-overripe-banana-bread",
+      "serves": "8 servings",
+      "description": "The ultimate way to rescue heavily browned, overripe bananas from the trash, turning them into a dense, intensely moist, and fragrant sweet bread loaf.",
+      "ingredients": [
+        "3 medium Very overripe bananas, completely brown or speckled",
+        "1/3 cup Melted butter , vegetable oil, or coconut oil",
+        "3/4 cup Granulated sugar",
+        "1 large Egg, beaten well",
+        "1 tsp Vanilla extract",
+        "1 tsp Baking soda",
+        "1 pinch Salt",
+        "1.5 cups All-purpose flour"
+      ],
+      "instructions": [
+        "Preheat your oven to 350°F (175°C) and grease a standard 4x8 inch metal or glass loaf pan.",
+        "In a large mixing bowl, peel the bananas and use a sturdy fork to mash them down completely until they form a smooth, liquid consistency.",
+        "Pour the melted butter or oil into the mashed bananas and stir well with a wooden spoon.",
+        "Mix in the sugar , beaten egg, and vanilla extract until completely incorporated.",
+        "Sprinkle the baking soda and salt across the top of the liquid batter . Gently stir in the flour , stopping the moment the white flour disappears (do not over-mix, or the bread will become tough).",
+        "Pour the thick batter into the loaf pan and bake for 50 to 60 minutes until the top is split down the center and a toothpick emerges clean."
+      ],
+      "cuisine": null,
+      "category": "bread",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Banana bread first solidified its permanent status in the American home cookbook during the 1930s Great Depression because resourceful families absolute refused to throw away expensive fruit that had turned soft.",
+      "reference": {
+        "url": "https://www.simplyrecipes.com/recipes/banana_bread/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "simplyrecipes.com",
+        "url": "https://www.simplyrecipes.com/recipes/banana_bread/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Old-Fashioned Vanilla Bread Pudding",
+      "dish": "old-fashioned-vanilla-bread-pudding",
+      "serves": "6 servings",
+      "description": "An ingenious, sweet thrift recipe that resurrects hard, stale bread ends, soaking them in a warm, rich vanilla-cinnamon egg custard.",
+      "ingredients": [
+        "6 cups Stale bread, cut into 1-inch cubes (any basic white or wheat bread)",
+        "2 tbsp Butter , melted",
+        "4 large Eggs",
+        "2 cups Whole milk or 2% milk",
+        "3/4 cup Granulated sugar",
+        "1 tsp Ground cinnamon",
+        "1 tsp Pure vanilla extract",
+        "1/4 cup Raisins or dried cranberries (optional)"
+      ],
+      "instructions": [
+        "Preheat your oven to 350°F (175°C) and grease an 8x8 inch square baking dish with butter or cooking spray.",
+        "Arrange the stale bread cubes evenly inside the baking dish.",
+        "Drizzle the melted butter across the bread cubes, tossing them lightly to distribute.",
+        "In a separate mixing bowl, vigorously whisk together the eggs, milk, sugar , cinnamon, and vanilla extract until smooth.",
+        "Stir in the optional raisins.",
+        "Pour the liquid custard mixture slowly over the bread cubes, ensuring every single piece gets wet.",
+        "Use a fork to press the bread down gently into the liquid.",
+        "Let the dish rest on the counter for 10 minutes so the bread absorbs the egg mix.",
+        "Bake for 40-45 minutes until the top is puffed and golden brown."
+      ],
+      "cuisine": null,
+      "category": "bread",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Bread pudding stretches back to the 11th century in England, where it was colloquially referred to as 'poor man's pudding' because it allowed working-class kitchens to avoid throwing away old, brick- hard bread.",
+      "reference": {
+        "url": "https://www.allrecipes.com/recipe/15011/grandmas-old-fashioned-bread-pudding/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "allrecipes.com",
+        "url": "https://www.allrecipes.com/recipe/15011/grandmas-old-fashioned-bread-pudding/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Stovetop Creamy Cinnamon Rice Pudding",
+      "dish": "stovetop-creamy-cinnamon-rice-pudding",
+      "serves": "4 servings",
+      "description": "A thick, velvety, starch-rich dessert made entirely on the stovetop utilizing leftover cooked rice, inexpensive milk, and warm baking spices.",
+      "ingredients": [
+        "2 cups Cooked white rice (plain, leftovers are perfect)",
+        "2 cups Whole milk or 2% milk, divided",
+        "1/3 cup Granulated white sugar",
+        "1/4 tsp Salt",
+        "1 large Egg, beaten well",
+        "1 tbsp Butter",
+        "1/2 tsp Pure vanilla extract",
+        "1/2 tsp Ground cinnamon for dusting"
+      ],
+      "instructions": [
+        "In a medium saucepan, combine the cooked white rice, 1.5 cups of the milk, sugar , and salt.",
+        "Stir well.",
+        "Place the saucepan over medium heat and bring to a very gentle simmer . Cook for 15-20 minutes, stirring frequently with a wooden spoon to prevent the rice from scorching on the bottom, until thick and creamy.",
+        "In a small separate bowl, whisk together the remaining 0.5 cups of milk and the beaten egg.",
+        "Slowly ladle a small spoonful of the hot creamy rice into the egg mixture while stirring rapidly (this 'tempers' the egg so it doesn't scramble).",
+        "Pour the warm egg mixture back into the main saucepan.",
+        "Cook over low heat for an additional 2 minutes, stirring constantly.",
+        "Remove from heat and stir in the butter and vanilla.",
+        "Pour into bowls and dust with cinnamon."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Rice pudding is a global phenomenon found in almost every ancient culture. It was originally served to royalty in medical tonics in ancient Asia before rice production expanded, turning it into a universal family comfort staple.",
+      "reference": {
+        "url": "https://www.allrecipes.com/recipe/24059/creamy-rice-pudding/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "allrecipes.com",
+        "url": "https://www.allrecipes.com/recipe/24059/creamy-rice-pudding/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Classic Oatmeal Apple Crisp",
+      "dish": "classic-oatmeal-apple-crisp",
+      "serves": "6 servings",
+      "description": "Sweet, tender baked apples nestled underneath a crunchy, golden, buttery brown sugar and rolled oat crumble blanket. Costs far less than a traditional pie.",
+      "ingredients": [
+        "4 large Apples (such as Granny Smith or Fuji), peeled, cored, and sliced",
+        "1/2 cup Old-fashioned rolled oats",
+        "1/2 cup All-purpose flour",
+        "1/2 cup Packed light brown sugar",
+        "1/2 tsp Ground cinnamon",
+        "4 tbsp Cold unsalted butter , cut into small pieces"
+      ],
+      "instructions": [
+        "Preheat your kitchen oven to 350°F (175°C) and grease an 8x8 inch square baking dish.",
+        "Arrange the sliced, peeled apples in an even, thick layer across the bottom of the greased baking dish.",
+        "In a medium mixing bowl, stir together the rolled oats, flour , packed brown sugar , and ground cinnamon until fully combined.",
+        "Drop the cold butter pieces into the oat mixture.",
+        "Use your fingers or a pastry cutter to press and work the butter into the dry oats until the mixture clumps up into coarse crumbs.",
+        "Scatter the crumble mixture evenly over the top of the apples.",
+        "Bake for 30-35 minutes until the apple juices bubble on the sides and the oatmeal topping is deeply golden."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "Apple crisp surged in popularity in Great Britain and the United States during World War II because food rationing heavily restricted fats and flour . The crumble top used far less butter and flour than a standard double-crust pie.",
+      "reference": {
+        "url": "https://www.ambitiouskitchen.com/healthy-apple-crisp/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "ambitiouskitchen.com",
+        "url": "https://www.ambitiouskitchen.com/healthy-apple-crisp/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "3-Ingredient Peanut Butter Cookies",
+      "dish": "3-ingredient-peanut-butter-cookies",
+      "serves": "12 cookies",
+      "description": "A gluten-free, dairy-free cookie miracle that uses only three basic staples already sitting in your cupboard, taking less than 15 minutes start-to-finish.",
+      "ingredients": [
+        "1 cup Creamy peanut butter (standard brand, not natural oil-separating)",
+        "1 cup Granulated white sugar",
+        "1 large Egg"
+      ],
+      "instructions": [
+        "Preheat your oven to 350°F (175°C) and line a large baking sheet with parchment paper or silicone mats.",
+        "In a medium mixing bowl, add the creamy peanut butter , granulated sugar , and egg.",
+        "Stir the ingredients together vigorously with a spoon for about 1 minute until a smooth, thick cookie dough forms and detaches from the sides of the bowl.",
+        "Roll the dough into 1-inch balls using your hands and place them 2 inches apart on the prepared baking sheet.",
+        "Use the back tines of a standard kitchen fork to press a crisscross grid pattern onto the top of each ball, flattening it to about half-thickness.",
+        "Bake for 10-12 minutes until the edges are golden.",
+        "Let cool 10 minutes on the pan."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "The iconic crisscross fork marks on peanut butter cookies are functional, not just decorative! Because peanut butter dough is exceptionally dense and lacks gluten, pressing them down ensures they bake evenly to the core.",
+      "reference": {
+        "url": "https://www.allrecipes.com/recipe/244614/3-ingredient-peanut-butter-cookies/1.2.3.4.5.1.2.3.4.5."
+      },
+      "attribution": {
+        "type": "website",
+        "name": "allrecipes.com",
+        "url": "https://www.allrecipes.com/recipe/244614/3-ingredient-peanut-butter-cookies/1.2.3.4.5.1.2.3.4.5.",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Frugal Chewy Oatmeal Raisin Cookies",
+      "dish": "frugal-chewy-oatmeal-raisin-cookies",
+      "serves": "18 cookies",
+      "description": "Thick, ultra-chewy old-fashioned bakery cookies packed with wholesome rolled oats and sweet raisins that fill your home with a beautiful aroma.",
+      "ingredients": [
+        "1/2 cup Butter , softened at room temperature (or vegetable oil)",
+        "1/2 cup Packed light brown sugar",
+        "1/4 cup Granulated white sugar",
+        "1 large Egg",
+        "1 tsp Pure vanilla extract",
+        "3/4 cup All-purpose flour",
+        "1/2 tsp Baking soda",
+        "1/2 tsp Ground cinnamon",
+        "1.5 cups Old-fashioned rolled oats",
+        "1/2 cup Raisins"
+      ],
+      "instructions": [
+        "Preheat your kitchen oven to 350°F (175°C).",
+        "In a large bowl, cream together the softened butter , brown sugar , and white sugar with a spoon until smooth and light.",
+        "Add the egg and vanilla extract, beating well to emulsify the liquid fats.",
+        "In a smaller bowl, stir together the flour , baking soda, and cinnamon.",
+        "Pour these dry ingredients into the sugar-butter mix and stir until a soft dough forms.",
+        "Fold in the rolled oats and raisins until uniformly distributed.",
+        "Drop rounded tablespoonfuls of dough 2 inches apart onto an ungreased baking sheet.",
+        "Bake for 9-11 minutes until edges are crisp but center is soft."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": [],
+      "prepTime": null,
+      "cookTime": null,
+      "totalTime": null,
+      "funFact": "The blueprint for this precise cookie, known historically as 'Vanishing Oatmeal Raisin Cookies', has been printed directly on the underside of the iconic round cardboard Quaker Oats container lids since the early 1900s!",
+      "reference": {
+        "url": "https://www.quakeroats.com/cooking-and-recipes/vanishing-oatmeal-raisin-cookies1.2.3.4.5."
+      },
+      "attribution": {
+        "type": "website",
+        "name": "quakeroats.com",
+        "url": "https://www.quakeroats.com/cooking-and-recipes/vanishing-oatmeal-raisin-cookies1.2.3.4.5.",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      },
+      "altOf": null
+    }
+  ]
+}
