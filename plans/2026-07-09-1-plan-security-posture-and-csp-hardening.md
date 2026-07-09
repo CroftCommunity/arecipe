@@ -135,6 +135,30 @@ unverified-behavior trap the planning discipline exists to force into a probe.
 - **SW is cache-only**, no header/CSP behavior; navigations network-first,
   hashed assets cache-first (`src/sw.ts`). It does not affect CSP delivery.
   Confirmed 2026-07-09.
+- **No `eval` / `new Function` / `WebAssembly` in the built output** (Pass 2):
+  `grep -roE "eval\(|new Function\(|WebAssembly\." dist/` → empty across every
+  bundle + code-split chunk. So `script-src` needs **no** `'unsafe-eval'` /
+  `'wasm-unsafe-eval'` — the biggest CSP-breaker is absent. esbuild does not
+  rename literal `eval(`/`new Function(`, so a minified-output grep is a valid
+  signal; Phase 0 D1 still confirms at runtime by exercising cbor
+  encode/decode + DPoP JWT signing + publish under a no-`unsafe-eval` policy.
+- **Three distinct inline-script hashes site-wide** (Pass 2, verified by hashing
+  the `<script>` blocks): the theme pre-paint block is byte-identical across
+  account/cookbook/editor/mine/recipe/settings/signin + index (one hash);
+  `index.html` adds the landing/redirect block (second hash); **`friends.html`
+  carries its own redirect-stub inline script (third hash)**. Critically,
+  `friends.html` is copied verbatim via `copyFileSync` and is **not** in the
+  `HTML` map, so it does **not** pass through the HTML-injection loop — Phase 2
+  must handle it explicitly or it ships without CSP. Confirmed 2026-07-09.
+- **No inline event handlers (`on*=`) and no `WebSocket`/`EventSource`** in
+  shells or `src/` (Pass 2) → `script-src-attr` unneeded and `connect-src` needs
+  no `wss:`. Confirmed by grep 2026-07-09.
+- **Two stylesheets + a manifest + an icon per shell** (Pass 2): `styles.css`
+  (content-hashed) and `assets/fonts/fonts.css` (copied via `cpSync`, **not**
+  hashed) are both `<link rel="stylesheet">` (→ `style-src 'self'`; both are SRI
+  candidates); `manifest.webmanifest` (→ `manifest-src 'self'`); `logo-light.png`
+  icon (→ `img-src 'self'`). `src/build-stamp.ts:51` fetches `./build-info.json`
+  (→ `connect-src 'self'`). Confirmed by reading a shell + `build-stamp.ts`.
 - **Session storage is library-owned.** `BrowserOAuthClient` hard-codes its
   IndexedDB store; its options `Omit` `sessionStore`/`stateStore`
   (`browser-oauth-client.d.ts:8`, re-confirmed in the sign-in plan). The DPoP key
@@ -143,13 +167,18 @@ unverified-behavior trap the planning discipline exists to force into a probe.
   `session.signOut()`), `getTokenInfo`, and a debug `forceRefresh`. There is **no
   global "sign out everywhere"** today. Confirmed by reading
   `src/auth/session-provider.ts`.
-- **UNVERIFIED (Phase 0):** (a) exact `connect-src` set the OAuth + read + publish
-  flows require, and whether `'self' https:` is the right policy given arbitrary
-  PDS; (b) that a build-computed `'sha256-…'` matches the browser's hash of each
-  inline block (whitespace exactness); (c) whether `integrity=` on an ES-module
-  entry is honored and how code-split `import()` chunks behave (SRI not
-  expressible on them); (d) which CSP directives `<meta http-equiv>` ignores
-  (notably `frame-ancestors` — clickjacking defense may be unavailable on Pages).
+- **UNVERIFIED (Phase 0):** (a) the exact fixed `connect-src` origin set the OAuth
+  + read + publish flows contact at runtime (policy decided — OQ1 — but D1
+  confirms nothing is missed, incl. whether `BrowserOAuthClient` uses a hidden
+  iframe for refresh → `frame-src`, and that no `wss:` appears); (b) that a
+  build-computed `'sha256-…'` matches the browser's hash of each inline block
+  (whitespace exactness) across all three distinct blocks; (c) whether
+  `integrity=` on an ES-module entry is honored and how code-split `import()`
+  chunks behave (SRI not expressible on them); (d) which CSP directives
+  `<meta http-equiv>` ignores (notably `frame-ancestors` — clickjacking defense
+  unavailable on Pages); (e) runtime confirmation that no `'unsafe-eval'` is
+  needed (the static grep is strong but a dep could eval via a path the grep
+  missed — the no-violations run under a no-eval policy is the proof).
 
 ## Documentation Impact
 
@@ -180,12 +209,13 @@ Sequential spine: **Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 4.**
 - Phases 2 → 3 → 4 all write `scripts/build.mjs` (CSP injection, then SRI
   injection, then the zero-3p assertion) → shared write-set → strictly
   sequential.
-- Phase 1 (`docs/SECURITY.md` + `README.md` + `docs/DESIGN.md`) has a write-set
-  disjoint from Phases 2–4 (`build.mjs` + tests), so it is *parallel-eligible*
-  with Phase 2. We run it sequentially anyway, first, because the narrative
-  should be settled and accurate before the implementation flips its status
-  fields — and because the plan is small enough that the parallelism buys little.
-  Recorded here so the choice is explicit, not an oversight.
+- Phase 1 is **not** parallel-eligible with Phase 2 after all (Pass 2
+  correction): Phases 2, 3, and 4 each write `docs/SECURITY.md` to flip their
+  status field, and Phase 1 creates it — so all four phases share the
+  `docs/SECURITY.md` write-set, and Phases 2–4 additionally share
+  `scripts/build.mjs` and `tests/e2e/csp.spec.ts`. Sequential is therefore
+  **required by the write-sets**, not merely preferred. (Pass 1 mis-stated this
+  as a free choice; the shared status-field writes make it mandatory.)
 - All sequential; no worktrees → no re-entry-verification fields.
 
 ## Phases
@@ -212,18 +242,29 @@ production auth.
     network origin from the Playwright network log.
   - **Success criteria:** A concrete list of origins each flow contacts, tagged
     fixed (bsky.social / public.api.bsky.app / plc.directory / cdn.bsky.app) vs
-    dynamic (user PDS). A recommended `connect-src` + `img-src` policy (see OQ1).
+    dynamic (user PDS). Confirmation that the enforced policy (OQ1: `'self'` +
+    the fixed origins + `https:`) fires zero connect/img violations across all
+    three flows. **Also confirm** under a no-`'unsafe-eval'` `script-src`: cbor
+    encode/decode + DPoP JWT signing + publish raise no eval/wasm violation (VA
+    (e)); and watch for any `frame-src` violation (would reveal
+    `BrowserOAuthClient` using a hidden refresh iframe) or `wss:` connect.
   - **Disposition:** `throwaway` (the probe CSP + capture harness); findings →
     Verified Assumptions + OQ1.
 - [ ] **D2: Does a build-computed `'sha256-…'` match the browser's hash of each
       inline block, and what is the full inline inventory?**
   - **Probe:** Compute `sha256` of each inline `<script>` block's exact text;
-    inject a `script-src 'self' 'sha256-…'` meta into the built shells; load each
-    page and confirm zero inline-script CSP violations. Enumerate every inline
-    `<script>`/`<style>`/inline handler across all 8 shells.
-  - **Success criteria:** The two expected hashes (pre-paint, index landing)
-    admit the inline scripts with no violations; no other inline execution
-    surface exists (or the list of any that does).
+    inject a `script-src 'self' 'sha256-…'` meta **as the first element in
+    `<head>`** (before the inline scripts it must govern) into the built shells;
+    load each page and confirm zero inline-script CSP violations. Enumerate every
+    inline `<script>`/`<style>`/inline handler across **all 9 documents** (the 8
+    shells + `friends.html`).
+  - **Success criteria:** The **three** expected hashes admit the inline scripts
+    with no violations — pre-paint (`1590a1d38f`, 7 shells + index), index landing
+    (`005b9694d4`), and the `friends.html` redirect stub (`a041bef2b0`); no other
+    inline execution surface exists. Confirm meta-first-in-`<head>` ordering is
+    required (a meta placed after an inline script does not retroactively govern
+    it). Confirm `friends.html`'s handling path (it is copied outside the HTML
+    loop — see Phase 2).
   - **Disposition:** `throwaway` (feeds the Phase 2 `build.mjs` implementation).
 - [ ] **D3: Is `integrity=` honored on the ES-module entry, and how do code-split
       `import()` chunks behave?**
@@ -289,7 +330,11 @@ contributors, auditors, and us.
     here).
   - *Residual risks & limitations* — active same-origin adversary; meta-CSP gaps
     from D4 (e.g. `frame-ancestors`/clickjacking on Pages); SRI not on code-split
-    chunks.
+    chunks; the deliberate `connect-src 'https:'` breadth (accepted so any PDS
+    works — OQ1; the DPoP non-extractable key is what actually neutralizes exfil);
+    **no `report-uri`/`report-to`** (no backend to receive reports), so
+    production CSP violations are not centrally observed — the pre-ship hermetic
+    no-violations pass is the compensating control.
   - *References* — the locked decision in
     `plans/2026-07-07-1-plan-build-execution.md`; `docs/DESIGN.md`.
 - [ ] `README.md` — add a "Security" line linking `docs/SECURITY.md`.
@@ -332,14 +377,27 @@ report-only), validated by a hermetic no-violations pass.
 - [ ] `scripts/build.mjs` — in the existing HTML pass, for each shell: extract
   inline `<script>` blocks, compute their `sha256`, assemble the CSP string
   (`default-src 'none'`; `script-src 'self' <hashes>`; `style-src 'self'`;
-  `img-src` + `connect-src` per D1; `font-src 'self'`; `manifest-src 'self'`;
-  `worker-src 'self'`; `base-uri 'none'`; `object-src 'none'`;
-  `form-action 'self'`), and inject the meta into `<head>`. Policy string built
-  once, hashes per-shell.
-- [ ] `tests/e2e/csp.spec.ts` — hermetic wiring test: for each of the 8 pages,
-  register a `securitypolicyviolation` listener, load the page, exercise its
-  basic render, assert **zero** violations; assert the CSP meta is present and
-  contains the expected `script-src` hashes and the D1 `connect-src`.
+  `img-src 'self' data: blob: https:`; `connect-src 'self' https://bsky.social
+  https://public.api.bsky.app https://plc.directory https:` per OQ1;
+  `font-src 'self'`; `manifest-src 'self'`; `worker-src 'self'`;
+  `base-uri 'none'`; `object-src 'none'`; `form-action 'self'`), and inject the
+  meta **as the first child of `<head>`, before any inline `<script>`** (a meta
+  CSP does not govern inline scripts that precede it). Policy string built once;
+  hashes computed per-document from actual inline content (never hand-authored).
+- [ ] `scripts/build.mjs` — **also process `friends.html`** (the legacy redirect
+  stub, currently `copyFileSync`'d verbatim outside the HTML loop): route it
+  through the same CSP injection with its own inline-script hash
+  (`a041bef2b0`-class), so no document ships without CSP. It has no page bundle,
+  so only the meta + its single inline hash apply.
+- [ ] `tests/e2e/csp.spec.ts` — hermetic wiring test across **all 9 documents**
+  (8 shells + `friends.html`): before navigating, `page.addInitScript` a
+  collector that pushes every `securitypolicyviolation` (violatedDirective +
+  blockedURI) onto a `window`-scoped array; load the page, exercise its basic
+  render (and for `signin.html`, mount the form), then read the array and assert
+  it is **empty**. Also assert the CSP `<meta>` is present, is the first
+  `<head>` child, and its `script-src` contains the expected hash(es) and the
+  OQ1 `connect-src`. The empty-violations assertion is the real gate; a present
+  meta string alone proves nothing.
 
 **Call chain:** `npm run build` → HTML pass in `build.mjs` → dist shells carry
 the CSP meta → browser enforces on load. Entry point = loading any page.
@@ -348,7 +406,8 @@ asserts no CSP violation fires — proving the policy admits the app's own inlin
 scripts + assets, not just that a meta string exists.
 **Depends on:** Phase 0 (D1 connect-src, D2 hashes), Phase 1 (narrative status
 field to flip).
-**Read-set:** `scripts/build.mjs`, the 8 shells, D1/D2 findings.
+**Read-set:** `scripts/build.mjs`, all 9 documents (8 shells + `friends.html`),
+D1/D2 findings.
 **Write-set:** `scripts/build.mjs`, `tests/e2e/csp.spec.ts`, and
 `docs/SECURITY.md` (flip the CSP status to "implemented" — same-phase doc sync).
 **Shared-state contract:** build-time only; no runtime/prod state beyond what the
@@ -358,7 +417,12 @@ gate before merge, and it is reversible via revert.
 **Risks:** an over-tight directive blanks a page in production (CSP failures are
 silent to the user). Mitigations: the per-page no-violations test across all
 flows; enforce only after green; revert-ready. `connect-src` too tight would
-break sign-in against some PDS — D1 decides the policy deliberately.
+break sign-in against some PDS — OQ1's `https:` fallback avoids this. Two
+specific traps Pass 2 surfaced: (1) meta placed *after* an inline script won't
+govern it — inject first in `<head>`; (2) `friends.html` is copied outside the
+HTML loop — miss it and one document ships un-CSP'd. Also run the **full** e2e
+suite (not just `csp.spec`) — enabling CSP could break any existing test that
+relied on inline injection (none found, but the regression run is the proof).
 **Done when:**
 1. **Behavioral:** every built page loads and functions with the CSP enforced;
    no `securitypolicyviolation` fires across the 8 pages; a loopback sign-in
@@ -380,8 +444,12 @@ code-split chunks documented as not covered).
 
 **Changes:**
 - [ ] `scripts/build.mjs` — during the HTML pass, compute the SRI digest for each
-  referenced hashed bundle/stylesheet and add `integrity="sha384-…"` +
-  `crossorigin="anonymous"` to its tag.
+  referenced entry bundle **and both stylesheets** — `styles.css` (content-hashed)
+  and `assets/fonts/fonts.css` (copied unhashed; its digest must be recomputed
+  whenever the file changes, since its URL doesn't rotate) — and add
+  `integrity="sha384-…"` + `crossorigin="anonymous"` to each tag. Code-split
+  `import()` chunks are out of scope (HTML `integrity` isn't expressible on them
+  — OQ4; documented, not silently skipped).
 - [ ] `tests/e2e/csp.spec.ts` (extend) — assert entry `<script>`/`<link>` carry
   `integrity`, and that pages still load (an SRI mismatch blanks the page, so a
   successful render is the proof).
@@ -492,3 +560,46 @@ strictly sequential (Phases 2–4 share `build.mjs`). Coupled the doc to the
 implementation via same-phase status flips so the narrative never overstates the
 posture. Scoped out global revoke / dependency-audit / SW hardening as named
 future items.
+
+### Pass 2: Gap Analysis — 2026-07-09
+**Found:**
+- **`friends.html` is a missed document.** It carries its own redirect-stub
+  inline script (hash `a041bef2b0`) and is `copyFileSync`'d verbatim **outside**
+  `build.mjs`'s HTML-injection loop — so it would ship with no CSP. Added an
+  explicit Phase 2 item to route it through CSP injection. Site-wide there are
+  **three** distinct inline-script hashes (pre-paint ×7+index, index-landing,
+  friends-redirect), not two.
+- **No `eval`/`Function`/`WebAssembly` in the built output** (grep over all
+  `dist/*.js` + chunks → empty). De-risks the biggest CSP-breaker: `script-src`
+  needs no `'unsafe-eval'`/`'wasm-unsafe-eval'`. Recorded as a Verified
+  Assumption with a runtime re-confirm folded into D1.
+- **CSP-meta ordering constraint.** A `<meta>` CSP does not govern inline
+  scripts that precede it — it must be the first child of `<head>`, before the
+  theme pre-paint block. Added to D2 and the Phase 2 change + risks.
+- **Second stylesheet + fetch surface.** `assets/fonts/fonts.css` (copied
+  unhashed) is a second `<link rel=stylesheet>` alongside `styles.css`; both need
+  `style-src 'self'` and are SRI candidates (Phase 3 updated). `build-stamp.ts`
+  fetches `./build-info.json` → `connect-src 'self'` confirmed.
+- **No inline handlers, no WebSocket** → `script-src-attr` and `wss:` not needed
+  (recorded).
+- **Refresh-iframe unknown.** Whether `BrowserOAuthClient` uses a hidden iframe
+  for token refresh (→ `frame-src`) is unverified; folded into D1's violation
+  watch.
+**Concurrency:**
+- **Correction:** Pass 1 called Phase 1 "parallel-eligible" with Phase 2. It is
+  not — Phases 2–4 each write `docs/SECURITY.md` (status flips) and Phase 1
+  creates it, so all four share that write-set (and 2–4 share `build.mjs` +
+  `csp.spec.ts`). Sequential is **required by the write-sets**, not chosen.
+  Concurrency Map updated. No parallel candidates exist.
+**Changed:**
+- Added the `friends.html` Phase 2 item + three-hash inventory; folded
+  eval/iframe/`wss`/no-eval runtime checks into D1; added meta-first-in-`<head>`
+  to D2 + Phase 2; expanded SRI scope to `fonts.css` (Phase 3); added the
+  `connect-src 'https:'` breadth and no-`report-uri` items to the narrative's
+  residual-risks section; corrected the Concurrency Map.
+**Confirmed:**
+- The build-time-generation approach and `build.mjs` HTML pass as the injection
+  point hold up. The OQ1 policy (`'self'` + fixed origins + `https:`) is
+  consistent with the measured network surface. The five Pass 1 open questions
+  are unchanged — no new open questions surfaced (the gaps were fillable without
+  a user decision). Phase sizing still ≤ 3 files each after the additions.
