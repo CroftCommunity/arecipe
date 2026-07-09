@@ -6,7 +6,8 @@
     "count": 25,
     "notes": {
       "enrichmentPending": "DONE 2026-07-09: diet(vegetarian via ingredient scan), cuisine(curated), keywords, cookTime(from step text). prepTime/totalTime NOT set (source gives no prep; only cook duration is derivable). altOf = shared dishKey across the 6-file corpus (grouping for version-flipping). Fun facts NOT yet fact-checked.",
-      "stepSegmentation": "instructions were sentence-split from the source prep paragraphs (PDF text has no inline step numbers); wording is faithful but step boundaries are approximate."
+      "stepSegmentation": "instructions were sentence-split from the source prep paragraphs (PDF text has no inline step numbers); wording is faithful but step boundaries are approximate.",
+      "funFactCheck": "Fun facts fact-checked 2026-07-09. All claims are verified, well-documented, or culinary technique; none failed, none discarded."
     }
   },
   "recipes": [

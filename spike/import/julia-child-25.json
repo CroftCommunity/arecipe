@@ -6,7 +6,8 @@
     "count": 25,
     "notes": {
       "enrichmentPending": "DONE 2026-07-09: diet(vegetarian via ingredient scan), cuisine(curated), keywords, cookTime(from step text). prepTime/totalTime NOT set (source gives no prep; only cook duration is derivable). altOf = shared dishKey across the 6-file corpus (grouping for version-flipping). Fun facts NOT yet fact-checked.",
-      "stepSegmentation": "instructions were sentence-split from the source prep paragraphs (PDF text has no inline step numbers); wording is faithful but step boundaries are approximate."
+      "stepSegmentation": "instructions were sentence-split from the source prep paragraphs (PDF text has no inline step numbers); wording is faithful but step boundaries are approximate.",
+      "funFactCheck": "Fun facts fact-checked 2026-07-09 (web-verified the checkable claims). Corrected myths: chocolate-chip 'happy accident' (Wakefield said it was intentional), croissant 'Marie Antoinette' (Austrian kipferl; Viennese bakers brought it to Paris in the 1800s), macaron 'Catherine de' Medici' (medieval almond roots; the sandwich macaron is an early-1900s Laduree innovation), and cracker name-origin (Josiah Bent 1801, not Pearson's baking). Softened unverified legends to 'by legend/as the story goes': pretzel monk 610 AD, crepes suzette 1895, tarte tatin accident, cheesecake 776 BC Olympics. Apple-pie 1381 (Forme of Cury) verified accurate. Other facts are technique/plausible history and kept. 0 discarded."
     }
   },
   "recipes": [
@@ -498,7 +499,7 @@
       "prepTime": null,
       "cookTime": "PT30M",
       "totalTime": null,
-      "funFact": "This famous dessert was created by accident at the Hotel Tatin in France when Stephanie Tatin overcooked apples and tried to rescue them by slapping pastry on top.",
+      "funFact": "As the story goes, it was a happy accident at the Hôtel Tatin in the 1880s: Stéphanie Tatin overcooked apples in butter and sugar, then baked pastry on top to rescue them — serving the tart upside-down.",
       "reference": {
         "url": "https://www.foodandwine.com/recipes/tarte-tatin1.2.3.4.5.6."
       },
@@ -638,7 +639,7 @@
       "prepTime": null,
       "cookTime": "PT2M",
       "totalTime": null,
-      "funFact": "This dramatic dessert was allegedly created by mistake in 1895 when a young waiter accidentally set fire to a dessert he was preparing for the Prince of Wales.",
+      "funFact": "As the (disputed) story goes, teenage waiter Henri Charpentier flambéed the sauce by accident in 1895 while serving the future King Edward VII — though historians doubt the details, since flambé predates the tale.",
       "reference": {
         "url": "https://www.bbc.co.uk/food/recipes/crepes_suzette_603811.2.3.4.5.6."
       },

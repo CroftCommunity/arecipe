@@ -6,7 +6,8 @@
     "count": 28,
     "notes": {
       "enrichmentPending": "DONE 2026-07-09: diet(vegetarian via ingredient scan), cuisine(curated), keywords, cookTime(from step text). prepTime/totalTime NOT set (source gives no prep; only cook duration is derivable). altOf = shared dishKey across the 6-file corpus (grouping for version-flipping). Fun facts NOT yet fact-checked.",
-      "stepSegmentation": "instructions were sentence-split from the source prep paragraphs (PDF text has no inline step numbers); wording is faithful but step boundaries are approximate."
+      "stepSegmentation": "instructions were sentence-split from the source prep paragraphs (PDF text has no inline step numbers); wording is faithful but step boundaries are approximate.",
+      "funFactCheck": "Fun facts fact-checked 2026-07-09 (web-verified the checkable claims). Corrected myths: chocolate-chip 'happy accident' (Wakefield said it was intentional), croissant 'Marie Antoinette' (Austrian kipferl; Viennese bakers brought it to Paris in the 1800s), macaron 'Catherine de' Medici' (medieval almond roots; the sandwich macaron is an early-1900s Laduree innovation), and cracker name-origin (Josiah Bent 1801, not Pearson's baking). Softened unverified legends to 'by legend/as the story goes': pretzel monk 610 AD, crepes suzette 1895, tarte tatin accident, cheesecake 776 BC Olympics. Apple-pie 1381 (Forme of Cury) verified accurate. Other facts are technique/plausible history and kept. 0 discarded."
     }
   },
   "recipes": [
@@ -51,7 +52,7 @@
       "prepTime": null,
       "cookTime": "PT11M",
       "totalTime": null,
-      "funFact": "Chocolate chip cookies were invented by mistake in 1938 by Ruth Wakefield at the Toll House Inn when she ran out of baker's chocolate and used chopped semi-sweet chunks instead.",
+      "funFact": "Ruth Wakefield created the chocolate chip cookie at her Toll House Inn in Massachusetts in the late 1930s. Despite the popular 'happy accident' story, Wakefield said she invented it on purpose.",
       "reference": {
         "url": "https://sallysbakingaddiction.com/the-girl-scout-cookie-championship-soft-chewy-chocolate-chip-cookies/"
       },
@@ -270,7 +271,7 @@
       "prepTime": null,
       "cookTime": "PT6H",
       "totalTime": null,
-      "funFact": "The ancient Greeks served a primitive form of cheesecake (made of flour, honey, and pounded cheese) to athletes during the first Olympic Games in 776 BC for energy.",
+      "funFact": "The ancient Greeks are said to have served a primitive cheesecake — flour, honey, and pounded cheese — to athletes at the first Olympic Games in 776 BC.",
       "reference": {
         "url": "https://www.seriouseats.com/epic-new-york-cheesecake-from-the-baking-bible"
       },
@@ -536,7 +537,7 @@
       "prepTime": null,
       "cookTime": "PT1H",
       "totalTime": null,
-      "funFact": "Macarons were actually born in Italy, introduced to France in the 16th century by the chefs of Queen Catherine de' Medici, before being transformed into the sandwich cookie we know today.",
+      "funFact": "Almond-meringue macarons have medieval roots (a French monastery at Cormery is often credited, c. 791). The tale that Catherine de' Medici brought them from Italy is a popular but unsupported legend; the filled 'sandwich' macaron is an early-1900s Ladurée innovation.",
       "reference": {
         "url": "https://www.bbcgoodfood.com/recipes/macarons"
       },
@@ -695,7 +696,7 @@
       "prepTime": null,
       "cookTime": "PT2H",
       "totalTime": null,
-      "funFact": "Croissants actually originated in Austria as a crescent-shaped roll called the 'kipferl'. They were brought to France in the 1770s by Marie Antoinette, where French bakers adapted them with puff pastry techniques.",
+      "funFact": "The croissant descends from the Austrian kipferl, a crescent roll that predates it by centuries. It turned French in the 1800s after Viennese bakers opened shops in Paris (August Zang, 1839) — the popular 'Marie Antoinette brought it' story is a myth.",
       "reference": {
         "url": "https://www.baking-sense.com/2018/10/11/homemade-croissants/"
       },
@@ -971,7 +972,7 @@
       "prepTime": null,
       "cookTime": "PT1H",
       "totalTime": null,
-      "funFact": "Pretzels were invented by an Italian monk around 610 AD as a reward for children who memorized their prayers. The distinctive twists represent arms crossed across the chest in prayer.",
+      "funFact": "By legend, a monk shaped leftover dough into crossed 'praying arms' as treats for children — the name traces to 'pretiola' (little reward) — though the story isn't documented. Pretzels have been a baker's-guild emblem in southern Germany since at least the 12th century.",
       "reference": {
         "url": "https://www.foodnetwork.com/recipes/alton-brown/homemade-soft-pretzels-recipe-1948242"
       },
@@ -1190,7 +1191,7 @@
       "prepTime": null,
       "cookTime": "PT15M",
       "totalTime": null,
-      "funFact": "Crackers were invented in 1792 by John Pearson, who sought a durable biscuit that wouldn't spoil on long sea voyages. The sharp popping noise they made when baking inspired the name 'crackers'.",
+      "funFact": "The first cracker was John Pearson's 1792 'pilot bread' in Newburyport, Massachusetts. The name 'cracker' came later — in 1801, baker Josiah Bent's over-baked biscuits made a crackling sound.",
       "reference": {
         "url": "https://minimalistbaker.com/7-ingredient-veggie-cracker-bites/"
       },
