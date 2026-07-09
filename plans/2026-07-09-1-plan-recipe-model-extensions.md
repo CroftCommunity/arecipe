@@ -2,8 +2,9 @@
 
 **Status:** Pass 1 resolved · Phase 0 discovery COMPLETE · **Pass 2 gap analysis COMPLETE
 2026-07-09** — added Phase 1b (dishKey normalization), split Phase 4 → 4a/4b/4c (build wiring),
-expanded Phase 6 (funFact→funFacts pooling); reopened 3 questions (1 BLOCKING: cross-set
-grouping). No feature code yet. Next: confirm the 3 reopened questions, then Pass 3 or Phase 1.
+expanded Phase 6 (funFact→funFacts pooling). Pass 2 questions all confirmed: cross-set grouping
+= YES (live+imported), browse = collapse-versions+pagination (new Phase 4d), dishKey =
+auto-propose+review. No feature code yet. **Next: Pass 3 (quality gates), then execute Phase 1.**
 Worktree `recipe-import-batch`.
 
 ## Problem Statement
@@ -164,12 +165,14 @@ future TODO behind the open-world probe. Client-only name grouping — fragile; 
 
 ## Concurrency Map
 
-Sequential spine: Phase 0 → 1 → 1b → 2 → 3 → 4a → 4b → 4c → (5) → 6.
+Sequential spine: Phase 0 → 1 → 1b → 2 → 3 → 4a → 4b → 4c → 4d → (5) → 6.
 **All phases sequential.** Rationale from the per-phase write-sets: Phases 1/1b write `model.ts`
 which 2/3/4a read; Phases 2/3/4c all write `src/recipes/view.ts` (shared write-set → cannot
-parallelize); 4b depends on 4a's paginator+grouping and edits `scripts/build.mjs`; 6 depends on
-`dishkeys.json` (1b) and the UI phases (to render the pilot) and is the only phase that mutates
-live PDS state. **Candidate parallelism considered and rejected:** 1b (spike tooling) is
+parallelize); 4b depends on 4a's paginator+grouping and edits `scripts/build.mjs`; 4d (browse)
+depends on 4a and edits `browse.ts` (disjoint from view.ts — a *candidate* to parallelize with
+4b/4c, but all three depend on 4a and 4b defines the dish.html link target 4d/4c point to, so
+kept sequential); 6 depends on `dishkeys.json` (1b) and the UI phases (to render the pilot) and
+is the only phase that mutates live PDS state. **Candidate parallelism considered and rejected:** 1b (spike tooling) is
 write-disjoint from 1/2 (src) and *could* run alongside them — but it gates 4b/6 and needs its
 own user-review checkpoint, so it stays on the spine. No worktree/parallel dispatch planned;
 if adopted later, the only live-mutating phase (6) must never run concurrently with anything.
@@ -276,6 +279,16 @@ optional `RenderOptions` field (e.g. `siblingCount`/`dishKey`). **Read-set:** `r
 e2e/unit. **Shared-state:** none. **Wiring test:** e2e — a multi-version recipe shows the link;
 a single-version one does not. **Validation:** Moderate.
 
+### Phase 4d: Browse version-collapse + pagination (Pass 2 — confirmed)
+**Goal:** browse.ts groups records by `dishKey` (4a's helper) and renders **one card per dish**
+with a "N versions" badge linking to `dish.html?key=`; adopts 4a's paginated reader so all 177
+records are reachable (fixes the pre-existing ~50-record truncation). Single-version dishes
+render as a normal card (no badge). **Read-set:** `read.ts`, `model.ts`. **Write-set:**
+`src/pages/browse.ts` (+ `src/pages/browse-state.ts` if the feed shape changes) + e2e
+(`tests/e2e/browse.spec.ts`). **Shared-state:** none. **Wiring test:** e2e — a corpus with a
+multi-version dish shows one badged card; clicking opens `dish.html`; pagination loads beyond
+page 1. **Validation:** Broad (touches the landing page + existing browse.spec must stay green).
+
 ### Phase 5 (optional): Inline version flip on the recipe page
 **Goal:** Secondary convenience — an inline version toggle on `recipe.ts` that swaps the
 detail in place without visiting `dish.html`. Only if wanted after Phase 4b/4c. **Write-set:**
@@ -321,23 +334,19 @@ All seven open questions were walked through and decided:
    secondary optional Phase 5.
 7. **Publish scope → pilot batch first, then bulk** (Phase 6).
 
-## Open Questions (reopened in Pass 2)
+## Open Questions (reopened + resolved in Pass 2, 2026-07-09)
 
-- [RECOMMENDED: BLOCKING (Phase 1b)] **Cross-set grouping scope.** Should live records group
-  with imported ones under a shared `dishKey` (e.g. live "Beef Bourguignon" + imported
-  boeuf-bourguignon; "Banana Bread" ×4 across live/artisan/frugal/own)? This defines the
-  version groups AND the fun-fact pools. *Recommend yes (group live+imported), confirmed via the
-  Phase 1b review report — but it's the user's curation call, dish by dish.*
-- [RECOMMENDED: PHASE-GATED (Phase 4a)] **Browse presentation of multi-version dishes + browse
-  pagination.** Post-import, browse will show N separate cards for a multi-version dish and (with
-  no pagination) truncate at ~50 of 177 records. Options: (a) leave browse as-is (every version
-  is its own card) + add pagination; (b) collapse versions into one card with a count badge.
-  *Recommend (a)+pagination for v1; collapsing is a larger browse change. Pre-existing 50-cap is
-  a real bug surfaced here.*
-- [RECOMMENDED: PHASE-GATED (Phase 1b)] **dishKey normalization ownership.** Auto-derived
-  (slugify + alias table) with user review, vs a fully hand-curated map. *Recommend
-  auto-propose + user-review (the review report is the gate); mangled slugs (julia) and
-  mislabels (`banana-bread-mug-cake`) must be caught.*
+- [CONFIRMED: BLOCKING → **Yes, group live + imported**] **Cross-set grouping scope.** One
+  `dishKey` spans both sets; a dish's versions and pooled fun facts include live + imported
+  records together (e.g. live "Beef Bourguignon" + imported boeuf-bourguignon; "Banana Bread"
+  across live/artisan/frugal/own). The 41 live records get dishKeys reconciled against the
+  import corpus in Phase 1b (confirmed dish-by-dish in the review report).
+- [CONFIRMED: PHASE-GATED → **Collapse versions + pagination**] **Browse presentation.** Browse
+  shows **one card per `dishKey`** with a "N versions" badge linking to `dish.html`, plus cursor
+  pagination (fixes the ~50-of-177 truncation). This is a larger browse change → **new Phase 4d**.
+- [CONFIRMED: PHASE-GATED → **Auto-propose + user review**] **dishKey normalization ownership.**
+  Phase 1b script proposes keys (slugify + alias table) + a review report; user confirms/edits.
+  Must catch the mangled julia slugs and the mislabeled `banana-bread-mug-cake`.
 
 ## Review Log
 
@@ -407,3 +416,10 @@ Phase 1 (schema/types).
 - Open-world reads need no parser changes (read.ts already tolerant). Phase 1 types are additive.
 - `renderRecipeDetail` is the single detail-render path → fun facts + versions link wire once.
 - No pre-existing funFact/version UI → no in-app back-compat burden.
+
+### Pass 2 question walk-through — 2026-07-09
+All 3 reopened questions confirmed with the user: (1) **cross-set grouping = YES** — one dishKey
+spans live + imported. (2) **browse = collapse versions + pagination** (the larger option) →
+**added Phase 4d** (one badged card per dish; browse adopts the paginated reader). (3) **dishKey
+= auto-propose + user review** (Phase 1b). Concurrency spine updated to include 4d (kept
+sequential; depends on 4a and points at 4b's dish.html).
