@@ -8,3 +8,6 @@ test-results/
 # Python
 __pycache__/
 *.pyc
+
+# Local recipe-import working files (not part of the app)
+import/
