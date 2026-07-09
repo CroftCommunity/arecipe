@@ -49,7 +49,11 @@ const OVERRIDE = {
 };
 const searchTerm = (name) =>
   OVERRIDE[name] ??
-  name.replace(/^(Classic|Crispy|Baked|Easy|Simple|Homemade|Authentic|Truly)\s+/i, '').replace(/\s+with\s+.*/i, '').trim();
+  name
+    .replace(/\s*\([^)]*\)/g, '') // drop parenthetical qualifiers
+    .replace(/^(Classic|Crispy|Baked|Easy|Simple|Homemade|Authentic|Truly|Fluffy|Fudgy|Seriously|Southern|Frugal|Old-Fashioned|No-Bake|No-Knead|Golden|Rich|Tangy|Soft|Chewy|Quick|Stovetop|Skillet|Sheet Pan|Bakery-Style|Double-Crust|Flaky|Savory|3-Ingredient|Two-Ingredient|Depression-Era)\s+/i, '')
+    .replace(/\s+with\s+.*/i, '')
+    .trim();
 
 const stripHtml = (s) => (typeof s === 'string' ? s.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim() : '');
 
@@ -94,10 +98,18 @@ const download = async (url, path) => {
   writeFileSync(path, Buffer.from(await res.arrayBuffer()));
 };
 
-const listUrl = `https://bsky.social/xrpc/com.atproto.repo.listRecords?repo=${DID}&collection=exchange.recipe.recipe&limit=100`;
-const recs = (await (await fetch(listUrl)).json()).records
-  .map((r) => ({ name: r.value.name, text: r.value.text, uri: r.uri }))
-  .filter((r) => r.name !== SEED);
+// Recipe source: a names file (argv[3] = JSON array of {name,text,...}) for the
+// import corpus, or the live PDS records (default) for the published set.
+let recs;
+const NAMES_FILE = process.argv[3];
+if (NAMES_FILE) {
+  recs = JSON.parse(readFileSync(NAMES_FILE, 'utf8'));
+} else {
+  const listUrl = `https://bsky.social/xrpc/com.atproto.repo.listRecords?repo=${DID}&collection=exchange.recipe.recipe&limit=100`;
+  recs = (await (await fetch(listUrl)).json()).records
+    .map((r) => ({ name: r.value.name, text: r.value.text, uri: r.uri }))
+    .filter((r) => r.name !== SEED);
+}
 
 // Resume: reuse prior results whose thumbnails are all still on disk, so a
 // re-run after a timeout only does the outstanding work. Written after every
