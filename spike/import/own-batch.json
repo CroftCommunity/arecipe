@@ -1,0 +1,700 @@
+{
+  "_meta": {
+    "batch": "beginner-25",
+    "description": "25 beginner-friendly recipes (15 savory + 10 sweet) for import to arecipe.bsky.social. Structured from a user-supplied collection; reference URLs researched to reputable, well-reviewed source pages.",
+    "provenance": "Adapted from published web recipes. Descriptions are beginner-facing prose; method reduced to a functional sequence. Each entry credits a reputable source via attribution (attributionWebsite) + a reference URL.",
+    "notes": {
+      "funFact": "funFact is captured per recipe but has NO field in the current exchange.recipe.recipe lexicon. Storing it in the PDS + surfacing in the UI is an open design task (new lexicon field vs. convention) — do NOT publish funFact until that is decided.",
+      "totalTime": "totalTime is an APPROXIMATE estimate derived from the steps; exact times are on the reference URL.",
+      "diet": "diet labels are human tokens (vegetarian/vegan/gluten-free/...) mapped to exchange.recipe.defs#diet at publish time. Rice Krispies Treats is intentionally NOT vegetarian (marshmallow gelatin). Tomato soup left unlabeled (recipe allows chicken broth).",
+      "images": "embed images are NOT set here — the Wikimedia Commons image-compare pass runs next (fetch-images -> picker -> image-choices -> attach-images)."
+    },
+    "count": 25
+  },
+  "recipes": [
+    {
+      "name": "Classic Grilled Cheese",
+      "serves": "1",
+      "description": "The ultimate comfort food — crispy, golden-brown bread with a perfectly gooey, melted cheese center.",
+      "ingredients": [
+        "2 slices white or sourdough bread",
+        "2 slices American or sharp Cheddar cheese",
+        "1 tbsp unsalted butter, softened"
+      ],
+      "instructions": [
+        "Heat a small skillet over medium-low heat.",
+        "Butter one side of each slice of bread evenly.",
+        "Place one slice butter-side down in the skillet; top with the cheese.",
+        "Add the second slice butter-side up.",
+        "Cook 3–4 minutes until the bottom is deep golden brown, then flip and cook another 3 minutes until the cheese is fully melted."
+      ],
+      "cuisine": "american",
+      "category": "lunch",
+      "diet": ["vegetarian"],
+      "keywords": ["beginner", "sandwich", "comfort-food", "3-ingredient"],
+      "totalTime": "PT10M",
+      "funFact": "The grilled cheese was originally served open-faced and became wildly popular during the Great Depression because it was so inexpensive.",
+      "reference": { "label": "Food Network — The Perfect Grilled Cheese", "url": "https://www.foodnetwork.com/recipes/food-network-kitchen/the-perfect-grilled-cheese-3636831" },
+      "attribution": { "type": "website", "name": "Food Network", "url": "https://www.foodnetwork.com/recipes/food-network-kitchen/the-perfect-grilled-cheese-3636831", "notes": "Method adapted from the source; description rewritten for beginners." }
+    },
+    {
+      "name": "3-Ingredient Mac and Cheese",
+      "serves": "4",
+      "description": "Skip the boxed stuff. This rich, creamy mac and cheese cooks entirely in one pot using just milk, pasta, and cheese.",
+      "ingredients": [
+        "6 cups whole milk",
+        "1 lb elbow macaroni",
+        "4 cups sharp Cheddar cheese, shredded",
+        "Salt and black pepper, to taste"
+      ],
+      "instructions": [
+        "In a large pot, bring the milk to a boil over medium heat, stirring constantly so it doesn't scorch.",
+        "Add the macaroni and lower to a simmer. Cook about 10 minutes, stirring frequently, until the pasta is tender and the milk has reduced to a thick sauce.",
+        "Off the heat, stir in the shredded cheese until melted and glossy. Season with salt and pepper."
+      ],
+      "cuisine": "american",
+      "category": "dinner",
+      "diet": ["vegetarian"],
+      "keywords": ["beginner", "one-pot", "3-ingredient", "pasta", "comfort-food"],
+      "totalTime": "PT15M",
+      "funFact": "Thomas Jefferson helped popularize mac and cheese in America after encountering it in Paris and bringing a pasta machine back to the U.S.",
+      "reference": { "label": "The Cooking Foodie — Easy One-Pot 3-Ingredient Mac and Cheese", "url": "https://thecookingfoodie.com/recipe/easy-3ingredient-mac-and-cheese-recipe-one-pot/" },
+      "attribution": { "type": "website", "name": "The Cooking Foodie", "url": "https://thecookingfoodie.com/recipe/easy-3ingredient-mac-and-cheese-recipe-one-pot/", "notes": "Method adapted from the source; description rewritten for beginners." }
+    },
+    {
+      "name": "Sheet Pan Chicken and Veggies",
+      "serves": "4",
+      "description": "A healthy, colorful dinner where everything roasts on a single baking sheet — cleanup takes under two minutes.",
+      "ingredients": [
+        "1.5 lbs chicken breasts, cut into bite-sized cubes",
+        "2 cups broccoli florets",
+        "1 bell pepper, chopped",
+        "1 zucchini, sliced",
+        "3 tbsp olive oil",
+        "1 tbsp Italian seasoning",
+        "1 tsp garlic powder",
+        "Salt and pepper, to taste"
+      ],
+      "instructions": [
+        "Preheat the oven to 400°F (200°C).",
+        "Put the chicken and all the chopped vegetables on a large baking sheet.",
+        "Drizzle with olive oil and toss with Italian seasoning, garlic powder, salt, and pepper until evenly coated; spread in a single layer.",
+        "Bake 20 minutes, until the chicken reaches 165°F and the veggies are fork-tender."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": ["beginner", "sheet-pan", "one-pan", "healthy", "weeknight"],
+      "totalTime": "PT30M",
+      "funFact": "Sheet-pan meals went viral because they emulate restaurant-style high-heat roasting without multiple pots and pans.",
+      "reference": { "label": "Chelsea's Messy Apron — Sheet Pan Chicken and Veggies", "url": "https://www.chelseasmessyapron.com/one-pan-roasted-chicken-veggies/" },
+      "attribution": { "type": "website", "name": "Chelsea's Messy Apron", "url": "https://www.chelseasmessyapron.com/one-pan-roasted-chicken-veggies/", "notes": "Method adapted from the source; description rewritten for beginners." }
+    },
+    {
+      "name": "Fluffy Perfect Scrambled Eggs",
+      "serves": "2",
+      "description": "Mastering the humble scrambled egg is a rite of passage for a beginner cook. Low and slow heat is the secret.",
+      "ingredients": [
+        "4 large eggs",
+        "1/4 cup whole milk or heavy cream",
+        "1 tbsp unsalted butter",
+        "Pinch of salt and pepper"
+      ],
+      "instructions": [
+        "Whisk the eggs, milk, salt, and pepper until uniform and slightly frothy.",
+        "Melt the butter in a non-stick skillet over medium-low heat.",
+        "Pour in the eggs. Let sit 20 seconds, then gently push from the edges to the center with a silicone spatula to form soft curds.",
+        "Keep cooking and gently stirring 2–3 minutes. Pull off the heat while still slightly wet — they finish on the plate."
+      ],
+      "cuisine": null,
+      "category": "breakfast",
+      "diet": ["vegetarian"],
+      "keywords": ["beginner", "eggs", "quick", "breakfast"],
+      "totalTime": "PT10M",
+      "funFact": "A traditional chef's toque has 100 folds, said to represent the 100 ways an expert can cook an egg. (A charming legend more than a rule.)",
+      "reference": { "label": "Food Network — Bobby Flay's Perfect Scrambled Eggs", "url": "https://www.foodnetwork.com/fnk/recipes/perfect-scrambled-eggs-7535798" },
+      "attribution": { "type": "website", "name": "Food Network", "url": "https://www.foodnetwork.com/fnk/recipes/perfect-scrambled-eggs-7535798", "notes": "Method adapted from the source; description rewritten for beginners." }
+    },
+    {
+      "name": "Simple Spaghetti Aglio e Olio",
+      "serves": "2",
+      "description": "A classic Italian staple built from pantry essentials — garlicky, savory, and elegant.",
+      "ingredients": [
+        "1/2 lb spaghetti",
+        "1/4 cup extra-virgin olive oil",
+        "4 garlic cloves, thinly sliced",
+        "1/2 tsp red pepper flakes",
+        "1/4 cup fresh parsley, chopped",
+        "1/4 cup Parmesan cheese, grated"
+      ],
+      "instructions": [
+        "Boil the spaghetti in salted water until al dente. Reserve 1/2 cup pasta water, then drain.",
+        "Meanwhile, warm the olive oil in a skillet over medium-low heat. Add the garlic and red pepper flakes and cook ~2 minutes until the garlic is golden — do not let it burn.",
+        "Add the drained spaghetti and reserved pasta water to the skillet and turn off the heat.",
+        "Toss vigorously until a glossy sauce coats the pasta. Stir in the parsley and top with Parmesan."
+      ],
+      "cuisine": "italian",
+      "category": "dinner",
+      "diet": ["vegetarian"],
+      "keywords": ["beginner", "pasta", "quick", "pantry"],
+      "totalTime": "PT20M",
+      "funFact": "\"Aglio e olio\" is Italian for \"garlic and oil.\" It originated in Naples as a popular midnight snack.",
+      "reference": { "label": "Gimme Some Oven — Spaghetti Aglio e Olio", "url": "https://www.gimmesomeoven.com/spaghetti-aglio-e-olio/" },
+      "attribution": { "type": "website", "name": "Gimme Some Oven", "url": "https://www.gimmesomeoven.com/spaghetti-aglio-e-olio/", "notes": "Method adapted from the source; description rewritten for beginners." }
+    },
+    {
+      "name": "Easy Ground Beef Tacos",
+      "serves": "4",
+      "description": "A quick weeknight meal packed with flavor and endlessly customizable.",
+      "ingredients": [
+        "1 lb lean ground beef",
+        "1 packet taco seasoning (or 1 tbsp chili powder + 1 tsp cumin + 1/2 tsp garlic powder)",
+        "1/3 cup water",
+        "8 taco shells (hard or soft)",
+        "Toppings: shredded lettuce, cheddar, salsa, sour cream"
+      ],
+      "instructions": [
+        "Brown the ground beef in a skillet over medium-high heat, 5–7 minutes, breaking it apart, until no pink remains. Drain excess fat.",
+        "Reduce to medium. Add the taco seasoning and water; stir well.",
+        "Simmer 3–5 minutes until the liquid reduces and coats the beef.",
+        "Spoon into taco shells and add your toppings."
+      ],
+      "cuisine": "mexican",
+      "category": "dinner",
+      "diet": [],
+      "keywords": ["beginner", "tacos", "quick", "weeknight"],
+      "totalTime": "PT20M",
+      "funFact": "The word \"taco\" originally referred to the paper-wrapped gunpowder charges Mexican silver miners used in the 18th century.",
+      "reference": { "label": "Spend With Pennies — Easy Ground Beef Tacos", "url": "https://www.spendwithpennies.com/easy-ground-beef-tacos/" },
+      "attribution": { "type": "website", "name": "Spend With Pennies", "url": "https://www.spendwithpennies.com/easy-ground-beef-tacos/", "notes": "Method adapted from the source; description rewritten for beginners." }
+    },
+    {
+      "name": "Creamy Tomato Soup",
+      "serves": "4",
+      "description": "Rich, velvety, and far better than the tin — perfect with a grilled cheese.",
+      "ingredients": [
+        "1 tbsp olive oil",
+        "1 small onion, chopped",
+        "2 garlic cloves, minced",
+        "1 can (28 oz) crushed tomatoes",
+        "1 cup chicken or vegetable broth",
+        "1/2 cup heavy cream",
+        "Salt, pepper, and a pinch of sugar, to taste"
+      ],
+      "instructions": [
+        "Warm the olive oil in a pot over medium heat. Sauté the onion and garlic 4–5 minutes until translucent.",
+        "Add the crushed tomatoes and broth. Simmer uncovered 10 minutes.",
+        "Off the heat, blend smooth with an immersion blender (or in batches in a countertop blender).",
+        "Stir in the cream. Season with salt, pepper, and a pinch of sugar to cut the acidity."
+      ],
+      "cuisine": "american",
+      "category": "soup",
+      "diet": [],
+      "keywords": ["beginner", "soup", "comfort-food"],
+      "totalTime": "PT25M",
+      "funFact": "Tomato soup reached the masses when the Campbell Soup Company introduced its condensed version in 1897, a landmark in convenience food.",
+      "reference": { "label": "Natasha's Kitchen — Easy Tomato Soup", "url": "https://natashaskitchen.com/tomato-soup-recipe/" },
+      "attribution": { "type": "website", "name": "Natasha's Kitchen", "url": "https://natashaskitchen.com/tomato-soup-recipe/", "notes": "Method adapted from the source; description rewritten for beginners." }
+    },
+    {
+      "name": "15-Minute Fish Tacos with Slaw",
+      "serves": "3",
+      "description": "Light, zesty, and fast — mild white fish, quickly pan-seared, topped with a crunchy cabbage slaw.",
+      "ingredients": [
+        "1 lb white fish fillets (tilapia or cod)",
+        "1 tsp chili powder",
+        "1/2 tsp cumin",
+        "1 tbsp olive oil",
+        "2 cups shredded cabbage mix",
+        "2 tbsp mayonnaise mixed with 1 tbsp lime juice",
+        "6 soft corn tortillas",
+        "Salt and pepper, to taste"
+      ],
+      "instructions": [
+        "Pat the fish dry and season both sides with chili powder, cumin, salt, and pepper.",
+        "Heat the olive oil in a skillet over medium-high heat. Cook the fish 3–4 minutes per side until it flakes easily, then break into chunks.",
+        "Toss the cabbage with the lime-mayo mixture.",
+        "Warm the tortillas and assemble with the fish and slaw."
+      ],
+      "cuisine": "mexican",
+      "category": "dinner",
+      "diet": [],
+      "keywords": ["beginner", "tacos", "fish", "quick", "15-minute"],
+      "totalTime": "PT15M",
+      "funFact": "Fish tacos originated in Baja California, where local fishermen combined Mexican tortillas with Japanese-style frying techniques brought by immigrant workers.",
+      "reference": { "label": "The Kitchn — Fish Tacos with Quick Cabbage Slaw", "url": "https://www.thekitchn.com/recipe-fish-tacos-with-quick-cabbage-slaw-recipes-from-the-kitchn-15838" },
+      "attribution": { "type": "website", "name": "The Kitchn", "url": "https://www.thekitchn.com/recipe-fish-tacos-with-quick-cabbage-slaw-recipes-from-the-kitchn-15838", "notes": "Method adapted from the source; description rewritten for beginners." }
+    },
+    {
+      "name": "Garlic Butter Shrimp",
+      "serves": "2",
+      "description": "Shrimp cooks incredibly fast, making it a perfect protein for beginners. Feels fancy, takes under 10 minutes.",
+      "ingredients": [
+        "1 lb large shrimp, peeled and deveined",
+        "2 tbsp unsalted butter",
+        "1 tbsp olive oil",
+        "4 garlic cloves, minced",
+        "Juice of 1/2 lemon",
+        "Salt, pepper, and fresh parsley to garnish"
+      ],
+      "instructions": [
+        "Pat the shrimp dry and season with salt and pepper.",
+        "Melt the butter with the olive oil in a large skillet over medium-high heat.",
+        "Add the garlic and cook 1 minute until fragrant.",
+        "Add the shrimp in a single layer. Cook 2 minutes without moving, then flip and cook 1–2 minutes more until opaque and pink.",
+        "Off the heat, squeeze the lemon over the top and toss with parsley."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": ["beginner", "shrimp", "seafood", "quick"],
+      "totalTime": "PT10M",
+      "funFact": "Shrimp are extraordinarily high in protein but virtually fat-free — one of the densest lean-protein sources around.",
+      "reference": { "label": "The Kitchn — Garlic Butter Shrimp", "url": "https://www.thekitchn.com/garlic-butter-shrimp-265172" },
+      "attribution": { "type": "website", "name": "The Kitchn", "url": "https://www.thekitchn.com/garlic-butter-shrimp-265172", "notes": "Method adapted from the source; description rewritten for beginners." }
+    },
+    {
+      "name": "One-Pot Beef Chili",
+      "serves": "6",
+      "description": "Thick, hearty, and comforting — plenty of leftovers, and it tastes even better the next day.",
+      "ingredients": [
+        "1 lb ground beef",
+        "1 medium onion, diced",
+        "1 can (15 oz) kidney beans, rinsed and drained",
+        "1 can (15 oz) diced tomatoes",
+        "1 can (8 oz) tomato sauce",
+        "2 tbsp chili powder",
+        "1 tsp ground cumin"
+      ],
+      "instructions": [
+        "In a large pot over medium-high heat, brown the ground beef with the onion, 6–8 minutes, until the beef is cooked through. Drain excess fat.",
+        "Stir in the kidney beans, diced tomatoes, tomato sauce, chili powder, and cumin.",
+        "Bring to a boil, then reduce to low.",
+        "Cover and simmer 20–25 minutes, stirring occasionally, to meld the flavors."
+      ],
+      "cuisine": "american",
+      "category": "dinner",
+      "diet": [],
+      "keywords": ["beginner", "one-pot", "chili", "comfort-food", "meal-prep"],
+      "totalTime": "PT35M",
+      "funFact": "Chili is the official state dish of Texas — but traditional Texas \"bowl of red\" strictly forbids beans.",
+      "reference": { "label": "America's Test Kitchen — Simple Beef Chili with Kidney Beans", "url": "https://www.americastestkitchen.com/recipes/34-simple-beef-chili-with-kidney-beans" },
+      "attribution": { "type": "website", "name": "America's Test Kitchen", "url": "https://www.americastestkitchen.com/recipes/34-simple-beef-chili-with-kidney-beans", "notes": "Method adapted from the source; description rewritten for beginners." }
+    },
+    {
+      "name": "Quick Chicken Enchilada Skillet",
+      "serves": "4",
+      "description": "All the flavor of baked enchiladas without the tedious rolling — it all happens in one skillet.",
+      "ingredients": [
+        "2 cups cooked shredded chicken (rotisserie works great)",
+        "1 can (10 oz) red enchilada sauce",
+        "1 cup canned black beans, rinsed",
+        "1 cup corn kernels (frozen or canned)",
+        "4 corn tortillas, cut into bite-sized strips",
+        "1 cup Mexican-blend cheese, shredded"
+      ],
+      "instructions": [
+        "In a large skillet over medium heat, combine the chicken, enchilada sauce, black beans, and corn. Stir well.",
+        "Simmer gently 5 minutes until warmed through.",
+        "Fold in the tortilla strips, pressing them down to soak up the sauce.",
+        "Top with the cheese, cover, and cook 2–3 minutes until melted and bubbling."
+      ],
+      "cuisine": "mexican",
+      "category": "dinner",
+      "diet": [],
+      "keywords": ["beginner", "one-pan", "skillet", "weeknight"],
+      "totalTime": "PT15M",
+      "funFact": "Wrapping food in corn tortillas dates to Mayan times, when people in the Valley of Mexico ate small fish wrapped in tortillas.",
+      "reference": { "label": "Gimme Some Oven — Chicken Enchilada Skillet", "url": "https://www.gimmesomeoven.com/chicken-enchilada-skillet/" },
+      "attribution": { "type": "website", "name": "Gimme Some Oven", "url": "https://www.gimmesomeoven.com/chicken-enchilada-skillet/", "notes": "Method adapted from the source; description rewritten for beginners." }
+    },
+    {
+      "name": "Sheet Pan Baked Salmon & Asparagus",
+      "serves": "2",
+      "description": "Elegance meets ease — salmon fillets bake alongside fresh asparagus for a restaurant-quality meal.",
+      "ingredients": [
+        "2 salmon fillets (6 oz each)",
+        "1 bunch asparagus, woody ends trimmed",
+        "2 tbsp olive oil",
+        "1 lemon, sliced into rounds",
+        "1 tsp garlic powder",
+        "Salt and pepper, to taste"
+      ],
+      "instructions": [
+        "Preheat the oven to 400°F (200°C) and line a baking sheet with foil.",
+        "Place the salmon in the center and arrange the asparagus around it.",
+        "Drizzle with olive oil and season with garlic powder, salt, and pepper. Lay lemon slices on the salmon.",
+        "Bake 12–15 minutes, until the salmon flakes easily and the asparagus is tender-crisp."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": ["beginner", "sheet-pan", "salmon", "seafood", "healthy"],
+      "totalTime": "PT20M",
+      "funFact": "Wild salmon get their pink hue from a carotenoid called astaxanthin, abundant in the shrimp and krill they eat.",
+      "reference": { "label": "Natasha's Kitchen — Sheet Pan Salmon and Asparagus", "url": "https://natashaskitchen.com/one-pan-salmon-asparagus-recipe-video/" },
+      "attribution": { "type": "website", "name": "Natasha's Kitchen", "url": "https://natashaskitchen.com/one-pan-salmon-asparagus-recipe-video/", "notes": "Method adapted from the source; description rewritten for beginners." }
+    },
+    {
+      "name": "Crispy Air Fryer Chicken Thighs",
+      "serves": "2",
+      "description": "Juicy inside with incredibly crispy skin — all without a drop of frying oil.",
+      "ingredients": [
+        "4 bone-in, skin-on chicken thighs",
+        "1 tbsp olive oil",
+        "1 tsp smoked paprika",
+        "1 tsp garlic powder",
+        "1/2 tsp salt",
+        "1/2 tsp pepper"
+      ],
+      "instructions": [
+        "Pat the chicken thighs completely dry (crucial for crispy skin) and drizzle with olive oil.",
+        "Mix the smoked paprika, garlic powder, salt, and pepper, then rub evenly over the chicken.",
+        "Place skin-side down in the air fryer basket and cook at 375°F (190°C) for 15 minutes.",
+        "Flip skin-side up and cook 10–12 minutes more, until the skin is deeply crispy and the internal temperature is 165°F."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": ["beginner", "air-fryer", "chicken"],
+      "totalTime": "PT30M",
+      "funFact": "Chicken thighs are far more forgiving than breasts — more dark meat and fat means they rarely dry out if you overcook them a touch.",
+      "reference": { "label": "Skinnytaste — Air Fryer Chicken Thighs", "url": "https://www.skinnytaste.com/air-fryer-chicken-thighs/" },
+      "attribution": { "type": "website", "name": "Skinnytaste", "url": "https://www.skinnytaste.com/air-fryer-chicken-thighs/", "notes": "Method adapted from the source; description rewritten for beginners." }
+    },
+    {
+      "name": "Easy Vegetable Fried Rice",
+      "serves": "3",
+      "description": "Better than takeout, and a great way to use up leftover rice and fridge odds and ends.",
+      "ingredients": [
+        "3 cups cooked white rice (cold, day-old rice works best)",
+        "2 tbsp sesame or vegetable oil",
+        "1 cup frozen peas-and-carrots blend, thawed",
+        "2 large eggs, beaten",
+        "3 tbsp soy sauce",
+        "2 green onions, sliced"
+      ],
+      "instructions": [
+        "Heat 1 tablespoon of oil in a large skillet over medium-high heat. Sauté the peas and carrots 2 minutes.",
+        "Push the veggies to one side, pour the beaten eggs into the empty side, and scramble until just cooked.",
+        "Add the remaining oil and turn the heat to high. Add the cold rice and toss thoroughly with the eggs and veggies.",
+        "Drizzle in the soy sauce and stir-fry 3–4 minutes until the rice is lightly toasted. Top with green onions."
+      ],
+      "cuisine": "chinese",
+      "category": "dinner",
+      "diet": ["vegetarian"],
+      "keywords": ["beginner", "fried-rice", "quick", "takeout", "leftovers"],
+      "totalTime": "PT15M",
+      "funFact": "Cold, day-old rice fries best — fresh rice holds too much moisture and turns mushy, while chilled rice dries just enough for that wok-toasted texture.",
+      "reference": { "label": "The Kitchn — Easy Fried Rice", "url": "https://www.thekitchn.com/fried-rice-recipe-23652991" },
+      "attribution": { "type": "website", "name": "The Kitchn", "url": "https://www.thekitchn.com/fried-rice-recipe-23652991", "notes": "Method adapted from the source; description rewritten for beginners." }
+    },
+    {
+      "name": "Simple Caesar Salad with Grilled Chicken",
+      "serves": "2",
+      "description": "Crisp romaine in a creamy dressing with crunchy croutons and a juicy pan-seared chicken breast.",
+      "ingredients": [
+        "1 lb chicken breasts",
+        "1 tbsp olive oil",
+        "1 large head romaine lettuce, chopped",
+        "1/2 cup croutons",
+        "1/4 cup grated Parmesan cheese",
+        "1/3 cup Caesar dressing",
+        "Salt, pepper, and garlic powder, to taste"
+      ],
+      "instructions": [
+        "Season the chicken with salt, pepper, and garlic powder. Sear in olive oil over medium-high heat, ~6 minutes per side, until cooked through. Rest 5 minutes, then slice.",
+        "Wash and thoroughly dry the romaine, then place in a large bowl.",
+        "Add the croutons, Parmesan, and dressing; toss until evenly coated.",
+        "Plate the salad and top with the warm sliced chicken."
+      ],
+      "cuisine": "american",
+      "category": "salad",
+      "diet": [],
+      "keywords": ["beginner", "salad", "chicken"],
+      "totalTime": "PT25M",
+      "funFact": "Caesar salad wasn't made in Italy or by Julius Caesar — it was created in Tijuana, Mexico, in 1924 by Italian immigrant Caesar Cardini during a busy holiday rush.",
+      "reference": { "label": "Damn Delicious — Best Chicken Caesar Salad with Homemade Croutons", "url": "https://damndelicious.net/2023/04/21/best-chicken-caesar-salad-with-homemade-croutons/" },
+      "attribution": { "type": "website", "name": "Damn Delicious", "url": "https://damndelicious.net/2023/04/21/best-chicken-caesar-salad-with-homemade-croutons/", "notes": "Method adapted from the source; description rewritten for beginners." }
+    },
+    {
+      "name": "Chewy Chocolate Chip Cookies",
+      "serves": "24 cookies",
+      "description": "The ultimate classic — soft in the center, chewy at the edges, loaded with chocolate.",
+      "ingredients": [
+        "1 cup unsalted butter, softened",
+        "3/4 cup granulated sugar",
+        "3/4 cup packed brown sugar",
+        "2 large eggs",
+        "1 tsp baking soda",
+        "2 1/4 cups all-purpose flour",
+        "2 cups semi-sweet chocolate chips"
+      ],
+      "instructions": [
+        "Preheat the oven to 375°F (190°C) and line two baking sheets with parchment.",
+        "Beat the butter with both sugars until smooth and fluffy. Beat in the eggs one at a time.",
+        "Stir in the baking soda, then the flour, gradually, until a soft dough forms. Fold in the chocolate chips.",
+        "Drop rounded tablespoons 2 inches apart on the sheets.",
+        "Bake 9–11 minutes until the edges are golden. Cool on the sheet 5 minutes, then transfer to a rack."
+      ],
+      "cuisine": "american",
+      "category": "dessert",
+      "diet": ["vegetarian"],
+      "keywords": ["beginner", "cookies", "baking", "chocolate"],
+      "totalTime": "PT25M",
+      "funFact": "The chocolate chip cookie was invented by accident in 1938 by Ruth Wakefield of the Toll House Inn — she expected the chocolate chunks to melt into the dough, but they held their shape.",
+      "reference": { "label": "Sally's Baking Addiction — Chewy Chocolate Chip Cookies", "url": "https://sallysbakingaddiction.com/chewy-chocolate-chip-cookies/" },
+      "attribution": { "type": "website", "name": "Sally's Baking Addiction", "url": "https://sallysbakingaddiction.com/chewy-chocolate-chip-cookies/", "notes": "Method adapted from the source; description rewritten for beginners." }
+    },
+    {
+      "name": "My Favorite Banana Bread",
+      "serves": "8 (1 loaf)",
+      "description": "Moist, sweet, and forgiving — the best way to use up overripe bananas.",
+      "ingredients": [
+        "3 ripe bananas, mashed",
+        "1/3 cup butter, melted",
+        "3/4 cup granulated sugar",
+        "1 egg, beaten",
+        "1 tsp baking soda",
+        "Pinch of salt",
+        "1 1/2 cups all-purpose flour"
+      ],
+      "instructions": [
+        "Preheat the oven to 350°F (175°C) and grease an 8x4-inch loaf pan.",
+        "Mash the bananas smooth in a bowl, then stir in the melted butter.",
+        "Mix in the sugar, egg, baking soda, and salt.",
+        "Add the flour last, stirring just until it disappears — don't over-mix.",
+        "Pour into the pan and bake 50–60 minutes, until a toothpick in the center comes out clean."
+      ],
+      "cuisine": "american",
+      "category": "dessert",
+      "diet": ["vegetarian"],
+      "keywords": ["beginner", "baking", "breakfast", "quick-bread", "banana"],
+      "totalTime": "PT75M",
+      "funFact": "Banana bread took off during the 1930s Great Depression, when resourceful cooks refused to throw away overripe fruit.",
+      "reference": { "label": "Sally's Baking Addiction — My Favorite Banana Bread", "url": "https://sallysbakingaddiction.com/best-banana-bread-recipe/" },
+      "attribution": { "type": "website", "name": "Sally's Baking Addiction", "url": "https://sallysbakingaddiction.com/best-banana-bread-recipe/", "notes": "Method adapted from the source; description rewritten for beginners." }
+    },
+    {
+      "name": "Quick & Easy Banana Muffins",
+      "serves": "12 muffins",
+      "description": "A banana-bread spin-off that bakes in half the time — perfect grab-and-go breakfast.",
+      "ingredients": [
+        "3 large ripe bananas, mashed",
+        "1/2 cup granulated sugar",
+        "1 large egg",
+        "1/3 cup melted butter",
+        "1 tsp baking soda",
+        "1 tsp baking powder",
+        "1 1/2 cups all-purpose flour"
+      ],
+      "instructions": [
+        "Preheat the oven to 375°F (190°C) and grease or line a 12-cup muffin tin.",
+        "Mix the mashed bananas, sugar, egg, and melted butter.",
+        "In a separate dish whisk the flour, baking soda, and baking powder, then fold into the banana mixture until just combined.",
+        "Divide evenly among the 12 cups.",
+        "Bake 15–18 minutes, until a toothpick comes out clean."
+      ],
+      "cuisine": "american",
+      "category": "breakfast",
+      "diet": ["vegetarian"],
+      "keywords": ["beginner", "baking", "muffins", "snack", "banana"],
+      "totalTime": "PT30M",
+      "funFact": "Muffin vs. cupcake: muffins use a liquid fat (melted butter or oil) and are mixed quickly, giving them a denser, more bread-like crumb.",
+      "reference": { "label": "Sally's Baking Addiction — Quick & Easy Banana Muffins", "url": "https://sallysbakingaddiction.com/banana-muffins/" },
+      "attribution": { "type": "website", "name": "Sally's Baking Addiction", "url": "https://sallysbakingaddiction.com/banana-muffins/", "notes": "Method adapted from the source; description rewritten for beginners." }
+    },
+    {
+      "name": "Seriously Fudgy Homemade Brownies",
+      "serves": "9",
+      "description": "Intensely chocolatey with crinkly tops and dense, fudgy centers — goodbye, boxed mix.",
+      "ingredients": [
+        "1/2 cup unsalted butter, melted",
+        "1 cup granulated sugar",
+        "2 large eggs",
+        "1 tsp vanilla extract",
+        "1/3 cup unsweetened cocoa powder",
+        "1/2 cup all-purpose flour",
+        "1/4 tsp salt"
+      ],
+      "instructions": [
+        "Preheat the oven to 350°F (175°C) and grease an 8x8-inch pan.",
+        "Whisk the melted butter and sugar. Add the eggs and vanilla and beat well until slightly lightened.",
+        "Whisk in the cocoa, flour, and salt until smooth.",
+        "Spread into the pan.",
+        "Bake 20–22 minutes — don't overbake; a toothpick should come out with a few moist crumbs for a fudgy center."
+      ],
+      "cuisine": "american",
+      "category": "dessert",
+      "diet": ["vegetarian"],
+      "keywords": ["beginner", "baking", "chocolate", "brownies"],
+      "totalTime": "PT35M",
+      "funFact": "Brownies are an American invention, created at Chicago's Palmer House Hotel for the 1893 World's Fair as a dessert small enough to fit in a boxed lunch.",
+      "reference": { "label": "Sally's Baking Addiction — Seriously Fudgy Homemade Brownies", "url": "https://sallysbakingaddiction.com/seriously-fudgy-homemade-brownies/" },
+      "attribution": { "type": "website", "name": "Sally's Baking Addiction", "url": "https://sallysbakingaddiction.com/seriously-fudgy-homemade-brownies/", "notes": "Method adapted from the source; description rewritten for beginners." }
+    },
+    {
+      "name": "3-Ingredient Peanut Butter Cookies",
+      "serves": "15 cookies",
+      "description": "No flour, no butter, no fuss — rich, melt-in-your-mouth peanut butter cookies from three ingredients.",
+      "ingredients": [
+        "1 cup creamy peanut butter",
+        "1 cup granulated sugar",
+        "1 large egg"
+      ],
+      "instructions": [
+        "Preheat the oven to 350°F (175°C) and line a baking sheet with parchment.",
+        "Stir the peanut butter, sugar, and egg together until a smooth dough forms.",
+        "Roll into 1-inch balls and place on the sheet.",
+        "Press a crisscross into each with a fork, flattening slightly.",
+        "Bake 10 minutes. Cool completely on the sheet (~10 minutes) before moving — they're fragile while hot."
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": ["vegetarian", "gluten-free"],
+      "keywords": ["beginner", "cookies", "3-ingredient", "flourless"],
+      "totalTime": "PT20M",
+      "funFact": "The fork crisscross isn't just decoration — peanut butter dough is dense, and pressing it flat helps the cookies bake through evenly.",
+      "reference": { "label": "Two Peas & Their Pod — 3 Ingredient Peanut Butter Cookies", "url": "https://www.twopeasandtheirpod.com/3-ingredient-peanut-butter-cookies/" },
+      "attribution": { "type": "website", "name": "Two Peas & Their Pod", "url": "https://www.twopeasandtheirpod.com/3-ingredient-peanut-butter-cookies/", "notes": "Method adapted from the source; description rewritten for beginners." }
+    },
+    {
+      "name": "Classic Apple Crisp",
+      "serves": "6",
+      "description": "Sweet, spiced apples under a crunchy brown-sugar oat topping — much easier than apple pie.",
+      "ingredients": [
+        "4 large apples (Honeycrisp or Granny Smith), peeled and sliced",
+        "1 tsp cinnamon",
+        "1/2 cup all-purpose flour",
+        "1/2 cup rolled oats",
+        "1/2 cup packed brown sugar",
+        "1/4 cup unsalted butter, cold and cubed"
+      ],
+      "instructions": [
+        "Preheat the oven to 350°F (175°C).",
+        "Toss the sliced apples with cinnamon and spread in an 8x8-inch baking dish.",
+        "Mix the flour, oats, and brown sugar; work in the cold cubed butter with your fingers until crumbly.",
+        "Scatter the topping over the apples.",
+        "Bake 35–40 minutes until the fruit bubbles and the topping is golden. Serve warm with vanilla ice cream."
+      ],
+      "cuisine": "american",
+      "category": "dessert",
+      "diet": ["vegetarian"],
+      "keywords": ["beginner", "baking", "fruit", "fall"],
+      "totalTime": "PT55M",
+      "funFact": "Apple crisps grew popular during World War II, when rationing made the lard and white flour for traditional pie crusts hard to get.",
+      "reference": { "label": "Sally's Baking Addiction — Classic Apple Crisp", "url": "https://sallysbakingaddiction.com/apple-crisp/" },
+      "attribution": { "type": "website", "name": "Sally's Baking Addiction", "url": "https://sallysbakingaddiction.com/apple-crisp/", "notes": "Method adapted from the source; description rewritten for beginners." }
+    },
+    {
+      "name": "Fluffy Homemade Pancakes",
+      "serves": "3 (about 6 pancakes)",
+      "description": "Ditch the boxed mix — from-scratch pancakes take the same time and turn out lighter and fluffier.",
+      "ingredients": [
+        "1 cup all-purpose flour",
+        "2 tbsp sugar",
+        "1 tbsp baking powder",
+        "1 cup milk",
+        "1 large egg",
+        "2 tbsp vegetable oil or melted butter"
+      ],
+      "instructions": [
+        "Whisk the flour, sugar, and baking powder in a large bowl.",
+        "In a small bowl whisk the milk, egg, and oil. Pour into the dry ingredients and stir gently just until combined — lumps are fine.",
+        "Heat a non-stick skillet over medium heat and lightly grease.",
+        "Pour 1/4 cup batter per pancake. Cook until bubbles form and pop, 2–3 minutes.",
+        "Flip and cook 1–2 minutes more until golden."
+      ],
+      "cuisine": "american",
+      "category": "breakfast",
+      "diet": ["vegetarian"],
+      "keywords": ["beginner", "breakfast", "pancakes"],
+      "totalTime": "PT20M",
+      "funFact": "The secret to fluffy pancakes is to not over-mix — overworking the batter develops gluten and makes them dense and rubbery.",
+      "reference": { "label": "Betty Crocker — Fluffy Homemade Pancakes", "url": "https://www.bettycrocker.com/recipes/fluffy-homemade-pancakes/77a89da1-fd56-494b-874a-55f9195c1413" },
+      "attribution": { "type": "website", "name": "Betty Crocker", "url": "https://www.bettycrocker.com/recipes/fluffy-homemade-pancakes/77a89da1-fd56-494b-874a-55f9195c1413", "notes": "Method adapted from the source; description rewritten for beginners." }
+    },
+    {
+      "name": "Easy Vanilla Mug Cake",
+      "serves": "1",
+      "description": "Craving cake without baking a whole batch? This single-serving cake cooks in under two minutes in the microwave.",
+      "ingredients": [
+        "4 tbsp all-purpose flour",
+        "2 tbsp sugar",
+        "1/4 tsp baking powder",
+        "3 tbsp whole milk",
+        "1 tbsp melted butter or vegetable oil",
+        "1/4 tsp vanilla extract",
+        "1 tbsp sprinkles (optional)"
+      ],
+      "instructions": [
+        "Whisk the flour, sugar, and baking powder together right in a microwave-safe ceramic mug.",
+        "Add the milk, melted butter, and vanilla. Stir with a fork until smooth with no clumps. Stir in sprinkles if using.",
+        "Microwave on high 70–80 seconds — do not overcook or it dries out.",
+        "Cool 2 minutes before eating straight from the mug."
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": ["vegetarian"],
+      "keywords": ["beginner", "microwave", "single-serving", "quick"],
+      "totalTime": "PT5M",
+      "funFact": "Mug cakes skip eggs on purpose — the small batter volume doesn't need a heavy binder, and a whole egg would turn it rubbery.",
+      "reference": { "label": "Tastes Better From Scratch — Vanilla Mug Cake", "url": "https://tastesbetterfromscratch.com/vanilla-mug-cake/" },
+      "attribution": { "type": "website", "name": "Tastes Better From Scratch", "url": "https://tastesbetterfromscratch.com/vanilla-mug-cake/", "notes": "Method adapted from the source; description rewritten for beginners." }
+    },
+    {
+      "name": "No-Bake Rice Krispies Treats",
+      "serves": "12 squares",
+      "description": "Chewy, sticky, sweet, and zero oven time — a childhood classic that needs no baking skills.",
+      "ingredients": [
+        "3 tbsp unsalted butter",
+        "1 package (10 oz) regular marshmallows",
+        "6 cups crisp rice cereal (Rice Krispies)"
+      ],
+      "instructions": [
+        "Grease a 9x13-inch pan.",
+        "Melt the butter in a large saucepan over low heat. Add the marshmallows and stir until fully melted, then remove from the heat.",
+        "Add the cereal and stir quickly until evenly coated.",
+        "Press evenly into the pan with a buttered spatula or wax paper.",
+        "Cool 30 minutes, then cut into squares."
+      ],
+      "cuisine": "american",
+      "category": "dessert",
+      "diet": [],
+      "keywords": ["beginner", "no-bake", "snack"],
+      "totalTime": "PT40M",
+      "funFact": "Rice Krispies Treats were invented in 1939 by Mildred Day, a Kellogg's home economist, as a promotional treat for a Camp Fire Girls bake sale.",
+      "reference": { "label": "Rice Krispies (Kellogg's) — The Original Treats", "url": "https://www.ricekrispies.us/original-treats-saucepan" },
+      "attribution": { "type": "website", "name": "Rice Krispies (Kellogg's)", "url": "https://www.ricekrispies.us/original-treats-saucepan", "notes": "Method adapted from the source; description rewritten for beginners." }
+    },
+    {
+      "name": "Simple Drop Sugar Cookies",
+      "serves": "18 cookies",
+      "description": "No rolling pin, no cutters, no chilling — roll into balls, drop on a pan, and bake.",
+      "ingredients": [
+        "1/2 cup unsalted butter, softened",
+        "3/4 cup granulated sugar",
+        "1 large egg",
+        "1 tsp vanilla extract",
+        "1 cup all-purpose flour",
+        "1/2 tsp baking powder",
+        "Extra sugar for rolling"
+      ],
+      "instructions": [
+        "Preheat the oven to 350°F (175°C) and line a baking sheet with parchment.",
+        "Cream the butter and sugar until smooth. Beat in the egg and vanilla.",
+        "Stir in the flour and baking powder until a soft dough forms.",
+        "Roll into 1-inch balls, roll each in extra sugar, and place 2 inches apart.",
+        "Bake 10–12 minutes until the bottoms are lightly golden. They'll look soft on top but firm as they cool."
+      ],
+      "cuisine": "american",
+      "category": "dessert",
+      "diet": ["vegetarian"],
+      "keywords": ["beginner", "cookies", "baking"],
+      "totalTime": "PT25M",
+      "funFact": "Sugar cookies trace back to 17th-century Germany; Protestant settlers in Pennsylvania made the round, crumbly \"Nazareth Cookie\" that became an American standard.",
+      "reference": { "label": "Sally's Baking Addiction — Drop Sugar Cookies", "url": "https://sallysbakingaddiction.com/drop-sugar-cookies/" },
+      "attribution": { "type": "website", "name": "Sally's Baking Addiction", "url": "https://sallysbakingaddiction.com/drop-sugar-cookies/", "notes": "Method adapted from the source; description rewritten for beginners." }
+    }
+  ]
+}
