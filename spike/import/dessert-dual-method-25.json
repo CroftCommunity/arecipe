@@ -1,0 +1,779 @@
+{
+  "_meta": {
+    "batch": "dessert-dual-method-25",
+    "description": "25 simple desserts, each with TWO preparation methods — a rapid-prep method (microwave / air-fryer / blender / no-bake) and a traditional method (oven / stovetop / double-boiler / churned). Source references and times are provided in the raw data (real URLs, real times).",
+    "provenance": "Adapted from published web recipes (real reference URL per recipe). Descriptions are beginner-facing prose. Each entry credits its source via attribution (attributionWebsite).",
+    "notes": {
+      "methods": "methods[] holds the parallel preparation pathways. method.kind = 'rapid' | 'traditional'. This is a SECOND axis of 'alternative' (same recipe, two ways) distinct from cross-source alternative versions (altOf). The combined design pass will decide how both map to the lexicon + a recipe-page switcher.",
+      "altOf": "altOf names a beginner-25 (own-batch.json) dish this is an alternative version of, where they are the same dish. Used to build version-flipping. Cousins (different flavor/format) are noted but not linked.",
+      "times": "prepTime/cookTime/totalTime are the provided active times (total = prep + thermal). Long chilling/freezing/proofing is captured separately in chillTime and excluded from totalTime.",
+      "funFactCheck": "PENDING — funFacts here come from the source 'Historical Context' sections and are NOT yet fact-checked. Suspect claims to verify before publish: chocolate truffles 'served at Louis XIV banquets'; avocado 'aphrodisiac / 10,000 years'; key lime 'lineage to Malaysia'; sorbet raw-egg-float 'egg trick'; affogato/thermal-physics phrasing. Do NOT publish funFact until fact-checked (same bar as beginner-25) and the storage design lands.",
+      "diet": "Rice Krispie Treats NOT vegetarian (marshmallow gelatin). vegan tagged only where fully plant-based as written (avocado mousse, chia pudding, fruit sorbet). gluten-free tagged for naturally flourless recipes.",
+      "images": "No embed images yet — Wikimedia Commons image-compare pass runs before publish."
+    },
+    "count": 25,
+    "alternativeVersionPairs": [
+      "Chocolate Chip Cookies <-> beginner-25 'Chewy Chocolate Chip Cookies'",
+      "Rice Krispie Treats <-> beginner-25 'No-Bake Rice Krispies Treats'",
+      "Apple Crisp <-> beginner-25 'Classic Apple Crisp'",
+      "Three-Ingredient Peanut Butter Cookies <-> beginner-25 '3-Ingredient Peanut Butter Cookies'",
+      "(cousins, not linked) Chocolate Mug Cake ~ beginner-25 'Easy Vanilla Mug Cake'; Banana Bread Mug Cake ~ beginner-25 'My Favorite Banana Bread'"
+    ]
+  },
+  "recipes": [
+    {
+      "name": "Chocolate Mug Cake",
+      "dish": "chocolate-mug-cake",
+      "serves": "1",
+      "description": "A single-serving chocolate cake that steam-leavens in the microwave. Eggless on purpose — egg white over-coagulates and turns rubbery under microwave heat, so the crumb relies on flour starch, milk, and oil instead.",
+      "ingredients": [
+        "3 tbsp all-purpose flour",
+        "2 tbsp granulated sugar",
+        "1 tbsp unsweetened cocoa powder",
+        "2 tsp Dutch-process cocoa powder",
+        "1/4 tsp baking powder",
+        "1/8 tsp fine sea salt",
+        "3 tbsp milk (1% or plant-based)",
+        "2.5 tsp vegetable oil or nut butter",
+        "1/2 tsp pure vanilla extract",
+        "1 tbsp semi-sweet chocolate chips"
+      ],
+      "methods": [
+        { "kind": "rapid", "label": "Microwave", "appliance": "microwave", "steps": ["Whisk flour, sugar, both cocoas, baking powder, and salt in a 12-oz microwave-safe mug.", "Make a well; add milk, oil, and vanilla. Whisk smooth with a fork, then fold in chocolate chips.", "Microwave on high 30–40 seconds (up to 1 minute by wattage). Pull it while the top is still slightly soft; residual heat finishes the center."] },
+        { "kind": "traditional", "label": "Oven", "appliance": "oven", "steps": ["Whisk the dry ingredients in a bowl to disperse fully.", "Whisk in milk, oil, and vanilla; pour into a greased oven-safe ramekin.", "Bake at 350°F (177°C) ~14 minutes, until a toothpick comes out clean."] }
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": ["vegetarian"],
+      "keywords": ["dual-method", "mug-cake", "microwave", "eggless", "single-serving", "quick"],
+      "prepTime": "PT5M",
+      "cookTime": "PT1M",
+      "totalTime": "PT6M",
+      "funFact": "Eggless microwave 'mug cakes' descend from Depression-era 'Wacky Cakes,' which skipped scarce eggs and butter. Pull the cake while the center is still glossy — overcooking drives off water and the crumb turns tough.",
+      "reference": { "url": "https://www.nutrition.va.gov/Recipes/Desserts/docs/Microwave-Chocolate-Mug-CakeJUL2021.pdf" },
+      "attribution": { "type": "website", "name": "US VA Nutrition", "url": "https://www.nutrition.va.gov/Recipes/Desserts/docs/Microwave-Chocolate-Mug-CakeJUL2021.pdf", "notes": "Method adapted from the source; description rewritten for beginners." },
+      "altOf": null
+    },
+    {
+      "name": "Rice Krispie Treats",
+      "dish": "rice-krispie-treats",
+      "serves": "15",
+      "description": "Puffed rice cereal bound in a non-crystalline melted-marshmallow sugar network. The whole trick is not overheating the marshmallows — excess heat crystallizes the sugar into rock-hard bars.",
+      "ingredients": [
+        "1/2 cup salted butter",
+        "16 oz fresh miniature marshmallows",
+        "9 cups crispy rice cereal",
+        "1 tsp pure vanilla extract"
+      ],
+      "methods": [
+        { "kind": "rapid", "label": "Microwave", "appliance": "microwave", "steps": ["Microwave butter and marshmallows in a large bowl on high 1 minute; stir; heat 30 seconds more.", "Stir smooth with a greased spatula, then stir in the vanilla.", "Fold in the cereal, press gently into a greased 9x13-inch pan, and cool."] },
+        { "kind": "traditional", "label": "Stovetop", "appliance": "stovetop", "steps": ["Melt butter in a heavy saucepan over medium-low; add marshmallows and stir constantly until smooth.", "Off the heat, stir in the vanilla.", "Fold in the cereal, transfer to a greased 9x13-inch pan, and press lightly — hard compaction makes dense bars."] }
+      ],
+      "cuisine": "american",
+      "category": "dessert",
+      "diet": [],
+      "keywords": ["dual-method", "no-bake", "microwave", "snack", "kid-friendly"],
+      "prepTime": "PT2M",
+      "cookTime": "PT3M",
+      "totalTime": "PT5M",
+      "chillTime": "PT30M",
+      "funFact": "Rock-hard treats come from overheated marshmallows: too much heat dehydrates the matrix and crystallizes the sugar. Pressing gently keeps the puffed-rice air pockets intact for a soft, chewy bar.",
+      "reference": { "url": "https://www.ricekrispies.us/recipes/microwaveable-rice-krispies-treats-recipe" },
+      "attribution": { "type": "website", "name": "Rice Krispies (Kellogg's)", "url": "https://www.ricekrispies.us/recipes/microwaveable-rice-krispies-treats-recipe", "notes": "Method adapted from the source; description rewritten for beginners." },
+      "altOf": "No-Bake Rice Krispies Treats"
+    },
+    {
+      "name": "Chocolate Chip Cookies",
+      "dish": "chocolate-chip-cookies",
+      "serves": "20 cookies",
+      "description": "A gluten-and-starch matrix studded with melted chocolate. White sugar crisps the edges; brown sugar keeps the center soft and chewy.",
+      "ingredients": [
+        "1/2 cup unsalted butter, melted",
+        "1/3 cup granulated sugar",
+        "1/2 cup light brown sugar, packed",
+        "1 tsp pure vanilla extract",
+        "1 large egg, room temperature",
+        "1/2 tsp baking soda",
+        "1/4 tsp fine sea salt",
+        "1.5 cups all-purpose flour",
+        "1 cup semi-sweet chocolate chips"
+      ],
+      "methods": [
+        { "kind": "rapid", "label": "Air fryer", "appliance": "air-fryer", "steps": ["Whisk melted butter with both sugars; beat in egg and vanilla; fold in flour, soda, salt, and chips. Shape 2-tbsp balls and chill 2 hours.", "Line the basket with perforated parchment, leaving space at the edges for airflow.", "Air fry at 325°F (163°C), 4 at a time, 5–7 minutes; rest 3 minutes in the basket before removing."] },
+        { "kind": "traditional", "label": "Oven", "appliance": "oven", "steps": ["Make the same dough; shape into balls (chilling optional for the oven).", "Arrange 2 inches apart on parchment.", "Bake at 350°F (177°C) 10–12 minutes until edges are golden and centers are set."] }
+      ],
+      "cuisine": "american",
+      "category": "dessert",
+      "diet": ["vegetarian"],
+      "keywords": ["dual-method", "air-fryer", "cookies", "baking", "chocolate"],
+      "prepTime": "PT15M",
+      "cookTime": "PT5M",
+      "totalTime": "PT20M",
+      "chillTime": "PT2H",
+      "funFact": "Air fryers move heat far faster than an oven's still air, so the temperature drops ~25°F to keep edges from burning before the center sets. Chilling the dough keeps cold fat from spreading in the high-velocity wind, preserving a thick, soft center.",
+      "reference": { "url": "https://www.thekitchn.com/air-fryer-chocolate-chip-cookie-22957225" },
+      "attribution": { "type": "website", "name": "The Kitchn", "url": "https://www.thekitchn.com/air-fryer-chocolate-chip-cookie-22957225", "notes": "Method adapted from the source; description rewritten for beginners." },
+      "altOf": "Chewy Chocolate Chip Cookies"
+    },
+    {
+      "name": "Two-Ingredient Chocolate Fudge",
+      "dish": "chocolate-fudge",
+      "serves": "25 pieces",
+      "description": "Fudge without the fussy sugar-syrup boil. Sweetened condensed milk brings pre-cooked, concentrated milk solids that resist scorching and crystallizing, so the chocolate sets dense and velvety with no tempering.",
+      "ingredients": [
+        "1 can (14 oz) sweetened condensed milk",
+        "3 cups semi-sweet chocolate chips"
+      ],
+      "methods": [
+        { "kind": "rapid", "label": "Microwave", "appliance": "microwave", "steps": ["Combine condensed milk and chocolate chips in a microwave-safe bowl.", "Microwave on high (or 50%) 2 minutes, stirring at 1 minute to distribute heat.", "Stir smooth, pour into a parchment-lined 8x8-inch pan, and chill 4 hours."] },
+        { "kind": "traditional", "label": "Stovetop", "appliance": "stovetop", "steps": ["Heat condensed milk in a saucepan over medium-low until hot but not boiling, stirring.", "Pour the hot milk over the chips in a bowl; stir rapidly until smooth and glossy.", "Cast into a parchment-lined 8x8-inch pan, tap level, and refrigerate until firm."] }
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": ["vegetarian", "gluten-free"],
+      "keywords": ["dual-method", "2-ingredient", "no-bake", "microwave", "chocolate"],
+      "prepTime": "PT5M",
+      "cookTime": "PT2M",
+      "totalTime": "PT7M",
+      "chillTime": "PT4H",
+      "funFact": "Sweetened condensed milk is whole milk with ~60% of its water evaporated off under vacuum and sugar added. That high sugar-to-liquid ratio plus the lecithin in chocolate keeps the cocoa butter from separating — dense, velvety fudge with no candy thermometer.",
+      "reference": { "url": "https://www.instrupix.com/easy-2-ingredient-chocolate-fudge-recipe/" },
+      "attribution": { "type": "website", "name": "Instrupix", "url": "https://www.instrupix.com/easy-2-ingredient-chocolate-fudge-recipe/", "notes": "Method adapted from the source; description rewritten for beginners." },
+      "altOf": null
+    },
+    {
+      "name": "Apple Crisp",
+      "dish": "apple-crisp",
+      "serves": "1 large serving",
+      "description": "Soft, pectin-rich spiced apples under a crunchy oat-and-butter crumble. Lemon juice balances the sugar and slows browning by lowering the fruit's pH.",
+      "ingredients": [
+        "1 large apple, peeled and sliced",
+        "1.5 tsp fresh lemon juice",
+        "1/2 tsp ground cinnamon",
+        "1/4 tsp ground nutmeg",
+        "2.5 tbsp dark brown sugar",
+        "1.5 tbsp all-purpose flour",
+        "2 tbsp softened unsalted butter",
+        "3 tbsp rolled oats"
+      ],
+      "methods": [
+        { "kind": "rapid", "label": "Microwave", "appliance": "microwave", "steps": ["Toss apple slices with lemon juice, then 1/2 tbsp brown sugar, 1/2 tbsp flour, 1/4 tsp cinnamon, 1/8 tsp nutmeg.", "In a separate bowl, fork together the butter, remaining brown sugar and flour, cinnamon, nutmeg, and oats into crumbs.", "Layer half the apples in a mug, dot with half the crumble; repeat. Microwave on high 2.5–3 minutes until tender."] },
+        { "kind": "traditional", "label": "Oven", "appliance": "oven", "steps": ["Toss the apples the same way and transfer to a greased oven-safe dish.", "Cut cold butter into the oats, brown sugar, and flour until pea-sized crumbs form.", "Scatter the crumble over the apples and bake at 375°F (190°C) ~30 minutes until golden and bubbling."] }
+      ],
+      "cuisine": "american",
+      "category": "dessert",
+      "diet": ["vegetarian"],
+      "keywords": ["dual-method", "microwave", "single-serving", "fruit", "fall"],
+      "prepTime": "PT5M",
+      "cookTime": "PT3M",
+      "totalTime": "PT8M",
+      "funFact": "Slicing apples thin (a mandoline helps) maximizes surface area for the sugar and spice. Microwaving cooks the fruit's pectin in a fraction of the oven time, keeping more of the apple's fresh acidity.",
+      "reference": { "url": "https://www.runningtothekitchen.com/microwave-apple-crisp/" },
+      "attribution": { "type": "website", "name": "Running to the Kitchen", "url": "https://www.runningtothekitchen.com/microwave-apple-crisp/", "notes": "Method adapted from the source; description rewritten for beginners." },
+      "altOf": "Classic Apple Crisp"
+    },
+    {
+      "name": "Avocado Chocolate Mousse",
+      "dish": "avocado-chocolate-mousse",
+      "serves": "4",
+      "description": "A raw, no-cook mousse where ripe Haas avocado stands in for egg yolks and cream. High-shear blending emulsifies the avocado's monounsaturated fats with cocoa and maple for a silky, dairy-free set.",
+      "ingredients": [
+        "2 ripe Haas avocados, pitted",
+        "1/2 cup unsweetened cocoa powder",
+        "1/2 cup pure maple syrup",
+        "1/4 cup plant-based milk (almond/oat)",
+        "1 tsp pure vanilla extract",
+        "1/4 tsp fine sea salt"
+      ],
+      "methods": [
+        { "kind": "rapid", "label": "High-shear blend (no-bake)", "appliance": "blender", "steps": ["Peel, pit, and cube the avocados; blend on high ~30 seconds until smooth.", "Add cocoa, maple, plant milk, vanilla, and salt; blend on high ~1 minute, scraping down, until glossy.", "Portion into jars, cover, and refrigerate at least 1 hour to firm the plant fats."] },
+        { "kind": "traditional", "label": "Whipped egg + cream (comparison)", "appliance": "none", "steps": ["Whip heavy cream to soft peaks; separately whip egg whites and sugar to stiff peaks; melt dark chocolate.", "Temper the chocolate with a little egg white, then fold in the rest and the whipped cream.", "Divide into dishes and chill at least 4 hours to set."] }
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": ["vegetarian", "vegan", "gluten-free"],
+      "keywords": ["dual-method", "no-bake", "blender", "dairy-free", "chocolate"],
+      "prepTime": "PT5M",
+      "cookTime": "PT0M",
+      "totalTime": "PT5M",
+      "chillTime": "PT1H",
+      "funFact": "Avocado's smooth mouthfeel comes from its monounsaturated triacylglycerols: under high shear they emulsify with the liquid sugars and wrap the cocoa particles, mimicking the melt of dairy fat on the tongue.",
+      "reference": { "url": "https://www.thechocolateprofessor.com/blog/avocado-chocolate-mousse-recipe" },
+      "attribution": { "type": "website", "name": "The Chocolate Professor", "url": "https://www.thechocolateprofessor.com/blog/avocado-chocolate-mousse-recipe", "notes": "Method adapted from the source; description rewritten for beginners." },
+      "altOf": null
+    },
+    {
+      "name": "Banana Bread Mug Cake",
+      "dish": "banana-bread-mug-cake",
+      "serves": "1",
+      "description": "A quick-bread crumb in a mug: overripe banana's pectin and sugars keep it moist, while chemical leavening and egg trap steam to mimic a slow-baked loaf's rise.",
+      "ingredients": [
+        "1 very ripe medium banana",
+        "1 large whole egg",
+        "1 tbsp + 1 tsp packed light brown sugar",
+        "1/2 tsp ground cinnamon",
+        "1/4 tsp kosher salt",
+        "5 tbsp all-purpose flour",
+        "1/2 tsp baking powder",
+        "1 tbsp chopped walnuts"
+      ],
+      "methods": [
+        { "kind": "rapid", "label": "Microwave", "appliance": "microwave", "steps": ["Mash the banana in an 8-oz mug; fork in the egg, 1 tbsp brown sugar, 1/4 tsp cinnamon, and salt.", "Stir in the flour and baking powder just until combined; fold in walnuts.", "Top with the remaining sugar and cinnamon; microwave on high 2:00–2:15 until a toothpick comes out clean."] },
+        { "kind": "traditional", "label": "Slow cooker", "appliance": "slow-cooker", "steps": ["Mash the banana in a bowl; whisk in egg, 1 tbsp brown sugar, cinnamon, salt, and 2 tbsp melted butter.", "Fold in flour, baking powder, and walnuts without overmixing.", "Pour into a greased oven-safe dish inside the slow cooker; cook on low 4 hours."] }
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": ["vegetarian"],
+      "keywords": ["dual-method", "mug-cake", "microwave", "banana", "single-serving"],
+      "prepTime": "PT3M",
+      "cookTime": "PT2M",
+      "totalTime": "PT5M",
+      "funFact": "As bananas ripen, the enzyme amylase converts insoluble starch into soluble sugars (sucrose, glucose, fructose). That extra sugar and moisture is what keeps a microwave quick-bread from drying out under fast, volumetric heating.",
+      "reference": { "url": "https://www.thekitchn.com/banana-bread-mug-cake-23027939" },
+      "attribution": { "type": "website", "name": "The Kitchn", "url": "https://www.thekitchn.com/banana-bread-mug-cake-23027939", "notes": "Method adapted from the source; description rewritten for beginners." },
+      "altOf": null
+    },
+    {
+      "name": "Classic Crème Brûlée",
+      "dish": "creme-brulee",
+      "serves": "5",
+      "description": "A delicate egg-yolk custard cooked low and gentle so it sets silky (no curdling or weeping), finished with a hard torched-sugar crust.",
+      "ingredients": [
+        "6 large egg yolks",
+        "4 tbsp granulated sugar (custard)",
+        "2 tbsp granulated sugar (topping)",
+        "2 cups heavy whipping cream",
+        "2 tsp pure vanilla extract",
+        "1 pinch fine sea salt"
+      ],
+      "methods": [
+        { "kind": "rapid", "label": "Air fryer", "appliance": "air-fryer", "steps": ["Whisk yolks, 4 tbsp sugar, and salt; whisk in cream and vanilla until blended.", "Divide among 5 ramekins; cover each tightly with foil so it can't blow off.", "Air fry at 370°F (188°C) 32 minutes; cool, then refrigerate at least 1 hour. Sugar the tops and torch before serving."] },
+        { "kind": "traditional", "label": "Oven (bain-marie)", "appliance": "oven", "steps": ["Whisk yolks, 4 tbsp sugar, and salt; heat the cream until hot (not boiling) and stream it in slowly.", "Strain into ramekins set in a deep pan; pour boiling water halfway up the sides.", "Bake at 285°F (140°C) ~30 minutes until set with a slight jiggle; chill, then sugar and torch."] }
+      ],
+      "cuisine": "french",
+      "category": "dessert",
+      "diet": ["vegetarian", "gluten-free"],
+      "keywords": ["dual-method", "air-fryer", "custard", "torched"],
+      "prepTime": "PT20M",
+      "cookTime": "PT32M",
+      "totalTime": "PT52M",
+      "chillTime": "PT1H",
+      "funFact": "\"Crème brûlée\" means \"burnt cream.\" The oven bain-marie buffers the heat so the yolks don't exceed their coagulation point; in the air fryer the tightly-sealed foil traps steam to create the same gentle, mini-water-bath environment.",
+      "reference": { "url": "https://dinnersdonequick.com/air-fryer-creme-brulee/" },
+      "attribution": { "type": "website", "name": "Dinners Done Quick", "url": "https://dinnersdonequick.com/air-fryer-creme-brulee/", "notes": "Method adapted from the source; description rewritten for beginners." },
+      "altOf": null
+    },
+    {
+      "name": "No-Bake Cheesecake Jars",
+      "dish": "no-bake-cheesecake",
+      "serves": "6 jars (8 oz)",
+      "description": "A crack-proof cheesecake that sets by chilling rather than baking — saturated milk fats in the cream cheese and Greek yogurt firm up cold, and the yogurt's lactic acid thickens the filling.",
+      "ingredients": [
+        "1/2 cup graham cracker crumbs",
+        "2 tbsp melted butter",
+        "8 oz brick-style cream cheese",
+        "1/2 cup non-fat Greek yogurt",
+        "1/4 cup granulated sugar",
+        "1 tsp pure vanilla extract",
+        "1 tbsp fresh lemon juice"
+      ],
+      "methods": [
+        { "kind": "rapid", "label": "Chilled (no-bake)", "appliance": "none", "steps": ["Stir graham crumbs with melted butter; press 2 tbsp into the bottom of 6 jars.", "Beat cream cheese and sugar light and fluffy; mix in yogurt, vanilla, and lemon juice until silky.", "Spoon over the crust; cover and refrigerate 30 minutes to 4 hours to set the fats."] },
+        { "kind": "traditional", "label": "Baked jar (water bath)", "appliance": "oven", "steps": ["Press the crumb-butter base firmly into heatproof jars.", "Beat cream cheese and sugar smooth; beat in one room-temp egg and vanilla without overbeating.", "Set jars in a pan of boiling water halfway up; bake at 325°F (163°C) 20 minutes."] }
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": ["vegetarian"],
+      "keywords": ["dual-method", "no-bake", "cheesecake", "jars"],
+      "prepTime": "PT30M",
+      "cookTime": "PT0M",
+      "totalTime": "PT30M",
+      "chillTime": "PT4H",
+      "funFact": "Baked cheesecakes set on an egg-protein gel; no-bake ones set purely on cold milk fat. The lactic acid in Greek yogurt (or sour cream) gently denatures the cream-cheese proteins, thickening the filling without any heat.",
+      "reference": { "url": "https://www.fitmittenkitchen.com/no-bake-cheesecake-jars/" },
+      "attribution": { "type": "website", "name": "Fit Mitten Kitchen", "url": "https://www.fitmittenkitchen.com/no-bake-cheesecake-jars/", "notes": "Method adapted from the source; description rewritten for beginners." },
+      "altOf": null
+    },
+    {
+      "name": "Bread Pudding",
+      "dish": "bread-pudding",
+      "serves": "8",
+      "description": "An egg-custard dessert that rehydrates stale bread; the custard's egg proteins coagulate to bind milk, sugar, and bread into a moist, sliceable pudding.",
+      "ingredients": [
+        "7 cups day-old French bread, cubed",
+        "4 whole eggs, room temperature",
+        "1.75 cups whole milk",
+        "1/4 cup heavy whipping cream",
+        "4 tbsp unsalted butter, melted",
+        "1/2 cup granulated sugar",
+        "1/2 tsp ground cinnamon",
+        "1/8 tsp fine sea salt",
+        "1/2 tsp pure vanilla extract",
+        "1/3 cup seedless raisins"
+      ],
+      "methods": [
+        { "kind": "traditional", "label": "Slow cooker (steamed)", "appliance": "slow-cooker", "steps": ["Whisk milk, eggs, cream, sugar, salt, melted butter, cinnamon, and vanilla until the sugar dissolves.", "Arrange bread and raisins in a greased slow-cooker insert; pour custard over and press to saturate.", "Rest 10 minutes; cover and cook on low 4 hours until a knife near the center comes out clean."] },
+        { "kind": "rapid", "label": "Air fryer", "appliance": "air-fryer", "steps": ["Whisk a scaled-down custard (egg whites, half-and-half, sugar, melted butter, vanilla).", "Toss bread cubes in the custard, transfer to greased ramekins, and top with chocolate chips.", "Air fry at 325°F (163°C) 12–14 minutes until puffed and golden."] }
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": ["vegetarian"],
+      "keywords": ["dual-method", "slow-cooker", "custard", "leftovers"],
+      "prepTime": "PT10M",
+      "cookTime": "PT4H",
+      "totalTime": "PT4H10M",
+      "funFact": "Stale bread is the point: as it stales, starch retrogrades and releases water, hardening the crumb into a sponge that soaks up custard without collapsing into paste. The slow cooker steams it so the edges stay moist.",
+      "reference": { "url": "https://www.sonshinekitchen.com/bread-pudding-in-the-slow-cooker/" },
+      "attribution": { "type": "website", "name": "Sonshine Kitchen", "url": "https://www.sonshinekitchen.com/bread-pudding-in-the-slow-cooker/", "notes": "Method adapted from the source; description rewritten for beginners." },
+      "altOf": null
+    },
+    {
+      "name": "No-Yeast Cinnamon Rolls",
+      "dish": "cinnamon-rolls",
+      "serves": "9 large rolls",
+      "description": "Cinnamon rolls leavened chemically instead of with yeast — no hours of proofing. The rise comes from baking soda reacting with the lactic acid in Greek yogurt.",
+      "ingredients": [
+        "2 cups all-purpose flour",
+        "1/4 cup granulated sugar",
+        "1 tbsp baking powder",
+        "1/2 tsp baking soda",
+        "1 pinch fine sea salt",
+        "1 cup natural Greek yogurt",
+        "1/3 cup melted butter (dough)",
+        "1/4 cup softened butter (filling)",
+        "1 tbsp ground cinnamon"
+      ],
+      "methods": [
+        { "kind": "traditional", "label": "Oven", "appliance": "oven", "steps": ["Whisk flour, sugar, baking powder, soda, and salt; mix in yogurt and melted butter to a dough.", "Roll to a 10x12-inch rectangle, spread with softened butter, sprinkle cinnamon-sugar, and roll tightly.", "Slice into 9; bake in a greased pan at 375°F (190°C) 20–25 minutes until golden."] },
+        { "kind": "rapid", "label": "Single-serve microwave", "appliance": "microwave", "steps": ["Mix a single-serve dough: 1/2 cup flour, 1/2 tsp baking powder, 1 tsp sugar, 1 tsp butter, 3 tbsp milk.", "Roll out, spread 1 tsp softened butter, sprinkle 1 tbsp brown sugar + cinnamon, roll tightly.", "Place in a greased mug and microwave on high 90 seconds."] }
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": ["vegetarian"],
+      "keywords": ["dual-method", "no-yeast", "breakfast", "microwave"],
+      "prepTime": "PT20M",
+      "cookTime": "PT20M",
+      "totalTime": "PT40M",
+      "funFact": "The rise is an acid-base reaction: lactic acid in the yogurt + baking soda releases CO2 the instant the dough is hydrated (HA + NaHCO3 -> NaA + H2O + CO2). Handle gently and bake soon — over-kneading builds gluten and toughens the roll.",
+      "reference": { "url": "https://www.abakingjourney.com/quick-no-yeast-cinnamon-rolls/" },
+      "attribution": { "type": "website", "name": "A Baking Journey", "url": "https://www.abakingjourney.com/quick-no-yeast-cinnamon-rolls/", "notes": "Method adapted from the source; description rewritten for beginners." },
+      "altOf": null
+    },
+    {
+      "name": "Blended Chia Seed Pudding",
+      "dish": "chia-pudding",
+      "serves": "3",
+      "description": "Chia pudding blended smooth so there's no gel-bead texture — high-shear blending breaks the seed shells into a thick chocolate-nutty mousse.",
+      "ingredients": [
+        "1/2 cup whole chia seeds",
+        "2 cups cashew or almond milk",
+        "1/3 cup creamy peanut or almond butter",
+        "1.5 tbsp pure maple syrup",
+        "1/2 tsp ground cinnamon"
+      ],
+      "methods": [
+        { "kind": "rapid", "label": "High-shear blend", "appliance": "blender", "steps": ["Stir chia and plant milk; hydrate in the fridge overnight.", "Blend the gelled mixture with the nut butter, maple, and cinnamon.", "Blend on high ~1 minute until smooth and creamy; chill 30 minutes before serving."] },
+        { "kind": "traditional", "label": "Unblended soak", "appliance": "none", "steps": ["Whisk chia, milk, and maple vigorously for 1 minute.", "Rest 10 minutes, then whisk again to keep the seeds from clumping.", "Cover and refrigerate at least 2.5 hours until gelled."] }
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": ["vegetarian", "vegan", "gluten-free"],
+      "keywords": ["dual-method", "no-bake", "blender", "breakfast", "make-ahead"],
+      "prepTime": "PT5M",
+      "cookTime": "PT0M",
+      "totalTime": "PT5M",
+      "chillTime": "PT2H30M",
+      "funFact": "Chia seeds are hydrophilic — their outer mucilage swells up to ~12x in liquid. Blending ruptures that shell, releasing the soluble fiber and fats inside to form a stable, velvety, mousse-like emulsion.",
+      "reference": { "url": "https://challenge22.com/recipes/breakfast-and-brunch/blended-chia-pudding/" },
+      "attribution": { "type": "website", "name": "Challenge 22", "url": "https://challenge22.com/recipes/breakfast-and-brunch/blended-chia-pudding/", "notes": "Method adapted from the source; description rewritten for beginners." },
+      "altOf": null
+    },
+    {
+      "name": "Three-Ingredient Peanut Butter Cookies",
+      "dish": "peanut-butter-cookies",
+      "serves": "15 cookies",
+      "description": "Flourless cookies bound by egg protein — as they bake, the egg denatures and coagulates into a network that holds the dense peanut-butter fat in place.",
+      "ingredients": [
+        "1 cup creamy commercial peanut butter",
+        "1 cup granulated sugar",
+        "1 large whole egg"
+      ],
+      "methods": [
+        { "kind": "rapid", "label": "Air fryer", "appliance": "air-fryer", "steps": ["Mix peanut butter, sugar, and egg smooth; chill 30 minutes.", "Scoop 1-tbsp balls onto parchment in the basket; flatten with a fork in a crisscross.", "Air fry at 325°F (163°C) 6–8 minutes; cool in the basket 5 minutes before handling."] },
+        { "kind": "traditional", "label": "Oven", "appliance": "oven", "steps": ["Whisk peanut butter, sugar, and egg smooth (chilling optional).", "Roll into balls 1 inch apart on parchment; press a fork crisscross.", "Bake at 350°F (177°C) 10–12 minutes; rest 3 minutes before cooling."] }
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": ["vegetarian", "gluten-free"],
+      "keywords": ["dual-method", "air-fryer", "3-ingredient", "flourless", "cookies"],
+      "prepTime": "PT5M",
+      "cookTime": "PT6M",
+      "totalTime": "PT11M",
+      "funFact": "With no flour or leavening, the dough won't spread on its own — the fork crisscross flattens it so heat reaches the center evenly. Use standard commercial peanut butter; the separated oil in natural PB makes the cookies spread and crumble.",
+      "reference": { "url": "https://momcrieff.com/air-fryer-peanut-butter-cookies/" },
+      "attribution": { "type": "website", "name": "Momcrieff", "url": "https://momcrieff.com/air-fryer-peanut-butter-cookies/", "notes": "Method adapted from the source; description rewritten for beginners." },
+      "altOf": "3-Ingredient Peanut Butter Cookies"
+    },
+    {
+      "name": "Chocolate Brownie in a Mug",
+      "dish": "brownie-mug",
+      "serves": "1 generous serving",
+      "description": "A single-serve brownie with no leavening — omitting baking powder/soda and egg whites lets the starch gelatinize into a dense, extremely fudgy crumb.",
+      "ingredients": [
+        "3 tbsp unsweetened cocoa powder",
+        "3 tbsp all-purpose flour",
+        "3 tbsp granulated sugar",
+        "1 heaping pinch kosher salt",
+        "3 tbsp whole milk",
+        "2.5 tbsp vegetable oil",
+        "2 tbsp semi-sweet chocolate chips",
+        "1/4 tsp pure vanilla extract"
+      ],
+      "methods": [
+        { "kind": "rapid", "label": "Microwave", "appliance": "microwave", "steps": ["Whisk cocoa, flour, sugar, and salt in a 10-oz mug.", "Stir in milk, oil, and vanilla just until combined; fold in chips.", "Microwave on high 1 minute — top mostly set with a few glossy spots; rest 2 minutes."] },
+        { "kind": "traditional", "label": "Oven", "appliance": "oven", "steps": ["Sift and whisk cocoa, flour, sugar, and salt.", "Stir in milk, oil, and vanilla smooth; fold in chips; pour into a greased ramekin.", "Bake at 350°F (177°C) 12–15 minutes, keeping the center slightly soft."] }
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": ["vegetarian"],
+      "keywords": ["dual-method", "mug-cake", "microwave", "eggless", "chocolate", "single-serving"],
+      "prepTime": "PT5M",
+      "cookTime": "PT1M",
+      "totalTime": "PT6M",
+      "funFact": "Skipping egg whites is what keeps it fudgy: under microwave heat, egg-white ovalbumin coagulates into a bouncy web that would turn the brownie rubbery. Oil and chocolate chips coat the starch and slow gelatinization for a gooey center.",
+      "reference": { "url": "https://amandascookin.com/brownie-in-a-mug/" },
+      "attribution": { "type": "website", "name": "Amanda's Cookin'", "url": "https://amandascookin.com/brownie-in-a-mug/", "notes": "Method adapted from the source; description rewritten for beginners." },
+      "altOf": null
+    },
+    {
+      "name": "Vanilla Panna Cotta",
+      "dish": "panna-cotta",
+      "serves": "4",
+      "description": "\"Cooked cream\" set with seaweed-derived agar-agar instead of animal gelatin — agar forms a firm gel that holds at room temperature and sets at a higher temperature than gelatin.",
+      "ingredients": [
+        "1 cup heavy whipping cream",
+        "1 cup full-fat whole milk",
+        "3 tbsp granulated sugar",
+        "1/2 tsp pure agar-agar powder",
+        "2 tsp pure vanilla paste"
+      ],
+      "methods": [
+        { "kind": "rapid", "label": "Agar-agar (vegetarian set)", "appliance": "stovetop", "steps": ["Whisk cream, milk, sugar, and agar powder together cold until dissolved.", "Heat over medium-low until steaming; boil gently 2 minutes to activate the agar.", "Off the heat whisk in the vanilla, strain into molds, cool, then refrigerate 4 hours."] },
+        { "kind": "traditional", "label": "Bovine gelatin", "appliance": "stovetop", "steps": ["Bloom 1 tsp gelatin in 3 tbsp cold water 5 minutes.", "Warm milk, cream, and sugar to just below boiling; whisk in the bloomed gelatin.", "Whisk in vanilla, strain into oiled molds, and refrigerate 6 hours."] }
+      ],
+      "cuisine": "italian",
+      "category": "dessert",
+      "diet": ["vegetarian", "gluten-free"],
+      "keywords": ["dual-method", "agar", "no-bake-set", "custard"],
+      "prepTime": "PT5M",
+      "cookTime": "PT10M",
+      "totalTime": "PT15M",
+      "chillTime": "PT4H",
+      "funFact": "\"Panna cotta\" is Italian for \"cooked cream.\" Agar gels at 30–40°C and about 2 g of it matches the set of 7 g of gelatin. It also ignores the proteolytic enzymes in fresh pineapple that stop gelatin from setting — so agar works with any fruit.",
+      "reference": { "url": "https://www.yummytummyaarthi.com/vanilla-panna-cotta-recipe-vanilla/" },
+      "attribution": { "type": "website", "name": "Yummy Tummy Aarthi", "url": "https://www.yummytummyaarthi.com/vanilla-panna-cotta-recipe-vanilla/", "notes": "Method adapted from the source; description rewritten for beginners." },
+      "altOf": null
+    },
+    {
+      "name": "Chocolate Covered Strawberries",
+      "dish": "chocolate-covered-strawberries",
+      "serves": "16 strawberries",
+      "description": "Fresh berries in a crisp, glossy chocolate shell. The one rule: keep every drop of water away from the melted chocolate or it seizes.",
+      "ingredients": [
+        "1 lb fresh, firm strawberries",
+        "8 oz high-quality dark chocolate chips",
+        "1 tsp neutral cooking oil"
+      ],
+      "methods": [
+        { "kind": "rapid", "label": "Microwave", "appliance": "microwave", "steps": ["Wash and thoroughly dry the strawberries; air-dry 60 minutes so no surface moisture remains.", "Microwave 6 oz chocolate in 20-second bursts, stirring between; stir in the remaining chocolate and the oil.", "Dip each berry by the stem, swirl, and set on parchment ~1 hour to firm."] },
+        { "kind": "traditional", "label": "Double boiler", "appliance": "stovetop", "steps": ["Dry the berries and make sure all bowls/spatulas are bone dry.", "Melt 6 oz chocolate over a pot with 1 inch simmering water; stir in the rest off the heat.", "Dip berries, scrape the excess, and set on parchment to cool."] }
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": ["vegetarian", "gluten-free"],
+      "keywords": ["dual-method", "no-bake", "microwave", "fruit", "chocolate"],
+      "prepTime": "PT15M",
+      "cookTime": "PT5M",
+      "totalTime": "PT20M",
+      "chillTime": "PT1H",
+      "funFact": "Melted chocolate is sugar and cocoa solids suspended in cocoa butter. A single drop of water hydrates the sugar, clumps it, and 'seizes' the batch. A little neutral or coconut oil thins the chocolate for a shiny shell that snaps instead of shatters.",
+      "reference": { "url": "https://www.fifteenspatulas.com/chocolate-covered-strawberries/" },
+      "attribution": { "type": "website", "name": "Fifteen Spatulas", "url": "https://www.fifteenspatulas.com/chocolate-covered-strawberries/", "notes": "Method adapted from the source; description rewritten for beginners." },
+      "altOf": null
+    },
+    {
+      "name": "Tangy Lemon Curd",
+      "dish": "lemon-curd",
+      "serves": "1.5 cups",
+      "description": "A bright, creamy spread thickened by egg-yolk coagulation. Sugar raises the eggs' setting temperature so they thicken smooth instead of scrambling.",
+      "ingredients": [
+        "3 large egg yolks",
+        "1 large whole egg",
+        "150 g granulated sugar",
+        "120 g freshly squeezed lemon juice",
+        "2 tbsp finely grated lemon zest",
+        "1/4 tsp fine sea salt",
+        "85 g cold unsalted butter, cubed"
+      ],
+      "methods": [
+        { "kind": "rapid", "label": "Microwave", "appliance": "microwave", "steps": ["Whisk yolks, whole egg, sugar, and salt smooth in a microwave-proof bowl; whisk in lemon juice and zest.", "Microwave on high in 40-second bursts for ~3 minutes, whisking thoroughly between each to prevent scrambling.", "Off the heat whisk in the cold butter until melted; strain into a jar."] },
+        { "kind": "traditional", "label": "Stovetop (double boiler)", "appliance": "stovetop", "steps": ["Whisk yolks, whole egg, sugar, and salt in a bowl over simmering water; whisk in juice and zest.", "Stir constantly over medium-low 12–15 minutes, staying below a boil, until thick.", "Off the heat whisk in the cold butter; strain into a jar."] }
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": ["vegetarian", "gluten-free"],
+      "keywords": ["dual-method", "microwave", "citrus", "spread"],
+      "prepTime": "PT5M",
+      "cookTime": "PT5M",
+      "totalTime": "PT10M",
+      "funFact": "Use fresh lemon juice, not bottled — bottled lacks the volatile terpenes behind fresh lemon's aroma. Zest only the yellow, not the bitter white pith (high in naringin). Whisking cold butter in off the heat both stops the cooking and emulsifies the curd glossy.",
+      "reference": { "url": "https://bakingwithbutter.com/how-to-make-lemon-curd/" },
+      "attribution": { "type": "website", "name": "Baking with Butter", "url": "https://bakingwithbutter.com/how-to-make-lemon-curd/", "notes": "Method adapted from the source; description rewritten for beginners." },
+      "altOf": null
+    },
+    {
+      "name": "No-Bake Key Lime Pie",
+      "dish": "key-lime-pie",
+      "serves": "8",
+      "description": "A tart chilled pie on a graham-butter crust. Key lime's acid balances the condensed milk, and cream cheese gives body — no baking needed.",
+      "ingredients": [
+        "1.5 cups graham cracker crumbs",
+        "1/3 cup granulated sugar",
+        "7 tbsp melted unsalted butter",
+        "8 oz softened brick cream cheese",
+        "1 can (14 oz) sweetened condensed milk",
+        "1/2 cup key lime juice",
+        "1 tsp finely grated lime zest",
+        "3/4 cup cold heavy whipping cream"
+      ],
+      "methods": [
+        { "kind": "rapid", "label": "Cold-set crust (no-bake)", "appliance": "none", "steps": ["Mix crumbs, sugar, and melted butter; press into a 9-inch pie dish and refrigerate 30 minutes.", "Whip the cold cream to stiff peaks; separately beat cream cheese with condensed milk, then whisk in lime juice and zest.", "Fold in the whipped cream, pour into the crust, and chill 12 hours."] },
+        { "kind": "traditional", "label": "Toasted oven crust", "appliance": "oven", "steps": ["Press the crumb-butter into the dish and bake at 375°F (190°C) 8 minutes; cool.", "Beat cream cheese and condensed milk smooth; whisk in lime juice and zest until thickened.", "Fold in whipped cream, pour into the cooled crust, and refrigerate 12 hours."] }
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": ["vegetarian"],
+      "keywords": ["dual-method", "no-bake", "pie", "citrus"],
+      "prepTime": "PT30M",
+      "cookTime": "PT0M",
+      "totalTime": "PT30M",
+      "chillTime": "PT12H",
+      "funFact": "Key limes are smaller, more acidic, and more aromatic than Persian limes. The original late-1800s pie needed no oven — cooks found the citric acid in key lime juice thickens sweetened condensed milk on its own, setting the filling by chemical coagulation.",
+      "reference": { "url": "https://www.livewellbakeoften.com/no-bake-key-lime-pie/" },
+      "attribution": { "type": "website", "name": "Live Well Bake Often", "url": "https://www.livewellbakeoften.com/no-bake-key-lime-pie/", "notes": "Method adapted from the source; description rewritten for beginners." },
+      "altOf": null
+    },
+    {
+      "name": "Molten Chocolate Lava Cake",
+      "dish": "lava-cake",
+      "serves": "3",
+      "description": "A fully-baked outer cake around a warm, flowing chocolate core — quick surface cooking traps the liquid center before heat reaches it.",
+      "ingredients": [
+        "6 tbsp unsalted butter, cubed",
+        "4 oz semi-sweet chocolate bar",
+        "1 large whole egg",
+        "1 large egg yolk",
+        "3 tbsp granulated sugar",
+        "1/2 tsp pure vanilla extract",
+        "3 tbsp all-purpose flour",
+        "1 pinch fine sea salt"
+      ],
+      "methods": [
+        { "kind": "rapid", "label": "Air fryer", "appliance": "air-fryer", "steps": ["Melt chocolate and butter in the microwave in 30-second bursts; whisk smooth.", "Beat egg, yolk, vanilla, and sugar pale and thick; stir in flour and the chocolate.", "Pour into 3 buttered 6-oz ramekins; air fry at 370°F (188°C) 7–10 minutes until edges set but centers jiggle."] },
+        { "kind": "traditional", "label": "Oven", "appliance": "oven", "steps": ["Melt butter and chocolate over simmering water; cool slightly.", "Beat eggs, yolk, vanilla, and sugar frothy and doubled; fold in flour and chocolate.", "Pour into greased ramekins; bake at 400°F (204°C) 11 minutes; rest 1 minute, then invert."] }
+      ],
+      "cuisine": "french",
+      "category": "dessert",
+      "diet": ["vegetarian"],
+      "keywords": ["dual-method", "air-fryer", "chocolate", "molten"],
+      "prepTime": "PT5M",
+      "cookTime": "PT10M",
+      "totalTime": "PT15M",
+      "funFact": "The flowing core isn't syrup — it's underbaked batter of starch and egg yolk. Ceramic ramekins are key: the clay conducts heat slowly and evenly, setting the edges while the center stays molten.",
+      "reference": { "url": "https://www.myforkinglife.com/chocolate-molten-lava-cakes/" },
+      "attribution": { "type": "website", "name": "My Forking Life", "url": "https://www.myforkinglife.com/chocolate-molten-lava-cakes/", "notes": "Method adapted from the source; description rewritten for beginners." },
+      "altOf": null
+    },
+    {
+      "name": "Classic Chocolate Truffles",
+      "dish": "chocolate-truffles",
+      "serves": "20 pieces",
+      "description": "A rich chocolate-and-milk-fat core rolled in cocoa. Sweetened condensed milk shortcuts the ganache into a firm, chewy center that's easy to shape.",
+      "ingredients": [
+        "200 g unsweetened dark chocolate",
+        "125 g sweetened condensed milk",
+        "20 g unsweetened cocoa powder"
+      ],
+      "methods": [
+        { "kind": "rapid", "label": "Microwave (condensed milk)", "appliance": "microwave", "steps": ["Chop the chocolate and melt in 30-second bursts at 700W, stirring between.", "Stir in the condensed milk until thoroughly combined.", "Freeze 30 minutes, roll into 1-inch balls, and coat in cocoa."] },
+        { "kind": "traditional", "label": "Heavy cream ganache", "appliance": "stovetop", "steps": ["Warm 1/2 cup cream + 3 tbsp butter until just boiling.", "Pour over 8 oz chopped dark chocolate; stand 3 minutes, then whisk smooth.", "Chill 2 hours, scoop into balls, and roll in cocoa or nuts."] }
+      ],
+      "cuisine": "french",
+      "category": "dessert",
+      "diet": ["vegetarian", "gluten-free"],
+      "keywords": ["dual-method", "no-bake", "microwave", "chocolate", "confection"],
+      "prepTime": "PT10M",
+      "cookTime": "PT2M",
+      "totalTime": "PT12M",
+      "chillTime": "PT30M",
+      "funFact": "The candy is named for the soil-dusted truffle mushroom it resembles once rolled in cocoa. Sweetened condensed milk sets faster than a cream ganache because its milk solids are already concentrated, giving a firm, fudgy chew.",
+      "reference": { "url": "https://quieropostre.com/en/chocolate-truffles-recipe-with-condensed-milk" },
+      "attribution": { "type": "website", "name": "Quiero Postre", "url": "https://quieropostre.com/en/chocolate-truffles-recipe-with-condensed-milk", "notes": "Method adapted from the source; description rewritten for beginners." },
+      "altOf": null
+    },
+    {
+      "name": "Fruit Sorbet",
+      "dish": "fruit-sorbet",
+      "serves": "4",
+      "description": "A dairy-free frozen dessert — fine water-ice crystals in a saturated fruit-sugar syrup. Pre-frozen fruit lets a food processor crush it smooth with no ice cream maker.",
+      "ingredients": [
+        "2 cups frozen mango cubes",
+        "2 cups frozen papaya cubes",
+        "2 cups frozen pineapple cubes",
+        "1/2 cup full-fat coconut milk",
+        "Juice of 1 lime",
+        "2 tbsp pure maple syrup"
+      ],
+      "methods": [
+        { "kind": "rapid", "label": "High-shear blend", "appliance": "food-processor", "steps": ["Freeze the fruit overnight on a parchment sheet (pat dry first).", "Pulse the frozen fruit, then add coconut milk, lime juice, and maple.", "Blend on high ~1 minute until smooth; serve as soft-serve or firm up 1 hour."] },
+        { "kind": "traditional", "label": "Churned", "appliance": "ice-cream-maker", "steps": ["Puree fresh fruit and whisk with chilled simple syrup.", "Pour into the pre-frozen canister of an ice cream maker.", "Churn 20–30 minutes, then freeze 2 hours before serving."] }
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": ["vegetarian", "vegan", "gluten-free"],
+      "keywords": ["dual-method", "no-bake", "frozen", "fruit", "dairy-free"],
+      "prepTime": "PT10M",
+      "cookTime": "PT0M",
+      "totalTime": "PT10M",
+      "chillTime": "PT8H",
+      "funFact": "Sugar is a natural antifreeze — it lowers the mix's freezing point so sorbet stays scoopable. Too much sugar and it won't freeze; too little and it sets to a solid ice block.",
+      "reference": { "url": "https://www.theflavorbender.com/easy-fruit-sorbet-only-3-ingredients-and-so-many-flavors/" },
+      "attribution": { "type": "website", "name": "The Flavor Bender", "url": "https://www.theflavorbender.com/easy-fruit-sorbet-only-3-ingredients-and-so-many-flavors/", "notes": "Method adapted from the source; description rewritten for beginners." },
+      "altOf": null
+    },
+    {
+      "name": "Peach Cobbler",
+      "dish": "peach-cobbler",
+      "serves": "6",
+      "description": "Sweet peaches bubbling under a golden biscuit topping. A slow cooker steams the biscuit soft; the oven crisps its edges.",
+      "ingredients": [
+        "5 cups sliced fresh peaches",
+        "1/4 cup packed light brown sugar",
+        "2 tsp pure vanilla extract",
+        "1.5 cups all-purpose flour",
+        "1 cup granulated sugar",
+        "2 tsp baking powder",
+        "1 tsp ground cinnamon",
+        "1/2 tsp baking soda",
+        "1/2 tsp fine sea salt",
+        "1/2 cup cold unsalted butter, cubed",
+        "3/4 cup fresh buttermilk"
+      ],
+      "methods": [
+        { "kind": "traditional", "label": "Slow cooker (steamed)", "appliance": "slow-cooker", "steps": ["Toss peaches with brown sugar and vanilla; spread in a greased 3–4 qt slow cooker.", "Whisk the dry ingredients, cut in the cold butter, then fold in buttermilk to a moist dough.", "Spread over the peaches; set a paper towel under the lid and cook on high 2.5–3 hours until bubbly."] },
+        { "kind": "rapid", "label": "Oven", "appliance": "oven", "steps": ["Toss peaches with brown sugar and vanilla in a greased 9-inch dish.", "Cut cold butter into the dry ingredients until crumbly, then stir in the buttermilk to a drop batter.", "Drop spoonfuls over the peaches; bake at 375°F (190°C) 30 minutes until golden."] }
+      ],
+      "cuisine": "american",
+      "category": "dessert",
+      "diet": ["vegetarian"],
+      "keywords": ["dual-method", "slow-cooker", "fruit", "cobbler"],
+      "prepTime": "PT15M",
+      "cookTime": "PT3H",
+      "totalTime": "PT3H15M",
+      "funFact": "In the slow cooker, tuck a paper towel under the lid: the peaches release steam that would otherwise condense on the lid and drip back, turning the biscuit to paste. The towel catches it so the topping bakes up light and tender.",
+      "reference": { "url": "https://rosebakes.com/easy-crockpot-peach-cobbler-with-fresh-or-canned-peaches/" },
+      "attribution": { "type": "website", "name": "Rose Bakes", "url": "https://rosebakes.com/easy-crockpot-peach-cobbler-with-fresh-or-canned-peaches/", "notes": "Method adapted from the source; description rewritten for beginners." },
+      "altOf": null
+    },
+    {
+      "name": "Mixed Berry Galette",
+      "dish": "berry-galette",
+      "serves": "8",
+      "description": "A rustic free-form French pie baked flat on a sheet pan — no dish needed. Cornstarch in the filling gelatinizes fast to bind the berry juices and protect the crust.",
+      "ingredients": [
+        "1 cup all-purpose flour",
+        "4 tbsp granulated sugar",
+        "1/2 tsp fine kosher salt",
+        "8 tbsp chilled butter, cubed",
+        "1 large egg, beaten with 1 tbsp water",
+        "4 cups fresh mixed berries",
+        "1 tbsp cornstarch",
+        "1 tsp lemon zest + 1 tbsp lemon juice",
+        "1 tsp pure vanilla extract",
+        "1 tbsp coarse Demerara sugar"
+      ],
+      "methods": [
+        { "kind": "traditional", "label": "Baking sheet", "appliance": "oven", "steps": ["Pulse flour, 1 tbsp sugar, salt, and cold butter; drizzle in the beaten egg, shape into a disk, chill 2 hours.", "Toss berries with 3 tbsp sugar, cornstarch, lemon juice/zest, and vanilla; spoon onto the rolled dough and fold the edges over.", "Egg-wash the crust, sprinkle coarse sugar, and bake at 400°F (204°C) 45 minutes until bubbling."] },
+        { "kind": "rapid", "label": "Air fryer", "appliance": "air-fryer", "steps": ["Roll the chilled dough to ~3 mm between parchment; sprinkle the center with almond meal.", "Toss berries with cornstarch; spread inside the border and fold the edges up, lifting on the paper into the basket.", "Cover with foil; air fry at 350°F (180°C) 30 minutes, then uncover and cook at 325°F (160°C) 15 minutes."] }
+      ],
+      "cuisine": "french",
+      "category": "dessert",
+      "diet": ["vegetarian"],
+      "keywords": ["dual-method", "pie", "fruit", "pastry"],
+      "prepTime": "PT20M",
+      "cookTime": "PT45M",
+      "totalTime": "PT1H5M",
+      "chillTime": "PT2H",
+      "funFact": "A galette holds its shape with a pleated pastry border instead of a pan. Keep the butter cold so it forms flaky steam layers, and scatter ground almond meal (or breadcrumbs) under the fruit to soak up juice and keep the bottom crisp.",
+      "reference": { "url": "https://wavesinthekitchen.com/berry-galette/" },
+      "attribution": { "type": "website", "name": "Waves in the Kitchen", "url": "https://wavesinthekitchen.com/berry-galette/", "notes": "Method adapted from the source; description rewritten for beginners." },
+      "altOf": null
+    },
+    {
+      "name": "Rich Caramel Sauce",
+      "dish": "caramel-sauce",
+      "serves": "24 (1-tbsp portions)",
+      "description": "Sugar heated until it thermally decomposes into deep amber caramel. A little corn syrup blocks crystallization for a smooth, velvety sauce.",
+      "ingredients": [
+        "1 cup granulated sugar",
+        "2 tbsp light corn syrup",
+        "2 tbsp water",
+        "1/2 cup heavy whipping cream",
+        "2 tbsp unsalted butter, cubed",
+        "1 tsp pure vanilla extract"
+      ],
+      "methods": [
+        { "kind": "rapid", "label": "Microwave", "appliance": "microwave", "steps": ["Stir water, sugar, and corn syrup in an 8-cup glass measuring bowl until dissolved.", "Microwave on high 5–7 minutes; pull it the moment it turns pale amber (it deepens as it rests).", "After ~5 minutes, slowly whisk in the cream and butter, then the vanilla. Reheat in 15-second bursts if it hardens."] },
+        { "kind": "traditional", "label": "Stovetop", "appliance": "stovetop", "steps": ["Dissolve water, sugar, and corn syrup over medium-low.", "Boil without stirring to 330°F (165°C) and a deep amber.", "Off the heat slowly whisk in cream and butter, then vanilla; cool before jarring."] }
+      ],
+      "cuisine": null,
+      "category": "dessert",
+      "diet": ["vegetarian", "gluten-free"],
+      "keywords": ["dual-method", "microwave", "sauce", "caramel"],
+      "prepTime": "PT5M",
+      "cookTime": "PT10M",
+      "totalTime": "PT15M",
+      "funFact": "Above ~320°F sucrose caramelizes, breaking into fructose and glucose and hundreds of new flavor compounds. A splash of corn syrup acts as an 'interfering agent' — its long glucose chains block sucrose from re-crystallizing, keeping the sauce smooth.",
+      "reference": { "url": "https://thecafesucrefarine.com/microwave-caramel-sauce-real-deal/" },
+      "attribution": { "type": "website", "name": "The Café Sucré Farine", "url": "https://thecafesucrefarine.com/microwave-caramel-sauce-real-deal/", "notes": "Method adapted from the source; description rewritten for beginners." },
+      "altOf": null
+    },
+    {
+      "name": "Italian Affogato",
+      "dish": "affogato",
+      "serves": "1",
+      "description": "Vanilla gelato \"drowned\" in a hot shot of espresso — the contrast of freezing, fat-rich gelato and boiling, bitter espresso melts into a creamy coffee foam.",
+      "ingredients": [
+        "2 scoops vanilla bean gelato or ice cream",
+        "2 shots (~2 oz) freshly brewed hot espresso",
+        "1 tbsp amaretto or Frangelico liqueur (optional)",
+        "1 pinch dark chocolate shavings"
+      ],
+      "methods": [
+        { "kind": "rapid", "label": "Classic (non-alcoholic)", "appliance": "none", "steps": ["Scoop gelato into a pre-chilled glass or bowl.", "Brew a hot double shot of espresso (machine or stovetop Moka).", "Pour the espresso down the side of the glass to keep the temperatures distinct; serve immediately."] },
+        { "kind": "traditional", "label": "Liqueur-infused", "appliance": "none", "steps": ["Place the gelato in a chilled glass and drizzle 1 tbsp amaretto or Frangelico over it.", "Brew a fresh, very hot double shot of espresso.", "Pour the espresso over the liqueur and gelato; garnish with chocolate shavings and serve with biscotti."] }
+      ],
+      "cuisine": "italian",
+      "category": "dessert",
+      "diet": ["vegetarian", "gluten-free"],
+      "keywords": ["dual-method", "no-bake", "coffee", "quick"],
+      "prepTime": "PT5M",
+      "cookTime": "PT0M",
+      "totalTime": "PT5M",
+      "funFact": "\"Affogato al caffè\" is Italian for \"drowned in coffee.\" As the hot espresso hits the cold, fat-rich gelato, the milk fats emulsify with the coffee oils into a sweet, velvety, milkshake-like foam.",
+      "reference": { "url": "https://www.gimmesomeoven.com/affogato-recipe/" },
+      "attribution": { "type": "website", "name": "Gimme Some Oven", "url": "https://www.gimmesomeoven.com/affogato-recipe/", "notes": "Method adapted from the source; description rewritten for beginners." },
+      "altOf": null
+    }
+  ]
+}
