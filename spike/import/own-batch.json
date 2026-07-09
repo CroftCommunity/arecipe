@@ -5,9 +5,10 @@
     "provenance": "Adapted from published web recipes. Descriptions are beginner-facing prose; method reduced to a functional sequence. Each entry credits a reputable source via attribution (attributionWebsite) + a reference URL.",
     "notes": {
       "funFact": "funFact is captured per recipe but has NO field in the current exchange.recipe.recipe lexicon. Storing it in the PDS + surfacing in the UI is an open design task (new lexicon field vs. convention) — do NOT publish funFact until that is decided.",
-      "totalTime": "totalTime is an APPROXIMATE estimate derived from the steps; exact times are on the reference URL.",
+      "totalTime": "prepTime/cookTime/totalTime are real times taken from each recipe's reference page where reachable, otherwise derived from the recipe's own step timings. Long cooling/chilling is excluded (active prep+cook only); totalTime = prepTime + cookTime.",
       "diet": "diet labels are human tokens (vegetarian/vegan/gluten-free/...) mapped to exchange.recipe.defs#diet at publish time. Rice Krispies Treats is intentionally NOT vegetarian (marshmallow gelatin). Tomato soup left unlabeled (recipe allows chicken broth).",
-      "images": "embed images are NOT set here — the Wikimedia Commons image-compare pass runs next (fetch-images -> picker -> image-choices -> attach-images)."
+      "images": "embed images are NOT set here — the Wikimedia Commons image-compare pass runs next (fetch-images -> picker -> image-choices -> attach-images).",
+      "funFactCheck": "Fun facts fact-checked 2026-07-09. Discarded as unverified/legend: scrambled-eggs chef-toque \"100 folds = 100 egg methods\" (Snopes/Bon Appetit found no evidence); ground-beef-tacos \"taco = gunpowder charge\" (one unproven etymology among several — origins genuinely unknown); sheet-pan \"viral trend\" filler (not a factual claim). Corrected: chocolate-chip \"happy accident\" -> Wakefield said the invention was intentional. Softened where evidence is partial: fish-taco Japanese-tempura link, Jefferson/mac-and-cheese, enchilada Maya/Valley-of-Mexico. 22 of 25 recipes retain a fun fact."
     },
     "count": 25
   },
@@ -30,12 +31,29 @@
       ],
       "cuisine": "american",
       "category": "lunch",
-      "diet": ["vegetarian"],
-      "keywords": ["beginner", "sandwich", "comfort-food", "3-ingredient"],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "beginner",
+        "sandwich",
+        "comfort-food",
+        "3-ingredient"
+      ],
+      "prepTime": "PT2M",
+      "cookTime": "PT8M",
       "totalTime": "PT10M",
       "funFact": "The grilled cheese was originally served open-faced and became wildly popular during the Great Depression because it was so inexpensive.",
-      "reference": { "label": "Food Network — The Perfect Grilled Cheese", "url": "https://www.foodnetwork.com/recipes/food-network-kitchen/the-perfect-grilled-cheese-3636831" },
-      "attribution": { "type": "website", "name": "Food Network", "url": "https://www.foodnetwork.com/recipes/food-network-kitchen/the-perfect-grilled-cheese-3636831", "notes": "Method adapted from the source; description rewritten for beginners." }
+      "reference": {
+        "label": "Food Network — The Perfect Grilled Cheese",
+        "url": "https://www.foodnetwork.com/recipes/food-network-kitchen/the-perfect-grilled-cheese-3636831"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food Network",
+        "url": "https://www.foodnetwork.com/recipes/food-network-kitchen/the-perfect-grilled-cheese-3636831",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      }
     },
     {
       "name": "3-Ingredient Mac and Cheese",
@@ -54,12 +72,30 @@
       ],
       "cuisine": "american",
       "category": "dinner",
-      "diet": ["vegetarian"],
-      "keywords": ["beginner", "one-pot", "3-ingredient", "pasta", "comfort-food"],
-      "totalTime": "PT15M",
-      "funFact": "Thomas Jefferson helped popularize mac and cheese in America after encountering it in Paris and bringing a pasta machine back to the U.S.",
-      "reference": { "label": "The Cooking Foodie — Easy One-Pot 3-Ingredient Mac and Cheese", "url": "https://thecookingfoodie.com/recipe/easy-3ingredient-mac-and-cheese-recipe-one-pot/" },
-      "attribution": { "type": "website", "name": "The Cooking Foodie", "url": "https://thecookingfoodie.com/recipe/easy-3ingredient-mac-and-cheese-recipe-one-pot/", "notes": "Method adapted from the source; description rewritten for beginners." }
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "beginner",
+        "one-pot",
+        "3-ingredient",
+        "pasta",
+        "comfort-food"
+      ],
+      "prepTime": "PT3M",
+      "cookTime": "PT15M",
+      "totalTime": "PT18M",
+      "funFact": "Thomas Jefferson helped popularize mac and cheese in America — he fell for it while serving as U.S. minister in Europe, had a macaroni-making mould shipped home from Naples, and served the dish at an 1802 White House dinner.",
+      "reference": {
+        "label": "The Cooking Foodie — Easy One-Pot 3-Ingredient Mac and Cheese",
+        "url": "https://thecookingfoodie.com/recipe/easy-3ingredient-mac-and-cheese-recipe-one-pot/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "The Cooking Foodie",
+        "url": "https://thecookingfoodie.com/recipe/easy-3ingredient-mac-and-cheese-recipe-one-pot/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      }
     },
     {
       "name": "Sheet Pan Chicken and Veggies",
@@ -84,11 +120,27 @@
       "cuisine": null,
       "category": "dinner",
       "diet": [],
-      "keywords": ["beginner", "sheet-pan", "one-pan", "healthy", "weeknight"],
+      "keywords": [
+        "beginner",
+        "sheet-pan",
+        "one-pan",
+        "healthy",
+        "weeknight"
+      ],
+      "prepTime": "PT10M",
+      "cookTime": "PT20M",
       "totalTime": "PT30M",
-      "funFact": "Sheet-pan meals went viral because they emulate restaurant-style high-heat roasting without multiple pots and pans.",
-      "reference": { "label": "Chelsea's Messy Apron — Sheet Pan Chicken and Veggies", "url": "https://www.chelseasmessyapron.com/one-pan-roasted-chicken-veggies/" },
-      "attribution": { "type": "website", "name": "Chelsea's Messy Apron", "url": "https://www.chelseasmessyapron.com/one-pan-roasted-chicken-veggies/", "notes": "Method adapted from the source; description rewritten for beginners." }
+      "funFact": null,
+      "reference": {
+        "label": "Chelsea's Messy Apron — Sheet Pan Chicken and Veggies",
+        "url": "https://www.chelseasmessyapron.com/one-pan-roasted-chicken-veggies/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Chelsea's Messy Apron",
+        "url": "https://www.chelseasmessyapron.com/one-pan-roasted-chicken-veggies/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      }
     },
     {
       "name": "Fluffy Perfect Scrambled Eggs",
@@ -108,12 +160,29 @@
       ],
       "cuisine": null,
       "category": "breakfast",
-      "diet": ["vegetarian"],
-      "keywords": ["beginner", "eggs", "quick", "breakfast"],
-      "totalTime": "PT10M",
-      "funFact": "A traditional chef's toque has 100 folds, said to represent the 100 ways an expert can cook an egg. (A charming legend more than a rule.)",
-      "reference": { "label": "Food Network — Bobby Flay's Perfect Scrambled Eggs", "url": "https://www.foodnetwork.com/fnk/recipes/perfect-scrambled-eggs-7535798" },
-      "attribution": { "type": "website", "name": "Food Network", "url": "https://www.foodnetwork.com/fnk/recipes/perfect-scrambled-eggs-7535798", "notes": "Method adapted from the source; description rewritten for beginners." }
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "beginner",
+        "eggs",
+        "quick",
+        "breakfast"
+      ],
+      "prepTime": "PT2M",
+      "cookTime": "PT5M",
+      "totalTime": "PT7M",
+      "funFact": null,
+      "reference": {
+        "label": "Food Network — Bobby Flay's Perfect Scrambled Eggs",
+        "url": "https://www.foodnetwork.com/fnk/recipes/perfect-scrambled-eggs-7535798"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food Network",
+        "url": "https://www.foodnetwork.com/fnk/recipes/perfect-scrambled-eggs-7535798",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      }
     },
     {
       "name": "Simple Spaghetti Aglio e Olio",
@@ -135,12 +204,29 @@
       ],
       "cuisine": "italian",
       "category": "dinner",
-      "diet": ["vegetarian"],
-      "keywords": ["beginner", "pasta", "quick", "pantry"],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "beginner",
+        "pasta",
+        "quick",
+        "pantry"
+      ],
+      "prepTime": "PT5M",
+      "cookTime": "PT15M",
       "totalTime": "PT20M",
       "funFact": "\"Aglio e olio\" is Italian for \"garlic and oil.\" It originated in Naples as a popular midnight snack.",
-      "reference": { "label": "Gimme Some Oven — Spaghetti Aglio e Olio", "url": "https://www.gimmesomeoven.com/spaghetti-aglio-e-olio/" },
-      "attribution": { "type": "website", "name": "Gimme Some Oven", "url": "https://www.gimmesomeoven.com/spaghetti-aglio-e-olio/", "notes": "Method adapted from the source; description rewritten for beginners." }
+      "reference": {
+        "label": "Gimme Some Oven — Spaghetti Aglio e Olio",
+        "url": "https://www.gimmesomeoven.com/spaghetti-aglio-e-olio/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Gimme Some Oven",
+        "url": "https://www.gimmesomeoven.com/spaghetti-aglio-e-olio/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      }
     },
     {
       "name": "Easy Ground Beef Tacos",
@@ -162,11 +248,26 @@
       "cuisine": "mexican",
       "category": "dinner",
       "diet": [],
-      "keywords": ["beginner", "tacos", "quick", "weeknight"],
-      "totalTime": "PT20M",
-      "funFact": "The word \"taco\" originally referred to the paper-wrapped gunpowder charges Mexican silver miners used in the 18th century.",
-      "reference": { "label": "Spend With Pennies — Easy Ground Beef Tacos", "url": "https://www.spendwithpennies.com/easy-ground-beef-tacos/" },
-      "attribution": { "type": "website", "name": "Spend With Pennies", "url": "https://www.spendwithpennies.com/easy-ground-beef-tacos/", "notes": "Method adapted from the source; description rewritten for beginners." }
+      "keywords": [
+        "beginner",
+        "tacos",
+        "quick",
+        "weeknight"
+      ],
+      "prepTime": "PT10M",
+      "cookTime": "PT20M",
+      "totalTime": "PT30M",
+      "funFact": null,
+      "reference": {
+        "label": "Spend With Pennies — Easy Ground Beef Tacos",
+        "url": "https://www.spendwithpennies.com/easy-ground-beef-tacos/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Spend With Pennies",
+        "url": "https://www.spendwithpennies.com/easy-ground-beef-tacos/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      }
     },
     {
       "name": "Creamy Tomato Soup",
@@ -190,11 +291,25 @@
       "cuisine": "american",
       "category": "soup",
       "diet": [],
-      "keywords": ["beginner", "soup", "comfort-food"],
-      "totalTime": "PT25M",
+      "keywords": [
+        "beginner",
+        "soup",
+        "comfort-food"
+      ],
+      "prepTime": "PT5M",
+      "cookTime": "PT25M",
+      "totalTime": "PT30M",
       "funFact": "Tomato soup reached the masses when the Campbell Soup Company introduced its condensed version in 1897, a landmark in convenience food.",
-      "reference": { "label": "Natasha's Kitchen — Easy Tomato Soup", "url": "https://natashaskitchen.com/tomato-soup-recipe/" },
-      "attribution": { "type": "website", "name": "Natasha's Kitchen", "url": "https://natashaskitchen.com/tomato-soup-recipe/", "notes": "Method adapted from the source; description rewritten for beginners." }
+      "reference": {
+        "label": "Natasha's Kitchen — Easy Tomato Soup",
+        "url": "https://natashaskitchen.com/tomato-soup-recipe/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Natasha's Kitchen",
+        "url": "https://natashaskitchen.com/tomato-soup-recipe/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      }
     },
     {
       "name": "15-Minute Fish Tacos with Slaw",
@@ -219,11 +334,27 @@
       "cuisine": "mexican",
       "category": "dinner",
       "diet": [],
-      "keywords": ["beginner", "tacos", "fish", "quick", "15-minute"],
+      "keywords": [
+        "beginner",
+        "tacos",
+        "fish",
+        "quick",
+        "15-minute"
+      ],
+      "prepTime": "PT5M",
+      "cookTime": "PT10M",
       "totalTime": "PT15M",
-      "funFact": "Fish tacos originated in Baja California, where local fishermen combined Mexican tortillas with Japanese-style frying techniques brought by immigrant workers.",
-      "reference": { "label": "The Kitchn — Fish Tacos with Quick Cabbage Slaw", "url": "https://www.thekitchn.com/recipe-fish-tacos-with-quick-cabbage-slaw-recipes-from-the-kitchn-15838" },
-      "attribution": { "type": "website", "name": "The Kitchn", "url": "https://www.thekitchn.com/recipe-fish-tacos-with-quick-cabbage-slaw-recipes-from-the-kitchn-15838", "notes": "Method adapted from the source; description rewritten for beginners." }
+      "funFact": "Fish tacos come from Baja California (Ensenada, Mexico). The battered-and-fried style is widely believed to reflect the tempura technique of Japanese immigrants who settled the coast — though the exact link isn't firmly documented.",
+      "reference": {
+        "label": "The Kitchn — Fish Tacos with Quick Cabbage Slaw",
+        "url": "https://www.thekitchn.com/recipe-fish-tacos-with-quick-cabbage-slaw-recipes-from-the-kitchn-15838"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "The Kitchn",
+        "url": "https://www.thekitchn.com/recipe-fish-tacos-with-quick-cabbage-slaw-recipes-from-the-kitchn-15838",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      }
     },
     {
       "name": "Garlic Butter Shrimp",
@@ -247,11 +378,26 @@
       "cuisine": null,
       "category": "dinner",
       "diet": [],
-      "keywords": ["beginner", "shrimp", "seafood", "quick"],
+      "keywords": [
+        "beginner",
+        "shrimp",
+        "seafood",
+        "quick"
+      ],
+      "prepTime": "PT3M",
+      "cookTime": "PT7M",
       "totalTime": "PT10M",
-      "funFact": "Shrimp are extraordinarily high in protein but virtually fat-free — one of the densest lean-protein sources around.",
-      "reference": { "label": "The Kitchn — Garlic Butter Shrimp", "url": "https://www.thekitchn.com/garlic-butter-shrimp-265172" },
-      "attribution": { "type": "website", "name": "The Kitchn", "url": "https://www.thekitchn.com/garlic-butter-shrimp-265172", "notes": "Method adapted from the source; description rewritten for beginners." }
+      "funFact": "Shrimp are very high in protein and naturally low in fat — one of the leanest high-protein foods you can cook.",
+      "reference": {
+        "label": "The Kitchn — Garlic Butter Shrimp",
+        "url": "https://www.thekitchn.com/garlic-butter-shrimp-265172"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "The Kitchn",
+        "url": "https://www.thekitchn.com/garlic-butter-shrimp-265172",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      }
     },
     {
       "name": "One-Pot Beef Chili",
@@ -275,11 +421,27 @@
       "cuisine": "american",
       "category": "dinner",
       "diet": [],
-      "keywords": ["beginner", "one-pot", "chili", "comfort-food", "meal-prep"],
-      "totalTime": "PT35M",
+      "keywords": [
+        "beginner",
+        "one-pot",
+        "chili",
+        "comfort-food",
+        "meal-prep"
+      ],
+      "prepTime": "PT10M",
+      "cookTime": "PT30M",
+      "totalTime": "PT40M",
       "funFact": "Chili is the official state dish of Texas — but traditional Texas \"bowl of red\" strictly forbids beans.",
-      "reference": { "label": "America's Test Kitchen — Simple Beef Chili with Kidney Beans", "url": "https://www.americastestkitchen.com/recipes/34-simple-beef-chili-with-kidney-beans" },
-      "attribution": { "type": "website", "name": "America's Test Kitchen", "url": "https://www.americastestkitchen.com/recipes/34-simple-beef-chili-with-kidney-beans", "notes": "Method adapted from the source; description rewritten for beginners." }
+      "reference": {
+        "label": "America's Test Kitchen — Simple Beef Chili with Kidney Beans",
+        "url": "https://www.americastestkitchen.com/recipes/34-simple-beef-chili-with-kidney-beans"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "America's Test Kitchen",
+        "url": "https://www.americastestkitchen.com/recipes/34-simple-beef-chili-with-kidney-beans",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      }
     },
     {
       "name": "Quick Chicken Enchilada Skillet",
@@ -302,11 +464,26 @@
       "cuisine": "mexican",
       "category": "dinner",
       "diet": [],
-      "keywords": ["beginner", "one-pan", "skillet", "weeknight"],
-      "totalTime": "PT15M",
-      "funFact": "Wrapping food in corn tortillas dates to Mayan times, when people in the Valley of Mexico ate small fish wrapped in tortillas.",
-      "reference": { "label": "Gimme Some Oven — Chicken Enchilada Skillet", "url": "https://www.gimmesomeoven.com/chicken-enchilada-skillet/" },
-      "attribution": { "type": "website", "name": "Gimme Some Oven", "url": "https://www.gimmesomeoven.com/chicken-enchilada-skillet/", "notes": "Method adapted from the source; description rewritten for beginners." }
+      "keywords": [
+        "beginner",
+        "one-pan",
+        "skillet",
+        "weeknight"
+      ],
+      "prepTime": "PT10M",
+      "cookTime": "PT10M",
+      "totalTime": "PT20M",
+      "funFact": "Wrapping food in tortillas is an ancient Mesoamerican practice: the Maya rolled fillings like fish and eggs in tortillas, and people in the Valley of Mexico ate small fish wrapped in them long before Spanish contact.",
+      "reference": {
+        "label": "Gimme Some Oven — Chicken Enchilada Skillet",
+        "url": "https://www.gimmesomeoven.com/chicken-enchilada-skillet/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Gimme Some Oven",
+        "url": "https://www.gimmesomeoven.com/chicken-enchilada-skillet/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      }
     },
     {
       "name": "Sheet Pan Baked Salmon & Asparagus",
@@ -329,11 +506,27 @@
       "cuisine": null,
       "category": "dinner",
       "diet": [],
-      "keywords": ["beginner", "sheet-pan", "salmon", "seafood", "healthy"],
+      "keywords": [
+        "beginner",
+        "sheet-pan",
+        "salmon",
+        "seafood",
+        "healthy"
+      ],
+      "prepTime": "PT5M",
+      "cookTime": "PT15M",
       "totalTime": "PT20M",
       "funFact": "Wild salmon get their pink hue from a carotenoid called astaxanthin, abundant in the shrimp and krill they eat.",
-      "reference": { "label": "Natasha's Kitchen — Sheet Pan Salmon and Asparagus", "url": "https://natashaskitchen.com/one-pan-salmon-asparagus-recipe-video/" },
-      "attribution": { "type": "website", "name": "Natasha's Kitchen", "url": "https://natashaskitchen.com/one-pan-salmon-asparagus-recipe-video/", "notes": "Method adapted from the source; description rewritten for beginners." }
+      "reference": {
+        "label": "Natasha's Kitchen — Sheet Pan Salmon and Asparagus",
+        "url": "https://natashaskitchen.com/one-pan-salmon-asparagus-recipe-video/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Natasha's Kitchen",
+        "url": "https://natashaskitchen.com/one-pan-salmon-asparagus-recipe-video/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      }
     },
     {
       "name": "Crispy Air Fryer Chicken Thighs",
@@ -356,11 +549,25 @@
       "cuisine": null,
       "category": "dinner",
       "diet": [],
-      "keywords": ["beginner", "air-fryer", "chicken"],
+      "keywords": [
+        "beginner",
+        "air-fryer",
+        "chicken"
+      ],
+      "prepTime": "PT5M",
+      "cookTime": "PT25M",
       "totalTime": "PT30M",
       "funFact": "Chicken thighs are far more forgiving than breasts — more dark meat and fat means they rarely dry out if you overcook them a touch.",
-      "reference": { "label": "Skinnytaste — Air Fryer Chicken Thighs", "url": "https://www.skinnytaste.com/air-fryer-chicken-thighs/" },
-      "attribution": { "type": "website", "name": "Skinnytaste", "url": "https://www.skinnytaste.com/air-fryer-chicken-thighs/", "notes": "Method adapted from the source; description rewritten for beginners." }
+      "reference": {
+        "label": "Skinnytaste — Air Fryer Chicken Thighs",
+        "url": "https://www.skinnytaste.com/air-fryer-chicken-thighs/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Skinnytaste",
+        "url": "https://www.skinnytaste.com/air-fryer-chicken-thighs/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      }
     },
     {
       "name": "Easy Vegetable Fried Rice",
@@ -382,12 +589,30 @@
       ],
       "cuisine": "chinese",
       "category": "dinner",
-      "diet": ["vegetarian"],
-      "keywords": ["beginner", "fried-rice", "quick", "takeout", "leftovers"],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "beginner",
+        "fried-rice",
+        "quick",
+        "takeout",
+        "leftovers"
+      ],
+      "prepTime": "PT5M",
+      "cookTime": "PT10M",
       "totalTime": "PT15M",
       "funFact": "Cold, day-old rice fries best — fresh rice holds too much moisture and turns mushy, while chilled rice dries just enough for that wok-toasted texture.",
-      "reference": { "label": "The Kitchn — Easy Fried Rice", "url": "https://www.thekitchn.com/fried-rice-recipe-23652991" },
-      "attribution": { "type": "website", "name": "The Kitchn", "url": "https://www.thekitchn.com/fried-rice-recipe-23652991", "notes": "Method adapted from the source; description rewritten for beginners." }
+      "reference": {
+        "label": "The Kitchn — Easy Fried Rice",
+        "url": "https://www.thekitchn.com/fried-rice-recipe-23652991"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "The Kitchn",
+        "url": "https://www.thekitchn.com/fried-rice-recipe-23652991",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      }
     },
     {
       "name": "Simple Caesar Salad with Grilled Chicken",
@@ -411,11 +636,25 @@
       "cuisine": "american",
       "category": "salad",
       "diet": [],
-      "keywords": ["beginner", "salad", "chicken"],
+      "keywords": [
+        "beginner",
+        "salad",
+        "chicken"
+      ],
+      "prepTime": "PT10M",
+      "cookTime": "PT15M",
       "totalTime": "PT25M",
       "funFact": "Caesar salad wasn't made in Italy or by Julius Caesar — it was created in Tijuana, Mexico, in 1924 by Italian immigrant Caesar Cardini during a busy holiday rush.",
-      "reference": { "label": "Damn Delicious — Best Chicken Caesar Salad with Homemade Croutons", "url": "https://damndelicious.net/2023/04/21/best-chicken-caesar-salad-with-homemade-croutons/" },
-      "attribution": { "type": "website", "name": "Damn Delicious", "url": "https://damndelicious.net/2023/04/21/best-chicken-caesar-salad-with-homemade-croutons/", "notes": "Method adapted from the source; description rewritten for beginners." }
+      "reference": {
+        "label": "Damn Delicious — Best Chicken Caesar Salad with Homemade Croutons",
+        "url": "https://damndelicious.net/2023/04/21/best-chicken-caesar-salad-with-homemade-croutons/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Damn Delicious",
+        "url": "https://damndelicious.net/2023/04/21/best-chicken-caesar-salad-with-homemade-croutons/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      }
     },
     {
       "name": "Chewy Chocolate Chip Cookies",
@@ -439,12 +678,29 @@
       ],
       "cuisine": "american",
       "category": "dessert",
-      "diet": ["vegetarian"],
-      "keywords": ["beginner", "cookies", "baking", "chocolate"],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "beginner",
+        "cookies",
+        "baking",
+        "chocolate"
+      ],
+      "prepTime": "PT15M",
+      "cookTime": "PT10M",
       "totalTime": "PT25M",
-      "funFact": "The chocolate chip cookie was invented by accident in 1938 by Ruth Wakefield of the Toll House Inn — she expected the chocolate chunks to melt into the dough, but they held their shape.",
-      "reference": { "label": "Sally's Baking Addiction — Chewy Chocolate Chip Cookies", "url": "https://sallysbakingaddiction.com/chewy-chocolate-chip-cookies/" },
-      "attribution": { "type": "website", "name": "Sally's Baking Addiction", "url": "https://sallysbakingaddiction.com/chewy-chocolate-chip-cookies/", "notes": "Method adapted from the source; description rewritten for beginners." }
+      "funFact": "Ruth Wakefield created the chocolate chip cookie at her Toll House Inn in Massachusetts in the late 1930s. Despite the famous 'happy accident' story, Wakefield said she invented it on purpose.",
+      "reference": {
+        "label": "Sally's Baking Addiction — Chewy Chocolate Chip Cookies",
+        "url": "https://sallysbakingaddiction.com/chewy-chocolate-chip-cookies/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Sally's Baking Addiction",
+        "url": "https://sallysbakingaddiction.com/chewy-chocolate-chip-cookies/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      }
     },
     {
       "name": "My Favorite Banana Bread",
@@ -468,12 +724,30 @@
       ],
       "cuisine": "american",
       "category": "dessert",
-      "diet": ["vegetarian"],
-      "keywords": ["beginner", "baking", "breakfast", "quick-bread", "banana"],
-      "totalTime": "PT75M",
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "beginner",
+        "baking",
+        "breakfast",
+        "quick-bread",
+        "banana"
+      ],
+      "prepTime": "PT10M",
+      "cookTime": "PT1H",
+      "totalTime": "PT1H10M",
       "funFact": "Banana bread took off during the 1930s Great Depression, when resourceful cooks refused to throw away overripe fruit.",
-      "reference": { "label": "Sally's Baking Addiction — My Favorite Banana Bread", "url": "https://sallysbakingaddiction.com/best-banana-bread-recipe/" },
-      "attribution": { "type": "website", "name": "Sally's Baking Addiction", "url": "https://sallysbakingaddiction.com/best-banana-bread-recipe/", "notes": "Method adapted from the source; description rewritten for beginners." }
+      "reference": {
+        "label": "Sally's Baking Addiction — My Favorite Banana Bread",
+        "url": "https://sallysbakingaddiction.com/best-banana-bread-recipe/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Sally's Baking Addiction",
+        "url": "https://sallysbakingaddiction.com/best-banana-bread-recipe/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      }
     },
     {
       "name": "Quick & Easy Banana Muffins",
@@ -497,12 +771,30 @@
       ],
       "cuisine": "american",
       "category": "breakfast",
-      "diet": ["vegetarian"],
-      "keywords": ["beginner", "baking", "muffins", "snack", "banana"],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "beginner",
+        "baking",
+        "muffins",
+        "snack",
+        "banana"
+      ],
+      "prepTime": "PT10M",
+      "cookTime": "PT20M",
       "totalTime": "PT30M",
       "funFact": "Muffin vs. cupcake: muffins use a liquid fat (melted butter or oil) and are mixed quickly, giving them a denser, more bread-like crumb.",
-      "reference": { "label": "Sally's Baking Addiction — Quick & Easy Banana Muffins", "url": "https://sallysbakingaddiction.com/banana-muffins/" },
-      "attribution": { "type": "website", "name": "Sally's Baking Addiction", "url": "https://sallysbakingaddiction.com/banana-muffins/", "notes": "Method adapted from the source; description rewritten for beginners." }
+      "reference": {
+        "label": "Sally's Baking Addiction — Quick & Easy Banana Muffins",
+        "url": "https://sallysbakingaddiction.com/banana-muffins/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Sally's Baking Addiction",
+        "url": "https://sallysbakingaddiction.com/banana-muffins/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      }
     },
     {
       "name": "Seriously Fudgy Homemade Brownies",
@@ -526,12 +818,29 @@
       ],
       "cuisine": "american",
       "category": "dessert",
-      "diet": ["vegetarian"],
-      "keywords": ["beginner", "baking", "chocolate", "brownies"],
-      "totalTime": "PT35M",
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "beginner",
+        "baking",
+        "chocolate",
+        "brownies"
+      ],
+      "prepTime": "PT10M",
+      "cookTime": "PT22M",
+      "totalTime": "PT32M",
       "funFact": "Brownies are an American invention, created at Chicago's Palmer House Hotel for the 1893 World's Fair as a dessert small enough to fit in a boxed lunch.",
-      "reference": { "label": "Sally's Baking Addiction — Seriously Fudgy Homemade Brownies", "url": "https://sallysbakingaddiction.com/seriously-fudgy-homemade-brownies/" },
-      "attribution": { "type": "website", "name": "Sally's Baking Addiction", "url": "https://sallysbakingaddiction.com/seriously-fudgy-homemade-brownies/", "notes": "Method adapted from the source; description rewritten for beginners." }
+      "reference": {
+        "label": "Sally's Baking Addiction — Seriously Fudgy Homemade Brownies",
+        "url": "https://sallysbakingaddiction.com/seriously-fudgy-homemade-brownies/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Sally's Baking Addiction",
+        "url": "https://sallysbakingaddiction.com/seriously-fudgy-homemade-brownies/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      }
     },
     {
       "name": "3-Ingredient Peanut Butter Cookies",
@@ -551,12 +860,30 @@
       ],
       "cuisine": null,
       "category": "dessert",
-      "diet": ["vegetarian", "gluten-free"],
-      "keywords": ["beginner", "cookies", "3-ingredient", "flourless"],
+      "diet": [
+        "vegetarian",
+        "gluten-free"
+      ],
+      "keywords": [
+        "beginner",
+        "cookies",
+        "3-ingredient",
+        "flourless"
+      ],
+      "prepTime": "PT10M",
+      "cookTime": "PT10M",
       "totalTime": "PT20M",
       "funFact": "The fork crisscross isn't just decoration — peanut butter dough is dense, and pressing it flat helps the cookies bake through evenly.",
-      "reference": { "label": "Two Peas & Their Pod — 3 Ingredient Peanut Butter Cookies", "url": "https://www.twopeasandtheirpod.com/3-ingredient-peanut-butter-cookies/" },
-      "attribution": { "type": "website", "name": "Two Peas & Their Pod", "url": "https://www.twopeasandtheirpod.com/3-ingredient-peanut-butter-cookies/", "notes": "Method adapted from the source; description rewritten for beginners." }
+      "reference": {
+        "label": "Two Peas & Their Pod — 3 Ingredient Peanut Butter Cookies",
+        "url": "https://www.twopeasandtheirpod.com/3-ingredient-peanut-butter-cookies/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Two Peas & Their Pod",
+        "url": "https://www.twopeasandtheirpod.com/3-ingredient-peanut-butter-cookies/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      }
     },
     {
       "name": "Classic Apple Crisp",
@@ -579,12 +906,29 @@
       ],
       "cuisine": "american",
       "category": "dessert",
-      "diet": ["vegetarian"],
-      "keywords": ["beginner", "baking", "fruit", "fall"],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "beginner",
+        "baking",
+        "fruit",
+        "fall"
+      ],
+      "prepTime": "PT15M",
+      "cookTime": "PT40M",
       "totalTime": "PT55M",
       "funFact": "Apple crisps grew popular during World War II, when rationing made the lard and white flour for traditional pie crusts hard to get.",
-      "reference": { "label": "Sally's Baking Addiction — Classic Apple Crisp", "url": "https://sallysbakingaddiction.com/apple-crisp/" },
-      "attribution": { "type": "website", "name": "Sally's Baking Addiction", "url": "https://sallysbakingaddiction.com/apple-crisp/", "notes": "Method adapted from the source; description rewritten for beginners." }
+      "reference": {
+        "label": "Sally's Baking Addiction — Classic Apple Crisp",
+        "url": "https://sallysbakingaddiction.com/apple-crisp/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Sally's Baking Addiction",
+        "url": "https://sallysbakingaddiction.com/apple-crisp/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      }
     },
     {
       "name": "Fluffy Homemade Pancakes",
@@ -607,12 +951,28 @@
       ],
       "cuisine": "american",
       "category": "breakfast",
-      "diet": ["vegetarian"],
-      "keywords": ["beginner", "breakfast", "pancakes"],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "beginner",
+        "breakfast",
+        "pancakes"
+      ],
+      "prepTime": "PT10M",
+      "cookTime": "PT10M",
       "totalTime": "PT20M",
       "funFact": "The secret to fluffy pancakes is to not over-mix — overworking the batter develops gluten and makes them dense and rubbery.",
-      "reference": { "label": "Betty Crocker — Fluffy Homemade Pancakes", "url": "https://www.bettycrocker.com/recipes/fluffy-homemade-pancakes/77a89da1-fd56-494b-874a-55f9195c1413" },
-      "attribution": { "type": "website", "name": "Betty Crocker", "url": "https://www.bettycrocker.com/recipes/fluffy-homemade-pancakes/77a89da1-fd56-494b-874a-55f9195c1413", "notes": "Method adapted from the source; description rewritten for beginners." }
+      "reference": {
+        "label": "Betty Crocker — Fluffy Homemade Pancakes",
+        "url": "https://www.bettycrocker.com/recipes/fluffy-homemade-pancakes/77a89da1-fd56-494b-874a-55f9195c1413"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Betty Crocker",
+        "url": "https://www.bettycrocker.com/recipes/fluffy-homemade-pancakes/77a89da1-fd56-494b-874a-55f9195c1413",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      }
     },
     {
       "name": "Easy Vanilla Mug Cake",
@@ -635,12 +995,29 @@
       ],
       "cuisine": null,
       "category": "dessert",
-      "diet": ["vegetarian"],
-      "keywords": ["beginner", "microwave", "single-serving", "quick"],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "beginner",
+        "microwave",
+        "single-serving",
+        "quick"
+      ],
+      "prepTime": "PT3M",
+      "cookTime": "PT2M",
       "totalTime": "PT5M",
       "funFact": "Mug cakes skip eggs on purpose — the small batter volume doesn't need a heavy binder, and a whole egg would turn it rubbery.",
-      "reference": { "label": "Tastes Better From Scratch — Vanilla Mug Cake", "url": "https://tastesbetterfromscratch.com/vanilla-mug-cake/" },
-      "attribution": { "type": "website", "name": "Tastes Better From Scratch", "url": "https://tastesbetterfromscratch.com/vanilla-mug-cake/", "notes": "Method adapted from the source; description rewritten for beginners." }
+      "reference": {
+        "label": "Tastes Better From Scratch — Vanilla Mug Cake",
+        "url": "https://tastesbetterfromscratch.com/vanilla-mug-cake/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Tastes Better From Scratch",
+        "url": "https://tastesbetterfromscratch.com/vanilla-mug-cake/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      }
     },
     {
       "name": "No-Bake Rice Krispies Treats",
@@ -661,11 +1038,25 @@
       "cuisine": "american",
       "category": "dessert",
       "diet": [],
-      "keywords": ["beginner", "no-bake", "snack"],
-      "totalTime": "PT40M",
+      "keywords": [
+        "beginner",
+        "no-bake",
+        "snack"
+      ],
+      "prepTime": "PT10M",
+      "cookTime": "PT5M",
+      "totalTime": "PT15M",
       "funFact": "Rice Krispies Treats were invented in 1939 by Mildred Day, a Kellogg's home economist, as a promotional treat for a Camp Fire Girls bake sale.",
-      "reference": { "label": "Rice Krispies (Kellogg's) — The Original Treats", "url": "https://www.ricekrispies.us/original-treats-saucepan" },
-      "attribution": { "type": "website", "name": "Rice Krispies (Kellogg's)", "url": "https://www.ricekrispies.us/original-treats-saucepan", "notes": "Method adapted from the source; description rewritten for beginners." }
+      "reference": {
+        "label": "Rice Krispies (Kellogg's) — The Original Treats",
+        "url": "https://www.ricekrispies.us/original-treats-saucepan"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Rice Krispies (Kellogg's)",
+        "url": "https://www.ricekrispies.us/original-treats-saucepan",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      }
     },
     {
       "name": "Simple Drop Sugar Cookies",
@@ -689,12 +1080,28 @@
       ],
       "cuisine": "american",
       "category": "dessert",
-      "diet": ["vegetarian"],
-      "keywords": ["beginner", "cookies", "baking"],
-      "totalTime": "PT25M",
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "beginner",
+        "cookies",
+        "baking"
+      ],
+      "prepTime": "PT10M",
+      "cookTime": "PT12M",
+      "totalTime": "PT22M",
       "funFact": "Sugar cookies trace back to 17th-century Germany; Protestant settlers in Pennsylvania made the round, crumbly \"Nazareth Cookie\" that became an American standard.",
-      "reference": { "label": "Sally's Baking Addiction — Drop Sugar Cookies", "url": "https://sallysbakingaddiction.com/drop-sugar-cookies/" },
-      "attribution": { "type": "website", "name": "Sally's Baking Addiction", "url": "https://sallysbakingaddiction.com/drop-sugar-cookies/", "notes": "Method adapted from the source; description rewritten for beginners." }
+      "reference": {
+        "label": "Sally's Baking Addiction — Drop Sugar Cookies",
+        "url": "https://sallysbakingaddiction.com/drop-sugar-cookies/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Sally's Baking Addiction",
+        "url": "https://sallysbakingaddiction.com/drop-sugar-cookies/",
+        "notes": "Method adapted from the source; description rewritten for beginners."
+      }
     }
   ]
 }
