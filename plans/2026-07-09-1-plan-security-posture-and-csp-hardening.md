@@ -20,7 +20,8 @@ production — `assets/fonts/fonts.css` uses `url(./assets/fonts/X.woff2)` but i
 itself served from `/assets/fonts/`, so the browser resolves to a doubled path
 `/assets/fonts/assets/fonts/X.woff2` (404 → system-font fallback). Pre-existing,
 unrelated to CSP (`font-src 'self'` neither causes nor worsens it — the requests
-are same-origin, just mis-pathed). Not fixed by this plan.
+are same-origin, just mis-pathed). Not part of this plan's scope; fixed
+separately in a follow-up commit (`117ecc3`) with `tests/e2e/fonts.spec.ts`.
 
 ---
 
