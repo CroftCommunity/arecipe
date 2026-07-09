@@ -371,26 +371,30 @@ intent in Phase 0 (OQ8 lightweight).
 **Validation:** Narrow-plus — visual both themes + e2e.
 **Stop-point.**
 
-### Phase 6: Cookbook members list on Account
+### Phase 6: Move the cookbook-members list to Account (off Cookbook)
 
 **Goal:** The cookbook-members list (with explainer + Settings link) renders on
-Account when signed in, from shared code.
+**Account** when signed in, and is **removed from Cookbook** (OQ4). Cookbook
+becomes the recipe feed + toolbar; Account becomes "who's in your cookbook".
 **Changes:**
 - [ ] `src/social/cookbook-members-view.ts` (new) — extract `renderMembersList`
   + `membersToAuthors` + the explainer/Settings-link block from `cookbook.ts`.
-- [ ] `src/pages/cookbook.ts` — import from the shared module (behavior
-  unchanged).
-- [ ] `src/pages/account.ts` — mount the members list (signed-in) below the
-  Account heading.
-**Call chain:** account page (signed in) → shared members view → list renders.
-**Wiring test:** e2e — signed-in Account shows `cookbook-members` with the
-explainer + Settings link; Cookbook still renders it identically (regression).
+- [ ] `src/pages/cookbook.ts` — stop rendering the members list: drop the
+  `membersMount` insertion in `showCookbook` (`:110-111`); keep the feed.
+- [ ] `src/pages/account.ts` — mount the shared members view (signed-in) below
+  the Account heading; signed-out shows nothing (or a sign-in pointer).
+**Call chain:** account page (signed in) → shared members view → list renders;
+cookbook page → feed only (no members).
+**Wiring test:** e2e — signed-in Account shows `cookbook-members` (explainer +
+Settings link); Cookbook no longer renders `cookbook-members`. RED first
+(Account has none; Cookbook still has it).
 **Depends on:** Phase 5.
 **Read-set:** `cookbook.ts`, `account.ts`, `social/cookbook.ts`.
 **Write-set:** new shared module, `cookbook.ts`, `account.ts`.
-**Shared-state contract:** reach prefs read (same as Cookbook).
-**Risks:** account signed-out state (members list hidden/absent) — handle.
-**Done when:** 1) Account shows the list signed-in; Cookbook unchanged; 2)
+**Shared-state contract:** reach prefs read (same as Cookbook today).
+**Risks:** any test asserting members on Cookbook must move to Account; Account
+signed-out state (members absent) — handle.
+**Done when:** 1) Account shows the list signed-in, Cookbook shows none; 2)
 `npm test` green; 3) `@live` signed-in Account renders members.
 **Validation:** Moderate — hermetic + `@live` signed-in render.
 **Stop-point.**
@@ -557,14 +561,18 @@ phase if tags need a new recipe field).
   includes members' recipes; if the user later wants "mine + liked *excluding*
   members," add a separate Members toggle or a 4th state — flagged, not built
   now.
-- [RECOMMENDED: ADVISORY] **OQ4 — Account members list: also-show vs move.**
-  Recommend also-show on Account (keep it on Cookbook too). Confirm it should
-  stay on both.
-- [RECOMMENDED: ADVISORY] **OQ7 — like heart when the recipe has no photo.**
-  Overlay it on the no-meal placeholder (top-right, same position). Confirm.
-- [RECOMMENDED: ADVISORY] **OQ8 — comment "centering" scope.** Center the whole
-  `.comments` block (heading + thread + composer) vs just the composer.
-  Recommend the whole block, constrained to a readable max-width.
+- [CONFIRMED: ADVISORY — user, 2026-07-09] **OQ4 — MOVE the cookbook-members
+  list to Account only** (remove it from Cookbook). Result: Cookbook = the
+  recipe feed + toolbar (members' recipes + mine + liked); Account = who's in
+  your cookbook (the members list + explainer + Settings link). Phase 6 extracts
+  the members view, mounts it on Account, and **removes** the members mount from
+  `cookbook.ts` (`showCookbook` no longer inserts `membersMount`).
+- [CONFIRMED: ADVISORY — user, 2026-07-09] **OQ7 — like heart overlays the
+  no-meal placeholder in the same top-right spot.** Consistent position whether
+  or not the recipe has a photo; the control never moves.
+- [CONFIRMED: ADVISORY — user, 2026-07-09] **OQ8 — center the whole `.comments`
+  block** (heading + thread + composer) at a readable max-width (so lines don't
+  sprawl on wide screens). Not just the composer.
 - [CONFIRMED: BLOCKING — user, 2026-07-09] **OQ9 — Alchemy tag toolbar =
   filter drafts by a draft "status" tag.** The user can set a **status** on a
   draft and filter the Alchemy list by it. This rides an existing field: the
@@ -595,5 +603,17 @@ feed (`cookbook.ts`); editor as the builder. Structured as Phase 0 discovery
 each ≤ 3 files, ordered low-risk-first (link color) and with the toolbar chain
 (extract → adopt → filter → button) last. Coupled item 1 (remove saved) to item
 9 (Cookbook liked filter) as the single liked-collection story. Preserved the
-shipped CSP (styling in `styles.css` only). Eight open questions surfaced (2
-BLOCKING interpretation forks, 2 PHASE-GATED, 4 ADVISORY).
+shipped CSP (styling in `styles.css` only).
+
+**Open questions — all confirmed via one-at-a-time walk-through (2026-07-09).**
+Nine total: 4 BLOCKING (OQ1 liked recipes live on Cookbook; OQ2 New Recipe →
+existing `editor.html`; OQ3 rename "My recipes" → "Alchemy" drafting workspace;
+OQ9 Alchemy tag toolbar = draft `status` filter), 1 PHASE-GATED (OQ5 inline
+two-step Hide confirm), 4 ADVISORY (OQ6 All/Mine/Liked segmented; OQ4 members
+list MOVED to Account only; OQ7 heart on the no-photo placeholder too; OQ8
+center the whole comments block). The walk-through grew the plan: OQ3 added
+Phase 11 (Alchemy) + a `nav.ts` label change; OQ9 added a small draft `status`
+field (rides the existing `app.arecipe.draft` `status`); OQ4 turned Phase 6 from
+also-show into a move (off Cookbook). Developed + committed on branch
+`recipe-cookbook-ui` off `027a4f9`, isolated from another plan deploying to
+`main`. Ready for Pass 2 (gap analysis) in a fresh context.
