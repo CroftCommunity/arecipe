@@ -1,16 +1,17 @@
 # arecipe — Dedicated sign-in page
 
 Passes run: Pass 1 (base) + Pass 2 (gap analysis) combined 2026-07-08; Pass 3
-(quality gates) 2026-07-09. **Status: shipped 2026-07-09** — both phases landed
-and pushed; the one remaining item is the confirmed PHASE-GATED manual
-post-deploy sign-in on arecipe.app (user-owned; revert staged).
+(quality gates) 2026-07-09. **Status: COMPLETE 2026-07-09** — both phases landed,
+pushed, CI-deployed to arecipe.app, and the PHASE-GATED hosted post-deploy
+sign-in was verified green (real OAuth round-trip on arecipe.app/signin.html →
+Cookbook). No revert needed.
 
 ## Outcome Summary
 
 | Phase | Outcome | Commit | Note |
 |-------|---------|--------|------|
 | 1 — dormant sign-in page | ✅ SHIPPED | `188d60c` | `signin.html` + `signin.ts` live on loopback, hosted-inert; hermetic wiring green + one-off loopback OAuth→Cookbook verified. |
-| 2 — atomic hosted cutover | ✅ SHIPPED | `383dcbd` | `redirect_uris`→signin.html + all "Sign in" links repointed + mine form→pointer + @live helper + docs. Hermetic (51 e2e / 193 unit) + loopback @live green. Hosted round-trip = manual post-deploy check (pending, user-owned). |
+| 2 — atomic hosted cutover | ✅ SHIPPED | `383dcbd` | `redirect_uris`→signin.html + all "Sign in" links repointed + mine form→pointer + @live helper + docs. Hermetic (51 e2e / 193 unit) + loopback @live green. Hosted post-deploy sign-in on arecipe.app **verified green** — no revert. |
 
 ## Problem Statement
 
@@ -537,14 +538,14 @@ top-right, Cookbook gate, Account note, My recipes pointer) points at
 drafting; read-only mirror origins show a terminal "unavailable" note. Both
 commits pushed to `main` (CI-deployed to arecipe.app). Hermetic tier: 51 e2e +
 193 unit green. Loopback `@live` sign-in green through the repointed helper.
-**Stopped or skipped:** one item remains, by design — the **manual post-deploy
-sign-in on arecipe.app** (confirmed PHASE-GATED gate; the hosted OAuth
-round-trip can't be auto-verified this session — `@live` rate-limited + a known
-flake). Revert is staged (`git revert 383dcbd` + redeploy) if the real hosted
-sign-in misbehaves. The full `@live` write-tier (comments/drafts/publish/
-interactions) was not re-run — only `auth-live` (which directly exercises the
-one thing that changed, the repointed `signIn` helper); the others share that
-helper path.
+**Stopped or skipped:** nothing outstanding. The confirmed PHASE-GATED
+**hosted post-deploy sign-in on arecipe.app was verified green** (2026-07-09,
+via a throwaway `@live` spec against the production origin: real OAuth →
+callback on arecipe.app/signin.html → forward to Cookbook), so no revert was
+needed. The full `@live` write-tier (comments/drafts/publish/interactions) was
+not re-run — only `auth-live` (loopback) + the hosted sign-in check, which
+together exercise the one thing that changed (the repointed `signIn` helper and
+the hosted `redirect_uri`); the write suites share that helper path.
 **Discoveries:** (1) `cookbook.html` doesn't render `signed-in-did`, so the
 new callback→Cookbook forward broke the `@live` helper's post-sign-in landing —
 caught because `auth-live` failed the way a good wiring test should; the helper
