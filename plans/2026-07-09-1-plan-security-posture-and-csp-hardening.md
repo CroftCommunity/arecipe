@@ -917,12 +917,16 @@ DPoP publish work. Commits: `cf32b5e` (P1), `ceee042` (P2), `ab20147` (P3),
 plus P4 and doc-sync commits. Not pushed.
 
 **Stopped or skipped:** Nothing in scope was skipped. The pure OAuth-redirect-UI-
-under-CSP was not driven interactively (no automated OAuth consent path), but is
-covered functionally by `auth-live` passing under CSP; a manual local sign-in
-before a production deploy remains a cheap belt-and-suspenders check. Deliberately
-out of scope and named as future items (unchanged): global "sign out everywhere",
-dependency-audit automation, SW cache-poisoning hardening, and the deferred JS
-frame-buster (clickjacking is undefendable via `<meta>` on Pages).
+under-CSP had no automated OAuth-consent path, so it was left as a manual
+belt-and-suspenders check — now **done and confirmed**: on 2026-07-09 a real
+interactive sign-in was run against the live enforcing CSP at
+`https://arecipe.app/signin.html` with the browser console open; sign-in
+completed (forwarded to Cookbook, signed-in) and the console showed **zero**
+`Refused to … Content Security Policy` violations. Combined with `auth-live`
+passing under CSP hermetically, the interactive path is now verified too.
+Deliberately out of scope and named as future items (unchanged): global "sign out
+everywhere", dependency-audit automation, SW cache-poisoning hardening, and the
+deferred JS frame-buster (clickjacking is undefendable via `<meta>` on Pages).
 
 **Discoveries:** (1) A `<meta>` CSP does not govern inline scripts that *precede*
 it (D2) — this drove injecting the meta immediately after `<meta charset>` rather
