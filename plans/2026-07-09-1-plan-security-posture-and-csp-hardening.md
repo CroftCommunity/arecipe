@@ -10,7 +10,7 @@ Phases 0–3 ✅ complete (discovery, narrative, enforcing CSP, SRI). Phase 4 pe
 | 0 Discovery | ✅ complete | — | D2/D3/D4 hermetic; D1 read+PDS path proven; `@live` auth slice → Phase 2 gate |
 | 1 Narrative | ✅ shipped | `cf32b5e` | `docs/SECURITY.md` + README/DESIGN links; all claims source-cited |
 | 2 CSP + hashing | ✅ shipped | `ceee042` | enforcing CSP on all 9 docs; hermetic green; `@live` auth/publish pass under CSP (3 unrelated `@live` flakes confirmed pre-existing via no-CSP baseline) |
-| 3 SRI | ✅ shipped | `__PH3_SHA__` | sha384 integrity on entry module + both stylesheets; chunks documented uncovered |
+| 3 SRI | ✅ shipped | `ab20147` | sha384 integrity on entry module + both stylesheets; chunks documented uncovered |
 | 4 Zero-3p guard | ⏳ pending | — | structural test guard |
 
 **Surfaced, out of scope (needs triage/tracking):** custom fonts 404 in
@@ -562,7 +562,7 @@ loads app-wide; hermetic no-violations across all pages + a loopback auth run
 under CSP.
 **Stop-point.**
 
-### Phase 3: SRI on entry scripts + styles — ✅ SHIPPED (`__PH3_SHA__`)
+### Phase 3: SRI on entry scripts + styles — ✅ SHIPPED (`ab20147`)
 
 **Delivered (2026-07-09):** `scripts/build.mjs` `sri()` adds
 `integrity="sha384-…" crossorigin="anonymous"` to the entry ES module and both
