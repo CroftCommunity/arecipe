@@ -9,7 +9,7 @@ Phases 0–2 ✅ complete (discovery, narrative, enforcing CSP). Phases 3–4 pe
 |-------|---------|-----|------|
 | 0 Discovery | ✅ complete | — | D2/D3/D4 hermetic; D1 read+PDS path proven; `@live` auth slice → Phase 2 gate |
 | 1 Narrative | ✅ shipped | `cf32b5e` | `docs/SECURITY.md` + README/DESIGN links; all claims source-cited |
-| 2 CSP + hashing | ✅ shipped | `__PH2_SHA__` | enforcing CSP on all 9 docs; hermetic green; `@live` auth/publish pass under CSP (3 unrelated `@live` flakes confirmed pre-existing via no-CSP baseline) |
+| 2 CSP + hashing | ✅ shipped | `ceee042` | enforcing CSP on all 9 docs; hermetic green; `@live` auth/publish pass under CSP (3 unrelated `@live` flakes confirmed pre-existing via no-CSP baseline) |
 | 3 SRI | ⏳ pending | — | entry module + both stylesheets |
 | 4 Zero-3p guard | ⏳ pending | — | structural test guard |
 
@@ -450,7 +450,7 @@ mitigated by the explicit status markers on the XSS section.
 mode is a confident-but-wrong security claim, worse than none).
 **Stop-point.**
 
-### Phase 2: Build-time CSP generation + inline-script hashing — ✅ SHIPPED (`__PH2_SHA__`)
+### Phase 2: Build-time CSP generation + inline-script hashing — ✅ SHIPPED (`ceee042`)
 
 **Delivered (2026-07-09):**
 - `scripts/build.mjs` — `cspFor(html)` computes the `sha256` of each inline
