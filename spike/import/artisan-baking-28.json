@@ -5,7 +5,7 @@
     "provenance": "Adapted from published bakery/cooking sites (per-recipe reference URL).",
     "count": 28,
     "notes": {
-      "enrichmentPending": "cuisine (where null), diet[], keywords[], prep/cook/total times, and altOf cross-links are NOT yet set — pending an enrichment pass. Fun facts are NOT yet fact-checked.",
+      "enrichmentPending": "DONE 2026-07-09: diet(vegetarian via ingredient scan), cuisine(curated), keywords, cookTime(from step text). prepTime/totalTime NOT set (source gives no prep; only cook duration is derivable). altOf = shared dishKey across the 6-file corpus (grouping for version-flipping). Fun facts NOT yet fact-checked.",
       "stepSegmentation": "instructions were sentence-split from the source prep paragraphs (PDF text has no inline step numbers); wording is faithful but step boundaries are approximate."
     }
   },
@@ -39,12 +39,17 @@
         "Bake for 9 to 11 minutes or until the edges are golden brown.",
         "Let cool on the sheet for 5 minutes, then transfer to a wire rack to cool completely."
       ],
-      "cuisine": null,
+      "cuisine": "american",
       "category": "dessert",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "cookies",
+        "baking"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT11M",
       "totalTime": null,
       "funFact": "Chocolate chip cookies were invented by mistake in 1938 by Ruth Wakefield at the Toll House Inn when she ran out of baker's chocolate and used chopped semi-sweet chunks instead.",
       "reference": {
@@ -56,7 +61,7 @@
         "url": "https://sallysbakingaddiction.com/the-girl-scout-cookie-championship-soft-chewy-chocolate-chip-cookies/",
         "notes": "Method adapted from the source; description rewritten for beginners."
       },
-      "altOf": null
+      "altOf": "chip chocolate cookie"
     },
     {
       "name": "Fudgy Cocoa Brownies",
@@ -89,12 +94,16 @@
         "Do not overbake.",
         "Let cool completely before slicing."
       ],
-      "cuisine": null,
+      "cuisine": "american",
       "category": "dessert",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "baking"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT22M",
       "totalTime": null,
       "funFact": "Brownies were originally created in 1893 at the Palmer House Hotel in Chicago for the World's Columbian Exposition, designed as a portable dessert for ladies attending the fair.",
       "reference": {
@@ -106,7 +115,7 @@
         "url": "https://www.kingarthurbaking.com/recipes/fudge-brownies-recipe",
         "notes": "Method adapted from the source; description rewritten for beginners."
       },
-      "altOf": null
+      "altOf": "brownie"
     },
     {
       "name": "Classic Moist Banana Bread",
@@ -137,12 +146,17 @@
         "Bake for 50 to 60 minutes, or until a toothpick inserted into the center comes out clean.",
         "Let cool in the pan for 10 minutes, then transfer to a wire rack."
       ],
-      "cuisine": null,
+      "cuisine": "american",
       "category": "dessert",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "bread",
+        "baking"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT1H",
       "totalTime": null,
       "funFact": "Banana bread grew massively in popularity during the 1930s Great Depression because resourceful homemakers refused to throw away overripe, expensive bananas.",
       "reference": {
@@ -154,7 +168,7 @@
         "url": "https://www.simplyrecipes.com/recipes/did_you_know_banana_bread_was_invented_during_the_great_depression/",
         "notes": "Method adapted from the source; description rewritten for beginners."
       },
-      "altOf": null
+      "altOf": "banana bread"
     },
     {
       "name": "Lemon Blueberry Scones",
@@ -189,12 +203,17 @@
         "Bake for 18 to 22 minutes until golden brown.",
         "Let cool slightly, then drizzle with the lemon glaze before serving."
       ],
-      "cuisine": null,
+      "cuisine": "british",
       "category": "dessert",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "bread",
+        "baking"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT22M",
       "totalTime": null,
       "funFact": "Scones originated in Scotland in the early 1500s. They were originally cooked on a griddle over an open fire and cut into wedge shapes called 'bannocks'.",
       "reference": {
@@ -239,12 +258,17 @@
         "Turn off the oven, crack the door open, and let the cheesecake cool inside the oven for 1 hour.",
         "Remove, let cool completely at room temperature, then refrigerate for at least 6 hours before serving."
       ],
-      "cuisine": null,
+      "cuisine": "american",
       "category": "dessert",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "cake",
+        "baking"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT6H",
       "totalTime": null,
       "funFact": "The ancient Greeks served a primitive form of cheesecake (made of flour, honey, and pounded cheese) to athletes during the first Olympic Games in 776 BC for energy.",
       "reference": {
@@ -291,10 +315,15 @@
       ],
       "cuisine": null,
       "category": "dessert",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "pastry",
+        "baking"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT1H",
       "totalTime": null,
       "funFact": "Apple pie is not originally American; the earliest recorded recipe for apple pie comes from England in 1381, and it contained no sugar at all.",
       "reference": {
@@ -336,12 +365,17 @@
         "Beat frosting ingredients together until smooth.",
         "Spread over the cinnamon rolls while they are still warm."
       ],
-      "cuisine": null,
+      "cuisine": "american",
       "category": "dessert",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "bread",
+        "baking"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT1H",
       "totalTime": null,
       "funFact": "Sweden celebrates 'Cinnamon Bun Day' (Kanelbullens dag) every single year on October 4th, a tradition started in 1999 to honor Swedish baking culture.",
       "reference": {
@@ -353,7 +387,7 @@
         "url": "https://www.ambrosia-baking.com",
         "notes": "Method adapted from the source; description rewritten for beginners."
       },
-      "altOf": null
+      "altOf": "cinnamon roll"
     },
     {
       "name": "Bakery-Style Blueberry Muffins",
@@ -383,12 +417,17 @@
         "Bake for 15 to 20 minutes, or until a toothpick inserted in the center comes out clean.",
         "Cool on a wire rack."
       ],
-      "cuisine": null,
+      "cuisine": "american",
       "category": "dessert",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "muffins",
+        "baking"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT20M",
       "totalTime": null,
       "funFact": "Blueberry is the official state muffin of Minnesota, while Massachusetts claims the corn muffin and New York claims the apple muffin.",
       "reference": {
@@ -432,12 +471,17 @@
         "Beat the frosting ingredients together until completely smooth and fluffy.",
         "Frost the top of one cake layer, place the second layer on top, and frost the top and sides completely."
       ],
-      "cuisine": null,
+      "cuisine": "american",
       "category": "dessert",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "cake",
+        "baking"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT35M",
       "totalTime": null,
       "funFact": "Carrot cake evolved from sweet carrot puddings eaten by Europeans during the Middle Ages. Carrots were used as natural sweeteners because sugar was heavily rationed and expensive.",
       "reference": {
@@ -481,12 +525,16 @@
         "Let cool until spreadable.",
         "Match identical shells, pipe a dollop of ganache onto one, and sandwich gently with the other."
       ],
-      "cuisine": null,
+      "cuisine": "french",
       "category": "dessert",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "baking"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT1H",
       "totalTime": null,
       "funFact": "Macarons were actually born in Italy, introduced to France in the 16th century by the chefs of Queen Catherine de' Medici, before being transformed into the sandwich cookie we know today.",
       "reference": {
@@ -527,12 +575,16 @@
         "Bake for 30 to 35 minutes, or until the peach filling is bubbling vigorously and the biscuit topping is deeply golden brown.",
         "Serve warm, ideally with vanilla ice cream."
       ],
-      "cuisine": null,
+      "cuisine": "american",
       "category": "dessert",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "baking"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT35M",
       "totalTime": null,
       "funFact": "Early American settlers invented cobblers because they lacked the proper ingredients and structured brick ovens to create traditional English round pies, improvising with dropped dough instead.",
       "reference": {
@@ -544,7 +596,7 @@
         "url": "https://www.southernliving.com/recipes/fresh-peach-cobbler",
         "notes": "Method adapted from the source; description rewritten for beginners."
       },
-      "altOf": null
+      "altOf": "cobbler peach"
     },
     {
       "name": "Vanilla Bean Bakery Cupcakes",
@@ -580,10 +632,15 @@
       ],
       "cuisine": null,
       "category": "dessert",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "cake",
+        "baking"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT20M",
       "totalTime": null,
       "funFact": "The term 'cupcake' originally had two meanings: a cake actually baked in an individual earthenware cup, or a cake whose recipe measurements were calculated by the cupful (the 1-2-3-4 cake formula).",
       "reference": {
@@ -626,12 +683,17 @@
         "Brush croissants with egg wash.",
         "Bake for 10 minutes, reduce oven to 375°F (190°C), and bake for 12-15 minutes more until deep golden brown."
       ],
-      "cuisine": null,
+      "cuisine": "french",
       "category": "dessert",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "pastry",
+        "baking"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT2H",
       "totalTime": null,
       "funFact": "Croissants actually originated in Austria as a crescent-shaped roll called the 'kipferl'. They were brought to France in the 1770s by Marie Antoinette, where French bakers adapted them with puff pastry techniques.",
       "reference": {
@@ -675,10 +737,15 @@
       ],
       "cuisine": null,
       "category": "bread",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "bread",
+        "baking"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT18H",
       "totalTime": null,
       "funFact": "This recipe revolutionized home baking in 2006 when baker Jim Lahey shared it with the New York Times, proving that long fermentation replaces the manual need for kneading.",
       "reference": {
@@ -726,12 +793,17 @@
         "Bake for 20 minutes until the crust is beautifully golden brown.",
         "Slice into squares and serve warm."
       ],
-      "cuisine": null,
+      "cuisine": "italian",
       "category": "bread",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "bread",
+        "baking"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT1H",
       "totalTime": null,
       "funFact": "The name focaccia stems from the Roman 'panis focacius', which means 'hearth bread', referring to the ancient practice of baking flatbread directly on the hot ashes of a central hearth.",
       "reference": {
@@ -776,12 +848,18 @@
         "Bake for 20 to 25 minutes until the top is golden brown and a toothpick inserted into the center comes out clean.",
         "Serve warm."
       ],
-      "cuisine": null,
+      "cuisine": "american",
       "category": "bread",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "one-pot",
+        "bread",
+        "baking"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT25M",
       "totalTime": null,
       "funFact": "Baking cornbread in a preheated cast-iron skillet with hot fat is the traditional Southern secret that creates an incredibly crisp, fried bottom crust.",
       "reference": {
@@ -825,12 +903,15 @@
         "Bake at 350°F for 35 to 40 minutes, or until the custard is set in the center and lightly golden on top.",
         "Let cool for 10 minutes before slicing."
       ],
-      "cuisine": null,
+      "cuisine": "french",
       "category": "dinner",
       "diet": [],
-      "keywords": [],
+      "keywords": [
+        "pastry",
+        "baking"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT40M",
       "totalTime": null,
       "funFact": "Despite its status as a cornerstone of French cuisine, quiche actually originated in the medieval German kingdom of Lothringen, which the French later conquered and renamed Lorraine.",
       "reference": {
@@ -842,7 +923,7 @@
         "url": "https://www.epicurious.com/recipes/food/views/quiche-lorraine-101851",
         "notes": "Method adapted from the source; description rewritten for beginners."
       },
-      "altOf": null
+      "altOf": "lorraine quiche"
     },
     {
       "name": "Soft Chewy Pretzels",
@@ -878,12 +959,17 @@
         "Bake for 12 to 14 minutes until a deep, dark golden brown.",
         "Transfer to a cooling rack."
       ],
-      "cuisine": null,
+      "cuisine": "german",
       "category": "bread",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "bread",
+        "baking"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT1H",
       "totalTime": null,
       "funFact": "Pretzels were invented by an Italian monk around 610 AD as a reward for children who memorized their prayers. The distinctive twists represent arms crossed across the chest in prayer.",
       "reference": {
@@ -928,12 +1014,17 @@
         "Brush the tops lightly with milk.",
         "Bake for 15 to 18 minutes until golden brown on the tops and bottoms."
       ],
-      "cuisine": null,
+      "cuisine": "british",
       "category": "bread",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "bread",
+        "baking"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT18M",
       "totalTime": null,
       "funFact": "The incredible flakiness of scones depends on keeping the butter completely cold. When cold butter hits a hot oven, the moisture inside steam-evaporates, expanding to form hundreds of delicate dough layers.",
       "reference": {
@@ -983,12 +1074,15 @@
         "Bake for 35 to 40 minutes, or until the pastry is completely golden brown and the filling bubbles through the vents.",
         "Let rest for 10 minutes before slicing."
       ],
-      "cuisine": null,
+      "cuisine": "american",
       "category": "dinner",
       "diet": [],
-      "keywords": [],
+      "keywords": [
+        "pastry",
+        "baking"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT40M",
       "totalTime": null,
       "funFact": "The ancient Romans made early prototypes of meat pies where the crust was incredibly thick and made entirely of flour and water, intended purely as a durable cooking vessel rather than to be eaten.",
       "reference": {
@@ -1034,10 +1128,15 @@
       ],
       "cuisine": null,
       "category": "dinner",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "pastry",
+        "baking"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT18M",
       "totalTime": null,
       "funFact": "Classic puff pastry (pâte feuilletée) relies entirely on physical lamination. When folded properly, the dough contains up to 729 distinct, micro-thin layers of butter trapped between layers of dough.",
       "reference": {
@@ -1082,10 +1181,14 @@
       ],
       "cuisine": null,
       "category": "bread",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "baking"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT15M",
       "totalTime": null,
       "funFact": "Crackers were invented in 1792 by John Pearson, who sought a durable biscuit that wouldn't spoil on long sea voyages. The sharp popping noise they made when baking inspired the name 'crackers'.",
       "reference": {
@@ -1130,12 +1233,15 @@
         "Brush the tops generously with the remaining egg wash.",
         "Bake for 25 to 30 minutes, or until the pastry is puffed and deep golden brown, and the meat inside is fully cooked."
       ],
-      "cuisine": null,
+      "cuisine": "british",
       "category": "bread",
       "diet": [],
-      "keywords": [],
+      "keywords": [
+        "bread",
+        "baking"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT30M",
       "totalTime": null,
       "funFact": "Sausage rolls became heavily popularized in London during the early 1800s as a cheap, portable street food during the Napoleonic Wars and remain a fundamental staple of British culture.",
       "reference": {
@@ -1175,12 +1281,16 @@
         "Do not let them brown heavily.",
         "Let cool completely on the baking sheet; they will become delightfully crisp and snappy as they cool."
       ],
-      "cuisine": null,
+      "cuisine": "american",
       "category": "dinner",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "baking"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT15M",
       "totalTime": null,
       "funFact": "Traditional cheese straws are an absolute staple of Southern hospitality, heavily featured at weddings, cocktail hours, and holiday parties across the American South since the 19th century.",
       "reference": {
@@ -1228,9 +1338,12 @@
       "cuisine": null,
       "category": "dinner",
       "diet": [],
-      "keywords": [],
+      "keywords": [
+        "pastry",
+        "baking"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT30M",
       "totalTime": null,
       "funFact": "Leeks belong to the allium family alongside onions and garlic. They were so highly prized by Roman Emperor Nero that he ate them daily to improve the quality of his singing voice.",
       "reference": {
@@ -1269,10 +1382,15 @@
       ],
       "cuisine": null,
       "category": "dessert",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "cake",
+        "baking"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT14M",
       "totalTime": null,
       "funFact": "The molten lava cake was popularized in New York City in 1987 by chef Jean-Georges Vongerichten, who accidentally pulled a chocolate sponge cake out of the oven too early.",
       "reference": {
@@ -1284,7 +1402,7 @@
         "url": "https://www.marthastewart.com/341334/molten-chocolate-cakes",
         "notes": "Method adapted from the source; description rewritten for beginners."
       },
-      "altOf": null
+      "altOf": "cake chocolate lava"
     },
     {
       "name": "Savory Stromboli",
@@ -1312,12 +1430,14 @@
         "Brush the top with egg wash and cut 3-4 diagonal vents across the top.",
         "Bake for 20 to 25 minutes until the crust is a deep golden brown and the cheese inside is bubbling out of the vents."
       ],
-      "cuisine": null,
+      "cuisine": "italian",
       "category": "dinner",
       "diet": [],
-      "keywords": [],
+      "keywords": [
+        "baking"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT25M",
       "totalTime": null,
       "funFact": "Stromboli was invented in 1950 by Nazzareno Romano in Philadelphia. He named the rolled pizza dough creation after the famous movie 'Stromboli' starring Ingrid Bergman.",
       "reference": {
@@ -1359,12 +1479,17 @@
         "Bake for 12 to 15 minutes until the tops are beautifully golden brown.",
         "Brush with additional melted butter if desired."
       ],
-      "cuisine": null,
+      "cuisine": "american",
       "category": "bread",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "bread",
+        "baking"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT15M",
       "totalTime": null,
       "funFact": "The trick to mile-high biscuits is 'lamination'—folding the dough over on itself multiple times during shaping to build distinct structural layers.",
       "reference": {

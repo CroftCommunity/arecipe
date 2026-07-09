@@ -5,7 +5,7 @@
     "provenance": "Budget family recipes adapted from published sites (per-recipe reference URL).",
     "count": 25,
     "notes": {
-      "enrichmentPending": "cuisine (where null), diet[], keywords[], prep/cook/total times, and altOf cross-links are NOT yet set — pending an enrichment pass. Fun facts are NOT yet fact-checked.",
+      "enrichmentPending": "DONE 2026-07-09: diet(vegetarian via ingredient scan), cuisine(curated), keywords, cookTime(from step text). prepTime/totalTime NOT set (source gives no prep; only cook duration is derivable). altOf = shared dishKey across the 6-file corpus (grouping for version-flipping). Fun facts NOT yet fact-checked.",
       "stepSegmentation": "instructions were sentence-split from the source prep paragraphs (PDF text has no inline step numbers); wording is faithful but step boundaries are approximate."
     }
   },
@@ -34,12 +34,18 @@
         "Cook for 3-4 minutes per side until the tortilla is golden brown, crispy, and the cheese inside is completely melted.",
         "Repeat for remaining tortillas."
       ],
-      "cuisine": null,
+      "cuisine": "mexican",
       "category": "dinner",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "budget",
+        "family",
+        "feeds-a-crowd"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT4M",
       "totalTime": null,
       "funFact": "These quesadillas are exceptionally freezer-friendly. You can stack them uncooked with a piece of parchment paper between each, seal them in a freezer bag, and store for up to 3 months. Cook directly from frozen on low-medium heat!",
       "reference": {
@@ -85,9 +91,14 @@
       "cuisine": null,
       "category": "soup",
       "diet": [],
-      "keywords": [],
+      "keywords": [
+        "soup",
+        "budget",
+        "family",
+        "feeds-a-crowd"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT40M",
       "totalTime": null,
       "funFact": "Lentils are one of the oldest cultivated crops in human history, dating back over 9,000 years to ancient Mesopotamia. They require no soaking before cooking, making them much faster to prepare than dry beans.",
       "reference": {
@@ -131,12 +142,18 @@
         "Turn the heat down to low, cover the skillet with a lid, and cook for 5-8 minutes until the egg whites are fully opaque and set, but the yolks are still soft and runny.",
         "Garnish with fresh herbs."
       ],
-      "cuisine": null,
+      "cuisine": "middle-eastern",
       "category": "dinner",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "budget",
+        "family",
+        "feeds-a-crowd"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT10M",
       "totalTime": null,
       "funFact": "The word 'shakshuka' translates roughly to 'a haphazard mixture' or 'all shaken up' in Arabic slang, referencing how seamlessly the ingredients meld together into one pan.",
       "reference": {
@@ -181,10 +198,16 @@
       ],
       "cuisine": null,
       "category": "dinner",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "budget",
+        "family",
+        "feeds-a-crowd"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT5M",
       "totalTime": null,
       "funFact": "Using freshly cooked rice will make your fried rice mushy and sticky. Day-old rice is ideal because the grains have dehydrated slightly in the refrigerator , allowing them to fry up crisp and absorb sauces perfectly.",
       "reference": {
@@ -226,9 +249,14 @@
       "cuisine": null,
       "category": "dinner",
       "diet": [],
-      "keywords": [],
+      "keywords": [
+        "one-pot",
+        "budget",
+        "family",
+        "feeds-a-crowd"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT20M",
       "totalTime": null,
       "funFact": "Tuna noodle casserole skyrocketed in popularity across mid-century America because Campbell's and other canned goods companies marketed it heavily as a cheap, lightning-fast weeknight solution for busy parents.",
       "reference": {
@@ -269,9 +297,14 @@
       "cuisine": null,
       "category": "dinner",
       "diet": [],
-      "keywords": [],
+      "keywords": [
+        "one-pot",
+        "budget",
+        "family",
+        "feeds-a-crowd"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT15M",
       "totalTime": null,
       "funFact": "Green cabbage is consistently ranked among the cheapest fresh vegetables per pound available at the supermarket. It is highly nutrient-dense, packed with Vitamin C, and keeps in the crisper drawer for weeks.",
       "reference": {
@@ -314,9 +347,14 @@
       "cuisine": null,
       "category": "soup",
       "diet": [],
-      "keywords": [],
+      "keywords": [
+        "soup",
+        "budget",
+        "family",
+        "feeds-a-crowd"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT20M",
       "totalTime": null,
       "funFact": "Known classically in France as 'Potage Parmentier', this soup was named after Antoine-Augustin Parmentier , an 18th-century champion of the potato who successfully convinced the French public that potatoes weren't toxic.",
       "reference": {
@@ -360,12 +398,19 @@
         "Stir in the drained chickpeas and 1/2 cup of water . Cover with a lid, reduce heat to low, and let it simmer for 15 minutes so the chickpeas absorb the curry notes.",
         "Serve with rice."
       ],
-      "cuisine": null,
+      "cuisine": "indian",
       "category": "dinner",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "curry",
+        "budget",
+        "family",
+        "feeds-a-crowd"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT15M",
       "totalTime": null,
       "funFact": "Chickpeas are incredible powerhouses for families on a budget. They are incredibly low-cost but provide substantial levels of iron, magnesium, and protein, making them an excellent red meat alternative.",
       "reference": {
@@ -406,9 +451,14 @@
       "cuisine": null,
       "category": "dinner",
       "diet": [],
-      "keywords": [],
+      "keywords": [
+        "slow-cooker",
+        "budget",
+        "family",
+        "feeds-a-crowd"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT10H",
       "totalTime": null,
       "funFact": "Pork shoulder is cheap because it contains hard-working muscles wrapped in heavy connective tissue (collagen). Long, slow cooking melts this tough collagen down into rich gelatin, rendering the meat incredibly moist.",
       "reference": {
@@ -455,9 +505,14 @@
       "cuisine": null,
       "category": "soup",
       "diet": [],
-      "keywords": [],
+      "keywords": [
+        "soup",
+        "budget",
+        "family",
+        "feeds-a-crowd"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT15M",
       "totalTime": null,
       "funFact": "Known historically as 'cucina povera' (peasant cooking), Pasta e Fagioli was invented by Italian agricultural laborers who needed highly filling meals using only what grew in their gardens and dried beans from the cellar .",
       "reference": {
@@ -498,9 +553,14 @@
       "cuisine": null,
       "category": "dinner",
       "diet": [],
-      "keywords": [],
+      "keywords": [
+        "sheet-pan",
+        "budget",
+        "family",
+        "feeds-a-crowd"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT45M",
       "totalTime": null,
       "funFact": "Dark meat chicken cuts like drumsticks and thighs are significantly juicier , softer , and far more forgiving to overcooking than lean, expensive chicken breasts, thanks to their natural fat distribution.",
       "reference": {
@@ -544,9 +604,13 @@
       "cuisine": null,
       "category": "dinner",
       "diet": [],
-      "keywords": [],
+      "keywords": [
+        "budget",
+        "family",
+        "feeds-a-crowd"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT5H",
       "totalTime": null,
       "funFact": "In old New Orleans, Mondays were traditionally 'wash days.' Homemakers left a pot of red beans simmering all day on the back of the stove while handling heavy laundry, adding the leftover bone from Sunday's baked ham.",
       "reference": {
@@ -584,10 +648,16 @@
       ],
       "cuisine": null,
       "category": "dinner",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "budget",
+        "family",
+        "feeds-a-crowd"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT15M",
       "totalTime": null,
       "funFact": "The word 'frittata' originates from the Italian verb 'friggere', which means 'to fry'. It was originally a casual term used to describe any quick egg preparation in a frying pan.",
       "reference": {
@@ -631,9 +701,14 @@
       "cuisine": null,
       "category": "dinner",
       "diet": [],
-      "keywords": [],
+      "keywords": [
+        "pastry",
+        "budget",
+        "family",
+        "feeds-a-crowd"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT20M",
       "totalTime": null,
       "funFact": "While often called 'Shepherd's Pie', technically that title only applies if the dish uses ground lamb (as shepherds guard sheep). When ground beef or alternative proteins are utilized, it is historically called a 'Cottage Pie'.",
       "reference": {
@@ -676,8 +751,14 @@
       ],
       "cuisine": null,
       "category": "dinner",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "budget",
+        "family",
+        "feeds-a-crowd"
+      ],
       "prepTime": null,
       "cookTime": null,
       "totalTime": null,
@@ -718,12 +799,18 @@
         "Bake in the oven for 18-20 minutes until the cornbread crust is golden and a toothpick inserted into the bread layer comes out clean.",
         "Top with cheese for the final 2 minutes."
       ],
-      "cuisine": null,
+      "cuisine": "american",
       "category": "bread",
       "diet": [],
-      "keywords": [],
+      "keywords": [
+        "one-pot",
+        "bread",
+        "budget",
+        "family",
+        "feeds-a-crowd"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT20M",
       "totalTime": null,
       "funFact": "This recipe is a highly streamlined evolution of the vintage 'Tamale Pie', a dish that originated in Texas in the early 1900s as a creative way to serve chili with a grain stretcher .",
       "reference": {
@@ -766,10 +853,16 @@
       ],
       "cuisine": null,
       "category": "dinner",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "budget",
+        "family",
+        "feeds-a-crowd"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT30M",
       "totalTime": null,
       "funFact": "Sweet potatoes lend a wonderful, natural, creamy sweetness that cuts through the sharp acidity of canned tomatoes beautifully, completely eliminating the need to add refined sugars to balance your chili.",
       "reference": {
@@ -808,10 +901,16 @@
       ],
       "cuisine": null,
       "category": "dinner",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "budget",
+        "family",
+        "feeds-a-crowd"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT25M",
       "totalTime": null,
       "funFact": "Unlike traditional lasagna, which requires tedious layering of flat noodles and delicate fillings, baked ziti delivers an identical, luxurious comfort-food profile with zero structural assembly required.",
       "reference": {
@@ -854,10 +953,17 @@
       ],
       "cuisine": null,
       "category": "dinner",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "cake",
+        "budget",
+        "family",
+        "feeds-a-crowd"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT35M",
       "totalTime": null,
       "funFact": "This cake rises completely without eggs! The magic lies in the instant chemical reaction between the acid (vinegar) and the base (baking soda), creating thousands of tiny carbon dioxide bubbles that lift the crumb perfectly.",
       "reference": {
@@ -894,12 +1000,19 @@
         "Sprinkle the baking soda and salt across the top of the liquid batter . Gently stir in the flour , stopping the moment the white flour disappears (do not over-mix, or the bread will become tough).",
         "Pour the thick batter into the loaf pan and bake for 50 to 60 minutes until the top is split down the center and a toothpick emerges clean."
       ],
-      "cuisine": null,
+      "cuisine": "american",
       "category": "bread",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "bread",
+        "budget",
+        "family",
+        "feeds-a-crowd"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT1H",
       "totalTime": null,
       "funFact": "Banana bread first solidified its permanent status in the American home cookbook during the 1930s Great Depression because resourceful families absolute refused to throw away expensive fruit that had turned soft.",
       "reference": {
@@ -941,10 +1054,17 @@
       ],
       "cuisine": null,
       "category": "bread",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "bread",
+        "budget",
+        "family",
+        "feeds-a-crowd"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT45M",
       "totalTime": null,
       "funFact": "Bread pudding stretches back to the 11th century in England, where it was colloquially referred to as 'poor man's pudding' because it allowed working-class kitchens to avoid throwing away old, brick- hard bread.",
       "reference": {
@@ -986,10 +1106,16 @@
       ],
       "cuisine": null,
       "category": "dinner",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "budget",
+        "family",
+        "feeds-a-crowd"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT20M",
       "totalTime": null,
       "funFact": "Rice pudding is a global phenomenon found in almost every ancient culture. It was originally served to royalty in medical tonics in ancient Asia before rice production expanded, turning it into a universal family comfort staple.",
       "reference": {
@@ -1027,10 +1153,16 @@
       ],
       "cuisine": null,
       "category": "dinner",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "budget",
+        "family",
+        "feeds-a-crowd"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT35M",
       "totalTime": null,
       "funFact": "Apple crisp surged in popularity in Great Britain and the United States during World War II because food rationing heavily restricted fats and flour . The crumble top used far less butter and flour than a standard double-crust pie.",
       "reference": {
@@ -1065,10 +1197,17 @@
       ],
       "cuisine": null,
       "category": "dinner",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "cookies",
+        "budget",
+        "family",
+        "feeds-a-crowd"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT12M",
       "totalTime": null,
       "funFact": "The iconic crisscross fork marks on peanut butter cookies are functional, not just decorative! Because peanut butter dough is exceptionally dense and lacks gluten, pressing them down ensures they bake evenly to the core.",
       "reference": {
@@ -1080,7 +1219,7 @@
         "url": "https://www.allrecipes.com/recipe/244614/3-ingredient-peanut-butter-cookies/1.2.3.4.5.1.2.3.4.5.",
         "notes": "Method adapted from the source; description rewritten for beginners."
       },
-      "altOf": null
+      "altOf": "butter cookie peanut"
     },
     {
       "name": "Frugal Chewy Oatmeal Raisin Cookies",
@@ -1111,10 +1250,17 @@
       ],
       "cuisine": null,
       "category": "dinner",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "cookies",
+        "budget",
+        "family",
+        "feeds-a-crowd"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT11M",
       "totalTime": null,
       "funFact": "The blueprint for this precise cookie, known historically as 'Vanishing Oatmeal Raisin Cookies', has been printed directly on the underside of the iconic round cardboard Quaker Oats container lids since the early 1900s!",
       "reference": {

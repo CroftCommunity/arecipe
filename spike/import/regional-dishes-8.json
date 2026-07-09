@@ -5,7 +5,7 @@
     "provenance": "Traditional regional/national dishes; tourism/culinary references.",
     "count": 8,
     "notes": {
-      "enrichmentPending": "cuisine (where null), diet[], keywords[], prep/cook/total times, and altOf cross-links are NOT yet set — pending an enrichment pass. Fun facts are NOT yet fact-checked.",
+      "enrichmentPending": "DONE 2026-07-09: diet(vegetarian via ingredient scan), cuisine(curated), keywords, cookTime(from step text). prepTime/totalTime NOT set (source gives no prep; only cook duration is derivable). altOf = shared dishKey across the 6-file corpus (grouping for version-flipping). Fun facts NOT yet fact-checked.",
       "stepSegmentation": "instructions were sentence-split from the source prep paragraphs (PDF text has no inline step numbers); wording is faithful but step boundaries are approximate."
     }
   },
@@ -36,13 +36,15 @@
       ],
       "cuisine": "italian",
       "category": "dinner",
-      "diet": [],
+      "diet": [
+        "vegetarian"
+      ],
       "keywords": [
         "regional",
         "italy"
       ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT8H",
       "totalTime": null,
       "funFact": "Authentic Neapolitan Pizza is protected by the European Union as a Traditional Speciality Guaranteed (TSG) dish and its art is UNESCO intangible heritage.",
       "reference": {
@@ -91,7 +93,7 @@
         "thailand"
       ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT45M",
       "totalTime": null,
       "funFact": "Pad Thai was actively promoted by the Thai government in the 1930s to foster national identity and reduce rice consumption during economic hardships.",
       "reference": {
@@ -138,7 +140,7 @@
         "mexico"
       ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT4H",
       "totalTime": null,
       "funFact": "The phrase 'Al Pastor' translates literally to 'in the style of the shepherd', nodding to the Lebanese immigrant origins of the cooking method.",
       "reference": {
@@ -187,7 +189,7 @@
         "france"
       ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT5H",
       "totalTime": null,
       "funFact": "What started as a rustic peasant dish to tenderize tough cuts of meat was elevated to haute cuisine by legendary chef Auguste Escoffier in the early 20th century.",
       "reference": {
@@ -199,7 +201,7 @@
         "url": "https://www.france.fr",
         "notes": "Traditional regional dish; description rewritten. Reference is a culinary/tourism source."
       },
-      "altOf": null
+      "altOf": "boeuf bourguignon"
     },
     {
       "name": "Feijoada",
@@ -235,7 +237,7 @@
         "brazil"
       ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT5H",
       "totalTime": null,
       "funFact": "Feijoada is widely celebrated as Brazil's national dish, traditionally eaten at leisure during Saturday afternoons with family.",
       "reference": {
@@ -282,7 +284,7 @@
         "india"
       ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT45M",
       "totalTime": null,
       "funFact": "The historic Nizams of Hyderabad boasted legendary royal kitchens where chefs created nearly 50 distinctive variations using unique meats like quail and deer.",
       "reference": {
@@ -330,7 +332,7 @@
         "united-states"
       ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT15M",
       "totalTime": null,
       "funFact": "Traditional New England chowder strictly forbids tomatoes. In 1939, a statutory bill was introduced in Maine to make adding tomatoes to clam chowder illegal.",
       "reference": {

@@ -5,7 +5,7 @@
     "provenance": "Adapted homage to Julia Child; French classics, methods rewritten.",
     "count": 25,
     "notes": {
-      "enrichmentPending": "cuisine (where null), diet[], keywords[], prep/cook/total times, and altOf cross-links are NOT yet set — pending an enrichment pass. Fun facts are NOT yet fact-checked.",
+      "enrichmentPending": "DONE 2026-07-09: diet(vegetarian via ingredient scan), cuisine(curated), keywords, cookTime(from step text). prepTime/totalTime NOT set (source gives no prep; only cook duration is derivable). altOf = shared dishKey across the 6-file corpus (grouping for version-flipping). Fun facts NOT yet fact-checked.",
       "stepSegmentation": "instructions were sentence-split from the source prep paragraphs (PDF text has no inline step numbers); wording is faithful but step boundaries are approximate."
     }
   },
@@ -48,9 +48,13 @@
       "cuisine": "french",
       "category": "dinner",
       "diet": [],
-      "keywords": [],
+      "keywords": [
+        "stew",
+        "french-classic",
+        "julia-child"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT5H",
       "totalTime": null,
       "funFact": "This was the historic dish featured in the very first episode of Julia Child's groundbreaking television show, 'The French Chef', in 1963.",
       "reference": {
@@ -62,7 +66,7 @@
         "url": "https://www.pbs.org/food/features/julia-child-boeuf-bourguignon/7.8.",
         "notes": "Adapted homage to Julia Child; methods rewritten. Reference verifies the classic formula."
       },
-      "altOf": null
+      "altOf": "boeuf bourguignon"
     },
     {
       "name": "Coq au Vin",
@@ -97,9 +101,12 @@
       "cuisine": "french",
       "category": "dinner",
       "diet": [],
-      "keywords": [],
+      "keywords": [
+        "french-classic",
+        "julia-child"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT40M",
       "totalTime": null,
       "funFact": "Traditionally, this recipe was invented to tenderize tough, older roosters (coq) by marinating and long-braising them in highly acidic red wine.",
       "reference": {
@@ -139,10 +146,15 @@
       ],
       "cuisine": "french",
       "category": "dessert",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "french-classic",
+        "julia-child"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT4H",
       "totalTime": null,
       "funFact": "Julia's secret to the perfect texture was whipping the egg yolks thoroughly with sugar until they reached the 'ribbon stage' before adding any chocolate.",
       "reference": {
@@ -186,9 +198,13 @@
       "cuisine": "french",
       "category": "soup",
       "diet": [],
-      "keywords": [],
+      "keywords": [
+        "soup",
+        "french-classic",
+        "julia-child"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT40M",
       "totalTime": null,
       "funFact": "The slow caramelization process converts the onions' natural starches into sugars, which is why patience is vital—rushing this step spoils the deep flavor base.",
       "reference": {
@@ -230,9 +246,13 @@
       "cuisine": "french",
       "category": "dinner",
       "diet": [],
-      "keywords": [],
+      "keywords": [
+        "pastry",
+        "french-classic",
+        "julia-child"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT35M",
       "totalTime": null,
       "funFact": "Authentic, original regional recipes for Quiche Lorraine from northeastern France did not contain any cheese at all—only heavy cream, eggs, and smoked pork bacon.",
       "reference": {
@@ -244,7 +264,7 @@
         "url": "https://www.marthastewart.com/318534/quiche-lorraine1.2.3.4.5.6.",
         "notes": "Adapted homage to Julia Child; methods rewritten. Reference verifies the classic formula."
       },
-      "altOf": null
+      "altOf": "lorraine quiche"
     },
     {
       "name": "Sole Meunière",
@@ -273,9 +293,12 @@
       "cuisine": "french",
       "category": "dinner",
       "diet": [],
-      "keywords": [],
+      "keywords": [
+        "french-classic",
+        "julia-child"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT3M",
       "totalTime": null,
       "funFact": "This exact dish was Julia Child's very first meal upon arriving in France in 1948. She later described it as 'an culinary revelation' that altered the course of her entire life.",
       "reference": {
@@ -320,10 +343,15 @@
       ],
       "cuisine": "french",
       "category": "dinner",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "french-classic",
+        "julia-child"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT20M",
       "totalTime": null,
       "funFact": "Julia stressed cooking the vegetables separately first because dumping them all into a pot at once steams them, resulting in a soggy, waterlogged texture.",
       "reference": {
@@ -364,10 +392,15 @@
       ],
       "cuisine": "french",
       "category": "dinner",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "french-classic",
+        "julia-child"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT1H",
       "totalTime": null,
       "funFact": "While traditionalists from the Dauphiné region argue that real gratin contains no cheese at all, Julia championed adding Gruyère for an American palate.",
       "reference": {
@@ -407,10 +440,15 @@
       ],
       "cuisine": "french",
       "category": "dessert",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "french-classic",
+        "julia-child"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT50M",
       "totalTime": null,
       "funFact": "In traditional French country style, the cherries are left unpitted because the pits contain amygdalin, which releases a subtle, almond-like aroma during baking.",
       "reference": {
@@ -449,10 +487,16 @@
       ],
       "cuisine": "french",
       "category": "dessert",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "pastry",
+        "french-classic",
+        "julia-child"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT30M",
       "totalTime": null,
       "funFact": "This famous dessert was created by accident at the Hotel Tatin in France when Stephanie Tatin overcooked apples and tried to rescue them by slapping pastry on top.",
       "reference": {
@@ -491,9 +535,12 @@
       "cuisine": "french",
       "category": "dinner",
       "diet": [],
-      "keywords": [],
+      "keywords": [
+        "french-classic",
+        "julia-child"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT1H",
       "totalTime": null,
       "funFact": "Julia believed you could judge the quality of a chef or a restaurant based solely on the execution of their simple roast chicken.",
       "reference": {
@@ -534,7 +581,11 @@
       "cuisine": "french",
       "category": "salad",
       "diet": [],
-      "keywords": [],
+      "keywords": [
+        "salad",
+        "french-classic",
+        "julia-child"
+      ],
       "prepTime": null,
       "cookTime": null,
       "totalTime": null,
@@ -577,10 +628,15 @@
       ],
       "cuisine": "french",
       "category": "dessert",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "french-classic",
+        "julia-child"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT2M",
       "totalTime": null,
       "funFact": "This dramatic dessert was allegedly created by mistake in 1895 when a young waiter accidentally set fire to a dessert he was preparing for the Prince of Wales.",
       "reference": {
@@ -627,10 +683,15 @@
       ],
       "cuisine": "french",
       "category": "dinner",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "french-classic",
+        "julia-child"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT30M",
       "totalTime": null,
       "funFact": "Julia famously assured anxious home cooks that a soufflé doesn't fall from bad luck—it falls because the oven door was opened too early, letting cold air collapse the air pockets.",
       "reference": {
@@ -676,9 +737,12 @@
       "cuisine": "french",
       "category": "dinner",
       "diet": [],
-      "keywords": [],
+      "keywords": [
+        "french-classic",
+        "julia-child"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT15M",
       "totalTime": null,
       "funFact": "Authentic Bouillabaisse must be boiled rapidly rather than simmered; the fierce boiling action forces the olive oil and water to emulsify into a unified broth.",
       "reference": {
@@ -719,9 +783,12 @@
       "cuisine": "french",
       "category": "dinner",
       "diet": [],
-      "keywords": [],
+      "keywords": [
+        "french-classic",
+        "julia-child"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT4H",
       "totalTime": null,
       "funFact": "Although it sounds strictly French, this cold variant was actually invented in New York City in 1917 by a French chef at the Ritz-Carlton who missed his mother's warm soup.",
       "reference": {
@@ -765,10 +832,15 @@
       ],
       "cuisine": "french",
       "category": "dessert",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "french-classic",
+        "julia-child"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT25M",
       "totalTime": null,
       "funFact": "This was the very first French cake Julia Child ever baked, and she chose it to display her baking expertise on early promotional book tours.",
       "reference": {
@@ -802,8 +874,13 @@
       ],
       "cuisine": "french",
       "category": "dinner",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "french-classic",
+        "julia-child"
+      ],
       "prepTime": null,
       "cookTime": null,
       "totalTime": null,
@@ -849,9 +926,12 @@
       "cuisine": "french",
       "category": "dinner",
       "diet": [],
-      "keywords": [],
+      "keywords": [
+        "french-classic",
+        "julia-child"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT5H",
       "totalTime": null,
       "funFact": "The name comes from the 'cassole', the traditional conical earthenware pot crafted in the south of France specifically to bake this heavy winter stew.",
       "reference": {
@@ -892,9 +972,12 @@
       "cuisine": "french",
       "category": "dinner",
       "diet": [],
-      "keywords": [],
+      "keywords": [
+        "french-classic",
+        "julia-child"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT5H",
       "totalTime": null,
       "funFact": "Compressing the pâté with weights while cooling is crucial because it forces out air bubbles, creating a dense, professional sliceable texture.",
       "reference": {
@@ -936,9 +1019,12 @@
       "cuisine": "french",
       "category": "dinner",
       "diet": [],
-      "keywords": [],
+      "keywords": [
+        "french-classic",
+        "julia-child"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT1H",
       "totalTime": null,
       "funFact": "'Printanier' means spring-style in French, reflecting the historical tradition of cooking fresh new- crop vegetables alongside tender spring lamb.",
       "reference": {
@@ -977,10 +1063,15 @@
       ],
       "cuisine": "french",
       "category": "dessert",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "french-classic",
+        "julia-child"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT1H",
       "totalTime": null,
       "funFact": "These iconic little cakes were immortalized by French writer Marcel Proust in his masterpiece novel as a trigger for powerful, nostalgic childhood memories.",
       "reference": {
@@ -1020,10 +1111,15 @@
       ],
       "cuisine": "french",
       "category": "dessert",
-      "diet": [],
-      "keywords": [],
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "french-classic",
+        "julia-child"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT3H",
       "totalTime": null,
       "funFact": "Tap the caramelized sugar crust with the back of your spoon—a perfectly torched crème brûlée should make a distinct, hollow 'crack' sound.",
       "reference": {
@@ -1035,7 +1131,7 @@
         "url": "https://www.foodnetwork.com/recipes/alton-brown/creme-brulee-recipe-19168271.2.3.4.5.6.",
         "notes": "Adapted homage to Julia Child; methods rewritten. Reference verifies the classic formula."
       },
-      "altOf": null
+      "altOf": "brulee creme"
     },
     {
       "name": "Potage Parmentier",
@@ -1060,9 +1156,12 @@
       "cuisine": "french",
       "category": "dinner",
       "diet": [],
-      "keywords": [],
+      "keywords": [
+        "french-classic",
+        "julia-child"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT50M",
       "totalTime": null,
       "funFact": "This basic recipe serves as the fundamental master base in French cooking; add watercress and it becomes Potage Cressonnière.",
       "reference": {
@@ -1108,9 +1207,12 @@
       "cuisine": "french",
       "category": "dinner",
       "diet": [],
-      "keywords": [],
+      "keywords": [
+        "french-classic",
+        "julia-child"
+      ],
       "prepTime": null,
-      "cookTime": null,
+      "cookTime": "PT3H",
       "totalTime": null,
       "funFact": "Unlike northern stews, a Daube traditionally uses olive oil instead of butter and incorporates sunny southern ingredients like orange rind and olives.",
       "reference": {
