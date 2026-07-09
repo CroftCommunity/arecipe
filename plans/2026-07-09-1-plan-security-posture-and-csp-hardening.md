@@ -1,7 +1,7 @@
 # arecipe — Security posture narrative + primary XSS hardening (CSP/SRI)
 
 **Status: IN EXECUTION.** Passes 1–3 complete (`efabd22`, `4ad4290`, `5b89fba`).
-Phase 0 discovery ✅ complete. Phases 1–4 pending.
+Phases 0–2 ✅ complete (discovery, narrative, enforcing CSP). Phases 3–4 pending.
 
 ## Outcome Summary
 
@@ -9,7 +9,7 @@ Phase 0 discovery ✅ complete. Phases 1–4 pending.
 |-------|---------|-----|------|
 | 0 Discovery | ✅ complete | — | D2/D3/D4 hermetic; D1 read+PDS path proven; `@live` auth slice → Phase 2 gate |
 | 1 Narrative | ✅ shipped | `cf32b5e` | `docs/SECURITY.md` + README/DESIGN links; all claims source-cited |
-| 2 CSP + hashing | ⏳ pending | — | build.mjs meta injection; **needs `@live` sign-in-under-CSP to close** |
+| 2 CSP + hashing | ✅ shipped | `__PH2_SHA__` | enforcing CSP on all 9 docs; hermetic green; `@live` auth/publish pass under CSP (3 unrelated `@live` flakes confirmed pre-existing via no-CSP baseline) |
 | 3 SRI | ⏳ pending | — | entry module + both stylesheets |
 | 4 Zero-3p guard | ⏳ pending | — | structural test guard |
 
@@ -450,7 +450,39 @@ mitigated by the explicit status markers on the XSS section.
 mode is a confident-but-wrong security claim, worse than none).
 **Stop-point.**
 
-### Phase 2: Build-time CSP generation + inline-script hashing
+### Phase 2: Build-time CSP generation + inline-script hashing — ✅ SHIPPED (`__PH2_SHA__`)
+
+**Delivered (2026-07-09):**
+- `scripts/build.mjs` — `cspFor(html)` computes the `sha256` of each inline
+  `<script>` per document (never hand-authored) and assembles the OQ1 policy;
+  `injectCsp(html)` inserts the meta into every built shell AND `friends.html`
+  (handled explicitly, since it is written outside the HTML map). Enforcing.
+- `tests/e2e/csp.spec.ts` — loads all 9 documents under the enforcing policy and
+  asserts zero `securitypolicyviolation`, plus meta-presence, hash membership,
+  and OQ1 `connect-src`; friends.html asserted to redirect (stub ran) and to
+  carry its own hash in source order.
+- `docs/SECURITY.md` CSP status flipped to IMPLEMENTED (enforcing).
+
+**Refinement vs the Pass 3 spec (charset-first):** the spec said inject the meta
+as the *first* `<head>` child. Delivered instead **immediately after
+`<meta charset>`**, keeping charset the genuine first child (HTML best practice;
+keeps the charset declaration well under the 1024-byte limit). Phase 0 D2 proved
+the only hard requirement is that the CSP meta *precede the inline scripts* — this
+satisfies it and is strictly more correct. `csp.spec.ts` asserts that invariant
+(charset first; CSP index < first-inline-script index).
+
+**Verification result:** hermetic `npm test` green (lint · typecheck · unit
+193 · build · e2e 61 incl. `csp.spec.ts`, exit 0). `@live` under the enforced
+CSP: the core auth/write paths — `auth-live` (sign-in), `publish-live`,
+`comments-live`, `drafts-live` — **pass under CSP**, satisfying the "sign-in
+completes under CSP" gate and confirming no `'unsafe-eval'` is needed at runtime
+(publish signs + writes). Three `@live` tests failed (`interactions-live`
+like-reflection, `two-device-read` 5-min timeout, `two-tab-live` refresh-token
+hazard); a **no-CSP baseline failed the identical three tests the same way**, so
+they are pre-existing `@live` flakiness (real-PDS write consistency, rate-limits,
+single-use refresh-token state), **not CSP regressions**. No CSP-violation
+fingerprints in any failure artifact; the app rendered and the `@atproto` chunk
+executed under CSP in all three.
 
 **Goal:** `scripts/build.mjs` injects a strict `<meta http-equiv="Content-
 Security-Policy">` into every built shell, with `'sha256-…'` hashes computed for
