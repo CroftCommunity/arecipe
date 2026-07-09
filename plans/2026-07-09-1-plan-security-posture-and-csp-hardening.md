@@ -13,7 +13,7 @@ Not pushed.
 | 1 Narrative | ✅ shipped | `cf32b5e` | `docs/SECURITY.md` + README/DESIGN links; all claims source-cited |
 | 2 CSP + hashing | ✅ shipped | `ceee042` | enforcing CSP on all 9 docs; hermetic green; `@live` auth/publish pass under CSP (3 unrelated `@live` flakes confirmed pre-existing via no-CSP baseline) |
 | 3 SRI | ✅ shipped | `ab20147` | sha384 integrity on entry module + both stylesheets; chunks documented uncovered |
-| 4 Zero-3p guard | ✅ shipped | `__PH4_SHA__` | structural guard: no cross-origin script; script-src = self+hashes only |
+| 4 Zero-3p guard | ✅ shipped | `b2e6f90` | structural guard: no cross-origin script; script-src = self+hashes only |
 
 **Surfaced, out of scope (needs triage/tracking):** custom fonts 404 in
 production — `assets/fonts/fonts.css` uses `url(./assets/fonts/X.woff2)` but is
@@ -616,7 +616,7 @@ the render-still-works assertion across all pages.
 render pass across all pages is sufficient (no external integration).
 **Stop-point.**
 
-### Phase 4: Zero-third-party enforcement — ✅ SHIPPED (`__PH4_SHA__`)
+### Phase 4: Zero-third-party enforcement — ✅ SHIPPED (`b2e6f90`)
 
 **Delivered (2026-07-09):** `tests/e2e/csp.spec.ts` gains a structural guard over
 all 9 built documents — every `<script src>` must be same-origin (relative), and
