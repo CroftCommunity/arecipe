@@ -9,7 +9,9 @@ import {
   dishKeyOf,
   extensionsOf,
   funFactsOf,
+  groupByDishKey,
   isPrimaryVersion,
+  siblingsOf,
   versionLabelOf,
 } from '../../../src/recipes/model.js';
 
@@ -98,5 +100,27 @@ describe('extensionsOf', () => {
       primaryVersion: false,
       funFacts: [],
     });
+  });
+});
+
+describe('groupByDishKey / siblingsOf (version discovery — Phase 4a)', () => {
+  const withKey = (uri: string, key?: string) => ({ uri, value: key === undefined ? bare() : { ...bare(), dishKey: key } });
+  const records = [
+    withKey('at://x/y/1', 'banana-bread'),
+    withKey('at://x/y/2', 'banana-bread'),
+    withKey('at://x/y/3', 'pad-thai'),
+    withKey('at://x/y/4'), // no dishKey
+  ];
+
+  it('buckets records by dishKey, excluding records without one', () => {
+    const groups = groupByDishKey(records);
+    expect([...groups.keys()].sort()).toEqual(['banana-bread', 'pad-thai']);
+    expect(groups.get('banana-bread')).toHaveLength(2);
+    expect(groups.get('pad-thai')).toHaveLength(1);
+  });
+
+  it('siblingsOf returns every record sharing the key, and [] for an unknown key', () => {
+    expect(siblingsOf('banana-bread', records).map((r) => r.uri)).toEqual(['at://x/y/1', 'at://x/y/2']);
+    expect(siblingsOf('nope', records)).toEqual([]);
   });
 });

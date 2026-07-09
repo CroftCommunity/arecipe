@@ -2,9 +2,9 @@
 
 **Status:** Pass 1 · Phase 0 discovery · Pass 2 gap analysis · **Pass 3 quality gates ALL
 COMPLETE 2026-07-09. Plan is READY FOR EXECUTION — no unresolved BLOCKING items.** 10 phases
-(0 + 1 + 1b + 2 + 3 done — fun-fact slice complete end-to-end), all sequential, test-first; 10
-open questions all user-confirmed. **Next: Phase 4a (paginated reader + version-grouping helper).**
-Worktree `recipe-import-batch`.
+(0 + 1 + 1b + 2 + 3 + 4a done), all sequential, test-first; 10 open questions all user-confirmed.
+**Next: Phase 4b (`dish.html` compare-and-pick page + build wiring — main risk).** Worktree
+`recipe-import-batch`.
 
 ## Problem Statement
 
@@ -295,7 +295,18 @@ needs no change (facts are denormalized on the record). Cycler shows on real rec
 `renderRecipeDetail`) + e2e spec. **Shared-state:** none. **Wiring test:** e2e (`tests/e2e/`) —
 load a recipe fixture with multiple facts; the cycler shows and advances. **Validation:** Moderate.
 
-### Phase 4a: Paginated reads + version-grouping helper (prereq for 4b/4c)
+### Phase 4a: Paginated reads + version-grouping helper (prereq for 4b/4c) — COMPLETE 2026-07-09
+**Outcome:** `createRecipeReader` now follows the `listRecords` cursor to the end (limit=100),
+concatenating all pages, with an empty-page stop + a 200-page runaway backstop (logs on cap).
+`model.ts` gains `groupByDishKey(records)` (Map keyed by dishKey, records without a key excluded)
+and `siblingsOf(dishKey, records)`. Tests: 2 pagination cases (multi-page concat; empty-page
+terminates) + 2 grouping cases, all mutation-resistant. **Regression caught + fixed:** the
+recorded `listRecords` fixture carried a cursor, which looped the paginator against static mocks
+(unit OOM + would hang browser e2e) — stripped the cursor from the fixture (it represents a
+complete small repo) and routed the parsing tests through a `terminalList` helper. Full 214 unit
+tests green; built + ran the affected e2e (browse/recipes/comments = 18) green, no loop.
+NOTE: this fix means `browse.ts` now loads the WHOLE repo (the pre-existing ~50 truncation is
+gone as a side effect; Phase 4d adds the version-collapse UI on top).
 **Goal:** (1) extend `createRecipeReader` (read.ts:64) with **cursor pagination** (loop
 `limit=100` + `cursor`, like `publish-batch.mjs`) so all of a dish's siblings are fetched — a
 single ~50-record page would silently miss versions. (2) a pure `groupByDishKey(records)` /

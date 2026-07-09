@@ -66,3 +66,24 @@ export const extensionsOf = (value: Record<string, unknown>): RecipeExt => ({
   primaryVersion: isPrimaryVersion(value),
   funFacts: funFactsOf(value),
 });
+
+/** Any carrier of a record value — a RecipeRecord, a CachedRecipe, etc. */
+type ValueCarrier = { value: Record<string, unknown> };
+
+/** Bucket records by their `dishKey`. Records without a dishKey are excluded
+ *  (they aren't part of any version group). Used by the compare page + browse. */
+export const groupByDishKey = <T extends ValueCarrier>(records: T[]): Map<DishKey, T[]> => {
+  const groups = new Map<DishKey, T[]>();
+  for (const rec of records) {
+    const key = dishKeyOf(rec.value);
+    if (key === undefined) continue;
+    const bucket = groups.get(key);
+    if (bucket === undefined) groups.set(key, [rec]);
+    else bucket.push(rec);
+  }
+  return groups;
+};
+
+/** Every record sharing a given dishKey (the dish's versions). [] if none. */
+export const siblingsOf = <T extends ValueCarrier>(dishKey: DishKey, records: T[]): T[] =>
+  records.filter((rec) => dishKeyOf(rec.value) === dishKey);

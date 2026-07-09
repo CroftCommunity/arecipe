@@ -64,23 +64,42 @@ export const createRecordReader = (options: { fetchFn?: typeof fetch } = {}) => 
 export const createRecipeReader = (options: { fetchFn?: typeof fetch } = {}) => {
   const fetchFn = options.fetchFn ?? fetch;
 
+  // listRecords pages (PDS default ~50, max 100). Version discovery needs the
+  // WHOLE repo, so follow the cursor to the end and concatenate every page.
   return async (target: ReadRecipesTarget): Promise<RecipeRecord[]> => {
-    const url = `${target.pds}/xrpc/com.atproto.repo.listRecords?repo=${encodeURIComponent(target.did)}&collection=${RECIPE_COLLECTION}`;
     log.debug('recipes', 'fetching recipes', { pds: target.pds, did: target.did });
-    const res = await fetchFn(url);
-    if (!res.ok) {
-      log.warn('recipes', 'listRecords failed', { status: res.status, did: target.did });
-      throw new Error(`listRecords failed (HTTP ${res.status}) for ${target.did}`);
-    }
-    const body = (await res.json()) as {
-      records: { uri: string; cid: string; value: Record<string, unknown> }[];
-    };
-    const records = body.records.map((r) => ({
-      uri: r.uri,
-      cid: r.cid,
-      value: validateRecipeValue(r.uri, r.value),
-    }));
-    log.debug('recipes', 'recipes fetched', { count: records.length });
+    const records: RecipeRecord[] = [];
+    let cursor: string | undefined;
+    let pages = 0;
+    // Runaway backstop: a well-behaved PDS terminates via an absent/empty page
+    // far sooner. This only fires on a pathological server that keeps handing
+    // back records + a cursor forever — cap and log rather than OOM.
+    const MAX_PAGES = 200;
+    do {
+      const params = new URLSearchParams({ repo: target.did, collection: RECIPE_COLLECTION, limit: '100' });
+      if (cursor !== undefined) params.set('cursor', cursor);
+      const res = await fetchFn(`${target.pds}/xrpc/com.atproto.repo.listRecords?${params.toString()}`);
+      if (!res.ok) {
+        log.warn('recipes', 'listRecords failed', { status: res.status, did: target.did });
+        throw new Error(`listRecords failed (HTTP ${res.status}) for ${target.did}`);
+      }
+      const body = (await res.json()) as {
+        records: { uri: string; cid: string; value: Record<string, unknown> }[];
+        cursor?: string;
+      };
+      for (const r of body.records) {
+        records.push({ uri: r.uri, cid: r.cid, value: validateRecipeValue(r.uri, r.value) });
+      }
+      pages += 1;
+      // Stop when the page is empty (guards against a PDS that keeps handing
+      // back a cursor) or when no cursor is returned.
+      cursor = body.records.length > 0 ? body.cursor : undefined;
+      if (cursor !== undefined && pages >= MAX_PAGES) {
+        log.warn('recipes', 'listRecords page cap hit — truncating', { did: target.did, pages, count: records.length });
+        cursor = undefined;
+      }
+    } while (cursor !== undefined);
+    log.debug('recipes', 'recipes fetched', { count: records.length, pages });
     return records;
   };
 };
