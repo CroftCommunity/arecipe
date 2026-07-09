@@ -171,6 +171,18 @@ back to `signin.html?code` → `bootSession`/`init()` completes → agent →
 **Wiring test:** hermetic `signin.spec.ts` proves the entry point renders the
 sign-in form; the real OAuth round-trip is loopback/`@live` (the flow IS the
 feature). This mirrors the Phase 3 precedent (interactive OAuth proven `@live`).
+**Branch coverage (Pass 3):** `signin.ts` has three branches — (1) signed-out →
+render form (covered hermetically by `signin.spec.ts`; the reachable branch on
+the loopback Playwright origin); (2) agent present → `location.replace('./cookbook.html')`
+(covered by the loopback/`@live` sign-in, since a live session is required);
+(3) `provider === null` → "sign-in unavailable here" note (NOT reachable on the
+loopback Playwright origin, which is always `provider !== null` — its parity is
+the existing `mine.ts` read-only empty-state plus `authModeFor` unit coverage in
+`tests/unit/auth/oauth-client.spec.ts`). Name these branches in the spec so the
+assertion sits on the branch, not a single happy-path point.
+**TDD order (Pass 3):** write `signin.spec.ts` first and watch it fail (RED) —
+the page/HTML/build-registration items are what make it GREEN. The Changes
+checklist lists the spec last only for readability; execution writes it first.
 **Depends on:** the existing auth modules (`boot.ts`, `session-provider.ts`,
 `oauth-client.ts`) — unchanged.
 **Read-set:** `src/auth/boot.ts`, `src/auth/session-provider.ts`,
@@ -180,9 +192,20 @@ feature). This mirrors the Phase 3 precedent (interactive OAuth proven `@live`).
 **Shared-state contract:** SW precache gains `signin.html` (version bump);
 localStorage session hint set via `bootSession` on success; no PDS writes; no
 ports beyond Playwright's ephemeral web server.
-**Diagnostic logging:** auth steps at `info` (sign-in initiated w/ handle, callback
-completed w/ DID, forward), `error` on sign-in failure (never the token/handle
-secret). Reuse the boot logging.
+**Diagnostic logging (strengthened Pass 3):** the auth boundary is *already*
+instrumented one layer down — `session-provider.ts` emits `sign-in initiated`
+({handle}, `info`) and `session restored` ({did}, `info` = callback-completed),
+and `boot.ts` emits `session restore failed` ({error}, `error`). So `signin.ts`
+does NOT re-implement these; it adds only its page-level steps: (a) the submit
+handler's `.catch` → `log.error('auth', 'sign-in failed', { error })`, mirroring
+today's `mine.ts`; (b) a forward log when agent is present (e.g.
+`log.info('auth', 'signed in — forwarding', { to: 'cookbook' })`). Levels:
+`info`/`debug` are gated behind `?debug=1` / `localStorage.debug` (quiet in
+prod); `warn`/`error` always emit. The always-on `error` path is deliberate — a
+failed hosted sign-in surfaces in the console without the debug flag, which is
+what makes the Phase 2 manual post-deploy check debuggable. Never log the
+access/refresh token or any session secret; the handle and DID are public
+identifiers (already logged by the provider) and are fine.
 **Risks:** on hosted, `signin.html` sign-in would (until Phase 2) redirect to the
 still-registered `mine.html` and complete there — harmless because nothing links
 to `signin.html` yet. Called out so it isn't mistaken for a bug.
@@ -208,15 +231,26 @@ pointer to `signin.html`, keeping account-free drafting).
   `signin.html`, which forwards to Cookbook.)
 - [ ] `src/nav.ts` — signed-out top-right auth link href → `./signin.html`.
 - [ ] `src/pages/cookbook.ts` — the signed-out gate's sign-in link → `./signin.html`.
-- [ ] `src/pages/mine.ts` — remove the inline sign-in section; signed-out
-  `mine.html` shows a short pointer ("Sign in to save your recipes to your
-  account" → `./signin.html`), keeping New recipe + local Drafts (account-free).
+- [ ] `src/pages/mine.ts` — remove the inline sign-in section. Note (Pass 3)
+  `mine.ts` has **two** signed-out branches: the `provider !== null` branch
+  (currently leads with the sign-in form) → replace with a short pointer
+  ("Sign in to save your recipes to your account" → `./signin.html`), keeping
+  New recipe + local Drafts (account-free); the `provider === null` read-only
+  branch (currently the `mine-empty` "sign-in arrives once the hosted client
+  ships" note) → keep a terminal "sign-in isn't available on this copy of the
+  app" note; do NOT point it at `signin.html` (confirmed user decision,
+  2026-07-09 — sign-in is structurally impossible on those origins, so a pointer
+  is a two-hop dead end).
 - [ ] `tests/e2e/helpers/live.ts` — `signIn()` drives `/signin.html` (was
   `/mine.html`); update its comment. The callback→signin→Cookbook forward means
   the helper still ends back at `appOrigin`.
-- [ ] `tests/e2e/nav.spec.ts` — the signed-out My-recipes assertion (currently
-  `signin-section`/`oauth-signin`) → assert the mine pointer to `signin.html`;
-  move the form assertion onto `signin.spec.ts` (Phase 1) / a signin nav check.
+- [ ] `tests/e2e/nav.spec.ts` — the "tabs navigate" test references
+  `signin-section`/`oauth-signin`/`handle-input` in **several** assertions (Pass
+  3): the initial mine.html check AND the post-`goBack` / wordmark-home
+  re-assertions, not just one. Reconcile ALL of them — assert the mine pointer to
+  `signin.html` where mine.html is expected, and move the form assertion onto
+  `signin.spec.ts` (Phase 1) / a signin nav check. A partial edit that fixes only
+  the top assertion leaves the test red.
 - [ ] Docs: `docs/DESIGN.md` (sign-in is its own page; My recipes = signed-in
   content + pointer), `README.md` (page list + `mine.html` no longer hosts login).
 
@@ -234,6 +268,12 @@ form). `@live`/loopback: a real sign-in via `signin.html` lands on Cookbook.
 this is an atomic auth-config cutover; splitting it would leave hosted sign-in
 pointing at an unregistered `redirect_uri` (broken login) mid-way. The edits are
 individually small (link repoints + a config value + a form→pointer swap).
+*(Pass 3 honesty note: the atomicity-critical core is `client-metadata.json` +
+the "Sign in" link/form files (`nav.ts`, `cookbook.ts`, `mine.ts`) — a
+half-cutover there breaks production login. `live.ts`/`nav.spec.ts` ride the
+same commit to keep the hermetic + `@live` tiers green; `docs/DESIGN.md` /
+`README.md` ride by the same-phase docs convention, not by deploy-atomicity. All
+low-complexity; none introduce new logic.)*
 **Shared-state contract:** changes the **deployed production OAuth client config**
 (`client-metadata.json` `redirect_uris`) — the one production-visible, auth-
 sensitive edit. Reversible via commit revert + redeploy. No parallel phase.
@@ -270,9 +310,18 @@ post-deploy sign-in check (revert ready if it misbehaves).
   **account-free drafting** on `mine.html` when signed out (New recipe + local
   Drafts stay; only the login form moves to `signin.html`).
 
-**All 3 confirmed (2026-07-08): 1 PHASE-GATED (Phase 2 manual sign-in gate),
-2 ADVISORY. No BLOCKING items — Phase 1 is ready to execute on approval; Phase 2
-carries the manual-verify gate.**
+- [CONFIRMED: ADVISORY — user, 2026-07-09] On read-only mirror origins
+  (`provider === null`, neither loopback nor `arecipe.app`), signed-out
+  `mine.html` **keeps a terminal "sign-in isn't available on this copy of the
+  app" note** — it does NOT point at `signin.html`. Rationale: sign-in is
+  structurally impossible on those origins (the `client_id` must match the
+  serving origin), so a pointer would be a two-hop dead end; the terminal note
+  is honest. One screen. *(Confirmed via Pass 3 walk-through.)*
+
+**Confirmed 2026-07-08: 1 PHASE-GATED (Phase 2 manual sign-in gate), 2 ADVISORY.
+Pass 3 (2026-07-09) added + confirmed 1 more ADVISORY (read-only `mine.html`
+keeps a terminal unavailable note). All 4 confirmed; no BLOCKING items — Phase 1
+is ready to execute on approval; Phase 2 carries the manual-verify gate.**
 
 ## Review Log
 
@@ -319,6 +368,87 @@ exception (atomic auth cutover) with its justification.
 **Confirmed:** the loopback-derives-redirect fact makes Phase 1 genuinely safe and
 loopback-provable; the risk is fully isolated to Phase 2's single `redirect_uris`
 value; the design never depends on the unverified multi-redirect selection.
+
+### Pass 3: Quality Gates — 2026-07-09
+Fresh context; codebase spot-checked (all Verified Assumptions re-confirmed
+against `oauth-client.ts`, `client-metadata.json`, `session-provider.ts`,
+`boot.ts`, `session-hint.ts` + `index.html:18-20`, `nav.ts`, `cookbook.ts:150`,
+`mine.ts`, `live.ts`, `nav.spec.ts`, `build.mjs`, and
+`browser-oauth-client.d.ts:8`; `signin.*` confirmed not-yet-existing; shipped
+commits `9e0d7a6`/`1566c0f`/`b1e0df0` present). Fixes applied additively — no
+phase reorder, no reasoning rewrite.
+
+**TDD ordering:**
+- Phase 1: added an explicit TDD-order note — write `signin.spec.ts` first (RED,
+  watch it fail), then page/HTML/build make it GREEN; the checklist lists the
+  spec last only for readability.
+- Mutation resistance: named `signin.ts`'s three branches and which tier covers
+  each (signed-out→form hermetic; agent-present→forward loopback/`@live`;
+  `provider === null`→note not reachable on the loopback test origin, parity via
+  `mine.ts` empty-state + `authModeFor` unit test). Prevents a single
+  happy-path assertion standing in for branching behavior.
+- Verification for both phases confirmed to run through the entry point (`npm
+  test` hermetic + the real-sign-in gate), not isolated modules.
+
+**Observability:**
+- Confirmed the auth boundary is already instrumented in `session-provider.ts`
+  (`sign-in initiated`, `session restored`) and `boot.ts` (`session restore
+  failed`). Rewrote Phase 1's logging note so `signin.ts` ADDS only its
+  page-level steps (submit `.catch` → `error`; forward `info`) instead of
+  duplicating provider logs. Corrected the muddled "never the token/handle
+  secret" to: never log the token/session secret; handle + DID are public
+  identifiers already logged by the provider. Recorded that `warn`/`error` are
+  ungated (emit in prod) while `info`/`debug` are `?debug=1`-gated — the
+  always-on error path is what makes the Phase 2 manual post-deploy check
+  debuggable.
+
+**Debugging readiness:**
+- Both phases are explicit **Stop-points**; confirmed unchanged. Phase 1 is a
+  fully-reversible additive checkpoint; Phase 2's single risky edit
+  (`redirect_uris`) is revert-ready.
+
+**Validation calibration:**
+- Confirmed Phase 1 = Moderate (hermetic render + local loopback sign-in), Phase
+  2 = Broad (production auth config + interactive OAuth). Confirmed the manual
+  post-deploy sign-in gate is spelled out in Phase 2's Verification (2), not
+  buried. No recalibration needed.
+
+**Concurrency honesty:**
+- Map confirmed; sequential plan. Re-checked write-set disjointness after Pass 3
+  edits: Phase 1 {`signin.ts`, `signin.html`, `build.mjs`, `signin.spec.ts`} vs
+  Phase 2 {`client-metadata.json`, `nav.ts`, `cookbook.ts`, `mine.ts`,
+  `live.ts`, `nav.spec.ts`, `docs/DESIGN.md`, `README.md`} — disjoint. Phase 2
+  is gated on Phase 1 by dependency (needs `signin.html` to exist), so no
+  parallelism is available regardless. No re-entry-verification fields needed
+  (no worktrees).
+
+**Coherence:**
+- Still solves "sign-in is its own clear page." No scope creep — every Pass 3
+  change was a specificity/observability strengthening, not new work. Added a
+  4-file-rule honesty note distinguishing the atomicity-critical core
+  (`client-metadata.json` + link/form files) from the cohesion-bundled
+  test/docs files, so the documented exception is honest about *why* each file
+  is in the same commit.
+
+**Documentation impact:**
+- Confirmed `docs/DESIGN.md` + `README.md` are scheduled IN Phase 2 (the cutover
+  that makes them true), not a trailing docs phase; the new `signin.html` /
+  `src/pages/signin.ts` are grepped (no external references).
+
+**Specificity fixes (Phase 2 wiring):**
+- `mine.ts`: named the two signed-out branches and prescribed each (form→pointer;
+  read-only note kept).
+- `nav.spec.ts`: flagged that the "tabs navigate" test asserts on
+  `signin-section`/`oauth-signin`/`handle-input` in several places (incl. the
+  `goBack`/wordmark re-assertions) — all must be reconciled, not just the top.
+
+**New open question:** 1 ADVISORY (read-only `mine.html` treatment) — surfaced
+and **confirmed by the user 2026-07-09**: keep a terminal "unavailable" note, do
+not point at `signin.html`. Phase 2 `mine.ts` item updated to lock it.
+
+**Confirmed ready:** yes — Phase 1 ready to execute on approval; Phase 2 carries
+the confirmed PHASE-GATED manual sign-in gate. The one new ADVISORY does not gate
+execution (recommendation recorded; Phase-2-gated at most).
 
 ### Note: OAuth secret-storage posture (recorded 2026-07-09)
 
