@@ -160,6 +160,12 @@ future TODO behind the open-world probe. Client-only name grouping — fragile; 
 - `tests/fixtures/lexicons/exchange.recipe.recipe.json` — only if D1 forces a formal lexicon
   extension (unlikely given the open-world/overlay decision); otherwise untouched.
 - If D1 selects the overlay, a new `app.arecipe.*` lexicon fixture/doc (Phase 1).
+- **`docs/LEXICONS.md` — NSID/lexicon registry (created 2026-07-09).** Records every NSID
+  arecipe creates/consumes/extends and the open-world extension fields on
+  `exchange.recipe.recipe` (`dishKey`, `versionLabel`, `primaryVersion`, `funFacts[]`). Phase 1
+  keeps the extension-field table in sync with the locked types; Phase 6 flips those fields'
+  status note to "live on the PDS" once published. Any new NSID (e.g. a revived overlay) is
+  registered here first.
 - `spike/import/*.json` `_meta` — note the fields became live (in the publish phase).
 
 ## Concurrency Map
