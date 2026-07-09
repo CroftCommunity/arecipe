@@ -2,8 +2,8 @@
 
 **Status:** Pass 1 · Phase 0 discovery · Pass 2 gap analysis · **Pass 3 quality gates ALL
 COMPLETE 2026-07-09. Plan is READY FOR EXECUTION — no unresolved BLOCKING items.** 10 phases
-(0 done), all sequential, test-first; 10 open questions all user-confirmed. **Next: execute
-Phase 1 (shared types in `src/recipes/model.ts`).** Worktree `recipe-import-batch`.
+(0 + 1 done), all sequential, test-first; 10 open questions all user-confirmed. **Next: Phase 1b
+(dishKey normalization → reviewed `dishkeys.json`).** Worktree `recipe-import-batch`.
 
 ## Problem Statement
 
@@ -216,7 +216,13 @@ Test locations follow existing convention: unit → `tests/unit/recipes/*.spec.t
 **Done when:** ✅ D1–D3 resolved with firsthand evidence; strategy = **open-world fields**,
 discovery = **`dishKey` grouping over paginated `listRecords`**. Later phases updated to match.
 
-### Phase 1: Schema + shared types
+### Phase 1: Schema + shared types — COMPLETE 2026-07-09
+**Outcome:** `src/recipes/model.ts` locks the types (`FunFact`, `DishKey`, `RecipeExt`) + defensive
+open-world accessors (`funFactsOf`, `dishKeyOf`, `versionLabelOf`, `isPrimaryVersion`,
+`extensionsOf`) that read the extension fields from a record value whose extras are `unknown`.
+`funFactsOf` also falls back to a legacy singular `funFact` string (import corpus + pre-migration
+live records). 11 unit tests (`tests/unit/recipes/model.spec.ts`), typecheck + lint clean, full
+204-test suite green. No `methods[]` (methods are versions). LEXICONS.md field table points here.
 **Goal:** Lock the field shapes (`dishKey`, `versionLabel`, `funFacts[]` of `{text, source?}`,
 optional `primaryVersion`) as shared TS types + JSON-schema notes; align the import JSON
 `_meta`. **No `methods[]`** — methods are versions. If D1 chose the overlay, also define the

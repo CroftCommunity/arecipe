@@ -73,6 +73,10 @@ them. Verified open-world-safe via a live createRecord → getRecord → delete 
 | `primaryVersion` | `boolean` (optional) | Marks the default version to show for a `dishKey` group. |
 | `funFacts` | `array<{ text: string; source?: string }>` | Pooled "Did you know?" facts for the dish, denormalized onto each version record so any single record renders the full set. Replaces the single `funFact` string used in the import JSON. |
 
+Types + defensive accessors for these fields are locked in **`src/recipes/model.ts`**
+(`FunFact`, `DishKey`, `RecipeExt`; `extensionsOf`/`funFactsOf`/`dishKeyOf`/`versionLabelOf`/
+`isPrimaryVersion`). Status: **defined in code, not yet live on the PDS** — Phase 6 publishes them.
+
 Notes:
 - The import corpus JSON currently carries a **singular** `funFact` string + inconsistent
   `dish`/`altOf` fields; these are normalized into `dishKey` + `funFacts[]` at publish time.
