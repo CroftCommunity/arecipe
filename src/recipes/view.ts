@@ -7,7 +7,7 @@
 
 import { recipeFacets } from '../pages/browse-state.js';
 import type { CachedRecipe } from './cache.js';
-import type { FunFact } from './model.js';
+import { funFactsOf, type FunFact } from './model.js';
 import { firstImageCid, firstImageCredit, formatDuration, formatPublishedDate, thumbUrl } from './present.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -358,6 +358,9 @@ export const renderRecipeDetail = (
   instructions.append(listEl('ol', 'recipe-instructions', value.instructions ?? []));
   cols.append(ingredients, instructions);
   article.append(cols);
+
+  const funFacts = renderFunFacts(funFactsOf(value));
+  if (funFacts !== null) article.append(funFacts);
 
   if (entry.verified) {
     const author = options.authorsByDid?.[did] ?? options.author ?? did;

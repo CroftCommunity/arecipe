@@ -2,8 +2,9 @@
 
 **Status:** Pass 1 · Phase 0 discovery · Pass 2 gap analysis · **Pass 3 quality gates ALL
 COMPLETE 2026-07-09. Plan is READY FOR EXECUTION — no unresolved BLOCKING items.** 10 phases
-(0 + 1 + 1b + 2 done), all sequential, test-first; 10 open questions all user-confirmed. **Next:
-Phase 3 (wire funFacts into `renderRecipeDetail`).** Worktree `recipe-import-batch`.
+(0 + 1 + 1b + 2 + 3 done — fun-fact slice complete end-to-end), all sequential, test-first; 10
+open questions all user-confirmed. **Next: Phase 4a (paginated reader + version-grouping helper).**
+Worktree `recipe-import-batch`.
 
 ## Problem Statement
 
@@ -280,7 +281,14 @@ typecheck + lint clean, full 208-test suite green. Render-only — wired in Phas
 test. **Shared-state:** none. **Done when:** `renderFunFacts([...])` returns a cycling element;
 empty → returns null/omitted; `vitest run tests/unit/recipes` passes.
 
-### Phase 3: Fun-facts on the recipe page (wired)
+### Phase 3: Fun-facts on the recipe page (wired) — COMPLETE 2026-07-09
+**Outcome:** `renderRecipeDetail` now calls `renderFunFacts(funFactsOf(value))` and appends the
+cycler after the ingredients/instructions columns (before the provenance line); null → nothing
+rendered. recipe.ts needs no change — it already passes the record's `value` (which will carry
+`funFacts`) into `renderRecipeDetail` at :390/:405, so the read wires the feature through the
+live render path. 2 unit tests on `renderRecipeDetail` (with-facts shows the cycler + next;
+no-facts omits the section) — the same render-path testing used for attribution/credit. Full
+210-test suite green, typecheck + lint clean.
 **Goal:** `renderRecipeDetail` reads `value.funFacts` and appends the Phase-2 cycler; recipe.ts
 needs no change (facts are denormalized on the record). Cycler shows on real records.
 **Read-set:** `model.ts`, `view.ts`. **Write-set:** `src/recipes/view.ts` (wire the cycler into

@@ -256,6 +256,26 @@ describe('renderRecipeDetail', () => {
     expect(el.querySelector('.altered-stamp')?.textContent).toBe('ALTERED?');
     expect(el.querySelector('[data-testid=altered-warning]')).not.toBeNull();
   });
+
+  it('surfaces the fun-fact cycler when the record carries funFacts', () => {
+    const withFacts = entry({
+      value: { ...fixture.value, funFacts: [{ text: 'Sourdough predates leavened bread.' }, { text: 'Two.' }] },
+    });
+    const el = renderRecipeDetail(withFacts, { author: 'rdur.dev' });
+    const facts = el.querySelector('[data-testid=fun-facts]');
+    expect(facts).not.toBeNull();
+    expect(facts?.querySelector('[data-testid=fun-fact-text]')?.textContent).toBe(
+      'Sourdough predates leavened bread.',
+    );
+    expect(facts?.querySelector('[data-testid=fun-fact-next]')).not.toBeNull();
+  });
+
+  it('omits the fun-fact section when the record has no facts', () => {
+    const bare = { ...fixture.value };
+    delete bare['funFacts'];
+    delete bare['funFact'];
+    expect(renderRecipeDetail(entry({ value: bare })).querySelector('[data-testid=fun-facts]')).toBeNull();
+  });
 });
 
 describe('image credit (Commons attribution)', () => {
