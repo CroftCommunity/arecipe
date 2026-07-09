@@ -4,8 +4,9 @@
 COMPLETE 2026-07-09. Plan is READY FOR EXECUTION — no unresolved BLOCKING items.** 10 phases
 (0 + 1 + 1b + 2 + 3 + 4a done). **UI design REVISED 2026-07-09 via mockups** (`docs/mockups/`):
 inline flip primary, grid = View All, + Focus mode + Settings fun-facts toggle; comments stay
-per-version (dish-level deferred). Phases 0–5 done (all UI complete). **Next: Phase 6 (migrate 41
-live + pilot-then-bulk publish) — the only live-write phase.** Worktree `recipe-import-batch`.
+per-version (dish-level deferred). **ALL PHASES (0–6) COMPLETE + code DEPLOYED to arecipe.app.**
+Live account: 199 records, 33 version groups, 197 with fun facts. Remaining: image-attach
+background pass finishing; 8 image-less dishes on the standin (task #22). Worktree `recipe-import-batch`.
 
 ## Problem Statement
 
@@ -439,7 +440,22 @@ the gate at the `renderFunFacts` call sites + unit/e2e. **Shared-state:** localS
 toggling in Settings hides the cycler on a recipe. **Edges:** unset pref → treated as ON.
 **Validation:** Moderate.
 
-### Phase 6: Migration ops + pilot publish → bulk
+### Phase 6: Migration ops + publish — COMPLETE 2026-07-09 (LIVE)
+**Outcome:** Published to arecipe.bsky.social (`did:plc:spfl4xaktvvchr2cqp2r2xvp`). Tooling:
+`publish-plan.mjs` (dry-run planner), `migrate-live.mjs` (41 live edits), `publish-corpus.mjs`
+(161-record publish), `attach-corpus-images.mjs` (image blobs). Results:
+- **41 live records** migrated — each got its `dishKey` + one hand-researched `funFacts[]` (idempotent putRecord).
+- **158 new records** published (161 targets − 3 already present) — corpus fields mapped to the
+  lexicon (text/ingredients/instructions/recipeYield/recipeCuisine/recipeCategory/suitableForDiet
+  tokens/times/attributionWebsite) + `dishKey` + `versionLabel` + one best `funFacts[]` per dish
+  (live researched fact preferred). Dessert `methods[]` split into `(Microwave)`/`(Oven)` sibling
+  records; duplicate cross-source names suffixed with the version label.
+- **Live state verified:** 199 records, **33 version groups** (banana-bread ×4, chocolate-mug-cake
+  Microwave/Oven, …), **197/199 carry fun facts**. Fun facts resolved to **one best per dish** (near-
+  duplicate pool issue found in the dry-run and avoided).
+- **Images:** `attach-corpus-images.mjs` uploads Commons blobs to the 158 new records (keyed by
+  original name, strips the `(label)` suffix; 1 MB blob cap via width ladder); the 8 image-less
+  dishes fall back to the no-meal standin. Ran as a background pass after publish.
 **Depends on:** Phase 1b (`dishkeys.json`) and the UI phases (so the pilot renders). Uses
 `funFacts` pooled **per dishKey across live + imported** (Pass 2). **Goal:**
 - (a) `spike/import/add-funfacts-dishkey.mjs` adds `funFacts` (converted from the live record's

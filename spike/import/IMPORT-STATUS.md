@@ -69,5 +69,9 @@ fact-checked, QA-clean:
   `spike/import/build-dishkeys.mjs` (pure logic + tests in `dishkeys.mjs`/`dishkeys.test.mjs`).
   **15 reviewed version groups** (banana-bread ×4, chocolate-chip-cookies ×3, beef-bourguignon ×3,
   + twelve ×2). The raw `dish`/`altOf` fields in the corpus JSON are superseded by this map.
-- **Publishing is gated on the recipe-model extensions** (versions / fun facts). Plan is
-  Pass-1/2/3 complete and ready to execute Phase 1. Nothing publishes until those fields exist.
+- **PUBLISHED 2026-07-09.** The recipe-model extensions (versions/fun-facts/Focus) shipped and the
+  corpus went live: 41 live records migrated (dishKey + fun fact), 158 new records published (dessert
+  methods split into sibling versions), pooled to **one best fun fact per dish**. Live account now
+  holds **199 records, 33 version groups**. Tooling: `migrate-live.mjs`, `publish-corpus.mjs`,
+  `attach-corpus-images.mjs`, `publish-plan.mjs`. Code deployed to arecipe.app. Remaining: the 8
+  image-less dishes render on the no-meal standin until images are sourced (task #22).
