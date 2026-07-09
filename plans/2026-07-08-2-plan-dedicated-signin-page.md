@@ -1,15 +1,16 @@
 # arecipe — Dedicated sign-in page
 
 Passes run: Pass 1 (base) + Pass 2 (gap analysis) combined 2026-07-08; Pass 3
-(quality gates) 2026-07-09. **Status: executing** — Phase 1 shipped, Phase 2
-pending.
+(quality gates) 2026-07-09. **Status: shipped 2026-07-09** — both phases landed
+and pushed; the one remaining item is the confirmed PHASE-GATED manual
+post-deploy sign-in on arecipe.app (user-owned; revert staged).
 
 ## Outcome Summary
 
 | Phase | Outcome | Commit | Note |
 |-------|---------|--------|------|
 | 1 — dormant sign-in page | ✅ SHIPPED | `188d60c` | `signin.html` + `signin.ts` live on loopback, hosted-inert; hermetic wiring green + one-off loopback OAuth→Cookbook verified. |
-| 2 — atomic hosted cutover | ⏳ pending | — | Carries the confirmed PHASE-GATED manual post-deploy sign-in check. |
+| 2 — atomic hosted cutover | ✅ SHIPPED | `383dcbd` | `redirect_uris`→signin.html + all "Sign in" links repointed + mine form→pointer + @live helper + docs. Hermetic (51 e2e / 193 unit) + loopback @live green. Hosted round-trip = manual post-deploy check (pending, user-owned). |
 
 ## Problem Statement
 
@@ -226,7 +227,7 @@ to `signin.html` yet. Called out so it isn't mistaken for a bug.
 confirming the callback→forward. No production config touched.
 **Stop-point.**
 
-### Phase 2: Cut over to the sign-in page (atomic)
+### Phase 2: Cut over to the sign-in page (atomic) — ✅ SHIPPED (`383dcbd`)
 
 **Goal:** `signin.html` becomes THE sign-in entry on both loopback and hosted;
 `mine.html` reverts to My-recipes-only (drafts + published; signed-out shows a
@@ -488,6 +489,71 @@ existing `nav.spec.ts` account assertion (`/sign in/i`) stays green if the note
 keeps that phrasing; Phase 2 should also assert the `./signin.html` href.
 **Deviation from spec:** none in the four planned changes; Phase 1 shipped as
 specified. The only addition is the Phase 2 scope bump above.
+
+### Phase 2 execution — 2026-07-09 (`383dcbd`)
+**Shipped:** the atomic cutover — `client-metadata.json` `redirect_uris`
+`mine.html`→`signin.html`; every signed-out "Sign in" affordance repointed at
+`./signin.html` (`nav.ts`, `cookbook.ts`, `account.ts`, and a new `mine.ts`
+pointer); `mine.ts` form stripped (signed-out → pointer keeping account-free New
+recipe + Drafts; read-only origin → terminal "unavailable" note); `@live` helper
+repointed; unit + e2e tests updated; `DESIGN.md` + `README.md` updated in-phase.
+**TDD:** e2e RED→GREEN (added `nav.spec` "every signed-out affordance →
+signin.html" + `mine-signin-pointer`, watched RED on the old `./mine.html`
+hrefs, then implemented). Two unit tests (`oauth-client.spec` hosted
+`redirect_uri`, `nav.spec` unit `nav-signin` href) encoded the old wiring and
+went RED on the flip — updated to the new target (the RED was the signal the
+config change landed).
+**Validation (Broad):** hermetic full suite green (51 e2e + 193 unit + lint +
+typecheck + build); loopback `@live` `auth-live.spec.ts` green through the
+repointed helper (real OAuth via `signin.html` → forward → `signed-in-did` →
+reload-persist). The hosted OAuth round-trip is the confirmed PHASE-GATED manual
+post-deploy check on `arecipe.app` — deploys via CI on push to `main`; revert =
+`git revert 383dcbd` + redeploy.
+**Mid-execution findings (beyond the account.ts one folded in Phase 1):**
+- **@live helper landing:** every `@live` suite asserts `signed-in-did`
+  immediately after `signIn()`, and only `mine.html`/`account.html` render it —
+  NOT `cookbook.html`, where the new forward lands. Pass 2's "the forward keeps
+  the helper valid" was incomplete. Fixed the helper to wait for the
+  Cookbook-forward (which fires only post-restore, so it doubles as a
+  session-persisted signal) then `goto('/mine.html')`, restoring a deterministic
+  signed-in landing for the suites.
+- **nav.spec `handle-input` re-assertions:** the post-`goBack`/wordmark
+  assertions in the "tabs navigate" test are on **Browse's** lookup form
+  (`browse.ts:39`), not mine's sign-in form — verified, so they legitimately
+  stayed. (Pass 3's "several assertion sites" caution resolved by inspection,
+  not a blind rip-out.)
+**Deviation from spec:** the Phase 2 write-set grew by the two unit tests
+(`oauth-client.spec`, `nav.spec` unit) — behavior-encoding tests that had to
+move with the config/nav change. Consistent with the atomic-cutover exception.
+
+### Plan close-out — 2026-07-09
+**Shipped:** sign-in is now its own page. `signin.html` + `src/pages/signin.ts`
+(commit `188d60c`) are the dedicated login document — handle → atproto OAuth →
+forward to Cookbook — completing their own callback (loopback derives the
+`redirect_uri` per-page; hosted uses `client-metadata.json`, flipped to
+`signin.html` in `383dcbd`). Every signed-out "Sign in" affordance (nav
+top-right, Cookbook gate, Account note, My recipes pointer) points at
+`signin.html`; `mine.html` is My-recipes-only and stays account-free for
+drafting; read-only mirror origins show a terminal "unavailable" note. Both
+commits pushed to `main` (CI-deployed to arecipe.app). Hermetic tier: 51 e2e +
+193 unit green. Loopback `@live` sign-in green through the repointed helper.
+**Stopped or skipped:** one item remains, by design — the **manual post-deploy
+sign-in on arecipe.app** (confirmed PHASE-GATED gate; the hosted OAuth
+round-trip can't be auto-verified this session — `@live` rate-limited + a known
+flake). Revert is staged (`git revert 383dcbd` + redeploy) if the real hosted
+sign-in misbehaves. The full `@live` write-tier (comments/drafts/publish/
+interactions) was not re-run — only `auth-live` (which directly exercises the
+one thing that changed, the repointed `signIn` helper); the others share that
+helper path.
+**Discoveries:** (1) `cookbook.html` doesn't render `signed-in-did`, so the
+new callback→Cookbook forward broke the `@live` helper's post-sign-in landing —
+caught because `auth-live` failed the way a good wiring test should; the helper
+now waits for the forward (a session-persisted signal) then lands on mine.html.
+(2) Two unit tests hard-encoded the old `redirect_uri`/`nav-signin` href —
+their RED on the flip was the cleanest confirmation the cutover actually
+changed production wiring. (3) `browse.ts` and `mine.ts` shared the
+`handle-input` testid; verifying that before editing `nav.spec` avoided
+removing assertions that were actually testing Browse's lookup, not sign-in.
 
 ### Note: OAuth secret-storage posture (recorded 2026-07-09)
 
