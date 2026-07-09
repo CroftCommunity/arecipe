@@ -4,8 +4,8 @@
 COMPLETE 2026-07-09. Plan is READY FOR EXECUTION — no unresolved BLOCKING items.** 10 phases
 (0 + 1 + 1b + 2 + 3 + 4a done). **UI design REVISED 2026-07-09 via mockups** (`docs/mockups/`):
 inline flip primary, grid = View All, + Focus mode + Settings fun-facts toggle; comments stay
-per-version (dish-level deferred). Phases 0–4c done (flip live). **Next: Phase 4d (⛶ Focus mode).**
-Worktree `recipe-import-batch`.
+per-version (dish-level deferred). Phases 0–4d done (flip + Focus live). **Next: Phase 4e (browse
+version-collapse + pagination).** Worktree `recipe-import-batch`.
 
 ## Problem Statement
 
@@ -385,7 +385,16 @@ a single-version recipe shows NO bar; View All links to the right `?key=`. **Edg
 ordering by likes with a tie/absent-counts fallback. **Verification:** `npm run build && npx
 playwright test tests/e2e/recipes.spec.ts`. **Validation:** Broad.
 
-### Phase 4d: ⛶ Focus mode (full-screen cook view)
+### Phase 4d: ⛶ Focus mode (full-screen cook view) — COMPLETE 2026-07-09
+**Outcome:** A **⛶ Focus** button renders in `renderRecipeDetail` (via a new `onFocus` RenderOption)
+— always available (single or multi-version), and auto-binds to the shown version because
+`paintVersion` passes `onFocus: () => mountFocus(entry)` per paint (flip → new binding, no shared
+state). `renderFocusView(entry, {onExit})` (view.ts) builds the overlay: title, exit, image,
+ingredients + instructions (bigger type). `mountFocus` (recipe.ts) appends it, requests the
+Fullscreen API (bound, catches rejection), falls back to a full-viewport overlay, and closes on
+Exit or `Esc` (removes overlay + exits fullscreen). CSS in `styles.css` (`.focus-view`/`.focus-cols`
+/`.detail-actions`). 2 view unit tests + a Focus e2e (open → overlay with ingredients → Exit closes).
+Full 219 unit + 54 non-live e2e green; typecheck + lint clean.
 **Goal:** Add a **⛶ Focus** button to the recipe control bar (next to View All) that opens a
 distraction-free full-screen view of ONLY the current version's image + ingredients + instructions
 (no header/nav/fun-facts/comments), larger type; Exit button + `Esc` close it; uses the Fullscreen

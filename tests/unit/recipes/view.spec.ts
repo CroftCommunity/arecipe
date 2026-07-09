@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest';
 import {
   renderDishCompare,
   renderFacetDropdown,
+  renderFocusView,
   renderFunFacts,
   renderRecipeDetail,
   renderRecipeDetailsList,
@@ -277,6 +278,26 @@ describe('renderRecipeDetail', () => {
     delete bare['funFacts'];
     delete bare['funFact'];
     expect(renderRecipeDetail(entry({ value: bare })).querySelector('[data-testid=fun-facts]')).toBeNull();
+  });
+
+  it('renders a ⛶ Focus button only when onFocus is given, and click invokes it', () => {
+    expect(renderRecipeDetail(entry()).querySelector('[data-testid=focus-btn]')).toBeNull();
+    let opened = 0;
+    const el = renderRecipeDetail(entry(), { onFocus: () => (opened += 1) });
+    el.querySelector<HTMLButtonElement>('[data-testid=focus-btn]')?.click();
+    expect(opened).toBe(1);
+  });
+});
+
+describe('renderFocusView (cook mode)', () => {
+  it('renders title, ingredients, instructions, and an exit that calls onExit', () => {
+    let exited = 0;
+    const el = renderFocusView(entry(), { onExit: () => (exited += 1) });
+    expect(el.getAttribute('data-testid')).toBe('focus-view');
+    expect(el.querySelector('[data-testid=focus-ingredients] li')).not.toBeNull();
+    expect(el.querySelector('[data-testid=focus-instructions] li')).not.toBeNull();
+    el.querySelector<HTMLButtonElement>('[data-testid=focus-exit]')?.click();
+    expect(exited).toBe(1);
   });
 });
 

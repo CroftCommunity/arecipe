@@ -18,7 +18,7 @@ import { dishKeyOf, isPrimaryVersion, siblingsOf } from '../recipes/model.js';
 import { createRecipeReader, createRecordReader } from '../recipes/read.js';
 import { isStale, strongRefOf } from '../recipes/refs.js';
 import { retryOnce } from '../retry.js';
-import { renderRecipeDetail, renderVersionBar } from '../recipes/view.js';
+import { renderFocusView, renderRecipeDetail, renderVersionBar } from '../recipes/view.js';
 import { addComment, buildThread, loadRecipeComments, type CommentRepo } from '../social/comments.js';
 import { renderComments } from '../social/comments-view.js';
 import { resolveCookbook } from '../social/cookbook.js';
@@ -386,6 +386,25 @@ const makeAgentLoader = (): AgentLoader => {
   };
 };
 
+/** ⛶ Focus mode: full-screen, distraction-free cook view of one version. Uses
+ * the Fullscreen API when available (we're inside the button's click gesture),
+ * with a full-viewport overlay as the fallback; Esc or Exit closes it. */
+const mountFocus = (entry: CachedRecipe): void => {
+  const onKey = (e: KeyboardEvent): void => {
+    if (e.key === 'Escape') closeFocus();
+  };
+  function closeFocus(): void {
+    overlay.remove();
+    document.removeEventListener('keydown', onKey);
+    if (document.fullscreenElement !== null) void document.exitFullscreen().catch(() => undefined);
+  }
+  const overlay = renderFocusView(entry, { onExit: closeFocus });
+  document.body.append(overlay);
+  document.addEventListener('keydown', onKey);
+  const request = overlay.requestFullscreen?.bind(overlay);
+  if (request !== undefined) void request().catch(() => undefined);
+};
+
 /** Render one version into `host`: detail + (initial only) staleness check +
  * hide button + social sections. Called for the initial recipe and on every
  * version flip, so comments/interactions re-mount for the shown version. */
@@ -397,7 +416,7 @@ const paintVersion = (
   getAgent: AgentLoader,
   opts: { checkStale: boolean },
 ): void => {
-  host.replaceChildren(renderRecipeDetail(entry, { author }));
+  host.replaceChildren(renderRecipeDetail(entry, { author, onFocus: () => mountFocus(entry) }));
   if (opts.checkStale) {
     void checkForNewerRevision(uri, entry.cid, (refresh) => {
       const note = document.createElement('p');

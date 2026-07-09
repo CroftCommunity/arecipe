@@ -208,6 +208,8 @@ export type RenderOptions = {
   author?: string;
   /** Mixed-author grids (starter feed): per-card author by DID. */
   authorsByDid?: Record<string, string>;
+  /** Recipe detail only: when set, render a ⛶ Focus button wired to this. */
+  onFocus?: () => void;
 };
 
 const recipePageHref = (entry: CachedRecipe, options: RenderOptions): string => {
@@ -289,6 +291,37 @@ export const renderVersionBar = (opts: {
   viewAll.dataset['testid'] = 'view-all';
   bar.append(nav, viewAll);
   return bar;
+};
+
+/** ⛶ Focus mode: a distraction-free cook view of ONE version — image +
+ *  ingredients + instructions only, larger type. The caller (recipe.ts) owns
+ *  showing it full-screen (Fullscreen API / overlay) and removing it on exit. */
+export const renderFocusView = (
+  entry: CachedRecipe,
+  opts: { onExit: () => void },
+): HTMLElement => {
+  const value = entry.value as RecipeValue;
+  const overlay = el('div', 'focus-view');
+  overlay.dataset['testid'] = 'focus-view';
+  const top = el('div', 'focus-top');
+  top.append(el('h2', 'focus-title', value.name ?? '(untitled)'));
+  const exit = el('button', 'button focus-exit', '✕ Exit focus') as HTMLButtonElement;
+  exit.type = 'button';
+  exit.dataset['testid'] = 'focus-exit';
+  exit.addEventListener('click', () => opts.onExit());
+  top.append(exit);
+  overlay.append(top);
+  overlay.append(photoWrapEl(entry));
+  const cols = el('div', 'focus-cols');
+  const ingredients = el('section');
+  ingredients.append(el('h3', undefined, 'Ingredients'));
+  ingredients.append(listEl('ul', 'focus-ingredients', value.ingredients ?? []));
+  const instructions = el('section');
+  instructions.append(el('h3', undefined, 'Instructions'));
+  instructions.append(listEl('ol', 'focus-instructions', value.instructions ?? []));
+  cols.append(ingredients, instructions);
+  overlay.append(cols);
+  return overlay;
 };
 
 export type DishCompareOptions = RenderOptions & { dishName?: string };
@@ -422,6 +455,17 @@ export const renderRecipeDetail = (
   const photoCredit = imageCreditOverlay(value, { withLink: true, testid: 'photo-credit' });
   if (photoCredit !== null) banner.append(photoCredit);
   article.append(banner);
+  if (options.onFocus !== undefined) {
+    const onFocus = options.onFocus;
+    const actions = el('div', 'detail-actions');
+    const focusBtn = el('button', 'button focus-btn', '⛶ Focus') as HTMLButtonElement;
+    focusBtn.type = 'button';
+    focusBtn.dataset['testid'] = 'focus-btn';
+    focusBtn.setAttribute('aria-label', 'Focus mode — full-screen cook view');
+    focusBtn.addEventListener('click', () => onFocus());
+    actions.append(focusBtn);
+    article.append(actions);
+  }
   article.append(el('h2', 'recipe-title', value.name ?? '(untitled)'));
   const chips = chipsEl(value);
   if (chips !== null) article.append(chips);

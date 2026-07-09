@@ -952,3 +952,37 @@ a.card {
   box-shadow: 0 4px 14px #0003;
   z-index: 20;
 }
+
+/* Recipe-model extensions: ⛶ Focus (cook mode) + version bar */
+.detail-actions { display: flex; justify-content: flex-end; margin: 0.4rem 0; }
+.focus-view {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  overflow: auto;
+  background: var(--paper);
+  color: var(--ink);
+  padding: 1.4rem;
+}
+.focus-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  max-width: 900px;
+  margin: 0 auto 1rem;
+}
+.focus-top .focus-title { margin: 0; }
+.focus-cols {
+  max-width: 900px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 2rem;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+@media (max-width: 640px) { .focus-cols { grid-template-columns: 1fr; } }
+.recipe-controls { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.75rem; }
+.version-nav { display: inline-flex; align-items: center; gap: 0.4rem; border: 1px solid var(--line); border-radius: var(--r-pill); padding: 0.15rem 0.4rem; }
+.version-count { font-size: var(--t-caption); white-space: nowrap; padding: 0 0.3rem; }

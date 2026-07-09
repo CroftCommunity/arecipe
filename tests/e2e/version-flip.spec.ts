@@ -54,3 +54,17 @@ test('a multi-version recipe shows the flip bar and swaps content in place', asy
   // URL stays shareable — replaced to the shown version.
   await expect(page).toHaveURL(/u=at%3A%2F%2F.*ver2/);
 });
+
+test('⛶ Focus opens a full-screen cook view; Exit closes it', async ({ page }) => {
+  await routeVersions(page);
+  await page.goto(`/recipe.html?u=${encodeURIComponent(VER1)}&by=arecipe.bsky.social`);
+  await expect(page.locator('h2')).toContainText('My Favorite Banana Bread', { timeout: 15_000 });
+
+  await page.getByTestId('focus-btn').click();
+  await expect(page.getByTestId('focus-view')).toBeVisible();
+  await expect(page.getByTestId('focus-ingredients')).toContainText('bananas');
+  await expect(page.getByTestId('focus-instructions')).toContainText('bake');
+
+  await page.getByTestId('focus-exit').click();
+  await expect(page.getByTestId('focus-view')).toHaveCount(0);
+});
