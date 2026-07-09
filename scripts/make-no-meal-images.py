@@ -86,6 +86,18 @@ def dilate(mask: np.ndarray, iterations: int = 2) -> np.ndarray:
     return m
 
 
+def erode(mask: np.ndarray, iterations: int = 2) -> np.ndarray:
+    m = mask.copy()
+    for _ in range(iterations):
+        e = m.copy()
+        e[1:, :] &= m[:-1, :]
+        e[:-1, :] &= m[1:, :]
+        e[:, 1:] &= m[:, :-1]
+        e[:, :-1] &= m[:, 1:]
+        m = e
+    return m
+
+
 def largest_component(solid: np.ndarray) -> np.ndarray:
     """Boolean mask of the single largest 8-connected component in `solid`."""
     h, w = solid.shape
@@ -123,7 +135,12 @@ def cutlery_only(im: Image.Image, max_v: int) -> Image.Image:
     r, g, b = (rgba[..., i].astype(np.int16) for i in range(3))
     gold = (b < 120) & (r > 140) & (g > 110) & (r - b > 60)  # the dots
 
-    keep = dilate(largest_component(alpha > 40), 2) | gold
+    # Morphological open (erode -> largest component -> dilate back) severs thin
+    # butterfly-swirl appendages that touch the cutlery: the thin wisp erodes
+    # away and drops out of the largest component, while the thick cutlery
+    # survives and is restored to size (+2px rim) by the wider dilate.
+    core = largest_component(erode(alpha > 40, 2))
+    keep = dilate(core, 4) | gold
     out = np.where(keep, alpha, 0)
     # The gold dots are brighter than the light-theme ceiling, so key_alpha
     # zeroed them; keep re-includes them but the alpha must be restored too, or
