@@ -416,7 +416,13 @@ const paintVersion = (
   getAgent: AgentLoader,
   opts: { checkStale: boolean },
 ): void => {
-  host.replaceChildren(renderRecipeDetail(entry, { author, onFocus: () => mountFocus(entry) }));
+  host.replaceChildren(
+    renderRecipeDetail(entry, {
+      author,
+      onFocus: () => mountFocus(entry),
+      showFunFacts: createSocialPrefs().includeFunFacts(),
+    }),
+  );
   if (opts.checkStale) {
     void checkForNewerRevision(uri, entry.cid, (refresh) => {
       const note = document.createElement('p');

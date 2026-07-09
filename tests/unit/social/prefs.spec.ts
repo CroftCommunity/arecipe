@@ -44,6 +44,17 @@ describe('createSocialPrefs', () => {
     expect(createSocialPrefs({ storage }).hideComments()).toBe(false);
   });
 
+  it('includes fun facts by default (ON); persists an opt-out across re-creation', () => {
+    const storage = memoryStorage();
+    const prefs = createSocialPrefs({ storage });
+    expect(prefs.includeFunFacts()).toBe(true); // default ON
+    prefs.setIncludeFunFacts(false);
+    expect(prefs.includeFunFacts()).toBe(false);
+    expect(createSocialPrefs({ storage }).includeFunFacts()).toBe(false);
+    prefs.setIncludeFunFacts(true);
+    expect(createSocialPrefs({ storage }).includeFunFacts()).toBe(true);
+  });
+
   it('degrades to defaults when storage throws (private mode)', () => {
     const broken = {
       getItem: () => {
@@ -59,5 +70,7 @@ describe('createSocialPrefs', () => {
     const prefs = createSocialPrefs({ storage: broken });
     expect(prefs.hideComments()).toBe(false);
     expect(() => prefs.setHideComments(true)).not.toThrow();
+    expect(prefs.includeFunFacts()).toBe(true); // opt-out pref degrades to ON
+    expect(() => prefs.setIncludeFunFacts(false)).not.toThrow();
   });
 });

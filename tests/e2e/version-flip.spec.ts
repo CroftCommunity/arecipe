@@ -55,6 +55,22 @@ test('a multi-version recipe shows the flip bar and swaps content in place', asy
   await expect(page).toHaveURL(/u=at%3A%2F%2F.*ver2/);
 });
 
+test('Settings "Include fun facts" toggle hides the fun-fact cycler (Phase 5)', async ({ page }) => {
+  await routeVersions(page);
+  // On by default: ver1 carries a fun fact, so the cycler shows.
+  await page.goto(`/recipe.html?u=${encodeURIComponent(VER1)}&by=arecipe.bsky.social`);
+  await expect(page.getByTestId('fun-facts')).toBeVisible({ timeout: 15_000 });
+
+  // Turn it off in Settings.
+  await page.goto('/settings.html');
+  await page.getByTestId('include-fun-facts').locator('input[type=checkbox]').uncheck();
+
+  // Back on the recipe: fun facts are gone.
+  await page.goto(`/recipe.html?u=${encodeURIComponent(VER1)}&by=arecipe.bsky.social`);
+  await expect(page.locator('h2')).toContainText('Banana Bread', { timeout: 15_000 });
+  await expect(page.getByTestId('fun-facts')).toHaveCount(0);
+});
+
 test('⛶ Focus opens a full-screen cook view; Exit closes it', async ({ page }) => {
   await routeVersions(page);
   await page.goto(`/recipe.html?u=${encodeURIComponent(VER1)}&by=arecipe.bsky.social`);

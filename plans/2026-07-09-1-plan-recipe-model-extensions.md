@@ -4,8 +4,8 @@
 COMPLETE 2026-07-09. Plan is READY FOR EXECUTION — no unresolved BLOCKING items.** 10 phases
 (0 + 1 + 1b + 2 + 3 + 4a done). **UI design REVISED 2026-07-09 via mockups** (`docs/mockups/`):
 inline flip primary, grid = View All, + Focus mode + Settings fun-facts toggle; comments stay
-per-version (dish-level deferred). Phases 0–4d done (flip + Focus live). **Next: Phase 4e (browse
-version-collapse + pagination).** Worktree `recipe-import-batch`.
+per-version (dish-level deferred). Phases 0–5 done (all UI complete). **Next: Phase 6 (migrate 41
+live + pilot-then-bulk publish) — the only live-write phase.** Worktree `recipe-import-batch`.
 
 ## Problem Statement
 
@@ -422,7 +422,13 @@ dishes render as a normal card (no badge). **Read-set:** `read.ts`, `model.ts`. 
 count; existing `browse.spec.ts` assertions stay green. **Verification:** `npm run build && npx
 playwright test tests/e2e/browse.spec.ts`. **Validation:** Broad (landing page; regression-sensitive).
 
-### Phase 5: Settings "Include fun facts" toggle
+### Phase 5: Settings "Include fun facts" toggle — COMPLETE 2026-07-09
+**Outcome:** `createSocialPrefs` gains `includeFunFacts()`/`setIncludeFunFacts()` (localStorage,
+**default ON** — only explicit '0' opts out; degrades to ON in private mode). `settings.ts` renders
+an "Include fun facts" toggle in the Social panel (testid `include-fun-facts`). `renderRecipeDetail`
++ `renderDishCompare` gate on a new `showFunFacts` RenderOption (default show); `recipe.ts` and
+`dish.ts` pass `createSocialPrefs().includeFunFacts()`. 2 prefs unit tests + 1 view-gate unit test
++ a settings e2e (toggle off → recipe fun-facts gone). Full 223 unit + 56 non-live e2e green.
 **Goal:** Add an **Include fun facts** toggle to `settings.ts` (client-side preference, **ON by
 default**, same localStorage pattern as theme/diet-preference); when off, fun facts are hidden
 **everywhere** — the recipe page cycler (Phase 3) and the `dish.html` pooled facts (Phase 4b).

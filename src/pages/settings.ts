@@ -180,6 +180,19 @@ const main = async (): Promise<void> => {
   social.append(hideCommentsRow);
   // Hide Likes lands in 9c alongside the like interaction (same panel/store).
 
+  // "Did you know?" fun facts — shown everywhere by default; opt out here.
+  const funFactsRow = el('label', 'starter-row');
+  funFactsRow.dataset['testid'] = 'include-fun-facts';
+  const funFactsBox = document.createElement('input');
+  funFactsBox.type = 'checkbox';
+  funFactsBox.checked = socialPrefs.includeFunFacts();
+  funFactsBox.addEventListener('change', () => {
+    socialPrefs.setIncludeFunFacts(funFactsBox.checked);
+    log.debug('social', 'include fun facts toggled', { include: funFactsBox.checked });
+  });
+  funFactsRow.append(funFactsBox, el('span', undefined, 'Include fun facts'));
+  social.append(funFactsRow);
+
   const hiddenSection = section('Hidden recipes', 'hidden-recipes');
   hiddenSection.append(
     el('p', 'status', 'Recipes you (or the built-in baseline) hid from feeds. Unhide to restore.'),

@@ -11,6 +11,7 @@ import { createRecipeCache } from '../recipes/cache.js';
 import { isPrimaryVersion, siblingsOf } from '../recipes/model.js';
 import { createRecipeReader } from '../recipes/read.js';
 import { renderDishCompare } from '../recipes/view.js';
+import { createSocialPrefs } from '../social/prefs.js';
 import { registerServiceWorker } from '../sw-register.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -67,7 +68,11 @@ const main = async (): Promise<void> => {
     const cache = createRecipeCache();
     const entries = await Promise.all(siblings.map((record) => cache.put(record)));
     content.replaceChildren(
-      renderDishCompare(entries, { dishName: dishNameFromKey(key), author: by ?? handle ?? did }),
+      renderDishCompare(entries, {
+        dishName: dishNameFromKey(key),
+        author: by ?? handle ?? did,
+        showFunFacts: createSocialPrefs().includeFunFacts(),
+      }),
     );
     log.debug('shell', 'mounted', { page: 'dish', key, versions: entries.length });
   } catch (err) {

@@ -280,6 +280,12 @@ describe('renderRecipeDetail', () => {
     expect(renderRecipeDetail(entry({ value: bare })).querySelector('[data-testid=fun-facts]')).toBeNull();
   });
 
+  it('hides the fun-fact section when showFunFacts is false (Settings opt-out)', () => {
+    const withFacts = entry({ value: { ...fixture.value, funFacts: [{ text: 'A fact.' }] } });
+    expect(renderRecipeDetail(withFacts, { showFunFacts: true }).querySelector('[data-testid=fun-facts]')).not.toBeNull();
+    expect(renderRecipeDetail(withFacts, { showFunFacts: false }).querySelector('[data-testid=fun-facts]')).toBeNull();
+  });
+
   it('renders a ⛶ Focus button only when onFocus is given, and click invokes it', () => {
     expect(renderRecipeDetail(entry()).querySelector('[data-testid=focus-btn]')).toBeNull();
     let opened = 0;

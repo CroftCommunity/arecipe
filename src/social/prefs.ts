@@ -8,12 +8,16 @@ type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
 const HIDE_COMMENTS_KEY = 'social-hide-comments';
 const HIDE_LIKES_KEY = 'social-hide-likes';
+const INCLUDE_FUN_FACTS_KEY = 'include-fun-facts';
 
 export type SocialPrefs = {
   hideComments: () => boolean;
   setHideComments: (hidden: boolean) => void;
   hideLikes: () => boolean;
   setHideLikes: (hidden: boolean) => void;
+  /** "Did you know?" fun facts, shown everywhere by default (opt-out). */
+  includeFunFacts: () => boolean;
+  setIncludeFunFacts: (include: boolean) => void;
 };
 
 export const createSocialPrefs = (opts: { storage?: StorageLike } = {}): SocialPrefs => {
@@ -38,5 +42,21 @@ export const createSocialPrefs = (opts: { storage?: StorageLike } = {}): SocialP
     setHideComments: (hidden) => write(HIDE_COMMENTS_KEY, hidden),
     hideLikes: () => read(HIDE_LIKES_KEY),
     setHideLikes: (hidden) => write(HIDE_LIKES_KEY, hidden),
+    // Default ON: unset (or anything but the explicit '0') → included.
+    includeFunFacts: () => {
+      try {
+        return storage.getItem(INCLUDE_FUN_FACTS_KEY) !== '0';
+      } catch {
+        return true;
+      }
+    },
+    setIncludeFunFacts: (include) => {
+      try {
+        if (include) storage.removeItem(INCLUDE_FUN_FACTS_KEY);
+        else storage.setItem(INCLUDE_FUN_FACTS_KEY, '0');
+      } catch {
+        /* private mode: the toggle lives for this page only */
+      }
+    },
   };
 };

@@ -213,6 +213,8 @@ export type RenderOptions = {
   /** Browse only: representative uri → version count. A count > 1 turns the card
    *  into a "N versions" badge linking to the dish's compare grid. */
   versionCounts?: Record<string, number>;
+  /** Gate for the fun-fact cycler (Settings "Include fun facts"). Default: show. */
+  showFunFacts?: boolean;
 };
 
 const recipePageHref = (entry: CachedRecipe, options: RenderOptions): string => {
@@ -360,8 +362,10 @@ export const renderDishCompare = (
   head.append(title, count);
   section.append(head);
 
-  const facts = renderFunFacts(pooledFunFacts(entries));
-  if (facts !== null) section.append(facts);
+  if (options.showFunFacts !== false) {
+    const facts = renderFunFacts(pooledFunFacts(entries));
+    if (facts !== null) section.append(facts);
+  }
 
   const grid = el('section', 'recipe-grid');
   grid.dataset['testid'] = 'version-grid';
@@ -505,8 +509,10 @@ export const renderRecipeDetail = (
   cols.append(ingredients, instructions);
   article.append(cols);
 
-  const funFacts = renderFunFacts(funFactsOf(value));
-  if (funFacts !== null) article.append(funFacts);
+  if (options.showFunFacts !== false) {
+    const funFacts = renderFunFacts(funFactsOf(value));
+    if (funFacts !== null) article.append(funFacts);
+  }
 
   if (entry.verified) {
     const author = options.authorsByDid?.[did] ?? options.author ?? did;
