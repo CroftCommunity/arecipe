@@ -134,47 +134,24 @@ const main = async (): Promise<void> => {
       publishedList.append(el('p', 'status', `couldn’t load your recipes: ${String(err)}`));
     });
   } else if (provider !== null) {
-    // Signed out: LEAD with a clear Sign in section, above New recipe / Drafts —
-    // signing in shouldn't feel like "logging in for a draft." Drafting needs no
-    // account (that's what the New recipe / Drafts below are for); signing in is
-    // for saving recipes to your account and seeing your Cookbook.
-    const signin = el('section', 'signin-lead');
-    signin.dataset['testid'] = 'signin-section';
-    signin.append(el('h3', 'section-title', 'Sign in'));
-    const intro = el(
-      'p',
-      'status',
-      'Sign in with your Bluesky handle to save recipes to your account and see your Cookbook. Browsing and drafting work without an account.',
+    // Signed out: a short pointer to the dedicated sign-in page. Drafting needs
+    // no account (New recipe + Drafts below stay account-free), so My recipes is
+    // no longer a login surface — the form lives on signin.html now.
+    const pointer = el('p', 'status');
+    const signInLink = el('a', 'friend-link', 'Sign in') as HTMLAnchorElement;
+    signInLink.href = './signin.html';
+    signInLink.dataset['testid'] = 'mine-signin-pointer';
+    pointer.append(
+      signInLink,
+      document.createTextNode(' to save your recipes to your account and see your Cookbook.'),
     );
-    const form = el('form', 'lookup') as HTMLFormElement;
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.placeholder = 'your.handle (e.g. name.bsky.social)';
-    input.dataset['testid'] = 'handle-input';
-    const signInButton = el('button', 'button button--primary', 'Sign in') as HTMLButtonElement;
-    signInButton.type = 'submit';
-    signInButton.dataset['testid'] = 'oauth-signin';
-    const status = el('p', 'status');
-    status.dataset['testid'] = 'signin-status';
-    form.append(input, signInButton);
-    signin.append(intro, form, status);
-    content.prepend(signin); // lead the page with sign-in, before New recipe / Drafts
-    form.addEventListener('submit', (event) => {
-      event.preventDefault();
-      status.textContent = 'redirecting to sign-in…';
-      // Resolves only on failure/abort — success navigates away.
-      void provider.signIn(input.value.trim()).catch((err: unknown) => {
-        const message = err instanceof Error ? err.message : String(err);
-        log.error('auth', 'sign-in failed', { error: message });
-        status.textContent = `sign-in failed: ${message}`;
-      });
-    });
+    content.prepend(pointer); // above New recipe / Drafts, but a pointer, not a form
   } else {
-    const empty = el(
-      'p',
-      'empty-state',
-      'Sign in arrives here once the hosted client ships — browse works everywhere today.',
-    );
+    // Read-only origin (no OAuth client can exist here — client_id must match
+    // the serving origin): sign-in is structurally impossible, so a terminal
+    // note. Deliberately does NOT point at signin.html (nowhere here can sign
+    // you in). See plans/2026-07-08-2-plan-dedicated-signin-page.md Open Questions.
+    const empty = el('p', 'empty-state', 'Sign-in isn’t available on this copy of the app.');
     empty.dataset['testid'] = 'mine-empty';
     content.append(empty);
   }

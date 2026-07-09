@@ -162,6 +162,19 @@ to be implemented with the page-per-destination restructure:
   pre-paint inline script in `index.html`, never the auth client. Clicking the
   Browse tab (an in-app, same-origin referrer) is exempt, so Browse stays
   reachable while signed in.
+- **Sign-in is its own page** (`signin.html`): authentication is a distinct
+  task with a distinct mental model, so it gets a dedicated document rather than
+  a section on My recipes — enter a handle, sign in via atproto OAuth, land in
+  the app (forwards to Cookbook on success). Every signed-out "Sign in"
+  affordance (nav top-right, the Cookbook gate, the Account note, the My recipes
+  pointer) points here. **My recipes stays account-free for drafting**: signed
+  out it shows New recipe + local Drafts plus a short pointer to `signin.html`,
+  not a login form. The OAuth callback (`?code=…`) round-trips back to the page
+  that initiated it, so `signin.html` is the registered `redirect_uri`
+  (`client-metadata.json` on the hosted origin; derived per-page on loopback)
+  and completes its own callback. Read-only mirror origins, where no OAuth
+  client can exist, show a terminal "unavailable here" note instead of a
+  pointer.
 - **Comments live on the recipe page** (M4/9b), below the recipe, threaded
   (reply nests under parent). Discovery is **cookbook-scoped** — you see the
   recipe author's, your own, and your cookbook's comments; there is no backend

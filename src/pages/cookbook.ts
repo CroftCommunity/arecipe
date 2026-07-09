@@ -146,8 +146,8 @@ const main = async (): Promise<void> => {
   if (agent === null || agent.did === undefined) {
     const gate = el('p', 'empty-state');
     gate.dataset['testid'] = 'cookbook-signed-out';
-    const signInLink = el('a', 'friend-link', 'Sign in on My recipes') as HTMLAnchorElement;
-    signInLink.href = './mine.html';
+    const signInLink = el('a', 'friend-link', 'Sign in') as HTMLAnchorElement;
+    signInLink.href = './signin.html';
     signInLink.dataset['testid'] = 'cookbook-signin-link';
     gate.append(
       signInLink,

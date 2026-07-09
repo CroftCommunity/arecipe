@@ -32,9 +32,9 @@ describe('authModeFor', () => {
 });
 
 describe('HOSTED_CLIENT_METADATA', () => {
-  it('client_id is the metadata URL and redirect stays on the production origin', () => {
+  it('client_id is the metadata URL and redirect lands on the dedicated sign-in page', () => {
     expect(HOSTED_CLIENT_METADATA.client_id).toBe(`${PRODUCTION_ORIGIN}/client-metadata.json`);
-    expect(HOSTED_CLIENT_METADATA.redirect_uris).toContain(`${PRODUCTION_ORIGIN}/mine.html`);
+    expect(HOSTED_CLIENT_METADATA.redirect_uris).toContain(`${PRODUCTION_ORIGIN}/signin.html`);
   });
 
   it('requests the appview scope and is a public DPoP web client', () => {

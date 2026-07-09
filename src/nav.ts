@@ -37,8 +37,8 @@ export const renderTopbar = (): HTMLElement => {
   const controls = el('div', 'auth-area');
   // Sign-in affordance (zero-auth): the nav ships no auth client, so it reads
   // only the localStorage session hint (written by the auth boot flow) to point
-  // at sign-in (My recipes) or the account page. A visible top-right entry so
-  // sign-in is discoverable without hunting through the tabs.
+  // at the dedicated sign-in page or the account page. A visible top-right entry
+  // so sign-in is discoverable without hunting through the tabs.
   let signedIn = false;
   try {
     signedIn = window.localStorage.getItem('arecipe-session') === '1';
@@ -46,7 +46,7 @@ export const renderTopbar = (): HTMLElement => {
     /* storage blocked → treat as signed-out (points at sign-in) */
   }
   const authLink = el('a', 'nav-auth', signedIn ? 'Account' : 'Sign in') as HTMLAnchorElement;
-  authLink.href = signedIn ? './account.html' : './mine.html';
+  authLink.href = signedIn ? './account.html' : './signin.html';
   authLink.dataset['testid'] = signedIn ? 'nav-account' : 'nav-signin';
   const themeToggle = el('button', 'nav-gear') as HTMLButtonElement;
   themeToggle.type = 'button';

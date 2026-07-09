@@ -34,8 +34,15 @@ const main = async (): Promise<void> => {
     });
     content.append(who, signOut);
   } else {
-    const signedOut = el('p', 'empty-state', 'Not signed in — sign in from My recipes.');
+    const signedOut = el('p', 'empty-state');
     signedOut.dataset['testid'] = 'account-signed-out';
+    const signInLink = el('a', 'friend-link', 'Sign in') as HTMLAnchorElement;
+    signInLink.href = './signin.html';
+    signedOut.append(
+      document.createTextNode('Not signed in — '),
+      signInLink,
+      document.createTextNode(' to manage your account.'),
+    );
     content.append(signedOut);
   }
 
