@@ -64,8 +64,10 @@ fact-checked, QA-clean:
   Depression-Era Wacky Chocolate Cake, French Madeleines. **New England Clam Chowder** currently
   has the Manhattan (red) image — wants the white New England kind. (Only Wikimedia Commons /
   CC / public-domain images are usable; recipe-blog images are copyrighted and were rejected.)
-- The alt-version/`dishKey` grouping is **not** yet consistently encoded in the JSON (`dish`/`altOf`
-  are inconsistent) — canonical dishKey normalization across all 177 records is Phase 1b of the
-  recipe-model plan.
+- **dishKey normalization DONE (Phase 1b, 2026-07-09):** `spike/import/dishkeys.json` maps all 177
+  records (136 imported + 41 live) to a canonical `dishKey`, derived from names by
+  `spike/import/build-dishkeys.mjs` (pure logic + tests in `dishkeys.mjs`/`dishkeys.test.mjs`).
+  **15 reviewed version groups** (banana-bread ×4, chocolate-chip-cookies ×3, beef-bourguignon ×3,
+  + twelve ×2). The raw `dish`/`altOf` fields in the corpus JSON are superseded by this map.
 - **Publishing is gated on the recipe-model extensions** (versions / fun facts). Plan is
   Pass-1/2/3 complete and ready to execute Phase 1. Nothing publishes until those fields exist.

@@ -2,8 +2,8 @@
 
 **Status:** Pass 1 · Phase 0 discovery · Pass 2 gap analysis · **Pass 3 quality gates ALL
 COMPLETE 2026-07-09. Plan is READY FOR EXECUTION — no unresolved BLOCKING items.** 10 phases
-(0 + 1 done), all sequential, test-first; 10 open questions all user-confirmed. **Next: Phase 1b
-(dishKey normalization → reviewed `dishkeys.json`).** Worktree `recipe-import-batch`.
+(0 + 1 + 1b done), all sequential, test-first; 10 open questions all user-confirmed. **Next:
+Phase 2 (fun-fact renderer in `src/recipes/view.ts`).** Worktree `recipe-import-batch`.
 
 ## Problem Statement
 
@@ -234,7 +234,16 @@ fields) still parse. **Validation:** Narrow.
 + its unit test. **Shared-state:** none. **Done when:** `import { DishKey, FunFact, RecipeExt }`
 compiles and `npx vitest run tests/unit/recipes/model.spec.ts` passes; old records still parse.
 
-### Phase 1b: Canonical dishKey normalization (NEW — Pass 2; prereq for Phases 4 & 6)
+### Phase 1b: Canonical dishKey normalization (NEW — Pass 2; prereq for Phases 4 & 6) — COMPLETE 2026-07-09
+**Outcome:** `spike/import/dishkeys.mjs` (pure: `foldAccents`, `normalizeDishKey`, `ALIASES`,
+`proposeGroups`; 7 node --test cases) + `build-dishkeys.mjs` (loads all 177 records — 136
+imported + 41 live paginated — writes `spike/import/dishkeys.json` + a review report).
+Name-based normalization (accent-fold + qualifier-prefix strip + trailing "with …" strip +
+`boeuf→beef-bourguignon` alias) yields **15 reviewed version groups** across 177 records
+(vs 1 from the raw `dish`/`altOf` fields): banana-bread ×4, chocolate-chip-cookies ×3,
+beef-bourguignon ×3, and twelve ×2 (incl. caesar-salad after the user merged the grilled-chicken
+variant). `banana-bread-mug-cake` kept distinct. User reviewed & confirmed the groups.
+`dishkeys.json` is the kept artifact feeding Phase 6.
 **Goal:** Produce a **reviewed** canonical-`dishKey` mapping covering **all 177 records** (136
 imported across 6 files + 41 live), reconciling name/slug variants so true alternates share one
 key and unrelated dishes don't collide. Because the existing `dish`/`altOf` fields are

@@ -1,0 +1,1390 @@
+{
+  "_meta": {
+    "purpose": "Canonical dishKey per record (Phase 1b). Auto-proposed by build-dishkeys.mjs from recipe NAMES; REVIEW the groups before publish. Aliases/edits live in dishkeys.mjs ALIASES + this file.",
+    "records": 177,
+    "distinctKeys": 158,
+    "multiVersionGroups": 15
+  },
+  "byRef": {
+    "own-batch#0": "grilled-cheese",
+    "own-batch#1": "mac-and-cheese",
+    "own-batch#2": "chicken-and-veggies",
+    "own-batch#3": "scrambled-eggs",
+    "own-batch#4": "spaghetti-aglio-e-olio",
+    "own-batch#5": "ground-beef-tacos",
+    "own-batch#6": "creamy-tomato-soup",
+    "own-batch#7": "15-minute-fish-tacos",
+    "own-batch#8": "garlic-butter-shrimp",
+    "own-batch#9": "one-pot-beef-chili",
+    "own-batch#10": "chicken-enchilada-skillet",
+    "own-batch#11": "salmon-asparagus",
+    "own-batch#12": "air-fryer-chicken-thighs",
+    "own-batch#13": "vegetable-fried-rice",
+    "own-batch#14": "caesar-salad",
+    "own-batch#15": "chocolate-chip-cookies",
+    "own-batch#16": "banana-bread",
+    "own-batch#17": "easy-banana-muffins",
+    "own-batch#18": "brownies",
+    "own-batch#19": "peanut-butter-cookies",
+    "own-batch#20": "apple-crisp",
+    "own-batch#21": "pancakes",
+    "own-batch#22": "vanilla-mug-cake",
+    "own-batch#23": "rice-krispies-treats",
+    "own-batch#24": "drop-sugar-cookies",
+    "dessert-dual-method-25#0": "chocolate-mug-cake",
+    "dessert-dual-method-25#1": "rice-krispie-treats",
+    "dessert-dual-method-25#2": "chocolate-chip-cookies",
+    "dessert-dual-method-25#3": "chocolate-fudge",
+    "dessert-dual-method-25#4": "apple-crisp",
+    "dessert-dual-method-25#5": "avocado-chocolate-mousse",
+    "dessert-dual-method-25#6": "banana-bread-mug-cake",
+    "dessert-dual-method-25#7": "creme-brulee",
+    "dessert-dual-method-25#8": "cheesecake-jars",
+    "dessert-dual-method-25#9": "bread-pudding",
+    "dessert-dual-method-25#10": "cinnamon-rolls",
+    "dessert-dual-method-25#11": "blended-chia-seed-pudding",
+    "dessert-dual-method-25#12": "three-ingredient-peanut-butter-cookies",
+    "dessert-dual-method-25#13": "chocolate-brownie-in-a-mug",
+    "dessert-dual-method-25#14": "vanilla-panna-cotta",
+    "dessert-dual-method-25#15": "chocolate-covered-strawberries",
+    "dessert-dual-method-25#16": "lemon-curd",
+    "dessert-dual-method-25#17": "key-lime-pie",
+    "dessert-dual-method-25#18": "molten-chocolate-lava-cake",
+    "dessert-dual-method-25#19": "chocolate-truffles",
+    "dessert-dual-method-25#20": "fruit-sorbet",
+    "dessert-dual-method-25#21": "peach-cobbler",
+    "dessert-dual-method-25#22": "mixed-berry-galette",
+    "dessert-dual-method-25#23": "caramel-sauce",
+    "dessert-dual-method-25#24": "italian-affogato",
+    "regional-dishes-8#0": "neapolitan-pizza",
+    "regional-dishes-8#1": "pad-thai",
+    "regional-dishes-8#2": "tacos-al-pastor",
+    "regional-dishes-8#3": "beef-bourguignon",
+    "regional-dishes-8#4": "feijoada",
+    "regional-dishes-8#5": "hyderabadi-biryani",
+    "regional-dishes-8#6": "new-england-clam-chowder",
+    "regional-dishes-8#7": "edomae-sushi",
+    "artisan-baking-28#0": "chocolate-chip-cookies",
+    "artisan-baking-28#1": "cocoa-brownies",
+    "artisan-baking-28#2": "banana-bread",
+    "artisan-baking-28#3": "lemon-blueberry-scones",
+    "artisan-baking-28#4": "new-york-cheesecake",
+    "artisan-baking-28#5": "apple-pie",
+    "artisan-baking-28#6": "cinnamon-rolls",
+    "artisan-baking-28#7": "blueberry-muffins",
+    "artisan-baking-28#8": "multi-layer-carrot-cake",
+    "artisan-baking-28#9": "french-macarons",
+    "artisan-baking-28#10": "fresh-peach-cobbler",
+    "artisan-baking-28#11": "vanilla-bean-bakery-cupcakes",
+    "artisan-baking-28#12": "butter-croissants",
+    "artisan-baking-28#13": "crusty-artisan-bread",
+    "artisan-baking-28#14": "garlic-herb-rosemary-focaccia",
+    "artisan-baking-28#15": "jalapeno-cheddar-cornbread",
+    "artisan-baking-28#16": "quiche-lorraine",
+    "artisan-baking-28#17": "pretzels",
+    "artisan-baking-28#18": "cheddar-chive-scones",
+    "artisan-baking-28#19": "chicken-pot-pie",
+    "artisan-baking-28#20": "spinach-and-feta-puff-pastry-tarts",
+    "artisan-baking-28#21": "rosemary-garlic-homemade-crackers",
+    "artisan-baking-28#22": "british-sausage-rolls",
+    "artisan-baking-28#23": "cheese-straws",
+    "artisan-baking-28#24": "bacon-leek-and-gruyere-tart",
+    "artisan-baking-28#25": "chocolate-lava-cakes",
+    "artisan-baking-28#26": "stromboli",
+    "artisan-baking-28#27": "buttermilk-biscuits",
+    "frugal-family-25#0": "hearty-black-bean-quesadillas",
+    "frugal-family-25#1": "lentil-vegetable-soup",
+    "frugal-family-25#2": "shakshuka-eggs-in-spicy-tomato-sauce",
+    "frugal-family-25#3": "vegetable-egg-fried-rice",
+    "frugal-family-25#4": "tuna-noodle-casserole",
+    "frugal-family-25#5": "smoked-sausage-cabbage-skillet",
+    "frugal-family-25#6": "creamy-potato-leek-soup",
+    "frugal-family-25#7": "chana-masala-authentic-chickpea-curry",
+    "frugal-family-25#8": "slow-cooker-pulled-pork",
+    "frugal-family-25#9": "pasta-fagioli-italian-pasta-bean-soup",
+    "frugal-family-25#10": "chicken-drumsticks-root-veggies",
+    "frugal-family-25#11": "traditional-louisiana-red-beans-and-rice",
+    "frugal-family-25#12": "garden-vegetable-frittata",
+    "frugal-family-25#13": "cottage-pie-beef-lentil-hybrid",
+    "frugal-family-25#14": "peanut-noodles",
+    "frugal-family-25#15": "chili-cornbread-skillet-casserole",
+    "frugal-family-25#16": "three-bean-sweet-potato-chili",
+    "frugal-family-25#17": "cheesy-family-baked-ziti",
+    "frugal-family-25#18": "wacky-chocolate-cake",
+    "frugal-family-25#19": "banana-bread",
+    "frugal-family-25#20": "vanilla-bread-pudding",
+    "frugal-family-25#21": "creamy-cinnamon-rice-pudding",
+    "frugal-family-25#22": "oatmeal-apple-crisp",
+    "frugal-family-25#23": "peanut-butter-cookies",
+    "frugal-family-25#24": "oatmeal-raisin-cookies",
+    "julia-child-25#0": "beef-bourguignon",
+    "julia-child-25#1": "coq-au-vin",
+    "julia-child-25#2": "mousse-au-chocolat",
+    "julia-child-25#3": "soupe-a-l-oignon",
+    "julia-child-25#4": "quiche-lorraine",
+    "julia-child-25#5": "sole-meuniere",
+    "julia-child-25#6": "ratatouille",
+    "julia-child-25#7": "gratin-dauphinois",
+    "julia-child-25#8": "clafoutis-aux-cerises",
+    "julia-child-25#9": "tarte-tatin",
+    "julia-child-25#10": "poulet-roti",
+    "julia-child-25#11": "salade-nicoise",
+    "julia-child-25#12": "crepes-suzette",
+    "julia-child-25#13": "souffle-au-fromage",
+    "julia-child-25#14": "bouillabaisse",
+    "julia-child-25#15": "vichyssoise",
+    "julia-child-25#16": "reine-de-saba",
+    "julia-child-25#17": "hollandaise-sauce",
+    "julia-child-25#18": "cassoulet",
+    "julia-child-25#19": "pate-de-campagne",
+    "julia-child-25#20": "navarin-printanier",
+    "julia-child-25#21": "french-madeleines",
+    "julia-child-25#22": "creme-brulee",
+    "julia-child-25#23": "potage-parmentier",
+    "julia-child-25#24": "daube-de-boeuf",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqipayd25": "banana-bread",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqilnnx24": "sloppy-joes",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqii7em26": "coleslaw",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqien552c": "chili-con-carne",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqi5eou26": "caesar-salad",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqhzvee26": "cobb-salad",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqhsg452s": "fried-chicken",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqhoxpw2p": "bbq-pulled-pork",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqhlgfs2d": "mac-and-cheese",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqhhuk52o": "chilaquiles-rojos",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqhefry2j": "huevos-rancheros",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqh57iq2g": "salsa-verde",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqgw25s22": "birria-tacos",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqgsju222": "ground-beef-tacos",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqgl6xy2f": "chicken-fajitas",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqghkwq2j": "mexican-rice",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqgacjk2d": "refried-beans",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqfywyi2f": "elote",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqfvfpi2f": "pork-tamales",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqfo5kn2c": "pozole-rojo",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqfkjc62p": "chicken-enchiladas",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqfcvgs22": "cheese-enchiladas",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqf3kkq2f": "beef-barbacoa",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqeu5iv2s": "carnitas",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqeqo7d25": "pico-de-gallo",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqen2us2d": "guacamole",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is6tnbw26": "apple-pie",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is6mad62o": "meatloaf",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is6itmt2c": "buffalo-wings",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is6bhcd2c": "tacos-al-pastor",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is65z5227": "mango-sticky-rice",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is62got2c": "chicken-biryani",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is5wwbx2j": "chicken-tikka-masala",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is5pic227": "butter-chicken",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is5ibwo2o": "coq-au-vin",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is5eths27": "beef-bourguignon",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is55isv2d": "greek-chicken-souvlaki",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is4w7j32c": "moussaka",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is4srz62h": "spaghetti-carbonara",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is4lhxi22": "pad-thai",
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq3m2skev52f": "greek-cucumber-tomato-feta-salad"
+  },
+  "groups": {
+    "grilled-cheese": [
+      {
+        "ref": "own-batch#0",
+        "name": "Classic Grilled Cheese",
+        "src": "own-batch"
+      }
+    ],
+    "mac-and-cheese": [
+      {
+        "ref": "own-batch#1",
+        "name": "3-Ingredient Mac and Cheese",
+        "src": "own-batch"
+      },
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqhlgfs2d",
+        "name": "Mac and Cheese",
+        "src": "LIVE"
+      }
+    ],
+    "chicken-and-veggies": [
+      {
+        "ref": "own-batch#2",
+        "name": "Sheet Pan Chicken and Veggies",
+        "src": "own-batch"
+      }
+    ],
+    "scrambled-eggs": [
+      {
+        "ref": "own-batch#3",
+        "name": "Fluffy Perfect Scrambled Eggs",
+        "src": "own-batch"
+      }
+    ],
+    "spaghetti-aglio-e-olio": [
+      {
+        "ref": "own-batch#4",
+        "name": "Simple Spaghetti Aglio e Olio",
+        "src": "own-batch"
+      }
+    ],
+    "ground-beef-tacos": [
+      {
+        "ref": "own-batch#5",
+        "name": "Easy Ground Beef Tacos",
+        "src": "own-batch"
+      },
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqgsju222",
+        "name": "Ground Beef Tacos",
+        "src": "LIVE"
+      }
+    ],
+    "creamy-tomato-soup": [
+      {
+        "ref": "own-batch#6",
+        "name": "Creamy Tomato Soup",
+        "src": "own-batch"
+      }
+    ],
+    "15-minute-fish-tacos": [
+      {
+        "ref": "own-batch#7",
+        "name": "15-Minute Fish Tacos with Slaw",
+        "src": "own-batch"
+      }
+    ],
+    "garlic-butter-shrimp": [
+      {
+        "ref": "own-batch#8",
+        "name": "Garlic Butter Shrimp",
+        "src": "own-batch"
+      }
+    ],
+    "one-pot-beef-chili": [
+      {
+        "ref": "own-batch#9",
+        "name": "One-Pot Beef Chili",
+        "src": "own-batch"
+      }
+    ],
+    "chicken-enchilada-skillet": [
+      {
+        "ref": "own-batch#10",
+        "name": "Quick Chicken Enchilada Skillet",
+        "src": "own-batch"
+      }
+    ],
+    "salmon-asparagus": [
+      {
+        "ref": "own-batch#11",
+        "name": "Sheet Pan Baked Salmon & Asparagus",
+        "src": "own-batch"
+      }
+    ],
+    "air-fryer-chicken-thighs": [
+      {
+        "ref": "own-batch#12",
+        "name": "Crispy Air Fryer Chicken Thighs",
+        "src": "own-batch"
+      }
+    ],
+    "vegetable-fried-rice": [
+      {
+        "ref": "own-batch#13",
+        "name": "Easy Vegetable Fried Rice",
+        "src": "own-batch"
+      }
+    ],
+    "caesar-salad": [
+      {
+        "ref": "own-batch#14",
+        "name": "Simple Caesar Salad with Grilled Chicken",
+        "src": "own-batch"
+      },
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqi5eou26",
+        "name": "Caesar Salad",
+        "src": "LIVE"
+      }
+    ],
+    "chocolate-chip-cookies": [
+      {
+        "ref": "own-batch#15",
+        "name": "Chewy Chocolate Chip Cookies",
+        "src": "own-batch"
+      },
+      {
+        "ref": "dessert-dual-method-25#2",
+        "name": "Chocolate Chip Cookies",
+        "src": "dessert-dual-method-25"
+      },
+      {
+        "ref": "artisan-baking-28#0",
+        "name": "Classic Chocolate Chip Cookies",
+        "src": "artisan-baking-28"
+      }
+    ],
+    "banana-bread": [
+      {
+        "ref": "own-batch#16",
+        "name": "My Favorite Banana Bread",
+        "src": "own-batch"
+      },
+      {
+        "ref": "artisan-baking-28#2",
+        "name": "Classic Moist Banana Bread",
+        "src": "artisan-baking-28"
+      },
+      {
+        "ref": "frugal-family-25#19",
+        "name": "Frugal Overripe Banana Bread",
+        "src": "frugal-family-25"
+      },
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqipayd25",
+        "name": "Banana Bread",
+        "src": "LIVE"
+      }
+    ],
+    "easy-banana-muffins": [
+      {
+        "ref": "own-batch#17",
+        "name": "Quick & Easy Banana Muffins",
+        "src": "own-batch"
+      }
+    ],
+    "brownies": [
+      {
+        "ref": "own-batch#18",
+        "name": "Seriously Fudgy Homemade Brownies",
+        "src": "own-batch"
+      }
+    ],
+    "peanut-butter-cookies": [
+      {
+        "ref": "own-batch#19",
+        "name": "3-Ingredient Peanut Butter Cookies",
+        "src": "own-batch"
+      },
+      {
+        "ref": "frugal-family-25#23",
+        "name": "3-Ingredient Peanut Butter Cookies",
+        "src": "frugal-family-25"
+      }
+    ],
+    "apple-crisp": [
+      {
+        "ref": "own-batch#20",
+        "name": "Classic Apple Crisp",
+        "src": "own-batch"
+      },
+      {
+        "ref": "dessert-dual-method-25#4",
+        "name": "Apple Crisp",
+        "src": "dessert-dual-method-25"
+      }
+    ],
+    "pancakes": [
+      {
+        "ref": "own-batch#21",
+        "name": "Fluffy Homemade Pancakes",
+        "src": "own-batch"
+      }
+    ],
+    "vanilla-mug-cake": [
+      {
+        "ref": "own-batch#22",
+        "name": "Easy Vanilla Mug Cake",
+        "src": "own-batch"
+      }
+    ],
+    "rice-krispies-treats": [
+      {
+        "ref": "own-batch#23",
+        "name": "No-Bake Rice Krispies Treats",
+        "src": "own-batch"
+      }
+    ],
+    "drop-sugar-cookies": [
+      {
+        "ref": "own-batch#24",
+        "name": "Simple Drop Sugar Cookies",
+        "src": "own-batch"
+      }
+    ],
+    "chocolate-mug-cake": [
+      {
+        "ref": "dessert-dual-method-25#0",
+        "name": "Chocolate Mug Cake",
+        "src": "dessert-dual-method-25"
+      }
+    ],
+    "rice-krispie-treats": [
+      {
+        "ref": "dessert-dual-method-25#1",
+        "name": "Rice Krispie Treats",
+        "src": "dessert-dual-method-25"
+      }
+    ],
+    "chocolate-fudge": [
+      {
+        "ref": "dessert-dual-method-25#3",
+        "name": "Two-Ingredient Chocolate Fudge",
+        "src": "dessert-dual-method-25"
+      }
+    ],
+    "avocado-chocolate-mousse": [
+      {
+        "ref": "dessert-dual-method-25#5",
+        "name": "Avocado Chocolate Mousse",
+        "src": "dessert-dual-method-25"
+      }
+    ],
+    "banana-bread-mug-cake": [
+      {
+        "ref": "dessert-dual-method-25#6",
+        "name": "Banana Bread Mug Cake",
+        "src": "dessert-dual-method-25"
+      }
+    ],
+    "creme-brulee": [
+      {
+        "ref": "dessert-dual-method-25#7",
+        "name": "Classic Crème Brûlée",
+        "src": "dessert-dual-method-25"
+      },
+      {
+        "ref": "julia-child-25#22",
+        "name": "Crème Brûlée",
+        "src": "julia-child-25"
+      }
+    ],
+    "cheesecake-jars": [
+      {
+        "ref": "dessert-dual-method-25#8",
+        "name": "No-Bake Cheesecake Jars",
+        "src": "dessert-dual-method-25"
+      }
+    ],
+    "bread-pudding": [
+      {
+        "ref": "dessert-dual-method-25#9",
+        "name": "Bread Pudding",
+        "src": "dessert-dual-method-25"
+      }
+    ],
+    "cinnamon-rolls": [
+      {
+        "ref": "dessert-dual-method-25#10",
+        "name": "No-Yeast Cinnamon Rolls",
+        "src": "dessert-dual-method-25"
+      },
+      {
+        "ref": "artisan-baking-28#6",
+        "name": "Fluffy Bakery-Style Cinnamon Rolls",
+        "src": "artisan-baking-28"
+      }
+    ],
+    "blended-chia-seed-pudding": [
+      {
+        "ref": "dessert-dual-method-25#11",
+        "name": "Blended Chia Seed Pudding",
+        "src": "dessert-dual-method-25"
+      }
+    ],
+    "three-ingredient-peanut-butter-cookies": [
+      {
+        "ref": "dessert-dual-method-25#12",
+        "name": "Three-Ingredient Peanut Butter Cookies",
+        "src": "dessert-dual-method-25"
+      }
+    ],
+    "chocolate-brownie-in-a-mug": [
+      {
+        "ref": "dessert-dual-method-25#13",
+        "name": "Chocolate Brownie in a Mug",
+        "src": "dessert-dual-method-25"
+      }
+    ],
+    "vanilla-panna-cotta": [
+      {
+        "ref": "dessert-dual-method-25#14",
+        "name": "Vanilla Panna Cotta",
+        "src": "dessert-dual-method-25"
+      }
+    ],
+    "chocolate-covered-strawberries": [
+      {
+        "ref": "dessert-dual-method-25#15",
+        "name": "Chocolate Covered Strawberries",
+        "src": "dessert-dual-method-25"
+      }
+    ],
+    "lemon-curd": [
+      {
+        "ref": "dessert-dual-method-25#16",
+        "name": "Tangy Lemon Curd",
+        "src": "dessert-dual-method-25"
+      }
+    ],
+    "key-lime-pie": [
+      {
+        "ref": "dessert-dual-method-25#17",
+        "name": "No-Bake Key Lime Pie",
+        "src": "dessert-dual-method-25"
+      }
+    ],
+    "molten-chocolate-lava-cake": [
+      {
+        "ref": "dessert-dual-method-25#18",
+        "name": "Molten Chocolate Lava Cake",
+        "src": "dessert-dual-method-25"
+      }
+    ],
+    "chocolate-truffles": [
+      {
+        "ref": "dessert-dual-method-25#19",
+        "name": "Classic Chocolate Truffles",
+        "src": "dessert-dual-method-25"
+      }
+    ],
+    "fruit-sorbet": [
+      {
+        "ref": "dessert-dual-method-25#20",
+        "name": "Fruit Sorbet",
+        "src": "dessert-dual-method-25"
+      }
+    ],
+    "peach-cobbler": [
+      {
+        "ref": "dessert-dual-method-25#21",
+        "name": "Peach Cobbler",
+        "src": "dessert-dual-method-25"
+      }
+    ],
+    "mixed-berry-galette": [
+      {
+        "ref": "dessert-dual-method-25#22",
+        "name": "Mixed Berry Galette",
+        "src": "dessert-dual-method-25"
+      }
+    ],
+    "caramel-sauce": [
+      {
+        "ref": "dessert-dual-method-25#23",
+        "name": "Rich Caramel Sauce",
+        "src": "dessert-dual-method-25"
+      }
+    ],
+    "italian-affogato": [
+      {
+        "ref": "dessert-dual-method-25#24",
+        "name": "Italian Affogato",
+        "src": "dessert-dual-method-25"
+      }
+    ],
+    "neapolitan-pizza": [
+      {
+        "ref": "regional-dishes-8#0",
+        "name": "Neapolitan Pizza",
+        "src": "regional-dishes-8"
+      }
+    ],
+    "pad-thai": [
+      {
+        "ref": "regional-dishes-8#1",
+        "name": "Pad Thai",
+        "src": "regional-dishes-8"
+      },
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is4lhxi22",
+        "name": "Pad Thai",
+        "src": "LIVE"
+      }
+    ],
+    "tacos-al-pastor": [
+      {
+        "ref": "regional-dishes-8#2",
+        "name": "Tacos al Pastor",
+        "src": "regional-dishes-8"
+      },
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is6bhcd2c",
+        "name": "Tacos al Pastor",
+        "src": "LIVE"
+      }
+    ],
+    "beef-bourguignon": [
+      {
+        "ref": "regional-dishes-8#3",
+        "name": "Boeuf Bourguignon",
+        "src": "regional-dishes-8"
+      },
+      {
+        "ref": "julia-child-25#0",
+        "name": "Boeuf Bourguignon",
+        "src": "julia-child-25"
+      },
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is5eths27",
+        "name": "Beef Bourguignon",
+        "src": "LIVE"
+      }
+    ],
+    "feijoada": [
+      {
+        "ref": "regional-dishes-8#4",
+        "name": "Feijoada",
+        "src": "regional-dishes-8"
+      }
+    ],
+    "hyderabadi-biryani": [
+      {
+        "ref": "regional-dishes-8#5",
+        "name": "Hyderabadi Biryani",
+        "src": "regional-dishes-8"
+      }
+    ],
+    "new-england-clam-chowder": [
+      {
+        "ref": "regional-dishes-8#6",
+        "name": "New England Clam Chowder",
+        "src": "regional-dishes-8"
+      }
+    ],
+    "edomae-sushi": [
+      {
+        "ref": "regional-dishes-8#7",
+        "name": "Edomae Sushi",
+        "src": "regional-dishes-8"
+      }
+    ],
+    "cocoa-brownies": [
+      {
+        "ref": "artisan-baking-28#1",
+        "name": "Fudgy Cocoa Brownies",
+        "src": "artisan-baking-28"
+      }
+    ],
+    "lemon-blueberry-scones": [
+      {
+        "ref": "artisan-baking-28#3",
+        "name": "Lemon Blueberry Scones",
+        "src": "artisan-baking-28"
+      }
+    ],
+    "new-york-cheesecake": [
+      {
+        "ref": "artisan-baking-28#4",
+        "name": "Classic New York Cheesecake",
+        "src": "artisan-baking-28"
+      }
+    ],
+    "apple-pie": [
+      {
+        "ref": "artisan-baking-28#5",
+        "name": "Double-Crust Apple Pie",
+        "src": "artisan-baking-28"
+      },
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is6tnbw26",
+        "name": "Apple Pie",
+        "src": "LIVE"
+      }
+    ],
+    "blueberry-muffins": [
+      {
+        "ref": "artisan-baking-28#7",
+        "name": "Bakery-Style Blueberry Muffins",
+        "src": "artisan-baking-28"
+      }
+    ],
+    "multi-layer-carrot-cake": [
+      {
+        "ref": "artisan-baking-28#8",
+        "name": "Classic Multi-Layer Carrot Cake",
+        "src": "artisan-baking-28"
+      }
+    ],
+    "french-macarons": [
+      {
+        "ref": "artisan-baking-28#9",
+        "name": "Classic French Macarons",
+        "src": "artisan-baking-28"
+      }
+    ],
+    "fresh-peach-cobbler": [
+      {
+        "ref": "artisan-baking-28#10",
+        "name": "Southern Fresh Peach Cobbler",
+        "src": "artisan-baking-28"
+      }
+    ],
+    "vanilla-bean-bakery-cupcakes": [
+      {
+        "ref": "artisan-baking-28#11",
+        "name": "Vanilla Bean Bakery Cupcakes",
+        "src": "artisan-baking-28"
+      }
+    ],
+    "butter-croissants": [
+      {
+        "ref": "artisan-baking-28#12",
+        "name": "Flaky Butter Croissants",
+        "src": "artisan-baking-28"
+      }
+    ],
+    "crusty-artisan-bread": [
+      {
+        "ref": "artisan-baking-28#13",
+        "name": "No-Knead Crusty Artisan Bread",
+        "src": "artisan-baking-28"
+      }
+    ],
+    "garlic-herb-rosemary-focaccia": [
+      {
+        "ref": "artisan-baking-28#14",
+        "name": "Garlic Herb Rosemary Focaccia",
+        "src": "artisan-baking-28"
+      }
+    ],
+    "jalapeno-cheddar-cornbread": [
+      {
+        "ref": "artisan-baking-28#15",
+        "name": "Skillet Jalapeño Cheddar Cornbread",
+        "src": "artisan-baking-28"
+      }
+    ],
+    "quiche-lorraine": [
+      {
+        "ref": "artisan-baking-28#16",
+        "name": "Classic Quiche Lorraine",
+        "src": "artisan-baking-28"
+      },
+      {
+        "ref": "julia-child-25#4",
+        "name": "Quiche Lorraine",
+        "src": "julia-child-25"
+      }
+    ],
+    "pretzels": [
+      {
+        "ref": "artisan-baking-28#17",
+        "name": "Soft Chewy Pretzels",
+        "src": "artisan-baking-28"
+      }
+    ],
+    "cheddar-chive-scones": [
+      {
+        "ref": "artisan-baking-28#18",
+        "name": "Savory Cheddar Chive Scones",
+        "src": "artisan-baking-28"
+      }
+    ],
+    "chicken-pot-pie": [
+      {
+        "ref": "artisan-baking-28#19",
+        "name": "Flaky Homemade Chicken Pot Pie",
+        "src": "artisan-baking-28"
+      }
+    ],
+    "spinach-and-feta-puff-pastry-tarts": [
+      {
+        "ref": "artisan-baking-28#20",
+        "name": "Spinach and Feta Puff Pastry Tarts",
+        "src": "artisan-baking-28"
+      }
+    ],
+    "rosemary-garlic-homemade-crackers": [
+      {
+        "ref": "artisan-baking-28#21",
+        "name": "Rosemary Garlic Homemade Crackers",
+        "src": "artisan-baking-28"
+      }
+    ],
+    "british-sausage-rolls": [
+      {
+        "ref": "artisan-baking-28#22",
+        "name": "Golden Flaky British Sausage Rolls",
+        "src": "artisan-baking-28"
+      }
+    ],
+    "cheese-straws": [
+      {
+        "ref": "artisan-baking-28#23",
+        "name": "Classic Southern Cheese Straws",
+        "src": "artisan-baking-28"
+      }
+    ],
+    "bacon-leek-and-gruyere-tart": [
+      {
+        "ref": "artisan-baking-28#24",
+        "name": "Bacon, Leek, and Gruyère Tart",
+        "src": "artisan-baking-28"
+      }
+    ],
+    "chocolate-lava-cakes": [
+      {
+        "ref": "artisan-baking-28#25",
+        "name": "Fudgy Chocolate Lava Cakes",
+        "src": "artisan-baking-28"
+      }
+    ],
+    "stromboli": [
+      {
+        "ref": "artisan-baking-28#26",
+        "name": "Savory Stromboli",
+        "src": "artisan-baking-28"
+      }
+    ],
+    "buttermilk-biscuits": [
+      {
+        "ref": "artisan-baking-28#27",
+        "name": "Classic Southern Buttermilk Biscuits",
+        "src": "artisan-baking-28"
+      }
+    ],
+    "hearty-black-bean-quesadillas": [
+      {
+        "ref": "frugal-family-25#0",
+        "name": "Hearty Black Bean Quesadillas",
+        "src": "frugal-family-25"
+      }
+    ],
+    "lentil-vegetable-soup": [
+      {
+        "ref": "frugal-family-25#1",
+        "name": "Classic Lentil & Vegetable Soup",
+        "src": "frugal-family-25"
+      }
+    ],
+    "shakshuka-eggs-in-spicy-tomato-sauce": [
+      {
+        "ref": "frugal-family-25#2",
+        "name": "Shakshuka (Eggs in Spicy Tomato Sauce)",
+        "src": "frugal-family-25"
+      }
+    ],
+    "vegetable-egg-fried-rice": [
+      {
+        "ref": "frugal-family-25#3",
+        "name": "Vegetable Egg Fried Rice",
+        "src": "frugal-family-25"
+      }
+    ],
+    "tuna-noodle-casserole": [
+      {
+        "ref": "frugal-family-25#4",
+        "name": "Classic Tuna Noodle Casserole",
+        "src": "frugal-family-25"
+      }
+    ],
+    "smoked-sausage-cabbage-skillet": [
+      {
+        "ref": "frugal-family-25#5",
+        "name": "Smoked Sausage & Cabbage Skillet",
+        "src": "frugal-family-25"
+      }
+    ],
+    "creamy-potato-leek-soup": [
+      {
+        "ref": "frugal-family-25#6",
+        "name": "Creamy Potato Leek Soup",
+        "src": "frugal-family-25"
+      }
+    ],
+    "chana-masala-authentic-chickpea-curry": [
+      {
+        "ref": "frugal-family-25#7",
+        "name": "Chana Masala (Authentic Chickpea Curry)",
+        "src": "frugal-family-25"
+      }
+    ],
+    "slow-cooker-pulled-pork": [
+      {
+        "ref": "frugal-family-25#8",
+        "name": "Slow Cooker Pulled Pork",
+        "src": "frugal-family-25"
+      }
+    ],
+    "pasta-fagioli-italian-pasta-bean-soup": [
+      {
+        "ref": "frugal-family-25#9",
+        "name": "Pasta Fagioli (Italian Pasta & Bean Soup)",
+        "src": "frugal-family-25"
+      }
+    ],
+    "chicken-drumsticks-root-veggies": [
+      {
+        "ref": "frugal-family-25#10",
+        "name": "Sheet Pan Chicken Drumsticks & Root Veggies",
+        "src": "frugal-family-25"
+      }
+    ],
+    "traditional-louisiana-red-beans-and-rice": [
+      {
+        "ref": "frugal-family-25#11",
+        "name": "Traditional Louisiana Red Beans and Rice",
+        "src": "frugal-family-25"
+      }
+    ],
+    "garden-vegetable-frittata": [
+      {
+        "ref": "frugal-family-25#12",
+        "name": "Garden Vegetable Frittata",
+        "src": "frugal-family-25"
+      }
+    ],
+    "cottage-pie-beef-lentil-hybrid": [
+      {
+        "ref": "frugal-family-25#13",
+        "name": "Savory Cottage Pie (Beef & Lentil Hybrid)",
+        "src": "frugal-family-25"
+      }
+    ],
+    "peanut-noodles": [
+      {
+        "ref": "frugal-family-25#14",
+        "name": "Quick Savory Peanut Noodles",
+        "src": "frugal-family-25"
+      }
+    ],
+    "chili-cornbread-skillet-casserole": [
+      {
+        "ref": "frugal-family-25#15",
+        "name": "Chili Cornbread Skillet Casserole",
+        "src": "frugal-family-25"
+      }
+    ],
+    "three-bean-sweet-potato-chili": [
+      {
+        "ref": "frugal-family-25#16",
+        "name": "Three-Bean Sweet Potato Chili",
+        "src": "frugal-family-25"
+      }
+    ],
+    "cheesy-family-baked-ziti": [
+      {
+        "ref": "frugal-family-25#17",
+        "name": "Cheesy Family Baked Ziti",
+        "src": "frugal-family-25"
+      }
+    ],
+    "wacky-chocolate-cake": [
+      {
+        "ref": "frugal-family-25#18",
+        "name": "Depression-Era Wacky Chocolate Cake",
+        "src": "frugal-family-25"
+      }
+    ],
+    "vanilla-bread-pudding": [
+      {
+        "ref": "frugal-family-25#20",
+        "name": "Old-Fashioned Vanilla Bread Pudding",
+        "src": "frugal-family-25"
+      }
+    ],
+    "creamy-cinnamon-rice-pudding": [
+      {
+        "ref": "frugal-family-25#21",
+        "name": "Stovetop Creamy Cinnamon Rice Pudding",
+        "src": "frugal-family-25"
+      }
+    ],
+    "oatmeal-apple-crisp": [
+      {
+        "ref": "frugal-family-25#22",
+        "name": "Classic Oatmeal Apple Crisp",
+        "src": "frugal-family-25"
+      }
+    ],
+    "oatmeal-raisin-cookies": [
+      {
+        "ref": "frugal-family-25#24",
+        "name": "Frugal Chewy Oatmeal Raisin Cookies",
+        "src": "frugal-family-25"
+      }
+    ],
+    "coq-au-vin": [
+      {
+        "ref": "julia-child-25#1",
+        "name": "Coq au Vin",
+        "src": "julia-child-25"
+      },
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is5ibwo2o",
+        "name": "Coq au Vin",
+        "src": "LIVE"
+      }
+    ],
+    "mousse-au-chocolat": [
+      {
+        "ref": "julia-child-25#2",
+        "name": "Mousse au Chocolat",
+        "src": "julia-child-25"
+      }
+    ],
+    "soupe-a-l-oignon": [
+      {
+        "ref": "julia-child-25#3",
+        "name": "Soupe à l'Oignon",
+        "src": "julia-child-25"
+      }
+    ],
+    "sole-meuniere": [
+      {
+        "ref": "julia-child-25#5",
+        "name": "Sole Meunière",
+        "src": "julia-child-25"
+      }
+    ],
+    "ratatouille": [
+      {
+        "ref": "julia-child-25#6",
+        "name": "Ratatouille",
+        "src": "julia-child-25"
+      }
+    ],
+    "gratin-dauphinois": [
+      {
+        "ref": "julia-child-25#7",
+        "name": "Gratin Dauphinois",
+        "src": "julia-child-25"
+      }
+    ],
+    "clafoutis-aux-cerises": [
+      {
+        "ref": "julia-child-25#8",
+        "name": "Clafoutis aux Cerises",
+        "src": "julia-child-25"
+      }
+    ],
+    "tarte-tatin": [
+      {
+        "ref": "julia-child-25#9",
+        "name": "Tarte Tatin",
+        "src": "julia-child-25"
+      }
+    ],
+    "poulet-roti": [
+      {
+        "ref": "julia-child-25#10",
+        "name": "Poulet Rôti",
+        "src": "julia-child-25"
+      }
+    ],
+    "salade-nicoise": [
+      {
+        "ref": "julia-child-25#11",
+        "name": "Salade Niçoise",
+        "src": "julia-child-25"
+      }
+    ],
+    "crepes-suzette": [
+      {
+        "ref": "julia-child-25#12",
+        "name": "Crêpes Suzette",
+        "src": "julia-child-25"
+      }
+    ],
+    "souffle-au-fromage": [
+      {
+        "ref": "julia-child-25#13",
+        "name": "Soufflé au Fromage",
+        "src": "julia-child-25"
+      }
+    ],
+    "bouillabaisse": [
+      {
+        "ref": "julia-child-25#14",
+        "name": "Bouillabaisse",
+        "src": "julia-child-25"
+      }
+    ],
+    "vichyssoise": [
+      {
+        "ref": "julia-child-25#15",
+        "name": "Vichyssoise",
+        "src": "julia-child-25"
+      }
+    ],
+    "reine-de-saba": [
+      {
+        "ref": "julia-child-25#16",
+        "name": "Reine de Saba",
+        "src": "julia-child-25"
+      }
+    ],
+    "hollandaise-sauce": [
+      {
+        "ref": "julia-child-25#17",
+        "name": "Hollandaise Sauce",
+        "src": "julia-child-25"
+      }
+    ],
+    "cassoulet": [
+      {
+        "ref": "julia-child-25#18",
+        "name": "Cassoulet",
+        "src": "julia-child-25"
+      }
+    ],
+    "pate-de-campagne": [
+      {
+        "ref": "julia-child-25#19",
+        "name": "Pâté de Campagne",
+        "src": "julia-child-25"
+      }
+    ],
+    "navarin-printanier": [
+      {
+        "ref": "julia-child-25#20",
+        "name": "Navarin Printanier",
+        "src": "julia-child-25"
+      }
+    ],
+    "french-madeleines": [
+      {
+        "ref": "julia-child-25#21",
+        "name": "French Madeleines",
+        "src": "julia-child-25"
+      }
+    ],
+    "potage-parmentier": [
+      {
+        "ref": "julia-child-25#23",
+        "name": "Potage Parmentier",
+        "src": "julia-child-25"
+      }
+    ],
+    "daube-de-boeuf": [
+      {
+        "ref": "julia-child-25#24",
+        "name": "Daube de Boeuf",
+        "src": "julia-child-25"
+      }
+    ],
+    "sloppy-joes": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqilnnx24",
+        "name": "Sloppy Joes",
+        "src": "LIVE"
+      }
+    ],
+    "coleslaw": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqii7em26",
+        "name": "Coleslaw",
+        "src": "LIVE"
+      }
+    ],
+    "chili-con-carne": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqien552c",
+        "name": "Chili con Carne",
+        "src": "LIVE"
+      }
+    ],
+    "cobb-salad": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqhzvee26",
+        "name": "Cobb Salad",
+        "src": "LIVE"
+      }
+    ],
+    "fried-chicken": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqhsg452s",
+        "name": "Southern Fried Chicken",
+        "src": "LIVE"
+      }
+    ],
+    "bbq-pulled-pork": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqhoxpw2p",
+        "name": "BBQ Pulled Pork",
+        "src": "LIVE"
+      }
+    ],
+    "chilaquiles-rojos": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqhhuk52o",
+        "name": "Chilaquiles Rojos",
+        "src": "LIVE"
+      }
+    ],
+    "huevos-rancheros": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqhefry2j",
+        "name": "Huevos Rancheros",
+        "src": "LIVE"
+      }
+    ],
+    "salsa-verde": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqh57iq2g",
+        "name": "Salsa Verde",
+        "src": "LIVE"
+      }
+    ],
+    "birria-tacos": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqgw25s22",
+        "name": "Birria Tacos",
+        "src": "LIVE"
+      }
+    ],
+    "chicken-fajitas": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqgl6xy2f",
+        "name": "Chicken Fajitas",
+        "src": "LIVE"
+      }
+    ],
+    "mexican-rice": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqghkwq2j",
+        "name": "Mexican Rice",
+        "src": "LIVE"
+      }
+    ],
+    "refried-beans": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqgacjk2d",
+        "name": "Refried Beans",
+        "src": "LIVE"
+      }
+    ],
+    "elote": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqfywyi2f",
+        "name": "Elote",
+        "src": "LIVE"
+      }
+    ],
+    "pork-tamales": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqfvfpi2f",
+        "name": "Pork Tamales",
+        "src": "LIVE"
+      }
+    ],
+    "pozole-rojo": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqfo5kn2c",
+        "name": "Pozole Rojo",
+        "src": "LIVE"
+      }
+    ],
+    "chicken-enchiladas": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqfkjc62p",
+        "name": "Chicken Enchiladas",
+        "src": "LIVE"
+      }
+    ],
+    "cheese-enchiladas": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqfcvgs22",
+        "name": "Cheese Enchiladas",
+        "src": "LIVE"
+      }
+    ],
+    "beef-barbacoa": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqf3kkq2f",
+        "name": "Beef Barbacoa",
+        "src": "LIVE"
+      }
+    ],
+    "carnitas": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqeu5iv2s",
+        "name": "Carnitas",
+        "src": "LIVE"
+      }
+    ],
+    "pico-de-gallo": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqeqo7d25",
+        "name": "Pico de Gallo",
+        "src": "LIVE"
+      }
+    ],
+    "guacamole": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqen2us2d",
+        "name": "Guacamole",
+        "src": "LIVE"
+      }
+    ],
+    "meatloaf": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is6mad62o",
+        "name": "Classic Meatloaf",
+        "src": "LIVE"
+      }
+    ],
+    "buffalo-wings": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is6itmt2c",
+        "name": "Crispy Baked Buffalo Wings",
+        "src": "LIVE"
+      }
+    ],
+    "mango-sticky-rice": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is65z5227",
+        "name": "Mango Sticky Rice",
+        "src": "LIVE"
+      }
+    ],
+    "chicken-biryani": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is62got2c",
+        "name": "Chicken Biryani",
+        "src": "LIVE"
+      }
+    ],
+    "chicken-tikka-masala": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is5wwbx2j",
+        "name": "Chicken Tikka Masala",
+        "src": "LIVE"
+      }
+    ],
+    "butter-chicken": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is5pic227",
+        "name": "Butter Chicken",
+        "src": "LIVE"
+      }
+    ],
+    "greek-chicken-souvlaki": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is55isv2d",
+        "name": "Greek Chicken Souvlaki with Tzatziki",
+        "src": "LIVE"
+      }
+    ],
+    "moussaka": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is4w7j32c",
+        "name": "Moussaka",
+        "src": "LIVE"
+      }
+    ],
+    "spaghetti-carbonara": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is4srz62h",
+        "name": "Spaghetti Carbonara",
+        "src": "LIVE"
+      }
+    ],
+    "greek-cucumber-tomato-feta-salad": [
+      {
+        "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq3m2skev52f",
+        "name": "Greek Cucumber Tomato Feta Salad",
+        "src": "LIVE"
+      }
+    ]
+  }
+}
