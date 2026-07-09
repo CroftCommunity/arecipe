@@ -17,7 +17,7 @@ import {
 import { gzipSync } from 'node:zlib';
 import { buildSync } from 'esbuild';
 
-const PAGES = ['browse', 'mine', 'cookbook', 'settings', 'account', 'recipe', 'editor'];
+const PAGES = ['browse', 'mine', 'cookbook', 'settings', 'account', 'recipe', 'editor', 'signin'];
 const HTML = {
   'index.html': 'browse',
   'mine.html': 'mine',
@@ -26,6 +26,7 @@ const HTML = {
   'account.html': 'account',
   'recipe.html': 'recipe',
   'editor.html': 'editor',
+  'signin.html': 'signin',
 };
 
 rmSync('dist', { recursive: true, force: true }); // no stale artifacts
