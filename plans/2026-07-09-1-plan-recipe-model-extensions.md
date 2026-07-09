@@ -405,7 +405,13 @@ Focus shows the overlay with the current version's ingredients/instructions; Esc
 flipping version then Focus shows the new version. **Edges:** Fullscreen API absent → overlay still
 covers viewport. **Verification:** `npx playwright test tests/e2e/recipes.spec.ts`. **Validation:** Moderate.
 
-### Phase 4e: Browse version-collapse + pagination (Pass 2 — confirmed)
+### Phase 4e: Browse version-collapse + pagination (Pass 2 — confirmed) — COMPLETE 2026-07-09
+**Outcome:** `collapseVersions(records)` (model.ts) → one representative per dishKey (primary
+preferred, first-seen order) + a `counts` map. `browse.ts` collapses the filtered feed before
+render; `renderCard` shows a "N versions" `version-badge` and links a multi-version card to
+`dish.html?key=&did=&by=` (single recipes untouched). Pagination came free from 4a (browse already
+uses the paginated reader). 2 model unit tests + 1 browse e2e (2 versions → 1 badged card → dish.html);
+existing browse.spec stays green (no-dishKey feed → no collapse). Full 221 unit + browse e2e green.
 **Goal:** browse.ts groups records by `dishKey` (4a's helper) and renders **one card per dish** with
 a "N versions" badge linking to `dish.html?key=`; adopts 4a's paginated reader so all ~177 records
 are reachable (the ~50 truncation is already gone from 4a — this adds the collapse UI). Single-version

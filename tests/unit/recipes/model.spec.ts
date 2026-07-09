@@ -6,6 +6,7 @@
 // the required fields) must read cleanly as "no extensions".
 import { describe, expect, it } from 'vitest';
 import {
+  collapseVersions,
   dishKeyOf,
   extensionsOf,
   funFactsOf,
@@ -122,5 +123,31 @@ describe('groupByDishKey / siblingsOf (version discovery — Phase 4a)', () => {
   it('siblingsOf returns every record sharing the key, and [] for an unknown key', () => {
     expect(siblingsOf('banana-bread', records).map((r) => r.uri)).toEqual(['at://x/y/1', 'at://x/y/2']);
     expect(siblingsOf('nope', records)).toEqual([]);
+  });
+});
+
+describe('collapseVersions (browse dedup — Phase 4e)', () => {
+  const rec = (uri: string, key?: string, primary = false) => ({
+    uri,
+    value: key === undefined ? bare() : { ...bare(), dishKey: key, ...(primary ? { primaryVersion: true } : {}) },
+  });
+
+  it('keeps one representative per dishKey (primary preferred) and counts the group', () => {
+    const entries = [
+      rec('at://x/y/a', 'banana-bread'),
+      rec('at://x/y/b', 'banana-bread', true), // primary → representative
+      rec('at://x/y/c', 'pad-thai'),
+      rec('at://x/y/d'), // no dishKey → its own card
+    ];
+    const { representatives, counts } = collapseVersions(entries);
+    expect(representatives.map((r) => r.uri)).toEqual(['at://x/y/b', 'at://x/y/c', 'at://x/y/d']);
+    expect(counts['at://x/y/b']).toBe(2);
+    expect(counts['at://x/y/c']).toBe(1);
+    expect(counts['at://x/y/d']).toBeUndefined();
+  });
+
+  it('preserves first-seen order of dishes', () => {
+    const entries = [rec('at://x/y/1', 'pad-thai'), rec('at://x/y/2', 'banana-bread'), rec('at://x/y/3', 'banana-bread')];
+    expect(collapseVersions(entries).representatives.map((r) => r.uri)).toEqual(['at://x/y/1', 'at://x/y/2']);
   });
 });

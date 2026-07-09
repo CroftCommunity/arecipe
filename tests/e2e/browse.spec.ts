@@ -184,3 +184,33 @@ test('facet selections persist across reload', async ({ page }) => {
   await openFacet(page, 'category');
   await expect(page.locator('input[data-dimension=category][data-value=dinner]')).toBeChecked();
 });
+
+// Phase 4e: alternative versions of one dish collapse to a single badged card
+// linking to the compare grid; single recipes are untouched.
+const routeVersionsFeed = async (page: Page): Promise<void> => {
+  const template = JSON.parse(identityFixture('plc-diddoc-ngvalidation2112.json')) as {
+    id: string;
+    service: { serviceEndpoint: string }[];
+  };
+  await page.route('https://plc.directory/**', async (route) => {
+    const did = decodeURIComponent(route.request().url().split('/').pop() ?? '');
+    const author = AUTHORS.find((a) => a.did === did);
+    if (author === undefined) return route.fulfill({ status: 404, body: '{}' });
+    const doc = { ...template, id: author.did, service: [{ ...template.service[0]!, serviceEndpoint: author.pds }] };
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(doc) });
+  });
+  for (const author of AUTHORS) {
+    await page.route(`${author.pds}/**`, async (route) => {
+      const body = author.records ? atprotoFixture('listRecords-versions.json') : JSON.stringify({ records: [] });
+      await route.fulfill({ status: 200, contentType: 'application/json', body });
+    });
+  }
+};
+
+test('two versions of a dish collapse to one badged card linking to the grid (Phase 4e)', async ({ page }) => {
+  await routeVersionsFeed(page);
+  await page.goto('/');
+  await expect(page.getByTestId('recipe-item')).toHaveCount(1, { timeout: 15_000 });
+  await expect(page.getByTestId('version-badge')).toHaveText('2 versions');
+  await expect(page.getByTestId('recipe-item').first()).toHaveAttribute('href', /dish\.html\?key=banana-bread/);
+});

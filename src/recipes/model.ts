@@ -87,3 +87,35 @@ export const groupByDishKey = <T extends ValueCarrier>(records: T[]): Map<DishKe
 /** Every record sharing a given dishKey (the dish's versions). [] if none. */
 export const siblingsOf = <T extends ValueCarrier>(dishKey: DishKey, records: T[]): T[] =>
   records.filter((rec) => dishKeyOf(rec.value) === dishKey);
+
+/** Collapse a feed to one card per dish (Browse). Records without a dishKey each
+ *  stand alone; records sharing a dishKey collapse to a single representative
+ *  (the primaryVersion if marked, else the first seen), placed at the dish's
+ *  first-seen position. `counts` maps a representative's uri → its version count. */
+export const collapseVersions = <T extends ValueCarrier & { uri: string }>(
+  records: T[],
+): { representatives: T[]; counts: Record<string, number> } => {
+  const groups = groupByDishKey(records);
+  const repByKey = new Map<DishKey, T>();
+  const counts: Record<string, number> = {};
+  for (const [key, members] of groups) {
+    const rep = members.find((m) => isPrimaryVersion(m.value)) ?? members[0];
+    if (rep === undefined) continue;
+    repByKey.set(key, rep);
+    counts[rep.uri] = members.length;
+  }
+  const representatives: T[] = [];
+  const seen = new Set<DishKey>();
+  for (const rec of records) {
+    const key = dishKeyOf(rec.value);
+    if (key === undefined) {
+      representatives.push(rec);
+      continue;
+    }
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const rep = repByKey.get(key);
+    if (rep !== undefined) representatives.push(rep);
+  }
+  return { representatives, counts };
+};

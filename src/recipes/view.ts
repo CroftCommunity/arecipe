@@ -7,7 +7,7 @@
 
 import { recipeFacets } from '../pages/browse-state.js';
 import type { CachedRecipe } from './cache.js';
-import { funFactsOf, versionLabelOf, type FunFact } from './model.js';
+import { dishKeyOf, funFactsOf, versionLabelOf, type FunFact } from './model.js';
 import { firstImageCid, firstImageCredit, formatDuration, formatPublishedDate, thumbUrl } from './present.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -210,6 +210,9 @@ export type RenderOptions = {
   authorsByDid?: Record<string, string>;
   /** Recipe detail only: when set, render a ⛶ Focus button wired to this. */
   onFocus?: () => void;
+  /** Browse only: representative uri → version count. A count > 1 turns the card
+   *  into a "N versions" badge linking to the dish's compare grid. */
+  versionCounts?: Record<string, number>;
 };
 
 const recipePageHref = (entry: CachedRecipe, options: RenderOptions): string => {
@@ -223,12 +226,28 @@ const renderCard = (entry: CachedRecipe, options: RenderOptions): HTMLElement =>
   const value = entry.value as RecipeValue;
   const card = el('a', 'card') as HTMLAnchorElement;
   card.dataset['testid'] = 'recipe-item';
-  card.href = recipePageHref(entry, options);
+  // A collapsed multi-version dish links to its compare grid; a single recipe
+  // links to its own page.
+  const did = entry.uri.split('/')[2] ?? '';
+  const versionCount = options.versionCounts?.[entry.uri] ?? 1;
+  const dishKey = dishKeyOf(value);
+  if (versionCount > 1 && dishKey !== undefined) {
+    const author = options.authorsByDid?.[did] ?? options.author;
+    const by = author === undefined ? '' : `&by=${encodeURIComponent(author)}`;
+    card.href = `./dish.html?key=${encodeURIComponent(dishKey)}&did=${encodeURIComponent(did)}${by}`;
+  } else {
+    card.href = recipePageHref(entry, options);
+  }
   const photoWrap = photoWrapEl(entry);
   const cardCredit = imageCreditOverlay(value, { withLink: false, testid: 'card-credit' });
   if (cardCredit !== null) photoWrap.append(cardCredit);
   card.append(photoWrap);
   card.append(el('span', 'card-title', value.name ?? '(untitled)'));
+  if (versionCount > 1) {
+    const badge = el('span', 'version-badge', `${versionCount} versions`);
+    badge.dataset['testid'] = 'version-badge';
+    card.append(badge);
+  }
   const chips = chipsEl(value);
   if (chips !== null) card.append(chips);
   if (!entry.verified) card.append(alteredWarningEl());

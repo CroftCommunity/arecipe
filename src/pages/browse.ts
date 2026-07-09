@@ -8,6 +8,7 @@ import { log } from '../log.js';
 import { mountShell } from '../nav.js';
 import { createRecipeCache, type CachedRecipe } from '../recipes/cache.js';
 import { createExclusions } from '../recipes/exclusions.js';
+import { collapseVersions } from '../recipes/model.js';
 import { createStarterPrefs, loadStarterFeed } from '../recipes/starter.js';
 import { createRecipeReader } from '../recipes/read.js';
 import { createDietPreference } from '../recipes/diet-preference.js';
@@ -196,8 +197,12 @@ const main = (): void => {
     const options: RenderOptions = {};
     if (current.author !== undefined) options.author = current.author;
     if (current.authorsByDid !== undefined) options.authorsByDid = current.authorsByDid;
+    // Collapse alternative versions to one card per dish (with a "N versions"
+    // badge linking to the compare grid); single recipes are untouched.
+    const { representatives, counts } = collapseVersions(shown);
+    options.versionCounts = counts;
     const render = state.view === 'details' ? renderRecipeDetailsList : renderRecipeList;
-    listContainer.replaceChildren(render(shown, options));
+    listContainer.replaceChildren(render(representatives, options));
     log.debug('browse', 'render', {
       kind: current.kind,
       view: state.view,
