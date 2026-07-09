@@ -2,8 +2,9 @@
 
 **Status:** Pass 1 · Phase 0 discovery · Pass 2 gap analysis · **Pass 3 quality gates ALL
 COMPLETE 2026-07-09. Plan is READY FOR EXECUTION — no unresolved BLOCKING items.** 10 phases
-(0 + 1 + 1b + 2 + 3 + 4a done), all sequential, test-first; 10 open questions all user-confirmed.
-**Next: Phase 4b (`dish.html` compare-and-pick page + build wiring — main risk).** Worktree
+(0 + 1 + 1b + 2 + 3 + 4a done). **UI design REVISED 2026-07-09 via mockups** (`docs/mockups/`):
+inline flip primary, grid = View All, + Focus mode + Settings fun-facts toggle; comments stay
+per-version (dish-level deferred). **Next: Phase 4b (`dish.html` grid + build wiring).** Worktree
 `recipe-import-batch`.
 
 ## Problem Statement
@@ -87,13 +88,17 @@ methods) into **one grouping + switcher mechanism**. `instructions[]` stays lexi
 per record. The dessert JSON's `methods[]` shape is **split into sibling records at publish
 time** (Phase 7). No method toggle UI — the version switcher handles it.
 
-**UI shape (recipe.ts + view.ts) — compare-and-pick page first (DECIDED).** The **primary**
-mechanism is a dedicated `dish.html?key=<dishKey>` **compare-and-pick page** that lists a
-dish's versions side by side (and, with the same pattern, its multiple fun facts) so the
-reader deliberately compares and picks. An inline flip on the recipe page is a **secondary,
-optional** enhancement (later phase), not the first thing built. `renderRecipeDetail` still
-gains optional slots (fun-fact element, "other versions" link to the compare page) and stays
-backward-compatible when the new fields are absent.
+**UI shape — inline flip primary; grid = "View All" (REVISED 2026-07-09 via mockup).** The
+recipe page stays the simple landing (one real recipe). The **primary** version mechanism is an
+**inline flip**: a `‹ N of M ›` control bar above the banner (shown only when M > 1) that swaps
+the image, title, ingredients, and instructions **in place**; `▦ View All` (right side) opens the
+secondary `dish.html?key=<dishKey>` **grid** for deliberate side-by-side compare; a `⛶ Focus`
+button opens a full-screen cook view of the current version. Landing/flip order = **most-liked
+first** (default fallback if like counts unavailable). **Fun facts** are pooled per dish, shown
+just above Comments, and gated by a **Settings "Include fun facts" toggle** (on by default).
+**Comments stay per-version** (no change to the `app.arecipe.comment` model); **dish-level shared
+comments are a Deferred TODO** (see below). Reference mockups live in `docs/mockups/`. This inverts
+the earlier "compare-page-first" decision — the grid is now the deeper option, not the entry point.
 
 **Migration + publish — pilot first (DECIDED).** Once fields exist: (1) a
 fix-metadata-style op adds `funFacts` (from `pds-funfacts.json`) + `dishKey` to the 41 live
@@ -167,18 +172,21 @@ future TODO behind the open-world probe. Client-only name grouping — fragile; 
   keeps the extension-field table in sync with the locked types; Phase 6 flips those fields'
   status note to "live on the PDS" once published. Any new NSID (e.g. a revived overlay) is
   registered here first.
+- `docs/mockups/recipe-flip-mockup.html` + `docs/mockups/dish-mockup.html` — the agreed UI
+  reference (inline flip + Focus; grid). Committed 2026-07-09; update if the UX changes.
 - `spike/import/*.json` `_meta` — note the fields became live (in the publish phase).
 
 ## Concurrency Map
 
-Sequential spine: Phase 0 → 1 → 1b → 2 → 3 → 4a → 4b → 4c → 4d → (5) → 6.
+Sequential spine: Phase 0 → 1 → 1b → 2 → 3 → 4a → 4b → 4c → 4d → 4e → 5 → 6.
 **All phases sequential.** Rationale from the per-phase write-sets: Phases 1/1b write `model.ts`
-which 2/3/4a read; Phases 2/3/4c all write `src/recipes/view.ts` (shared write-set → cannot
-parallelize); 4b depends on 4a's paginator+grouping and edits `scripts/build.mjs`; 4d (browse)
-depends on 4a and edits `browse.ts` (disjoint from view.ts — a *candidate* to parallelize with
-4b/4c, but all three depend on 4a and 4b defines the dish.html link target 4d/4c point to, so
-kept sequential); 6 depends on `dishkeys.json` (1b) and the UI phases (to render the pilot) and
-is the only phase that mutates live PDS state. **Candidate parallelism considered and rejected:** 1b (spike tooling) is
+which 2/3/4a read; Phases 2/3/4c/4d/5 all write `src/recipes/view.ts` (shared write-set → cannot
+parallelize); 4b builds `dish.html` (the View All target that 4c links to) and edits
+`scripts/build.mjs`; 4c/4d write `recipe.ts` + `view.ts` (the flip bar then the Focus button on
+that same bar); 4e (browse) writes `browse.ts` (disjoint from view.ts — a candidate to
+parallelize, but depends on 4a and links to 4b's dish.html, so kept sequential); 5 gates the
+`renderFunFacts` call sites (view.ts + dish.ts) so it follows 4b; 6 depends on `dishkeys.json`
+(1b) and the UI phases (to render the pilot) and is the only phase that mutates live PDS state. **Candidate parallelism considered and rejected:** 1b (spike tooling) is
 write-disjoint from 1/2 (src) and *could* run alongside them — but it gates 4b/6 and needs its
 own user-review checkpoint, so it stays on the spine. No worktree/parallel dispatch planned;
 if adopted later, the only live-mutating phase (6) must never run concurrently with anything.
@@ -320,52 +328,75 @@ so a short read is diagnosable. **Verification:** `vitest run tests/unit/recipes
 **Validation:** Moderate. NOTE: browse.ts's single-page truncation is fixed in Phase 4d, which
 adopts this paginated reader.
 
-### Phase 4b: Compare-and-pick page (`dish.html`) — PRIMARY version mechanism, main risk
-**Goal:** New `dish.html?key=<dishKey>` page: uses 4a's paginated reader + grouping to list a
-dish's version records **side by side** to compare and pick (method-labeled siblings —
-"Microwave"/"Oven" — surface here too), pooling the dish's fun facts with the same compare/pick
-pattern. **Build wiring (Pass 2 — REQUIRED):** add `'dish'` to `PAGES` and `'dish.html':'dish'`
-to `HTML` in `scripts/build.mjs`, and create the top-level `dish.html` (referencing `./dish.js`
-+ `./styles.css`, mirroring `recipe.html`); SW precache picks it up via the `HTML` map.
+> **Design pivot (2026-07-09, from the mockup):** the recipe page stays the simple landing;
+> the **inline version flip is the PRIMARY mechanism** and the `dish.html` grid is the secondary
+> **"View All"**. Reference mockups: `docs/mockups/recipe-flip-mockup.html` (primary) +
+> `docs/mockups/dish-mockup.html` (grid). Comments stay **per-version** (no model change);
+> dish-level shared comments are a **Deferred TODO**. See the reordered phases below.
+
+### Phase 4b: `dish.html` compare grid — the "View All" target (build wiring, main risk)
+**Goal:** New `dish.html?key=<dishKey>` grid page (the mockup's compare view): uses 4a's paginated
+reader + grouping to list a dish's versions **side by side as compare cards** (photo, versionLabel,
+at-a-glance times/serves/ingredient-count, source, "View full recipe →"), with the pooled fun-fact
+cycler at top (subject to the Settings toggle, Phase 5). It's reached from the recipe page's
+**View All** button (Phase 4c), not the primary path. **Build wiring (REQUIRED):** add `'dish'` to
+`PAGES` and `'dish.html':'dish'` to `HTML` in `scripts/build.mjs`; create top-level `dish.html`
+(mirroring `recipe.html`, refs `./dish.js` + `./styles.css`); SW precache picks it up via `HTML`.
 **Read-set:** `read.ts`, `model.ts`, `view.ts`, `recipe.html`. **Write-set:** `src/pages/dish.ts`
-(new), `dish.html` (new), `scripts/build.mjs` (edit PAGES+HTML), **`README.md:31-36` (add
-`dish.html` to the page inventory)**, **`docs/DESIGN.md` (version model + compare page section)**
-+ e2e spec. **Shared-state:** none. **Doc updates happen in THIS phase** (not deferred) since
-this is where `dish.html` becomes real. **Wiring test:** e2e — `npm run build` emits
-`dist/dish.html` + a hashed `dish` bundle (assert the file exists in `dist/`); a `dishKey` with
-2+ versions renders the compare page and picking swaps content; a `dishKey` with 1 member
-renders gracefully (no empty switcher); a method-dual dish shows both method siblings.
-**Verification:** `npm run build && npx playwright test tests/e2e/dish.spec.ts`.
-**Validation:** Broad (build + serve + e2e, not just unit).
+(new), `dish.html` (new), `scripts/build.mjs` (PAGES+HTML), **`README.md:31-36`** (add `dish.html`),
+**`docs/DESIGN.md`** (version model + View-All grid) + e2e spec. **Shared-state:** none. Doc
+updates happen in THIS phase. **Wiring test:** e2e — `npm run build` emits `dist/dish.html` + a
+hashed `dish` bundle (assert file exists); a `dishKey` with 2+ versions renders the compare cards;
+1 member renders gracefully; a method-dual dish shows both method siblings.
+**Verification:** `npm run build && npx playwright test tests/e2e/dish.spec.ts`. **Validation:** Broad.
 
-### Phase 4c: "Other versions" link from the recipe page
-**Goal:** recipe.ts discovers whether the current record's `dishKey` has siblings (via 4a) and,
-if so, `renderRecipeDetail` shows an "other versions →" link to `dish.html?key=`. Requires a new
-optional `RenderOptions` field (e.g. `siblingCount`/`dishKey`). **Read-set:** `read.ts`,
-`model.ts`. **Write-set:** `src/pages/recipe.ts` + `src/recipes/view.ts` (RenderOptions + link) +
-e2e/unit. **Shared-state:** none. **Wiring test:** e2e — a multi-version recipe shows the link;
-a single-version one does not. **Edges:** siblingCount 0 → no link; 1 (self only) → no link; 2+
-→ link with the right `?key=`. **Verification:** `npx playwright test tests/e2e/recipes.spec.ts`.
+### Phase 4c: Inline version flip on the recipe page — PRIMARY UX
+**Goal:** On `recipe.ts`, discover the current record's siblings by `dishKey` (4a's paginated reader
++ `siblingsOf`) and render the **version control bar above the banner**: `‹ N of M ›` cycler (shown
+ONLY when M > 1) on the left, **▦ View All** (→ `dish.html?key=`) on the right. Flipping swaps the
+banner image, title, lede, ingredients, instructions, and provenance **in place**; the pooled fun
+facts and the (per-version) comments do NOT belong to the swap — fun facts are dish-pooled, comments
+are per current version. **Landing/flip order = most-liked first** (fetch per-sibling like counts
+via `interactions.ts`; fall back to a stable default — `primaryVersion` then published order — if
+counts are unavailable). **Read-set:** `read.ts`, `model.ts`, `interactions.ts`. **Write-set:**
+`src/pages/recipe.ts` + `src/recipes/view.ts` (control bar + swap) + e2e/unit. **Shared-state:** none.
+**Wiring test:** e2e — a 2+-version recipe shows the bar; `›` swaps image+ingredients+instructions;
+a single-version recipe shows NO bar; View All links to the right `?key=`. **Edges:** M=1 → no bar;
+ordering by likes with a tie/absent-counts fallback. **Verification:** `npm run build && npx
+playwright test tests/e2e/recipes.spec.ts`. **Validation:** Broad.
+
+### Phase 4d: ⛶ Focus mode (full-screen cook view)
+**Goal:** Add a **⛶ Focus** button to the recipe control bar (next to View All) that opens a
+distraction-free full-screen view of ONLY the current version's image + ingredients + instructions
+(no header/nav/fun-facts/comments), larger type; Exit button + `Esc` close it; uses the Fullscreen
+API with a fixed-overlay fallback. **Read-set:** `model.ts`. **Write-set:** `src/pages/recipe.ts` +
+`src/recipes/view.ts` (focus overlay + button) + `styles.css` (focus styles) + e2e/unit.
+**Shared-state:** none (transient fullscreen; restores on exit). **Wiring test:** e2e — clicking
+Focus shows the overlay with the current version's ingredients/instructions; Esc/Exit restores;
+flipping version then Focus shows the new version. **Edges:** Fullscreen API absent → overlay still
+covers viewport. **Verification:** `npx playwright test tests/e2e/recipes.spec.ts`. **Validation:** Moderate.
+
+### Phase 4e: Browse version-collapse + pagination (Pass 2 — confirmed)
+**Goal:** browse.ts groups records by `dishKey` (4a's helper) and renders **one card per dish** with
+a "N versions" badge linking to `dish.html?key=`; adopts 4a's paginated reader so all ~177 records
+are reachable (the ~50 truncation is already gone from 4a — this adds the collapse UI). Single-version
+dishes render as a normal card (no badge). **Read-set:** `read.ts`, `model.ts`. **Write-set:**
+`src/pages/browse.ts` (+ `browse-state.ts` if the feed shape changes) + `tests/e2e/browse.spec.ts`.
+**Shared-state:** none. **Wiring test:** e2e — a multi-version dish shows one badged card; click opens
+`dish.html`; pagination loads beyond page 1. **Edges:** single-version → no badge; multi → correct
+count; existing `browse.spec.ts` assertions stay green. **Verification:** `npm run build && npx
+playwright test tests/e2e/browse.spec.ts`. **Validation:** Broad (landing page; regression-sensitive).
+
+### Phase 5: Settings "Include fun facts" toggle
+**Goal:** Add an **Include fun facts** toggle to `settings.ts` (client-side preference, **ON by
+default**, same localStorage pattern as theme/diet-preference); when off, fun facts are hidden
+**everywhere** — the recipe page cycler (Phase 3) and the `dish.html` pooled facts (Phase 4b).
+`renderFunFacts` callers gate on the preference. **Read-set:** `settings.ts`, `view.ts`. **Write-set:**
+`src/pages/settings.ts` + a small pref module (e.g. `src/recipes/preferences.ts` or reuse existing) +
+the gate at the `renderFunFacts` call sites + unit/e2e. **Shared-state:** localStorage key.
+**Wiring test:** unit — pref defaults ON; toggling off makes the gate return no fun facts; e2e —
+toggling in Settings hides the cycler on a recipe. **Edges:** unset pref → treated as ON.
 **Validation:** Moderate.
-
-### Phase 4d: Browse version-collapse + pagination (Pass 2 — confirmed)
-**Goal:** browse.ts groups records by `dishKey` (4a's helper) and renders **one card per dish**
-with a "N versions" badge linking to `dish.html?key=`; adopts 4a's paginated reader so all 177
-records are reachable (fixes the pre-existing ~50-record truncation). Single-version dishes
-render as a normal card (no badge). **Read-set:** `read.ts`, `model.ts`. **Write-set:**
-`src/pages/browse.ts` (+ `src/pages/browse-state.ts` if the feed shape changes) + e2e
-(`tests/e2e/browse.spec.ts`). **Shared-state:** none. **Wiring test:** e2e — a corpus with a
-multi-version dish shows one badged card; clicking opens `dish.html`; pagination loads beyond
-page 1. **Edges:** single-version dish → normal card, NO badge; multi-version → badge shows the
-correct count; empty feed → empty state; the **existing `browse.spec.ts` assertions stay green**
-(regression guard on the card layout). **Verification:** `npm run build && npx playwright test
-tests/e2e/browse.spec.ts`. **Validation:** Broad (landing page; regression-sensitive).
-
-### Phase 5 (optional): Inline version flip on the recipe page
-**Goal:** Secondary convenience — an inline version toggle on `recipe.ts` that swaps the
-detail in place without visiting `dish.html`. Only if wanted after Phase 4b/4c. **Write-set:**
-`src/pages/recipe.ts` + `src/recipes/view.ts` + e2e. **Shared-state:** none. **Wiring test:**
-e2e — inline toggle swaps content. **Validation:** Moderate.
 
 ### Phase 6: Migration ops + pilot publish → bulk
 **Depends on:** Phase 1b (`dishkeys.json`) and the UI phases (so the pilot renders). Uses
@@ -409,9 +440,21 @@ All seven open questions were walked through and decided:
 4. **Fun facts → `funFacts[]` denormalized per record** (plurality; per-record self-describing).
 5. **Methods → unified with versions.** No `methods[]` field; a dual-method recipe = two
    version records with method `versionLabel`s. Method-toggle phase removed.
-6. **Switcher UI → deep compare-and-pick page first (Phase 4, primary);** inline flip is a
-   secondary optional Phase 5.
+6. **Switcher UI → REVISED 2026-07-09 (mockup):** inline flip is **primary** (Phase 4c) with a
+   `‹ N of M ›` bar above the image + `⛶ Focus` (Phase 4d); the `dish.html` grid is the secondary
+   **View All** (Phase 4b). Adds a Settings **Include fun facts** toggle (Phase 5). Comments stay
+   per-version; **dish-level comments deferred** (see Deferred TODOs). Supersedes the "deep page
+   first" call.
 7. **Publish scope → pilot batch first, then bulk** (Phase 6).
+
+## Deferred TODOs (out of scope for this plan)
+
+- **Dish-level shared comments.** Comments currently attach per-version (`app.arecipe.comment` →
+  one record's AT-URI). A nicer model shares one comment thread across a dish's versions (keyed by
+  `dishKey`). Deferred 2026-07-09 (user call) — it reworks the live comments model and warrants its
+  own plan. For now, flipping versions shows that version's own comments.
+- **Remember-a-default version.** The compare/flip is navigate-only; persisting a user's preferred
+  version per dish (localStorage) is a possible later enhancement.
 
 ## Open Questions (reopened + resolved in Pass 2, 2026-07-09)
 
@@ -529,3 +572,19 @@ phase that makes `dish.html` real); `scripts/build.mjs` wiring in 4b. No end-of-
 **Confirmed ready:** YES. All 10 open questions (7 Pass-1 + 3 Pass-2) user-confirmed; no
 unresolved BLOCKING items (the BLOCKING lexicon question was settled by D1; cross-set grouping
 is a confirmed YES implemented via Phase 1b's review checkpoint). Ready to execute Phase 1.
+
+### Design revision (mid-execution, mockup-driven) — 2026-07-09
+After Phases 0–4a shipped, the user reviewed static mockups (`docs/mockups/recipe-flip-mockup.html`,
+`docs/mockups/dish-mockup.html`) and **inverted the version-switcher UX**:
+- **Inline flip is now PRIMARY** (Phase 4c) — a `‹ N of M ›` bar above the banner that swaps
+  image/title/ingredients/instructions in place; `⛶ Focus` full-screen cook view added (Phase 4d).
+- **`dish.html` grid demoted to secondary "View All"** (Phase 4b) — still built (it's the View All
+  target + carries the build-wiring risk), just no longer the entry point.
+- **Old "other versions link" phase folded** into 4c's control bar.
+- **New Settings "Include fun facts" toggle** (Phase 5, on by default, gates fun facts everywhere).
+- **Comments stay per-version**; dish-level shared comments moved to **Deferred TODOs** (user call —
+  avoids reworking the live `app.arecipe.comment` model now).
+- **Landing/flip order = most-liked first** (fallback default).
+Phases 0–4a unaffected (model, fun-fact render+wire, pagination+grouping all stand). Spine is now
+0→1→1b→2→3→4a→4b→4c→4d→4e→5→6. Mockups committed to `docs/mockups/` as the reference artifacts.
+Ready to resume at Phase 4b.
