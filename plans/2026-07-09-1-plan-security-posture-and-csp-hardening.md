@@ -1,7 +1,29 @@
 # arecipe — Security posture narrative + primary XSS hardening (CSP/SRI)
 
-Pass 1 (base) — 2026-07-09. Analysis only, no code. Pass 2 (gap analysis) and
-Pass 3 (quality gates) to follow in fresh contexts before execution.
+**Status: IN EXECUTION.** Passes 1–3 complete (`efabd22`, `4ad4290`, `5b89fba`).
+Phase 0 discovery ✅ complete. Phases 1–4 pending.
+
+## Outcome Summary
+
+| Phase | Outcome | Ref | Note |
+|-------|---------|-----|------|
+| 0 Discovery | ✅ complete | — | D2/D3/D4 hermetic; D1 read+PDS path proven; `@live` auth slice → Phase 2 gate |
+| 1 Narrative | ⏳ pending | — | `docs/SECURITY.md` + README/DESIGN links |
+| 2 CSP + hashing | ⏳ pending | — | build.mjs meta injection; **needs `@live` sign-in-under-CSP to close** |
+| 3 SRI | ⏳ pending | — | entry module + both stylesheets |
+| 4 Zero-3p guard | ⏳ pending | — | structural test guard |
+
+**Surfaced, out of scope (needs triage/tracking):** custom fonts 404 in
+production — `assets/fonts/fonts.css` uses `url(./assets/fonts/X.woff2)` but is
+itself served from `/assets/fonts/`, so the browser resolves to a doubled path
+`/assets/fonts/assets/fonts/X.woff2` (404 → system-font fallback). Pre-existing,
+unrelated to CSP (`font-src 'self'` neither causes nor worsens it — the requests
+are same-origin, just mis-pathed). Not fixed by this plan.
+
+---
+
+Pass 1 (base) — 2026-07-09. Pass 2 (gap analysis) + Pass 3 (quality gates)
+complete. Execution began 2026-07-09 at Phase 0.
 
 ## Problem Statement
 
@@ -167,18 +189,58 @@ unverified-behavior trap the planning discipline exists to force into a probe.
   `session.signOut()`), `getTokenInfo`, and a debug `forceRefresh`. There is **no
   global "sign out everywhere"** today. Confirmed by reading
   `src/auth/session-provider.ts`.
-- **UNVERIFIED (Phase 0):** (a) the exact fixed `connect-src` origin set the OAuth
-  + read + publish flows contact at runtime (policy decided — OQ1 — but D1
-  confirms nothing is missed, incl. whether `BrowserOAuthClient` uses a hidden
-  iframe for refresh → `frame-src`, and that no `wss:` appears); (b) that a
-  build-computed `'sha256-…'` matches the browser's hash of each inline block
-  (whitespace exactness) across all three distinct blocks; (c) whether
-  `integrity=` on an ES-module entry is honored and how code-split `import()`
-  chunks behave (SRI not expressible on them); (d) which CSP directives
-  `<meta http-equiv>` ignores (notably `frame-ancestors` — clickjacking defense
-  unavailable on Pages); (e) runtime confirmation that no `'unsafe-eval'` is
-  needed (the static grep is strong but a dep could eval via a path the grep
-  missed — the no-violations run under a no-eval policy is the proof).
+- **VERIFIED via Phase 0 discovery (2026-07-09, hermetic Playwright/Chromium
+  over built `dist`; probe code was `throwaway` and has been removed):**
+  - **(D2) The three build-computed `sha256` hashes match the browser exactly**
+    — under `script-src 'self'` + the three hashes, all 9 documents loaded with
+    **zero** `securitypolicyviolation`. Base64 values for `build.mjs`:
+    - `sha256-FZCh04/evgapIEHhqDZ2QN+jSctIo/PmzHFZCcGVwlA=` — theme pre-paint
+      (all 8 shells)
+    - `sha256-AFuWlNTFNFOiaCN/V9holAXSCcoVXtnsje4QkAYG/CI=` — index landing block
+    - `sha256-oEG+8rARcF5NdiN3bUoe+M8OmKs3aT23yOBbuduJvQQ=` — friends.html stub
+    Zero inline `<style>` and zero `on*=` handlers across all 9 docs (re-confirmed
+    at runtime) → `style-src 'self'` holds and `script-src-attr` is unneeded.
+  - **(D2) Meta ordering is load-bearing and proven.** A hash-less
+    `script-src 'self'` placed **before** the inline theme block fired a
+    `script-src-elem: inline` violation (blocked); the identical meta placed
+    **after** the block fired **no** `script-src-elem` violation (the script ran
+    **ungoverned**). Therefore Phase 2 must inject the CSP meta *before* the first
+    inline `<script>` — a meta does not retroactively govern preceding scripts.
+  - **(D1, read path) `connect-src`/`img-src` candidate policy fires zero
+    violations on the read path**, exercising `resolveDidDoc` → PDS records +
+    thumbnails. Origins actually contacted: `plc.directory`, `cdn.bsky.app`, and
+    **four distinct dynamic PDS hosts** (`morel.us-east.host.bsky.network`,
+    `phellinus.us-west.host.bsky.network`, `poisonpie.us-west.host.bsky.network`,
+    `pds.commonscomputer.com`) — none on a hard-codeable allowlist. This is the
+    concrete proof that OQ1's `https:` breadth is required: a fixed allowlist
+    would have blocked every one of those PDS. The build-info fetch stayed
+    same-origin (`connect-src 'self'`).
+  - **(D3) `integrity=` is honored AND enforced on the entry ES module.** Correct
+    `sha384` → the app mounted (module executed); a deliberately wrong digest →
+    Chromium reported *"Failed to find a valid digest … The resource has been
+    blocked"* and `#app` stayed empty. Computed digests:
+    - entry (`browse-*.js`): `sha384-20jNTbRJwu+6nXPFIKyo6CbhM4pUDD3xPLGcgwMmOZrt8j0mqUh1EoMAMHz/Y44R`
+    - styles (`styles-*.css`): `sha384-ssn9sGhxErOpZgOrmH8ixE6Us1eHKS6dqJUt2v61qDmZatpSCeXR4Ax8VIqnWpFo`
+    (these rotate per content hash; `build.mjs` recomputes them per build).
+    Code-split `import()` chunks carry **no HTML tag**, so HTML `integrity` is
+    structurally not expressible on them — documented as not-covered (OQ4), not a
+    gap we can close.
+  - **(D4) GitHub Pages sets no framing/CSP response header.** `curl -I
+    https://arecipe.app/` returns `server: GitHub.com` with **no
+    `X-Frame-Options` and no `Content-Security-Policy`**. Combined with the CSP
+    spec (`<meta http-equiv>` ignores `frame-ancestors`, `report-uri`,
+    `report-to`, `sandbox`), clickjacking cannot be defended on Pages → document
+    as a residual limitation (settled decision #3).
+- **STILL PENDING `@live` (no `.env` credentials in this environment):** (a) the
+  **auth + publish** slice of D1 — the OAuth sign-in against `bsky.social`,
+  handle resolution against `public.api.bsky.app`, a publish, and the
+  `frame-src` (hidden-refresh-iframe) / `wss:` watch — was **not** exercised
+  hermetically; and (e) the **runtime no-`'unsafe-eval'` confirmation** (cbor
+  encode/decode + DPoP JWT signing run only in the auth/publish flow). The static
+  `dist` grep (no `eval`/`new Function`/`WebAssembly`) stands as strong evidence.
+  Both fold directly into **Phase 2's `@live` loopback sign-in-under-CSP
+  Verification gate** — which is the plan's designated place for them — so no
+  new phase is needed; they are gated, not lost.
 
 ## Documentation Impact
 
@@ -232,7 +294,13 @@ Sequential spine: **Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 4.**
 gate only where the flow is the feature. Doc phases validate by accuracy review
 against cited `file:line`, not tests.
 
-### Phase 0: Discovery
+### Phase 0: Discovery — ✅ COMPLETE (hermetic; `@live` auth slice deferred to Phase 2 gate)
+
+**Delivered (2026-07-09):** D2/D3/D4 fully resolved hermetically; D1 resolved for
+the read + dynamic-PDS path (the connect-src design question), with its auth +
+publish slice deferred to Phase 2's `@live` gate (no `.env` here). All findings in
+Verified Assumptions. Probe code (`tests/e2e/spike-phase0.spec.ts`,
+`tests/spike/d2-inline-inventory.mjs`) was `throwaway` and has been removed.
 
 **Goal:** Resolve the four unknowns that gate an honest CSP/SRI implementation
 and an accurate narrative. Cheap probes now vs a wrong policy shipped to
@@ -718,3 +786,44 @@ the Phase 1 cross-ref anchor.
 
 **Confirmed ready:** yes — all five open questions previously confirmed by the
 user; no BLOCKING items. Execution starts at Phase 0.
+
+### Phase 0 execution — Discovery findings — 2026-07-09
+Ran hermetic Playwright/Chromium probes over the built `dist` (probe code
+`throwaway`, since removed). Full evidence promoted into Verified Assumptions;
+summary:
+
+- **D2 (hashing) — resolved.** The three build-computed `sha256` hashes match the
+  browser byte-for-byte; all 9 documents load with zero violations under
+  `script-src 'self'` + the 3 hashes. Zero inline styles / `on*=` handlers.
+  **Meta-ordering proven load-bearing:** a hash-less policy before the inline
+  block blocks it; the same policy after the block does not govern it (script
+  runs) — so Phase 2 must inject the meta before the first inline `<script>`.
+- **D1 (connect/img) — read path resolved, auth path deferred.** The candidate
+  policy (OQ1: `'self'` + fixed origins + `https:`) fired zero violations while
+  contacting `plc.directory`, `cdn.bsky.app`, and **four dynamic PDS hosts** not
+  on any allowlist — concrete proof the `https:` breadth is required for
+  arbitrary-PDS support. The OAuth sign-in + publish slice (and the runtime
+  no-`unsafe-eval` confirmation) needs `@live` credentials absent here → folded
+  into Phase 2's existing `@live` Verification gate.
+- **D3 (SRI) — resolved.** Entry ES-module `integrity=` is honored and enforced
+  (wrong digest → Chromium blocks the module, app stays empty). Code-split
+  `import()` chunks have no HTML tag → integrity not expressible → documented
+  not-covered (OQ4). Digests computed (recorded in VA).
+- **D4 (meta limits) — resolved.** Live `arecipe.app` sets no `X-Frame-Options`
+  and no CSP response header (`server: GitHub.com`); with `<meta>` ignoring
+  `frame-ancestors`/`report-uri`/`report-to`/`sandbox`, clickjacking is
+  undefendable on Pages → narrative residual-limitation (settled #3).
+
+**No phase restructuring needed** — every finding matched the plan's assumptions;
+OQ1/OQ3/OQ4 are confirmed by evidence rather than changed. The only material
+carve-out (D1 auth slice + runtime eval check → Phase 2 `@live` gate) was already
+the plan's designated home for those checks.
+
+**New discovery, out of scope (surfaced, not fixed):** custom fonts 404 in
+production via a doubled relative path in `assets/fonts/fonts.css` (see Outcome
+Summary). Pre-existing, CSP-independent. Needs its own triage/tracking (no
+`TODO.md` exists in this repo yet — flagged to the user).
+
+**Phase 0 stop-point:** findings reported; awaiting user go-ahead for Phase 1
+(the OQ1 connect-src decision was already confirmed and is now evidence-backed, so
+no re-decision is required).
