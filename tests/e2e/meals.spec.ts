@@ -150,6 +150,27 @@ test('calendar: shows an empty state until something is planned', async ({ page 
   await expect(page.getByTestId('calendar-empty')).toBeVisible();
 });
 
+test('drag (desktop): drag a palette chip onto a day places it; drag a filled slot moves it', async ({
+  page,
+}) => {
+  await seedPalette(page);
+  await page.goto('/meals.html');
+
+  const lasagna = page.getByTestId('palette-chip').filter({ hasText: 'Lasagna' });
+  const week1 = page.getByTestId('week-row').first();
+  const mon = week1.getByTestId('day-slot').nth(0);
+  const wed = week1.getByTestId('day-slot').nth(2);
+
+  // Drag the palette chip onto Monday — same placement as tapping.
+  await lasagna.dragTo(mon);
+  await expect(mon.getByTestId('slot-filled')).toHaveText('Lasagna');
+
+  // Drag the filled Monday slot onto Wednesday — a move (source clears).
+  await mon.dragTo(wed);
+  await expect(wed.getByTestId('slot-filled')).toHaveText('Lasagna');
+  await expect(mon.getByTestId('slot-filled')).toHaveCount(0);
+});
+
 test('palette: Browse source loads, filter narrows, source switch toggles, add-a-cook appends', async ({
   page,
 }) => {

@@ -1,6 +1,6 @@
 # Meals — a meal-planner tab for arecipe
 
-**Status:** In execution (started 2026-07-10). Phase 0 ✅ · Phase 1 ✅ · Phase 2 ✅ · Phase 3 ✅ · Phase 4 ✅ · Phase 5 ✅ · Phase 6 ✅ · Phase 7 ✅ · Phases 8–9 pending.
+**Status:** In execution (started 2026-07-10). Phase 0 ✅ · Phase 1 ✅ · Phase 2 ✅ · Phase 3 ✅ · Phase 4 ✅ · Phase 5 ✅ · Phase 6 ✅ · Phase 7 ✅ · Phase 8 ✅ · Phase 9 pending. **Rebased onto `origin/main` (`34bf5b5`) 2026-07-10** — pre-rebase SHAs in rows 1–7 are historical (the rebase rewrote them); see Review Log.
 
 ## Outcome Summary
 
@@ -14,7 +14,7 @@
 | 5 Week builder + tap-to-place | ✅ shipped | `be59903` | `meals.ts` grown into the builder (palette chips, 7-day week rows, tap-to-arm/place/clear, add/remove week cap 6) persisting to the P4 store; planner CSS. Wiring e2e: tap→place→**reload-persist**→clear→add-week. This is P4's entry-point wiring proof. 92 e2e, 250 unit. |
 | 6 Calendar + repeat | ✅ shipped | `a4bea68` | Per-week `repeat` input (1–12, clamped) + calendar section driven by the model's `expandCalendar` (stamps in order, rep badge, empty state). Wiring e2e: repeat→3 ⇒ 3 stamped rows each carrying the filled day. This is P3 `expandCalendar`'s entry-point wiring proof. 94 e2e, 250 unit. |
 | 7 Palette (Cookbook + Browse) | ✅ shipped | `21bd387` | `meal-plan-palette.ts` (3 loaders, replicated `membersToAuthors`, degrade+log seams) + source switch / filter / add-a-cook wired into `meals.ts`. 7 loader unit tests; hermetic e2e (Browse loads, filter narrows, switch toggles, handle appends). Auth deferred (dynamic import; meals stays 8K auth-free). Signed-in manual leg unrunnable here (no creds). 95 e2e, 257 unit. |
-| 8 Drag enhancement | ⬜ pending | — | |
+| 8 Drag enhancement | ✅ shipped | `<pending-p8>` | HTML5 drag layered on tap-to-place: drag a palette chip onto a day (place), drag a filled slot to another (move/swap), reusing the same store mutations; `.day--over` drop state. Additive — touch tap-to-place unchanged. Wiring e2e (Playwright `dragTo`, asserts resulting state). 106 e2e, 272 unit (post-rebase). |
 | 9 PDS sync | ⬜ pending | — | |
 
 ## Problem Statement
@@ -858,7 +858,16 @@ Browse sample handle `rdur.dev`).
 
 ---
 
-### Phase 8: Drag-and-drop enhancement (desktop)
+### Phase 8: Drag-and-drop enhancement (desktop) — ✅ SHIPPED (`<pending-p8>`)
+**Delivered (2026-07-10):** `src/pages/meals.ts` — a closure `dragging` payload
+(`{kind:'palette',item}` | `{kind:'slot',wi,di}`); palette chips are `draggable`
+(dragstart arms a palette drag); every day cell is a drop target
+(dragover→`preventDefault`+`.day--over`, drop applies the **same store mutation**
+as tap-to-place); filled cells are `draggable` for move/swap (source ↔ target
+slots exchange). Additive — tap-to-place and touch are untouched. `styles.css`
+`.day--over` drop state. Wiring e2e uses Playwright `dragTo` and asserts on the
+resulting placement/move (not intermediate DnD events, per the plan's flakiness
+note). 106 e2e / 272 unit, lint+typecheck clean.
 **Goal:** Layer HTML5 drag on top of tap-to-place: drag a palette recipe onto a
 slot, and drag a filled slot to another slot (move/swap). Tap-to-place remains
 the primary, touch-safe path.
@@ -1172,3 +1181,26 @@ written. **No BLOCKING items introduced.**
 **Checkpoint:** Phase 0 is the pre-implementation decision point. Paused here for
 user go-ahead on Phase 1, and for the user's call on the D1 live leg (defer to
 Phase 9 [recommended] vs. run now against production creds).
+
+### Rebase onto origin/main — 2026-07-10 (after Phase 8, before Phase 9)
+User requested a rebase because the top bar had changed on main. `origin/main`
+had advanced from our base `2cae66a` to **`34bf5b5`** (15 commits), including two
+that matter for this plan:
+- **`My recipes` → `Alchemy` rename** (`1bad33d`): label only — `testid` `tab-mine`
+  and href `./mine.html` unchanged, so our order-by-testid tests still hold.
+- **The cookbook-UI branch merged**: `src/social/cookbook-members-view.ts` now
+  **exists and exports `membersToAuthors`** — this is the Q3 merge moment (see
+  Open Questions Q3). Follow-up: swap Phase 7's replicated copy for the export.
+
+**Rebase (`git rebase origin/main`, rerere enabled):** conflicts at Phase 1
+(README inventory: Alchemy vs. meals.html — kept both) and Phase 2 (`nav.ts`,
+`tests/unit/nav.spec.ts`, `docs/DESIGN.md`: Alchemy rename adjacent to our Meals
+insertion — kept Alchemy label + Meals entry; updated our test descriptions to
+"Alchemy"). Phases 3–8 replayed clean. **Post-rebase verification: typecheck +
+lint clean, 272 unit, 106 e2e all green** — the palette seam still matches main's
+signatures, and Alchemy + Meals coexist in the tab bar.
+
+**SHA note:** the rebase rewrote every commit SHA, so the Outcome Summary SHAs for
+rows 1–7 are now historical (they identify the pre-rebase commits by content).
+Phase 8 onward records post-rebase SHAs. Not chasing the 7 rewritten SHAs — the
+commits are identifiable by their messages in `git log`.

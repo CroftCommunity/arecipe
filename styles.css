@@ -1452,3 +1452,9 @@ table.ref.pairs td.eq {
   background: var(--card);
   color: var(--ink);
 }
+
+/* --- Meal planner drag drop-target (Phase 8) ----------------------------- */
+.day--over {
+  border-color: var(--enamel);
+  background: var(--enamel-soft);
+}

@@ -30,6 +30,9 @@ import { registerServiceWorker } from '../sw-register.js';
 
 export type PaletteProvider = () => Promise<PaletteItem[]>;
 type Source = 'cookbook' | 'browse';
+/** In-flight drag payload (Phase 8 desktop enhancement): a palette chip or an
+ * already-placed slot being moved. Tap-to-place remains the touch-safe primary. */
+type Dragging = { kind: 'palette'; item: PaletteItem } | { kind: 'slot'; wi: number; di: number };
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
   const node = document.createElement(tag);
@@ -91,6 +94,7 @@ export const main = async (
   // Single implicit plan (v1): edit the first plan, creating one if absent.
   let plan: LocalPlan = store.list()[0] ?? store.save({ name: 'My meal plan', weeks: [emptyWeek()] });
   let armed: PaletteItem | null = null;
+  let dragging: Dragging | null = null;
 
   // Palette state: items from the active source + items added by handle, filtered.
   let source: Source = signedInHint ? 'cookbook' : 'browse';
@@ -198,6 +202,12 @@ export const main = async (
       chip.addEventListener('click', () => {
         armed = armed?.uri === item.uri ? null : item;
         renderChips();
+      });
+      // Desktop drag (additive; touch uses tap-to-place).
+      chip.draggable = true;
+      chip.addEventListener('dragstart', (ev) => {
+        dragging = { kind: 'palette', item };
+        ev.dataTransfer?.setData('text/plain', item.uri);
       });
       chips.append(chip);
     }
@@ -339,9 +349,47 @@ export const main = async (
         cell.dataset['testid'] = 'day-slot';
         cell.dataset['day'] = String(di);
         cell.append(el('span', 'day-label', DAY_LABELS[di]));
+
+        // Desktop drag: every cell is a drop target; the same store mutations
+        // as tap-to-place run on drop, so touch is unaffected (drag is additive).
+        cell.addEventListener('dragover', (ev) => {
+          ev.preventDefault();
+          cell.classList.add('day--over');
+        });
+        cell.addEventListener('dragleave', () => cell.classList.remove('day--over'));
+        cell.addEventListener('drop', (ev) => {
+          ev.preventDefault();
+          cell.classList.remove('day--over');
+          if (dragging === null) return;
+          if (dragging.kind === 'palette') {
+            week.days[di] = {
+              recipe: { uri: dragging.item.uri, cid: dragging.item.cid, name: dragging.item.name },
+            };
+          } else {
+            const srcWeek = plan.weeks[dragging.wi];
+            if (srcWeek !== undefined) {
+              const moved = srcWeek.days[dragging.di] ?? {};
+              const displaced = week.days[di] ?? {};
+              week.days[di] = moved; // move (or swap if the target was filled)
+              srcWeek.days[dragging.di] = displaced;
+            }
+          }
+          dragging = null;
+          armed = null;
+          persist();
+          renderChips();
+          rerender();
+        });
+
         const placed = slot.recipe;
         if (placed !== undefined) {
           cell.classList.add('day--filled');
+          // Drag a filled slot to another day to move/swap it.
+          cell.draggable = true;
+          cell.addEventListener('dragstart', (ev) => {
+            dragging = { kind: 'slot', wi, di };
+            ev.dataTransfer?.setData('text/plain', 'slot');
+          });
           const filled = el('span', 'slot-filled', placed.name);
           filled.dataset['testid'] = 'slot-filled';
           const clear = el('button', 'slot-clear', '×') as HTMLButtonElement;
