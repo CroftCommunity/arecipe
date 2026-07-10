@@ -2,7 +2,25 @@
 // Phase 1 (route skeleton): the entry point (meals.html → meals.js → meals.ts
 // main()) mounts the shared shell and shows the "Meals" heading. RED until the
 // page + build registration exist; GREEN once the route is real and built.
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
+
+// Phase 5 palette injection: the page reads an optional localStorage seed
+// (`arecipe.meals.palette-seed`) as its default provider — inert in production
+// (empty until Phase 7 wires the real Cookbook/Browse providers), seeded here.
+const PALETTE = [
+  { uri: 'at://did:plc:cook/exchange.recipe.recipe/lasagna', cid: 'bafylasagna', name: 'Lasagna' },
+  { uri: 'at://did:plc:cook/exchange.recipe.recipe/tacos', cid: 'bafytacos', name: 'Tacos' },
+];
+
+const seedPalette = async (page: Page, items: typeof PALETTE = PALETTE): Promise<void> => {
+  await page.addInitScript((seed) => {
+    try {
+      localStorage.setItem('arecipe.meals.palette-seed', JSON.stringify(seed));
+    } catch {
+      /* private mode: the palette just stays empty */
+    }
+  }, items);
+};
 
 test('meals.html mounts the shared shell with a Meals heading (wiring)', async ({ page }) => {
   await page.goto('/meals.html');
@@ -32,4 +50,34 @@ test('the 5-tab bottom bar fits a narrow phone without horizontal overflow (Phas
   // The tab bar must not overflow its own width (no clipped/scrolled tabs).
   const overflow = await page.locator('nav.tabs').evaluate((el) => el.scrollWidth - el.clientWidth);
   expect(overflow).toBeLessThanOrEqual(1); // ≤1px sub-pixel tolerance
+});
+
+test('tap-to-place: arm a recipe, place it on a day, persist across reload, clear, add a week', async ({
+  page,
+}) => {
+  await seedPalette(page);
+  await page.goto('/meals.html');
+
+  // The seeded palette renders as tappable chips.
+  const lasagna = page.getByTestId('palette-chip').filter({ hasText: 'Lasagna' });
+  await expect(lasagna).toBeVisible();
+
+  // Arm Lasagna, then place it on Tuesday (Mon=0, Tue=1) of week 1.
+  await lasagna.click();
+  const tue = page.getByTestId('week-row').first().getByTestId('day-slot').nth(1);
+  await tue.click();
+  await expect(tue.getByTestId('slot-filled')).toHaveText('Lasagna');
+
+  // Persist across reload: the local store is the buffer (the PDS record is P9).
+  await page.reload();
+  const tueAfter = page.getByTestId('week-row').first().getByTestId('day-slot').nth(1);
+  await expect(tueAfter.getByTestId('slot-filled')).toHaveText('Lasagna');
+
+  // Clear the slot with its × control.
+  await tueAfter.getByTestId('slot-clear').click();
+  await expect(tueAfter.getByTestId('slot-filled')).toHaveCount(0);
+
+  // Add a second week.
+  await page.getByTestId('add-week').click();
+  await expect(page.getByTestId('week-row')).toHaveCount(2);
 });

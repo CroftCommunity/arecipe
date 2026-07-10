@@ -1,6 +1,6 @@
 # Meals — a meal-planner tab for arecipe
 
-**Status:** In execution (started 2026-07-10). Phase 0 ✅ · Phase 1 ✅ · Phase 2 ✅ · Phase 3 ✅ · Phase 4 ✅ · Phases 5–9 pending.
+**Status:** In execution (started 2026-07-10). Phase 0 ✅ · Phase 1 ✅ · Phase 2 ✅ · Phase 3 ✅ · Phase 4 ✅ · Phase 5 ✅ · Phases 6–9 pending.
 
 ## Outcome Summary
 
@@ -11,7 +11,7 @@
 | 2 Nav tab | ✅ shipped | `c083884` | Meals is the 5th destination (order Browse·Cookbook·My recipes·Meals·Reference); mobile 5-tab overflow found + fixed in `styles.css`, guarded by a 360px e2e fit assertion. 91/91 e2e, unit OK. |
 | 3 Lexicon + model | ✅ shipped | `824f1d0` | `src/recipes/meal-plan.ts` (types, `validateMealPlanValue`, `slotWithRecipe`, `expandCalendar`) + fixture + LEXICONS `planned` row. 11 model unit tests (boundaries: 6/7/8-day, repeat 0/1/12/13, expansion order). 243 unit total. Library phase — exports wired in P5/P6/P9 per the export→wiring map. |
 | 4 Local store | ✅ shipped | `e23b54a` | `src/recipes/meal-plan-local.ts` — `localStorage` in-flight buffer (`arecipe.mealplans.v1`), injectable storage+logger; corrected fail posture (propagate storage errors, tolerate corrupt reads with a warn), debug logs on save/remove. 7 unit tests. 250 unit total. Library phase — wired by P5. |
-| 5 Week builder + tap-to-place | ⬜ pending | — | |
+| 5 Week builder + tap-to-place | ✅ shipped | `<pending-p5>` | `meals.ts` grown into the builder (palette chips, 7-day week rows, tap-to-arm/place/clear, add/remove week cap 6) persisting to the P4 store; planner CSS. Wiring e2e: tap→place→**reload-persist**→clear→add-week. This is P4's entry-point wiring proof. 92 e2e, 250 unit. |
 | 6 Calendar + repeat | ⬜ pending | — | |
 | 7 Palette (Cookbook + Browse) | ⬜ pending | — | |
 | 8 Drag enhancement | ⬜ pending | — | |
@@ -655,7 +655,27 @@ prefix is unique (grepped: no existing `mealplan` key).
 
 ---
 
-### Phase 5: Week builder + tap-to-place + local persistence
+### Phase 5: Week builder + tap-to-place + local persistence — ✅ SHIPPED (`<pending-p5>`)
+**Delivered (2026-07-10):** `src/pages/meals.ts` grown from the stub into the
+builder — palette chips (from an injected `PaletteProvider`), week rows of 7 day
+slots, tap-to-arm a chip → tap an empty day to place → tap × to clear, `+ Add week`
+(cap 6) + per-row Remove (min 1), all persisted through the P4 store and
+re-rendered from it. Added the Pass 3 mount-log seam
+(`log.debug('shell','mounted',{page:'meals',signedIn:false})` — `signedIn` wired to
+a real agent in P9) and a palette-load `log.warn` degrade. `styles.css` gained
+mobile-first planner styles (theme-aware tokens; `week-days` is `repeat(7,1fr)` so
+it cannot overflow). Wiring e2e proves tap→place→**reload-persist**→clear→add-week
+— the entry-point wiring test for the P4 store. 92 e2e / 250 unit, lint+typecheck
+clean.
+**Decision (2026-07-10) — palette injection seam:** the plan said "injected
+provider (fake in tests)." For an e2e against the *built* bundle, the page's
+default `PaletteProvider` reads an optional `localStorage` seed
+(`arecipe.meals.palette-seed`), matching the repo's `addInitScript`-seeds-
+localStorage convention (the repo avoids `window.__` hooks). It is **inert in
+production** (no seed → empty palette, which is correct for a Phase-5-only deploy
+since the real source is P7). `main(deps)` is also exported so a future component
+test can inject a provider directly. **P7 supersedes** the seed with the real
+Cookbook/Browse providers behind the source switch.
 **Goal:** The core interaction. The page renders week rows of 7 day-slots, a
 palette (injected for this phase), tap-to-place assignment, tap-to-clear,
 add/remove week (up to 6), and persists to the local store across reloads.
