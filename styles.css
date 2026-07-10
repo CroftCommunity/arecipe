@@ -1458,3 +1458,19 @@ table.ref.pairs td.eq {
   border-color: var(--enamel);
   background: var(--enamel-soft);
 }
+
+/* --- Meal planner: add-a-cook (secondary) + capped-list hint (feedback) --- */
+.palette-addcook {
+  margin-bottom: var(--s-3);
+  padding-bottom: var(--s-3);
+  border-bottom: var(--stroke) solid var(--line);
+}
+.palette-addcook-label {
+  display: block;
+  font-size: var(--t-caption);
+  opacity: 0.7;
+  margin-bottom: var(--s-1);
+}
+.palette-hint {
+  margin: var(--s-1) 0 0;
+}

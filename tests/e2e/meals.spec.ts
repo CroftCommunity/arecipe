@@ -171,26 +171,28 @@ test('drag (desktop): drag a palette chip onto a day places it; drag a filled sl
   await expect(mon.getByTestId('slot-filled')).toHaveCount(0);
 });
 
-test('palette: Browse source loads, filter narrows, source switch toggles, add-a-cook appends', async ({
+test('palette: Browse loads capped, type-ahead searches the full set, switch toggles, add-a-cook grows the pool', async ({
   page,
 }) => {
   await routeFeeds(page);
   await page.goto('/meals.html'); // signed out → Browse is the default source
 
-  // Browse (starter feed) populates the palette from the routed fixtures.
+  // Browse populates the palette, but the display is BOUNDED so it can't run
+  // down half the page; the routed fixtures exceed the cap, so a hint shows the
+  // total and points at the filter.
   const chips = page.getByTestId('palette-chip');
   await expect(chips.first()).toBeVisible();
   const initialCount = await chips.count();
   expect(initialCount).toBeGreaterThan(0);
+  expect(initialCount).toBeLessThanOrEqual(10);
+  await expect(page.getByTestId('palette-hint')).toContainText(/Showing \d+ of \d+/);
 
-  // Filtering to a non-matching term empties the list; a real substring narrows.
+  // Type-ahead searches the whole loaded set (beyond the capped display).
   const filter = page.getByTestId('palette-filter');
   await filter.fill('zzzznomatch');
   await expect(chips).toHaveCount(0);
   await filter.fill('Ham');
-  const hamCount = await chips.count();
-  expect(hamCount).toBeGreaterThan(0);
-  expect(hamCount).toBeLessThan(initialCount);
+  await expect(chips.first()).toBeVisible();
   await filter.fill('');
 
   // Source switch: Browse active by default; clicking My Cookbook toggles it.
@@ -199,11 +201,17 @@ test('palette: Browse source loads, filter narrows, source switch toggles, add-a
   await expect(page.getByTestId('source-cookbook')).toHaveClass(/src-btn--active/);
   await expect(page.getByTestId('source-browse')).not.toHaveClass(/src-btn--active/);
 
-  // Back to Browse, then add a cook by handle appends that cook's recipes.
+  // Back to Browse; add-a-cook grows the underlying pool — visible via the hint
+  // total, since the displayed list stays capped.
   await page.getByTestId('source-browse').click();
   await expect(chips.first()).toBeVisible();
-  const beforeAdd = await chips.count();
+  const totalOf = async (): Promise<number> => {
+    const t = (await page.getByTestId('palette-hint').textContent()) ?? '';
+    const m = /of (\d+)/.exec(t);
+    return m ? Number(m[1]) : 0;
+  };
+  const beforeTotal = await totalOf();
   await page.getByTestId('palette-handle-input').fill('rdur.dev');
   await page.getByTestId('palette-handle-add').click();
-  await expect.poll(() => chips.count()).toBeGreaterThan(beforeAdd);
+  await expect.poll(totalOf).toBeGreaterThan(beforeTotal);
 });

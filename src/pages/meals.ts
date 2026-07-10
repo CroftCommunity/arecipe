@@ -46,6 +46,9 @@ const MAX_WEEKS = 6;
 const REPEAT_MIN = 1;
 const REPEAT_MAX = 12;
 const PALETTE_SEED_KEY = 'arecipe.meals.palette-seed';
+/** Unfiltered, the palette shows at most this many chips so it can't run down
+ * half the page; the filter (type-ahead) searches the whole loaded set. */
+const PALETTE_CAP = 10;
 
 const emptyWeek = (): LocalWeek => ({ repeat: 1, days: Array.from({ length: 7 }, () => ({})) });
 
@@ -109,6 +112,24 @@ export const main = async (
   const planner = el('div', 'meal-planner');
   const palette = el('aside', 'palette');
   palette.dataset['testid'] = 'palette';
+
+  // Add-a-cook is a SECONDARY discovery mode (primary is the Browse tab): pull
+  // in a specific cook whose recipes aren't already in your corpus. It sits
+  // above the Recipes picker so it reads as a distinct affordance.
+  const addCook = el('div', 'palette-addcook');
+  addCook.append(el('span', 'palette-addcook-label', 'Add a cook by handle'));
+  const handleRow = el('div', 'palette-handle');
+  const handleInput = el('input', 'handle-input') as HTMLInputElement;
+  handleInput.type = 'text';
+  handleInput.placeholder = 'a cook’s handle — try rdur.dev';
+  handleInput.dataset['testid'] = 'palette-handle-input';
+  const handleAdd = el('button', 'button', 'Add') as HTMLButtonElement;
+  handleAdd.type = 'button';
+  handleAdd.dataset['testid'] = 'palette-handle-add';
+  handleRow.append(handleInput, handleAdd);
+  addCook.append(handleRow);
+  palette.append(addCook);
+
   palette.append(el('h3', 'palette-title', 'Recipes'));
 
   const sourceSwitch = el('div', 'palette-source');
@@ -127,19 +148,11 @@ export const main = async (
   filterInput.dataset['testid'] = 'palette-filter';
   palette.append(filterInput);
 
-  const handleRow = el('div', 'palette-handle');
-  const handleInput = el('input', 'handle-input') as HTMLInputElement;
-  handleInput.type = 'text';
-  handleInput.placeholder = 'a cook’s handle — try rdur.dev';
-  handleInput.dataset['testid'] = 'palette-handle-input';
-  const handleAdd = el('button', 'button', 'Add') as HTMLButtonElement;
-  handleAdd.type = 'button';
-  handleAdd.dataset['testid'] = 'palette-handle-add';
-  handleRow.append(handleInput, handleAdd);
-  palette.append(handleRow);
-
   const chips = el('div', 'palette-chips');
   palette.append(chips);
+  const chipsHint = el('p', 'status palette-hint');
+  chipsHint.dataset['testid'] = 'palette-hint';
+  palette.append(chipsHint);
 
   const builder = el('div', 'builder');
   builder.dataset['testid'] = 'builder';
@@ -175,11 +188,14 @@ export const main = async (
     return out;
   };
 
-  const shown = (): PaletteItem[] => {
+  const matches = (): PaletteItem[] => {
     const q = filterText.trim().toLowerCase();
     const all = combined();
+    // Type-ahead searches the whole set; unfiltered, bound the list to the cap.
     return q === '' ? all : all.filter((i) => i.name.toLowerCase().includes(q));
   };
+  const shown = (): PaletteItem[] =>
+    filterText.trim() === '' ? matches().slice(0, PALETTE_CAP) : matches();
 
   const renderSourceSwitch = (): void => {
     cookbookBtn.classList.toggle('src-btn--active', source === 'cookbook');
@@ -189,6 +205,13 @@ export const main = async (
   const renderChips = (): void => {
     chips.replaceChildren();
     const list = shown();
+    const total = combined().length;
+    // Hint when the unfiltered list is capped — tells the user to type to reach
+    // the rest, so a bounded list never looks like the whole corpus.
+    chipsHint.textContent =
+      filterText.trim() === '' && total > list.length
+        ? `Showing ${list.length} of ${total} — type to filter.`
+        : '';
     if (list.length === 0) {
       chips.append(el('p', 'status', 'No recipes here yet — switch source or add a cook by handle.'));
       return;

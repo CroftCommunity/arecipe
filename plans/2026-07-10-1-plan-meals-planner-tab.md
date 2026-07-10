@@ -1204,3 +1204,17 @@ signatures, and Alchemy + Meals coexist in the tab bar.
 rows 1–7 are now historical (they identify the pre-rebase commits by content).
 Phase 8 onward records post-rebase SHAs. Not chasing the 7 rewritten SHAs — the
 commits are identifiable by their messages in `git log`.
+
+**Post-rebase follow-ups applied (2026-07-10):**
+- **Q3 resolved** — `meal-plan-palette.ts` now imports `membersToAuthors` from the
+  merged `src/social/cookbook-members-view.ts`; the Pass 3 replica + its
+  `resolveDidDoc` import were removed. Palette unit tests unchanged (7/7 green).
+- **Palette UX (user feedback on the localhost view):** (a) the chip list is now
+  **bounded to `PALETTE_CAP` (10)** when unfiltered, with a "Showing 10 of N — type
+  to filter" hint, so it can't run down half the page; the type-ahead searches the
+  **full** loaded set. (b) **Add-a-cook-by-handle moved above "Recipes"** with a
+  label, framed as the secondary discovery mode (primary is the Browse tab). e2e
+  updated: display capped ≤10, hint shown, add-a-cook grows the pool (asserted via
+  the hint total since the visible list stays capped). *Follow-up noted:* "most
+  recent" ordering would need `createdAt` on `PaletteItem` (currently feed order);
+  deferred.

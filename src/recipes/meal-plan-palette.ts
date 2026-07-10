@@ -10,11 +10,11 @@
 // without an AppView and arecipe ships none. Reach beyond your Cookbook is by
 // starter feed + handle lookup + client-side filtering (see the plan).
 
-import { resolveDidDoc } from '../identity/did.js';
 import { createResolver } from '../identity/resolve.js';
 import { log as defaultLogger, type Logger } from '../log.js';
 import { createRecipeReader } from './read.js';
 import { resolveCookbook, type CookbookMember, type ReachConfig } from '../social/cookbook.js';
+import { membersToAuthors } from '../social/cookbook-members-view.js';
 import { loadAuthorsFeed, type FeedAuthor } from '../social/feed.js';
 import { createStarterPrefs, loadStarterFeed } from './starter.js';
 
@@ -33,22 +33,9 @@ const toPaletteItem = (e: Entry): PaletteItem => ({
   name: typeof e.value['name'] === 'string' ? (e.value['name'] as string) : '(untitled)',
 });
 
-// Replicated from the page-private membersToAuthors (src/pages/cookbook.ts:47)
-// per the plan's Pass 3 seam correction — origin/main does not export it. When
-// the recipe-cookbook-ui branch lands src/social/cookbook-members-view.ts, swap
-// this local copy for the exported version (single import change).
-const membersToAuthors = async (members: CookbookMember[]): Promise<FeedAuthor[]> =>
-  Promise.all(
-    members.map(async (m) => {
-      if (m.handle !== undefined) return { handle: m.handle, did: m.did };
-      try {
-        const { handle } = await resolveDidDoc(m.did);
-        return { handle: handle ?? m.did, did: m.did };
-      } catch {
-        return { handle: m.did, did: m.did };
-      }
-    }),
-  );
+// membersToAuthors is now imported from src/social/cookbook-members-view.js —
+// the recipe-cookbook-ui branch merged into main and exports it (Q3 resolved).
+// The Pass 3 replica was removed in the post-rebase swap.
 
 /** Run a source, map entries → items, log success/degrade, never blank. */
 const collect = async (
