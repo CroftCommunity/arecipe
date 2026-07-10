@@ -1,9 +1,9 @@
 {
   "_meta": {
     "purpose": "Canonical dishKey per record (Phase 1b). Auto-proposed by build-dishkeys.mjs from recipe NAMES; REVIEW the groups before publish. Aliases/edits live in dishkeys.mjs ALIASES + this file.",
-    "records": 177,
-    "distinctKeys": 158,
-    "multiVersionGroups": 15
+    "records": 202,
+    "distinctKeys": 176,
+    "multiVersionGroups": 21
   },
   "byRef": {
     "own-batch#0": "grilled-cheese",
@@ -182,7 +182,32 @@
     "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is4w7j32c": "moussaka",
     "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is4srz62h": "spaghetti-carbonara",
     "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is4lhxi22": "pad-thai",
-    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq3m2skev52f": "greek-cucumber-tomato-feta-salad"
+    "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq3m2skev52f": "greek-cucumber-tomato-feta-salad",
+    "master-pot-25#0": "kalua-pork",
+    "master-pot-25#1": "teriyaki-beef",
+    "master-pot-25#2": "steak-fajitas",
+    "master-pot-25#3": "sausage-and-peppers",
+    "master-pot-25#4": "french-dip",
+    "master-pot-25#5": "split-pea-soup",
+    "master-pot-25#6": "turkey-breast",
+    "master-pot-25#7": "pot-roast",
+    "master-pot-25#8": "chicken-tikka-masala",
+    "master-pot-25#9": "beef-stew",
+    "master-pot-25#10": "chili-con-carne",
+    "master-pot-25#11": "carnitas",
+    "master-pot-25#12": "chicken-tortilla-soup",
+    "master-pot-25#13": "black-bean-quinoa-chili",
+    "master-pot-25#14": "bbq-baby-back-ribs",
+    "master-pot-25#15": "mac-and-cheese",
+    "master-pot-25#16": "butter-chicken",
+    "master-pot-25#17": "corned-beef-and-cabbage",
+    "master-pot-25#18": "swedish-meatballs",
+    "master-pot-25#19": "white-chicken-chili",
+    "master-pot-25#20": "beef-barbacoa",
+    "master-pot-25#21": "beef-stroganoff",
+    "master-pot-25#22": "apple-butter",
+    "master-pot-25#23": "chicken-noodle-soup",
+    "master-pot-25#24": "traditional-louisiana-red-beans-and-rice"
   },
   "groups": {
     "grilled-cheese": [
@@ -202,6 +227,11 @@
         "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqhlgfs2d",
         "name": "Mac and Cheese",
         "src": "LIVE"
+      },
+      {
+        "ref": "master-pot-25#15",
+        "name": "Creamy Macaroni and Cheese",
+        "src": "master-pot-25"
       }
     ],
     "chicken-and-veggies": [
@@ -924,6 +954,11 @@
         "ref": "frugal-family-25#11",
         "name": "Traditional Louisiana Red Beans and Rice",
         "src": "frugal-family-25"
+      },
+      {
+        "ref": "master-pot-25#24",
+        "name": "Louisiana Red Beans and Rice",
+        "src": "master-pot-25"
       }
     ],
     "garden-vegetable-frittata": [
@@ -1181,6 +1216,11 @@
         "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqien552c",
         "name": "Chili con Carne",
         "src": "LIVE"
+      },
+      {
+        "ref": "master-pot-25#10",
+        "name": "Chili Con Carne",
+        "src": "master-pot-25"
       }
     ],
     "cobb-salad": [
@@ -1293,6 +1333,11 @@
         "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqf3kkq2f",
         "name": "Beef Barbacoa",
         "src": "LIVE"
+      },
+      {
+        "ref": "master-pot-25#20",
+        "name": "Chipotle Barbacoa Beef",
+        "src": "master-pot-25"
       }
     ],
     "carnitas": [
@@ -1300,6 +1345,11 @@
         "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5jqeu5iv2s",
         "name": "Carnitas",
         "src": "LIVE"
+      },
+      {
+        "ref": "master-pot-25#11",
+        "name": "Pork Carnitas",
+        "src": "master-pot-25"
       }
     ],
     "pico-de-gallo": [
@@ -1349,6 +1399,11 @@
         "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is5wwbx2j",
         "name": "Chicken Tikka Masala",
         "src": "LIVE"
+      },
+      {
+        "ref": "master-pot-25#8",
+        "name": "Chicken Tikka Masala",
+        "src": "master-pot-25"
       }
     ],
     "butter-chicken": [
@@ -1356,6 +1411,11 @@
         "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq5is5pic227",
         "name": "Butter Chicken",
         "src": "LIVE"
+      },
+      {
+        "ref": "master-pot-25#16",
+        "name": "Indian Butter Chicken",
+        "src": "master-pot-25"
       }
     ],
     "greek-chicken-souvlaki": [
@@ -1384,6 +1444,132 @@
         "ref": "at://did:plc:spfl4xaktvvchr2cqp2r2xvp/exchange.recipe.recipe/3mq3m2skev52f",
         "name": "Greek Cucumber Tomato Feta Salad",
         "src": "LIVE"
+      }
+    ],
+    "kalua-pork": [
+      {
+        "ref": "master-pot-25#0",
+        "name": "Hawaiian Kalua Pork",
+        "src": "master-pot-25"
+      }
+    ],
+    "teriyaki-beef": [
+      {
+        "ref": "master-pot-25#1",
+        "name": "Teriyaki Beef",
+        "src": "master-pot-25"
+      }
+    ],
+    "steak-fajitas": [
+      {
+        "ref": "master-pot-25#2",
+        "name": "Steak Fajita Mix",
+        "src": "master-pot-25"
+      }
+    ],
+    "sausage-and-peppers": [
+      {
+        "ref": "master-pot-25#3",
+        "name": "Italian Sausage and Peppers",
+        "src": "master-pot-25"
+      }
+    ],
+    "french-dip": [
+      {
+        "ref": "master-pot-25#4",
+        "name": "Roast Beef French Dip",
+        "src": "master-pot-25"
+      }
+    ],
+    "split-pea-soup": [
+      {
+        "ref": "master-pot-25#5",
+        "name": "Split Pea Soup with Ham",
+        "src": "master-pot-25"
+      }
+    ],
+    "turkey-breast": [
+      {
+        "ref": "master-pot-25#6",
+        "name": "Turkey Breast",
+        "src": "master-pot-25"
+      }
+    ],
+    "pot-roast": [
+      {
+        "ref": "master-pot-25#7",
+        "name": "Classic Pot Roast with Roots",
+        "src": "master-pot-25"
+      }
+    ],
+    "beef-stew": [
+      {
+        "ref": "master-pot-25#9",
+        "name": "Classic Beef Stew",
+        "src": "master-pot-25"
+      }
+    ],
+    "chicken-tortilla-soup": [
+      {
+        "ref": "master-pot-25#12",
+        "name": "Chicken Tortilla Soup",
+        "src": "master-pot-25"
+      }
+    ],
+    "black-bean-quinoa-chili": [
+      {
+        "ref": "master-pot-25#13",
+        "name": "Vegetarian Black Bean & Quinoa Chili",
+        "src": "master-pot-25"
+      }
+    ],
+    "bbq-baby-back-ribs": [
+      {
+        "ref": "master-pot-25#14",
+        "name": "BBQ Baby Back Ribs",
+        "src": "master-pot-25"
+      }
+    ],
+    "corned-beef-and-cabbage": [
+      {
+        "ref": "master-pot-25#17",
+        "name": "Corned Beef and Cabbage",
+        "src": "master-pot-25"
+      }
+    ],
+    "swedish-meatballs": [
+      {
+        "ref": "master-pot-25#18",
+        "name": "Swedish Meatballs",
+        "src": "master-pot-25"
+      }
+    ],
+    "white-chicken-chili": [
+      {
+        "ref": "master-pot-25#19",
+        "name": "White Chicken Chili",
+        "src": "master-pot-25"
+      }
+    ],
+    "beef-stroganoff": [
+      {
+        "ref": "master-pot-25#21",
+        "name": "Classic Beef Stroganoff",
+        "src": "master-pot-25"
+      }
+    ],
+    "apple-butter": [
+      {
+        "ref": "master-pot-25#22",
+        "name": "Spiced Apple Butter",
+        "src": "master-pot-25"
+      }
+    ],
+    "chicken-noodle-soup": [
+      {
+        "ref": "master-pot-25#23",
+        "name": "Classic Chicken Noodle Soup",
+        "src": "master-pot-25"
       }
     ]
   }

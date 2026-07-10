@@ -56,13 +56,14 @@ b3f9842): `present.ts#firstImageCredit` + `view.ts imageCreditOverlay`.
 - `pds-funfacts.json` holds researched fun facts for all 41 live records (prep only; applied to
   the live records in the recipe-model plan's Phase 6, once `funFacts[]` ships).
 
-## State — the 136-recipe import corpus (branch `recipe-import-batch`)
+## State — the import corpus (161 recipes across 7 files)
 
-Six structured JSON files in `spike/import/`, each enriched (diet/cuisine/keywords/times),
+Seven structured JSON files in `spike/import/`, each enriched (diet/cuisine/keywords/times),
 fact-checked, QA-clean:
 `own-batch.json` (25) · `dessert-dual-method-25.json` (25, dual `methods[]`) ·
 `regional-dishes-8.json` (8) · `artisan-baking-28.json` (28) · `frugal-family-25.json` (25) ·
-`julia-child-25.json` (25).
+`julia-child-25.json` (25) · `master-pot-25.json` (25, dual `methods[]` slow/pressure cooker,
+from `import/The_Master_Pot_Collection.pdf`).
 
 - **Images: 126 / 134 picked** — `image-choices-corpus.json` (source of truth = Commons File URL +
   license + artist). **8 still need a Commons image:** Easy Vanilla Mug Cake, Banana Bread Mug
@@ -75,8 +76,28 @@ fact-checked, QA-clean:
   `spike/import/build-dishkeys.mjs` (pure logic + tests in `dishkeys.mjs`/`dishkeys.test.mjs`).
   **15 reviewed version groups** (banana-bread ×4, chocolate-chip-cookies ×3, beef-bourguignon ×3,
   + twelve ×2). The raw `dish`/`altOf` fields in the corpus JSON are superseded by this map.
-- **Publishing is gated on the recipe-model extensions** (versions / fun facts). Plan is
-  Pass-1/2/3 complete and ready to execute Phase 1. Nothing publishes until those fields exist.
+- **PUBLISHED 2026-07-09 (Phase 6).** The recipe-model extensions (versions/fun-facts/Focus)
+  shipped and the corpus went live: 41 live records migrated (dishKey + fun fact), 158 new records
+  published (dessert methods split into sibling versions), pooled to **one best fun fact per
+  dish**. Tooling (on branch `recipe-import-batch`, commit 6662536 — **merge to main pending**):
+  `migrate-live.mjs`, `publish-corpus.mjs`, `attach-corpus-images.mjs`, `publish-plan.mjs`. Code
+  deployed to arecipe.app. Remaining: the 8 image-less dishes render on the no-meal standin until
+  images are sourced (task #22).
+- **Master Pot batch PUBLISHED 2026-07-10.** `master-pot-25.json` — 25 dual-method recipes
+  extracted from `import/The_Master_Pot_Collection.pdf`, each split into `(Slow Cooker)` /
+  `(Pressure Cooker)` sibling records → **50 new records** via `publish-corpus.mjs` (extended:
+  per-method `cookTime`/`totalTime` overrides, since slow vs pressure durations differ by an
+  order of magnitude). `dishkeys.json` now maps 202 refs / 176 keys / 21 multi-version groups —
+  7 of the 25 joined existing dishes (chicken-tikka-masala, chili-con-carne, carnitas,
+  mac-and-cheese ×4, butter-chicken, beef-barbacoa, traditional-louisiana-red-beans-and-rice).
+  Live account total after publish: **258 records**. Images: no Commons picks yet — the 25 dishes
+  render on the no-meal standin; picker round pending (fetch-images → build-picker → user picks →
+  attach-corpus-images).
+- **QUEUED next: North America Top 100** — `import/north_america_top_100.md` (Canada 20 · Mexico
+  15 · US regional 25 · weeknight/industrial 20 · desserts 20; single-method, per-recipe source
+  URL). Needs the same treatment: batch JSON + dishKey review (expect many version-group joins:
+  mac-and-cheese, pot-roast, apple-pie, chocolate-chip-cookies, swedish-meatballs, carnitas,
+  chicken-tortilla-soup, banana-bread…) + publish + image round.
 
 ## State — recipebox home recipes (handwritten scans, `import/recipebox.zip`)
 

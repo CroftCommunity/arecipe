@@ -1,0 +1,1449 @@
+{
+  "_meta": {
+    "batch": "master-pot",
+    "source": "master-pot-25.json",
+    "provenance": "25 dual-method (slow cooker / pressure cooker) recipes extracted from import/The_Master_Pot_Collection.pdf (2026-07-10). Descriptions and fun facts from the PDF; per-recipe reference URL from the PDF's Reference line. Methods carry per-method cookTime/totalTime because slow-cooker and pressure-cooker durations differ by an order of magnitude.",
+    "count": 25,
+    "notes": {
+      "methods": "kind traditional = Slow Cooker, kind rapid = Pressure Cooker (Instant Pot). Published as sibling version records per the Phase 6 dessert precedent.",
+      "enrichment": "serves estimated from ingredient quantities; diet via ingredient scan (conservative: soy sauce / flour / noodles block gluten-free); cuisine curated; base times = slow-cooker method, per-method overrides in methods[]."
+    }
+  },
+  "recipes": [
+    {
+      "name": "Hawaiian Kalua Pork",
+      "dish": "kalua-pork",
+      "serves": "8",
+      "description": "A smoky, tender, minimal-ingredient pork roast that tastes like it came straight from an island luau. Perfect for pairing with white rice and a side of teriyaki sauce.",
+      "ingredients": [
+        "1 (4-5 lb) pork shoulder roast",
+        "1.5 tbsp coarse Hawaiian sea salt",
+        "1 tbsp liquid smoke flavoring"
+      ],
+      "methods": [
+        {
+          "kind": "traditional",
+          "label": "Slow Cooker",
+          "appliance": "slow-cooker",
+          "cookTime": "PT16H",
+          "totalTime": "PT16H10M",
+          "steps": [
+            "Pierce the pork all over with a carving fork.",
+            "Rub the salt and liquid smoke over the meat and place it in the slow cooker.",
+            "Cook on Low for 16 hours.",
+            "Remove from the slow cooker and shred, mixing the meat with the rendered juices."
+          ]
+        },
+        {
+          "kind": "rapid",
+          "label": "Pressure Cooker",
+          "appliance": "pressure-cooker",
+          "cookTime": "PT1H30M",
+          "totalTime": "PT2H",
+          "steps": [
+            "Cut the pork into 3-inch chunks and rub with the salt and liquid smoke.",
+            "Add 1/2 cup water or broth to the pressure cooker.",
+            "Cook on High Pressure for 90 minutes, then allow a natural pressure release for 20 minutes.",
+            "Shred the pork."
+          ]
+        }
+      ],
+      "cuisine": "hawaiian",
+      "category": "dinner",
+      "diet": ["gluten-free"],
+      "keywords": ["dual-method", "slow-cooker", "pressure-cooker", "instant-pot", "pork", "luau", "three-ingredient", "shredded"],
+      "prepTime": "PT10M",
+      "cookTime": "PT16H",
+      "totalTime": "PT16H10M",
+      "funFact": "Traditional Kalua pork is cooked in an 'imu', an underground oven, using heated rocks and banana leaves!",
+      "reference": { "url": "https://www.allrecipes.com/recipe/24035/kalua-pig-in-a-slow-cooker/" },
+      "attribution": {
+        "type": "website",
+        "name": "Allrecipes",
+        "url": "https://www.allrecipes.com/recipe/24035/kalua-pig-in-a-slow-cooker/",
+        "notes": "Extracted from The Master Pot Collection PDF; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Teriyaki Beef",
+      "dish": "teriyaki-beef",
+      "serves": "4",
+      "description": "Tender strips of beef simmered in a sweet and savory garlic-ginger soy sauce, ideal for an effortless weeknight dinner.",
+      "ingredients": [
+        "1.5 lbs flank steak, sliced thin",
+        "1/2 cup soy sauce",
+        "1/3 cup brown sugar",
+        "1 tbsp sesame oil",
+        "3 cloves garlic, minced",
+        "1 tsp fresh ginger, grated"
+      ],
+      "methods": [
+        {
+          "kind": "traditional",
+          "label": "Slow Cooker",
+          "appliance": "slow-cooker",
+          "cookTime": "PT5H",
+          "totalTime": "PT5H10M",
+          "steps": [
+            "Combine all ingredients except the beef in the slow cooker and whisk.",
+            "Add the sliced beef.",
+            "Cook on Low for 4-5 hours.",
+            "Thicken the sauce with a cornstarch slurry at the end if desired."
+          ]
+        },
+        {
+          "kind": "rapid",
+          "label": "Pressure Cooker",
+          "appliance": "pressure-cooker",
+          "cookTime": "PT15M",
+          "totalTime": "PT30M",
+          "steps": [
+            "Add all ingredients to the pressure cooker.",
+            "Cook on High Pressure for 15 minutes.",
+            "Quick release the pressure.",
+            "Stir in a cornstarch slurry using the sauté function until thickened."
+          ]
+        }
+      ],
+      "cuisine": "japanese",
+      "category": "dinner",
+      "diet": [],
+      "keywords": ["dual-method", "slow-cooker", "pressure-cooker", "instant-pot", "beef", "teriyaki", "weeknight"],
+      "prepTime": "PT10M",
+      "cookTime": "PT5H",
+      "totalTime": "PT5H10M",
+      "funFact": "The word 'teriyaki' derives from the noun 'teri' (meaning shine or luster given by the sugar) and 'yaki' (meaning the cooking method of grilling or broiling).",
+      "reference": { "url": "https://therecipecritic.com/slow-cooker-beef-teriyaki/" },
+      "attribution": {
+        "type": "website",
+        "name": "The Recipe Critic",
+        "url": "https://therecipecritic.com/slow-cooker-beef-teriyaki/",
+        "notes": "Extracted from The Master Pot Collection PDF; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Steak Fajita Mix",
+      "dish": "steak-fajitas",
+      "serves": "6",
+      "description": "Sizzling flavors without the skillet. This method yields incredibly tender beef strips imbued with classic Mexican spices.",
+      "ingredients": [
+        "2 lbs skirt or flank steak, sliced",
+        "2 bell peppers, sliced",
+        "1 large onion, sliced",
+        "1/4 cup beef broth",
+        "1 tbsp chili powder",
+        "1 tsp cumin",
+        "1 tsp smoked paprika"
+      ],
+      "methods": [
+        {
+          "kind": "traditional",
+          "label": "Slow Cooker",
+          "appliance": "slow-cooker",
+          "cookTime": "PT6H",
+          "totalTime": "PT6H15M",
+          "steps": [
+            "Place half the peppers and onions in the bottom of the slow cooker.",
+            "Top with the sliced beef, then the spices, broth, and remaining vegetables.",
+            "Cook on Low for 6 hours."
+          ]
+        },
+        {
+          "kind": "rapid",
+          "label": "Pressure Cooker",
+          "appliance": "pressure-cooker",
+          "cookTime": "PT13M",
+          "totalTime": "PT30M",
+          "steps": [
+            "Add the broth, beef, spices, and vegetables to the pot.",
+            "Cook on High Pressure for 10 minutes.",
+            "Quick release the pressure.",
+            "Sauté for 3 minutes to reduce the liquid."
+          ]
+        }
+      ],
+      "cuisine": "tex-mex",
+      "category": "dinner",
+      "diet": ["gluten-free"],
+      "keywords": ["dual-method", "slow-cooker", "pressure-cooker", "instant-pot", "beef", "fajitas", "peppers"],
+      "prepTime": "PT15M",
+      "cookTime": "PT6H",
+      "totalTime": "PT6H15M",
+      "funFact": "Fajita originally referred specifically to the cut of beef used (skirt steak), coming from the Spanish word 'faja' for girdle or strip.",
+      "reference": { "url": "https://www.themagicalslowcooker.com/slow-cooker-beef-fajitas/" },
+      "attribution": {
+        "type": "website",
+        "name": "The Magical Slow Cooker",
+        "url": "https://www.themagicalslowcooker.com/slow-cooker-beef-fajitas/",
+        "notes": "Extracted from The Master Pot Collection PDF; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Italian Sausage and Peppers",
+      "dish": "sausage-and-peppers",
+      "serves": "6",
+      "description": "A classic Italian-American comfort dish. The slow cooking mellows the peppers and onions, turning them into a sweet compote that beautifully coats savory sausage.",
+      "ingredients": [
+        "6 mild or hot Italian sausages",
+        "2 red bell peppers, sliced",
+        "1 green bell pepper, sliced",
+        "1 sweet onion, sliced",
+        "1 (28 oz) can crushed tomatoes",
+        "1 tsp dried oregano"
+      ],
+      "methods": [
+        {
+          "kind": "traditional",
+          "label": "Slow Cooker",
+          "appliance": "slow-cooker",
+          "cookTime": "PT6H",
+          "totalTime": "PT6H15M",
+          "steps": [
+            "Sear the sausages in a skillet first (optional but recommended).",
+            "Place all ingredients in the slow cooker.",
+            "Cook on Low for 6 hours or High for 3 hours."
+          ]
+        },
+        {
+          "kind": "rapid",
+          "label": "Pressure Cooker",
+          "appliance": "pressure-cooker",
+          "cookTime": "PT15M",
+          "totalTime": "PT35M",
+          "steps": [
+            "Use the sauté function to brown the sausages.",
+            "Add the peppers, onions, tomatoes, and oregano.",
+            "Cook on High Pressure for 15 minutes.",
+            "Quick release the pressure."
+          ]
+        }
+      ],
+      "cuisine": "italian-american",
+      "category": "dinner",
+      "diet": [],
+      "keywords": ["dual-method", "slow-cooker", "pressure-cooker", "instant-pot", "sausage", "peppers", "comfort-food"],
+      "prepTime": "PT15M",
+      "cookTime": "PT6H",
+      "totalTime": "PT6H15M",
+      "funFact": "Sausage and peppers is a staple at the Feast of San Gennaro, a massive annual Italian-American festival in New York City's Little Italy.",
+      "reference": { "url": "https://www.foodnetwork.com/recipes/sausage-and-peppers-recipe-1941656" },
+      "attribution": {
+        "type": "website",
+        "name": "Food Network",
+        "url": "https://www.foodnetwork.com/recipes/sausage-and-peppers-recipe-1941656",
+        "notes": "Extracted from The Master Pot Collection PDF; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Roast Beef French Dip",
+      "dish": "french-dip",
+      "serves": "8",
+      "description": "Melt-in-your-mouth roast beef cooked in a rich, onion-infused broth. The broth doubles as the perfect savory au jus for dipping.",
+      "ingredients": [
+        "3-4 lb beef chuck roast",
+        "2 cups beef consommé",
+        "1 cup beef broth",
+        "1/2 cup soy sauce",
+        "1 packet dry onion soup mix"
+      ],
+      "methods": [
+        {
+          "kind": "traditional",
+          "label": "Slow Cooker",
+          "appliance": "slow-cooker",
+          "cookTime": "PT10H",
+          "totalTime": "PT10H10M",
+          "steps": [
+            "Place the roast in the slow cooker.",
+            "In a bowl, mix the consommé, broth, soy sauce, and soup mix, then pour over the roast.",
+            "Cook on Low for 8-10 hours.",
+            "Shred and serve on hoagies with the broth for dipping."
+          ]
+        },
+        {
+          "kind": "rapid",
+          "label": "Pressure Cooker",
+          "appliance": "pressure-cooker",
+          "cookTime": "PT1H15M",
+          "totalTime": "PT1H30M",
+          "steps": [
+            "Cut the roast into 4 large pieces.",
+            "Add all ingredients to the pot.",
+            "Cook on High Pressure for 60 minutes.",
+            "Natural release for 15 minutes, then shred the meat."
+          ]
+        }
+      ],
+      "cuisine": "american",
+      "category": "dinner",
+      "diet": [],
+      "keywords": ["dual-method", "slow-cooker", "pressure-cooker", "instant-pot", "beef", "sandwich", "au-jus"],
+      "prepTime": "PT10M",
+      "cookTime": "PT10H",
+      "totalTime": "PT10H10M",
+      "funFact": "The French Dip was invented in Los Angeles in the early 20th century. Two rival restaurants, Philippe the Original and Cole's, both claim to have invented it!",
+      "reference": { "url": "https://carlsbadcravings.com/slow-cooker-french-dip-sandwiches/" },
+      "attribution": {
+        "type": "website",
+        "name": "Carlsbad Cravings",
+        "url": "https://carlsbadcravings.com/slow-cooker-french-dip-sandwiches/",
+        "notes": "Extracted from The Master Pot Collection PDF; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Split Pea Soup with Ham",
+      "dish": "split-pea-soup",
+      "serves": "6",
+      "description": "A hearty, thick, and nourishing soup where the dried peas break down entirely to form a creamy base flavored with smoky ham.",
+      "ingredients": [
+        "1 lb dried split peas, rinsed",
+        "1 meaty ham bone or 1.5 lbs diced ham",
+        "3 carrots, diced",
+        "1 onion, diced",
+        "4 cups chicken broth",
+        "2 cups water"
+      ],
+      "methods": [
+        {
+          "kind": "traditional",
+          "label": "Slow Cooker",
+          "appliance": "slow-cooker",
+          "cookTime": "PT8H",
+          "totalTime": "PT8H15M",
+          "steps": [
+            "Layer the vegetables and peas in the slow cooker.",
+            "Nestle the ham bone in the center and pour in the broth and water.",
+            "Cook on Low for 7-8 hours until the peas are fully broken down.",
+            "Remove the bone, dice the meat, and return it to the soup."
+          ]
+        },
+        {
+          "kind": "rapid",
+          "label": "Pressure Cooker",
+          "appliance": "pressure-cooker",
+          "cookTime": "PT30M",
+          "totalTime": "PT45M",
+          "steps": [
+            "Add all ingredients to the pot.",
+            "Cook on High Pressure for 15 minutes.",
+            "Natural release for 15 minutes. (Peas cook extremely fast under pressure!)"
+          ]
+        }
+      ],
+      "cuisine": "american",
+      "category": "soup",
+      "diet": ["gluten-free"],
+      "keywords": ["dual-method", "slow-cooker", "pressure-cooker", "instant-pot", "soup", "ham", "legumes"],
+      "prepTime": "PT15M",
+      "cookTime": "PT8H",
+      "totalTime": "PT8H15M",
+      "funFact": "Pea soup has been consumed since antiquity; the ancient Greeks and Romans cultivated peas heavily for drying and storing.",
+      "reference": { "url": "https://www.simplyrecipes.com/recipes/split_pea_soup/" },
+      "attribution": {
+        "type": "website",
+        "name": "Simply Recipes",
+        "url": "https://www.simplyrecipes.com/recipes/split_pea_soup/",
+        "notes": "Extracted from The Master Pot Collection PDF; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Turkey Breast",
+      "dish": "turkey-breast",
+      "serves": "8",
+      "description": "A foolproof method for keeping turkey breast moist and tender, perfect for slicing thick for homestyle meals or thin for exceptional sandwiches.",
+      "ingredients": [
+        "1 (6-7 lb) bone-in turkey breast",
+        "2 tbsp olive oil",
+        "1 tbsp poultry seasoning",
+        "1 tsp garlic powder",
+        "1 cup chicken broth"
+      ],
+      "methods": [
+        {
+          "kind": "traditional",
+          "label": "Slow Cooker",
+          "appliance": "slow-cooker",
+          "cookTime": "PT7H",
+          "totalTime": "PT7H10M",
+          "steps": [
+            "Rub the turkey breast with the oil and seasonings.",
+            "Pour the broth into the bottom of the slow cooker and place the turkey in.",
+            "Cook on Low for 6-7 hours until the internal temperature reaches 165°F."
+          ]
+        },
+        {
+          "kind": "rapid",
+          "label": "Pressure Cooker",
+          "appliance": "pressure-cooker",
+          "cookTime": "PT45M",
+          "totalTime": "PT55M",
+          "steps": [
+            "Pour the broth into the pot and place a trivet inside.",
+            "Set the seasoned turkey breast on the trivet.",
+            "Cook on High Pressure for 35 minutes.",
+            "Natural release for 10 minutes."
+          ]
+        }
+      ],
+      "cuisine": "american",
+      "category": "dinner",
+      "diet": ["gluten-free"],
+      "keywords": ["dual-method", "slow-cooker", "pressure-cooker", "instant-pot", "turkey", "holiday", "sandwiches"],
+      "prepTime": "PT10M",
+      "cookTime": "PT7H",
+      "totalTime": "PT7H10M",
+      "funFact": "Turkey is known for containing tryptophan, an amino acid, but it actually contains about the same amount of tryptophan as chicken or beef!",
+      "reference": { "url": "https://www.the-girl-who-ate-everything.com/slow-cooker-turkey-breast/" },
+      "attribution": {
+        "type": "website",
+        "name": "The Girl Who Ate Everything",
+        "url": "https://www.the-girl-who-ate-everything.com/slow-cooker-turkey-breast/",
+        "notes": "Extracted from The Master Pot Collection PDF; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Classic Pot Roast with Roots",
+      "dish": "pot-roast",
+      "serves": "6",
+      "description": "The ultimate Sunday dinner. Beef chuck becomes incredibly tender as it braises alongside carrots, potatoes, and savory herbs.",
+      "ingredients": [
+        "3 lb chuck roast",
+        "1 lb baby potatoes",
+        "4 large carrots, chopped",
+        "1 onion, quartered",
+        "2 cups beef broth",
+        "2 sprigs fresh rosemary"
+      ],
+      "methods": [
+        {
+          "kind": "traditional",
+          "label": "Slow Cooker",
+          "appliance": "slow-cooker",
+          "cookTime": "PT9H",
+          "totalTime": "PT9H20M",
+          "steps": [
+            "Sear the roast in a hot skillet first.",
+            "Place the vegetables in the bottom of the slow cooker.",
+            "Top with the roast, broth, and rosemary.",
+            "Cook on Low for 8-9 hours."
+          ]
+        },
+        {
+          "kind": "rapid",
+          "label": "Pressure Cooker",
+          "appliance": "pressure-cooker",
+          "cookTime": "PT1H15M",
+          "totalTime": "PT1H35M",
+          "steps": [
+            "Sauté the roast in the pot until browned.",
+            "Remove the roast and add the broth to deglaze.",
+            "Return the meat and add the vegetables on top.",
+            "Cook on High Pressure for 60 minutes.",
+            "Natural release for 15 minutes."
+          ]
+        }
+      ],
+      "cuisine": "american",
+      "category": "dinner",
+      "diet": ["gluten-free"],
+      "keywords": ["dual-method", "slow-cooker", "pressure-cooker", "instant-pot", "beef", "sunday-dinner", "root-vegetables"],
+      "prepTime": "PT20M",
+      "cookTime": "PT9H",
+      "totalTime": "PT9H20M",
+      "funFact": "Pot roast isn't a specific cut of meat; it's a cooking method (braising) applied to tougher cuts like chuck, brisket, or round.",
+      "reference": { "url": "https://www.dinneratthezoo.com/slow-cooker-pot-roast/" },
+      "attribution": {
+        "type": "website",
+        "name": "Dinner at the Zoo",
+        "url": "https://www.dinneratthezoo.com/slow-cooker-pot-roast/",
+        "notes": "Extracted from The Master Pot Collection PDF; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Chicken Tikka Masala",
+      "dish": "chicken-tikka-masala",
+      "serves": "6",
+      "description": "A deeply spiced, creamy tomato curry. Slow cooking allows the spices to bloom and penetrate the chicken completely.",
+      "ingredients": [
+        "2 lbs boneless skinless chicken thighs",
+        "1 (28 oz) can crushed tomatoes",
+        "1 onion, finely diced",
+        "3 cloves garlic, minced",
+        "2 tbsp garam masala",
+        "1/2 cup heavy cream (stirred in at the end)"
+      ],
+      "methods": [
+        {
+          "kind": "traditional",
+          "label": "Slow Cooker",
+          "appliance": "slow-cooker",
+          "cookTime": "PT6H",
+          "totalTime": "PT6H15M",
+          "steps": [
+            "Combine all ingredients except the cream in the slow cooker.",
+            "Cook on Low for 6 hours.",
+            "Stir in the heavy cream 15 minutes before serving."
+          ]
+        },
+        {
+          "kind": "rapid",
+          "label": "Pressure Cooker",
+          "appliance": "pressure-cooker",
+          "cookTime": "PT10M",
+          "totalTime": "PT25M",
+          "steps": [
+            "Add the chicken, tomatoes, onion, garlic, and spices.",
+            "Cook on High Pressure for 10 minutes.",
+            "Quick release the pressure.",
+            "Stir in the heavy cream on the 'Keep Warm' setting."
+          ]
+        }
+      ],
+      "cuisine": "indian",
+      "category": "dinner",
+      "diet": ["gluten-free"],
+      "keywords": ["dual-method", "slow-cooker", "pressure-cooker", "instant-pot", "chicken", "curry"],
+      "prepTime": "PT15M",
+      "cookTime": "PT6H",
+      "totalTime": "PT6H15M",
+      "funFact": "Chicken Tikka Masala is often considered the national dish of Britain, having been widely popularized by South Asian chefs in the UK.",
+      "reference": { "url": "https://thegirlonbloor.com/slow-cooker-chicken-tikka-masala/" },
+      "attribution": {
+        "type": "website",
+        "name": "The Girl on Bloor",
+        "url": "https://thegirlonbloor.com/slow-cooker-chicken-tikka-masala/",
+        "notes": "Extracted from The Master Pot Collection PDF; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Classic Beef Stew",
+      "dish": "beef-stew",
+      "serves": "6",
+      "description": "A thick, hearty, and robust stew loaded with tender chunks of beef and root vegetables in a deeply flavored gravy.",
+      "ingredients": [
+        "2 lbs beef stew meat, cubed",
+        "3 cups beef broth",
+        "1/4 cup tomato paste",
+        "3 carrots, sliced",
+        "2 russet potatoes, cubed",
+        "1 cup frozen peas (added at end)"
+      ],
+      "methods": [
+        {
+          "kind": "traditional",
+          "label": "Slow Cooker",
+          "appliance": "slow-cooker",
+          "cookTime": "PT8H",
+          "totalTime": "PT8H20M",
+          "steps": [
+            "Toss the meat with 2 tbsp of flour and sear in a pan.",
+            "Transfer to the slow cooker with the broth, tomato paste, carrots, and potatoes.",
+            "Cook on Low for 8 hours.",
+            "Stir in the peas 10 minutes before serving."
+          ]
+        },
+        {
+          "kind": "rapid",
+          "label": "Pressure Cooker",
+          "appliance": "pressure-cooker",
+          "cookTime": "PT45M",
+          "totalTime": "PT1H5M",
+          "steps": [
+            "Sauté the meat in the pot.",
+            "Add the broth, tomato paste, carrots, and potatoes.",
+            "Cook on High Pressure for 35 minutes.",
+            "Natural release for 10 minutes, then stir in the peas."
+          ]
+        }
+      ],
+      "cuisine": "american",
+      "category": "dinner",
+      "diet": [],
+      "keywords": ["dual-method", "slow-cooker", "pressure-cooker", "instant-pot", "beef", "stew", "comfort-food"],
+      "prepTime": "PT20M",
+      "cookTime": "PT8H",
+      "totalTime": "PT8H20M",
+      "funFact": "The oldest known evidence of stew was found in Japan, dating back to the Jōmon period (c. 14,000–300 BCE).",
+      "reference": { "url": "https://www.spendwithpennies.com/slow-cooker-beef-stew/" },
+      "attribution": {
+        "type": "website",
+        "name": "Spend with Pennies",
+        "url": "https://www.spendwithpennies.com/slow-cooker-beef-stew/",
+        "notes": "Extracted from The Master Pot Collection PDF; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Chili Con Carne",
+      "dish": "chili-con-carne",
+      "serves": "8",
+      "description": "A robust, highly seasoned chili packed with ground beef, beans, and bacon for an extra layer of smoky depth.",
+      "ingredients": [
+        "1.5 lbs ground beef, browned and drained",
+        "4 slices bacon, cooked and chopped",
+        "1 (15 oz) can kidney beans",
+        "1 (28 oz) can diced tomatoes",
+        "2 tbsp chili powder",
+        "1 tbsp ground cumin"
+      ],
+      "methods": [
+        {
+          "kind": "traditional",
+          "label": "Slow Cooker",
+          "appliance": "slow-cooker",
+          "cookTime": "PT7H",
+          "totalTime": "PT7H20M",
+          "steps": [
+            "Combine the browned beef, chopped bacon, beans, tomatoes, and spices in the slow cooker.",
+            "Cook on Low for 6-8 hours to let the flavors meld."
+          ]
+        },
+        {
+          "kind": "rapid",
+          "label": "Pressure Cooker",
+          "appliance": "pressure-cooker",
+          "cookTime": "PT15M",
+          "totalTime": "PT40M",
+          "steps": [
+            "Sauté the beef and bacon in the pot, then drain the excess fat.",
+            "Add the beans, tomatoes, and spices.",
+            "Cook on High Pressure for 15 minutes.",
+            "Quick release the pressure."
+          ]
+        }
+      ],
+      "cuisine": "tex-mex",
+      "category": "dinner",
+      "diet": ["gluten-free"],
+      "keywords": ["dual-method", "slow-cooker", "pressure-cooker", "instant-pot", "chili", "beef", "bacon"],
+      "prepTime": "PT20M",
+      "cookTime": "PT7H",
+      "totalTime": "PT7H20M",
+      "funFact": "The first recorded instance of 'chili con carne' being eaten by Americans was at the 1893 Columbian Exposition in Chicago at the 'San Antonio Chili Stand'.",
+      "reference": { "url": "https://www.tasteofhome.com/recipes/award-winning-chili/" },
+      "attribution": {
+        "type": "website",
+        "name": "Taste of Home",
+        "url": "https://www.tasteofhome.com/recipes/award-winning-chili/",
+        "notes": "Extracted from The Master Pot Collection PDF; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Pork Carnitas",
+      "dish": "carnitas",
+      "serves": "8",
+      "description": "Mexican pulled pork infused with citrus and oregano. The trick is crispening the shredded pork under a broiler right before serving.",
+      "ingredients": [
+        "4 lb pork shoulder",
+        "Juice of 2 oranges",
+        "Juice of 1 lime",
+        "4 cloves garlic, minced",
+        "1 tbsp dried oregano",
+        "2 tsp ground cumin"
+      ],
+      "methods": [
+        {
+          "kind": "traditional",
+          "label": "Slow Cooker",
+          "appliance": "slow-cooker",
+          "cookTime": "PT10H",
+          "totalTime": "PT10H20M",
+          "steps": [
+            "Place the pork in the slow cooker.",
+            "Pour the citrus juices, garlic, and spices over the top.",
+            "Cook on Low for 8-10 hours.",
+            "Shred, then spread on a baking sheet and broil for 5 minutes until the edges are crispy."
+          ]
+        },
+        {
+          "kind": "rapid",
+          "label": "Pressure Cooker",
+          "appliance": "pressure-cooker",
+          "cookTime": "PT1H",
+          "totalTime": "PT1H20M",
+          "steps": [
+            "Cut the pork into cubes.",
+            "Add the juices and spices.",
+            "Cook on High Pressure for 45 minutes.",
+            "Natural release for 15 minutes, then shred and broil."
+          ]
+        }
+      ],
+      "cuisine": "mexican",
+      "category": "dinner",
+      "diet": ["gluten-free"],
+      "keywords": ["dual-method", "slow-cooker", "pressure-cooker", "instant-pot", "pork", "tacos", "citrus"],
+      "prepTime": "PT15M",
+      "cookTime": "PT10H",
+      "totalTime": "PT10H20M",
+      "funFact": "'Carnitas' literally translates to 'little meats' in Spanish.",
+      "reference": { "url": "https://cafedelites.com/pork-carnitas-mexican-slow-cooked-pulled-pork/" },
+      "attribution": {
+        "type": "website",
+        "name": "Cafe Delites",
+        "url": "https://cafedelites.com/pork-carnitas-mexican-slow-cooked-pulled-pork/",
+        "notes": "Extracted from The Master Pot Collection PDF; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Chicken Tortilla Soup",
+      "dish": "chicken-tortilla-soup",
+      "serves": "6",
+      "description": "A zesty, comforting soup brimming with shredded chicken, black beans, corn, and a bold tomato-jalapeño broth.",
+      "ingredients": [
+        "1.5 lbs chicken breasts",
+        "1 (15 oz) can black beans, rinsed",
+        "1 cup frozen corn",
+        "1 (14 oz) can fire-roasted diced tomatoes",
+        "4 cups chicken broth",
+        "1 tsp chili powder"
+      ],
+      "methods": [
+        {
+          "kind": "traditional",
+          "label": "Slow Cooker",
+          "appliance": "slow-cooker",
+          "cookTime": "PT6H",
+          "totalTime": "PT6H10M",
+          "steps": [
+            "Place all ingredients in the slow cooker.",
+            "Cook on Low for 6 hours.",
+            "Remove the chicken, shred it, and return it to the soup.",
+            "Serve with crushed tortilla chips."
+          ]
+        },
+        {
+          "kind": "rapid",
+          "label": "Pressure Cooker",
+          "appliance": "pressure-cooker",
+          "cookTime": "PT12M",
+          "totalTime": "PT25M",
+          "steps": [
+            "Place all ingredients in the pot.",
+            "Cook on High Pressure for 12 minutes.",
+            "Quick release the pressure.",
+            "Shred the chicken and return it to the soup."
+          ]
+        }
+      ],
+      "cuisine": "mexican",
+      "category": "soup",
+      "diet": ["gluten-free"],
+      "keywords": ["dual-method", "slow-cooker", "pressure-cooker", "instant-pot", "chicken", "soup", "black-beans"],
+      "prepTime": "PT10M",
+      "cookTime": "PT6H",
+      "totalTime": "PT6H10M",
+      "funFact": "Tortilla soup (Sopa de Tortilla) originated in the state of Tlaxcala in Mexico, a name which means 'place of the maize tortilla'.",
+      "reference": { "url": "https://natashaskitchen.com/slow-cooker-chicken-tortilla-soup/" },
+      "attribution": {
+        "type": "website",
+        "name": "Natasha's Kitchen",
+        "url": "https://natashaskitchen.com/slow-cooker-chicken-tortilla-soup/",
+        "notes": "Extracted from The Master Pot Collection PDF; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Vegetarian Black Bean & Quinoa Chili",
+      "dish": "black-bean-quinoa-chili",
+      "serves": "6",
+      "description": "A protein-packed, plant-based chili. The quinoa expands to create an incredibly hearty and satisfying texture.",
+      "ingredients": [
+        "1 cup uncooked quinoa, rinsed",
+        "2 (15 oz) cans black beans, drained",
+        "1 (28 oz) can crushed tomatoes",
+        "3 cups vegetable broth",
+        "1 bell pepper, chopped",
+        "2 tbsp taco seasoning"
+      ],
+      "methods": [
+        {
+          "kind": "traditional",
+          "label": "Slow Cooker",
+          "appliance": "slow-cooker",
+          "cookTime": "PT6H30M",
+          "totalTime": "PT6H40M",
+          "steps": [
+            "Combine all ingredients in the slow cooker.",
+            "Cook on High for 3-4 hours or Low for 6-7 hours.",
+            "The quinoa will absorb the liquid and thicken the chili."
+          ]
+        },
+        {
+          "kind": "rapid",
+          "label": "Pressure Cooker",
+          "appliance": "pressure-cooker",
+          "cookTime": "PT18M",
+          "totalTime": "PT30M",
+          "steps": [
+            "Combine all ingredients in the pot.",
+            "Cook on High Pressure for 8 minutes.",
+            "Natural release for 10 minutes."
+          ]
+        }
+      ],
+      "cuisine": "tex-mex",
+      "category": "dinner",
+      "diet": ["vegetarian", "vegan", "gluten-free"],
+      "keywords": ["dual-method", "slow-cooker", "pressure-cooker", "instant-pot", "chili", "quinoa", "plant-based"],
+      "prepTime": "PT10M",
+      "cookTime": "PT6H30M",
+      "totalTime": "PT6H40M",
+      "funFact": "Quinoa is a pseudocereal, meaning it's biologically a seed rather than a true grain, but it is cooked and eaten like a grain.",
+      "reference": { "url": "https://www.eatingbirdfood.com/slow-cooker-black-bean-quinoa-chili/" },
+      "attribution": {
+        "type": "website",
+        "name": "Eating Bird Food",
+        "url": "https://www.eatingbirdfood.com/slow-cooker-black-bean-quinoa-chili/",
+        "notes": "Extracted from The Master Pot Collection PDF; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "BBQ Baby Back Ribs",
+      "dish": "bbq-baby-back-ribs",
+      "serves": "4",
+      "description": "Fall-off-the-bone tender ribs without needing a smoker. A final flash under the broiler caramelizes the BBQ sauce perfectly.",
+      "ingredients": [
+        "2 racks baby back ribs",
+        "1 cup of your favorite BBQ sauce",
+        "2 tbsp brown sugar",
+        "1 tbsp smoked paprika",
+        "1 tsp garlic powder"
+      ],
+      "methods": [
+        {
+          "kind": "traditional",
+          "label": "Slow Cooker",
+          "appliance": "slow-cooker",
+          "cookTime": "PT8H5M",
+          "totalTime": "PT8H20M",
+          "steps": [
+            "Remove the membrane from the back of the ribs and rub with the spices.",
+            "Coil the ribs to fit into the slow cooker and pour 1/2 cup BBQ sauce over them.",
+            "Cook on Low for 8 hours.",
+            "Carefully remove, baste with the remaining sauce, and broil for 5 minutes."
+          ]
+        },
+        {
+          "kind": "rapid",
+          "label": "Pressure Cooker",
+          "appliance": "pressure-cooker",
+          "cookTime": "PT40M",
+          "totalTime": "PT55M",
+          "steps": [
+            "Remove the membrane and rub the ribs with the spices.",
+            "Place 1 cup water and a trivet in the pot, then coil the ribs on the trivet.",
+            "Cook on High Pressure for 25 minutes.",
+            "Natural release for 10 minutes, then broil with the sauce."
+          ]
+        }
+      ],
+      "cuisine": "american",
+      "category": "dinner",
+      "diet": [],
+      "keywords": ["dual-method", "slow-cooker", "pressure-cooker", "instant-pot", "ribs", "bbq", "pork"],
+      "prepTime": "PT15M",
+      "cookTime": "PT8H5M",
+      "totalTime": "PT8H20M",
+      "funFact": "Baby back ribs are named not because they come from a baby pig, but because they are shorter than spareribs.",
+      "reference": { "url": "https://www.wellplated.com/slow-cooker-ribs/" },
+      "attribution": {
+        "type": "website",
+        "name": "Well Plated",
+        "url": "https://www.wellplated.com/slow-cooker-ribs/",
+        "notes": "Extracted from The Master Pot Collection PDF; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Creamy Macaroni and Cheese",
+      "dish": "mac-and-cheese",
+      "serves": "8",
+      "description": "A rich, custard-style mac and cheese that cooks perfectly in the slow cooker without the need to boil the pasta beforehand.",
+      "ingredients": [
+        "16 oz elbow macaroni, uncooked",
+        "3 cups whole milk",
+        "1 (12 oz) can evaporated milk",
+        "3 cups sharp cheddar cheese, shredded",
+        "1 cup gruyere cheese, shredded",
+        "1/2 tsp dry mustard"
+      ],
+      "methods": [
+        {
+          "kind": "traditional",
+          "label": "Slow Cooker",
+          "appliance": "slow-cooker",
+          "cookTime": "PT2H",
+          "totalTime": "PT2H10M",
+          "steps": [
+            "Spray the insert with cooking spray.",
+            "Mix all ingredients in the slow cooker.",
+            "Cook on Low for 2 hours, stirring once halfway through.",
+            "Do not overcook or the pasta will become mushy."
+          ]
+        },
+        {
+          "kind": "rapid",
+          "label": "Pressure Cooker",
+          "appliance": "pressure-cooker",
+          "cookTime": "PT4M",
+          "totalTime": "PT15M",
+          "steps": [
+            "Add the pasta, 4 cups water, and a pinch of salt.",
+            "Cook on High Pressure for 4 minutes.",
+            "Quick release the pressure; do not drain.",
+            "Stir in the evaporated milk and cheeses until melted."
+          ]
+        }
+      ],
+      "cuisine": "american",
+      "category": "dinner",
+      "diet": ["vegetarian"],
+      "keywords": ["dual-method", "slow-cooker", "pressure-cooker", "instant-pot", "pasta", "cheese", "comfort-food"],
+      "prepTime": "PT10M",
+      "cookTime": "PT2H",
+      "totalTime": "PT2H10M",
+      "funFact": "Thomas Jefferson is credited with helping to popularize Macaroni and Cheese in the US after encountering pasta machines in Paris.",
+      "reference": { "url": "https://www.tristinsrecipe.com/slow-cooker-mac-and-cheese/" },
+      "attribution": {
+        "type": "website",
+        "name": "Tristin's Recipe",
+        "url": "https://www.tristinsrecipe.com/slow-cooker-mac-and-cheese/",
+        "notes": "Extracted from The Master Pot Collection PDF; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Indian Butter Chicken",
+      "dish": "butter-chicken",
+      "serves": "6",
+      "description": "Murgh Makhani: a velvety, heavily spiced (but not spicy-hot) tomato and cream sauce enveloping tender chunks of chicken.",
+      "ingredients": [
+        "2 lbs boneless skinless chicken thighs",
+        "1 (14 oz) can tomato sauce",
+        "3 cloves garlic, minced",
+        "1 tbsp fresh ginger, minced",
+        "1 tbsp garam masala",
+        "1/2 cup heavy cream (stirred in at the end)"
+      ],
+      "methods": [
+        {
+          "kind": "traditional",
+          "label": "Slow Cooker",
+          "appliance": "slow-cooker",
+          "cookTime": "PT6H",
+          "totalTime": "PT6H10M",
+          "steps": [
+            "Add the chicken, tomato sauce, garlic, ginger, and spices to the slow cooker.",
+            "Cook on Low for 6 hours.",
+            "Stir in the heavy cream just before serving."
+          ]
+        },
+        {
+          "kind": "rapid",
+          "label": "Pressure Cooker",
+          "appliance": "pressure-cooker",
+          "cookTime": "PT10M",
+          "totalTime": "PT25M",
+          "steps": [
+            "Add the chicken, sauce, and spices to the pot.",
+            "Cook on High Pressure for 10 minutes.",
+            "Quick release the pressure.",
+            "Stir in the heavy cream."
+          ]
+        }
+      ],
+      "cuisine": "indian",
+      "category": "dinner",
+      "diet": ["gluten-free"],
+      "keywords": ["dual-method", "slow-cooker", "pressure-cooker", "instant-pot", "chicken", "curry", "murgh-makhani"],
+      "prepTime": "PT10M",
+      "cookTime": "PT6H",
+      "totalTime": "PT6H10M",
+      "funFact": "Butter Chicken was invented by chance in Delhi in the 1950s by mixing leftover tandoori chicken with a tomato gravy.",
+      "reference": { "url": "https://gimmedelicious.com/slow-cooker-butter-chicken/" },
+      "attribution": {
+        "type": "website",
+        "name": "Gimme Delicious",
+        "url": "https://gimmedelicious.com/slow-cooker-butter-chicken/",
+        "notes": "Extracted from The Master Pot Collection PDF; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Corned Beef and Cabbage",
+      "dish": "corned-beef-and-cabbage",
+      "serves": "8",
+      "description": "A St. Patrick's Day staple that benefits immensely from low, slow cooking to tenderize the heavily cured brisket.",
+      "ingredients": [
+        "1 (3-4 lb) corned beef brisket (with spice packet)",
+        "1 small head green cabbage, cut into wedges",
+        "1 lb baby potatoes",
+        "3 carrots, chopped",
+        "4 cups beef broth"
+      ],
+      "methods": [
+        {
+          "kind": "traditional",
+          "label": "Slow Cooker",
+          "appliance": "slow-cooker",
+          "cookTime": "PT9H",
+          "totalTime": "PT9H15M",
+          "steps": [
+            "Place the potatoes and carrots in the slow cooker.",
+            "Top with the brisket and spice packet, then pour in the broth.",
+            "Cook on Low for 8-9 hours.",
+            "Add the cabbage wedges during the last hour of cooking."
+          ]
+        },
+        {
+          "kind": "rapid",
+          "label": "Pressure Cooker",
+          "appliance": "pressure-cooker",
+          "cookTime": "PT1H35M",
+          "totalTime": "PT1H50M",
+          "steps": [
+            "Place the brisket, potatoes, carrots, and broth in the pot.",
+            "Cook on High Pressure for 90 minutes.",
+            "Quick release, then add the cabbage.",
+            "Cook on High Pressure for 3 more minutes."
+          ]
+        }
+      ],
+      "cuisine": "irish-american",
+      "category": "dinner",
+      "diet": ["gluten-free"],
+      "keywords": ["dual-method", "slow-cooker", "pressure-cooker", "instant-pot", "beef", "st-patricks-day", "cabbage"],
+      "prepTime": "PT15M",
+      "cookTime": "PT9H",
+      "totalTime": "PT9H15M",
+      "funFact": "Corned beef got its name from the large 'corns' (grains) of rock salt traditionally used to cure the meat.",
+      "reference": { "url": "https://www.delish.com/cooking/recipe-ideas/recipes/a51508/slow-cooker-corned-beef-cabbage-recipe/" },
+      "attribution": {
+        "type": "website",
+        "name": "Delish",
+        "url": "https://www.delish.com/cooking/recipe-ideas/recipes/a51508/slow-cooker-corned-beef-cabbage-recipe/",
+        "notes": "Extracted from The Master Pot Collection PDF; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Swedish Meatballs",
+      "dish": "swedish-meatballs",
+      "serves": "6",
+      "description": "Tender meatballs simmered in a rich, savory cream sauce with hints of allspice and nutmeg.",
+      "ingredients": [
+        "2 lbs frozen homestyle meatballs (or homemade)",
+        "2 cups beef broth",
+        "1 cup heavy cream",
+        "2 tbsp Worcestershire sauce",
+        "1 tsp allspice",
+        "1/4 tsp nutmeg"
+      ],
+      "methods": [
+        {
+          "kind": "traditional",
+          "label": "Slow Cooker",
+          "appliance": "slow-cooker",
+          "cookTime": "PT4H",
+          "totalTime": "PT4H10M",
+          "steps": [
+            "Place the meatballs in the slow cooker.",
+            "Whisk the broth, Worcestershire, and spices together and pour over.",
+            "Cook on Low for 4 hours.",
+            "Stir in the heavy cream and a cornstarch slurry during the last 30 minutes to thicken."
+          ]
+        },
+        {
+          "kind": "rapid",
+          "label": "Pressure Cooker",
+          "appliance": "pressure-cooker",
+          "cookTime": "PT10M",
+          "totalTime": "PT20M",
+          "steps": [
+            "Add the meatballs, broth, and spices.",
+            "Cook on High Pressure for 5 minutes.",
+            "Quick release the pressure.",
+            "Sauté, stirring in the heavy cream and a cornstarch slurry until thick."
+          ]
+        }
+      ],
+      "cuisine": "swedish",
+      "category": "dinner",
+      "diet": [],
+      "keywords": ["dual-method", "slow-cooker", "pressure-cooker", "instant-pot", "meatballs", "cream-sauce"],
+      "prepTime": "PT10M",
+      "cookTime": "PT4H",
+      "totalTime": "PT4H10M",
+      "funFact": "In Sweden, meatballs are traditionally served with lingonberry jam, which adds a tart contrast to the rich gravy.",
+      "reference": { "url": "https://therecipecritic.com/slow-cooker-swedish-meatballs/" },
+      "attribution": {
+        "type": "website",
+        "name": "The Recipe Critic",
+        "url": "https://therecipecritic.com/slow-cooker-swedish-meatballs/",
+        "notes": "Extracted from The Master Pot Collection PDF; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "White Chicken Chili",
+      "dish": "white-chicken-chili",
+      "serves": "6",
+      "description": "A creamy, comforting alternative to traditional red chili, featuring green chiles, white beans, and chicken.",
+      "ingredients": [
+        "1.5 lbs chicken breasts",
+        "2 (15 oz) cans great northern beans, drained",
+        "1 (4 oz) can diced green chiles",
+        "4 cups chicken broth",
+        "1 tsp ground cumin",
+        "1/2 cup sour cream (stir in at end)"
+      ],
+      "methods": [
+        {
+          "kind": "traditional",
+          "label": "Slow Cooker",
+          "appliance": "slow-cooker",
+          "cookTime": "PT7H",
+          "totalTime": "PT7H10M",
+          "steps": [
+            "Place the chicken, beans, chiles, broth, and cumin in the slow cooker.",
+            "Cook on Low for 6-8 hours.",
+            "Shred the chicken.",
+            "Stir in the sour cream before serving."
+          ]
+        },
+        {
+          "kind": "rapid",
+          "label": "Pressure Cooker",
+          "appliance": "pressure-cooker",
+          "cookTime": "PT15M",
+          "totalTime": "PT30M",
+          "steps": [
+            "Add all ingredients except the sour cream.",
+            "Cook on High Pressure for 15 minutes.",
+            "Quick release the pressure.",
+            "Shred the chicken and stir in the sour cream."
+          ]
+        }
+      ],
+      "cuisine": "american",
+      "category": "dinner",
+      "diet": ["gluten-free"],
+      "keywords": ["dual-method", "slow-cooker", "pressure-cooker", "instant-pot", "chicken", "chili", "white-beans"],
+      "prepTime": "PT10M",
+      "cookTime": "PT7H",
+      "totalTime": "PT7H10M",
+      "funFact": "White chili originated in the American Southwest and often utilizes Hatch green chiles from New Mexico.",
+      "reference": { "url": "https://www.cookingclassy.com/slow-cooker-white-chicken-chili/" },
+      "attribution": {
+        "type": "website",
+        "name": "Cooking Classy",
+        "url": "https://www.cookingclassy.com/slow-cooker-white-chicken-chili/",
+        "notes": "Extracted from The Master Pot Collection PDF; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Chipotle Barbacoa Beef",
+      "dish": "beef-barbacoa",
+      "serves": "8",
+      "description": "Incredibly tender, spicy, and tangy shredded beef. Perfect for tacos, burritos, or rice bowls.",
+      "ingredients": [
+        "3 lb chuck roast",
+        "1/3 cup apple cider vinegar",
+        "3 chipotle peppers in adobo sauce, chopped",
+        "4 cloves garlic, minced",
+        "1 tbsp ground cumin",
+        "1 tsp dried oregano"
+      ],
+      "methods": [
+        {
+          "kind": "traditional",
+          "label": "Slow Cooker",
+          "appliance": "slow-cooker",
+          "cookTime": "PT9H",
+          "totalTime": "PT9H15M",
+          "steps": [
+            "Cut the roast into large chunks.",
+            "Mix the vinegar, chipotles, garlic, and spices, and pour over the beef.",
+            "Cook on Low for 8-9 hours until it falls apart easily.",
+            "Shred the meat."
+          ]
+        },
+        {
+          "kind": "rapid",
+          "label": "Pressure Cooker",
+          "appliance": "pressure-cooker",
+          "cookTime": "PT1H15M",
+          "totalTime": "PT1H30M",
+          "steps": [
+            "Cut the beef into smaller chunks.",
+            "Add the sauce mixture and 1/2 cup broth.",
+            "Cook on High Pressure for 60 minutes.",
+            "Natural release for 15 minutes, then shred."
+          ]
+        }
+      ],
+      "cuisine": "mexican",
+      "category": "dinner",
+      "diet": ["gluten-free"],
+      "keywords": ["dual-method", "slow-cooker", "pressure-cooker", "instant-pot", "beef", "tacos", "chipotle"],
+      "prepTime": "PT15M",
+      "cookTime": "PT9H",
+      "totalTime": "PT9H15M",
+      "funFact": "The word 'barbecue' actually derives from 'barbacoa', the term used by the Taíno people of the Caribbean to describe a wooden framework for roasting meat.",
+      "reference": { "url": "https://gimmesomeoven.com/barbacoa-recipe/" },
+      "attribution": {
+        "type": "website",
+        "name": "Gimme Some Oven",
+        "url": "https://gimmesomeoven.com/barbacoa-recipe/",
+        "notes": "Extracted from The Master Pot Collection PDF; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Classic Beef Stroganoff",
+      "dish": "beef-stroganoff",
+      "serves": "6",
+      "description": "Tender beef chunks smothered in a deeply savory mushroom and sour cream gravy, traditionally served over egg noodles.",
+      "ingredients": [
+        "1.5 lbs beef stew meat",
+        "1 lb cremini mushrooms, sliced",
+        "1 onion, chopped",
+        "2 cups beef broth",
+        "1 tbsp Dijon mustard",
+        "1 cup sour cream (stir in at end)"
+      ],
+      "methods": [
+        {
+          "kind": "traditional",
+          "label": "Slow Cooker",
+          "appliance": "slow-cooker",
+          "cookTime": "PT8H",
+          "totalTime": "PT8H15M",
+          "steps": [
+            "Combine the beef, mushrooms, onion, broth, and mustard in the slow cooker.",
+            "Cook on Low for 7-8 hours.",
+            "Turn off the heat and stir in the sour cream (to prevent curdling)."
+          ]
+        },
+        {
+          "kind": "rapid",
+          "label": "Pressure Cooker",
+          "appliance": "pressure-cooker",
+          "cookTime": "PT30M",
+          "totalTime": "PT45M",
+          "steps": [
+            "Sauté the beef to brown.",
+            "Add the mushrooms, onion, broth, and mustard.",
+            "Cook on High Pressure for 20 minutes.",
+            "Natural release for 10 minutes, then stir in the sour cream."
+          ]
+        }
+      ],
+      "cuisine": "russian",
+      "category": "dinner",
+      "diet": [],
+      "keywords": ["dual-method", "slow-cooker", "pressure-cooker", "instant-pot", "beef", "mushrooms", "egg-noodles"],
+      "prepTime": "PT15M",
+      "cookTime": "PT8H",
+      "totalTime": "PT8H15M",
+      "funFact": "The dish is named after the Stroganov family, one of the richest families in Tsarist Russia.",
+      "reference": { "url": "https://www.wellplated.com/slow-cooker-beef-stroganoff/" },
+      "attribution": {
+        "type": "website",
+        "name": "Well Plated",
+        "url": "https://www.wellplated.com/slow-cooker-beef-stroganoff/",
+        "notes": "Extracted from The Master Pot Collection PDF; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Spiced Apple Butter",
+      "dish": "apple-butter",
+      "serves": "about 4 cups",
+      "description": "A deeply caramelized, spreadable reduction of apples, cinnamon, and cloves. Your house will smell incredible.",
+      "ingredients": [
+        "5 lbs apples (mixed varieties like Granny Smith and Honeycrisp), peeled and cored",
+        "1 cup brown sugar",
+        "1 tbsp ground cinnamon",
+        "1/2 tsp ground nutmeg",
+        "1/4 tsp ground cloves",
+        "1 tsp vanilla extract"
+      ],
+      "methods": [
+        {
+          "kind": "traditional",
+          "label": "Slow Cooker",
+          "appliance": "slow-cooker",
+          "cookTime": "PT12H",
+          "totalTime": "PT12H30M",
+          "steps": [
+            "Place the chopped apples in the slow cooker and top with the sugar and spices.",
+            "Cook on Low for 10 hours.",
+            "Puree with an immersion blender.",
+            "Cook on Low for 2 more hours uncovered to thicken."
+          ]
+        },
+        {
+          "kind": "rapid",
+          "label": "Pressure Cooker",
+          "appliance": "pressure-cooker",
+          "cookTime": "PT30M",
+          "totalTime": "PT1H",
+          "steps": [
+            "Place the apples, sugar, and spices in the pot with 1/2 cup water.",
+            "Cook on High Pressure for 15 minutes.",
+            "Quick release, then puree.",
+            "Sauté uncovered until thick."
+          ]
+        }
+      ],
+      "cuisine": "american",
+      "category": "condiment",
+      "diet": ["vegetarian", "vegan", "gluten-free"],
+      "keywords": ["dual-method", "slow-cooker", "pressure-cooker", "instant-pot", "apples", "spread", "fall"],
+      "prepTime": "PT30M",
+      "cookTime": "PT12H",
+      "totalTime": "PT12H30M",
+      "funFact": "Despite its name, apple butter contains absolutely no dairy butter; the name refers to its smooth, spreadable texture.",
+      "reference": { "url": "https://www.mybakingaddiction.com/crock-pot-slow-cooker-apple-butter-recipe/" },
+      "attribution": {
+        "type": "website",
+        "name": "My Baking Addiction",
+        "url": "https://www.mybakingaddiction.com/crock-pot-slow-cooker-apple-butter-recipe/",
+        "notes": "Extracted from The Master Pot Collection PDF; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Classic Chicken Noodle Soup",
+      "dish": "chicken-noodle-soup",
+      "serves": "6",
+      "description": "The ultimate cold-weather cure. Cooking the chicken directly in the broth results in an intensely flavorful soup.",
+      "ingredients": [
+        "1.5 lbs chicken thighs or breasts",
+        "4 carrots, sliced",
+        "3 celery stalks, sliced",
+        "1 onion, diced",
+        "6 cups chicken broth",
+        "2 cups egg noodles (added at the end)"
+      ],
+      "methods": [
+        {
+          "kind": "traditional",
+          "label": "Slow Cooker",
+          "appliance": "slow-cooker",
+          "cookTime": "PT7H15M",
+          "totalTime": "PT7H30M",
+          "steps": [
+            "Place the chicken, vegetables, and broth in the slow cooker.",
+            "Cook on Low for 6-8 hours.",
+            "Remove and shred the chicken.",
+            "Stir in the egg noodles and cook on High for 15 minutes until the noodles are tender."
+          ]
+        },
+        {
+          "kind": "rapid",
+          "label": "Pressure Cooker",
+          "appliance": "pressure-cooker",
+          "cookTime": "PT15M",
+          "totalTime": "PT30M",
+          "steps": [
+            "Add the chicken, vegetables, and broth.",
+            "Cook on High Pressure for 10 minutes.",
+            "Quick release, then remove the chicken to shred.",
+            "Add the noodles and sauté for 5 minutes until tender, then return the chicken."
+          ]
+        }
+      ],
+      "cuisine": "american",
+      "category": "soup",
+      "diet": [],
+      "keywords": ["dual-method", "slow-cooker", "pressure-cooker", "instant-pot", "chicken", "soup", "comfort-food"],
+      "prepTime": "PT15M",
+      "cookTime": "PT7H15M",
+      "totalTime": "PT7H30M",
+      "funFact": "Chicken soup has been prescribed as a medical remedy for the common cold since the 12th century by the physician Maimonides.",
+      "reference": { "url": "https://www.familyfreshmeals.com/best-crockpot-chicken-noodle-soup/" },
+      "attribution": {
+        "type": "website",
+        "name": "Family Fresh Meals",
+        "url": "https://www.familyfreshmeals.com/best-crockpot-chicken-noodle-soup/",
+        "notes": "Extracted from The Master Pot Collection PDF; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Louisiana Red Beans and Rice",
+      "dish": "red-beans-and-rice",
+      "serves": "8",
+      "description": "A true New Orleans classic. The slow cooking breaks down the kidney beans to create a rich, creamy gravy that coats the smoked sausage.",
+      "ingredients": [
+        "1 lb dried red kidney beans, rinsed",
+        "1 lb smoked sausage (Andouille preferred), sliced",
+        "1 green bell pepper, diced",
+        "1 celery stalk, diced",
+        "1 onion, diced",
+        "6 cups chicken broth",
+        "1 tsp Cajun seasoning"
+      ],
+      "methods": [
+        {
+          "kind": "traditional",
+          "label": "Slow Cooker",
+          "appliance": "slow-cooker",
+          "cookTime": "PT9H",
+          "totalTime": "PT9H15M",
+          "steps": [
+            "Place all ingredients into the slow cooker.",
+            "Cook on Low for 8-10 hours until the beans are tender.",
+            "Mash a few beans against the side of the pot to thicken the broth.",
+            "Serve over cooked white rice."
+          ]
+        },
+        {
+          "kind": "rapid",
+          "label": "Pressure Cooker",
+          "appliance": "pressure-cooker",
+          "cookTime": "PT1H",
+          "totalTime": "PT1H15M",
+          "steps": [
+            "Place all ingredients into the pressure cooker.",
+            "Cook on High Pressure for 45 minutes.",
+            "Natural release for 15 minutes.",
+            "Mash some beans to thicken, and serve over cooked white rice."
+          ]
+        }
+      ],
+      "cuisine": "cajun",
+      "category": "dinner",
+      "diet": [],
+      "keywords": ["dual-method", "slow-cooker", "pressure-cooker", "instant-pot", "beans", "sausage", "new-orleans"],
+      "prepTime": "PT15M",
+      "cookTime": "PT9H",
+      "totalTime": "PT9H15M",
+      "funFact": "Historically in New Orleans, red beans and rice was traditionally served on Mondays using the leftover ham bone from Sunday dinner.",
+      "reference": { "url": "https://www.camelliabrand.com/recipes/slow-cooker-red-beans-and-rice/" },
+      "attribution": {
+        "type": "website",
+        "name": "Camellia Brand",
+        "url": "https://www.camelliabrand.com/recipes/slow-cooker-red-beans-and-rice/",
+        "notes": "Extracted from The Master Pot Collection PDF; method adapted from the referenced source."
+      },
+      "altOf": null
+    }
+  ]
+}

@@ -29,23 +29,26 @@ const listEl = (tag: 'ul' | 'ol', testid: string, items: string[]): HTMLElement 
  *  attribute so the copy target is inspectable/testable without the async
  *  Clipboard API; the click handler reads it and writes to the clipboard,
  *  flashing "copied" briefly. Clipboard denial is silent (label unchanged). */
+const COPY_GLYPH = '⧉'; // overlapping squares — the "copy" affordance
 const quickCopyControl = (lines: string[], testid: string): HTMLElement => {
-  const btn = el('button', 'quick-copy', 'quick copy') as HTMLButtonElement;
+  const btn = el('button', 'quick-copy', COPY_GLYPH) as HTMLButtonElement;
   btn.type = 'button';
   btn.dataset['testid'] = testid;
   btn.dataset['copy'] = lines.join('\n');
+  // The button is icon-only, so the accessible name lives on aria-label/title.
   btn.setAttribute('aria-label', 'Copy to clipboard');
+  btn.title = 'Copy';
   btn.addEventListener('click', () => {
     const payload = btn.dataset['copy'] ?? '';
     const done = navigator.clipboard?.writeText(payload);
     if (done === undefined) return; // no Clipboard API — nothing to flash
     void done.then(
       () => {
-        btn.textContent = 'copied';
-        window.setTimeout(() => (btn.textContent = 'quick copy'), 1200);
+        btn.textContent = '✓'; // brief confirmation, then back to the copy glyph
+        window.setTimeout(() => (btn.textContent = COPY_GLYPH), 1200);
       },
       () => {
-        /* clipboard denied — leave the label as-is */
+        /* clipboard denied — leave the glyph as-is */
       },
     );
   });

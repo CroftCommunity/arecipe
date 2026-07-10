@@ -77,3 +77,25 @@ for (const width of WIDTHS) {
     expect(await overflowOf(page), `recipe @ ${width}px overflows`).toBeLessThanOrEqual(1);
   });
 }
+
+// Comfortable touch targets on a phone: interactive controls should be at least
+// ~44px tall (WCAG 2.5.5). Representative controls across the chrome + toolbar.
+test('tap targets are ≥44px on a phone (browse controls + bottom nav)', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 780 });
+  await page.goto('/index.html');
+  await page.getByTestId('find-recipes').waitFor({ timeout: 15_000 });
+  const ids = [
+    'find-recipes', // .button
+    'export-recipes', // small icon .button
+    'view-tiles', // .segmented-option
+    'view-details',
+    'theme-toggle', // .nav-gear (icon button)
+    'nav-settings', // .nav-gear (icon link)
+    'tab-browse', // bottom-nav .tab
+  ];
+  for (const id of ids) {
+    const box = await page.getByTestId(id).first().boundingBox();
+    expect(box, `${id} has a box`).not.toBeNull();
+    expect(box!.height, `${id} tap height`).toBeGreaterThanOrEqual(44);
+  }
+});

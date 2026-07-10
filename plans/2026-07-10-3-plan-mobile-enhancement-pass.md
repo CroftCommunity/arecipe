@@ -1,7 +1,8 @@
 # Mobile enhancement pass — fix the Focus bug + a jankiness sweep
 
-**Status:** ✅ **Objective fixes shipped 2026-07-10**; subjective device polish
-(tap-target sizing) deferred pending real-device review (per Phase 0 / OQ4).
+**Status:** ✅ **Shipped 2026-07-10** — Focus fix, overflow sweep, and a
+tap-target pass, each guarded by `mobile-fit.spec.ts`. Only truly-subjective
+"reads right" judgments remain for an eventual real-device look.
 
 ## Outcome Summary
 
@@ -10,7 +11,7 @@
 | 0 Discovery | ✅ | Focus root cause found by static analysis: `.focus-view { background: var(--paper) }` — `--paper` is an **undefined token with no fallback**, so the overlay rendered transparent and the page bled through (the "errors out" report). Overflow catalog via `mobile-fit.spec.ts` at 320/360/390: only **settings** overflowed. |
 | A Focus fix | ✅ | Opaque themed background (`var(--tile)`) + safe-area padding on `.focus-view`; `mountFocus` now skips the Fullscreen API on coarse-pointer/touch devices and guards a synchronous throw (the overlay is the reliable mechanism). Mobile e2e asserts an opaque, error-free overlay. |
 | B Overflow sweep | ✅ | `.draft-row` (Settings "Hidden recipes" — a raw ULID + Unhide) overflowed because it was a no-wrap flex row with an unbreakable token. Fixed: `flex-wrap` + `min-width:0` + `overflow-wrap:anywhere`. The reference-table scroll fix (prior commit) verified clean. `mobile-fit.spec.ts` (27 checks across 9 pages × 3 widths) is the standing regression guard. |
-| 4 Tap targets / subjective | ⏸️ Deferred | Per the plan's own posture: subjective "reads right" and comfortable tap-target judgments need real-device review (unavailable in this environment). Objective overflow/opacity invariants are guarded; sizing polish is a follow-up with a phone in hand. |
+| 4 Tap targets | ✅ | A phone-scoped (`max-width: 40rem`) pass giving interactive controls a ≥44px hit height (WCAG 2.5.5): `.button`, `.segmented-option`, `.src-btn`, `.chip`, facet dropdowns, palette pager, nav gears, bottom-nav `.tab`, version arrows, quick-copy, share links. Icon-only controls get a 44px min-width **except** the two topbar gears (44px width each + the sign-in link overflows a 320px header — they keep the taller height, natural width). Grid-cell controls (day-slot ×) excluded so the 7-col calendar can't overflow. Guarded by a `mobile-fit.spec.ts` tap-height assertion; the overflow sweep re-run confirms no regression. Remaining: a subjective real-device "reads right" look. |
 
 
 

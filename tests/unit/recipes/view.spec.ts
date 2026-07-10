@@ -207,12 +207,15 @@ describe('renderRecipeDetail', () => {
     expect(provenance?.textContent).toContain('fingerprint matches');
   });
 
-  it('offers a quick-copy control by Ingredients and Instructions carrying each section text', () => {
+  it('offers an icon-only quick-copy control by Ingredients and Instructions carrying each section text', () => {
     const el = renderRecipeDetail(entry(), { author: 'rdur.dev' });
     const ingCopy = el.querySelector('[data-testid=copy-ingredients]');
     const insCopy = el.querySelector('[data-testid=copy-instructions]');
     expect(ingCopy).not.toBeNull();
     expect(insCopy).not.toBeNull();
+    // Icon-only (the ⧉ copy glyph, not the words), with an accessible name.
+    expect(ingCopy?.textContent).not.toContain('quick copy');
+    expect(ingCopy?.getAttribute('aria-label')).toBe('Copy to clipboard');
     expect(ingCopy?.getAttribute('data-copy')).toBe(
       (fixture.value['ingredients'] as string[]).join('\n'),
     );

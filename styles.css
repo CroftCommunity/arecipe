@@ -983,20 +983,19 @@ a.card {
 .section-head h3 {
   margin-bottom: var(--s-2);
 }
+/* Icon-only copy affordance (⧉) beside a section heading. */
 .quick-copy {
-  font-family: var(--mono);
-  font-size: var(--t-caption);
+  font-size: 1.15rem;
+  line-height: 1;
   color: var(--enamel);
   background: none;
   border: none;
-  padding: 0;
+  padding: 0 var(--s-1);
   cursor: pointer;
-  opacity: 0.75;
-  white-space: nowrap;
+  opacity: 0.7;
 }
 .quick-copy:hover {
   opacity: 1;
-  text-decoration: underline;
 }
 
 .detail-cols ul {
@@ -1328,9 +1327,58 @@ a.card {
   line-height: 1.7;
 }
 @media (max-width: 640px) { .focus-cols { grid-template-columns: 1fr; } }
-.recipe-controls { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.75rem; }
-.version-nav { display: inline-flex; align-items: center; gap: 0.4rem; border: 1px solid var(--line); border-radius: var(--r-pill); padding: 0.15rem 0.4rem; }
-.version-count { font-size: var(--t-caption); white-space: nowrap; padding: 0 0.3rem; }
+/* Version-flip bar (above the banner on multi-version recipes): a ‹ N of M ›
+   pill on the left, a "▦ View All" link on the right, on one row. Was unstyled
+   (the code renders .version-bar; the old .recipe-controls rule was dead), so
+   the arrows fell back to default browser buttons — off-key for the page. */
+.version-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+  margin: var(--s-4) 0;
+}
+.version-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-pill);
+  padding: 0.15rem 0.4rem;
+}
+.version-count {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  white-space: nowrap;
+  padding: 0 var(--s-2);
+}
+.version-prev,
+.version-next {
+  appearance: none;
+  border: 0;
+  background: none;
+  color: var(--enamel);
+  font-size: 1.2rem;
+  line-height: 1;
+  padding: 0 var(--s-1);
+  cursor: pointer;
+  border-radius: var(--r-s);
+}
+.version-prev:hover,
+.version-next:hover {
+  background: var(--enamel-soft);
+}
+.version-viewall {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  color: var(--enamel);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.version-viewall:hover {
+  text-decoration: underline;
+}
 
 /* ---- reference page (kitchen charts) ----
    Static conversion/roasting charts transcribed from the scanned reference
@@ -1740,4 +1788,39 @@ table.ref.pairs td.eq {
 }
 .palette-page-btn[hidden] {
   display: none;
+}
+
+/* ---- Mobile tap targets (WCAG 2.5.5) --------------------------------------
+   On phones, interactive controls get a ≥44px hit height with their content
+   vertically centered. Scoped to the app's mobile breakpoint so desktop
+   density is unchanged. Controls inside the tight 7-column calendar grid (the
+   day-slot × clear) are deliberately excluded so they can't widen a cell and
+   overflow the row. */
+@media (max-width: 40rem) {
+  .button,
+  .segmented-option,
+  .src-btn,
+  .chip,
+  .facet-dd-summary,
+  .palette-page-btn,
+  .nav-gear,
+  .nav-auth,
+  .fun-fact-next,
+  .version-prev,
+  .version-next,
+  .quick-copy,
+  .share-open,
+  .tab {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* Icon-only controls get a min width too — but NOT the topbar gears: two of
+     them plus the sign-in/account link would overflow a 320px header. They keep
+     the ≥44px height above; their natural width stays (still an easy target). */
+  .version-prev,
+  .version-next {
+    min-width: 44px;
+  }
 }
