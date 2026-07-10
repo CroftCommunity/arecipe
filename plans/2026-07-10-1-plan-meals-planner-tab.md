@@ -15,7 +15,7 @@
 | 6 Calendar + repeat | ✅ shipped | `a4bea68` | Per-week `repeat` input (1–12, clamped) + calendar section driven by the model's `expandCalendar` (stamps in order, rep badge, empty state). Wiring e2e: repeat→3 ⇒ 3 stamped rows each carrying the filled day. This is P3 `expandCalendar`'s entry-point wiring proof. 94 e2e, 250 unit. |
 | 7 Palette (Cookbook + Browse) | ✅ shipped | `21bd387` | `meal-plan-palette.ts` (3 loaders, replicated `membersToAuthors`, degrade+log seams) + source switch / filter / add-a-cook wired into `meals.ts`. 7 loader unit tests; hermetic e2e (Browse loads, filter narrows, switch toggles, handle appends). Auth deferred (dynamic import; meals stays 8K auth-free). Signed-in manual leg unrunnable here (no creds). 95 e2e, 257 unit. |
 | 8 Drag enhancement | ✅ shipped | `5189ea0` | HTML5 drag layered on tap-to-place: drag a palette chip onto a day (place), drag a filled slot to another (move/swap), reusing the same store mutations; `.day--over` drop state. Additive — touch tap-to-place unchanged. Wiring e2e (Playwright `dragTo`, asserts resulting state). 106 e2e, 272 unit (post-rebase). |
-| 9 PDS sync | ✅ shipped | `<pending-p9>` | `meal-plan-sync.ts` (`planToRecord` w/ strongRef slots + open-world name cache, `syncPlanToPds`, `removePlanFromPds`, `listPdsPlans`) + optimistic write-through on save + PDS recovery on load (signed in) with v1 single-plan reconciliation. 5 sync unit tests + **`LIVE=1` e2e PASSED** (real PDS round-trip + eviction recovery). Resolves D1's live leg; LEXICONS flipped to `live`. 277 unit, 106 e2e hermetic + 1 live. |
+| 9 PDS sync | ✅ shipped | `9c6d6d0` | `meal-plan-sync.ts` (`planToRecord` w/ strongRef slots + open-world name cache, `syncPlanToPds`, `removePlanFromPds`, `listPdsPlans`) + optimistic write-through on save + PDS recovery on load (signed in) with v1 single-plan reconciliation. 5 sync unit tests + **`LIVE=1` e2e PASSED** (real PDS round-trip + eviction recovery). Resolves D1's live leg; LEXICONS flipped to `live`. 277 unit, 106 e2e hermetic + 1 live. |
 
 ## Problem Statement
 
@@ -899,7 +899,7 @@ re-check that tap-to-place still works.
 
 ---
 
-### Phase 9: PDS sync — plan follows the user across devices — ✅ SHIPPED (`<pending-p9>`)
+### Phase 9: PDS sync — plan follows the user across devices — ✅ SHIPPED (`9c6d6d0`)
 **Delivered (2026-07-10):** `src/recipes/meal-plan-sync.ts` mirrors `drafts-sync`:
 `planToRecord` (strongRef `#slot`s via the model + an **open-world cached display
 `name`** per slot so recovery on a fresh device shows real recipe names, not
