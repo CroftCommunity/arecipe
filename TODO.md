@@ -31,3 +31,12 @@ loose ideas a later session can pick up.
       a zero-backend PWA (SW precache, offline reads, install), so an automated
       PWA validator could catch manifest/SW regressions the current Playwright
       suite doesn't. _Noted 2026-07-09 during the recipe-cookbook-ui branch._
+
+## Ideas / loose
+
+- [ ] **Cook-search typeahead** — let the handle input in Browse (and add-a-cook
+      in the meals palette) suggest accounts as you type, via Bluesky's
+      `app.bsky.actor.searchActorsTypeahead` (public AppView, CORS-open, no auth).
+      Answers the "you have to know someone's exact username" friction without
+      indexing 38M accounts client-side. _Being planned — see
+      `plans/2026-07-10-2-plan-cook-search-typeahead.md`._
