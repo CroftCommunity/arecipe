@@ -44,11 +44,20 @@ Execution status (updated per phase; SHA recorded when the next phase commits):
   `DESIGN.md`. Full gate green (231 unit / 95 e2e). @live GREEN (Account members
   render — `account-live.spec.ts`).
 - ✅ **Phase 6** committed `bd116dd` (chore `33e131a`).
-- ✅ **Phase 7** — extracted shared `renderToolbar` (`src/recipes/toolbar.ts`);
-  `browse.ts` consumes it (behavior identical); `createBrowsePrefs(prefix)`
-  parameterized (OQ11, default `'browse'`). Behavior-preserving refactor —
-  `browse.spec.ts` unedited and green (10/10). Full gate green (231 unit / 95 e2e).
-- ⬜ Phases 8–11c — pending.
+- ✅ **Phase 7** (`ed8c855`) — extracted shared `renderToolbar`
+  (`src/recipes/toolbar.ts`); `browse.ts` consumes it (behavior identical);
+  `createBrowsePrefs(prefix)` parameterized (OQ11). `browse.spec.ts` unedited +
+  green. Gate green.
+- ✅ **Phase 8** — Cookbook adopts the toolbar. `cookbook.ts` `renderFeedView`
+  mounts `renderToolbar` (showDietLink=false) over the loaded feed; Tiles/Details
+  + facets filter client-side via `matchesFilter`/`availableFacets`; own
+  `cookbook-*` prefs (OQ11). Both feed paths (signed-in + cold-view). Doc:
+  `DESIGN.md` (shared toolbar). Wiring test: `cookbook.spec.ts` cold-view
+  toolbar toggle (Tiles↔Details both directions + count). styles.css unchanged
+  (reused `.browse-toolbar`). Full gate green (231 unit / 96 e2e). @live toggle
+  deferred (client-side; cold-view exercises the same path; Phase 6 @live proved
+  signed-in cookbook loads).
+- ⬜ Phases 9–11c — pending.
 
 **Tooling note:** a separate chore commit excludes `.claude/` (untracked scratch
 holding a nested locked git worktree from another context) from ESLint + the
@@ -1070,7 +1079,21 @@ green (browse suite unchanged, **not** edited).
 `styles.css` change; no inline styles. Intact.
 **Stop-point.**
 
-### Phase 8: Cookbook adopts the toolbar (Tiles/Details + facets + count)
+### Phase 8: Cookbook adopts the toolbar (Tiles/Details + facets + count) — ✅ SHIPPED
+
+**Delivered (2026-07-09):** `cookbook.ts` gains `renderFeedView(container,
+feedContainer, entries, authorsByDid)` — mounts `renderToolbar({ showDietLink:
+false })` above the feed and drives a client-side filter/view seam over the
+loaded entries (`availableFacets`/`matchesFilter`, diet omitted — a
+Browse/Settings concern). Own prefs via `createBrowsePrefs({ prefix: 'cookbook'
+})` (OQ11). `showFeed` now loads the feed then calls `renderFeedView`; wired on
+BOTH feed-bearing paths (signed-in + `?did=` cold-view). Details view uses
+`renderRecipeDetailsList`. Doc: `DESIGN.md:92-96` (toolbar now shared Browse+
+Cookbook; diet link Browse-only). `styles.css` unchanged (reuses `.browse-toolbar`).
+Wiring test: `cookbook.spec.ts` cold-view — toolbar present, Tiles↔Details both
+directions (`.recipe-grid`/`.recipe-rows`), count > 0. RED→GREEN. Full gate
+green: 231 unit, 96 e2e. @live cookbook toggle deferred (client-side; identical
+`renderFeedView` path proven via cold-view).
 
 **Goal:** Cookbook's recipe feed gains the Tiles/Details toggle, `Meal ▾`/
 `Cuisine ▾` facets, and a count — same behavior as Browse.

@@ -104,6 +104,30 @@ test('cookbook.html?did= renders the feed only — members moved to Account (OQ1
   await expect(page.getByTestId('cookbook-members')).toHaveCount(0);
 });
 
+test('cookbook cold-view has the shared toolbar driving the feed (Phase 8 wiring)', async ({
+  page,
+}) => {
+  await routeCookbookFixtures(page);
+  await page.goto(`/cookbook.html?did=${encodeURIComponent(VIEWED.did)}`);
+  // The shared toolbar renders over the cookbook feed.
+  await expect(page.getByTestId('view-tiles')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId('view-details')).toBeVisible();
+  await expect(page.getByTestId('recipes-status')).toBeVisible();
+  // Tiles view = a .recipe-grid; the feed has cards.
+  await expect(page.locator('.cookbook-feed .recipe-grid, [data-testid="cookbook-feed"] .recipe-grid')).toBeVisible();
+  const count = await page.getByTestId('recipe-item').count();
+  expect(count).toBeGreaterThan(0);
+
+  // Toggle Details → the feed re-renders as rows (both directions asserted).
+  await page.getByTestId('view-details').click();
+  await expect(page.locator('[data-testid="cookbook-feed"] .recipe-rows')).toBeVisible();
+  await expect(page.locator('[data-testid="cookbook-feed"] .recipe-grid')).toHaveCount(0);
+  // Back to Tiles.
+  await page.getByTestId('view-tiles').click();
+  await expect(page.locator('[data-testid="cookbook-feed"] .recipe-grid')).toBeVisible();
+  await expect(page.locator('[data-testid="cookbook-feed"] .recipe-rows')).toHaveCount(0);
+});
+
 test('legacy friends.html redirects to cookbook.html (query preserved)', async ({ page }) => {
   await page.goto(`/friends.html?did=${encodeURIComponent(VIEWED.did)}`);
   await expect(page).toHaveURL(new RegExp(`/cookbook\\.html\\?did=`), { timeout: 15_000 });

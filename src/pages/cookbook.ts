@@ -21,8 +21,11 @@ import { requestPersistence } from '../storage-persist.js';
 import { resolveCookbook, type ReachConfig } from '../social/cookbook.js';
 import { membersToAuthors } from '../social/cookbook-members-view.js';
 import { createReachPrefs } from '../social/reach.js';
-import { loadAuthorsFeed, type FeedAuthor } from '../social/feed.js';
-import { renderRecipeList } from '../recipes/view.js';
+import { loadAuthorsFeed } from '../social/feed.js';
+import { type CachedRecipe } from '../recipes/cache.js';
+import { availableFacets, createBrowsePrefs, matchesFilter, type BrowseState } from './browse-state.js';
+import { renderToolbar } from '../recipes/toolbar.js';
+import { renderRecipeDetailsList, renderRecipeList } from '../recipes/view.js';
 import { registerServiceWorker } from '../sw-register.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -32,8 +35,102 @@ const el = (tag: string, className?: string, text?: string): HTMLElement => {
   return node;
 };
 
-/** Load + render a set of cooks' recipes into the given container. */
-const renderFeedInto = async (feedContainer: HTMLElement, authors: FeedAuthor[]): Promise<void> => {
+/** Toolbar-driven view over the loaded cookbook feed: the shared Tiles/Details
+ * toggle + Meal/Cuisine facets + a count, filtering the entries client-side with
+ * the same browse-state primitives as Browse. Cookbook persists its OWN
+ * view/facet prefs (OQ11 — `createBrowsePrefs('cookbook')`) so a choice here
+ * doesn't bleed into Browse, and shows no diet link (diet is a Browse/Settings
+ * concern, so the cookbook filter ignores it). */
+const renderFeedView = (
+  container: HTMLElement,
+  feedContainer: HTMLElement,
+  entries: CachedRecipe[],
+  authorsByDid: Record<string, string>,
+): void => {
+  const prefs = createBrowsePrefs({ prefix: 'cookbook' });
+  let state = prefs.load();
+
+  // Selected facets absent from this feed are kept in state but inert here.
+  const effectiveState = (): BrowseState => {
+    const available = availableFacets(entries);
+    return {
+      view: state.view,
+      photosOnly: state.photosOnly,
+      facets: {
+        cuisine: state.facets.cuisine.filter((c) => available.cuisine.includes(c)),
+        category: state.facets.category.filter((c) => available.category.includes(c)),
+      },
+    };
+  };
+  const hasFilters = (s: BrowseState): boolean =>
+    s.photosOnly || s.facets.cuisine.length > 0 || s.facets.category.length > 0;
+
+  const renderCurrent = (): void => {
+    const effective = effectiveState();
+    const shown = entries.filter((e) => matchesFilter(e.value, { state: effective, diet: [] }));
+    toolbar.setStatus(
+      hasFilters(effective)
+        ? `${shown.length} of ${entries.length} shown`
+        : `${entries.length} ${entries.length === 1 ? 'recipe' : 'recipes'}`,
+    );
+    toolbar.setResetVisible(hasFilters(effective));
+    const render = state.view === 'details' ? renderRecipeDetailsList : renderRecipeList;
+    feedContainer.replaceChildren(render(shown, { authorsByDid }));
+  };
+  const showCurrent = (): void => {
+    toolbar.rebuildFacets(availableFacets(entries), state.facets);
+    renderCurrent();
+  };
+
+  const toolbar = renderToolbar({
+    showDietLink: false,
+    callbacks: {
+      onViewChange: (view) => {
+        if (state.view === view) return;
+        state = { ...state, view };
+        prefs.save(state);
+        toolbar.reflectView(view);
+        renderCurrent();
+      },
+      onPhotosToggle: (photosOnly) => {
+        state = { ...state, photosOnly };
+        prefs.save(state);
+        renderCurrent();
+      },
+      onFacetChange: (dimension, value, checked) => {
+        const selected = new Set(state.facets[dimension]);
+        if (checked) selected.add(value);
+        else selected.delete(value);
+        state = { ...state, facets: { ...state.facets, [dimension]: [...selected] } };
+        prefs.save(state);
+        renderCurrent();
+      },
+      onReset: () => {
+        state = { ...state, photosOnly: false, facets: { cuisine: [], category: [] } };
+        prefs.save(state);
+        toolbar.setPhotos(false);
+        showCurrent();
+      },
+    },
+  });
+  toolbar.setPhotos(state.photosOnly);
+  toolbar.reflectView(state.view);
+  container.insertBefore(toolbar.element, feedContainer);
+  showCurrent();
+};
+
+/** Resolve a cookbook's members → authors, load their recipes, and mount the
+ * toolbar-driven feed view. The members LIST is rendered on Account now; here we
+ * only need the authors to build the feed. Cold-view passes no config →
+ * resolveCookbook's all-on default; the signed-in path passes your reach prefs. */
+const showFeed = async (
+  container: HTMLElement,
+  feedContainer: HTMLElement,
+  you: { did: string; pds: string },
+  config?: ReachConfig,
+): Promise<void> => {
+  const members = await resolveCookbook(config === undefined ? { you } : { you, config });
+  const authors = await membersToAuthors(members);
   if (authors.length === 0) {
     feedContainer.replaceChildren(
       el('p', 'empty-state', 'When the cooks in your cookbook publish recipes, they show up here.'),
@@ -41,24 +138,10 @@ const renderFeedInto = async (feedContainer: HTMLElement, authors: FeedAuthor[])
     return;
   }
   const feed = await loadAuthorsFeed(authors);
-  feedContainer.replaceChildren(renderRecipeList(feed.entries, { authorsByDid: feed.authorsByDid }));
   if (feed.failedAuthors.length > 0) {
     log.warn('cookbook', 'some cooks unavailable', { failed: feed.failedAuthors });
   }
-};
-
-/** Resolve a cookbook's members → authors and render their recipe feed. The
- * members LIST is rendered on Account now; here we only need the authors to
- * build the feed. Cold-view passes no config → resolveCookbook's all-on default;
- * the signed-in path passes your reach prefs. */
-const showFeed = async (
-  feedContainer: HTMLElement,
-  you: { did: string; pds: string },
-  config?: ReachConfig,
-): Promise<void> => {
-  const members = await resolveCookbook(config === undefined ? { you } : { you, config });
-  const authors = await membersToAuthors(members);
-  await renderFeedInto(feedContainer, authors);
+  renderFeedView(container, feedContainer, feed.entries, feed.authorsByDid);
 };
 
 const main = async (): Promise<void> => {
@@ -79,7 +162,7 @@ const main = async (): Promise<void> => {
     void mountBuildStamp(app);
     try {
       const { pds } = await resolveDidDoc(viewedDid);
-      await showFeed(feedContainer, { did: viewedDid, pds });
+      await showFeed(content, feedContainer, { did: viewedDid, pds });
     } catch (err) {
       log.error('cookbook', 'cold-view load failed', { did: viewedDid, error: String(err) });
       feedContainer.replaceChildren(el('p', 'status', `couldn’t load cookbook: ${String(err)}`));
@@ -121,7 +204,7 @@ const main = async (): Promise<void> => {
     const { pds } = await retryOnce(() => resolveDidDoc(did));
     mountShell(app, content);
     void mountBuildStamp(app);
-    await showFeed(feedContainer, { did, pds }, createReachPrefs().load());
+    await showFeed(content, feedContainer, { did, pds }, createReachPrefs().load());
   } catch (err) {
     log.error('cookbook', 'cookbook load failed', { error: String(err) });
     status.textContent = `couldn’t load your cookbook: ${String(err)}`;

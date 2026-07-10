@@ -89,11 +89,15 @@ empty states) · `--r-pill` (chips). One stroke width everywhere: `--stroke`
 - **Cards**: white surface, `--line` border, `--r-l`, photo top (3:2; capped
   banner when open), display-face title, chips row (time + stamp). Hover =
   enamel border, nothing louder.
-- **Browse toolbar**: a compact control bar above the feed — a Tiles/Details
-  view toggle, a "Photos only" toggle, and transient `Meal ▾` / `Cuisine ▾`
-  multi-select filter dropdowns (OR within a dimension, AND across), with the
-  count right-aligned. Dietary preference is not a transient filter — it is a
-  persisted "Only show me" preference set in Settings (linked from the count).
+- **Toolbar (shared Browse + Cookbook)**: a compact control bar above the feed —
+  a Tiles/Details view toggle, a "Photos only" toggle, and transient `Meal ▾` /
+  `Cuisine ▾` multi-select filter dropdowns (OR within a dimension, AND across),
+  with the count right-aligned. Extracted to `src/recipes/toolbar.ts`
+  (`renderToolbar`, Phase 7) and adopted by Cookbook (Phase 8); each page keeps
+  its own persisted view/facet prefs (`browse-*` vs `cookbook-*` keys, OQ11) so
+  choices don't bleed across. Dietary preference is not a transient filter — it
+  is a persisted "Only show me" preference set in Settings (linked from the count
+  on **Browse only**; the Cookbook toolbar omits the diet link).
 - **Buttons**: primary = enamel fill (one per view, the main action);
   secondary = enamel outline on white. Labels say what happens: "Find
   recipes", "Sign out".
