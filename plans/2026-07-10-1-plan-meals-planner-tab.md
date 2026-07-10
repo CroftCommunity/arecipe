@@ -13,7 +13,7 @@
 | 4 Local store | ✅ shipped | `e23b54a` | `src/recipes/meal-plan-local.ts` — `localStorage` in-flight buffer (`arecipe.mealplans.v1`), injectable storage+logger; corrected fail posture (propagate storage errors, tolerate corrupt reads with a warn), debug logs on save/remove. 7 unit tests. 250 unit total. Library phase — wired by P5. |
 | 5 Week builder + tap-to-place | ✅ shipped | `be59903` | `meals.ts` grown into the builder (palette chips, 7-day week rows, tap-to-arm/place/clear, add/remove week cap 6) persisting to the P4 store; planner CSS. Wiring e2e: tap→place→**reload-persist**→clear→add-week. This is P4's entry-point wiring proof. 92 e2e, 250 unit. |
 | 6 Calendar + repeat | ✅ shipped | `a4bea68` | Per-week `repeat` input (1–12, clamped) + calendar section driven by the model's `expandCalendar` (stamps in order, rep badge, empty state). Wiring e2e: repeat→3 ⇒ 3 stamped rows each carrying the filled day. This is P3 `expandCalendar`'s entry-point wiring proof. 94 e2e, 250 unit. |
-| 7 Palette (Cookbook + Browse) | ✅ shipped | `<pending-p7>` | `meal-plan-palette.ts` (3 loaders, replicated `membersToAuthors`, degrade+log seams) + source switch / filter / add-a-cook wired into `meals.ts`. 7 loader unit tests; hermetic e2e (Browse loads, filter narrows, switch toggles, handle appends). Auth deferred (dynamic import; meals stays 8K auth-free). Signed-in manual leg unrunnable here (no creds). 95 e2e, 257 unit. |
+| 7 Palette (Cookbook + Browse) | ✅ shipped | `21bd387` | `meal-plan-palette.ts` (3 loaders, replicated `membersToAuthors`, degrade+log seams) + source switch / filter / add-a-cook wired into `meals.ts`. 7 loader unit tests; hermetic e2e (Browse loads, filter narrows, switch toggles, handle appends). Auth deferred (dynamic import; meals stays 8K auth-free). Signed-in manual leg unrunnable here (no creds). 95 e2e, 257 unit. |
 | 8 Drag enhancement | ⬜ pending | — | |
 | 9 PDS sync | ⬜ pending | — | |
 
@@ -766,7 +766,7 @@ model function (do not re-implement in the page).
 
 ---
 
-### Phase 7: Palette from Cookbook + Browse source (starter feed + handle) — ✅ SHIPPED (`<pending-p7>`)
+### Phase 7: Palette from Cookbook + Browse source (starter feed + handle) — ✅ SHIPPED (`21bd387`)
 **Delivered (2026-07-10):** `src/recipes/meal-plan-palette.ts` — `loadCookbookPalette`,
 `loadStarterPalette`, `loadHandlePalette`, each mapping feed entries → `{uri,cid,name}`,
 degrading to `[]` on failure with `log.warn('meal-plan','palette source failed',{source})`
