@@ -17,6 +17,7 @@ import { createRecipeReader } from '../recipes/read.js';
 import { createDietPreference } from '../recipes/diet-preference.js';
 import { availableFacets, createBrowsePrefs, matchesFilter, recipeFacets, type BrowseState } from './browse-state.js';
 import { createTastePreference, matchesTaste } from '../recipes/taste-preference.js';
+import { windowPage } from '../recipes/paginate.js';
 import {
   extensionFor,
   mimeFor,
@@ -49,6 +50,32 @@ const main = (): void => {
   findButton.type = 'submit';
   findButton.dataset['testid'] = 'find-recipes';
   const listContainer = el('div');
+
+  // Pagination: the filtered feed can be large (the corpus keeps growing), so
+  // window it to a page with ◀ / ▶ arrows rather than rendering everything.
+  const BROWSE_PAGE_SIZE = 50;
+  let browseOffset = 0;
+  const pager = el('div', 'browse-pager');
+  pager.dataset['testid'] = 'browse-pager';
+  const pagerPrev = el('button', 'palette-page-btn', '◀') as HTMLButtonElement;
+  pagerPrev.type = 'button';
+  pagerPrev.dataset['testid'] = 'browse-prev';
+  pagerPrev.setAttribute('aria-label', 'Previous page');
+  const pagerHint = el('span', 'browse-pager-hint');
+  const pagerNext = el('button', 'palette-page-btn', '▶') as HTMLButtonElement;
+  pagerNext.type = 'button';
+  pagerNext.dataset['testid'] = 'browse-next';
+  pagerNext.setAttribute('aria-label', 'Next page');
+  pager.append(pagerPrev, pagerHint, pagerNext);
+  pager.hidden = true;
+  pagerPrev.addEventListener('click', () => {
+    browseOffset = Math.max(0, browseOffset - BROWSE_PAGE_SIZE);
+    renderCurrent();
+  });
+  pagerNext.addEventListener('click', () => {
+    browseOffset += BROWSE_PAGE_SIZE;
+    renderCurrent();
+  });
 
   // Persisted transient browse state (view/photos-only/facets) and the app-wide
   // diet preference (set in Settings, read here). renderCurrent applies both.
@@ -138,8 +165,16 @@ const main = (): void => {
     // badge linking to the compare grid); single recipes are untouched.
     const { representatives, counts } = collapseVersions(shown);
     options.versionCounts = counts;
+    // Window the collapsed cards to one page; the arrows step through the rest.
+    const page = windowPage(representatives, { offset: browseOffset, size: BROWSE_PAGE_SIZE });
+    browseOffset = page.total === 0 ? 0 : page.start - 1; // sync to the clamped window
+    const paged = page.total > BROWSE_PAGE_SIZE;
+    pager.hidden = !paged;
+    pagerHint.textContent = paged ? `Showing ${page.start}–${page.end} of ${page.total}` : '';
+    pagerPrev.disabled = !page.hasPrev;
+    pagerNext.disabled = !page.hasNext;
     const render = state.view === 'details' ? renderRecipeDetailsList : renderRecipeList;
-    listContainer.replaceChildren(render(representatives, options));
+    listContainer.replaceChildren(render(page.items, options));
     log.debug('browse', 'render', {
       kind: current.kind,
       view: state.view,
@@ -182,6 +217,7 @@ const main = (): void => {
       onPhotosToggle: (photosOnly) => {
         state = { ...state, photosOnly };
         browsePrefs.save(state);
+        browseOffset = 0; // the result set changed — back to page 1
         log.debug('browse', 'filter changed', { photosOnly: state.photosOnly });
         renderCurrent();
       },
@@ -191,6 +227,7 @@ const main = (): void => {
         else selected.delete(value);
         state = { ...state, facets: { ...state.facets, [dimension]: [...selected] } };
         browsePrefs.save(state);
+        browseOffset = 0;
         log.debug('browse', 'facets changed', { dimension, selected: [...selected] });
         renderCurrent();
       },
@@ -198,6 +235,7 @@ const main = (): void => {
         state = { ...state, photosOnly: false, facets: { cuisine: [], category: [] } };
         browsePrefs.save(state);
         toolbar.setPhotos(false);
+        browseOffset = 0;
         log.info('browse', 'filters reset');
         showCurrent(); // rebuild the (now-empty) facet dropdowns + re-render
       },
@@ -335,7 +373,7 @@ const main = (): void => {
   });
 
   form.append(input, findButton, exportButton);
-  content.append(form, exportPanel, toolbar.element, listContainer);
+  content.append(form, exportPanel, toolbar.element, listContainer, pager);
 
   const resolve = createResolver();
   const readRecipes = createRecipeReader();
@@ -362,6 +400,7 @@ const main = (): void => {
 
   const showEntries = (entries: CachedRecipe[], author: string, fetchedCount?: number): void => {
     current = { entries, kind: 'search', author, fetchedCount };
+    browseOffset = 0; // a new feed starts at page 1
     showCurrent();
   };
 
@@ -420,6 +459,7 @@ const main = (): void => {
       authorsByDid: feed.authorsByDid,
       statusSuffix: `${failed}${offline}`,
     };
+    browseOffset = 0; // fresh feed → page 1
     showCurrent();
   };
 

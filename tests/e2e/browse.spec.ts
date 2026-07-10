@@ -329,3 +329,57 @@ test('taste preference: a "never" cuisine hides matching recipes app-wide (Brows
   await expect(page.getByText('Greek Salad')).toHaveCount(0);
   await expect(page.getByText('Greek Vegan Lunch Bowl')).toHaveCount(0);
 });
+
+const routeManyRecipes = async (page: Page, n: number): Promise<void> => {
+  const template = JSON.parse(identityFixture('plc-diddoc-ngvalidation2112.json')) as {
+    id: string;
+    service: { serviceEndpoint: string }[];
+  };
+  await page.route('https://plc.directory/**', async (route) => {
+    const did = decodeURIComponent(route.request().url().split('/').pop() ?? '');
+    const author = AUTHORS.find((a) => a.did === did);
+    if (author === undefined) return route.fulfill({ status: 404, body: '{}' });
+    const doc = { ...template, id: author.did, service: [{ ...template.service[0]!, serviceEndpoint: author.pds }] };
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(doc) });
+  });
+  const records = Array.from({ length: n }, (_u, i) => ({
+    uri: `at://${AUTHORS[0]!.did}/exchange.recipe.recipe/r${i}`,
+    // A valid-format CIDv1 so integrity parsing succeeds; content won't hash to
+    // it, so cards render as unverified — fine, they still count as recipe-items.
+    cid: 'bafyreibrowsemixed0001aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    value: {
+      $type: 'exchange.recipe.recipe',
+      name: `Paginated Recipe ${i}`,
+      text: 'A generated recipe for the pagination test.',
+      ingredients: ['x'],
+      instructions: ['y'],
+      createdAt: '2026-07-10T00:00:00Z',
+      updatedAt: '2026-07-10T00:00:00Z',
+    },
+  }));
+  for (const author of AUTHORS) {
+    await page.route(`${author.pds}/**`, async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ records: author.records ? records : [] }),
+      });
+    });
+  }
+};
+
+test('browse paginates the feed at 50 with prev/next arrows', async ({ page }) => {
+  await routeManyRecipes(page, 55);
+  await page.goto('/');
+  await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
+  // First page: 50 of 55, with a pager.
+  await expect(page.getByTestId('recipe-item')).toHaveCount(50);
+  await expect(page.getByTestId('browse-pager')).toContainText(/Showing 1[–-]50 of 55/);
+  // Next → the final 5.
+  await page.getByTestId('browse-next').click();
+  await expect(page.getByTestId('recipe-item')).toHaveCount(5);
+  await expect(page.getByTestId('browse-pager')).toContainText(/Showing 51[–-]55 of 55/);
+  // Prev → back to the first 50.
+  await page.getByTestId('browse-prev').click();
+  await expect(page.getByTestId('recipe-item')).toHaveCount(50);
+});

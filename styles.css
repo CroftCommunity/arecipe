@@ -1980,3 +1980,21 @@ table.ref.pairs td.eq {
   gap: var(--s-3);
   flex-wrap: wrap;
 }
+
+/* Browse pager: ◀ "Showing X–Y of N" ▶ centred below the feed. Reuses the
+   .palette-page-btn arrow styling. */
+.browse-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-3);
+  margin: var(--s-5) 0 var(--s-4);
+}
+.browse-pager[hidden] {
+  display: none;
+}
+.browse-pager-hint {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  opacity: 0.75;
+}
