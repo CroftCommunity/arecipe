@@ -65,6 +65,7 @@ const DESTINATIONS = [
   { label: 'Browse', href: './index.html', testid: 'tab-browse', match: /(^|\/)(index\.html)?$/ },
   { label: 'Cookbook', href: './cookbook.html', testid: 'tab-cookbook', match: /\/cookbook\.html$/ },
   { label: 'Alchemy', href: './mine.html', testid: 'tab-mine', match: /\/mine\.html$/ },
+  { label: 'Meals', href: './meals.html', testid: 'tab-meals', match: /\/meals\.html$/ },
   {
     label: 'Reference',
     href: './reference.html',

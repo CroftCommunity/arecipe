@@ -61,7 +61,7 @@ describe('renderTopbar', () => {
 });
 
 describe('renderTabs', () => {
-  it('renders Browse, Cookbook, Alchemy, and Reference as links', () => {
+  it('renders Browse, Cookbook, Alchemy, Meals, and Reference as links', () => {
     const tabs = renderTabs('/index.html');
     expect(tabs.querySelector('[data-testid=tab-browse]')?.getAttribute('href')).toBe(
       './index.html',
@@ -70,9 +70,24 @@ describe('renderTabs', () => {
       './cookbook.html',
     );
     expect(tabs.querySelector('[data-testid=tab-mine]')?.getAttribute('href')).toBe('./mine.html');
+    expect(tabs.querySelector('[data-testid=tab-meals]')?.getAttribute('href')).toBe(
+      './meals.html',
+    );
     expect(tabs.querySelector('[data-testid=tab-reference]')?.getAttribute('href')).toBe(
       './reference.html',
     );
+  });
+
+  it('orders the tabs Browse · Cookbook · Alchemy · Meals · Reference (confirmed Q1)', () => {
+    const tabs = renderTabs('/index.html');
+    const order = [...tabs.querySelectorAll('a.tab')].map((a) => a.getAttribute('data-testid'));
+    expect(order).toEqual([
+      'tab-browse',
+      'tab-cookbook',
+      'tab-mine',
+      'tab-meals',
+      'tab-reference',
+    ]);
   });
 
   it.each([
@@ -83,6 +98,8 @@ describe('renderTabs', () => {
     ['/arecipe/cookbook.html', 'tab-cookbook'],
     ['/mine.html', 'tab-mine'],
     ['/arecipe/mine.html', 'tab-mine'],
+    ['/meals.html', 'tab-meals'],
+    ['/arecipe/meals.html', 'tab-meals'],
     ['/reference.html', 'tab-reference'],
     ['/arecipe/reference.html', 'tab-reference'],
   ])('marks the active tab for %s', (pathname, expected) => {

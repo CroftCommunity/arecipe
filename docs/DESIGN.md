@@ -162,6 +162,12 @@ to be implemented with the page-per-destination restructure:
   belong on Browse — OQ10). The legacy `friends.html` redirects here (query
   preserved). Browse stays broader and zero-auth; the Cookbook is
   "my-people's-kitchen."
+- **Meals is a fifth top-level destination** (2026-07): the full tab order is
+  Browse · Cookbook · Alchemy · **Meals** · Reference. The **Meals** planner
+  assigns recipes to days across weeks and expands them onto a calendar. It is
+  local-first (works signed-out) with a PDS-backed `app.arecipe.mealPlan` record
+  for cross-browser persistence, and follows the same page-per-destination
+  discipline — a real `meals.html` reached by a real tab, no modal/SPA state.
 - **Signed-in landing → Cookbook** (CB3.1): a signed-in visitor arriving at the
   home entry (typed URL, PWA launch, external link — anything without an in-app
   referrer) is sent to their Cookbook; everyone else lands on Browse. Browse

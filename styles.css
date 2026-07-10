@@ -279,7 +279,12 @@ a {
   .tab {
     border-bottom: 0;
     margin-bottom: 0;
-    padding: var(--s-2) var(--s-4);
+    /* Five destinations (Meals added in the meals-planner work): tighten the
+       horizontal padding + font so the full-label bottom bar fits a narrow
+       phone without wrapping or horizontal overflow. Guarded by
+       tests/e2e/meals.spec.ts's 360px fit assertion. */
+    padding: var(--s-2) var(--s-1);
+    font-size: 0.9rem;
   }
 
   .tab--active {

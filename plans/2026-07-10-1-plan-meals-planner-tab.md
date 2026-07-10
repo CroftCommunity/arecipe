@@ -1,6 +1,6 @@
 # Meals — a meal-planner tab for arecipe
 
-**Status:** In execution (started 2026-07-10). Phase 0 ✅ · Phase 1 ✅ · Phases 2–9 pending.
+**Status:** In execution (started 2026-07-10). Phase 0 ✅ · Phase 1 ✅ · Phase 2 ✅ · Phases 3–9 pending.
 
 ## Outcome Summary
 
@@ -8,7 +8,7 @@
 |---|---|---|---|
 | 0 Discovery | ✅ done | _(no code)_ | D1 structural PASS + D2/D3 verified; D1 live leg gated at Phase 9. |
 | 1 Route skeleton | ✅ shipped | `b115baf` | `meals.html` + `src/pages/meals.ts` mount the shared shell; registered in build; wiring e2e GREEN (90/90 e2e, 229/229 unit). |
-| 2 Nav tab | ⬜ pending | — | |
+| 2 Nav tab | ✅ shipped | `<pending-p2>` | Meals is the 5th destination (order Browse·Cookbook·My recipes·Meals·Reference); mobile 5-tab overflow found + fixed in `styles.css`, guarded by a 360px e2e fit assertion. 91/91 e2e, unit OK. |
 | 3 Lexicon + model | ⬜ pending | — | |
 | 4 Local store | ⬜ pending | — | |
 | 5 Week builder + tap-to-place | ⬜ pending | — | |
@@ -458,7 +458,20 @@ The wiring test (loading the built page) catches this.
 
 ---
 
-### Phase 2: Nav tab — "Meals" as a 5th destination
+### Phase 2: Nav tab — "Meals" as a 5th destination — ✅ SHIPPED (`<pending-p2>`)
+**Delivered (2026-07-10):** `src/nav.ts` gained the Meals `DESTINATIONS` entry in
+the confirmed order (Browse · Cookbook · My recipes · Meals · Reference);
+`tests/unit/nav.spec.ts` extended (Meals href/testid, an explicit tab-order
+assertion pinning Q1, and `/meals.html` + `/arecipe/meals.html` active-tab rows,
+RED→GREEN); `docs/DESIGN.md` gained the Meals destination bullet.
+**Deviation — `styles.css` (not in the Pass 3 write-set), risk-driven:** the
+flagged 5-tab mobile-fit risk *materialized* — at 360px the bottom bar overflowed
+465→360px (~105px over). Fixed by tightening the mobile `.tab` padding
+(`--s-4`→`--s-1`) and font (1rem→0.9rem), keeping full labels per the confirmed
+decision. Added a permanent 360px overflow guard to `tests/e2e/meals.spec.ts`
+(measures `nav.tabs` scrollWidth vs clientWidth). This is the "manual
+mobile-viewport glance" validation, made into a regression test. `styles.css` is
+also touched by later phases (5/6) but those are sequential — no conflict.
 **Goal:** "Meals" appears in the tab bar on every page and is marked active on
 `meals.html`.
 **Changes:**
