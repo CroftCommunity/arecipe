@@ -416,6 +416,64 @@ a {
   align-self: flex-start;
 }
 
+/* --- Cook typeahead: suggestions under the handle inputs (Browse + Meals) --- */
+/* The dropdown is inserted right after its input; both container rows are made
+ * the positioning anchor so it drops full-width under the search row. */
+.lookup,
+.palette-handle {
+  position: relative;
+}
+.typeahead {
+  position: absolute;
+  top: calc(100% + var(--s-1));
+  left: 0;
+  right: 0;
+  z-index: 20;
+  margin: 0;
+  padding: var(--s-1) 0;
+  list-style: none;
+  background: var(--card);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  box-shadow: 0 6px 20px #0000001f;
+  max-height: 18rem;
+  overflow-y: auto;
+}
+.typeahead[hidden] {
+  display: none;
+}
+.typeahead-option {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-2) var(--s-3);
+  cursor: pointer;
+}
+.typeahead-option--active,
+.typeahead-option:hover {
+  background: var(--enamel-soft);
+}
+.typeahead-avatar {
+  flex: none;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: var(--r-pill);
+  object-fit: cover;
+  background: var(--tile);
+}
+.typeahead-handle {
+  font-weight: 700;
+  color: var(--enamel);
+}
+.typeahead-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.7;
+  font-size: var(--t-caption);
+}
+
 .button {
   font: inherit;
   font-weight: 700;
