@@ -34,9 +34,9 @@ loose ideas a later session can pick up.
 
 ## Ideas / loose
 
-- [ ] **Cook-search typeahead** — let the handle input in Browse (and add-a-cook
-      in the meals palette) suggest accounts as you type, via Bluesky's
+- [x] **Cook-search typeahead** — the handle inputs in Browse and add-a-cook
+      (meals palette) suggest accounts as you type, via Bluesky's
       `app.bsky.actor.searchActorsTypeahead` (public AppView, CORS-open, no auth).
       Answers the "you have to know someone's exact username" friction without
-      indexing 38M accounts client-side. _Being planned — see
+      indexing 38M accounts client-side. _Shipped — see
       `plans/2026-07-10-2-plan-cook-search-typeahead.md`._

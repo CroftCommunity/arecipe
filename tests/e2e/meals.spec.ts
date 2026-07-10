@@ -234,3 +234,45 @@ test('palette: Browse loads capped, type-ahead searches the full set, switch tog
   await page.getByTestId('palette-handle-add').click();
   await expect.poll(totalOf).toBeGreaterThan(beforeTotal);
 });
+
+// Phase 4: cook-search typeahead on the add-a-cook input. Typing suggests
+// accounts (AppView); picking one adds that cook's recipes to the palette pool
+// via the same loadHandlePalette path the Add button uses.
+const paletteTotal = async (page: Page): Promise<number> => {
+  const t = (await page.getByTestId('palette-hint').textContent()) ?? '';
+  const m = /of (\d+)/.exec(t);
+  return m ? Number(m[1]) : 0;
+};
+
+test('add-a-cook typeahead: picking a suggestion grows the palette pool (wiring)', async ({
+  page,
+}) => {
+  await routeFeeds(page);
+  // A more-specific typeahead route registered after routeFeeds — Playwright
+  // matches the most-recently-added handler first, so this wins over the
+  // public.api.bsky.app/** catch-all for the typeahead URL.
+  await page.route(/searchActorsTypeahead/, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        actors: [{ did: 'did:plc:handleadd', handle: 'cheftest.bsky.social', displayName: 'Chef Test' }],
+      }),
+    });
+  });
+  await page.goto('/meals.html'); // Browse is the default source, populates the palette
+
+  const chips = page.getByTestId('palette-chip');
+  await expect(chips.first()).toBeVisible();
+  const beforeTotal = await paletteTotal(page);
+
+  // Type a partial into add-a-cook → the AppView suggestion appears.
+  await page.getByTestId('palette-handle-input').fill('ch');
+  const options = page.locator('[role=option]');
+  await expect(options).toHaveCount(1);
+  await expect(options.first()).toContainText('cheftest.bsky.social');
+
+  // Pick it → that cook's recipes join the pool (total grows).
+  await options.first().click();
+  await expect.poll(() => paletteTotal(page)).toBeGreaterThan(beforeTotal);
+});

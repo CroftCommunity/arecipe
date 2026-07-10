@@ -11,6 +11,7 @@
 
 import type { Agent } from '@atproto/api';
 import { mountBuildStamp } from '../build-stamp.js';
+import { attachActorTypeahead } from '../identity/actor-typeahead.js';
 import { resolveDidDoc } from '../identity/did.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
@@ -312,8 +313,8 @@ export const main = async (
     renderChips();
   });
 
-  handleAdd.addEventListener('click', () => {
-    const handle = handleInput.value.trim();
+  // Add-a-cook, shared by the Add button and a typeahead pick.
+  const addCookByHandle = (handle: string): void => {
     if (handle === '') return;
     handleAdd.disabled = true;
     void loadHandlePalette(handle)
@@ -325,6 +326,19 @@ export const main = async (
       .finally(() => {
         handleAdd.disabled = false;
       });
+  };
+
+  handleAdd.addEventListener('click', () => addCookByHandle(handleInput.value.trim()));
+
+  // Cook-search typeahead on the add-a-cook input: suggest accounts as you type,
+  // so pulling in a specific cook doesn't require their exact handle. Picking a
+  // suggestion runs the same add path as the Add button.
+  attachActorTypeahead({
+    input: handleInput,
+    onSelect: (suggestion) => {
+      handleInput.value = suggestion.handle;
+      addCookByHandle(suggestion.handle);
+    },
   });
 
   const renderCalendar = (): void => {
