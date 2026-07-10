@@ -36,19 +36,22 @@ test('@live like → count reflects → unlike (the like write path)', async ({ 
   const likeBtn = page.getByTestId('like-button');
   await expect(likeBtn).toBeEnabled({ timeout: 30_000 });
 
-  // Like → count reflects the test account's like + heart goes active.
+  // Like → count reflects the test account's like + the heart fills (glyph-only:
+  // ♡ outline → ♥ filled, no "Liked" text).
   await likeBtn.click();
   await expect(page.getByTestId('like-count')).toHaveText('1 like', { timeout: 30_000 });
-  await expect(likeBtn).toHaveText(/Liked/);
+  await expect(likeBtn).toHaveText('♥');
+  await expect(likeBtn).toHaveClass(/is-active/);
 
   // The record is really on the PDS.
   const listUrl = `https://bsky.social/xrpc/com.atproto.repo.listRecords?repo=${TEST_DID}&collection=${INTERACTION_COLLECTION}&limit=10`;
   const after = (await (await fetch(listUrl)).json()) as { records?: unknown[] };
   expect((after.records ?? []).length).toBe(1);
 
-  // Unlike → count drops and the record is gone.
+  // Unlike → count drops, the heart returns to the outline, and the record is gone.
   await likeBtn.click();
   await expect(page.getByTestId('like-count')).toHaveText('0 likes', { timeout: 30_000 });
+  await expect(likeBtn).toHaveText('♡');
   const gone = (await (await fetch(listUrl)).json()) as { records?: unknown[] };
   expect((gone.records ?? []).length).toBe(0);
 

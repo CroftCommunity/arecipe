@@ -276,17 +276,29 @@ const mountInteractions = async (
   likeBtn.disabled = true;
   const likeCount = el('span', 'like-count');
   likeCount.dataset['testid'] = 'like-count';
-  overlay.append(likeBtn, likeCount);
-  // Mount as an image overlay in the banner's upper-right (not a section below
-  // the detail). `.photo-wrap--banner` already exists in `content` (the version
-  // host) because renderRecipeDetail ran before mountInteractions; on the
-  // no-photo placeholder the same banner node renders, so the control keeps its
-  // spot (OQ7). A missing banner is logged, never a silent no-op.
+  // The heart is glyph-only (♡ → ♥ on like); the count lives in the bottom
+  // credit line, not beside the heart.
+  overlay.append(likeBtn);
+  // Mount the heart as an overlay in the banner's upper-right; the count goes in
+  // the bottom-right, after the image-source credit (or its own corner element
+  // when the image has no credit). `.photo-wrap--banner` exists in `content`
+  // because renderRecipeDetail ran before mountInteractions; the placeholder
+  // banner renders too, so both keep their spots (OQ7). Missing banner is logged.
   const banner = content.querySelector('.photo-wrap--banner');
   if (banner !== null) {
     banner.append(overlay);
+    const credit = banner.querySelector('.photo-credit');
+    if (credit !== null) {
+      credit.append(document.createTextNode(' · '), likeCount); // "<source> · N likes"
+    } else {
+      const countCredit = el('span', 'photo-credit');
+      countCredit.dataset['testid'] = 'like-count-credit';
+      countCredit.append(likeCount);
+      banner.append(countCredit);
+    }
   } else {
     log.warn('interactions', 'banner node missing for like overlay — appending to content');
+    overlay.append(likeCount);
     content.append(overlay);
   }
 
@@ -309,7 +321,11 @@ const mountInteractions = async (
   const render = (): void => {
     const { likeCount: n, youLiked } = summarize(interactions, viewerDid);
     likeCount.textContent = n === 1 ? '1 like' : `${n} likes`;
-    likeBtn.textContent = youLiked ? '♥ Liked' : '♡ Like';
+    // Glyph-only heart: outline ♡ → filled ♥ on like. Label carries the meaning
+    // for screen readers since there's no visible text.
+    likeBtn.textContent = youLiked ? '♥' : '♡';
+    likeBtn.setAttribute('aria-label', youLiked ? 'Liked' : 'Like');
+    likeBtn.setAttribute('aria-pressed', String(youLiked));
     likeBtn.classList.toggle('is-active', youLiked);
     likeBtn.disabled = agent === null; // signed-out: count is read-only
   };

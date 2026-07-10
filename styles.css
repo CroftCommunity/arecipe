@@ -945,28 +945,31 @@ a.card {
   font-size: calc(var(--t-caption) * 0.85);
 }
 
-/* Like control overlaid on the banner's upper-right (Phase 3): heart + count on
-   a legibility scrim so it reads over any image. Shares .photo-wrap (which is
-   position: relative) with the bottom .photo-credit — top vs bottom, no
-   collision. On the no-photo placeholder the banner still renders, so the
-   control keeps this spot (OQ7). All styling lives here — no inline styles. */
+/* Like heart overlaid on the banner's upper-right (Phase 3): a glyph-only toggle
+   — outline ♡ that fills to ♥ on like. No pill/scrim; a drop shadow keeps the
+   white glyph legible over any image. The count lives in the bottom .photo-credit
+   line (see recipe.ts). Shares .photo-wrap (position: relative) with the credit —
+   top vs bottom, no collision. On the no-photo placeholder the banner still
+   renders, so the heart keeps its spot (OQ7). All styling here — no inline styles. */
 .like-overlay {
   position: absolute;
   top: var(--s-2);
   right: var(--s-2);
-  display: flex;
-  align-items: center;
-  gap: var(--s-2);
-  padding: var(--s-1) var(--s-2);
-  border-radius: var(--r-l);
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.3));
 }
 
-.like-overlay .like-count {
-  font-family: var(--mono);
-  font-size: var(--t-caption);
+.like-overlay .like-btn {
+  border: none;
+  background: none;
+  padding: 0.1rem 0.35rem;
+  font-size: 1.6rem;
+  line-height: 1;
   color: #fff;
-  white-space: nowrap;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85);
+  cursor: pointer;
+}
+
+.like-overlay .like-btn:disabled {
+  cursor: default; /* signed-out: read-only, but still visible */
 }
 
 .photo-credit-link {

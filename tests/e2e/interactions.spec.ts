@@ -72,23 +72,31 @@ test('signed-out recipe page shows a read-only like count (wiring)', async ({ pa
 // structural fact (it is a descendant of .photo-wrap--banner via .like-overlay)
 // AND a top-right position (its box sits in the upper-right quadrant of the
 // banner), exercised through the real recipe-page render.
-test('the like control overlays the banner image, upper-right (wiring)', async ({ page }) => {
+test('the like heart is a glyph-only top-right overlay; the count sits in the bottom credit line (wiring)', async ({
+  page,
+}) => {
   await routeFixtures(page);
   await page.goto(`/recipe.html?u=${encodeURIComponent(RECIPE_URI)}`);
   await expect(page.getByTestId('like-count')).toHaveText('1 like', { timeout: 15_000 });
 
-  // Heart + count both live inside the banner's .like-overlay.
-  const overlayLike = page.locator('.photo-wrap--banner .like-overlay [data-testid="like-button"]');
-  const overlayCount = page.locator('.photo-wrap--banner .like-overlay [data-testid="like-count"]');
-  await expect(overlayLike).toBeVisible();
-  await expect(overlayCount).toBeVisible();
+  // Heart lives in the top-right .like-overlay and is GLYPH-ONLY (no "Like" text).
+  const heart = page.locator('.photo-wrap--banner .like-overlay [data-testid="like-button"]');
+  await expect(heart).toBeVisible();
+  await expect(heart).toHaveText('♡'); // outline when not liked
+  await expect(heart).not.toContainText(/like/i);
+  // The count is NOT in the overlay anymore.
+  await expect(page.locator('.like-overlay [data-testid="like-count"]')).toHaveCount(0);
 
-  // Positioned in the upper-right quadrant of the banner.
+  // The count sits at the bottom-right of the banner (in/after the credit line).
+  const count = page.getByTestId('like-count');
+  await expect(count).toBeVisible();
+
   const banner = page.locator('.photo-wrap--banner');
   const bBox = (await banner.boundingBox())!;
-  const oBox = (await overlayLike.boundingBox())!;
-  const oCenterX = oBox.x + oBox.width / 2;
-  const oCenterY = oBox.y + oBox.height / 2;
-  expect(oCenterX).toBeGreaterThan(bBox.x + bBox.width / 2); // right half
-  expect(oCenterY).toBeLessThan(bBox.y + bBox.height / 2); // top half
+  const hBox = (await heart.boundingBox())!;
+  expect(hBox.x + hBox.width / 2).toBeGreaterThan(bBox.x + bBox.width / 2); // heart: right half
+  expect(hBox.y + hBox.height / 2).toBeLessThan(bBox.y + bBox.height / 2); // heart: top half
+  const cBox = (await count.boundingBox())!;
+  expect(cBox.y + cBox.height / 2).toBeGreaterThan(bBox.y + bBox.height / 2); // count: bottom half
+  expect(cBox.x + cBox.width / 2).toBeGreaterThan(bBox.x + bBox.width / 2); // count: right half
 });
