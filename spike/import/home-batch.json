@@ -334,16 +334,15 @@
     "id": "salad-unknown",
     "image": "preview/PXL_20260709_115333951.jpg",
     "enhanced": "enhanced/salad-enh.png",
-    "confidence": "low",
-    "notes": "Faded ballpoint on crumpled lined paper, torn at the bottom (also scanned upside-down as a duplicate). Only fragments are legible — best filled in by hand from memory. Fields below are guesses.",
+    "confidence": "high",
+    "notes": "Source card was faded/torn; reconstruction confirmed by the owner (Donna Dupuis).",
     "name": "Tartar Sauce",
-    "text": "An olive forward tartar sauce. ",
+    "text": "An olive-forward tartar sauce.",
     "ingredients": [
       "1–1½ cup mayonnaise",
       "1 cup chopped olives",
       "1/2 chopped sweet onion (golf ball sized)",
-      "1 TBL spoon of lemon juice",
-      "[torn / illegible]"
+      "1 Tbl lemon juice"
     ],
     "instructions": [
       "Immersion blend to desired consistency."
