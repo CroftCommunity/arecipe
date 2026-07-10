@@ -9,7 +9,7 @@
 |-------|---------|--------|------|
 | 1 — actor-search data module | ✅ SHIPPED | `2f933f1` | AppView typeahead query → suggestions; soft-degrade; 11 unit tests. |
 | 2 — typeahead UI component | ✅ SHIPPED | `d90f715` | Debounced a11y listbox; generation guard; avatar; 10 unit tests. Visual smoke → Phase 3 live run. |
-| 3 — wire into Browse | ⏳ pending | — | |
+| 3 — wire into Browse | ✅ SHIPPED | `c09fb42` | runFind() shared by submit + pick; e2e wiring green; Browse+CSP 39 green. |
 | 4 — wire into Meals | ⏳ pending | — | |
 
 ## Problem Statement
@@ -273,7 +273,12 @@ used in the suite before relying on it; if not, use a real short debounce with
 **Validation:** Moderate — unit tests + a manual smoke in `ui-lab/` or a scratch
 page to eyeball positioning/theme before wiring into pages.
 
-### Phase 3: Wire typeahead into Browse (primary target)
+### Phase 3: Wire typeahead into Browse (primary target) — ✅ SHIPPED (`c09fb42`)
+
+**Delivered:** As specified. Broad validation: e2e wiring test (mocked network)
++ full Browse/CSP suites green + the AppView endpoint verified live via probe
+(200, CORS `*`). The one residual is a human eyeball of dropdown positioning/
+theme in a real browser against live network — recommend before release.
 
 **Goal:** The Browse cook-search box suggests accounts as you type; picking one
 fills the handle and the existing Find flow runs.
