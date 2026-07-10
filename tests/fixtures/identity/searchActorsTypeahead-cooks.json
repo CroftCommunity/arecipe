@@ -1,0 +1,23 @@
+{
+  "actors": [
+    {
+      "did": "did:plc:vli2bot3i4vsyfwpmmomeeju",
+      "handle": "rdurand.bsky.social",
+      "displayName": "Romain Durand",
+      "avatar": "https://cdn.bsky.app/img/avatar/plain/did:plc:vli2bot3i4vsyfwpmmomeeju/avatar@jpeg",
+      "labels": [],
+      "createdAt": "2023-06-14T12:00:00.000Z"
+    },
+    {
+      "did": "did:plc:4joosvmfioo5lvne4gkc6t6i",
+      "handle": "rdurcan.bsky.social",
+      "displayName": "Rebecca Durcan",
+      "avatar": "https://cdn.bsky.app/img/avatar/plain/did:plc:4joosvmfioo5lvne4gkc6t6i/avatar@jpeg",
+      "labels": []
+    },
+    {
+      "did": "did:plc:24bchnxw6w54vkineh7a6wet",
+      "handle": "rdurward.bsky.social"
+    }
+  ]
+}
