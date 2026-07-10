@@ -999,6 +999,44 @@ a.card {
   margin: var(--s-5) 0 var(--s-2);
 }
 
+/* Comments (Phase 5): center the whole block (heading + thread + composer) at a
+   readable width so lines don't sprawl on wide screens (OQ8), and give the
+   composer the design-system field treatment — mirrors `.editor textarea`
+   (border/radius/background via tokens), with an enamel focus ring. All in the
+   external stylesheet; no inline styles. */
+.comments {
+  max-width: 44rem;
+  margin: var(--s-6) auto 0;
+}
+
+.comment-compose {
+  display: grid;
+  gap: var(--s-2);
+  margin-top: var(--s-3);
+}
+
+.comment-compose textarea {
+  font: inherit;
+  min-height: 4.5rem;
+  padding: var(--s-2) var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--card);
+  color: inherit;
+  resize: vertical;
+}
+
+.comment-compose textarea:focus-visible {
+  outline: 2px solid var(--enamel);
+  outline-offset: 1px;
+}
+
+/* The primary "Post comment" button hugs its content instead of stretching the
+   grid column. */
+.comment-compose .button--primary {
+  justify-self: start;
+}
+
 .draft-row {
   display: flex;
   align-items: center;

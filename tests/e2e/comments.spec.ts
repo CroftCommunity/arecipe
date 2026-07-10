@@ -126,3 +126,47 @@ for (const scheme of ['light', 'dark'] as const) {
     expect(commentAuthor).not.toBe('rgb(0, 0, 238)');
   });
 }
+
+// Phase 5 wiring: OQ8 — the whole .comments block is centered at a bounded
+// width (renders signed-out, so exercised through the real recipe render). The
+// composer textarea is signed-in-only, so we verify the shipped rule reaches its
+// selector via an injected .comment-compose textarea: it gets the themed border
+// (=== --line), not the UA default. Both themes.
+for (const scheme of ['light', 'dark'] as const) {
+  test(`comments block is centered and the composer is themed (${scheme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: scheme });
+    await routeFixtures(page);
+    await page.goto(`/recipe.html?u=${encodeURIComponent(RECIPE_URI)}`);
+    await expect(page.getByTestId('comment-item').first()).toBeVisible({ timeout: 15_000 });
+
+    // Centered block: a max-width is set and the side margins are equal + > 0
+    // (viewport is wider than the block).
+    const layout = await page.evaluate(() => {
+      const s = getComputedStyle(document.querySelector('.comments')!);
+      return { maxWidth: s.maxWidth, ml: s.marginLeft, mr: s.marginRight };
+    });
+    expect(layout.maxWidth).not.toBe('none');
+    expect(layout.ml).toBe(layout.mr);
+    expect(Number.parseFloat(layout.ml)).toBeGreaterThan(0);
+
+    // Composer rule reaches the selector: an injected .comment-compose textarea
+    // carries the themed --line border, not the UA default.
+    const probe = await page.evaluate(() => {
+      const form = document.createElement('form');
+      form.className = 'comment-compose';
+      const ta = document.createElement('textarea');
+      ta.className = 'comment-text';
+      form.append(ta);
+      document.querySelector('.comments')!.append(form);
+      const border = getComputedStyle(ta).borderTopColor;
+      const ref = document.createElement('div');
+      ref.style.color = 'var(--line)';
+      document.body.append(ref);
+      const themedLine = getComputedStyle(ref).color;
+      ref.remove();
+      form.remove();
+      return { border, themedLine };
+    });
+    expect(probe.border).toBe(probe.themedLine);
+  });
+}

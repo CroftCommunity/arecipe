@@ -26,12 +26,17 @@ Execution status (updated per phase; SHA recorded when the next phase commits):
   (upper-right). `.like-overlay` mounted into `.photo-wrap--banner` via
   querySelector; scrim CSS. Wiring test: `interactions.spec.ts` "overlays the
   banner image, upper-right" (descendant + top-right bbox). Gate green.
-- ✅ **Phase 4** — "Hide" on the title row with inline two-step confirm; unhide
-  one-tap. `view.ts` adds `.recipe-title-row` + `.title-control-slot`; `recipe.ts`
-  builds the confirm control into the slot; `styles.css` flex row. Wiring test:
-  `recipes.spec.ts` "Hide on the title row" (confirm hides / cancel reverts /
-  unhide one-tap). Full gate green (228 unit / 93 e2e).
-- ⬜ Phases 5–11c — pending.
+- ✅ **Phase 4** (`b5096cb`) — "Hide" on the title row with inline two-step
+  confirm; unhide one-tap. `view.ts` adds `.recipe-title-row` +
+  `.title-control-slot`; `recipe.ts` builds the confirm control into the slot;
+  `styles.css` flex row. Wiring test: `recipes.spec.ts` "Hide on the title row"
+  (confirm hides / cancel reverts / unhide one-tap). Gate green.
+- ✅ **Phase 5** — centered `.comments` block (OQ8) + themed composer. `styles.css`
+  only. Wiring test: `comments.spec.ts` "centered and the composer is themed"
+  (both themes) — `.comments` max-width + auto margins via real render; composer
+  border === `--line` via an injected probe (composer is signed-in-only). Full
+  gate green (228 unit / 95 e2e).
+- ⬜ Phases 6–11c — pending.
 
 ## Problem Statement
 
@@ -764,7 +769,19 @@ called. `exclusions.hide/unhide` already log — keep those.
 Intact.
 **Stop-point.**
 
-### Phase 5: Center + style the comment section
+### Phase 5: Center + style the comment section — ✅ SHIPPED
+
+**Delivered (2026-07-09):** `styles.css` only (as Pass 2 predicted — the DOM
+already exists). `.comments` centered at `max-width: 44rem; margin: … auto`
+(OQ8 — whole block). `.comment-compose textarea` mirrors `.editor textarea`
+(`border: var(--stroke) solid var(--line)`, `--r-m` radius, `--card` bg) + an
+enamel focus ring; `.comment-compose` grid layout; `.button--primary`
+justify-start. Wiring test (`comments.spec.ts`, both themes): centering asserted
+through the real signed-out render (`.comments` max-width + equal >0 side
+margins); composer styling verified via an injected `.comment-compose textarea`
+probe (border === resolved `--line`) — the real composer is signed-in-only, so
+the probe proves the shipped rule reaches its selector. RED watched (maxWidth
+'none'), then GREEN. Full gate green: 228 unit, 95 e2e.
 
 **Goal:** The comments block is centered at the page bottom; the composer
 (textarea + Post) matches the design system.
