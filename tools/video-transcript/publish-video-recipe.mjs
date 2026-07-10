@@ -1,4 +1,4 @@
-// Publish the burrito-bowl recipe drafted from the video transcript to the official
+// Publish the recipe drafted from the video transcript to the official
 // application account (arecipe.bsky.social) so it surfaces on arecipe.app via the starter pack.
 //
 //   node spike/video-transcript/publish-video-recipe.mjs --dry-run   # preview, no writes
@@ -13,41 +13,39 @@ const COLLECTION = 'exchange.recipe.recipe';
 const DRY_RUN = process.argv.includes('--dry-run');
 const root = new URL('../../', import.meta.url);
 
-const WATCH_URL = 'https://video.infosec.exchange/w/5uxXvy3MtAnPGUT2cMH6LX';
+const WATCH_URL = 'https://video.infosec.exchange/w/b11bTRP1w2zptLaEPDggzJ';
 
 const now = new Date().toISOString();
 const record = {
   $type: COLLECTION,
-  name: 'Cooking a Burrito Bowl for 2 for $12',
-  text: 'A budget burrito bowl for two — seasoned beef, rice, and fresh guacamole. In Chicago the ingredients run about $12 (~$6 per person). Drafted from the source video.',
+  name: 'Lamb and Cilantro Stir Fry',
+  text: 'Thin-sliced hot pot lamb stir-fried in a wok with a big handful of cilantro, garlic, and árbol chilies — a browning method built for a weak home stove. About 15 minutes start to finish; in Chicagoland the ingredients run about $13.83. Drafted from the source video.',
   ingredients: [
-    'Seasoned beef taco meat',
-    'Cooked rice',
-    '1 ripe avocado',
-    '1 roma tomato',
-    'Fresh cilantro',
-    '1 lime',
-    'Shallots',
+    'Thin-sliced hot pot lamb (freezer case at an Asian grocery)',
+    'A big bunch of fresh cilantro',
     'Garlic',
-    'Queso sauce',
+    'Dried árbol chilies',
+    'Cornstarch (helps the deglazing liquid become a sauce)',
+    'Splash of rice wine (or water) to deglaze',
   ],
   instructions: [
-    'Cook the rice and season the beef taco meat.',
-    'Make guacamole from the avocado, tomato, shallots, garlic, cilantro and lime — skip the salt; the queso and seasoned beef bring plenty.',
-    'Build each bowl over rice with the seasoned beef, a scoop of guacamole and a spoon of queso sauce.',
-    'Serves two — about $6 a person at Chicago grocery prices.',
+    'If the hot pot lamb comes as a frozen box, let it defrost in the fridge and cook it the next day.',
+    'Heat the wok. Spread the lamb in a single layer with the garlic and árbol chilies and let it brown undisturbed.',
+    'Flip, let it sit another 30 seconds, and repeat — spread, brown, flip — until everything is nicely browned. This is the fix for a stove that isn’t that hot.',
+    'Add the cilantro straight into the meat and fold it through until it just heats and wilts.',
+    'Deglaze with a splash of rice wine or water; the cornstarch and the meat pull it into a light sauce.',
+    'Start to finish, about 15 minutes. The same method works for beef and peppers, pork and leeks — whatever you fancy.',
   ],
   langs: ['en'],
-  recipeYield: '2 servings',
   recipeCategory: 'dinner',
-  recipeCuisine: 'mexican',
-  keywords: ['burrito bowl', 'budget', 'guacamole'],
+  recipeCuisine: 'chinese',
+  keywords: ['stir fry', 'lamb', 'hot pot meat', 'wok', 'weeknight'],
   // Reference link back to the source video. $type is the schema-native video attribution
   // (exchange.recipe.defs#attributionShow: title/network/url); `name` is included so the
   // currently-deployed renderer (view.ts reads attribution.name + .url) draws the link.
   attribution: {
     $type: 'exchange.recipe.defs#attributionShow',
-    title: 'Cooking a Burrito Bowl for 2 for $12',
+    title: 'Lamb and Cilantro Stir Fry',
     network: 'I Live to Eat',
     url: WATCH_URL,
     name: 'I Live to Eat (video.infosec.exchange)',

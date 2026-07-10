@@ -18,28 +18,28 @@ const watchUrl = `https://video.infosec.exchange/w/${meta.shortUUID}`;
 
 const recipe = {
   $type: "exchange.recipe.recipe",
-  name: meta.name, // "Cooking a Burrito Bowl for 2 for $12"
-  text: meta.description || "Burrito bowl for two, drafted from the source video's audio.",
+  name: meta.name, // "Lamb and Cilantro Stir Fry"
+  text:
+    meta.description ||
+    "Thin-sliced hot pot lamb stir-fried in a wok with a big handful of cilantro, garlic, and árbol chilies — a method built for a weak home stove. Drafted from the source video's audio.",
   ingredients: [
-    "Seasoned beef taco meat",
-    "Cooked rice",
-    "1 avocado",
-    "1 roma tomato",
-    "Fresh cilantro",
-    "1 lime",
-    "Shallots",
+    "Thin-sliced hot pot lamb (freezer case at an Asian grocery)",
+    "A big bunch of fresh cilantro",
     "Garlic",
-    "Queso sauce",
+    "Dried árbol chilies",
+    "Cornstarch (helps the deglazing liquid become a sauce)",
+    "Splash of rice wine (or water) to deglaze",
   ],
   instructions: [
-    "Cook the rice and season the beef taco meat.",
-    "Make guacamole from the avocado, tomato, shallots, garlic, cilantro and lime — no added salt (the queso and seasoned beef bring enough).",
-    "Build each bowl over rice with the seasoned beef, guacamole and a spoon of queso sauce.",
-    "Serves 2 (about $6 per person at Chicago prices).",
+    "If the hot pot lamb comes as a frozen box, let it defrost in the fridge and cook it the next day.",
+    "Heat the wok. Spread the lamb in a single layer with the garlic and árbol chilies and let it brown undisturbed.",
+    "Flip, let it sit another 30 seconds, and repeat — spread, brown, flip — until everything is nicely browned. This is the fix for a stove that isn't that hot.",
+    "Add the cilantro straight into the meat and fold it through until it just heats and wilts.",
+    "Deglaze with a splash of rice wine or water; the cornstarch and the meat pull it into a light sauce.",
+    "Start to finish, about 15 minutes. The same method works for beef and peppers, pork and leeks — whatever you fancy.",
   ],
-  recipeYield: "2 servings",
-  recipeCategory: "Entree",
-  recipeCuisine: "TexMex",
+  recipeCategory: "dinner",
+  recipeCuisine: "chinese",
   // Schema-native link back to the source video (exchange.recipe.defs#attributionShow).
   attribution: {
     $type: "exchange.recipe.defs#attributionShow",
@@ -48,7 +48,7 @@ const recipe = {
     url: watchUrl,
     notes: "Recipe auto-drafted from the video's audio transcript (whisper.cpp base.en).",
   },
-  keywords: ["burrito bowl", "budget", "guacamole"],
+  keywords: ["stir fry", "lamb", "hot pot meat", "wok", "weeknight"],
   // Provenance for the spike — not a schema field, kept out of the record we'd publish.
 };
 

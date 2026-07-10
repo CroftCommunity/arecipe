@@ -16,8 +16,8 @@ const DRY_RUN = process.argv.includes('--dry-run');
 const root = new URL('../../', import.meta.url);
 const here = new URL('.', import.meta.url);
 
-const RECIPE_NAME = 'Cooking a Burrito Bowl for 2 for $12';
-const WATCH_URL = 'https://video.infosec.exchange/w/5uxXvy3MtAnPGUT2cMH6LX';
+const RECIPE_NAME = 'Lamb and Cilantro Stir Fry';
+const WATCH_URL = 'https://video.infosec.exchange/w/b11bTRP1w2zptLaEPDggzJ';
 const FRAME = new URL('out/frame.png', here);
 
 const bytes = readFileSync(FRAME);
@@ -25,8 +25,8 @@ if (bytes.length > MAX_BLOB) throw new Error(`frame ${bytes.length} bytes exceed
 const image = {
   bytes,
   mime: 'image/png',
-  alt: 'A beef burrito bowl topped with pico de gallo, guacamole, and cilantro.',
-  aspectRatio: { width: 534, height: 528 },
+  alt: 'A blue-and-white bowl of stir-fried lamb and cilantro held in one hand, with metal chopsticks resting on the rim.',
+  aspectRatio: { width: 540, height: 540 },
   credit: { artist: 'I Live to Eat', license: 'video still', source: WATCH_URL },
 };
 
