@@ -269,6 +269,11 @@ const mountInteractions = async (
   const likeBtn = el('button', 'button like-btn') as HTMLButtonElement;
   likeBtn.type = 'button';
   likeBtn.dataset['testid'] = 'like-button';
+  // Start disabled: the button is only enabled once we're signed in AND the
+  // click handler is attached (see below). Without this, the freshly-created
+  // button is momentarily enabled with no listener — a click in that window
+  // (fast test, or fast user) is silently lost.
+  likeBtn.disabled = true;
   const likeCount = el('span', 'like-count');
   likeCount.dataset['testid'] = 'like-count';
   overlay.append(likeBtn, likeCount);
@@ -321,26 +326,6 @@ const mountInteractions = async (
   const signedInAgent = agent;
   if (signedInAgent?.did !== undefined) {
     viewerDid = signedInAgent.did;
-    await addRepo(viewerDid);
-    try {
-      const { pds } = await resolveDidDoc(viewerDid);
-      // Cookbook-scoped like discovery (CB2): counts come from repos we know —
-      // the recipe author (added above) + you + your cookbook. Same capped,
-      // priority-ordered scope as comment discovery.
-      const members = await resolveCookbook({ you: { did: viewerDid, pds }, config: createReachPrefs().load() });
-      const capped = members.slice(0, COOKBOOK_DISCOVERY_CAP);
-      if (capped.length < members.length) {
-        log.info('interactions', 'cookbook discovery capped', {
-          reading: capped.length,
-          of: members.length,
-        });
-      }
-      for (const member of capped) await addRepo(member.did);
-    } catch (err) {
-      log.warn('interactions', 'could not load cookbook for interaction discovery', {
-        error: String(err),
-      });
-    }
     const me = signedInAgent.did;
     const toggle = (kind: 'liked', has: () => boolean) => (): void => {
       void (async () => {
@@ -369,8 +354,34 @@ const mountInteractions = async (
         }
       })();
     };
+    // Attach the handler + enable the button BEFORE the (slow) cookbook
+    // discovery — the discovery only enriches others' counts; toggling your own
+    // like needs just your session. This closes the enabled-without-listener
+    // race that dropped the first like click.
     likeBtn.addEventListener('click', toggle('liked', () => summarize(interactions, viewerDid).youLiked));
-    await refresh(); // re-render with your state + cookbook counts + live controls
+    await addRepo(viewerDid);
+    render(); // agent is set + listener live → enable the control now
+
+    try {
+      const { pds } = await resolveDidDoc(viewerDid);
+      // Cookbook-scoped like discovery (CB2): counts come from repos we know —
+      // the recipe author (added above) + you + your cookbook. Same capped,
+      // priority-ordered scope as comment discovery.
+      const members = await resolveCookbook({ you: { did: viewerDid, pds }, config: createReachPrefs().load() });
+      const capped = members.slice(0, COOKBOOK_DISCOVERY_CAP);
+      if (capped.length < members.length) {
+        log.info('interactions', 'cookbook discovery capped', {
+          reading: capped.length,
+          of: members.length,
+        });
+      }
+      for (const member of capped) await addRepo(member.did);
+    } catch (err) {
+      log.warn('interactions', 'could not load cookbook for interaction discovery', {
+        error: String(err),
+      });
+    }
+    await refresh(); // re-render with your state + cookbook counts
   }
 };
 

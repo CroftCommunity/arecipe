@@ -1869,7 +1869,25 @@ coexistence concerns (Focus button, per-version re-mount) and two new stale
 labels — all folded into the affected phases. **Phase 0 stop-point reached —
 awaiting user review before Phase 1.**
 
-### Discovery (mid-execution, 2026-07-09): @live like-write is broken on `main`
+### Fix (2026-07-09): @live like-write race — RESOLVED (unblocks Phase 9 @live)
+
+**Root cause (diagnosed via a throwaway console+network capture).** Clicking Like
+fired **no** `createRecord` POST and ran no toggle body (no `adding`/`toggle
+failed` even with `?debug=1`). The like button was created **enabled** and its
+click listener was attached only **after** the slow cookbook-discovery loop
+(7+ sequential cross-PDS `listRecords`). So there was a window where the button
+was enabled with no listener — a fast click (Playwright, or a fast user) landed
+in it and was silently dropped.
+
+**Fix (`recipe.ts` `mountInteractions`).** (1) Create the like button `disabled`
+(no enabled-without-listener window at all). (2) Attach the toggle listener +
+`render()`-to-enable **before** the cookbook discovery — discovery only enriches
+others' counts; toggling your own like needs just your session. Now "enabled"
+always implies "listener live." @live `interactions-live.spec.ts` GREEN; hermetic
+gate unchanged (231 unit / 96 e2e). Committed as a standalone fix (not a plan
+phase). This unblocks Phase 9's @live liked-feed (likes can now be seeded).
+
+### Discovery (mid-execution, 2026-07-09): @live like-write is broken on `main` [RESOLVED — see Fix above]
 
 **Finding.** During Phase 2's @live validation, `interactions-live.spec.ts`
 "@live like → count reflects → unlike" failed: after sign-in the Like click does
