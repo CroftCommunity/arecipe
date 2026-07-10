@@ -9,6 +9,7 @@
 // initial bundle stays free of the heavy auth client. The local store is the
 // in-flight buffer; the PDS record (Phase 9) is the durable home.
 
+import type { Agent } from '@atproto/api';
 import { mountBuildStamp } from '../build-stamp.js';
 import { resolveDidDoc } from '../identity/did.js';
 import { log } from '../log.js';
@@ -20,6 +21,7 @@ import {
   type LocalWeek,
   type MealPlanStore,
 } from '../recipes/meal-plan-local.js';
+import { listPdsPlans, syncPlanToPds } from '../recipes/meal-plan-sync.js';
 import {
   loadCookbookPalette,
   loadHandlePalette,
@@ -95,9 +97,13 @@ export const main = async (
   const signedInHint = sessionHintSignedIn();
 
   // Single implicit plan (v1): edit the first plan, creating one if absent.
-  let plan: LocalPlan = store.list()[0] ?? store.save({ name: 'My meal plan', weeks: [emptyWeek()] });
+  const existing = store.list()[0];
+  let plan: LocalPlan = existing ?? store.save({ name: 'My meal plan', weeks: [emptyWeek()] });
+  const createdFresh = existing === undefined; // for PDS-recovery reconciliation
   let armed: PaletteItem | null = null;
   let dragging: Dragging | null = null;
+  // Set once the session is booted (signed in): enables write-through to the PDS.
+  let syncAgent: Agent | null = null;
 
   // Palette state: items from the active source + items added by handle, filtered.
   let source: Source = signedInHint ? 'cookbook' : 'browse';
@@ -175,6 +181,13 @@ export const main = async (
       },
       plan.id,
     );
+    // Optimistic write-through: local save is instant; the PDS catches up in the
+    // background when signed in (the record is the durable, cross-browser home).
+    if (syncAgent !== null) {
+      void syncPlanToPds(syncAgent, plan).catch((err: unknown) => {
+        log.warn('meal-plan', 'PDS sync failed', { error: String(err) });
+      });
+    }
   };
 
   const combined = (): PaletteItem[] => {
@@ -480,6 +493,48 @@ export const main = async (
     } else {
       void loadSource();
     }
+  }
+
+  // PDS sync (signed in): boot the session lazily, enable write-through, and
+  // recover any plans that live on the PDS but are missing locally (fresh
+  // browser / eviction). Signed-out stays local-only — no auth, no network.
+  if (signedInHint) {
+    void (async () => {
+      try {
+        const { bootSession } = await import('../auth/boot.js');
+        const { agent } = await bootSession();
+        if (agent?.did === undefined) return;
+        syncAgent = agent;
+        const { pds } = await resolveDidDoc(agent.did);
+        const remote = await listPdsPlans(pds, agent.did);
+        let recovered = 0;
+        for (const rp of remote) {
+          if (store.get(rp.id) === undefined) {
+            store.save(
+              { name: rp.name, weeks: rp.weeks, ...(rp.startDate !== undefined ? { startDate: rp.startDate } : {}) },
+              rp.id,
+            );
+            recovered += 1;
+          }
+        }
+        if (recovered > 0) {
+          // v1 single-plan reconciliation: if we created an empty plan this load
+          // and it is still untouched, adopt the recovered plan instead.
+          const untouched =
+            createdFresh &&
+            plan.weeks.length === 1 &&
+            plan.weeks.every((w) => w.days.every((s) => s.recipe === undefined));
+          if (untouched) {
+            store.remove(plan.id);
+            plan = store.list()[0] ?? plan;
+          }
+          log.info('meal-plan', 'recovered from PDS', { count: recovered });
+          rerender();
+        }
+      } catch (err) {
+        log.warn('meal-plan', 'PDS plan recovery failed', { error: String(err) });
+      }
+    })();
   }
 
   void mountBuildStamp(app);

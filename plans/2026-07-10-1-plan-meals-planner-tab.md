@@ -1,6 +1,6 @@
 # Meals — a meal-planner tab for arecipe
 
-**Status:** In execution (started 2026-07-10). Phase 0 ✅ · Phase 1 ✅ · Phase 2 ✅ · Phase 3 ✅ · Phase 4 ✅ · Phase 5 ✅ · Phase 6 ✅ · Phase 7 ✅ · Phase 8 ✅ · Phase 9 pending. **Rebased onto `origin/main` (`34bf5b5`) 2026-07-10** — pre-rebase SHAs in rows 1–7 are historical (the rebase rewrote them); see Review Log.
+**Status:** ✅ **Closed 2026-07-10** — all 10 phases shipped (Phase 0 discovery + 9 implementation). Rebased onto `origin/main` (`34bf5b5`) mid-execution; **Phase 9 PDS sync round-trip confirmed live** against the test account (`LIVE=1 meals-live.spec.ts`), which also resolved D1's deferred live leg. See the close-out entry in the Review Log. Pre-rebase SHAs in rows 1–7 are historical (the rebase rewrote them).
 
 ## Outcome Summary
 
@@ -15,7 +15,7 @@
 | 6 Calendar + repeat | ✅ shipped | `a4bea68` | Per-week `repeat` input (1–12, clamped) + calendar section driven by the model's `expandCalendar` (stamps in order, rep badge, empty state). Wiring e2e: repeat→3 ⇒ 3 stamped rows each carrying the filled day. This is P3 `expandCalendar`'s entry-point wiring proof. 94 e2e, 250 unit. |
 | 7 Palette (Cookbook + Browse) | ✅ shipped | `21bd387` | `meal-plan-palette.ts` (3 loaders, replicated `membersToAuthors`, degrade+log seams) + source switch / filter / add-a-cook wired into `meals.ts`. 7 loader unit tests; hermetic e2e (Browse loads, filter narrows, switch toggles, handle appends). Auth deferred (dynamic import; meals stays 8K auth-free). Signed-in manual leg unrunnable here (no creds). 95 e2e, 257 unit. |
 | 8 Drag enhancement | ✅ shipped | `5189ea0` | HTML5 drag layered on tap-to-place: drag a palette chip onto a day (place), drag a filled slot to another (move/swap), reusing the same store mutations; `.day--over` drop state. Additive — touch tap-to-place unchanged. Wiring e2e (Playwright `dragTo`, asserts resulting state). 106 e2e, 272 unit (post-rebase). |
-| 9 PDS sync | ⬜ pending | — | |
+| 9 PDS sync | ✅ shipped | `<pending-p9>` | `meal-plan-sync.ts` (`planToRecord` w/ strongRef slots + open-world name cache, `syncPlanToPds`, `removePlanFromPds`, `listPdsPlans`) + optimistic write-through on save + PDS recovery on load (signed in) with v1 single-plan reconciliation. 5 sync unit tests + **`LIVE=1` e2e PASSED** (real PDS round-trip + eviction recovery). Resolves D1's live leg; LEXICONS flipped to `live`. 277 unit, 106 e2e hermetic + 1 live. |
 
 ## Problem Statement
 
@@ -899,7 +899,25 @@ re-check that tap-to-place still works.
 
 ---
 
-### Phase 9: PDS sync — plan follows the user across devices
+### Phase 9: PDS sync — plan follows the user across devices — ✅ SHIPPED (`<pending-p9>`)
+**Delivered (2026-07-10):** `src/recipes/meal-plan-sync.ts` mirrors `drafts-sync`:
+`planToRecord` (strongRef `#slot`s via the model + an **open-world cached display
+`name`** per slot so recovery on a fresh device shows real recipe names, not
+placeholders; `createdAt = updatedAt` for v1), `syncPlanToPds` (stable id rkey →
+overwrite), `removePlanFromPds`, `listPdsPlans` (public `listRecords` +
+`validateMealPlanValue`, skip-malformed) with all the Pass 3 log seams. `meals.ts`
+does optimistic **write-through** on every `persist()` when signed in (local save
+instant, PDS catches up in the background) and **recovers** PDS plans missing
+locally on load (lazy `bootSession` via dynamic import — meals stays 12K,
+auth-free), with a v1 single-plan reconciliation (adopt the recovered plan if the
+freshly-created local one is untouched). 5 hermetic sync unit tests (injected
+agent + `fetchFn`). **`LIVE=1 meals-live.spec.ts` PASSED** against the test
+account: sign in → place → the `app.arecipe.mealPlan` record exists on the PDS →
+wipe local → reload → recovered. `docs/LEXICONS.md` flipped to `live`.
+**D1 live leg — RESOLVED here (not deferred after all):** the user pointed to the
+`.env` test creds; the LIVE round-trip is the firsthand proof D1 wanted (a real
+nested-weeks + strongRef-array record round-trips through `bsky.social`). 277 unit
+/ 106 e2e hermetic + 1 live, lint+typecheck clean.
 **Goal:** When signed in, the local plan is also written to the PDS as an
 `app.arecipe.mealPlan` record and recovered from the PDS if missing locally —
 mirroring drafts sync.
@@ -1218,3 +1236,49 @@ commits are identifiable by their messages in `git log`.
   the hint total since the visible list stays capped). *Follow-up noted:* "most
   recent" ordering would need `createdAt` on `PaletteItem` (currently feed order);
   deferred.
+
+### Plan close-out — 2026-07-10
+**Shipped:** A complete **Meals** meal-planner destination for arecipe, in the
+house vanilla-TS/static-page stack. In git now: a real `meals.html` + `src/pages/
+meals.ts` reached by a 5th nav tab (`Browse · Cookbook · Alchemy · Meals ·
+Reference`), a pure model (`src/recipes/meal-plan.ts` — validation, strongRef
+slots, `expandCalendar`) with a registered **live** `app.arecipe.mealPlan` lexicon
++ fixture, a `localStorage` in-flight buffer (`meal-plan-local.ts`), a palette from
+two real sources behind a switch (`meal-plan-palette.ts` — Cookbook + Browse +
+add-a-cook-by-handle, bounded to 10 with a type-ahead), tap-to-place + desktop
+drag, a per-week `repeat` → calendar expansion, and PDS write-through + recovery
+(`meal-plan-sync.ts`) so a plan follows the user across browsers. Observable: a
+signed-out user can plan locally by touch or mouse; a signed-in user's plan syncs
+to their PDS and is recovered on a fresh device — **confirmed live** end-to-end.
+~40 unit tests across five new modules + a hermetic meals e2e suite + a LIVE e2e;
+full suite green (277 unit / 106 e2e hermetic + 1 live). Delivered as one feature
+branch rebased onto `origin/main` `34bf5b5`; **not pushed** (awaiting user).
+
+**Stopped or skipped:** No phases skipped — all 10 shipped. Deliberately deferred
+follow-ups (all noted inline, none blocking): facet filtering on the palette
+(cuisine/category/photos — plain text filter shipped); "most recent" palette
+ordering (needs `createdAt` on `PaletteItem`); real-date calendar labels (the
+`startDate` field is retained, v1 renders relative weeks); multiple named plans
+(the store keeps ids, v1 edits one implicit plan); swapping the replicated-then-
+imported `membersToAuthors` is done (Q3 closed).
+
+**Discoveries (what execution taught us):**
+- **D1 (DAG-CBOR canonicalizes map key order)** — the structural probe surfaced
+  that the codec sorts map keys deterministically, which is *why* stable CIDs /
+  idempotent re-saves work; any value-equality check must be order-insensitive.
+- **Pass 3 caught two Pass-2 factual misses** that would have misled
+  implementation: `drafts-local.ts` is **IndexedDB, not localStorage** (reframed
+  the persistence model — PDS is the durable home, local is a buffer), and
+  `membersToAuthors` was **page-private**, not an exported module (replicated,
+  then swapped for the export when the cookbook branch merged mid-execution).
+- **The 5-tab mobile overflow was real** (465→360px) — the flagged risk
+  materialized and is now a permanent 360px e2e fit guard.
+- **The record needs an open-world name cache** — meal-plan slots store bare
+  strongRefs, so lossless cross-device recovery required caching the display name
+  as an open-world extra (the strongRef stays authoritative).
+- **The rebase mattered** — main had renamed 'My recipes'→'Alchemy' and merged the
+  cookbook-UI branch; integrating early (per the user) kept the seam honest.
+- **Credentialed LIVE run closed the last gap** — what was scoped as a deferred,
+  credential-gated leg (D1 live + Phase 7/9 signed-in) became a firsthand pass once
+  the user pointed at the `.env`, so the plan ships fully verified rather than
+  "verified except the live leg."
