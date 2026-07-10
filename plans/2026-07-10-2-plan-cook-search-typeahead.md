@@ -1,5 +1,17 @@
 # Cook-search typeahead (Browse + Meals add-a-cook)
 
+**Status:** In progress (on branch `feat/cook-search-typeahead`, worktree). Pass
+1+2+3 complete. Phase 1 shipped; Phases 2–4 pending.
+
+## Outcome Summary
+
+| Phase | Outcome | Commit | Note |
+|-------|---------|--------|------|
+| 1 — actor-search data module | ✅ SHIPPED | `2f933f1` | AppView typeahead query → suggestions; soft-degrade; 11 unit tests. |
+| 2 — typeahead UI component | ⏳ pending | — | |
+| 3 — wire into Browse | ⏳ pending | — | |
+| 4 — wire into Meals | ⏳ pending | — | |
+
 ## Problem Statement
 
 To find a cook's recipes today you must type their **exact** Bluesky handle into
@@ -142,7 +154,7 @@ deferred.
 
 ## Phases
 
-### Phase 1: Actor-search data module
+### Phase 1: Actor-search data module — ✅ SHIPPED (`2f933f1`)
 
 **Goal:** A fetch-mockable module that turns a query string into a list of actor
 suggestions from the AppView, degrading soft on error.
