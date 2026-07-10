@@ -1,0 +1,5 @@
+# Regenerable runtime artifacts — do not commit.
+# Model weights (~148MB) and the download/audio/transcript/frame outputs are all
+# reproducible by re-running transcribe.sh; the transcript is captured in README.md.
+models/
+out/
