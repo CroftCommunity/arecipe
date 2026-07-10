@@ -1,8 +1,7 @@
-// Meals planner page. Phase 1 stood up the route; Phase 5 grows it into the
-// week builder: a palette of recipes, week rows of 7 day slots, tap-to-place
-// assignment (tap a chip to arm it, tap an empty day to drop it, tap × to
-// clear), add/remove week (cap 6), all persisted to the local buffer store and
-// re-rendered from it. The calendar + repeat (Phase 6), the real Cookbook/Browse
+// Meals planner page. Phase 1 stood up the route; Phase 5 grew it into the
+// week builder (palette + tap-to-place + local persistence); Phase 6 adds the
+// per-week repeat control and the calendar below, which stamps each week
+// `repeat` times via the model's pure expandCalendar. The real Cookbook/Browse
 // palette (Phase 7), drag (Phase 8), and PDS sync (Phase 9) build on this.
 //
 // The planner works signed-out: the local store is the in-flight buffer; the
@@ -11,6 +10,7 @@
 import { mountBuildStamp } from '../build-stamp.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
+import { expandCalendar } from '../recipes/meal-plan.js';
 import {
   createMealPlanStore,
   type LocalPlan,
@@ -32,9 +32,17 @@ const el = (tag: string, className?: string, text?: string): HTMLElement => {
 
 const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const;
 const MAX_WEEKS = 6;
+const REPEAT_MIN = 1;
+const REPEAT_MAX = 12;
 const PALETTE_SEED_KEY = 'arecipe.meals.palette-seed';
 
 const emptyWeek = (): LocalWeek => ({ repeat: 1, days: Array.from({ length: 7 }, () => ({})) });
+
+const clampRepeat = (raw: number): number => {
+  const n = Math.floor(raw);
+  if (!Number.isFinite(n) || n < REPEAT_MIN) return REPEAT_MIN;
+  return Math.min(REPEAT_MAX, n);
+};
 
 /** Default palette provider (Phase 5): an optional localStorage seed, inert in
  * production. Phase 7 replaces this with the real Cookbook/Browse providers. */
@@ -82,6 +90,13 @@ export const main = async (
   planner.append(palette, builder);
   content.append(planner);
 
+  const calendar = el('section', 'calendar');
+  calendar.dataset['testid'] = 'calendar';
+  calendar.append(el('h3', 'palette-title', 'Calendar'));
+  const calBody = el('div', 'cal-body');
+  calendar.append(calBody);
+  content.append(calendar);
+
   const persist = (): void => {
     plan = store.save(
       {
@@ -113,6 +128,44 @@ export const main = async (
     }
   };
 
+  const renderCalendar = (): void => {
+    calBody.replaceChildren();
+    const anyPlanned = plan.weeks.some((w) => w.days.some((s) => s.recipe !== undefined));
+    if (!anyPlanned) {
+      const empty = el(
+        'p',
+        'empty-state',
+        'Nothing planned yet — place a recipe on a day to see your calendar.',
+      );
+      empty.dataset['testid'] = 'calendar-empty';
+      calBody.append(empty);
+      return;
+    }
+    // expandCalendar sequences the (week, rep) rows; the days are read from the
+    // typed source week so the display name survives.
+    for (const cw of expandCalendar(plan.weeks)) {
+      const source = plan.weeks[cw.week - 1];
+      if (source === undefined) continue;
+      const row = el('div', 'cal-week');
+      row.dataset['testid'] = 'cal-week';
+      row.dataset['week'] = String(cw.week);
+      const label = source.repeat > 1 ? `Week ${cw.week} · ${cw.rep} of ${source.repeat}` : `Week ${cw.week}`;
+      row.append(el('div', 'cal-week-label', label));
+      const daysEl = el('div', 'cal-days');
+      source.days.forEach((slot, di) => {
+        const cell = el('div', 'cal-day');
+        cell.append(el('span', 'day-label', DAY_LABELS[di]));
+        if (slot.recipe !== undefined) {
+          cell.classList.add('day--filled');
+          cell.append(el('span', 'cal-slot', slot.recipe.name));
+        }
+        daysEl.append(cell);
+      });
+      row.append(daysEl);
+      calBody.append(row);
+    }
+  };
+
   const renderBuilder = (): void => {
     builder.replaceChildren();
     plan.weeks.forEach((week, wi) => {
@@ -121,6 +174,25 @@ export const main = async (
 
       const head = el('div', 'week-head');
       head.append(el('span', 'week-name', `Week ${wi + 1}`));
+
+      const repeatWrap = el('label', 'week-repeat-wrap');
+      repeatWrap.append(el('span', 'week-repeat-label', 'Repeat'));
+      const repeatInput = el('input', 'week-repeat') as HTMLInputElement;
+      repeatInput.type = 'number';
+      repeatInput.min = String(REPEAT_MIN);
+      repeatInput.max = String(REPEAT_MAX);
+      repeatInput.value = String(week.repeat);
+      repeatInput.dataset['testid'] = 'week-repeat';
+      repeatInput.addEventListener('change', () => {
+        const clamped = clampRepeat(Number(repeatInput.value));
+        week.repeat = clamped;
+        repeatInput.value = String(clamped);
+        persist();
+        rerender();
+      });
+      repeatWrap.append(repeatInput);
+      head.append(repeatWrap);
+
       const removeBtn = el('button', 'button week-remove', 'Remove') as HTMLButtonElement;
       removeBtn.type = 'button';
       removeBtn.dataset['testid'] = 'remove-week';
@@ -129,7 +201,7 @@ export const main = async (
         if (plan.weeks.length <= 1) return;
         plan.weeks.splice(wi, 1);
         persist();
-        renderBuilder();
+        rerender();
       });
       head.append(removeBtn);
       row.append(head);
@@ -153,7 +225,7 @@ export const main = async (
             ev.stopPropagation();
             week.days[di] = {};
             persist();
-            renderBuilder();
+            rerender();
           });
           cell.append(filled, clear);
         } else {
@@ -165,7 +237,7 @@ export const main = async (
             armed = null;
             persist();
             renderChips();
-            renderBuilder();
+            rerender();
           });
         }
         daysEl.append(cell);
@@ -182,13 +254,18 @@ export const main = async (
       if (plan.weeks.length >= MAX_WEEKS) return;
       plan.weeks.push(emptyWeek());
       persist();
-      renderBuilder();
+      rerender();
     });
     builder.append(addBtn);
   };
 
+  const rerender = (): void => {
+    renderBuilder();
+    renderCalendar();
+  };
+
   mountShell(app, content);
-  renderBuilder();
+  rerender();
   renderChips();
   try {
     items = await provider();

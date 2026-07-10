@@ -1,6 +1,6 @@
 # Meals — a meal-planner tab for arecipe
 
-**Status:** In execution (started 2026-07-10). Phase 0 ✅ · Phase 1 ✅ · Phase 2 ✅ · Phase 3 ✅ · Phase 4 ✅ · Phase 5 ✅ · Phases 6–9 pending.
+**Status:** In execution (started 2026-07-10). Phase 0 ✅ · Phase 1 ✅ · Phase 2 ✅ · Phase 3 ✅ · Phase 4 ✅ · Phase 5 ✅ · Phase 6 ✅ · Phases 7–9 pending.
 
 ## Outcome Summary
 
@@ -12,7 +12,7 @@
 | 3 Lexicon + model | ✅ shipped | `824f1d0` | `src/recipes/meal-plan.ts` (types, `validateMealPlanValue`, `slotWithRecipe`, `expandCalendar`) + fixture + LEXICONS `planned` row. 11 model unit tests (boundaries: 6/7/8-day, repeat 0/1/12/13, expansion order). 243 unit total. Library phase — exports wired in P5/P6/P9 per the export→wiring map. |
 | 4 Local store | ✅ shipped | `e23b54a` | `src/recipes/meal-plan-local.ts` — `localStorage` in-flight buffer (`arecipe.mealplans.v1`), injectable storage+logger; corrected fail posture (propagate storage errors, tolerate corrupt reads with a warn), debug logs on save/remove. 7 unit tests. 250 unit total. Library phase — wired by P5. |
 | 5 Week builder + tap-to-place | ✅ shipped | `be59903` | `meals.ts` grown into the builder (palette chips, 7-day week rows, tap-to-arm/place/clear, add/remove week cap 6) persisting to the P4 store; planner CSS. Wiring e2e: tap→place→**reload-persist**→clear→add-week. This is P4's entry-point wiring proof. 92 e2e, 250 unit. |
-| 6 Calendar + repeat | ⬜ pending | — | |
+| 6 Calendar + repeat | ✅ shipped | `<pending-p6>` | Per-week `repeat` input (1–12, clamped) + calendar section driven by the model's `expandCalendar` (stamps in order, rep badge, empty state). Wiring e2e: repeat→3 ⇒ 3 stamped rows each carrying the filled day. This is P3 `expandCalendar`'s entry-point wiring proof. 94 e2e, 250 unit. |
 | 7 Palette (Cookbook + Browse) | ⬜ pending | — | |
 | 8 Drag enhancement | ⬜ pending | — | |
 | 9 PDS sync | ⬜ pending | — | |
@@ -723,7 +723,22 @@ one context window. If `meals.ts` grows past a comfortable size, extract a
 
 ---
 
-### Phase 6: Calendar expansion view + per-week repeat
+### Phase 6: Calendar expansion view + per-week repeat — ✅ SHIPPED (`<pending-p6>`)
+**Delivered (2026-07-10):** `src/pages/meals.ts` gained a per-week `repeat` number
+input (1–12, clamped via a shared `clampRepeat`) wired to the store, and a
+`calendar` section that renders the model's pure `expandCalendar(plan.weeks)` —
+each week stamped `repeat` times in order with a `· N of M` rep badge, plus an
+empty state until something is planned. The calendar reads day names from the
+typed source week (so display names survive) while `expandCalendar` sequences the
+(week, rep) rows. `styles.css` gained calendar styles that scroll horizontally on
+a narrow phone (`repeat(7, minmax(4rem,1fr))` + `overflow-x:auto`, the JSX's
+`@media` intent) and a `.week-head { flex-wrap }` for the added control. Wiring
+e2e: place a recipe, set repeat 3 ⇒ 3 `cal-week` rows in order each carrying the
+filled day; plus an empty-state test. **This is the entry-point wiring proof for
+Phase 3's `expandCalendar`.** 94 e2e / 250 unit, lint+typecheck clean.
+**Type note:** `expandCalendar(plan.weeks)` accepts the store's `LocalWeek[]`
+because `LocalSlot` (recipe `{uri,cid,name}`) is structurally assignable to the
+model's `PlanSlot` (recipe `{uri,cid}`) — no model change needed.
 **Goal:** Below the builder, a calendar renders each week stamped `repeat` times
 in order; each week row gets a `repeat N×` control.
 **Changes:**

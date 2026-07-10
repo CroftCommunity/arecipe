@@ -1344,3 +1344,61 @@ table.ref.pairs td.eq {
   cursor: pointer;
   padding: 0;
 }
+
+/* --- Meal planner calendar + repeat control (Phase 6) --------------------- */
+.week-head {
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+.week-repeat-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  font-size: var(--t-caption);
+}
+.week-repeat {
+  width: 3.5rem;
+  font-family: var(--body);
+  padding: var(--s-1);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-s);
+  background: var(--card);
+  color: var(--ink);
+}
+.calendar {
+  margin-top: var(--s-5);
+}
+.cal-body {
+  display: grid;
+  gap: var(--s-3);
+}
+.cal-week {
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  padding: var(--s-2) var(--s-3);
+}
+.cal-week-label {
+  font-weight: 700;
+  margin-bottom: var(--s-1);
+}
+/* 7 columns with a floor width so the calendar scrolls horizontally on a
+   narrow phone rather than crushing the cells (the JSX's @media intent). */
+.cal-days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(4rem, 1fr));
+  gap: var(--s-1);
+  overflow-x: auto;
+}
+.cal-day {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  min-height: 3rem;
+  padding: var(--s-1);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-s);
+  font-size: 0.72rem;
+}
+.cal-slot {
+  overflow-wrap: anywhere;
+}

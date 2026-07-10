@@ -81,3 +81,32 @@ test('tap-to-place: arm a recipe, place it on a day, persist across reload, clea
   await page.getByTestId('add-week').click();
   await expect(page.getByTestId('week-row')).toHaveCount(2);
 });
+
+test('calendar: per-week repeat stamps that week N times, in order, each carrying its days', async ({
+  page,
+}) => {
+  await seedPalette(page);
+  await page.goto('/meals.html');
+
+  // Place Lasagna on Monday (day 0) of week 1.
+  await page.getByTestId('palette-chip').filter({ hasText: 'Lasagna' }).click();
+  await page.getByTestId('week-row').first().getByTestId('day-slot').first().click();
+
+  // Set week 1 to repeat 3×.
+  const repeat = page.getByTestId('week-row').first().getByTestId('week-repeat');
+  await repeat.fill('3');
+  await repeat.blur();
+
+  // The calendar below stamps week 1 three times, each carrying the filled day.
+  const calWeeks = page.getByTestId('cal-week');
+  await expect(calWeeks).toHaveCount(3);
+  for (let i = 0; i < 3; i++) {
+    await expect(calWeeks.nth(i)).toContainText('Lasagna');
+  }
+});
+
+test('calendar: shows an empty state until something is planned', async ({ page }) => {
+  await seedPalette(page);
+  await page.goto('/meals.html');
+  await expect(page.getByTestId('calendar-empty')).toBeVisible();
+});
