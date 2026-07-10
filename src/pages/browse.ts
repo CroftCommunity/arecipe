@@ -5,6 +5,7 @@
 // preference, and version collapse.
 
 import { mountBuildStamp } from '../build-stamp.js';
+import { attachActorTypeahead } from '../identity/actor-typeahead.js';
 import { createResolver, type ResolvedIdentity } from '../identity/resolve.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
@@ -357,12 +358,14 @@ const main = (): void => {
     showCurrent();
   };
 
-  form.addEventListener('submit', (event) => {
-    event.preventDefault();
+  // The find path, shared by the form submit and a typeahead pick. Resolving by
+  // handle (not the suggestion's DID) keeps a single code path: both entries
+  // hand a handle string to the same resolve → read → show pipeline.
+  const runFind = (handle: string): void => {
     const gen = ++generation;
     toolbar.setStatus('finding…');
     void (async () => {
-      const identity: ResolvedIdentity = await resolve(input.value.trim());
+      const identity: ResolvedIdentity = await resolve(handle);
       const records = await readRecipes({ pds: identity.pds, did: identity.did });
       const entries = await Promise.all(records.map((r) => cache.put(r)));
       saveLastFind({ handle: identity.handle, uris: entries.map((e) => e.uri) });
@@ -373,6 +376,22 @@ const main = (): void => {
       log.error('recipes', 'find failed', { error: message });
       if (gen === generation) toolbar.setStatus(message);
     });
+  };
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    runFind(input.value.trim());
+  });
+
+  // Cook-search typeahead: suggest accounts as the user types (Bluesky AppView),
+  // so finding a cook doesn't require knowing their exact handle. Picking a
+  // suggestion fills the handle and runs the same find path as submit.
+  attachActorTypeahead({
+    input,
+    onSelect: (suggestion) => {
+      input.value = suggestion.handle;
+      runFind(suggestion.handle);
+    },
   });
 
   const showStarterFeed = async (): Promise<void> => {

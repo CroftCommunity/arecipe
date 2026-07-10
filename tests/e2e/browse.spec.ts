@@ -214,3 +214,99 @@ test('two versions of a dish collapse to one badged card linking to the grid (Ph
   await expect(page.getByTestId('version-badge')).toHaveText('2 versions');
   await expect(page.getByTestId('recipe-item').first()).toHaveAttribute('href', /dish\.html\?key=banana-bread/);
 });
+
+// Phase 3: cook-search typeahead. Typing a partial into the handle box queries
+// the AppView's searchActorsTypeahead and shows suggestions; picking one fills
+// the handle and runs the existing find path (resolve → read that repo). Starter
+// pack is disabled so the page lands on an empty search box, keeping the test
+// focused on the typeahead → find wiring.
+const disableStarters = async (page: Page): Promise<void> => {
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'starter-pack-disabled',
+      JSON.stringify(['arecipe.bsky.social', 'rdur.dev', 'recipe.exchange', 'daffl.xyz']),
+    );
+  });
+};
+
+const routeCookTypeahead = async (page: Page): Promise<void> => {
+  const template = JSON.parse(identityFixture('plc-diddoc-ngvalidation2112.json')) as {
+    id: string;
+    service: { serviceEndpoint: string }[];
+  };
+  // The AppView origin serves BOTH the typeahead and resolveHandle — branch on path.
+  await page.route('https://public.api.bsky.app/**', async (route) => {
+    const url = route.request().url();
+    if (url.includes('searchActorsTypeahead')) {
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          actors: [
+            { did: 'did:plc:cook1', handle: 'cheftest.bsky.social', displayName: 'Chef Test' },
+          ],
+        }),
+      });
+    }
+    if (url.includes('resolveHandle')) {
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ did: 'did:plc:cook1' }),
+      });
+    }
+    return route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
+  });
+  await page.route('https://plc.directory/**', async (route) => {
+    const doc = {
+      ...template,
+      id: 'did:plc:cook1',
+      service: [{ ...template.service[0]!, serviceEndpoint: 'https://cookpds.test' }],
+    };
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(doc) });
+  });
+  await page.route('https://cookpds.test/**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: atprotoFixture('listRecords-browse-mixed.json'),
+    });
+  });
+};
+
+test('cook typeahead: typing suggests cooks; picking one loads their recipes (wiring)', async ({
+  page,
+}) => {
+  await disableStarters(page);
+  await routeCookTypeahead(page);
+  await page.goto('/');
+  // Lands on the empty search box (starter pack off).
+  await expect(page.getByTestId('handle-input')).toBeVisible();
+
+  // Type a partial handle → the AppView suggestion appears.
+  await page.getByTestId('handle-input').fill('ch');
+  const options = page.locator('[role=option]');
+  await expect(options).toHaveCount(1);
+  await expect(options.first()).toContainText('cheftest.bsky.social');
+
+  // Pick it → the handle fills and the existing find path loads that cook's recipes.
+  await options.first().click();
+  await expect(page.getByTestId('handle-input')).toHaveValue('cheftest.bsky.social');
+  await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId('recipe-item')).toHaveCount(4);
+});
+
+test('cook typeahead does not fire below the minimum query length', async ({ page }) => {
+  await disableStarters(page);
+  let typeaheadCalls = 0;
+  await page.route('https://public.api.bsky.app/**', async (route) => {
+    if (route.request().url().includes('searchActorsTypeahead')) typeaheadCalls += 1;
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ actors: [] }) });
+  });
+  await page.goto('/');
+  await page.getByTestId('handle-input').fill('c'); // one char — below minChars (2)
+  await expect(page.locator('[role=option]')).toHaveCount(0);
+  // Give any (erroneous) debounced request time to fire before asserting none did.
+  await page.waitForTimeout(400);
+  expect(typeaheadCalls).toBe(0);
+});

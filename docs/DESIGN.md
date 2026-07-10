@@ -98,6 +98,15 @@ empty states) · `--r-pill` (chips). One stroke width everywhere: `--stroke`
   choices don't bleed across. Dietary preference is not a transient filter — it
   is a persisted "Only show me" preference set in Settings (linked from the count
   on **Browse only**; the Cookbook toolbar omits the diet link).
+- **Cook-search typeahead (Browse + Meals add-a-cook)**: the handle inputs
+  suggest accounts as you type, so finding a cook doesn't require knowing their
+  exact handle. Suggestions come from Bluesky's public AppView
+  (`app.bsky.actor.searchActorsTypeahead`, same `public.api.bsky.app` origin the
+  resolver already uses — no CSP change; no client-side account index). The
+  suggestion path degrades **soft** (a network hiccup shows no suggestions and
+  logs; you can still type a full handle) while the "Find recipes" submit stays
+  fail-loud. Shared component: `src/identity/actor-typeahead.ts` over
+  `src/identity/actor-search.ts`.
 - **Buttons**: primary = enamel fill (one per view, the main action);
   secondary = enamel outline on white. Labels say what happens: "Find
   recipes", "Sign out".
