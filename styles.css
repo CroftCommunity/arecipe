@@ -1250,6 +1250,9 @@ a.card {
   align-items: center;
   justify-content: space-between;
   gap: var(--s-2);
+  /* Wrap on narrow screens so a long, unbreakable label (e.g. a hidden recipe's
+     ULID in Settings) drops the control below it instead of overflowing. */
+  flex-wrap: wrap;
   background: var(--card);
   border: var(--stroke) solid var(--line);
   border-radius: var(--r-m);
@@ -1262,6 +1265,8 @@ a.card {
   color: var(--enamel);
   font-weight: 700;
   text-decoration: none;
+  min-width: 0; /* allow the flex item to shrink below its content width */
+  overflow-wrap: anywhere; /* break a long id/URL rather than overflow */
 }
 
 .editor-photo-preview {
@@ -1294,9 +1299,15 @@ a.card {
   inset: 0;
   z-index: 1000;
   overflow: auto;
-  background: var(--paper);
+  /* Opaque app surface. Was `var(--paper)` — an undefined token with no
+     fallback, so the overlay rendered transparent and the page bled through
+     (read as "broken" on mobile). --tile is the themed app background. */
+  background: var(--tile);
   color: var(--ink);
-  padding: 1.4rem;
+  /* Respect the notch / home indicator so the exit control and content aren't
+     tucked under the safe-area on phones. */
+  padding: calc(1.4rem + env(safe-area-inset-top)) calc(1.4rem + env(safe-area-inset-right))
+    calc(1.4rem + env(safe-area-inset-bottom)) calc(1.4rem + env(safe-area-inset-left));
 }
 .focus-top {
   display: flex;

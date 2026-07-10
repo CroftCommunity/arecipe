@@ -84,3 +84,30 @@ test('⛶ Focus opens a full-screen cook view; Exit closes it', async ({ page })
   await page.getByTestId('focus-exit').click();
   await expect(page.getByTestId('focus-view')).toHaveCount(0);
 });
+
+test('⛶ Focus on a phone: the overlay is opaque and opens without a page error (mobile)', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 780 });
+  const errors: string[] = [];
+  page.on('pageerror', (err) => errors.push(String(err)));
+
+  await routeVersions(page);
+  await page.goto(`/recipe.html?u=${encodeURIComponent(VER1)}&by=arecipe.bsky.social`);
+  await expect(page.locator('h2')).toContainText('My Favorite Banana Bread', { timeout: 15_000 });
+
+  await page.getByTestId('focus-btn').click();
+  const overlay = page.getByTestId('focus-view');
+  await expect(overlay).toBeVisible();
+  // The overlay must be a solid surface. A transparent background (the old
+  // `var(--paper)` — an undefined token, no fallback) let the page bleed through
+  // and read as "broken" on mobile.
+  const bg = await overlay.evaluate((el) => getComputedStyle(el).backgroundColor);
+  expect(bg).not.toBe('rgba(0, 0, 0, 0)');
+  expect(bg).not.toBe('transparent');
+
+  await page.getByTestId('focus-exit').click();
+  await expect(overlay).toHaveCount(0);
+  // Nothing threw during the whole open/close (the Fullscreen attempt is guarded).
+  expect(errors).toEqual([]);
+});

@@ -1,6 +1,18 @@
 # Mobile enhancement pass — fix the Focus bug + a jankiness sweep
 
-**Status:** 📋 Proposed (not started) — created 2026-07-10.
+**Status:** ✅ **Objective fixes shipped 2026-07-10**; subjective device polish
+(tap-target sizing) deferred pending real-device review (per Phase 0 / OQ4).
+
+## Outcome Summary
+
+| Track / Phase | Outcome | Note |
+|---|---|---|
+| 0 Discovery | ✅ | Focus root cause found by static analysis: `.focus-view { background: var(--paper) }` — `--paper` is an **undefined token with no fallback**, so the overlay rendered transparent and the page bled through (the "errors out" report). Overflow catalog via `mobile-fit.spec.ts` at 320/360/390: only **settings** overflowed. |
+| A Focus fix | ✅ | Opaque themed background (`var(--tile)`) + safe-area padding on `.focus-view`; `mountFocus` now skips the Fullscreen API on coarse-pointer/touch devices and guards a synchronous throw (the overlay is the reliable mechanism). Mobile e2e asserts an opaque, error-free overlay. |
+| B Overflow sweep | ✅ | `.draft-row` (Settings "Hidden recipes" — a raw ULID + Unhide) overflowed because it was a no-wrap flex row with an unbreakable token. Fixed: `flex-wrap` + `min-width:0` + `overflow-wrap:anywhere`. The reference-table scroll fix (prior commit) verified clean. `mobile-fit.spec.ts` (27 checks across 9 pages × 3 widths) is the standing regression guard. |
+| 4 Tap targets / subjective | ⏸️ Deferred | Per the plan's own posture: subjective "reads right" and comfortable tap-target judgments need real-device review (unavailable in this environment). Objective overflow/opacity invariants are guarded; sizing polish is a follow-up with a phone in hand. |
+
+
 
 ## Problem Statement
 

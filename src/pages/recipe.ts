@@ -434,8 +434,17 @@ const mountFocus = (entry: CachedRecipe): void => {
   const overlay = renderFocusView(entry, { onExit: closeFocus });
   document.body.append(overlay);
   document.addEventListener('keydown', onKey);
-  const request = overlay.requestFullscreen?.bind(overlay);
-  if (request !== undefined) void request().catch(() => undefined);
+  // The overlay IS the focus view; the Fullscreen API is a desktop enhancement.
+  // Skip it on touch/coarse-pointer devices (iOS Safari has no element
+  // fullscreen and can be hostile) and guard against a synchronous throw so a
+  // fullscreen hiccup can never break the button. The overlay already shows.
+  try {
+    const coarse = window.matchMedia?.('(pointer: coarse)').matches === true;
+    const request = coarse ? undefined : overlay.requestFullscreen?.bind(overlay);
+    if (request !== undefined) void request().catch(() => undefined);
+  } catch {
+    /* fullscreen unavailable/blocked — the overlay stands on its own */
+  }
 };
 
 /** Render one version into `host`: detail + (initial only) staleness check +
