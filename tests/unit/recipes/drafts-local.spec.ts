@@ -45,4 +45,17 @@ describe('createDraftStore', () => {
     expect(await store.get(draft.id)).toBeUndefined();
     expect(await store.list()).toHaveLength(0);
   });
+
+  // Phase 11b: a draft carries a status (draft | cooking | ready). Both edges:
+  // absent → 'draft' default; a non-default status round-trips through the store.
+  it('carries a status: defaults to draft, and a non-default status round-trips', async () => {
+    const store = createDraftStore({ dbName: `d4-${Math.random()}` });
+    const def = await store.save(fields);
+    expect(def.status).toBe('draft');
+    expect((await store.get(def.id))?.status).toBe('draft');
+
+    const cooking = await store.save({ ...fields, name: 'Braise' }, undefined, 'cooking');
+    expect(cooking.status).toBe('cooking');
+    expect((await store.get(cooking.id))?.status).toBe('cooking');
+  });
 });

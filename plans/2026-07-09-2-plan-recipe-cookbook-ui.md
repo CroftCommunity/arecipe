@@ -75,8 +75,17 @@ Execution status (updated per phase; SHA recorded when the next phase commits):
   ("Sign in on Alchemy") + `editor.ts:235` (publish tooltip); docs `README.md` +
   `DESIGN.md` (nav list also gained the rebase's Reference tab); cosmetic test
   titles. Wiring test: `nav.spec.ts` "Alchemy tab" (label + heading). Full gate
-  green (235 / 97).
-- ⬜ Phases 11b–11c — pending.
+  green (235 / 97). Committed `50505e1`.
+- ✅ **Phase 11b** — draft `status` data model (`draft`/`cooking`/`ready`, OQ13;
+  `published` derived, not stored). `drafts-local.ts` Draft gains `status`, save
+  takes optional status (default `draft`), get/list read-tolerate legacy
+  (default `draft`); `drafts-sync.ts` `DraftRecord.status` widened, `draftToRecord`
+  reads it, `draftFromRecord` read-tolerates unknown/absent → `draft`; `mine.ts`
+  recovery preserves status. Unit: local round-trip (default + non-default) +
+  record both-ways + legacy default + wiring (store.save→get→draftToRecord). No
+  UI. Full gate green (239 / 97); @live `drafts-live` confirms the widened record
+  still syncs (non-default @live round-trip lands in 11c with the editor control).
+- ⬜ Phase 11c — pending.
 
 **Tooling note:** a separate chore commit excludes `.claude/` (untracked scratch
 holding a nested locked git worktree from another context) from ESLint + the
@@ -1385,7 +1394,19 @@ heading; 2) docs updated; 3) `npm test` green.
 **Validation:** Narrow-plus — hermetic; confirm no visible-label assertion breaks.
 **Stop-point.**
 
-### Phase 11b: Draft `status` data model (widen from the hardcoded literal)
+### Phase 11b: Draft `status` data model (widen from the hardcoded literal) — ✅ SHIPPED
+
+**Delivered (2026-07-09):** `drafts-local.ts` — `DraftStatus =
+'draft'|'cooking'|'ready'`; `Draft` gains `status`; `save(fields, id?, status?)`
+defaults to `'draft'`; `get`/`list` read-tolerate legacy drafts (`withStatus`
+→ `'draft'`). `drafts-sync.ts` — `DraftRecord.status` widened to `DraftStatus`;
+`draftToRecord` reads `draft.status`; `draftFromRecord` read-tolerates an
+unknown/absent status → `'draft'` (never errors; `published` never in the set —
+OQ13). `mine.ts` eviction-recovery preserves `draft.status`. Unit (RED→GREEN):
+local default + non-default round-trip, record both-ways, legacy-default, and the
+wiring test `store.save('ready') → get → draftToRecord` preserving it (the store
+API is the entry point — no UI in 11b). Full gate green (239 unit / 97 e2e);
+`@live drafts-live` green (widened record still syncs to the PDS).
 
 **Goal:** A draft can carry a `status` from a small set; the local store and the
 PDS backup persist it. **No UI yet** (11c adds the control + filter).

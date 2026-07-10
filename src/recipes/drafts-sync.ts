@@ -5,14 +5,14 @@
 
 import type { Agent } from '@atproto/api';
 import { log } from '../log.js';
-import type { Draft } from './drafts-local.js';
+import type { Draft, DraftStatus } from './drafts-local.js';
 import type { EditorFields } from './write.js';
 
 export const DRAFT_COLLECTION = 'app.arecipe.draft';
 
 export type DraftRecord = {
   $type: typeof DRAFT_COLLECTION;
-  status: 'draft';
+  status: DraftStatus;
   clientId: string;
   fields: EditorFields;
   savedAt: string;
@@ -20,11 +20,13 @@ export type DraftRecord = {
 
 export const draftToRecord = (draft: Draft): DraftRecord => ({
   $type: DRAFT_COLLECTION,
-  status: 'draft',
+  status: draft.status,
   clientId: draft.id,
   fields: draft.fields,
   savedAt: draft.savedAt,
 });
+
+const STATUSES: readonly DraftStatus[] = ['draft', 'cooking', 'ready'];
 
 export const draftFromRecord = (record: Record<string, unknown>): Draft => {
   const clientId = record['clientId'];
@@ -33,7 +35,11 @@ export const draftFromRecord = (record: Record<string, unknown>): Draft => {
   if (typeof clientId !== 'string' || typeof savedAt !== 'string' || typeof fields !== 'object' || fields === null) {
     throw new Error('not an app.arecipe.draft: clientId/fields/savedAt missing');
   }
-  return { id: clientId, savedAt, fields: fields as EditorFields };
+  // Read-tolerate: an unknown/absent status (legacy or a future value) reads as
+  // 'draft' rather than erroring — the settable set is draft|cooking|ready.
+  const raw = record['status'];
+  const status: DraftStatus = STATUSES.includes(raw as DraftStatus) ? (raw as DraftStatus) : 'draft';
+  return { id: clientId, savedAt, fields: fields as EditorFields, status };
 };
 
 /** rkey = clientId-derived (stable per draft) so re-saves overwrite. rkeys

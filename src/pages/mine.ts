@@ -99,7 +99,7 @@ const main = async (): Promise<void> => {
         let recovered = 0;
         for (const draft of remote) {
           if ((await drafts.get(draft.id)) === undefined) {
-            await drafts.save(draft.fields, draft.id);
+            await drafts.save(draft.fields, draft.id, draft.status);
             recovered += 1;
           }
         }
