@@ -1,7 +1,8 @@
 # Cook-search typeahead (Browse + Meals add-a-cook)
 
-**Status:** In progress (on branch `feat/cook-search-typeahead`, worktree). Pass
-1+2+3 complete. Phase 1 shipped; Phases 2–4 pending.
+**Status:** Closed (on branch `feat/cook-search-typeahead`, worktree). All 4
+phases shipped; nothing skipped or deferred. Full gate green: lint · typecheck ·
+298 unit · 109 e2e. Not yet pushed (awaiting user).
 
 ## Outcome Summary
 
@@ -10,7 +11,7 @@
 | 1 — actor-search data module | ✅ SHIPPED | `2f933f1` | AppView typeahead query → suggestions; soft-degrade; 11 unit tests. |
 | 2 — typeahead UI component | ✅ SHIPPED | `d90f715` | Debounced a11y listbox; generation guard; avatar; 10 unit tests. Visual smoke → Phase 3 live run. |
 | 3 — wire into Browse | ✅ SHIPPED | `c09fb42` | runFind() shared by submit + pick; e2e wiring green; Browse+CSP 39 green. |
-| 4 — wire into Meals | ⏳ pending | — | |
+| 4 — wire into Meals | ✅ SHIPPED | `f925ad2` | addCookByHandle() shared by Add button + pick; e2e wiring green; Meals 8 / e2e 109 green. |
 
 ## Problem Statement
 
@@ -328,7 +329,10 @@ load (ensure typeahead does not fire on the programmatic restore value).
 **Validation:** Broad — e2e wiring test + manual run of the dev build against the
 real AppView to confirm live suggestions and the CSP allowlist in a real browser.
 
-### Phase 4: Wire typeahead into Meals add-a-cook (reuse)
+### Phase 4: Wire typeahead into Meals add-a-cook (reuse) — ✅ SHIPPED (`f925ad2`)
+
+**Delivered:** As specified. Ran sequentially (not parallel to Phase 3, per the
+Concurrency Map default).
 
 **Goal:** The Meals palette add-a-cook input gets the same typeahead; picking a
 cook adds their recipes to the palette via the existing `loadHandlePalette`.
@@ -435,3 +439,31 @@ LEXICONS.md confirmed no-change (grepped). No trailing docs phase.
 Browse + Meals (all 4 phases); no creep.
 **Confirmed ready:** yes — pending the walk-through of the two ADVISORY and one
 PHASE-GATED open questions (none BLOCKING).
+
+### Plan close-out — 2026-07-10
+**Shipped:** Cook-search typeahead across both handle inputs, delivered on
+`feat/cook-search-typeahead` in a worktree off committed main (`41a8f15`), so a
+second agent's in-flight work on main was never touched. Two new modules —
+`src/identity/actor-search.ts` (AppView `searchActorsTypeahead` query →
+`ActorSuggestion[]`, min-length short-circuit, soft-degrade, abort/debug) and
+`src/identity/actor-typeahead.ts` (reusable debounced, ARIA-combobox, keyboard-
+navigable listbox with a generation guard) — plus dropdown CSS in `styles.css`.
+Wired into Browse (`browse.ts`, shared `runFind()`) and Meals add-a-cook
+(`meals.ts`, shared `addCookByHandle()`). Observable behavior: typing ≥2 chars in
+either box shows live account suggestions; picking one loads that cook's recipes
+(Browse) or adds them to the palette pool (Meals) with no exact handle needed.
+Tests: 21 new unit + 3 new e2e wiring; full suite green (lint, typecheck, 298
+unit, 109 e2e). No CSP change. Commits: `2f933f1`, `d90f715`, `c09fb42`,
+`f925ad2` (+ per-phase plan-sync docs commits). Not pushed.
+**Stopped or skipped:** Nothing. All four planned phases shipped.
+**Discoveries:** (1) The worktree had no `node_modules` (worktrees don't share
+gitignored files) and the `node_modules` symlink isn't covered by the dir-shaped
+`.gitignore` rule — added a worktree-local `info/exclude` so it can't be staged.
+(2) `vi.useFakeTimers()` is used nowhere in the suite, so the component takes an
+injectable `debounceMs` and tests drive debounce/supersession with real awaits +
+deferred promises rather than fake timers. (3) `img-src` is already
+`'self' data: blob: https:` with existing `cdn.bsky.app` usage, so avatars ship
+with no CSP work. (4) The RTK bash hook mangles `npx`/piped `curl`; ran vitest/
+tsc/eslint/playwright via their `node_modules` binaries directly. **Residual:** a
+human eyeball of dropdown positioning/theme in a real browser against live
+network (the ADVISORY min-chars/debounce tuning rides along with that smoke).
