@@ -198,27 +198,32 @@ const renderFeedView = (
         btn.setAttribute('aria-pressed', String(active));
       }
     };
+    // Lazy-load the liked feed (OQ12): a separate cross-PDS fetch of your
+    // hearted recipes, cached after the first load. Kicked off both on selecting
+    // Liked AND on mount when Liked is the remembered source (else a persisted
+    // "liked" would render the empty state without ever fetching).
+    const loadLiked = (): void => {
+      likedLoading = true;
+      void (async () => {
+        try {
+          const liked = await listInteractionsFor({ pds: viewer.pds, did: viewer.did, kind: 'liked' });
+          likedEntries = await loadLikedFeed(liked);
+        } catch (err) {
+          log.warn('cookbook', 'liked feed load failed', { error: String(err) });
+          likedEntries = [];
+        }
+        likedLoading = false;
+        showCurrent();
+      })();
+    };
     const selectSource = (key: Source): void => {
       if (source === key) return;
       source = key;
       sourcePref.save(source); // remember the choice across visits
       reflectSource();
-      // Lazy-load the liked feed on first selection (OQ12): a separate cross-PDS
-      // fetch of your hearted recipes, cached after the first load.
       if (key === 'liked' && likedEntries === null) {
-        likedLoading = true;
+        loadLiked(); // sets likedLoading = true
         renderCurrent(); // show the loading line immediately
-        void (async () => {
-          try {
-            const liked = await listInteractionsFor({ pds: viewer.pds, did: viewer.did, kind: 'liked' });
-            likedEntries = await loadLikedFeed(liked);
-          } catch (err) {
-            log.warn('cookbook', 'liked feed load failed', { error: String(err) });
-            likedEntries = [];
-          }
-          likedLoading = false;
-          showCurrent();
-        })();
         return;
       }
       showCurrent();
@@ -249,6 +254,9 @@ const renderFeedView = (
     newRecipe.href = './editor.html';
     newRecipe.dataset['testid'] = 'cookbook-new-recipe';
     header.append(newRecipe);
+    // Remembered as Liked? Kick off the lazy load now so the initial paint shows
+    // the loading line (then the feed) rather than the "no liked recipes" empty.
+    if (source === 'liked' && likedEntries === null) loadLiked();
   }
 
   // Content-freshness note at the bottom (SWR): a cache-first paint shows the
