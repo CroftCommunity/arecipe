@@ -14,7 +14,7 @@
 | 5 Week builder + tap-to-place | ✅ shipped | `be59903` | `meals.ts` grown into the builder (palette chips, 7-day week rows, tap-to-arm/place/clear, add/remove week cap 6) persisting to the P4 store; planner CSS. Wiring e2e: tap→place→**reload-persist**→clear→add-week. This is P4's entry-point wiring proof. 92 e2e, 250 unit. |
 | 6 Calendar + repeat | ✅ shipped | `a4bea68` | Per-week `repeat` input (1–12, clamped) + calendar section driven by the model's `expandCalendar` (stamps in order, rep badge, empty state). Wiring e2e: repeat→3 ⇒ 3 stamped rows each carrying the filled day. This is P3 `expandCalendar`'s entry-point wiring proof. 94 e2e, 250 unit. |
 | 7 Palette (Cookbook + Browse) | ✅ shipped | `21bd387` | `meal-plan-palette.ts` (3 loaders, replicated `membersToAuthors`, degrade+log seams) + source switch / filter / add-a-cook wired into `meals.ts`. 7 loader unit tests; hermetic e2e (Browse loads, filter narrows, switch toggles, handle appends). Auth deferred (dynamic import; meals stays 8K auth-free). Signed-in manual leg unrunnable here (no creds). 95 e2e, 257 unit. |
-| 8 Drag enhancement | ✅ shipped | `<pending-p8>` | HTML5 drag layered on tap-to-place: drag a palette chip onto a day (place), drag a filled slot to another (move/swap), reusing the same store mutations; `.day--over` drop state. Additive — touch tap-to-place unchanged. Wiring e2e (Playwright `dragTo`, asserts resulting state). 106 e2e, 272 unit (post-rebase). |
+| 8 Drag enhancement | ✅ shipped | `5189ea0` | HTML5 drag layered on tap-to-place: drag a palette chip onto a day (place), drag a filled slot to another (move/swap), reusing the same store mutations; `.day--over` drop state. Additive — touch tap-to-place unchanged. Wiring e2e (Playwright `dragTo`, asserts resulting state). 106 e2e, 272 unit (post-rebase). |
 | 9 PDS sync | ⬜ pending | — | |
 
 ## Problem Statement
@@ -858,7 +858,7 @@ Browse sample handle `rdur.dev`).
 
 ---
 
-### Phase 8: Drag-and-drop enhancement (desktop) — ✅ SHIPPED (`<pending-p8>`)
+### Phase 8: Drag-and-drop enhancement (desktop) — ✅ SHIPPED (`5189ea0`)
 **Delivered (2026-07-10):** `src/pages/meals.ts` — a closure `dragging` payload
 (`{kind:'palette',item}` | `{kind:'slot',wi,di}`); palette chips are `draggable`
 (dragstart arms a palette drag); every day cell is a drop target
