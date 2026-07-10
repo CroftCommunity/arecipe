@@ -3,17 +3,19 @@
 // path lives in publish-live.spec.ts.
 import { expect, test } from '@playwright/test';
 
-test('author → save draft → reload restores it (draft-before-publish)', async ({ page }) => {
+test('author → save draft → lands on Alchemy; the draft is listed and reopens', async ({ page }) => {
   await page.goto('/editor.html');
   await page.getByTestId('editor-name').fill('Midnight Toast');
   await page.getByTestId('editor-text').fill('Toast, but at midnight.');
   await page.getByTestId('editor-ingredients').fill('2 slices bread\nbutter');
   await page.getByTestId('editor-instructions').fill('Toast the bread.\nButter it.');
   await page.getByTestId('save-draft').click();
-  await expect(page.getByTestId('editor-status')).toContainText('draft saved');
-  // The URL now names the draft; a reload resumes it.
-  await expect(page).toHaveURL(/draft=/);
-  await page.reload();
+  // Saving returns you to Alchemy with the draft in the list.
+  await expect(page).toHaveURL(/mine\.html/, { timeout: 15_000 });
+  const row = page.getByTestId('draft-row').filter({ hasText: 'Midnight Toast' });
+  await expect(row).toHaveCount(1);
+  // Reopening the draft restores the fields (persisted local-first).
+  await row.locator('a').click();
   await expect(page.getByTestId('editor-name')).toHaveValue('Midnight Toast');
   await expect(page.getByTestId('editor-ingredients')).toHaveValue('2 slices bread\nbutter');
 });
@@ -28,9 +30,7 @@ test('drafts appear on Alchemy and can be deleted', async ({ page }) => {
   await page.goto('/editor.html');
   await page.getByTestId('editor-name').fill('Draft For Mine');
   await page.getByTestId('save-draft').click();
-  await expect(page.getByTestId('editor-status')).toContainText('draft saved');
-
-  await page.goto('/mine.html');
+  await expect(page).toHaveURL(/mine\.html/, { timeout: 15_000 });
   const row = page.getByTestId('draft-row').filter({ hasText: 'Draft For Mine' });
   await expect(row).toHaveCount(1);
   // The draft row links back into the editor with the draft id.

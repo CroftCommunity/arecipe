@@ -12,7 +12,8 @@ const saveDraft = async (
   await page.getByTestId('editor-name').fill(name);
   await page.getByTestId('editor-status-select').selectOption(status);
   await page.getByTestId('save-draft').click();
-  await expect(page.getByTestId('editor-status')).toContainText('draft saved', { timeout: 15_000 });
+  // Saving returns to Alchemy (the drafts list).
+  await page.waitForURL(/mine\.html/, { timeout: 15_000 });
 };
 
 test('Alchemy filters drafts by the status set in the editor (wiring)', async ({ page }) => {

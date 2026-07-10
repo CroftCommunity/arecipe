@@ -26,9 +26,8 @@ test('@live a "ready" draft status set in the editor reaches the PDS record', as
   await page.getByTestId('editor-name').fill('Ready Live Draft');
   await page.getByTestId('editor-status-select').selectOption('ready');
   await page.getByTestId('save-draft').click();
-  await expect(page.getByTestId('editor-status')).toContainText('backed up to your account', {
-    timeout: 30_000,
-  });
+  // Save returns to Alchemy only after the PDS backup completes.
+  await page.waitForURL(/mine\.html/, { timeout: 30_000 });
 
   // The synced record on the PDS carries the chosen status.
   const res = await page.request.get(

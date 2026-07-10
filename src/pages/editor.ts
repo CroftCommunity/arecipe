@@ -220,21 +220,21 @@ const main = async (): Promise<void> => {
       .save(readFields(fields), draftId, statusSelect.value as DraftStatus)
       .then(async (draft) => {
         draftId = draft.id;
-        // The URL names the draft so a reload resumes it.
-        const url = new URL(window.location.href);
-        url.searchParams.set('draft', draft.id);
-        window.history.replaceState(null, '', url);
         status.textContent = `draft saved ${draft.savedAt}`;
-        // Backup to the PDS when signed in (public — disclosed below).
+        // Backup to the PDS when signed in (public — disclosed below). If the
+        // backup fails, STAY so the failure is visible; the draft is safe
+        // locally either way.
         if (agent !== null) {
           try {
             await syncDraftToPds(agent, draft);
-            status.textContent = `draft saved ${draft.savedAt} · backed up to your account`;
           } catch (err) {
             log.warn('drafts', 'PDS sync failed', { error: String(err) });
             status.textContent = `draft saved locally — account backup failed: ${String(err)}`;
+            return;
           }
         }
+        // Saved (and backed up when signed in) → return to Alchemy and its list.
+        window.location.href = './mine.html';
       })
       .catch((err: unknown) => {
         status.textContent = `draft save failed: ${String(err)}`;

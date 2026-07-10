@@ -83,9 +83,9 @@ test('@live drafts survive eviction; edits version; stale caches refresh', async
   await page.getByTestId('editor-ingredients').fill('resolve');
   await page.getByTestId('editor-instructions').fill('Persist.');
   await page.getByTestId('save-draft').click();
-  await expect(page.getByTestId('editor-status')).toContainText('backed up to your account', {
-    timeout: 30_000,
-  });
+  // Save returns to Alchemy only AFTER the PDS backup completes (signed in), so
+  // landing on mine.html confirms the draft was backed up to the account.
+  await page.waitForURL(/mine\.html/, { timeout: 30_000 });
 
   // Simulated eviction: wipe the local draft store, then visit Alchemy —
   // the draft must come back from the PDS.
