@@ -1,11 +1,14 @@
 // Interactions (Phase 9c). app.arecipe.interaction is our lexicon: a recipe
 // strongRef (pinned) + a kind + createdAt.
-//   - liked : one-tap public approval — a heart + a friends-scoped count
-//   - saved : a private bookmark — the "Saved" view under My recipes
-// (cooked is deferred.) Discovery is friends-scoped like comments: counts come
-// from repos we know (recipe author + you + your friends), so "N likes" means
-// "you + friends", never a pretend-global number. Reads + pure logic are
-// unit-tested; the authenticated add/remove writes are proven @live.
+//   - liked : one-tap public approval — a heart + a friends-scoped count.
+//     It is the single collect/approve action; liked recipes surface via the
+//     Cookbook "Liked" filter. (The former private `saved` bookmark was removed
+//     — legacy `saved` records are read-tolerated: filtered out on read, never
+//     errored. `cooked` is deferred.)
+// Discovery is friends-scoped like comments: counts come from repos we know
+// (recipe author + you + your friends), so "N likes" means "you + friends",
+// never a pretend-global number. Reads + pure logic are unit-tested; the
+// authenticated add/remove writes are proven @live.
 
 import type { Agent } from '@atproto/api';
 import { log } from '../log.js';
@@ -13,8 +16,8 @@ import type { StrongRef } from '../recipes/refs.js';
 
 export const INTERACTION_COLLECTION = 'app.arecipe.interaction';
 
-export type InteractionKind = 'liked' | 'saved';
-const KINDS: readonly InteractionKind[] = ['liked', 'saved'];
+export type InteractionKind = 'liked';
+const KINDS: readonly InteractionKind[] = ['liked'];
 
 export type InteractionRecordOut = {
   $type: typeof INTERACTION_COLLECTION;
@@ -111,14 +114,11 @@ export const loadRecipeInteractions = async (
 export const summarize = (
   interactions: Interaction[],
   viewerDid: string | null,
-): { likeCount: number; youLiked: boolean; youSaved: boolean } => {
+): { likeCount: number; youLiked: boolean } => {
   const likers = new Set(interactions.filter((i) => i.kind === 'liked').map((i) => i.author));
   return {
     likeCount: likers.size,
     youLiked: viewerDid !== null && likers.has(viewerDid),
-    youSaved:
-      viewerDid !== null &&
-      interactions.some((i) => i.kind === 'saved' && i.author === viewerDid),
   };
 };
 

@@ -14,10 +14,14 @@ the feature branch is consolidated.
 
 Execution status (updated per phase; SHA recorded when the next phase commits):
 - ✅ **Phase 0** (`3186475`) — D1/D2 discovery + rebase re-grounding onto `7db0999`.
-- ✅ **Phase 1** — theme-aware link color (`a{color:var(--enamel)}`); `.comment-author`
-  reads enamel in both themes, not UA blue. Wiring test: `comments.spec.ts`
-  "themed enamel color" (light+dark). Full gate green (229 unit / 91 e2e).
-- ⬜ Phases 2–11c — pending.
+- ✅ **Phase 1** (`840341b`) — theme-aware link color (`a{color:var(--enamel)}`);
+  `.comment-author` reads enamel in both themes, not UA blue. Wiring test:
+  `comments.spec.ts` "themed enamel color" (light+dark). Gate green.
+- ✅ **Phase 2** — removed `saved`; `liked` is the only interaction kind. Recipe
+  page shows like+count, no save control; legacy `saved` records read-tolerated
+  (filtered). Wiring test: `interactions.spec.ts` (`save-button` count 0) +
+  unit read-tolerance. Full gate green (228 unit / 91 e2e).
+- ⬜ Phases 3–11c — pending.
 
 ## Problem Statement
 
@@ -506,7 +510,29 @@ new contrast assertion.
 `style=`/`.style`, no remote asset. Intact.
 **Stop-point.**
 
-### Phase 2: Remove "saved"; like is the only interaction
+### Phase 2: Remove "saved"; like is the only interaction — ✅ SHIPPED (hermetic)
+
+**Delivered (2026-07-09):** `interactions.ts` — `InteractionKind` narrowed to
+`'liked'`, `KINDS=['liked']`, `summarize` drops `youSaved`; legacy `saved`
+records now fail the `KINDS.includes` filter (`:82`) and are ignored (no throw).
+`recipe.ts` — removed `saveBtn` (build/append/render/click) and the `youSaved`
+destructure; `toggle` narrowed to `'liked'`. Tests: `interactions.spec.ts` e2e
+asserts `save-button` count 0 (was `toBeHidden`); unit rewritten like-only + a
+new read-tolerance test (legacy `saved` filtered out). RED watched (2 unit + 1
+e2e), then GREEN. Hermetic gate green: 228 unit, 91 e2e.
+Grep confirmed no other `youSaved`/`save-button` readers in `src/`.
+
+**@live result — PRE-EXISTING failure, NOT a Phase 2 regression (verified).**
+Ran `LIVE=1 interactions-live.spec.ts` (creds present in `.env`, user-approved).
+It failed at `:41` — after sign-in, clicking Like leaves the count at "0 likes"
+(the like WRITE doesn't reflect). To rule out my change I **stashed the Phase 2
+diff and re-ran the same @live test on the Phase 1 baseline (`840341b`) — it
+failed identically**. So the like-write path is broken on the rebased `main`
+(`7db0999`) independent of this plan; Phase 2 only removed the *save* path and
+left the like add/remove logic untouched. Out of scope for Phase 2 (whose
+save-removal is fully proven hermetically); flagged to the user and recorded as
+a discovery below. The like write path is re-exercised @live in Phase 9, so it
+should be diagnosed before then.
 
 **Goal:** No save toggle anywhere; `liked` is the single interaction kind.
 **Changes:**
@@ -1681,3 +1707,24 @@ rewritten; no approach changed. The rebase shifted line references and added two
 coexistence concerns (Focus button, per-version re-mount) and two new stale
 labels — all folded into the affected phases. **Phase 0 stop-point reached —
 awaiting user review before Phase 1.**
+
+### Discovery (mid-execution, 2026-07-09): @live like-write is broken on `main`
+
+**Finding.** During Phase 2's @live validation, `interactions-live.spec.ts`
+"@live like → count reflects → unlike" failed: after sign-in the Like click does
+not move the count off "0 likes". **Confirmed pre-existing** by stashing the
+Phase 2 diff and re-running on the Phase 1 baseline (`840341b`) — identical
+failure. So this is a defect on the rebased `origin/main` (`7db0999`), not
+introduced by this plan. Phase 2 removed only the `saved` path; the like
+add/remove logic (`addInteraction`/`removeInteraction`/`withOwnInteraction`,
+`interactions.ts`) is untouched and hermetically green.
+
+**Why it matters here.** Phase 9 (@live liked feed) reads real `liked` records;
+if the write path is broken, seeding/verifying Phase 9's @live case will be hard.
+This should be diagnosed (likely in the like write or the read-after-write on the
+real PDS, or an env/rate-limit issue on the test account) before Phase 9's @live
+step. It does **not** block Phases 3–8 (all hermetic).
+
+**Disposition.** Out of scope for the current phase; surfaced to the user. Not
+adding a phase for it unless the user wants it folded in — candidate `TODO`/
+separate fix on `main`.

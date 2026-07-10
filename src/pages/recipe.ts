@@ -248,10 +248,11 @@ const mountComments = async (
   }
 };
 
-/** Interactions (Phase 9c): a cookbook-scoped like count + a heart, plus a
- * save toggle, on the recipe page. Reading is public (author + you + cookbook);
- * liking/saving needs a session (deferred, shared auth). Liking lives here, not
- * on Browse — Browse stays zero-auth. Honors the Hide Likes social pref. */
+/** Interactions (Phase 9c): a cookbook-scoped like count + a heart on the recipe
+ * page — like is the single interaction (the private `saved` toggle was removed).
+ * Reading is public (author + you + cookbook); liking needs a session (deferred,
+ * shared auth). Liking lives here, not on Browse — Browse stays zero-auth. Honors
+ * the Hide Likes social pref. */
 const mountInteractions = async (
   content: HTMLElement,
   entry: CachedRecipe,
@@ -270,10 +271,7 @@ const mountInteractions = async (
   likeBtn.dataset['testid'] = 'like-button';
   const likeCount = el('span', 'like-count');
   likeCount.dataset['testid'] = 'like-count';
-  const saveBtn = el('button', 'button save-btn') as HTMLButtonElement;
-  saveBtn.type = 'button';
-  saveBtn.dataset['testid'] = 'save-button';
-  box.append(likeBtn, likeCount, saveBtn);
+  box.append(likeBtn, likeCount);
   content.append(box);
 
   const repos: InteractionRepo[] = [];
@@ -293,13 +291,11 @@ const mountInteractions = async (
   const strong = strongRefOf(entry);
 
   const render = (): void => {
-    const { likeCount: n, youLiked, youSaved } = summarize(interactions, viewerDid);
+    const { likeCount: n, youLiked } = summarize(interactions, viewerDid);
     likeCount.textContent = n === 1 ? '1 like' : `${n} likes`;
     likeBtn.textContent = youLiked ? '♥ Liked' : '♡ Like';
     likeBtn.classList.toggle('is-active', youLiked);
     likeBtn.disabled = agent === null; // signed-out: count is read-only
-    saveBtn.textContent = youSaved ? 'Saved' : 'Save';
-    saveBtn.hidden = agent === null; // saving is a private action
   };
   const refresh = async (): Promise<void> => {
     interactions = await loadRecipeInteractions(uri, repos);
@@ -335,7 +331,7 @@ const mountInteractions = async (
       });
     }
     const me = signedInAgent.did;
-    const toggle = (kind: 'liked' | 'saved', has: () => boolean) => (): void => {
+    const toggle = (kind: 'liked', has: () => boolean) => (): void => {
       void (async () => {
         try {
           if (has()) {
@@ -363,7 +359,6 @@ const mountInteractions = async (
       })();
     };
     likeBtn.addEventListener('click', toggle('liked', () => summarize(interactions, viewerDid).youLiked));
-    saveBtn.addEventListener('click', toggle('saved', () => summarize(interactions, viewerDid).youSaved));
     await refresh(); // re-render with your state + cookbook counts + live controls
   }
 };

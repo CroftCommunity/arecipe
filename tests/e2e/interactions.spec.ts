@@ -1,7 +1,8 @@
 // Phase 9c wiring (hermetic half): the like count on the recipe page. Mirrors
-// 9a/9b — the WRITE (like/save toggle) is proven @live; here, with no creds, we
+// 9a/9b — the WRITE (like toggle) is proven @live; here, with no creds, we
 // prove the friends-scoped READ: signed-out, the recipe page shows the author's
-// like count read-only, with the like button disabled and no save control.
+// like count read-only, with the like button disabled. There is NO save control
+// anywhere — `saved` was removed; like is the single interaction.
 import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
 
@@ -60,8 +61,8 @@ test('signed-out recipe page shows a read-only like count (wiring)', async ({ pa
   await page.goto(`/recipe.html?u=${encodeURIComponent(RECIPE_URI)}`);
   await expect(page.locator('h2')).toContainText('White Chocolate', { timeout: 15_000 });
   await expect(page.getByTestId('like-count')).toHaveText('1 like');
-  // Signed-out: the count is read-only — the like button is disabled and there
-  // is no save control (saving is a private, auth'd action).
+  // Signed-out: the count is read-only — the like button is disabled. The save
+  // control is gone entirely (not merely hidden): `saved` was removed.
   await expect(page.getByTestId('like-button')).toBeDisabled();
-  await expect(page.getByTestId('save-button')).toBeHidden();
+  await expect(page.getByTestId('save-button')).toHaveCount(0);
 });
