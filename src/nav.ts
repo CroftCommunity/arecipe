@@ -64,7 +64,7 @@ export const renderTopbar = (): HTMLElement => {
 const DESTINATIONS = [
   { label: 'Browse', href: './index.html', testid: 'tab-browse', match: /(^|\/)(index\.html)?$/ },
   { label: 'Cookbook', href: './cookbook.html', testid: 'tab-cookbook', match: /\/cookbook\.html$/ },
-  { label: 'My recipes', href: './mine.html', testid: 'tab-mine', match: /\/mine\.html$/ },
+  { label: 'Alchemy', href: './mine.html', testid: 'tab-mine', match: /\/mine\.html$/ },
   {
     label: 'Reference',
     href: './reference.html',

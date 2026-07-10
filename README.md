@@ -32,8 +32,7 @@ Page-per-destination (no router): each top-level surface is its own document —
 `index.html` (Browse), `cookbook.html` (Cookbook — your own recipes plus a
 bounded reach: starter cooks + who you follow/your followers on Bluesky, and
 their recipes; `?did=<did>` is a shareable public view of anyone's cookbook.
-The legacy `friends.html` redirects here), `mine.html` (My recipes — drafting is
-account-free; no longer hosts the login form), `signin.html` (the dedicated
+The legacy `friends.html` redirects here), `mine.html` (Alchemy — your drafting workspace; account-free; no longer hosts the login form), `signin.html` (the dedicated
 sign-in page — atproto OAuth, forwards to Cookbook on success),
 `settings.html`, plus `recipe.html`, `dish.html` (compare a dish's alternative
 versions side by side — the recipe page's "View All"), and `editor.html`.

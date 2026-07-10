@@ -69,8 +69,14 @@ Execution status (updated per phase; SHA recorded when the next phase commits):
 - ✅ **Phase 10** — "New Recipe" button (own signed-in Cookbook) → `editor.html`.
   `cookbook.ts` adds it to the source-control row (right-aligned); `styles.css`
   `.cookbook-source-row` flex. @live `cookbook-new-recipe-live.spec.ts` (visible
-  + navigates to editor). Full gate green (235 / 96); @live green.
-- ⬜ Phases 11a–11c — pending.
+  + navigates to editor). Full gate green (235 / 96); @live green. Committed `c2f79e8`.
+- ✅ **Phase 11a** — rename "My recipes" → "Alchemy". `nav.ts` label (route/testid
+  kept); `mine.ts` "Alchemy" `page-title`; user-facing strings `recipe.ts:245`
+  ("Sign in on Alchemy") + `editor.ts:235` (publish tooltip); docs `README.md` +
+  `DESIGN.md` (nav list also gained the rebase's Reference tab); cosmetic test
+  titles. Wiring test: `nav.spec.ts` "Alchemy tab" (label + heading). Full gate
+  green (235 / 97).
+- ⬜ Phases 11b–11c — pending.
 
 **Tooling note:** a separate chore commit excludes `.claude/` (untracked scratch
 holding a nested locked git worktree from another context) from ESLint + the
@@ -1319,7 +1325,19 @@ files and puts the data model first (TDD-friendly). Also: **the "New Recipe"
 button already exists on `mine.ts:36-39`** (`new-recipe` testid → `./editor.html`)
 — so 11a's button work is essentially "confirm it's present," not "add it."
 
-### Phase 11a: Rename "My recipes" → "Alchemy"
+### Phase 11a: Rename "My recipes" → "Alchemy" — ✅ SHIPPED
+
+**Delivered (2026-07-09):** `nav.ts` DESTINATIONS label → "Alchemy" (href
+`./mine.html` + testid `tab-mine` + pathname match kept). `mine.ts` gains an
+`h2.page-title` "Alchemy" (existing new-recipe + Drafts + Published unchanged).
+User-facing string renames the rebase surfaced: `recipe.ts:245` signed-out
+comment pointer + `editor.ts:235` publish tooltip. Docs: `README.md:35`,
+`DESIGN.md` (all "My recipes" → "Alchemy"; the nav-list line also gained
+"Reference" which the rebase's Reference tab had left stale). Cosmetic test
+titles/comments renamed (editor/publish-live/drafts-live/unit-nav). Wiring test
+`nav.spec.ts`: tab reads "Alchemy", routes to `mine.html`, page shows the
+"Alchemy" heading (RED→GREEN). Full gate green (235 unit / 97 e2e). `did.ts`/
+`signin.ts` incidental comments left as-is (unrelated modules).
 
 **Goal:** The destination reads **Alchemy**; the page gains an "Alchemy" heading;
 the existing drafts + New-Recipe + published flow is unchanged.

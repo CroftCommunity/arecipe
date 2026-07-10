@@ -232,7 +232,7 @@ const main = async (): Promise<void> => {
   }
   if (agent === null) {
     publishButton.disabled = true;
-    publishButton.title = 'Sign in (My recipes) to publish — drafts save locally';
+    publishButton.title = 'Sign in (Alchemy) to publish — drafts save locally';
     status.textContent = 'not signed in — drafts save locally; publishing needs sign-in';
   } else {
     const boundAgent = agent;

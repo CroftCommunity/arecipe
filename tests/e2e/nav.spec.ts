@@ -3,11 +3,23 @@
 import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 
+test('the Alchemy tab (renamed from My recipes) navigates to mine.html with an Alchemy heading (wiring)', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const tab = page.getByTestId('tab-mine'); // route/testid kept; only the label changed
+  await expect(tab).toHaveText('Alchemy');
+  await expect(tab).toHaveAttribute('href', /mine\.html$/);
+  await tab.click();
+  await expect(page).toHaveURL(/mine\.html$/);
+  await expect(page.getByRole('heading', { name: 'Alchemy' })).toBeVisible();
+});
+
 test('tabs navigate between documents and native back works (wiring)', async ({ page }) => {
   await page.goto('/');
   await page.getByTestId('tab-mine').click();
   await expect(page).toHaveURL(/mine\.html$/);
-  // Signed out, My recipes shows a pointer to the dedicated sign-in page — the
+  // Signed out, Alchemy shows a pointer to the dedicated sign-in page — the
   // login form itself now lives on signin.html, not here.
   const minePointer = page.getByTestId('mine-signin-pointer');
   await expect(minePointer).toBeVisible();
@@ -35,7 +47,7 @@ test('every signed-out "Sign in" affordance points at the dedicated page (wiring
   await expect(
     page.getByTestId('account-signed-out').getByRole('link'),
   ).toHaveAttribute('href', /signin\.html$/);
-  // My recipes signed-out pointer.
+  // Alchemy signed-out pointer.
   await page.goto('/mine.html');
   await expect(page.getByTestId('mine-signin-pointer')).toHaveAttribute('href', /signin\.html$/);
 });

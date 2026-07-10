@@ -149,7 +149,7 @@ to be implemented with the page-per-destination restructure:
   bottom tab bar on small screens (thumb reach — mealplanner does this),
   top tabs on wide screens. Same destinations, responsive placement.
 - **Cookbook is a third top-level destination** (M4/CB3; was "Friends" in 9a):
-  Browse · Cookbook · My recipes. Your **Cookbook** is your own recipes plus a
+  Browse · Cookbook · Alchemy · Reference. Your **Cookbook** is your own recipes plus a
   bounded, chosen **reach** — starter-pack cooks + who you follow on Bluesky +
   your Bluesky followers (Bluesky primitives; there is no arecipe-native friend
   record anymore). The page is your **recipe feed** — the members' recipes as a
@@ -172,10 +172,10 @@ to be implemented with the page-per-destination restructure:
   reachable while signed in.
 - **Sign-in is its own page** (`signin.html`): authentication is a distinct
   task with a distinct mental model, so it gets a dedicated document rather than
-  a section on My recipes — enter a handle, sign in via atproto OAuth, land in
+  a section on Alchemy — enter a handle, sign in via atproto OAuth, land in
   the app (forwards to Cookbook on success). Every signed-out "Sign in"
-  affordance (nav top-right, the Account note, the My recipes pointer) points
-  here. (The Cookbook no longer has a signed-out gate — it redirects to Browse.) **My recipes stays account-free for drafting**: signed
+  affordance (nav top-right, the Account note, the Alchemy pointer) points
+  here. (The Cookbook no longer has a signed-out gate — it redirects to Browse.) **Alchemy stays account-free for drafting**: signed
   out it shows New recipe + local Drafts plus a short pointer to `signin.html`,
   not a login form. The OAuth callback (`?code=…`) round-trips back to the page
   that initiated it, so `signin.html` is the registered `redirect_uri`

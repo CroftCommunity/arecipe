@@ -1,5 +1,5 @@
 // Phase 6 wiring (@live half): the write path — author in the editor,
-// Publish to the REAL test-account PDS, record appears in My recipes.
+// Publish to the REAL test-account PDS, record appears in Alchemy.
 // Crash-safe cleanup per the plan: a per-run marker in the recipe name +
 // pre-run purge of prior test recipes + teardown delete, all HARD-GUARDED
 // to the dedicated test account's DID. Never runs against any other repo.
@@ -55,7 +55,7 @@ const purgeTestRecipes = async (): Promise<void> => {
   }
 };
 
-test('@live author → publish → appears in My recipes (the write path)', async ({
+test('@live author → publish → appears in Alchemy (the write path)', async ({
   page,
   baseURL,
 }) => {
@@ -90,7 +90,7 @@ test('@live author → publish → appears in My recipes (the write path)', asyn
 
   await page.getByTestId('publish').click();
 
-  // Publish lands back on My recipes with the record in Published.
+  // Publish lands back on Alchemy with the record in Published.
   await expect(page).toHaveURL(/mine\.html/, { timeout: 60_000 });
   await expect(page.getByTestId('recipe-item').filter({ hasText: name })).toHaveCount(1, {
     timeout: 30_000,

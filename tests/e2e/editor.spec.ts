@@ -24,7 +24,7 @@ test('publish is disabled without a session; drafts still save', async ({ page }
   await expect(page.getByTestId('editor-status')).toContainText(/drafts save locally/);
 });
 
-test('drafts appear on My recipes and can be deleted', async ({ page }) => {
+test('drafts appear on Alchemy and can be deleted', async ({ page }) => {
   await page.goto('/editor.html');
   await page.getByTestId('editor-name').fill('Draft For Mine');
   await page.getByTestId('save-draft').click();

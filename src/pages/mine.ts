@@ -1,4 +1,4 @@
-// My recipes page: sign-in lives here (the OAuth callback round-trips back
+// Alchemy page (formerly "My recipes"): sign-in lives here (the OAuth callback round-trips back
 // to /mine.html — the loopback client_id derives its redirect_uri from this
 // page's location). Authoring arrives in Phase 6.
 
@@ -28,6 +28,10 @@ const main = async (): Promise<void> => {
   if (app === null) throw new Error('shell mount point #app missing');
 
   const content = el('section', 'panel');
+  // Alchemy (renamed from "My recipes"): your drafting workspace — create,
+  // edit, save, publish. The heading names the space; the route/testid stay
+  // `mine.html`/`tab-mine`.
+  content.append(el('h2', 'page-title', 'Alchemy'));
   const { provider, agent } = await bootSession();
   void requestPersistence();
 
@@ -135,7 +139,7 @@ const main = async (): Promise<void> => {
     });
   } else if (provider !== null) {
     // Signed out: a short pointer to the dedicated sign-in page. Drafting needs
-    // no account (New recipe + Drafts below stay account-free), so My recipes is
+    // no account (New recipe + Drafts below stay account-free), so Alchemy is
     // no longer a login surface — the form lives on signin.html now.
     const pointer = el('p', 'status');
     const signInLink = el('a', 'friend-link', 'Sign in') as HTMLAnchorElement;

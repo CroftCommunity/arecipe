@@ -242,7 +242,7 @@ const mountComments = async (
     // Re-render with the enriched discovery set (you + cookbook) + reply buttons.
     await refresh();
   } else {
-    const note = el('p', 'status', 'Sign in on My recipes to join the conversation.');
+    const note = el('p', 'status', 'Sign in on Alchemy to join the conversation.');
     note.dataset['testid'] = 'comment-signed-out';
     box.append(note);
   }

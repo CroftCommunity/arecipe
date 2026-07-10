@@ -2,7 +2,7 @@
 // Phase 5b: the shared nav shell. Behaviors:
 // - the wordmark is a home link (differentiated "a" preserved)
 // - the top bar carries the settings gear link
-// - the tab bar renders Browse + My recipes as real links, with the active
+// - the tab bar renders Browse + Alchemy as real links, with the active
 //   tab derived from the current pathname (both / and /index.html = Browse)
 import { describe, expect, it } from 'vitest';
 import { renderTabs, renderTopbar } from '../../src/nav.js';
@@ -61,7 +61,7 @@ describe('renderTopbar', () => {
 });
 
 describe('renderTabs', () => {
-  it('renders Browse, Cookbook, My recipes, and Reference as links', () => {
+  it('renders Browse, Cookbook, Alchemy, and Reference as links', () => {
     const tabs = renderTabs('/index.html');
     expect(tabs.querySelector('[data-testid=tab-browse]')?.getAttribute('href')).toBe(
       './index.html',

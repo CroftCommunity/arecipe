@@ -85,7 +85,7 @@ test('@live drafts survive eviction; edits version; stale caches refresh', async
     timeout: 30_000,
   });
 
-  // Simulated eviction: wipe the local draft store, then visit My recipes —
+  // Simulated eviction: wipe the local draft store, then visit Alchemy —
   // the draft must come back from the PDS.
   await page.evaluate(
     () =>
