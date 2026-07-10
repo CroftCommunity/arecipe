@@ -201,7 +201,14 @@ const renderFeedView = (
       mk('Liked', 'liked', 'source-liked'),
     );
     reflectSource();
-    container.insertBefore(seg, toolbar.element);
+    // A row: source control on the left, a "New Recipe" builder link on the far
+    // right (own cookbook only — mirrors Alchemy's own new-recipe button).
+    const row = el('div', 'cookbook-source-row');
+    const newRecipe = el('a', 'button button--primary new-recipe', 'New Recipe') as HTMLAnchorElement;
+    newRecipe.href = './editor.html';
+    newRecipe.dataset['testid'] = 'cookbook-new-recipe';
+    row.append(seg, newRecipe);
+    container.insertBefore(row, toolbar.element);
   }
 
   showCurrent();

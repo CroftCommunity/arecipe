@@ -729,6 +729,18 @@ a {
   opacity: 0.75;
 }
 
+/* Cookbook source-control row (Phase 9/10): the All/Mine/Liked segmented control
+   on the left, the "New Recipe" builder link pushed to the far right. Wraps on
+   narrow screens. */
+.cookbook-source-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--s-2);
+}
+
 .card .card-title {
   text-decoration: none;
 }

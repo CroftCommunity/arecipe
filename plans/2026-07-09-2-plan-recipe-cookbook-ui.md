@@ -65,8 +65,12 @@ Execution status (updated per phase; SHA recorded when the next phase commits):
   Liked lazy per OQ12; source-specific empty states). Unit `liked-feed.spec.ts`
   (4: cross-PDS/empty/cap/bad-ref); @live `liked-feed-live.spec.ts` (like → Liked
   filter shows it). Full gate green (235 unit / 96 e2e); @live green. Reuses
-  `.segmented` styles (no CSS change).
-- ⬜ Phases 10–11c — pending.
+  `.segmented` styles (no CSS change). Committed `4ae26ac`.
+- ✅ **Phase 10** — "New Recipe" button (own signed-in Cookbook) → `editor.html`.
+  `cookbook.ts` adds it to the source-control row (right-aligned); `styles.css`
+  `.cookbook-source-row` flex. @live `cookbook-new-recipe-live.spec.ts` (visible
+  + navigates to editor). Full gate green (235 / 96); @live green.
+- ⬜ Phases 11a–11c — pending.
 
 **Tooling note:** a separate chore commit excludes `.claude/` (untracked scratch
 holding a nested locked git worktree from another context) from ESLint + the
@@ -1262,7 +1266,14 @@ pure data (no styling). No inline styles, no new remote assets (fetches are
 same-lexicon PDS reads over the existing transport). Intact.
 **Stop-point.**
 
-### Phase 10: "New Recipe" button → builder page
+### Phase 10: "New Recipe" button → builder page — ✅ SHIPPED
+
+**Delivered (2026-07-09):** `cookbook.ts` adds a `New Recipe` link
+(`<a href="./editor.html">`, testid `cookbook-new-recipe`, `.button--primary`)
+to the far right of the source-control row — own signed-in Cookbook only (OQ2:
+no editor retitle). `styles.css` `.cookbook-source-row` (flex space-between,
+wraps). @live `cookbook-new-recipe-live.spec.ts`: visible on own Cookbook +
+navigates to `editor.html`. Full gate green (235 / 96); @live green.
 
 **Goal:** A "New Recipe" button on the far right of the Cookbook toolbar that
 opens the recipe-builder page (OQ2 decides the target/title).
