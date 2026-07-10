@@ -1,17 +1,20 @@
 # Cook-search typeahead (Browse + Meals add-a-cook)
 
 **Status:** Closed (on branch `feat/cook-search-typeahead`, worktree). All 4
-phases shipped; nothing skipped or deferred. Full gate green: lint · typecheck ·
-298 unit · 109 e2e. Not yet pushed (awaiting user).
+phases shipped; nothing skipped or deferred. Rebased onto the updated main
+(`e714600`) after a concurrent agent landed work there — only `styles.css`
+conflicted (both blocks kept); `browse.ts`/`meals.ts`/`TODO.md` auto-merged.
+Full gate re-run green on the rebased tree: lint · typecheck · 322 unit · 109
+e2e. Not yet pushed (awaiting user).
 
 ## Outcome Summary
 
 | Phase | Outcome | Commit | Note |
 |-------|---------|--------|------|
-| 1 — actor-search data module | ✅ SHIPPED | `2f933f1` | AppView typeahead query → suggestions; soft-degrade; 11 unit tests. |
-| 2 — typeahead UI component | ✅ SHIPPED | `d90f715` | Debounced a11y listbox; generation guard; avatar; 10 unit tests. Visual smoke → Phase 3 live run. |
-| 3 — wire into Browse | ✅ SHIPPED | `c09fb42` | runFind() shared by submit + pick; e2e wiring green; Browse+CSP 39 green. |
-| 4 — wire into Meals | ✅ SHIPPED | `f925ad2` | addCookByHandle() shared by Add button + pick; e2e wiring green; Meals 8 / e2e 109 green. |
+| 1 — actor-search data module | ✅ SHIPPED | `27d7184` | AppView typeahead query → suggestions; soft-degrade; 11 unit tests. |
+| 2 — typeahead UI component | ✅ SHIPPED | `9c07674` | Debounced a11y listbox; generation guard; avatar; 10 unit tests. Visual smoke → Phase 3 live run. |
+| 3 — wire into Browse | ✅ SHIPPED | `801822c` | runFind() shared by submit + pick; e2e wiring green; Browse+CSP 39 green. |
+| 4 — wire into Meals | ✅ SHIPPED | `8dce493` | addCookByHandle() shared by Add button + pick; e2e wiring green; Meals 8 / e2e 109 green. |
 
 ## Problem Statement
 
@@ -155,7 +158,7 @@ deferred.
 
 ## Phases
 
-### Phase 1: Actor-search data module — ✅ SHIPPED (`2f933f1`)
+### Phase 1: Actor-search data module — ✅ SHIPPED (`27d7184`)
 
 **Goal:** A fetch-mockable module that turns a query string into a list of actor
 suggestions from the AppView, degrading soft on error.
@@ -208,7 +211,7 @@ convention only).
 2. **Verification:** `npx vitest run tests/unit/identity/actor-search.spec.ts`.
 **Validation:** Narrow — wiring/unit tests sufficient.
 
-### Phase 2: Reusable typeahead UI component — ✅ SHIPPED (`d90f715`)
+### Phase 2: Reusable typeahead UI component — ✅ SHIPPED (`9c07674`)
 
 **Delivered:** As specified. The visual/positioning + theme smoke was folded
 into Phase 3's live run (the component has no page to render in until it's
@@ -274,7 +277,7 @@ used in the suite before relying on it; if not, use a real short debounce with
 **Validation:** Moderate — unit tests + a manual smoke in `ui-lab/` or a scratch
 page to eyeball positioning/theme before wiring into pages.
 
-### Phase 3: Wire typeahead into Browse (primary target) — ✅ SHIPPED (`c09fb42`)
+### Phase 3: Wire typeahead into Browse (primary target) — ✅ SHIPPED (`801822c`)
 
 **Delivered:** As specified. Broad validation: e2e wiring test (mocked network)
 + full Browse/CSP suites green + the AppView endpoint verified live via probe
@@ -329,7 +332,7 @@ load (ensure typeahead does not fire on the programmatic restore value).
 **Validation:** Broad — e2e wiring test + manual run of the dev build against the
 real AppView to confirm live suggestions and the CSP allowlist in a real browser.
 
-### Phase 4: Wire typeahead into Meals add-a-cook (reuse) — ✅ SHIPPED (`f925ad2`)
+### Phase 4: Wire typeahead into Meals add-a-cook (reuse) — ✅ SHIPPED (`8dce493`)
 
 **Delivered:** As specified. Ran sequentially (not parallel to Phase 3, per the
 Concurrency Map default).
@@ -443,7 +446,8 @@ PHASE-GATED open questions (none BLOCKING).
 ### Plan close-out — 2026-07-10
 **Shipped:** Cook-search typeahead across both handle inputs, delivered on
 `feat/cook-search-typeahead` in a worktree off committed main (`41a8f15`), so a
-second agent's in-flight work on main was never touched. Two new modules —
+second agent's in-flight work on main was never touched; later rebased onto that
+agent's landed main (`e714600`). Two new modules —
 `src/identity/actor-search.ts` (AppView `searchActorsTypeahead` query →
 `ActorSuggestion[]`, min-length short-circuit, soft-degrade, abort/debug) and
 `src/identity/actor-typeahead.ts` (reusable debounced, ARIA-combobox, keyboard-
@@ -452,9 +456,10 @@ Wired into Browse (`browse.ts`, shared `runFind()`) and Meals add-a-cook
 (`meals.ts`, shared `addCookByHandle()`). Observable behavior: typing ≥2 chars in
 either box shows live account suggestions; picking one loads that cook's recipes
 (Browse) or adds them to the palette pool (Meals) with no exact handle needed.
-Tests: 21 new unit + 3 new e2e wiring; full suite green (lint, typecheck, 298
-unit, 109 e2e). No CSP change. Commits: `2f933f1`, `d90f715`, `c09fb42`,
-`f925ad2` (+ per-phase plan-sync docs commits). Not pushed.
+Tests: 21 new unit + 3 new e2e wiring; full suite green post-rebase (lint,
+typecheck, 322 unit — includes the other agent's new tests, 109 e2e). No CSP
+change. Commits (post-rebase): `27d7184`, `9c07674`, `801822c`, `8dce493`
+(+ per-phase plan-sync docs commits). Not pushed.
 **Stopped or skipped:** Nothing. All four planned phases shipped.
 **Discoveries:** (1) The worktree had no `node_modules` (worktrees don't share
 gitignored files) and the `node_modules` symlink isn't covered by the dir-shaped
@@ -464,6 +469,12 @@ injectable `debounceMs` and tests drive debounce/supersession with real awaits +
 deferred promises rather than fake timers. (3) `img-src` is already
 `'self' data: blob: https:` with existing `cdn.bsky.app` usage, so avatars ship
 with no CSP work. (4) The RTK bash hook mangles `npx`/piped `curl`; ran vitest/
-tsc/eslint/playwright via their `node_modules` binaries directly. **Residual:** a
-human eyeball of dropdown positioning/theme in a real browser against live
-network (the ADVISORY min-chars/debounce tuning rides along with that smoke).
+tsc/eslint/playwright via their `node_modules` binaries directly. (5) The
+concurrent agent's main touched the same `browse.ts`/`meals.ts`/`meals.spec.ts`/
+`TODO.md`, but the rebase auto-merged all of them (disjoint regions); only
+`styles.css` needed a manual resolve, and it was a positional clash (both the
+export-panel and typeahead blocks inserted at the same anchor) — kept both. The
+full gate re-run on the rebased tree is what confirmed the auto-merges were
+semantically sound, not just textually clean. **Residual:** a human eyeball of
+dropdown positioning/theme in a real browser against live network (the ADVISORY
+min-chars/debounce tuning rides along with that smoke).
