@@ -1553,6 +1553,50 @@ table.ref.pairs td.eq {
 .calendar {
   margin-top: var(--s-5);
 }
+/* Start-date control: label + date input on one row above the calendar. */
+.cal-start {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--s-3);
+  font-size: var(--t-caption);
+}
+.cal-start-input {
+  font: inherit;
+  padding: var(--s-1) var(--s-2);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-s);
+  background: var(--card);
+  color: inherit;
+}
+/* Publish & share: the button, then a generated read-only link + copy/open. */
+.plan-share {
+  margin-top: var(--s-5);
+}
+.share-link {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+  margin-top: var(--s-2);
+}
+.share-link-input {
+  flex: 1 1 16rem;
+  font: inherit;
+  font-size: var(--t-caption);
+  padding: var(--s-1) var(--s-2);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-s);
+  background: var(--card);
+  color: inherit;
+}
+.share-open {
+  white-space: nowrap;
+}
+.shared-plan-head {
+  margin-bottom: var(--s-3);
+}
 .cal-body {
   display: grid;
   gap: var(--s-3);

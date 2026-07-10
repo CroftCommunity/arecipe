@@ -15,7 +15,9 @@ import { attachActorTypeahead } from '../identity/actor-typeahead.js';
 import { resolveDidDoc } from '../identity/did.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
+import { createResolver } from '../identity/resolve.js';
 import { expandCalendar } from '../recipes/meal-plan.js';
+import { dateForSlot, formatShortDate } from '../recipes/meal-plan-dates.js';
 import {
   createMealPlanStore,
   duplicateWeeks,
@@ -23,7 +25,7 @@ import {
   type LocalWeek,
   type MealPlanStore,
 } from '../recipes/meal-plan-local.js';
-import { listPdsPlans, syncPlanToPds } from '../recipes/meal-plan-sync.js';
+import { getPdsPlan, listPdsPlans, syncPlanToPds } from '../recipes/meal-plan-sync.js';
 import {
   loadCookbookPalette,
   loadHandlePalette,
@@ -86,11 +88,135 @@ const readSeed = (): PaletteItem[] => {
   }
 };
 
+/** Build the calendar rows for a plan: one `.cal-week` per expanded week, days
+ *  labelled with real dates when the plan has a `startDate` (the first Monday).
+ *  Shared by the planner (read-only names) and the shared view (`linkRecipes`
+ *  makes each placed meal a link to its recipe). Returns the empty-state element
+ *  when nothing is planned. Pure. */
+const buildCalendarRows = (plan: LocalPlan, opts: { linkRecipes: boolean }): HTMLElement[] => {
+  const anyPlanned = plan.weeks.some((w) => w.days.some((s) => s.recipe !== undefined));
+  if (!anyPlanned) {
+    const empty = el(
+      'p',
+      'empty-state',
+      'Nothing planned yet — place a recipe on a day to see your calendar.',
+    );
+    empty.dataset['testid'] = 'calendar-empty';
+    return [empty];
+  }
+  const start = plan.startDate;
+  const rows: HTMLElement[] = [];
+  let rowIndex = 0; // position in the flat calendar → the date offset (7 days each)
+  for (const cw of expandCalendar(plan.weeks)) {
+    const src = plan.weeks[cw.week - 1];
+    if (src === undefined) {
+      rowIndex += 1;
+      continue;
+    }
+    const row = el('div', 'cal-week');
+    row.dataset['testid'] = 'cal-week';
+    row.dataset['week'] = String(cw.week);
+    // Label: a real date range when anchored, else the abstract week label.
+    const weekStart = start !== undefined ? dateForSlot(start, rowIndex, 0) : null;
+    const weekEnd = start !== undefined ? dateForSlot(start, rowIndex, 6) : null;
+    const s = weekStart !== null ? formatShortDate(weekStart) : null;
+    const e = weekEnd !== null ? formatShortDate(weekEnd) : null;
+    const label =
+      s !== null && e !== null
+        ? `${s} – ${e}`
+        : src.repeat > 1
+          ? `Week ${cw.week} · ${cw.rep} of ${src.repeat}`
+          : `Week ${cw.week}`;
+    row.append(el('div', 'cal-week-label', label));
+    const daysEl = el('div', 'cal-days');
+    src.days.forEach((slot, di) => {
+      const cell = el('div', 'cal-day');
+      const dayIso = start !== undefined ? dateForSlot(start, rowIndex, di) : null;
+      const shortDay = dayIso !== null ? formatShortDate(dayIso) : null;
+      cell.append(el('span', 'day-label', shortDay !== null ? `${DAY_LABELS[di]} ${shortDay}` : DAY_LABELS[di]));
+      if (slot.recipe !== undefined) {
+        cell.classList.add('day--filled');
+        if (opts.linkRecipes) {
+          const link = el('a', 'cal-slot', slot.recipe.name) as HTMLAnchorElement;
+          link.href = `./recipe.html?u=${encodeURIComponent(slot.recipe.uri)}`;
+          link.dataset['testid'] = 'shared-meal';
+          cell.append(link);
+        } else {
+          cell.append(el('span', 'cal-slot', slot.recipe.name));
+        }
+      }
+      daysEl.append(cell);
+    });
+    row.append(daysEl);
+    rows.push(row);
+    rowIndex += 1;
+  }
+  return rows;
+};
+
+/** Read-only shared view: `meals.html?mealplan=<rkey>&user=<did|handle>`. Any
+ *  visitor (including anon) can open a published plan — resolve the owner to a
+ *  PDS, read the plan by rkey, and render a calendar where each meal links to
+ *  its recipe. No auth, no planner. */
+const showSharedPlan = async (
+  app: HTMLElement,
+  rkey: string,
+  userParam: string | null,
+): Promise<void> => {
+  const content = el('section', 'panel');
+  content.append(el('h2', 'section-title', 'Meal plan'));
+  const body = el('div');
+  body.dataset['testid'] = 'shared-plan';
+  content.append(body);
+  mountShell(app, content);
+  void mountBuildStamp(app);
+  void registerServiceWorker();
+
+  const user = userParam?.trim() ?? '';
+  if (user === '') {
+    body.replaceChildren(
+      el('p', 'status', 'This shared meal-plan link needs a “user” parameter (the plan’s owner) to open.'),
+    );
+    return;
+  }
+  try {
+    let did: string;
+    let pds: string;
+    if (user.startsWith('did:')) {
+      did = user;
+      ({ pds } = await resolveDidDoc(did));
+    } else {
+      const identity = await createResolver()(user);
+      did = identity.did;
+      pds = identity.pds;
+    }
+    const plan = await getPdsPlan(pds, did, rkey);
+    const head = el('div', 'shared-plan-head');
+    head.append(el('h3', 'palette-title', plan.name));
+    const calendar = el('section', 'calendar');
+    for (const row of buildCalendarRows(plan, { linkRecipes: true })) calendar.append(row);
+    body.replaceChildren(head, calendar);
+    log.debug('shell', 'mounted', { page: 'meals', view: 'shared-plan' });
+  } catch (err) {
+    log.warn('meal-plan', 'shared plan load failed', { rkey, error: String(err) });
+    body.replaceChildren(el('p', 'status', `couldn’t load this meal plan: ${String(err)}`));
+  }
+};
+
 export const main = async (
   deps: { palette?: PaletteProvider; store?: MealPlanStore } = {},
 ): Promise<void> => {
   const app = document.getElementById('app');
   if (app === null) throw new Error('shell mount point #app missing');
+
+  // Shared read-only view: a published plan opened by link (anon-friendly). No
+  // planner, no store, no auth — resolve the owner and render the calendar.
+  const routeParams = new URLSearchParams(window.location.search);
+  const sharedRkey = routeParams.get('mealplan');
+  if (sharedRkey !== null && sharedRkey.trim() !== '') {
+    await showSharedPlan(app, sharedRkey.trim(), routeParams.get('user'));
+    return;
+  }
 
   const store = deps.store ?? createMealPlanStore();
   const signedInHint = sessionHintSignedIn();
@@ -192,9 +318,88 @@ export const main = async (
   const calendar = el('section', 'calendar');
   calendar.dataset['testid'] = 'calendar';
   calendar.append(el('h3', 'palette-title', 'Calendar'));
+
+  // Start-date control: anchor the plan on its first Monday so the calendar lays
+  // out real dates. Empty clears the anchor (back to abstract "Week N").
+  const startRow = el('label', 'cal-start');
+  startRow.append(el('span', 'cal-start-label', 'Starts (first Monday)'));
+  const startInput = el('input', 'cal-start-input') as HTMLInputElement;
+  startInput.type = 'date';
+  startInput.dataset['testid'] = 'plan-start-date';
+  if (plan.startDate !== undefined) startInput.value = plan.startDate;
+  startInput.addEventListener('change', () => {
+    const v = startInput.value.trim();
+    if (v === '') delete plan.startDate;
+    else plan.startDate = v;
+    persist();
+    renderCalendar();
+  });
+  startRow.append(startInput);
+  calendar.append(startRow);
+
   const calBody = el('div', 'cal-body');
   calendar.append(calBody);
   content.append(calendar);
+
+  // Publish & share: the plan already syncs on every change; this surfaces a
+  // shareable, date-aligned link anyone (incl. anon) can open. Signed-in only.
+  const shareSection = el('section', 'plan-share');
+  const publishBtn = el('button', 'button button--primary', 'Publish & share') as HTMLButtonElement;
+  publishBtn.type = 'button';
+  publishBtn.dataset['testid'] = 'publish-plan';
+  const shareSlot = el('div', 'plan-share-slot');
+  const renderShareLink = (link: string): HTMLElement => {
+    const box = el('div', 'share-link');
+    const urlInput = el('input', 'share-link-input') as HTMLInputElement;
+    urlInput.type = 'text';
+    urlInput.readOnly = true;
+    urlInput.value = link;
+    urlInput.dataset['testid'] = 'share-url';
+    const copy = el('button', 'button', 'Copy') as HTMLButtonElement;
+    copy.type = 'button';
+    copy.dataset['testid'] = 'share-copy';
+    copy.addEventListener('click', () => {
+      const done = navigator.clipboard?.writeText(link);
+      if (done === undefined) return;
+      void done.then(
+        () => {
+          copy.textContent = 'Copied';
+          window.setTimeout(() => (copy.textContent = 'Copy'), 1200);
+        },
+        () => undefined,
+      );
+    });
+    const open = el('a', 'friend-link share-open', 'Open ↗') as HTMLAnchorElement;
+    open.href = link;
+    open.dataset['testid'] = 'share-open';
+    box.append(urlInput, copy, open);
+    return box;
+  };
+  publishBtn.addEventListener('click', () => {
+    if (syncAgent === null || syncAgent.did === undefined) {
+      shareSlot.replaceChildren(el('p', 'status', 'Sign in to publish and share your plan.'));
+      return;
+    }
+    const did = syncAgent.did;
+    const agent = syncAgent;
+    publishBtn.disabled = true;
+    shareSlot.replaceChildren(el('p', 'status', 'publishing…'));
+    void syncPlanToPds(agent, plan)
+      .then(() => {
+        const url = new URL('meals.html', window.location.href);
+        url.searchParams.set('mealplan', plan.id);
+        url.searchParams.set('user', did);
+        shareSlot.replaceChildren(renderShareLink(url.toString()));
+      })
+      .catch((err: unknown) => {
+        shareSlot.replaceChildren(el('p', 'status', `publish failed: ${String(err)}`));
+      })
+      .finally(() => {
+        publishBtn.disabled = false;
+      });
+  });
+  shareSection.append(publishBtn, shareSlot);
+  content.append(shareSection);
 
   const persist = (): void => {
     plan = store.save(
@@ -342,39 +547,9 @@ export const main = async (
   });
 
   const renderCalendar = (): void => {
-    calBody.replaceChildren();
-    const anyPlanned = plan.weeks.some((w) => w.days.some((s) => s.recipe !== undefined));
-    if (!anyPlanned) {
-      const empty = el(
-        'p',
-        'empty-state',
-        'Nothing planned yet — place a recipe on a day to see your calendar.',
-      );
-      empty.dataset['testid'] = 'calendar-empty';
-      calBody.append(empty);
-      return;
-    }
-    for (const cw of expandCalendar(plan.weeks)) {
-      const src = plan.weeks[cw.week - 1];
-      if (src === undefined) continue;
-      const row = el('div', 'cal-week');
-      row.dataset['testid'] = 'cal-week';
-      row.dataset['week'] = String(cw.week);
-      const label = src.repeat > 1 ? `Week ${cw.week} · ${cw.rep} of ${src.repeat}` : `Week ${cw.week}`;
-      row.append(el('div', 'cal-week-label', label));
-      const daysEl = el('div', 'cal-days');
-      src.days.forEach((slot, di) => {
-        const cell = el('div', 'cal-day');
-        cell.append(el('span', 'day-label', DAY_LABELS[di]));
-        if (slot.recipe !== undefined) {
-          cell.classList.add('day--filled');
-          cell.append(el('span', 'cal-slot', slot.recipe.name));
-        }
-        daysEl.append(cell);
-      });
-      row.append(daysEl);
-      calBody.append(row);
-    }
+    // The planner calendar shows names (not links); dates appear once a start
+    // date is set. Same builder as the shared view (buildCalendarRows).
+    calBody.replaceChildren(...buildCalendarRows(plan, { linkRecipes: false }));
   };
 
   const renderBuilder = (): void => {

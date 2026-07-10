@@ -93,6 +93,25 @@ const planFromRecord = (uri: string, value: Record<string, unknown>): LocalPlan 
   };
 };
 
+/** Read a single synced plan by rkey via public `getRecord` — the read path for
+ *  a shared plan link (`meals.html?mealplan=<rkey>&user=<did>`), which any
+ *  visitor (including anon) can open. Throws on a missing/unreadable record or a
+ *  record that fails meal-plan validation. */
+export const getPdsPlan = async (
+  pds: string,
+  did: string,
+  rkey: string,
+  opts: { fetchFn?: typeof fetch } = {},
+): Promise<LocalPlan> => {
+  const fetchFn = opts.fetchFn ?? fetch;
+  const res = await fetchFn(
+    `${pds}/xrpc/com.atproto.repo.getRecord?repo=${encodeURIComponent(did)}&collection=${MEAL_PLAN_COLLECTION}&rkey=${encodeURIComponent(rkey)}`,
+  );
+  if (!res.ok) throw new Error(`meal-plan get failed (HTTP ${res.status})`);
+  const body = (await res.json()) as { uri: string; value: Record<string, unknown> };
+  return planFromRecord(body.uri, body.value);
+};
+
 /** Pull the account's synced plans (public read of own repo); skip malformed. */
 export const listPdsPlans = async (
   pds: string,

@@ -132,7 +132,8 @@ test('@live drafts survive eviction; edits version; stale caches refresh', async
   await expect(page.getByTestId('editor-name')).toHaveValue(name, { timeout: 15_000 });
   await page.getByTestId('editor-text').fill('Written to survive. Now revised.');
   await page.getByTestId('publish').click();
-  await expect(page).toHaveURL(/mine\.html/, { timeout: 60_000 });
+  // An in-place edit returns you to the recipe you came from (not Alchemy).
+  await expect(page).toHaveURL(/recipe\.html/, { timeout: 60_000 });
 
   // Device B revisits: cache serves v1, the background check notices v2.
   await pageB.reload();

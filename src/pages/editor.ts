@@ -278,7 +278,13 @@ const main = async (): Promise<void> => {
           await removeDraftFromPds(boundAgent, draftId);
         }
         status.textContent = `published ${uri}`;
-        window.location.href = './mine.html';
+        // Edit mode returns you to the (now-updated) recipe you came from — you
+        // edited your recipe, so land back on it. A fresh publish goes to Alchemy
+        // (your workspace) as before.
+        window.location.href =
+          editContext === null
+            ? './mine.html'
+            : `./recipe.html?u=${encodeURIComponent(uri)}`;
       })().catch((err: unknown) => {
         const message = err instanceof Error ? err.message : String(err);
         log.error('recipes', 'publish failed', { error: message });

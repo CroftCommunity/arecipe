@@ -117,3 +117,66 @@ test('@live meal plan syncs to the PDS and survives eviction', async ({ page, ba
 
   await purge();
 });
+
+test('@live publish a plan, then open the shared link anonymously', async ({
+  page,
+  browser,
+  baseURL,
+}) => {
+  test.skip(
+    HANDLE === '' || PASSWORD === '' || APP_PASSWORD === '',
+    'needs BSKY_TEST_* credentials in .env',
+  );
+  test.setTimeout(300_000);
+  await purge();
+  const origin = baseURL ?? 'http://127.0.0.1:4173';
+
+  await page.addInitScript((seed) => {
+    try {
+      localStorage.setItem('arecipe.meals.palette-seed', JSON.stringify(seed));
+    } catch {
+      /* ignore */
+    }
+  }, SEED);
+
+  await signIn(page, { handle: HANDLE, password: PASSWORD, origin });
+  await page.goto('/meals.html');
+  // Name the plan (MARKER) so cleanup can find the record.
+  await page.evaluate((marker) => {
+    try {
+      const raw = localStorage.getItem('arecipe.mealplans.v1');
+      const all = raw === null ? {} : (JSON.parse(raw) as Record<string, { name: string }>);
+      for (const id of Object.keys(all)) all[id]!.name = `Shared Plan (${marker})`;
+      localStorage.setItem('arecipe.mealplans.v1', JSON.stringify(all));
+    } catch {
+      /* ignore */
+    }
+  }, MARKER);
+  await page.goto('/meals.html');
+
+  // Place a recipe and anchor a start date, then Publish & share.
+  await page.getByTestId('palette-chip').first().click();
+  await page.getByTestId('week-row').first().getByTestId('day-slot').first().click();
+  await page.getByTestId('plan-start-date').fill('2026-07-13');
+  await page.getByTestId('publish-plan').click();
+
+  const shareUrl = page.getByTestId('share-url');
+  await expect(shareUrl).toBeVisible({ timeout: 30_000 });
+  const url = await shareUrl.inputValue();
+  expect(url).toContain('mealplan=');
+  expect(url).toContain('user=');
+
+  // Open the link in a fresh ANONYMOUS context (no session) — the shared,
+  // read-only calendar must render with each meal linking to its recipe.
+  const anon = await browser.newContext();
+  const anonPage = await anon.newPage();
+  await anonPage.goto(url);
+  await expect(anonPage.getByTestId('shared-plan')).toBeVisible({ timeout: 30_000 });
+  await expect(anonPage.getByTestId('cal-week').first()).toContainText('Jul 13', { timeout: 30_000 });
+  const meal = anonPage.getByTestId('shared-meal').first();
+  await expect(meal).toBeVisible({ timeout: 30_000 });
+  await expect(meal).toHaveAttribute('href', /recipe\.html\?u=/);
+  await anon.close();
+
+  await purge();
+});

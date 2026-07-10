@@ -6,6 +6,7 @@ import type { Agent } from '@atproto/api';
 import { describe, expect, it, vi } from 'vitest';
 import type { LocalPlan } from '../../../src/recipes/meal-plan-local.js';
 import {
+  getPdsPlan,
   listPdsPlans,
   planToRecord,
   syncPlanToPds,
@@ -87,5 +88,35 @@ describe('listPdsPlans', () => {
   it('throws on a non-ok list response', async () => {
     const fetchFn = (async () => ({ ok: false, status: 500 })) as unknown as typeof fetch;
     await expect(listPdsPlans('https://pds.test', 'did:me', { fetchFn })).rejects.toThrow();
+  });
+});
+
+describe('getPdsPlan', () => {
+  it('reads one plan by rkey (public getRecord) and recovers the buffer shape', async () => {
+    let calledUrl = '';
+    const fetchFn = (async (url: string) => {
+      calledUrl = url;
+      return {
+        ok: true,
+        json: async () => ({
+          uri: 'at://did:me/app.arecipe.mealPlan/plan-1',
+          value: planToRecord(aPlan()),
+        }),
+      };
+    }) as unknown as typeof fetch;
+
+    const plan = await getPdsPlan('https://pds.test', 'did:me', 'plan-1', { fetchFn });
+    expect(calledUrl).toContain('com.atproto.repo.getRecord');
+    expect(calledUrl).toContain('rkey=plan-1');
+    expect(plan.id).toBe('plan-1');
+    expect(plan.name).toBe('Week');
+    expect(plan.weeks[0]?.days[0]?.recipe?.name).toBe('Lasagna');
+  });
+
+  it('throws on a non-ok getRecord response (plan not found)', async () => {
+    const fetchFn = (async () => ({ ok: false, status: 404 })) as unknown as typeof fetch;
+    await expect(
+      getPdsPlan('https://pds.test', 'did:me', 'missing', { fetchFn }),
+    ).rejects.toThrow();
   });
 });

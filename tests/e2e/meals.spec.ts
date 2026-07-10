@@ -276,3 +276,83 @@ test('add-a-cook typeahead: picking a suggestion grows the palette pool (wiring)
   await options.first().click();
   await expect.poll(() => paletteTotal(page)).toBeGreaterThan(beforeTotal);
 });
+
+test('planner: setting a start date lays the calendar out on real dates', async ({ page }) => {
+  await seedPalette(page);
+  await page.goto('/meals.html');
+
+  // Place Lasagna on Monday so the calendar renders.
+  await page.getByTestId('palette-chip').filter({ hasText: 'Lasagna' }).click();
+  await page.getByTestId('week-row').first().getByTestId('day-slot').first().click();
+  // Anchor the first Monday → the week label becomes a real date range.
+  await page.getByTestId('plan-start-date').fill('2026-07-13');
+  await expect(page.getByTestId('cal-week').first()).toContainText('Jul 13');
+});
+
+test('shared view: ?mealplan=&user= renders a read-only, dated calendar linking each meal', async ({
+  page,
+}) => {
+  const OWNER = 'did:plc:planowner00000000000000';
+  await page.route('https://plc.directory/**', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        id: OWNER,
+        service: [
+          { id: '#atproto_pds', type: 'AtprotoPersonalDataServer', serviceEndpoint: 'https://pds.test' },
+        ],
+      }),
+    }),
+  );
+  await page.route('https://pds.test/**', async (route) => {
+    if (new URL(route.request().url()).pathname.includes('getRecord')) {
+      const value = {
+        $type: 'app.arecipe.mealPlan',
+        name: 'Shared Week',
+        startDate: '2026-07-13',
+        createdAt: '2026-07-10T00:00:00.000Z',
+        updatedAt: '2026-07-10T00:00:00.000Z',
+        weeks: [
+          {
+            repeat: 1,
+            days: [
+              {
+                recipe: { uri: 'at://did:plc:cook/exchange.recipe.recipe/lasagna', cid: 'bafylasagna' },
+                name: 'Lasagna',
+              },
+              ...Array.from({ length: 6 }, () => ({})),
+            ],
+          },
+        ],
+      };
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ uri: `at://${OWNER}/app.arecipe.mealPlan/plan-1`, value }),
+      });
+    }
+    return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ records: [] }) });
+  });
+
+  await page.goto(`/meals.html?mealplan=plan-1&user=${encodeURIComponent(OWNER)}`);
+
+  // The shared, read-only surface: the plan name + calendar, and NO planner.
+  await expect(page.getByTestId('shared-plan')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole('heading', { name: 'Shared Week' })).toBeVisible();
+  await expect(page.getByTestId('palette')).toHaveCount(0);
+  await expect(page.getByTestId('builder')).toHaveCount(0);
+
+  // Anchored on 2026-07-13 → the week label carries real dates.
+  await expect(page.getByTestId('cal-week').first()).toContainText('Jul 13');
+
+  // Each placed meal links to its recipe.
+  const meal = page.getByTestId('shared-meal').filter({ hasText: 'Lasagna' });
+  await expect(meal).toHaveCount(1);
+  await expect(meal).toHaveAttribute('href', /recipe\.html\?u=/);
+});
+
+test('shared view: a link without a user param explains what is missing', async ({ page }) => {
+  await page.goto('/meals.html?mealplan=plan-1');
+  await expect(page.getByTestId('shared-plan')).toContainText('needs a “user”', { timeout: 15_000 });
+});

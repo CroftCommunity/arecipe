@@ -1,6 +1,23 @@
 # Meal plans — date-aligned publish + a shareable, anon-readable calendar
 
-**Status:** 📋 Proposed (not started) — created 2026-07-10.
+**Status:** ✅ **Shipped 2026-07-10.** All phases landed; decisions taken as the
+leanings below (same live `mealPlan` record, `mealplan`=rkey, `user`=DID-or-handle,
+floating date-only, single-plan). Verified: unit (date core `meal-plan-dates`,
+`getPdsPlan`), hermetic e2e (planner dates + shared read-only view + missing-user
+message), and `@live` (publish → open the link anonymously, real PDS round-trip).
+
+## Outcome Summary
+
+| Phase | Outcome | Note |
+|---|---|---|
+| 0 Discovery | ✅ | `planToRecord`/`planFromRecord` already round-trip `startDate`; read path is public `getRecord` — added `getPdsPlan` to reuse the existing validating mapper. |
+| 1 Date core | ✅ | `src/recipes/meal-plan-dates.ts` (`addDays`, `dateForSlot`, `formatShortDate`) — pure, floating/UTC, 9 unit tests (month/year/leap boundaries, invalid anchors). |
+| 2 Start-date control | ✅ | Date input on the planner (`plan-start-date`) → `plan.startDate` (persist + PDS write-through); the shared `buildCalendarRows` labels days with real dates when anchored. Hermetic e2e. |
+| 3 Publish + share | ✅ | "Publish & share" (`publish-plan`) syncs the plan and surfaces a copyable `meals.html?mealplan=<rkey>&user=<did>` link. `@live`-verified. |
+| 4 Read-only shared view | ✅ | `meals.html?mealplan=&user=` branch resolves the owner (DID or handle), reads the plan via `getPdsPlan`, and renders a calendar-only page where each meal links to its recipe — anon-friendly. Hermetic e2e over routed `getRecord` fixtures + `@live` anon open. |
+| 5 Polish | ✅ | Missing-`user` guidance message; error state on unresolvable owner / not-found plan. `startDate` was already in the lexicon (no `LEXICONS.md` change). |
+
+
 
 ## Problem Statement
 
