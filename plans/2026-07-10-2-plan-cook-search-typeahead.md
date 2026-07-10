@@ -5,7 +5,7 @@ phases shipped; nothing skipped or deferred. Rebased onto the updated main
 (`e714600`) after a concurrent agent landed work there — only `styles.css`
 conflicted (both blocks kept); `browse.ts`/`meals.ts`/`TODO.md` auto-merged.
 Full gate re-run green on the rebased tree: lint · typecheck · 322 unit · 109
-e2e. Not yet pushed (awaiting user).
+e2e. Pushed to `origin/main` via fast-forward (2026-07-10).
 
 ## Outcome Summary
 
@@ -459,7 +459,8 @@ either box shows live account suggestions; picking one loads that cook's recipes
 Tests: 21 new unit + 3 new e2e wiring; full suite green post-rebase (lint,
 typecheck, 322 unit — includes the other agent's new tests, 109 e2e). No CSP
 change. Commits (post-rebase): `27d7184`, `9c07674`, `801822c`, `8dce493`
-(+ per-phase plan-sync docs commits). Not pushed.
+(+ per-phase plan-sync docs commits). Pushed to `origin/main` via fast-forward
+(`e714600..219a5a7`).
 **Stopped or skipped:** Nothing. All four planned phases shipped.
 **Discoveries:** (1) The worktree had no `node_modules` (worktrees don't share
 gitignored files) and the `node_modules` symlink isn't covered by the dir-shaped
