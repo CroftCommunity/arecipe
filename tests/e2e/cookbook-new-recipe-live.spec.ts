@@ -16,6 +16,8 @@ test('@live New Recipe on own Cookbook opens the editor', async ({ page, baseURL
   await expect(page.getByTestId('signed-in-did')).toContainText(TEST_DID, { timeout: 30_000 });
 
   await page.goto('/cookbook.html');
+  // SWR content-freshness note renders on the own signed-in cookbook.
+  await expect(page.getByTestId('cookbook-freshness')).toContainText('as of', { timeout: 30_000 });
   const newRecipe = page.getByTestId('cookbook-new-recipe');
   await expect(newRecipe).toBeVisible({ timeout: 30_000 });
   await expect(newRecipe).toHaveAttribute('href', /editor\.html$/);

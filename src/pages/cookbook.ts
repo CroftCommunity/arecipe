@@ -24,7 +24,8 @@ import { createReachPrefs } from '../social/reach.js';
 import { loadAuthorsFeed } from '../social/feed.js';
 import { listInteractionsFor } from '../social/interactions.js';
 import { loadLikedFeed } from '../social/liked-feed.js';
-import { type CachedRecipe } from '../recipes/cache.js';
+import { readFeedMeta, relativeFreshness, writeFeedMeta } from '../social/cookbook-feed-cache.js';
+import { createRecipeCache, type CachedRecipe } from '../recipes/cache.js';
 import { availableFacets, createBrowsePrefs, matchesFilter, type BrowseState } from './browse-state.js';
 import { renderToolbar } from '../recipes/toolbar.js';
 import { renderRecipeDetailsList, renderRecipeList } from '../recipes/view.js';
@@ -45,15 +46,26 @@ const el = (tag: string, className?: string, text?: string): HTMLElement => {
  * concern, so the cookbook filter ignores it). */
 const didOf = (uri: string): string => uri.split('/')[2] ?? '';
 
+type FeedViewController = {
+  /** Swap the feed data + freshness stamp in place (background revalidate). */
+  update: (entries: CachedRecipe[], authorsByDid: Record<string, string>, fetchedAt: string) => void;
+};
+
 const renderFeedView = (
   container: HTMLElement,
   feedContainer: HTMLElement,
-  entries: CachedRecipe[],
-  authorsByDid: Record<string, string>,
+  initialEntries: CachedRecipe[],
+  initialAuthorsByDid: Record<string, string>,
   viewer?: { did: string; pds: string },
-): void => {
+  initialFetchedAt?: string | null,
+): FeedViewController => {
   const prefs = createBrowsePrefs({ prefix: 'cookbook' });
   let state = prefs.load();
+  // Feed data is mutable so a background revalidate can swap it in place without
+  // rebuilding the toolbar/source-control chrome (built once below).
+  let entries = initialEntries;
+  let authorsByDid = initialAuthorsByDid;
+  let fetchedAt: string | null = initialFetchedAt ?? null;
 
   // Source filter (OQ6, own signed-in cookbook only): All = the loaded
   // members+you feed; Mine = that feed filtered to your DID; Liked = a SEPARATE
@@ -211,7 +223,27 @@ const renderFeedView = (
     container.insertBefore(row, toolbar.element);
   }
 
+  // Content-freshness note at the bottom (SWR): a cache-first paint shows the
+  // stale time ("as of 2 hr ago"); the silent background revalidate updates it.
+  const freshness = el('p', 'status content-freshness');
+  freshness.dataset['testid'] = 'cookbook-freshness';
+  const updateFreshness = (): void => {
+    freshness.textContent = fetchedAt === null ? '' : `Cookbook · as of ${relativeFreshness(fetchedAt, Date.now())}`;
+  };
+  container.append(freshness);
+  updateFreshness();
+
   showCurrent();
+
+  return {
+    update: (nextEntries, nextAuthorsByDid, nextFetchedAt) => {
+      entries = nextEntries;
+      authorsByDid = nextAuthorsByDid;
+      fetchedAt = nextFetchedAt;
+      updateFreshness();
+      showCurrent();
+    },
+  };
 };
 
 /** Resolve a cookbook's members → authors, load their recipes, and mount the
@@ -224,20 +256,53 @@ const showFeed = async (
   you: { did: string; pds: string },
   opts: { config?: ReachConfig; isOwn?: boolean } = {},
 ): Promise<void> => {
-  const members = await resolveCookbook(opts.config === undefined ? { you } : { you, config: opts.config });
-  const authors = await membersToAuthors(members);
-  if (authors.length === 0) {
-    feedContainer.replaceChildren(
-      el('p', 'empty-state', 'When the cooks in your cookbook publish recipes, they show up here.'),
-    );
-    return;
+  const viewer = opts.isOwn === true ? you : undefined;
+  let controller: FeedViewController | null = null;
+
+  // 1) Cache-first paint: if we've resolved this cookbook before, render the
+  //    persisted authors' recipes straight from the IndexedDB cache — instant,
+  //    no network. The freshness note shows how stale it is.
+  const meta = readFeedMeta(you.did);
+  if (meta !== null && meta.authors.length > 0) {
+    try {
+      const memberDids = new Set(meta.authors.map((a) => a.did));
+      const cachedEntries = (await createRecipeCache().list()).filter((e) =>
+        memberDids.has(didOf(e.uri)),
+      );
+      const authorsByDid = Object.fromEntries(meta.authors.map((a) => [a.did, a.handle]));
+      controller = renderFeedView(container, feedContainer, cachedEntries, authorsByDid, viewer, meta.fetchedAt);
+    } catch (err) {
+      log.warn('cookbook', 'cache-first paint failed', { error: String(err) });
+    }
   }
-  const feed = await loadAuthorsFeed(authors);
-  if (feed.failedAuthors.length > 0) {
-    log.warn('cookbook', 'some cooks unavailable', { failed: feed.failedAuthors });
+
+  // 2) Revalidate in the background (or the foreground on a cold first visit).
+  try {
+    const members = await resolveCookbook(opts.config === undefined ? { you } : { you, config: opts.config });
+    const authors = await membersToAuthors(members);
+    if (authors.length === 0) {
+      feedContainer.replaceChildren(
+        el('p', 'empty-state', 'When the cooks in your cookbook publish recipes, they show up here.'),
+      );
+      return;
+    }
+    const feed = await loadAuthorsFeed(authors);
+    if (feed.failedAuthors.length > 0) {
+      log.warn('cookbook', 'some cooks unavailable', { failed: feed.failedAuthors });
+    }
+    const now = new Date().toISOString();
+    writeFeedMeta(you.did, authors, now);
+    if (controller !== null) controller.update(feed.entries, feed.authorsByDid, now);
+    else renderFeedView(container, feedContainer, feed.entries, feed.authorsByDid, viewer, now);
+  } catch (err) {
+    // Revalidate failed. If we already painted from cache, keep that stale view
+    // (offline resilience — the freshness note still shows how old it is);
+    // otherwise there's nothing to show.
+    log.warn('cookbook', 'feed revalidate failed', { error: String(err) });
+    if (controller === null) {
+      feedContainer.replaceChildren(el('p', 'status', `couldn’t load your cookbook: ${String(err)}`));
+    }
   }
-  // The source control (All/Mine/Liked) is the viewer's own cookbook only.
-  renderFeedView(container, feedContainer, feed.entries, feed.authorsByDid, opts.isOwn === true ? you : undefined);
 };
 
 const main = async (): Promise<void> => {

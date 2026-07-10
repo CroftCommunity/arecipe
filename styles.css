@@ -741,6 +741,13 @@ a {
   margin-bottom: var(--s-2);
 }
 
+/* Content-freshness note at the bottom of the Cookbook (SWR "as of …"). Quiet,
+   centred, set off from the feed — a companion to the build stamp below it. */
+.content-freshness {
+  margin-top: var(--s-5);
+  text-align: center;
+}
+
 .card .card-title {
   text-decoration: none;
 }

@@ -128,6 +128,31 @@ test('cookbook cold-view has the shared toolbar driving the feed (Phase 8 wiring
   await expect(page.locator('[data-testid="cookbook-feed"] .recipe-rows')).toHaveCount(0);
 });
 
+test('cold-view shows a content-freshness note and paints from cache while the revalidate stalls (SWR)', async ({
+  page,
+}) => {
+  // First visit populates the persisted author meta (localStorage) + the recipe
+  // cache (IndexedDB), and shows the freshness note.
+  await routeCookbookFixtures(page);
+  await page.goto(`/cookbook.html?did=${encodeURIComponent(VIEWED.did)}`);
+  await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId('cookbook-freshness')).toContainText('as of', { timeout: 15_000 });
+  const persisted = await page.evaluate(
+    (did) => localStorage.getItem(`cookbook-feed:${did}`),
+    VIEWED.did,
+  );
+  expect(persisted).toContain(FOLLOW.did); // author set persisted for the next paint
+
+  // Second visit: keep plc.directory (DID resolve) working, but STALL the feed
+  // sources so the background revalidate never completes. The cache-first paint
+  // must still render the feed from IndexedDB — no stall waiting on the network.
+  for (const pds of Object.values(pdsByDid)) await page.route(`${pds}/**`, () => {}); // hang
+  await page.route('https://public.api.bsky.app/**', () => {}); // hang
+  await page.goto(`/cookbook.html?did=${encodeURIComponent(VIEWED.did)}`);
+  await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByTestId('cookbook-freshness')).toContainText('as of');
+});
+
 test('legacy friends.html redirects to cookbook.html (query preserved)', async ({ page }) => {
   await page.goto(`/friends.html?did=${encodeURIComponent(VIEWED.did)}`);
   await expect(page).toHaveURL(new RegExp(`/cookbook\\.html\\?did=`), { timeout: 15_000 });
