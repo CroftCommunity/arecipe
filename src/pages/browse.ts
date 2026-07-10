@@ -16,6 +16,7 @@ import { createStarterPrefs, loadStarterFeed } from '../recipes/starter.js';
 import { createRecipeReader } from '../recipes/read.js';
 import { createDietPreference } from '../recipes/diet-preference.js';
 import { availableFacets, createBrowsePrefs, matchesFilter, recipeFacets, type BrowseState } from './browse-state.js';
+import { createTastePreference, matchesTaste } from '../recipes/taste-preference.js';
 import {
   extensionFor,
   mimeFor,
@@ -53,6 +54,7 @@ const main = (): void => {
   // diet preference (set in Settings, read here). renderCurrent applies both.
   const browsePrefs = createBrowsePrefs(); // prefix 'browse' (default) — keys unchanged
   const dietPreference = createDietPreference();
+  const tastePreference = createTastePreference();
   let state: BrowseState = browsePrefs.load();
 
   // Only the newest action may render: slow async loads (the starter feed) must
@@ -106,7 +108,12 @@ const main = (): void => {
     const kept = withoutHidden(current?.entries ?? []);
     const diet = dietPreference.load();
     const effective = effectiveState();
-    const shown = kept.filter((e) => matchesFilter(e.value, { state: effective, diet }));
+    // The standing taste preference (Only/Never by meal + cuisine) applies on top
+    // of the transient facet filters — an app-wide personal default.
+    const taste = tastePreference.load();
+    const shown = kept.filter(
+      (e) => matchesFilter(e.value, { state: effective, diet }) && matchesTaste(recipeFacets(e.value), taste),
+    );
     return { kept, shown, effective, diet };
   };
 

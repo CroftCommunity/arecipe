@@ -310,3 +310,22 @@ test('cook typeahead does not fire below the minimum query length', async ({ pag
   await page.waitForTimeout(400);
   expect(typeaheadCalls).toBe(0);
 });
+
+test('taste preference: a "never" cuisine hides matching recipes app-wide (Browse)', async ({
+  page,
+}) => {
+  // Seed a standing "Never show me: Greek" taste preference before the app boots.
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'taste-preference',
+      JSON.stringify({ only: { cuisine: [], category: [] }, never: { cuisine: ['greek'], category: [] } }),
+    );
+  });
+  await routeMixedFeed(page);
+  await page.goto('/');
+  await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
+  // The two Greek recipes drop out; American + Italian remain.
+  await expect(page.getByTestId('recipe-item')).toHaveCount(2);
+  await expect(page.getByText('Greek Salad')).toHaveCount(0);
+  await expect(page.getByText('Greek Vegan Lunch Bowl')).toHaveCount(0);
+});

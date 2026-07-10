@@ -1904,3 +1904,36 @@ table.ref.pairs td.eq {
     min-width: 44px;
   }
 }
+
+/* ---- Account: taste preferences (Only show me / Never show me) ------------ */
+.taste-prefs .taste-bucket {
+  margin-top: var(--s-4);
+}
+.taste-bucket-title {
+  font-family: var(--display);
+  font-weight: 600;
+  margin: 0 0 var(--s-2);
+}
+.taste-group {
+  margin: var(--s-2) 0;
+}
+.taste-group-label {
+  display: block;
+  font-size: var(--t-caption);
+  opacity: 0.7;
+  margin-bottom: var(--s-1);
+}
+.taste-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1) var(--s-3);
+}
+.taste-option {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  font-size: var(--t-caption);
+}
+.taste-option input {
+  accent-color: var(--enamel);
+}

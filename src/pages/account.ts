@@ -9,6 +9,13 @@ import { mountShell } from '../nav.js';
 import { retryOnce } from '../retry.js';
 import { mountMembersList } from '../social/cookbook-members-view.js';
 import { createReachPrefs } from '../social/reach.js';
+import {
+  CUISINE_OPTIONS,
+  MEAL_OPTIONS,
+  createTastePreference,
+  type TasteOption,
+  type TastePreference,
+} from '../recipes/taste-preference.js';
 import { registerServiceWorker } from '../sw-register.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -16,6 +23,68 @@ const el = (tag: string, className?: string, text?: string): HTMLElement => {
   if (className !== undefined) node.className = className;
   if (text !== undefined) node.textContent = text;
   return node;
+};
+
+/** The standing taste filters (Only show me / Never show me, by meal + cuisine).
+ *  Device-local (createTastePreference), applied across Browse, Cookbook, and the
+ *  meal planner. Rendered on the account page as four checkbox groups. */
+const renderTastePrefs = (): HTMLElement => {
+  const store = createTastePreference();
+  let pref: TastePreference = store.load();
+
+  const section = el('section', 'settings-section taste-prefs');
+  section.dataset['testid'] = 'taste-prefs';
+  section.append(el('h3', 'section-title', 'Taste'));
+  section.append(
+    el(
+      'p',
+      'status',
+      'Standing filters applied everywhere — Browse, your Cookbook, and the meal planner. Leave empty to show everything.',
+    ),
+  );
+
+  const group = (
+    title: string,
+    options: readonly TasteOption[],
+    bucket: 'only' | 'never',
+    dim: 'category' | 'cuisine',
+  ): HTMLElement => {
+    const wrap = el('div', 'taste-group');
+    wrap.append(el('span', 'taste-group-label', title));
+    const opts = el('div', 'taste-options');
+    for (const o of options) {
+      const label = el('label', 'taste-option');
+      const box = document.createElement('input');
+      box.type = 'checkbox';
+      box.checked = pref[bucket][dim].includes(o.value);
+      box.dataset['testid'] = `taste-${bucket}-${dim}-${o.value.replace(/\s+/g, '-')}`;
+      box.addEventListener('change', () => {
+        const set = new Set(pref[bucket][dim]);
+        if (box.checked) set.add(o.value);
+        else set.delete(o.value);
+        pref = { ...pref, [bucket]: { ...pref[bucket], [dim]: [...set] } };
+        store.save(pref);
+      });
+      label.append(box, document.createTextNode(o.label));
+      opts.append(label);
+    }
+    wrap.append(opts);
+    return wrap;
+  };
+
+  const bucket = (title: string, key: 'only' | 'never'): HTMLElement => {
+    const b = el('div', 'taste-bucket');
+    b.dataset['testid'] = `taste-${key}`;
+    b.append(
+      el('h4', 'taste-bucket-title', title),
+      group('Meals', MEAL_OPTIONS, key, 'category'),
+      group('Cuisines', CUISINE_OPTIONS, key, 'cuisine'),
+    );
+    return b;
+  };
+
+  section.append(bucket('Only show me', 'only'), bucket('Never show me', 'never'));
+  return section;
 };
 
 const main = async (): Promise<void> => {
@@ -72,6 +141,10 @@ const main = async (): Promise<void> => {
     );
     content.append(signedOut);
   }
+
+  // Taste preferences are device-local (no account needed), so they render for
+  // everyone on the account page — signed in or out.
+  content.append(renderTastePrefs());
 
   mountShell(app, content);
   void mountBuildStamp(app);

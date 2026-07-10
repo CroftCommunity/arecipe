@@ -104,6 +104,24 @@ test('cookbook.html?did= renders the feed only — members moved to Account (OQ1
   await expect(page.getByTestId('cookbook-members')).toHaveCount(0);
 });
 
+test('taste preference: a "never" cuisine hides matching recipes in the cookbook feed', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'taste-preference',
+      JSON.stringify({ only: { cuisine: [], category: [] }, never: { cuisine: ['greek'], category: [] } }),
+    );
+  });
+  await routeCookbookFixtures(page);
+  await page.goto(`/cookbook.html?did=${encodeURIComponent(VIEWED.did)}`);
+  await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
+  // The mixed feed has two Greek recipes; the standing "Never: Greek" hides them.
+  await expect(page.getByText('Greek Salad')).toHaveCount(0);
+  await expect(page.getByText('Greek Vegan Lunch Bowl')).toHaveCount(0);
+  await expect(page.getByText('Italian Minestrone')).toBeVisible();
+});
+
 test('cookbook cold-view has the shared toolbar driving the feed (Phase 8 wiring)', async ({
   page,
 }) => {

@@ -18,6 +18,7 @@ import { mountShell } from '../nav.js';
 import { createResolver } from '../identity/resolve.js';
 import { expandCalendar } from '../recipes/meal-plan.js';
 import { dateForSlot, formatShortDate, weekRangeLabel } from '../recipes/meal-plan-dates.js';
+import { createTastePreference, matchesTaste } from '../recipes/taste-preference.js';
 import {
   createMealPlanStore,
   duplicateWeeks,
@@ -355,6 +356,7 @@ export const main = async (
   // Unfiltered, the palette shows one page (PALETTE_CAP) at a time; the arrows
   // step this offset so a browser can cycle recipes they'd not know to search.
   let paletteOffset = 0;
+  const tastePreference = createTastePreference();
   let you: { did: string; pds: string } | null = null;
 
   const content = el('section', 'panel');
@@ -550,10 +552,14 @@ export const main = async (
   };
 
   const combined = (): PaletteItem[] => {
+    const taste = tastePreference.load();
     const seen = new Set<string>();
     const out: PaletteItem[] = [];
     for (const it of [...sourceItems, ...addedItems]) {
       if (seen.has(it.uri)) continue;
+      // Apply the standing taste preference — a "never" cuisine/category keeps
+      // those recipes out of the placeable palette too (filter applies here).
+      if (!matchesTaste({ cuisine: it.cuisine ?? null, category: it.category ?? null }, taste)) continue;
       seen.add(it.uri);
       out.push(it);
     }

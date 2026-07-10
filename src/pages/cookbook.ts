@@ -27,7 +27,8 @@ import { listInteractionsFor } from '../social/interactions.js';
 import { loadLikedFeed } from '../social/liked-feed.js';
 import { readFeedMeta, relativeFreshness, writeFeedMeta } from '../social/cookbook-feed-cache.js';
 import { createRecipeCache, type CachedRecipe } from '../recipes/cache.js';
-import { availableFacets, createBrowsePrefs, matchesFilter, type BrowseState } from './browse-state.js';
+import { availableFacets, createBrowsePrefs, matchesFilter, recipeFacets, type BrowseState } from './browse-state.js';
+import { createTastePreference, matchesTaste } from '../recipes/taste-preference.js';
 import { renderToolbar } from '../recipes/toolbar.js';
 import { renderRecipeDetailsList, renderRecipeList } from '../recipes/view.js';
 import { registerServiceWorker } from '../sw-register.js';
@@ -64,6 +65,7 @@ const renderFeedView = (
   // Cookbook opens on Details (the reading-oriented view); Browse keeps its
   // tiles-first default. Persisted per-consumer, so a choice here is sticky.
   const prefs = createBrowsePrefs({ prefix: 'cookbook', defaultView: 'details' });
+  const tastePreference = createTastePreference();
   let state = prefs.load();
   // Feed data is mutable so a background revalidate can swap it in place without
   // rebuilding the toolbar/source-control chrome (built once below).
@@ -121,7 +123,10 @@ const renderFeedView = (
     }
     const base = activeEntries();
     const effective = effectiveState();
-    const shown = base.filter((e) => matchesFilter(e.value, { state: effective, diet: [] }));
+    const taste = tastePreference.load();
+    const shown = base.filter(
+      (e) => matchesFilter(e.value, { state: effective, diet: [] }) && matchesTaste(recipeFacets(e.value), taste),
+    );
     toolbar.setStatus(
       hasFilters(effective)
         ? `${shown.length} of ${base.length} shown`

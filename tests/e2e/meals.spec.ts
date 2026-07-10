@@ -46,12 +46,13 @@ const routeFeeds = async (page: Page): Promise<void> => {
 // Phase 5 palette injection: the page reads an optional localStorage seed
 // (`arecipe.meals.palette-seed`) as its default provider — inert in production
 // (empty until Phase 7 wires the real Cookbook/Browse providers), seeded here.
-const PALETTE = [
+type SeedItem = { uri: string; cid: string; name: string; cuisine?: string; category?: string };
+const PALETTE: SeedItem[] = [
   { uri: 'at://did:plc:cook/exchange.recipe.recipe/lasagna', cid: 'bafylasagna', name: 'Lasagna' },
   { uri: 'at://did:plc:cook/exchange.recipe.recipe/tacos', cid: 'bafytacos', name: 'Tacos' },
 ];
 
-const seedPalette = async (page: Page, items: typeof PALETTE = PALETTE): Promise<void> => {
+const seedPalette = async (page: Page, items: SeedItem[] = PALETTE): Promise<void> => {
   await page.addInitScript((seed) => {
     try {
       localStorage.setItem('arecipe.meals.palette-seed', JSON.stringify(seed));
@@ -396,4 +397,24 @@ test('published-plans subpage: signed out, it invites sign-in and offers a back 
   await page.goto('/meals.html?plans');
   await expect(page.getByTestId('published-plans')).toContainText('Sign in', { timeout: 15_000 });
   await expect(page.getByTestId('plans-back')).toHaveAttribute('href', /meals\.html$/);
+});
+
+test('taste preference: a "never" cuisine hides matching palette recipes (Meals)', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'taste-preference',
+      JSON.stringify({ only: { cuisine: [], category: [] }, never: { cuisine: ['mexican'], category: [] } }),
+    );
+  });
+  await seedPalette(page, [
+    { uri: 'at://did:plc:cook/exchange.recipe.recipe/lasagna', cid: 'bafylasagna', name: 'Lasagna', cuisine: 'italian' },
+    { uri: 'at://did:plc:cook/exchange.recipe.recipe/tacos', cid: 'bafytacos', name: 'Tacos', cuisine: 'mexican' },
+  ]);
+  await page.goto('/meals.html');
+  await expect(page.getByTestId('palette-chip').first()).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId('palette-chip').filter({ hasText: 'Lasagna' })).toHaveCount(1);
+  // "Never: Mexican" hides the taco chip from the placeable palette.
+  await expect(page.getByTestId('palette-chip').filter({ hasText: 'Tacos' })).toHaveCount(0);
 });

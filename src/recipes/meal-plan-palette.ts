@@ -11,6 +11,7 @@
 // starter feed + handle lookup + client-side filtering (see the plan).
 
 import { createResolver } from '../identity/resolve.js';
+import { recipeFacets } from '../pages/browse-state.js';
 import { log as defaultLogger, type Logger } from '../log.js';
 import { createRecipeReader } from './read.js';
 import { resolveCookbook, type CookbookMember, type ReachConfig } from '../social/cookbook.js';
@@ -18,8 +19,9 @@ import { membersToAuthors } from '../social/cookbook-members-view.js';
 import { loadAuthorsFeed, type FeedAuthor } from '../social/feed.js';
 import { createStarterPrefs, loadStarterFeed } from './starter.js';
 
-/** A placeable recipe: strong-ref material plus a display name. */
-export type PaletteItem = { uri: string; cid: string; name: string };
+/** A placeable recipe: strong-ref material plus a display name, and (when known)
+ *  its cuisine/category so the standing taste preference can filter the palette. */
+export type PaletteItem = { uri: string; cid: string; name: string; cuisine?: string; category?: string };
 
 /** A window over the palette for the pager: the visible slice plus the state
  * the prev/next arrows and "Showing X–Y of N" hint need. */
@@ -71,11 +73,16 @@ type Entry = { uri: string; cid: string; value: Record<string, unknown> };
 /** A feed source producing recipe entries (loadAuthorsFeed's structural core). */
 type FeedLoader = (authors: FeedAuthor[]) => Promise<{ entries: Entry[] }>;
 
-const toPaletteItem = (e: Entry): PaletteItem => ({
-  uri: e.uri,
-  cid: e.cid,
-  name: typeof e.value['name'] === 'string' ? (e.value['name'] as string) : '(untitled)',
-});
+const toPaletteItem = (e: Entry): PaletteItem => {
+  const facets = recipeFacets(e.value);
+  return {
+    uri: e.uri,
+    cid: e.cid,
+    name: typeof e.value['name'] === 'string' ? (e.value['name'] as string) : '(untitled)',
+    ...(facets.cuisine !== null ? { cuisine: facets.cuisine } : {}),
+    ...(facets.category !== null ? { category: facets.category } : {}),
+  };
+};
 
 // membersToAuthors is now imported from src/social/cookbook-members-view.js —
 // the recipe-cookbook-ui branch merged into main and exports it (Q3 resolved).
