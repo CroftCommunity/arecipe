@@ -364,9 +364,10 @@ test('shared view: ?mealplan=&user= renders a read-only, dated calendar linking 
 
   await page.goto(`/meals.html?mealplan=plan-1&user=${encodeURIComponent(OWNER)}`);
 
-  // The shared, read-only surface: the plan name + calendar, and NO planner.
+  // The shared, read-only surface: the plan titled by its DATE RANGE (not the
+  // generic name) + calendar, and NO planner.
   await expect(page.getByTestId('shared-plan')).toBeVisible({ timeout: 15_000 });
-  await expect(page.getByRole('heading', { name: 'Shared Week' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Jul 13 – Jul 19' })).toBeVisible();
   await expect(page.getByTestId('palette')).toHaveCount(0);
   await expect(page.getByTestId('builder')).toHaveCount(0);
 

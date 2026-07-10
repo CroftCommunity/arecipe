@@ -192,7 +192,7 @@ const showSharedPlan = async (
     }
     const plan = await getPdsPlan(pds, did, rkey);
     const head = el('div', 'shared-plan-head');
-    head.append(el('h3', 'palette-title', plan.name));
+    head.append(el('h3', 'palette-title', planTitle(plan)));
     const calendar = el('section', 'calendar');
     for (const row of buildCalendarRows(plan, { linkRecipes: true })) calendar.append(row);
     body.replaceChildren(head, calendar);
@@ -202,6 +202,11 @@ const showSharedPlan = async (
     body.replaceChildren(el('p', 'status', `couldn’t load this meal plan: ${String(err)}`));
   }
 };
+
+/** A plan's display title: its date range when anchored ("Jul 13 – Jul 19"),
+ *  else a week count — plans aren't hand-named, so the range reads better than
+ *  the generic "My meal plan". */
+const planTitle = (plan: LocalPlan): string => weekRangeLabel(plan.startDate, plan.weeks.length);
 
 /** "Jul 10, 2026" from an ISO timestamp (date only, floating). */
 const publishedLabel = (iso: string): string => {
@@ -262,14 +267,10 @@ const showPublishedPlans = async (app: HTMLElement): Promise<void> => {
         row.dataset['testid'] = 'plan-row';
 
         const info = el('div', 'plan-info');
-        const open = el('a', 'plan-link', plan.name) as HTMLAnchorElement;
+        const open = el('a', 'plan-link', planTitle(plan)) as HTMLAnchorElement;
         open.href = shareUrl.toString();
         open.dataset['testid'] = 'plan-open';
-        const meta = el(
-          'span',
-          'plan-meta',
-          `${weekRangeLabel(plan.startDate, plan.weeks.length)} · published ${publishedLabel(plan.updatedAt)}`,
-        );
+        const meta = el('span', 'plan-meta', `published ${publishedLabel(plan.updatedAt)}`);
         meta.dataset['testid'] = 'plan-meta';
         info.append(open, meta);
 

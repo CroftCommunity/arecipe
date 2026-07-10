@@ -222,17 +222,19 @@ test('@live "My plans" subpage lists a published plan, then deletes it', async (
   // share link, and can delete it.
   await page.getByTestId('my-plans').click();
   await expect(page).toHaveURL(/meals\.html\?plans$/);
-  const row = page.getByTestId('plan-row').filter({ hasText: `Managed Plan (${MARKER})` });
+  // Plans are titled by date range now (not the generic name), so filter the
+  // row by its published-date meta instead.
+  const row = page.getByTestId('plan-row').filter({ hasText: 'published' });
   await expect(row).toHaveCount(1, { timeout: 30_000 });
-  await expect(row.getByTestId('plan-open')).toHaveAttribute('href', /mealplan=.*user=/);
-  await expect(row.getByTestId('plan-meta')).toContainText('Jul 13');
+  const open = row.getByTestId('plan-open');
+  await expect(open).toHaveAttribute('href', /mealplan=.*user=/);
+  await expect(open).toContainText('Jul 13'); // date-range title
+  await expect(row.getByTestId('plan-meta')).toContainText('published');
 
   await row.getByTestId('plan-delete').click();
   await row.getByTestId('plan-delete-confirm').click();
-  await expect(page.getByTestId('plan-row').filter({ hasText: `Managed Plan (${MARKER})` })).toHaveCount(
-    0,
-    { timeout: 30_000 },
-  );
+  // Only this test's plan existed (purged at start), so the list empties.
+  await expect(page.getByTestId('plan-row')).toHaveCount(0, { timeout: 30_000 });
 
   await purge();
 });
