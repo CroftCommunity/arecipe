@@ -449,21 +449,57 @@ const paintVersion = (
       log.debug('recipes', 'revision check failed', { error: String(err) });
     });
   }
-  // Exclusion (mute-lite): quiet, reversible in Settings. Per-version.
+  // Exclusion (mute-lite): quiet, reversible in Settings. Per-version. The
+  // control sits inline on the recipe-title row (view.ts's .title-control-slot).
+  // Hiding takes an inline two-step confirm (OQ5 — no native dialog, testable
+  // in the hermetic tier); unhiding is one-tap.
   const exclusions = createExclusions();
-  const hideButton = document.createElement('button');
-  hideButton.type = 'button';
-  hideButton.className = 'button';
-  hideButton.dataset['testid'] = 'hide-recipe';
-  const label = (): string => (exclusions.isHidden(uri) ? 'Unhide this recipe' : 'Hide this recipe');
-  hideButton.textContent = label();
-  hideButton.addEventListener('click', () => {
-    if (exclusions.isHidden(uri)) exclusions.unhide(uri);
-    else exclusions.hide(uri);
-    hideButton.textContent = label();
-    log.info('exclusions', 'toggled', { uri, hidden: exclusions.isHidden(uri) });
-  });
-  host.append(hideButton);
+  const hideControl = el('div', 'hide-control');
+  const renderHideControl = (): void => {
+    hideControl.replaceChildren();
+    const primary = el('button', 'button') as HTMLButtonElement;
+    primary.type = 'button';
+    primary.dataset['testid'] = 'hide-recipe';
+    if (exclusions.isHidden(uri)) {
+      // Hidden → one-tap Unhide (no confirm).
+      primary.textContent = 'Unhide';
+      primary.addEventListener('click', () => {
+        exclusions.unhide(uri);
+        log.info('exclusions', 'unhidden', { uri });
+        renderHideControl();
+      });
+      hideControl.append(primary);
+      return;
+    }
+    // Visible → Hide, which swaps the control in place to a confirm affordance.
+    primary.textContent = 'Hide';
+    primary.addEventListener('click', () => {
+      hideControl.replaceChildren();
+      const note = el('span', 'hide-confirm-note', 'Hide? ');
+      const confirm = el('button', 'button', 'Confirm') as HTMLButtonElement;
+      confirm.type = 'button';
+      confirm.dataset['testid'] = 'hide-confirm';
+      confirm.addEventListener('click', () => {
+        exclusions.hide(uri);
+        log.info('exclusions', 'hidden', { uri });
+        renderHideControl();
+      });
+      const cancel = el('button', 'button', 'Cancel') as HTMLButtonElement;
+      cancel.type = 'button';
+      cancel.dataset['testid'] = 'hide-cancel';
+      cancel.addEventListener('click', () => renderHideControl());
+      hideControl.append(note, confirm, cancel);
+    });
+    hideControl.append(primary);
+  };
+  renderHideControl();
+  const slot = host.querySelector('.title-control-slot');
+  if (slot !== null) {
+    slot.append(hideControl);
+  } else {
+    log.warn('exclusions', 'title-control-slot missing — appending hide control to host');
+    host.append(hideControl);
+  }
 
   void mountComments(host, entry, uri, getAgent).catch((err: unknown) => {
     log.error('comments', 'comment section failed', { uri, error: String(err) });

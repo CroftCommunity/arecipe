@@ -167,3 +167,42 @@ test('intact cards are clean; detail carries the human provenance line', async (
   );
   await expect(page.getByTestId('provenance').first()).toContainText('fingerprint matches');
 });
+
+// Phase 4 wiring: "Hide" sits on the recipe-title row (right of the title) and
+// hiding takes an inline two-step confirm (no native dialog); Cancel reverts and
+// does NOT hide; Confirm hides (the control then offers one-tap Unhide). Both
+// edges asserted, exercised through the real recipe-page render.
+test('Hide on the title row: inline confirm hides, cancel reverts, unhide is one-tap (wiring)', async ({
+  page,
+}) => {
+  await routeFixtures(page);
+  const uri = `at://${AUTHOR_DID}/exchange.recipe.recipe/01JQJ5RW51ZVEW72XN6GSRWC8D`;
+  await page.goto(`/recipe.html?u=${encodeURIComponent(uri)}&by=somechef.example.com`);
+  await expect(page.locator('h2')).toContainText('White Chocolate', { timeout: 15_000 });
+
+  // The Hide control is inline on the title row, not a detached button below.
+  const control = page.locator('.recipe-title-row .title-control-slot');
+  const hide = control.getByTestId('hide-recipe');
+  await expect(hide).toHaveText('Hide');
+
+  // Click Hide → an inline confirm affordance (no native dialog), Hide gone.
+  await hide.click();
+  await expect(control.getByTestId('hide-confirm')).toBeVisible();
+  await expect(control.getByTestId('hide-cancel')).toBeVisible();
+  await expect(control.getByTestId('hide-recipe')).toHaveCount(0);
+
+  // Cancel reverts to "Hide" and does NOT hide (control still offers Hide).
+  await control.getByTestId('hide-cancel').click();
+  await expect(control.getByTestId('hide-recipe')).toHaveText('Hide');
+  await expect(control.getByTestId('hide-confirm')).toHaveCount(0);
+
+  // Hide → Confirm actually hides: the control flips to one-tap Unhide.
+  await control.getByTestId('hide-recipe').click();
+  await control.getByTestId('hide-confirm').click();
+  await expect(control.getByTestId('hide-recipe')).toHaveText('Unhide');
+
+  // Unhide is one-tap (no confirm) → back to Hide.
+  await control.getByTestId('hide-recipe').click();
+  await expect(control.getByTestId('hide-recipe')).toHaveText('Hide');
+  await expect(control.getByTestId('hide-confirm')).toHaveCount(0);
+});

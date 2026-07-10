@@ -22,11 +22,16 @@ Execution status (updated per phase; SHA recorded when the next phase commits):
   read-tolerated (filtered). Wiring test: `interactions.spec.ts` (`save-button`
   count 0) + unit read-tolerance. Hermetic green. **Note:** @live like-write is
   broken on rebased `main` (pre-existing, not this change — see Discovery entry).
-- ✅ **Phase 3** — like heart + count as a banner image overlay (upper-right).
-  `.like-overlay` mounted into `.photo-wrap--banner` via querySelector; scrim CSS.
-  Wiring test: `interactions.spec.ts` "overlays the banner image, upper-right"
-  (descendant + top-right bbox). Full gate green (228 unit / 92 e2e).
-- ⬜ Phases 4–11c — pending.
+- ✅ **Phase 3** (`0fdec11`) — like heart + count as a banner image overlay
+  (upper-right). `.like-overlay` mounted into `.photo-wrap--banner` via
+  querySelector; scrim CSS. Wiring test: `interactions.spec.ts` "overlays the
+  banner image, upper-right" (descendant + top-right bbox). Gate green.
+- ✅ **Phase 4** — "Hide" on the title row with inline two-step confirm; unhide
+  one-tap. `view.ts` adds `.recipe-title-row` + `.title-control-slot`; `recipe.ts`
+  builds the confirm control into the slot; `styles.css` flex row. Wiring test:
+  `recipes.spec.ts` "Hide on the title row" (confirm hides / cancel reverts /
+  unhide one-tap). Full gate green (228 unit / 93 e2e).
+- ⬜ Phases 5–11c — pending.
 
 ## Problem Statement
 
@@ -682,7 +687,20 @@ top-right spot on the no-photo placeholder (OQ7); 3) `npm test` green.
 `style=`/`.style`. Intact.
 **Stop-point.**
 
-### Phase 4: "Hide" on the title line, with confirmation
+### Phase 4: "Hide" on the title line, with confirmation — ✅ SHIPPED
+
+**Delivered (2026-07-09):** `view.ts` `renderRecipeDetail` now wraps the title in
+`.recipe-title-row` (h2 left + empty `.title-control-slot` right). `recipe.ts`
+`paintVersion` builds a `.hide-control` with an inline two-step confirm (Hide →
+"Hide? · Confirm / Cancel"; Confirm → `exclusions.hide` + `log.info`; Cancel →
+revert) and injects it into `host.querySelector('.title-control-slot')` —
+replacing the old detached `host.append(hideButton)`. Unhide stays one-tap (no
+confirm). Missing slot logs a warning + falls back to host append. `styles.css` —
+`.recipe-title-row` flex (title left, control right, wraps on narrow), `.hide-control`
+inline. Testids: `hide-recipe` (primary Hide/Unhide), `hide-confirm`, `hide-cancel`.
+Wiring test in `recipes.spec.ts` asserts title-row placement + both confirm edges
+(cancel does NOT hide; confirm flips to one-tap Unhide). RED watched, then GREEN.
+Full gate green: 228 unit, 93 e2e. Coexists with the Focus-button row (separate).
 
 **Goal:** A "Hide" control on the recipe-title row (far right), replacing the
 detached "Hide this recipe" button, gated by a confirmation.

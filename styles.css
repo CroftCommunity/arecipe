@@ -692,12 +692,41 @@ a {
   max-width: 52rem;
 }
 
+/* Title row: the recipe title on the left, a control slot (the Hide control)
+   pushed to the far right, baseline-aligned. Wraps on narrow screens so the
+   control drops below the title rather than overflowing. */
+.recipe-title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+
 .recipe-title {
   font-family: var(--display);
   font-weight: 600;
   font-size: 1.6rem;
   line-height: 1.2;
   margin: var(--s-4) 0 var(--s-2);
+}
+
+/* The Hide control lives in the title row's right-hand slot; its inline confirm
+   (Hide → "Hide? · Confirm / Cancel") keeps the buttons on one line. */
+.title-control-slot {
+  flex: none;
+}
+
+.hide-control {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.hide-confirm-note {
+  font-family: var(--body);
+  font-size: var(--t-caption);
+  opacity: 0.75;
 }
 
 .card .card-title {

@@ -489,7 +489,12 @@ export const renderRecipeDetail = (
     actions.append(focusBtn);
     article.append(actions);
   }
-  article.append(el('h2', 'recipe-title', value.name ?? '(untitled)'));
+  // Title row: title left, a control slot right (the recipe page injects the
+  // Hide control here so it sits inline with the title — see recipe.ts).
+  const titleRow = el('div', 'recipe-title-row');
+  titleRow.append(el('h2', 'recipe-title', value.name ?? '(untitled)'));
+  titleRow.append(el('div', 'title-control-slot'));
+  article.append(titleRow);
   const chips = chipsEl(value);
   if (chips !== null) article.append(chips);
   if (!entry.verified) article.append(alteredWarningEl());
