@@ -1,0 +1,82 @@
+{
+  "lexicon": 1,
+  "id": "app.arecipe.mealPlan",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["name", "weeks", "createdAt", "updatedAt"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "langs": {
+            "type": "array",
+            "description": "BCP 47 language tags for the plan's textual content. Mirrors app.bsky.feed.post.langs.",
+            "maxLength": 3,
+            "items": { "type": "string", "format": "language" }
+          },
+          "startDate": {
+            "type": "string",
+            "description": "Optional ISO date (YYYY-MM-DD) for week 1. v1 renders relative week labels and ignores this; retained for a real-dates fast-follow."
+          },
+          "weeks": {
+            "type": "array",
+            "maxLength": 6,
+            "items": { "type": "ref", "ref": "#week" }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "datetime"
+          }
+        }
+      }
+    },
+    "week": {
+      "type": "object",
+      "required": ["days"],
+      "properties": {
+        "repeat": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 12,
+          "default": 1,
+          "description": "How many times this week stamps onto the expanded calendar, in order."
+        },
+        "days": {
+          "type": "array",
+          "minLength": 7,
+          "maxLength": 7,
+          "description": "Exactly 7 day slots (Monday–Sunday).",
+          "items": { "type": "ref", "ref": "#slot" }
+        }
+      }
+    },
+    "slot": {
+      "type": "object",
+      "description": "A single day cell. A strongRef cannot declare its target is a recipe (the same open-world caveat the doc records for consumed strongRefs); the app treats recipe as a recipe strongRef by construction.",
+      "properties": {
+        "recipe": {
+          "type": "ref",
+          "ref": "com.atproto.repo.strongRef",
+          "description": "Optional strongRef to the recipe placed on this day."
+        },
+        "note": {
+          "type": "string",
+          "maxLength": 500
+        }
+      }
+    }
+  }
+}

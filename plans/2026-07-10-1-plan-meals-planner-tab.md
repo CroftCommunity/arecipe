@@ -1,6 +1,6 @@
 # Meals — a meal-planner tab for arecipe
 
-**Status:** In execution (started 2026-07-10). Phase 0 ✅ · Phase 1 ✅ · Phase 2 ✅ · Phases 3–9 pending.
+**Status:** In execution (started 2026-07-10). Phase 0 ✅ · Phase 1 ✅ · Phase 2 ✅ · Phase 3 ✅ · Phases 4–9 pending.
 
 ## Outcome Summary
 
@@ -9,7 +9,7 @@
 | 0 Discovery | ✅ done | _(no code)_ | D1 structural PASS + D2/D3 verified; D1 live leg gated at Phase 9. |
 | 1 Route skeleton | ✅ shipped | `b115baf` | `meals.html` + `src/pages/meals.ts` mount the shared shell; registered in build; wiring e2e GREEN (90/90 e2e, 229/229 unit). |
 | 2 Nav tab | ✅ shipped | `c083884` | Meals is the 5th destination (order Browse·Cookbook·My recipes·Meals·Reference); mobile 5-tab overflow found + fixed in `styles.css`, guarded by a 360px e2e fit assertion. 91/91 e2e, unit OK. |
-| 3 Lexicon + model | ⬜ pending | — | |
+| 3 Lexicon + model | ✅ shipped | `<pending-p3>` | `src/recipes/meal-plan.ts` (types, `validateMealPlanValue`, `slotWithRecipe`, `expandCalendar`) + fixture + LEXICONS `planned` row. 11 model unit tests (boundaries: 6/7/8-day, repeat 0/1/12/13, expansion order). 243 unit total. Library phase — exports wired in P5/P6/P9 per the export→wiring map. |
 | 4 Local store | ⬜ pending | — | |
 | 5 Week builder + tap-to-place | ⬜ pending | — | |
 | 6 Calendar + repeat | ⬜ pending | — | |
@@ -506,7 +506,18 @@ glance for tab-bar fit.
 
 ---
 
-### Phase 3: Lexicon + model core (`app.arecipe.mealPlan`)
+### Phase 3: Lexicon + model core (`app.arecipe.mealPlan`) — ✅ SHIPPED (`<pending-p3>`)
+**Delivered (2026-07-10):** `src/recipes/meal-plan.ts` (`MEAL_PLAN_COLLECTION`,
+types `MealPlanValue`/`PlanWeek`/`PlanSlot`/`CalendarWeek`, open-world fail-loud
+`validateMealPlanValue` enforcing exactly-7-days, `slotWithRecipe` via
+`strongRefOf`, pure `expandCalendar` that clamps `repeat` into [1,12] and stamps
+in order); fixture `tests/fixtures/lexicons/app.arecipe.mealPlan.json`
+(`#week`/`#slot`, strongRef-collection caveat); `docs/LEXICONS.md` `planned` row.
+11 unit tests, RED→GREEN, with the Pass 3 boundaries (6/7/8-day, repeat 0/1/12/13,
+expansion order). typecheck + lint clean. **Library phase:** `meal-plan.ts` is not
+yet imported (no dead-code risk per plan — the export→wiring map binds
+`expandCalendar`→P6 and `validateMealPlanValue`/`slotWithRecipe`→P9; P4 imports the
+types).
 **Goal:** The record schema and a pure model module (types, validation, strongRef
 slot construction, calendar expansion) exist and are unit-tested.
 **Changes:**
