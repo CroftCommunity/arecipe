@@ -44,6 +44,26 @@ export type LocalPlanInput = {
   startDate?: string;
 };
 
+const cloneSlot = (slot: LocalSlot): LocalSlot => ({
+  ...(slot.recipe !== undefined ? { recipe: { ...slot.recipe } } : {}),
+  ...(slot.note !== undefined ? { note: slot.note } : {}),
+});
+
+const cloneWeek = (week: LocalWeek): LocalWeek => ({
+  repeat: week.repeat,
+  days: week.days.map(cloneSlot),
+});
+
+/** Append a deep copy of every currently-planned week — the "Repeat planned
+ * weeks" action, which duplicates the whole plan instead of adding a blank
+ * week. Pure: returns a new array with independent copies (editing a duplicate
+ * never mutates the source). If doubling would exceed `max`, the input is
+ * returned unchanged (the caller disables the control in that case). */
+export const duplicateWeeks = (weeks: LocalWeek[], max: number): LocalWeek[] => {
+  if (weeks.length === 0 || weeks.length * 2 > max) return weeks;
+  return [...weeks, ...weeks.map(cloneWeek)];
+};
+
 export type MealPlanStore = {
   list: () => LocalPlan[];
   get: (id: string) => LocalPlan | undefined;

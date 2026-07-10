@@ -29,6 +29,9 @@ const main = async (): Promise<void> => {
   if (agent !== null && provider !== null) {
     const who = el('p', 'status');
     who.dataset['testid'] = 'signed-in-did';
+    // Show the DID immediately (works even if the handle never resolves); the
+    // members load below resolves the DID document anyway, so we upgrade this to
+    // "@handle · did:…" — the username with the DID beside it — once it lands.
     who.textContent = `Signed in: ${agent.did ?? 'unknown'}`;
     const signOut = el('button', 'button', 'Sign out') as HTMLButtonElement;
     signOut.type = 'button';
@@ -49,7 +52,8 @@ const main = async (): Promise<void> => {
     if (did !== undefined) {
       void (async () => {
         try {
-          const { pds } = await retryOnce(() => resolveDidDoc(did));
+          const { pds, handle } = await retryOnce(() => resolveDidDoc(did));
+          if (handle !== null) who.textContent = `Signed in: ${handle} · ${did}`;
           await mountMembersList(membersSection, { did, pds }, createReachPrefs().load());
         } catch (err) {
           log.error('account', 'cookbook members load failed', { error: String(err) });

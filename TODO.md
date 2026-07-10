@@ -4,6 +4,24 @@ Actionable, not-yet-scheduled items. Feature deferrals with rationale live in
 `docs/BUILD-PLAN.md` § Deferred; this file is for tooling/QA follow-ups and
 loose ideas a later session can pick up.
 
+## Bugs
+
+- [ ] **Loopback (local dev) sessions can't refresh their token except on
+      signin.html.** The loopback OAuth `client_id` encodes the initiating
+      page's pathname (`src/auth/oauth-client.ts` `buildLoopbackMetadata` →
+      `redirect_uri` from `location.pathname`), so a token obtained on
+      `signin.html` is bound to signin.html's client. A token refresh on any
+      other page (`mine.html`, `account.html`, `cookbook.html`) is rejected with
+      "Token was not issued to this client" — and signin.html redirects away once
+      authed, so there is no reachable authed page that can refresh. Impact:
+      **local dev only** — once the access token expires, refresh fails across
+      pages. Production/hosted is unaffected (one fixed `client_id` from
+      `client-metadata.json`, shared by all pages). Surfaced by the `@live`
+      `two-tab-live` / `two-device-read` forceRefresh specs (marked `test.fixme`
+      until fixed). Fix direction: a stable loopback `client_id` across pages —
+      e.g. pin the loopback `redirect_uri` to one canonical page, or register all
+      page redirect_uris under a single client. _Noted 2026-07-10._
+
 ## Tooling / QA
 
 - [ ] **Evaluate `pwa-check` for PWA validation.**

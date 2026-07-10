@@ -49,6 +49,19 @@ describe('renderReference', () => {
     }
   });
 
+  it('wraps wide grid tables in a horizontal-scroll container (mobile-safe)', () => {
+    const root = renderReference();
+    // Grid charts (Roasting — Meat/Poultry, Can Sizes) have many columns; each
+    // sits in a .ref-scroll wrapper so a narrow viewport scrolls it instead of
+    // crushing the layout.
+    const gridTable = root.querySelector('section#roasting-meat table.ref');
+    expect(gridTable?.parentElement).not.toBeNull();
+    expect(gridTable?.parentElement?.classList.contains('ref-scroll')).toBe(true);
+    // Pair tables (two narrow columns) are NOT wrapped — they wrap naturally.
+    const pairTable = root.querySelector('section#weights-and-measures table.ref.pairs');
+    expect(pairTable?.parentElement?.classList.contains('ref-scroll')).toBe(false);
+  });
+
   it('transcribes key equivalences and chart values accurately', () => {
     const text = renderReference().textContent ?? '';
     // Weights & measures

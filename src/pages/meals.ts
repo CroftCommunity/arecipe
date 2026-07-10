@@ -17,6 +17,7 @@ import { mountShell } from '../nav.js';
 import { expandCalendar } from '../recipes/meal-plan.js';
 import {
   createMealPlanStore,
+  duplicateWeeks,
   type LocalPlan,
   type LocalWeek,
   type MealPlanStore,
@@ -26,6 +27,7 @@ import {
   loadCookbookPalette,
   loadHandlePalette,
   loadStarterPalette,
+  paginatePalette,
   type PaletteItem,
 } from '../recipes/meal-plan-palette.js';
 import { registerServiceWorker } from '../sw-register.js';
@@ -45,20 +47,16 @@ const el = (tag: string, className?: string, text?: string): HTMLElement => {
 
 const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const;
 const MAX_WEEKS = 6;
-const REPEAT_MIN = 1;
-const REPEAT_MAX = 12;
 const PALETTE_SEED_KEY = 'arecipe.meals.palette-seed';
 /** Unfiltered, the palette shows at most this many chips so it can't run down
- * half the page; the filter (type-ahead) searches the whole loaded set. */
+ * half the page; the pager arrows step through the rest, and the filter
+ * (type-ahead) searches the whole loaded set. */
 const PALETTE_CAP = 10;
 
+// Weeks keep a `repeat` field in the record (default 1) for the calendar
+// expansion; the UI no longer edits it — repetition is now "Repeat planned
+// weeks", which appends real week copies.
 const emptyWeek = (): LocalWeek => ({ repeat: 1, days: Array.from({ length: 7 }, () => ({})) });
-
-const clampRepeat = (raw: number): number => {
-  const n = Math.floor(raw);
-  if (!Number.isFinite(n) || n < REPEAT_MIN) return REPEAT_MIN;
-  return Math.min(REPEAT_MAX, n);
-};
 
 const sessionHintSignedIn = (): boolean => {
   try {
@@ -110,6 +108,9 @@ export const main = async (
   let sourceItems: PaletteItem[] = [];
   let addedItems: PaletteItem[] = [];
   let filterText = '';
+  // Unfiltered, the palette shows one page (PALETTE_CAP) at a time; the arrows
+  // step this offset so a browser can cycle recipes they'd not know to search.
+  let paletteOffset = 0;
   let you: { did: string; pds: string } | null = null;
 
   const content = el('section', 'panel');
@@ -156,9 +157,31 @@ export const main = async (
 
   const chips = el('div', 'palette-chips');
   palette.append(chips);
+  // Pager: ◀ / ▶ arrows flanking the "Showing X–Y of N" hint, so a browser can
+  // step through the unfiltered palette a page at a time — discovering recipes
+  // they wouldn't know to type. Hidden while filtering (the type-ahead already
+  // narrows) and when everything fits on one page.
+  const paging = el('div', 'palette-paging');
+  const prevBtn = el('button', 'palette-page-btn', '◀') as HTMLButtonElement;
+  prevBtn.type = 'button';
+  prevBtn.dataset['testid'] = 'palette-prev';
+  prevBtn.setAttribute('aria-label', 'Previous recipes');
   const chipsHint = el('p', 'status palette-hint');
   chipsHint.dataset['testid'] = 'palette-hint';
-  palette.append(chipsHint);
+  const nextBtn = el('button', 'palette-page-btn', '▶') as HTMLButtonElement;
+  nextBtn.type = 'button';
+  nextBtn.dataset['testid'] = 'palette-next';
+  nextBtn.setAttribute('aria-label', 'More recipes');
+  paging.append(prevBtn, chipsHint, nextBtn);
+  palette.append(paging);
+  prevBtn.addEventListener('click', () => {
+    paletteOffset = Math.max(0, paletteOffset - PALETTE_CAP);
+    renderChips();
+  });
+  nextBtn.addEventListener('click', () => {
+    paletteOffset += PALETTE_CAP;
+    renderChips();
+  });
 
   const builder = el('div', 'builder');
   builder.dataset['testid'] = 'builder';
@@ -201,15 +224,6 @@ export const main = async (
     return out;
   };
 
-  const matches = (): PaletteItem[] => {
-    const q = filterText.trim().toLowerCase();
-    const all = combined();
-    // Type-ahead searches the whole set; unfiltered, bound the list to the cap.
-    return q === '' ? all : all.filter((i) => i.name.toLowerCase().includes(q));
-  };
-  const shown = (): PaletteItem[] =>
-    filterText.trim() === '' ? matches().slice(0, PALETTE_CAP) : matches();
-
   const renderSourceSwitch = (): void => {
     cookbookBtn.classList.toggle('src-btn--active', source === 'cookbook');
     browseBtn.classList.toggle('src-btn--active', source === 'browse');
@@ -217,19 +231,27 @@ export const main = async (
 
   const renderChips = (): void => {
     chips.replaceChildren();
-    const list = shown();
-    const total = combined().length;
-    // Hint when the unfiltered list is capped — tells the user to type to reach
-    // the rest, so a bounded list never looks like the whole corpus.
-    chipsHint.textContent =
-      filterText.trim() === '' && total > list.length
-        ? `Showing ${list.length} of ${total} — type to filter.`
-        : '';
-    if (list.length === 0) {
+    const page = paginatePalette(combined(), {
+      query: filterText,
+      cap: PALETTE_CAP,
+      offset: paletteOffset,
+    });
+    const filtering = filterText.trim() !== '';
+    // Sync the offset to the window paginatePalette actually returned (it clamps
+    // a stale offset to the last page), so the arrows step from the right place.
+    paletteOffset = filtering ? 0 : Math.max(0, page.start - 1);
+    // Pager is meaningful only when browsing the unfiltered set across pages.
+    const paged = !filtering && page.total > PALETTE_CAP;
+    chipsHint.textContent = paged ? `Showing ${page.start}–${page.end} of ${page.total}` : '';
+    prevBtn.hidden = !paged;
+    nextBtn.hidden = !paged;
+    prevBtn.disabled = !page.hasPrev;
+    nextBtn.disabled = !page.hasNext;
+    if (page.items.length === 0) {
       chips.append(el('p', 'status', 'No recipes here yet — switch source or add a cook by handle.'));
       return;
     }
-    for (const item of list) {
+    for (const item of page.items) {
       const chip = el('button', 'chip', item.name) as HTMLButtonElement;
       chip.type = 'button';
       chip.dataset['testid'] = 'palette-chip';
@@ -276,6 +298,7 @@ export const main = async (
     if (source === next) return;
     source = next;
     sourceItems = [];
+    paletteOffset = 0; // a fresh source starts at the first page
     renderSourceSwitch();
     renderChips();
     void loadSource();
@@ -285,6 +308,7 @@ export const main = async (
 
   filterInput.addEventListener('input', () => {
     filterText = filterInput.value;
+    paletteOffset = 0; // re-filtering resets to the first page of results
     renderChips();
   });
 
@@ -348,35 +372,20 @@ export const main = async (
       const head = el('div', 'week-head');
       head.append(el('span', 'week-name', `Week ${wi + 1}`));
 
-      const repeatWrap = el('label', 'week-repeat-wrap');
-      repeatWrap.append(el('span', 'week-repeat-label', 'Repeat'));
-      const repeatInput = el('input', 'week-repeat') as HTMLInputElement;
-      repeatInput.type = 'number';
-      repeatInput.min = String(REPEAT_MIN);
-      repeatInput.max = String(REPEAT_MAX);
-      repeatInput.value = String(week.repeat);
-      repeatInput.dataset['testid'] = 'week-repeat';
-      repeatInput.addEventListener('change', () => {
-        const clamped = clampRepeat(Number(repeatInput.value));
-        week.repeat = clamped;
-        repeatInput.value = String(clamped);
-        persist();
-        rerender();
-      });
-      repeatWrap.append(repeatInput);
-      head.append(repeatWrap);
-
-      const removeBtn = el('button', 'button week-remove', 'Remove') as HTMLButtonElement;
-      removeBtn.type = 'button';
-      removeBtn.dataset['testid'] = 'remove-week';
-      removeBtn.disabled = plan.weeks.length <= 1;
-      removeBtn.addEventListener('click', () => {
-        if (plan.weeks.length <= 1) return;
-        plan.weeks.splice(wi, 1);
-        persist();
-        rerender();
-      });
-      head.append(removeBtn);
+      // Remove only makes sense with more than one week — you can't remove the
+      // only week, so on a single-week plan the button is omitted entirely
+      // (not just disabled). Repetition now lives in "Repeat planned weeks".
+      if (plan.weeks.length > 1) {
+        const removeBtn = el('button', 'button week-remove', 'Remove') as HTMLButtonElement;
+        removeBtn.type = 'button';
+        removeBtn.dataset['testid'] = 'remove-week';
+        removeBtn.addEventListener('click', () => {
+          plan.weeks.splice(wi, 1);
+          persist();
+          rerender();
+        });
+        head.append(removeBtn);
+      }
       row.append(head);
 
       const daysEl = el('div', 'week-days');
@@ -457,6 +466,8 @@ export const main = async (
       builder.append(row);
     });
 
+    const actions = el('div', 'week-actions');
+
     const addBtn = el('button', 'button button--primary add-week', '+ Add week') as HTMLButtonElement;
     addBtn.type = 'button';
     addBtn.dataset['testid'] = 'add-week';
@@ -467,7 +478,24 @@ export const main = async (
       persist();
       rerender();
     });
-    builder.append(addBtn);
+
+    // Repeat planned weeks: instead of adding a blank week, append a copy of
+    // every currently-planned week (with its placed meals). Doubling the plan,
+    // so it's disabled when that would blow past the max-week cap.
+    const repeatBtn = el('button', 'button repeat-weeks', '⧉ Repeat planned weeks') as HTMLButtonElement;
+    repeatBtn.type = 'button';
+    repeatBtn.dataset['testid'] = 'repeat-weeks';
+    repeatBtn.disabled = plan.weeks.length * 2 > MAX_WEEKS;
+    repeatBtn.addEventListener('click', () => {
+      const next = duplicateWeeks(plan.weeks, MAX_WEEKS);
+      if (next === plan.weeks) return; // would exceed the cap — no-op
+      plan.weeks = next;
+      persist();
+      rerender();
+    });
+
+    actions.append(addBtn, repeatBtn);
+    builder.append(actions);
   };
 
   const rerender = (): void => {

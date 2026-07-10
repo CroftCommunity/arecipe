@@ -8,6 +8,8 @@ import {
   loadCookbookPalette,
   loadHandlePalette,
   loadStarterPalette,
+  paginatePalette,
+  type PaletteItem,
 } from '../../../src/recipes/meal-plan-palette.js';
 
 const recordingLogger = (): Logger => ({
@@ -97,6 +99,65 @@ describe('loadHandlePalette', () => {
       logger: recordingLogger(),
     });
     expect(out).toEqual([]);
+  });
+});
+
+describe('paginatePalette', () => {
+  const items = (n: number): PaletteItem[] =>
+    Array.from({ length: n }, (_unused, i) => ({ uri: `at://x/${i}`, cid: `c${i}`, name: `Dish ${i}` }));
+
+  it('windows the unfiltered set to the cap and reports paging state', () => {
+    const page = paginatePalette(items(25), { query: '', cap: 10, offset: 0 });
+    expect(page.items).toHaveLength(10);
+    expect(page.total).toBe(25);
+    expect(page.start).toBe(1);
+    expect(page.end).toBe(10);
+    expect(page.hasPrev).toBe(false);
+    expect(page.hasNext).toBe(true);
+  });
+
+  it('advances a page by the offset (forward arrow)', () => {
+    const page = paginatePalette(items(25), { query: '', cap: 10, offset: 10 });
+    expect(page.items[0]?.name).toBe('Dish 10');
+    expect(page.start).toBe(11);
+    expect(page.end).toBe(20);
+    expect(page.hasPrev).toBe(true);
+    expect(page.hasNext).toBe(true);
+  });
+
+  it('marks the last page (no next) with a short final window', () => {
+    const page = paginatePalette(items(25), { query: '', cap: 10, offset: 20 });
+    expect(page.items).toHaveLength(5);
+    expect(page.start).toBe(21);
+    expect(page.end).toBe(25);
+    expect(page.hasNext).toBe(false);
+  });
+
+  it('filters by name (case-insensitive) and shows all matches without paging', () => {
+    const page = paginatePalette(items(25), { query: 'dish 1', cap: 10, offset: 0 });
+    // Dish 1, 10..19 → 11 matches; a query shows them all (no window).
+    expect(page.items).toHaveLength(11);
+    expect(page.total).toBe(11);
+    expect(page.hasPrev).toBe(false);
+    expect(page.hasNext).toBe(false);
+  });
+
+  it('clamps a stale offset that now exceeds the set to the last page', () => {
+    const page = paginatePalette(items(12), { query: '', cap: 10, offset: 40 });
+    expect(page.start).toBe(11);
+    expect(page.end).toBe(12);
+    expect(page.hasNext).toBe(false);
+    expect(page.hasPrev).toBe(true);
+  });
+
+  it('reports an empty set cleanly', () => {
+    const page = paginatePalette([], { query: '', cap: 10, offset: 0 });
+    expect(page.items).toEqual([]);
+    expect(page.total).toBe(0);
+    expect(page.start).toBe(0);
+    expect(page.end).toBe(0);
+    expect(page.hasPrev).toBe(false);
+    expect(page.hasNext).toBe(false);
   });
 });
 

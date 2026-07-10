@@ -477,9 +477,10 @@ const paintVersion = (
     });
   }
   // Exclusion (mute-lite): quiet, reversible in Settings. Per-version. The
-  // control sits inline on the recipe-title row (view.ts's .title-control-slot).
-  // Hiding takes an inline two-step confirm (OQ5 — no native dialog, testable
-  // in the hermetic tier); unhiding is one-tap.
+  // control sits at the bottom of the detail, right-aligned in line with the
+  // provenance (view.ts's .detail-footer-control-slot). Hiding takes an inline
+  // two-step confirm (OQ5 — no native dialog, testable in the hermetic tier);
+  // unhiding is one-tap.
   const exclusions = createExclusions();
   const hideControl = el('div', 'hide-control');
   const renderHideControl = (): void => {
@@ -520,13 +521,27 @@ const paintVersion = (
     hideControl.append(primary);
   };
   renderHideControl();
-  const slot = host.querySelector('.title-control-slot');
-  if (slot !== null) {
-    slot.append(hideControl);
-  } else {
-    log.warn('exclusions', 'title-control-slot missing — appending hide control to host');
-    host.append(hideControl);
+  const slot = host.querySelector('.detail-footer-control-slot');
+  const controlHost = slot ?? host;
+  if (slot === null) {
+    log.warn('exclusions', 'detail-footer-control-slot missing — appending hide control to host');
   }
+  controlHost.append(hideControl);
+
+  // Edit affordance: when the signed-in viewer IS the recipe's author, offer an
+  // Edit link (→ editor.html?edit=) beside Hide. The recipe page is where you
+  // edit your own published recipe now — the Alchemy "Published" list (which
+  // used to carry the edit links) was retired since Cookbook → "Mine" shows them.
+  const authorDid = parseAtUri(uri).did;
+  void getAgent()
+    .then((agent) => {
+      if (agent?.did !== authorDid) return; // not signed in, or not your recipe
+      const editLink = el('a', 'button edit-recipe', 'Edit') as HTMLAnchorElement;
+      editLink.href = `./editor.html?edit=${encodeURIComponent(uri)}`;
+      editLink.dataset['testid'] = 'edit-recipe';
+      controlHost.prepend(editLink); // sits left of Hide in the footer slot
+    })
+    .catch((err: unknown) => log.debug('recipes', 'author edit check failed', { error: String(err) }));
 
   void mountComments(host, entry, uri, getAgent).catch((err: unknown) => {
     log.error('comments', 'comment section failed', { uri, error: String(err) });

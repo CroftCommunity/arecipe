@@ -73,7 +73,9 @@ test('@live drafts survive eviction; edits version; stale caches refresh', async
   await signIn(page, { handle: HANDLE, password: PASSWORD, origin });
   await expect(page.getByTestId('signed-in-did')).toContainText(TEST_DID, { timeout: 30_000 });
 
-  // Draft, synced to the account (disclosure visible).
+  // Draft, synced to the account (disclosure visible). New recipe lives on
+  // Alchemy (signIn lands on Account now).
+  await page.goto('/mine.html');
   await page.getByTestId('new-recipe').click();
   await expect(page.getByTestId('draft-disclosure')).toContainText('publicly readable');
   await page.getByTestId('editor-name').fill(name);
@@ -105,6 +107,11 @@ test('@live drafts survive eviction; edits version; stale caches refresh', async
   await expect(page.getByTestId('editor-name')).toHaveValue(name, { timeout: 15_000 });
   await page.getByTestId('publish').click();
   await expect(page).toHaveURL(/mine\.html/, { timeout: 60_000 });
+
+  // The published recipe now lists on Cookbook → "Mine" (Alchemy's Published
+  // list was retired).
+  await page.goto('/cookbook.html');
+  await page.getByTestId('source-mine').click();
   const card = page.getByTestId('recipe-item').filter({ hasText: name });
   await expect(card).toHaveCount(1, { timeout: 30_000 });
 
@@ -116,8 +123,11 @@ test('@live drafts survive eviction; edits version; stale caches refresh', async
   await pageB.goto(recipeUrl);
   await expect(pageB.locator('h2')).toContainText(name, { timeout: 30_000 });
 
-  // Device A edits (same rkey → new CID).
-  await page.getByTestId('edit-row').filter({ hasText: name }).locator('a').click();
+  // Device A edits from the recipe page itself: as the author, the recipe page
+  // offers an Edit link (→ editor.html?edit=). Same rkey → new CID.
+  await page.goto(recipeUrl);
+  await expect(page.getByTestId('edit-recipe')).toBeVisible({ timeout: 30_000 });
+  await page.getByTestId('edit-recipe').click();
   await expect(page.locator('.page-title')).toHaveText('Edit recipe', { timeout: 15_000 });
   await expect(page.getByTestId('editor-name')).toHaveValue(name, { timeout: 15_000 });
   await page.getByTestId('editor-text').fill('Written to survive. Now revised.');

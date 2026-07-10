@@ -209,7 +209,12 @@ const renderGridTable = (table: GridTable): HTMLElement => {
     body.append(tr);
   }
   t.append(head, body);
-  return t;
+  // Wrap in a scroll container: grid charts have many columns and would crush
+  // the layout on a narrow viewport. The wrapper scrolls the table horizontally
+  // instead (see styles.css .ref-scroll). Pair tables are never wrapped.
+  const scroll = el('div', 'ref-scroll');
+  scroll.append(t);
+  return scroll;
 };
 
 const renderSection = (section: ReferenceSection): HTMLElement => {

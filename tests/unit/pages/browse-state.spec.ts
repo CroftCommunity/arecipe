@@ -184,4 +184,18 @@ describe('createBrowsePrefs', () => {
     expect(prefs.load()).toEqual(baseState());
     expect(() => prefs.save(baseState({ view: 'details' }))).not.toThrow();
   });
+
+  it('honors a per-consumer default view when nothing is stored (Cookbook = Details)', () => {
+    // Cookbook opens on Details; Browse keeps its tiles-first default. The
+    // default only applies when the consumer has no stored view preference.
+    expect(createBrowsePrefs({ storage: memoryStorage(), defaultView: 'details' }).load()).toEqual(
+      baseState({ view: 'details' }),
+    );
+  });
+
+  it('lets a stored view override the per-consumer default', () => {
+    const storage = memoryStorage();
+    createBrowsePrefs({ storage, defaultView: 'details' }).save(baseState({ view: 'tiles' }));
+    expect(createBrowsePrefs({ storage, defaultView: 'details' }).load().view).toBe('tiles');
+  });
 });

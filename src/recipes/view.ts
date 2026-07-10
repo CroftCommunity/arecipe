@@ -24,6 +24,41 @@ const listEl = (tag: 'ul' | 'ol', testid: string, items: string[]): HTMLElement 
   return list;
 };
 
+/** A small "quick copy" link beside a section heading that copies that section
+ *  (one line per item) to the clipboard. The payload rides a `data-copy`
+ *  attribute so the copy target is inspectable/testable without the async
+ *  Clipboard API; the click handler reads it and writes to the clipboard,
+ *  flashing "copied" briefly. Clipboard denial is silent (label unchanged). */
+const quickCopyControl = (lines: string[], testid: string): HTMLElement => {
+  const btn = el('button', 'quick-copy', 'quick copy') as HTMLButtonElement;
+  btn.type = 'button';
+  btn.dataset['testid'] = testid;
+  btn.dataset['copy'] = lines.join('\n');
+  btn.setAttribute('aria-label', 'Copy to clipboard');
+  btn.addEventListener('click', () => {
+    const payload = btn.dataset['copy'] ?? '';
+    const done = navigator.clipboard?.writeText(payload);
+    if (done === undefined) return; // no Clipboard API — nothing to flash
+    void done.then(
+      () => {
+        btn.textContent = 'copied';
+        window.setTimeout(() => (btn.textContent = 'quick copy'), 1200);
+      },
+      () => {
+        /* clipboard denied — leave the label as-is */
+      },
+    );
+  });
+  return btn;
+};
+
+/** A section heading paired with its quick-copy control on one row. */
+const sectionHead = (title: string, lines: string[], copyTestid: string): HTMLElement => {
+  const head = el('div', 'section-head');
+  head.append(el('h3', undefined, title), quickCopyControl(lines, copyTestid));
+  return head;
+};
+
 /** "Did you know?" cycler over a dish's pooled fun facts. Returns null when
  *  there are none, so callers append unconditionally. A single fact shows no
  *  navigation; multiple facts get a next button + "i / n" counter that advances
@@ -489,11 +524,10 @@ export const renderRecipeDetail = (
     actions.append(focusBtn);
     article.append(actions);
   }
-  // Title row: title left, a control slot right (the recipe page injects the
-  // Hide control here so it sits inline with the title — see recipe.ts).
+  // Title row: just the title now — the Hide control moved to the bottom footer
+  // (see below), so it no longer needs a slot up here.
   const titleRow = el('div', 'recipe-title-row');
   titleRow.append(el('h2', 'recipe-title', value.name ?? '(untitled)'));
-  titleRow.append(el('div', 'title-control-slot'));
   article.append(titleRow);
   const chips = chipsEl(value);
   if (chips !== null) article.append(chips);
@@ -505,12 +539,14 @@ export const renderRecipeDetail = (
   if (credit !== null) article.append(credit);
 
   const cols = el('div', 'detail-cols');
+  const ingredientLines = value.ingredients ?? [];
+  const instructionLines = value.instructions ?? [];
   const ingredients = el('section');
-  ingredients.append(el('h3', undefined, 'Ingredients'));
-  ingredients.append(listEl('ul', 'recipe-ingredients', value.ingredients ?? []));
+  ingredients.append(sectionHead('Ingredients', ingredientLines, 'copy-ingredients'));
+  ingredients.append(listEl('ul', 'recipe-ingredients', ingredientLines));
   const instructions = el('section');
-  instructions.append(el('h3', undefined, 'Instructions'));
-  instructions.append(listEl('ol', 'recipe-instructions', value.instructions ?? []));
+  instructions.append(sectionHead('Instructions', instructionLines, 'copy-instructions'));
+  instructions.append(listEl('ol', 'recipe-instructions', instructionLines));
   cols.append(ingredients, instructions);
   article.append(cols);
 
@@ -519,6 +555,11 @@ export const renderRecipeDetail = (
     if (funFacts !== null) article.append(funFacts);
   }
 
+  // Bottom footer: the quiet provenance line (verified only) on the left and a
+  // control slot on the right, on one baseline-aligned row. The recipe page
+  // injects its Hide control into the slot so Hide rides the bottom of the
+  // detail, right-aligned in line with provenance — not detached under the image.
+  const footer = el('div', 'detail-footer');
   if (entry.verified) {
     const author = options.authorsByDid?.[did] ?? options.author ?? did;
     const date = formatPublishedDate(value.updatedAt);
@@ -534,7 +575,9 @@ export const renderRecipeDetail = (
       authorLink,
       document.createTextNode(` · fingerprint matches${date === null ? '' : ` · ${date}`}`),
     );
-    article.append(provenance);
+    footer.append(provenance);
   }
+  footer.append(el('div', 'detail-footer-control-slot'));
+  article.append(footer);
   return article;
 };

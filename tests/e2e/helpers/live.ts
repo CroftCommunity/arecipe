@@ -106,8 +106,9 @@ export const walkAuthPages = async (
  * OAuth callback round-trips back there; signin.ts completes it and forwards a
  * live session to Cookbook. We wait for that forward — it fires only after the
  * session restores, so it doubles as a "session is persisted" signal — then
- * land the caller on mine.html, the signed-in page that renders `signed-in-did`
- * (cookbook.html does not). Every @live suite asserts `signed-in-did` right
+ * land the caller on account.html, the signed-in page that renders
+ * `signed-in-did` (as "@handle · did:…"; Alchemy no longer shows it, and
+ * cookbook.html never did). Every @live suite asserts `signed-in-did` right
  * after this returns, so the landing page matters. */
 export const signIn = async (
   page: Page,
@@ -119,5 +120,5 @@ export const signIn = async (
   await page.waitForURL(/bsky\.social/, { timeout: 30_000 });
   await walkAuthPages(page, opts.origin, opts.password);
   await page.waitForURL(/cookbook\.html/, { timeout: 30_000 });
-  await page.goto('/mine.html');
+  await page.goto('/account.html');
 };

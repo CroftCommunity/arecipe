@@ -14,7 +14,14 @@ import { collapseVersions } from '../recipes/model.js';
 import { createStarterPrefs, loadStarterFeed } from '../recipes/starter.js';
 import { createRecipeReader } from '../recipes/read.js';
 import { createDietPreference } from '../recipes/diet-preference.js';
-import { availableFacets, createBrowsePrefs, matchesFilter, type BrowseState } from './browse-state.js';
+import { availableFacets, createBrowsePrefs, matchesFilter, recipeFacets, type BrowseState } from './browse-state.js';
+import {
+  extensionFor,
+  mimeFor,
+  serializeRecipes,
+  type ExportFormat,
+  type ExportRecipe,
+} from '../recipes/export.js';
 import { renderToolbar } from '../recipes/toolbar.js';
 import { renderRecipeDetailsList, renderRecipeList, type RenderOptions } from '../recipes/view.js';
 import { registerServiceWorker } from '../sw-register.js';
@@ -91,12 +98,20 @@ const main = (): void => {
   const hasBrowseFilters = (s: BrowseState): boolean =>
     s.photosOnly || s.facets.cuisine.length > 0 || s.facets.category.length > 0;
 
-  const renderCurrent = (): void => {
-    if (current === null) return;
-    const kept = withoutHidden(current.entries);
+  // The filtered result set behind the current view: hidden removed, browse
+  // facets + diet applied. renderCurrent renders it; the export action serializes
+  // the version-collapsed representatives (what's actually shown as cards).
+  const computeShown = (): { kept: CachedRecipe[]; shown: CachedRecipe[]; effective: BrowseState; diet: string[] } => {
+    const kept = withoutHidden(current?.entries ?? []);
     const diet = dietPreference.load();
     const effective = effectiveState();
     const shown = kept.filter((e) => matchesFilter(e.value, { state: effective, diet }));
+    return { kept, shown, effective, diet };
+  };
+
+  const renderCurrent = (): void => {
+    if (current === null) return;
+    const { kept, shown, effective, diet } = computeShown();
     const verified = shown.filter((e) => e.verified).length;
     // When a filter is active the honest count is "N of M shown"; with no filter
     // the original per-path string is preserved byte-identical.
@@ -185,8 +200,134 @@ const main = (): void => {
   toolbar.setPhotos(state.photosOnly);
   toolbar.reflectView(state.view);
 
-  form.append(input, findButton);
-  content.append(form, toolbar.element, listContainer);
+  // Export: turn the currently-shown recipes into a downloadable file. The
+  // button sits beside "Find recipes"; it opens an inline panel (no native
+  // dialog) to pick a format and whether to include full details, then builds a
+  // download link. The version-collapsed representatives are what's exported —
+  // the same cards the user sees.
+  const recipeLink = (uri: string): string => {
+    const url = new URL('recipe.html', window.location.href);
+    url.searchParams.set('u', uri);
+    return url.toString();
+  };
+  const toExportRecipe = (entry: CachedRecipe): ExportRecipe => {
+    const value = entry.value as {
+      name?: string;
+      ingredients?: string[];
+      instructions?: string[];
+    };
+    const facets = recipeFacets(entry.value);
+    return {
+      name: value.name ?? '(untitled)',
+      cuisine: facets.cuisine ?? '',
+      category: facets.category ?? '',
+      link: recipeLink(entry.uri),
+      ingredients: value.ingredients ?? [],
+      instructions: value.instructions ?? [],
+    };
+  };
+
+  const exportButton = el('button', 'button export-recipes', '↑') as HTMLButtonElement;
+  exportButton.type = 'button';
+  exportButton.dataset['testid'] = 'export-recipes';
+  exportButton.setAttribute('aria-label', 'Export shown recipes');
+  exportButton.title = 'Export shown recipes';
+
+  const exportPanel = el('div', 'export-panel');
+  exportPanel.dataset['testid'] = 'export-panel';
+  exportPanel.hidden = true;
+  let downloadUrl: string | null = null;
+  const revokeDownload = (): void => {
+    if (downloadUrl !== null) {
+      URL.revokeObjectURL(downloadUrl);
+      downloadUrl = null;
+    }
+  };
+
+  const buildExportPanel = (): void => {
+    revokeDownload();
+    exportPanel.replaceChildren();
+    const shownCount = collapseVersions(computeShown().shown).representatives.length;
+    exportPanel.append(el('p', 'export-title', `Export ${shownCount} shown recipe${shownCount === 1 ? '' : 's'}`));
+
+    // Format choice (segmented).
+    let format: ExportFormat = 'csv';
+    const formatRow = el('div', 'segmented export-format');
+    const formatBtns: [HTMLButtonElement, ExportFormat][] = [];
+    const reflectFormat = (): void => {
+      for (const [btn, key] of formatBtns) {
+        const active = format === key;
+        btn.classList.toggle('segmented-option--active', active);
+        btn.setAttribute('aria-pressed', String(active));
+      }
+    };
+    for (const key of ['csv', 'txt', 'json'] as const) {
+      const btn = el('button', 'segmented-option', key.toUpperCase()) as HTMLButtonElement;
+      btn.type = 'button';
+      btn.dataset['testid'] = `export-format-${key}`;
+      btn.addEventListener('click', () => {
+        format = key;
+        reflectFormat();
+        buildLink();
+      });
+      formatBtns.push([btn, key]);
+      formatRow.append(btn);
+    }
+    reflectFormat();
+
+    // Full-details toggle.
+    const detailsLabel = el('label', 'browse-toggle');
+    const detailsToggle = document.createElement('input');
+    detailsToggle.type = 'checkbox';
+    detailsToggle.dataset['testid'] = 'export-details';
+    detailsLabel.append(detailsToggle, document.createTextNode('Include full details (ingredients & instructions)'));
+    detailsToggle.addEventListener('change', () => buildLink());
+
+    // The generated download link (rebuilt whenever a choice changes).
+    const linkSlot = el('div', 'export-link-slot');
+    const buildLink = (): void => {
+      revokeDownload();
+      const recipes = collapseVersions(computeShown().shown).representatives.map(toExportRecipe);
+      const text = serializeRecipes(recipes, { format, details: detailsToggle.checked });
+      const blob = new Blob([text], { type: mimeFor(format) });
+      downloadUrl = URL.createObjectURL(blob);
+      const link = el('a', 'button button--primary export-download', `Download recipes.${extensionFor(format)}`) as HTMLAnchorElement;
+      link.href = downloadUrl;
+      link.download = `arecipe-recipes.${extensionFor(format)}`;
+      link.dataset['testid'] = 'export-download';
+      linkSlot.replaceChildren(link);
+    };
+
+    const close = el('button', 'button export-close', 'Close') as HTMLButtonElement;
+    close.type = 'button';
+    close.dataset['testid'] = 'export-close';
+    close.addEventListener('click', () => {
+      exportPanel.hidden = true;
+      revokeDownload();
+    });
+
+    exportPanel.append(formatRow, detailsLabel, linkSlot, close);
+    buildLink();
+  };
+
+  exportButton.addEventListener('click', () => {
+    if (!exportPanel.hidden) {
+      exportPanel.hidden = true;
+      revokeDownload();
+      return;
+    }
+    if (current === null || computeShown().shown.length === 0) {
+      // Nothing to export yet — surface it in the status line rather than opening
+      // an empty panel.
+      toolbar.setStatus('nothing to export — find or load some recipes first');
+      return;
+    }
+    buildExportPanel();
+    exportPanel.hidden = false;
+  });
+
+  form.append(input, findButton, exportButton);
+  content.append(form, exportPanel, toolbar.element, listContainer);
 
   const resolve = createResolver();
   const readRecipes = createRecipeReader();

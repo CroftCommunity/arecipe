@@ -7,13 +7,10 @@ import { mountBuildStamp } from '../build-stamp.js';
 import { resolveDidDoc } from '../identity/did.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
-import { createRecipeCache } from '../recipes/cache.js';
 import { createDraftStore, type DraftStatus } from '../recipes/drafts-local.js';
 import { listPdsDrafts } from '../recipes/drafts-sync.js';
-import { createRecipeReader } from '../recipes/read.js';
 import { retryOnce } from '../retry.js';
 import { requestPersistence } from '../storage-persist.js';
-import { renderRecipeList } from '../recipes/view.js';
 import { registerServiceWorker } from '../sw-register.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -30,8 +27,11 @@ const main = async (): Promise<void> => {
   const content = el('section', 'panel');
   // Alchemy (renamed from "My recipes"): your drafting workspace — create,
   // edit, save, publish. The heading names the space; the route/testid stay
-  // `mine.html`/`tab-mine`.
-  content.append(el('h2', 'page-title', 'Alchemy'));
+  // `mine.html`/`tab-mine`. Title row: "Alchemy" on the left, "New recipe"
+  // right-aligned on the same line.
+  const header = el('div', 'alchemy-header');
+  header.append(el('h2', 'page-title', 'Alchemy'));
+  content.append(header);
   const { provider, agent } = await bootSession();
   void requestPersistence();
 
@@ -40,14 +40,13 @@ const main = async (): Promise<void> => {
   const newRecipe = el('a', 'button button--primary', 'New recipe') as HTMLAnchorElement;
   newRecipe.href = './editor.html';
   newRecipe.dataset['testid'] = 'new-recipe';
-  content.append(newRecipe);
+  header.append(newRecipe);
 
   const draftsSection = el('section');
   draftsSection.append(el('h3', 'section-title', 'Drafts'));
 
   // Status filter (Phase 11c): narrow the drafts list by draft status. Drafts
-  // only — the Published section below is separate (a "published" bucket, if
-  // ever surfaced, would source from there, not from draft.status — OQ13).
+  // only — published recipes live on Cookbook → "Mine" now, not here (OQ13).
   let statusFilter: 'all' | DraftStatus = 'all';
   const filterBar = el('div', 'segmented alchemy-filter');
   const filterButtons: [HTMLButtonElement, 'all' | DraftStatus][] = [];
@@ -118,67 +117,35 @@ const main = async (): Promise<void> => {
   });
 
   if (agent !== null) {
-    const who = el('p', 'status');
-    who.dataset['testid'] = 'signed-in-did';
-    who.textContent = `Signed in: ${agent.did ?? 'unknown'}`;
-    content.prepend(who);
-
-    // Published: the account's own recipes via the public read path.
-    const published = el('section');
-    published.append(el('h3', 'section-title', 'Published'));
-    const publishedList = el('div');
-    published.append(publishedList);
-    content.append(published);
-    void (async () => {
-      const did = agent.did;
-      if (did === undefined) return;
-      // Retry once: these fire right after the OAuth redirect settles, where
-      // the first fetch can transiently fail (observed at the M3 demo).
-      const { pds, handle } = await retryOnce(() => resolveDidDoc(did));
-      // Eviction recovery (Phase 8): import PDS-backed drafts missing locally.
-      try {
-        const remote = await listPdsDrafts(pds, did);
-        let recovered = 0;
-        for (const draft of remote) {
-          if ((await drafts.get(draft.id)) === undefined) {
-            await drafts.save(draft.fields, draft.id, draft.status);
-            recovered += 1;
+    // Alchemy is the drafting workspace. The signed-in identity now shows on
+    // Account (with the handle), and the "Published" recipe list moved to
+    // Cookbook → "Mine" — so neither is duplicated here. We still run the
+    // silent PDS draft recovery (Phase 8): import PDS-backed drafts that are
+    // missing locally after an eviction or a fresh browser.
+    const did = agent.did;
+    if (did !== undefined) {
+      void (async () => {
+        try {
+          // Retry once: this fires right after the OAuth redirect settles, where
+          // the first fetch can transiently fail (observed at the M3 demo).
+          const { pds } = await retryOnce(() => resolveDidDoc(did));
+          const remote = await listPdsDrafts(pds, did);
+          let recovered = 0;
+          for (const draft of remote) {
+            if ((await drafts.get(draft.id)) === undefined) {
+              await drafts.save(draft.fields, draft.id, draft.status);
+              recovered += 1;
+            }
           }
+          if (recovered > 0) {
+            log.info('drafts', 'recovered from PDS', { count: recovered });
+            await renderDrafts();
+          }
+        } catch (err) {
+          log.warn('drafts', 'PDS draft recovery failed', { error: String(err) });
         }
-        if (recovered > 0) {
-          log.info('drafts', 'recovered from PDS', { count: recovered });
-          await renderDrafts();
-        }
-      } catch (err) {
-        log.warn('drafts', 'PDS draft recovery failed', { error: String(err) });
-      }
-      const records = await retryOnce(() => createRecipeReader()({ pds, did }));
-      if (records.length === 0) {
-        const none = el('p', 'empty-state', 'Nothing published yet — your first recipe is one Publish away.');
-        none.dataset['testid'] = 'mine-empty';
-        publishedList.append(none);
-        return;
-      }
-      const cache = createRecipeCache();
-      const entries = await Promise.all(records.map((r) => cache.put(r)));
-      publishedList.replaceChildren(renderRecipeList(entries, { author: handle ?? did }));
-      // Edit affordance (Phase 8): plain rows (cards are links; no nesting).
-      for (const entry of entries) {
-        const row = el('div', 'draft-row');
-        row.dataset['testid'] = 'edit-row';
-        const editLink = el(
-          'a',
-          'draft-link',
-          `Edit: ${(entry.value as { name?: string }).name ?? '(untitled)'}`,
-        ) as HTMLAnchorElement;
-        editLink.href = `./editor.html?edit=${encodeURIComponent(entry.uri)}`;
-        row.append(editLink);
-        publishedList.append(row);
-      }
-    })().catch((err: unknown) => {
-      log.error('recipes', 'own recipes load failed', { error: String(err) });
-      publishedList.append(el('p', 'status', `couldn’t load your recipes: ${String(err)}`));
-    });
+      })();
+    }
   } else if (provider !== null) {
     // Signed out: a short pointer to the dedicated sign-in page. Drafting needs
     // no account (New recipe + Drafts below stay account-free), so Alchemy is

@@ -116,12 +116,16 @@ test('tap-to-place: arm a recipe, place it on a day, persist across reload, clea
   await tueAfter.getByTestId('slot-clear').click();
   await expect(tueAfter.getByTestId('slot-filled')).toHaveCount(0);
 
-  // Add a second week.
+  // A single-week plan shows no Remove (you can't remove the only week).
+  await expect(page.getByTestId('remove-week')).toHaveCount(0);
+
+  // Add a second week — now Remove appears (on both weeks).
   await page.getByTestId('add-week').click();
   await expect(page.getByTestId('week-row')).toHaveCount(2);
+  await expect(page.getByTestId('remove-week')).toHaveCount(2);
 });
 
-test('calendar: per-week repeat stamps that week N times, in order, each carrying its days', async ({
+test('repeat planned weeks: duplicates the whole plan (meals and all) instead of adding a blank week', async ({
   page,
 }) => {
   await seedPalette(page);
@@ -130,18 +134,23 @@ test('calendar: per-week repeat stamps that week N times, in order, each carryin
   // Place Lasagna on Monday (day 0) of week 1.
   await page.getByTestId('palette-chip').filter({ hasText: 'Lasagna' }).click();
   await page.getByTestId('week-row').first().getByTestId('day-slot').first().click();
+  await expect(
+    page.getByTestId('week-row').first().getByTestId('slot-filled'),
+  ).toHaveText('Lasagna');
 
-  // Set week 1 to repeat 3×.
-  const repeat = page.getByTestId('week-row').first().getByTestId('week-repeat');
-  await repeat.fill('3');
-  await repeat.blur();
+  // "Repeat planned weeks" appends a copy of the current plan (week 1 → 1 + 2),
+  // and the copy carries the same placed meal.
+  await page.getByTestId('repeat-weeks').click();
+  await expect(page.getByTestId('week-row')).toHaveCount(2);
+  await expect(page.getByTestId('week-row').nth(1).getByTestId('slot-filled')).toHaveText(
+    'Lasagna',
+  );
 
-  // The calendar below stamps week 1 three times, each carrying the filled day.
+  // The calendar below stamps both weeks, each carrying the filled day.
   const calWeeks = page.getByTestId('cal-week');
-  await expect(calWeeks).toHaveCount(3);
-  for (let i = 0; i < 3; i++) {
-    await expect(calWeeks.nth(i)).toContainText('Lasagna');
-  }
+  await expect(calWeeks).toHaveCount(2);
+  await expect(calWeeks.nth(0)).toContainText('Lasagna');
+  await expect(calWeeks.nth(1)).toContainText('Lasagna');
 });
 
 test('calendar: shows an empty state until something is planned', async ({ page }) => {
@@ -185,14 +194,24 @@ test('palette: Browse loads capped, type-ahead searches the full set, switch tog
   const initialCount = await chips.count();
   expect(initialCount).toBeGreaterThan(0);
   expect(initialCount).toBeLessThanOrEqual(10);
-  await expect(page.getByTestId('palette-hint')).toContainText(/Showing \d+ of \d+/);
+  // The pager hint shows the current window ("Showing 1–10 of N") with arrows.
+  await expect(page.getByTestId('palette-hint')).toContainText(/Showing 1[–-]\d+ of \d+/);
 
-  // Type-ahead searches the whole loaded set (beyond the capped display).
+  // Forward arrow advances to the next page (a browser can cycle the set).
+  await page.getByTestId('palette-next').click();
+  await expect(page.getByTestId('palette-hint')).toContainText(/Showing 11[–-]\d+ of \d+/);
+  // Back arrow returns to the first page.
+  await page.getByTestId('palette-prev').click();
+  await expect(page.getByTestId('palette-hint')).toContainText(/Showing 1[–-]\d+ of \d+/);
+
+  // Type-ahead searches the whole loaded set (beyond the capped display); while
+  // filtering, the pager hides (the query already narrows).
   const filter = page.getByTestId('palette-filter');
   await filter.fill('zzzznomatch');
   await expect(chips).toHaveCount(0);
   await filter.fill('Ham');
   await expect(chips.first()).toBeVisible();
+  await expect(page.getByTestId('palette-next')).toBeHidden();
   await filter.fill('');
 
   // Source switch: Browse active by default; clicking My Cookbook toggles it.

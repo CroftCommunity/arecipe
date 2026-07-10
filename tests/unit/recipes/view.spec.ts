@@ -207,6 +207,37 @@ describe('renderRecipeDetail', () => {
     expect(provenance?.textContent).toContain('fingerprint matches');
   });
 
+  it('offers a quick-copy control by Ingredients and Instructions carrying each section text', () => {
+    const el = renderRecipeDetail(entry(), { author: 'rdur.dev' });
+    const ingCopy = el.querySelector('[data-testid=copy-ingredients]');
+    const insCopy = el.querySelector('[data-testid=copy-instructions]');
+    expect(ingCopy).not.toBeNull();
+    expect(insCopy).not.toBeNull();
+    expect(ingCopy?.getAttribute('data-copy')).toBe(
+      (fixture.value['ingredients'] as string[]).join('\n'),
+    );
+    expect(insCopy?.getAttribute('data-copy')).toBe(
+      (fixture.value['instructions'] as string[]).join('\n'),
+    );
+  });
+
+  it('gathers the provenance line and a control slot into a bottom footer', () => {
+    const el = renderRecipeDetail(entry(), { author: 'rdur.dev' });
+    const footer = el.querySelector('.detail-footer');
+    expect(footer).not.toBeNull();
+    // Provenance moved into the footer (left); the Hide control slot sits at the
+    // right of the same row (the recipe page injects the control into it).
+    expect(footer?.querySelector('[data-testid=provenance]')).not.toBeNull();
+    expect(footer?.querySelector('.detail-footer-control-slot')).not.toBeNull();
+  });
+
+  it('always renders the footer control slot, even when unverified (Hide still needs a home)', () => {
+    const el = renderRecipeDetail(entry({ verified: false }), { author: 'rdur.dev' });
+    const footer = el.querySelector('.detail-footer');
+    expect(footer?.querySelector('.detail-footer-control-slot')).not.toBeNull();
+    expect(footer?.querySelector('[data-testid=provenance]')).toBeNull();
+  });
+
   it('renders off-network credit when the recipe is attributed (website)', () => {
     const attributed = entry({
       value: {

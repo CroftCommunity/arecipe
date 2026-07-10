@@ -121,8 +121,8 @@ const keysFor = (prefix: string) => ({
   FACETS_KEY: `${prefix}-facets`,
 });
 
-const defaultState = (): BrowseState => ({
-  view: 'tiles',
+const defaultState = (view: ViewMode = 'tiles'): BrowseState => ({
+  view,
   photosOnly: false,
   facets: { cuisine: [], category: [] },
 });
@@ -136,10 +136,11 @@ export type BrowsePrefs = {
 };
 
 export const createBrowsePrefs = (
-  opts: { storage?: StorageLike; prefix?: string } = {},
+  opts: { storage?: StorageLike; prefix?: string; defaultView?: ViewMode } = {},
 ): BrowsePrefs => {
   const storage = opts.storage ?? window.localStorage;
   const { VIEW_KEY, PHOTOS_KEY, FACETS_KEY } = keysFor(opts.prefix ?? 'browse');
+  const fallbackView = opts.defaultView ?? 'tiles';
   const readItem = (key: string): string | null => {
     try {
       return storage.getItem(key);
@@ -150,7 +151,7 @@ export const createBrowsePrefs = (
   };
   return {
     load: () => {
-      const state = defaultState();
+      const state = defaultState(fallbackView);
       const view = readItem(VIEW_KEY);
       if (view === 'tiles' || view === 'details') state.view = view;
       const photos = readItem(PHOTOS_KEY);

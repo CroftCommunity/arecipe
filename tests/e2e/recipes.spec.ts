@@ -172,7 +172,7 @@ test('intact cards are clean; detail carries the human provenance line', async (
 // hiding takes an inline two-step confirm (no native dialog); Cancel reverts and
 // does NOT hide; Confirm hides (the control then offers one-tap Unhide). Both
 // edges asserted, exercised through the real recipe-page render.
-test('Hide on the title row: inline confirm hides, cancel reverts, unhide is one-tap (wiring)', async ({
+test('Hide in the bottom footer: inline confirm hides, cancel reverts, unhide is one-tap (wiring)', async ({
   page,
 }) => {
   await routeFixtures(page);
@@ -180,8 +180,9 @@ test('Hide on the title row: inline confirm hides, cancel reverts, unhide is one
   await page.goto(`/recipe.html?u=${encodeURIComponent(uri)}&by=somechef.example.com`);
   await expect(page.locator('h2')).toContainText('White Chocolate', { timeout: 15_000 });
 
-  // The Hide control is inline on the title row, not a detached button below.
-  const control = page.locator('.recipe-title-row .title-control-slot');
+  // The Hide control sits at the bottom of the detail (in line with provenance),
+  // not a detached button under the image.
+  const control = page.locator('.detail-footer .detail-footer-control-slot');
   const hide = control.getByTestId('hide-recipe');
   await expect(hide).toHaveText('Hide');
 

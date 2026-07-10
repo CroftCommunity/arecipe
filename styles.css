@@ -378,6 +378,44 @@ a {
   opacity: 0.45;
 }
 
+/* Export button (↑ export glyph) beside "Find recipes": square, secondary. */
+.export-recipes {
+  flex: none;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+/* Export panel: an inline choose-format-and-download card (no native dialog),
+   revealed under the search row when the export button is tapped. */
+.export-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding: var(--s-4);
+  margin: 0 0 var(--s-3);
+  background: var(--card);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-l);
+  max-width: 32rem;
+}
+.export-panel[hidden] {
+  display: none;
+}
+.export-title {
+  font-family: var(--display);
+  font-weight: 600;
+  margin: 0;
+}
+.export-format {
+  align-self: flex-start;
+}
+.export-link-slot:empty {
+  display: none;
+}
+.export-close {
+  align-self: flex-start;
+}
+
 .button {
   font: inherit;
   font-weight: 700;
@@ -697,9 +735,8 @@ a {
   max-width: 52rem;
 }
 
-/* Title row: the recipe title on the left, a control slot (the Hide control)
-   pushed to the far right, baseline-aligned. Wraps on narrow screens so the
-   control drops below the title rather than overflowing. */
+/* Title row: just the recipe title now (the Hide control moved to the bottom
+   footer). Kept as a row so any future title-adjacent control has a home. */
 .recipe-title-row {
   display: flex;
   align-items: baseline;
@@ -716,12 +753,6 @@ a {
   margin: var(--s-4) 0 var(--s-2);
 }
 
-/* The Hide control lives in the title row's right-hand slot; its inline confirm
-   (Hide → "Hide? · Confirm / Cancel") keeps the buttons on one line. */
-.title-control-slot {
-  flex: none;
-}
-
 .hide-control {
   display: flex;
   align-items: center;
@@ -734,16 +765,17 @@ a {
   opacity: 0.75;
 }
 
-/* Cookbook source-control row (Phase 9/10): the All/Mine/Liked segmented control
-   on the left, the "New Recipe" builder link pushed to the far right. Wraps on
-   narrow screens. */
-.cookbook-source-row {
+/* Cookbook title row: "Cookbook" heading on the left, the own-cookbook "New
+   Recipe" builder link pushed to the far right, on the same line. Wraps on
+   narrow screens. The All/Mine/Liked source control now rides inline with the
+   toolbar controls (Tiles/Details/Meal/Cuisine) — one filter row. */
+.cookbook-header,
+.alchemy-header {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
   gap: var(--s-3);
   flex-wrap: wrap;
-  margin-bottom: var(--s-2);
 }
 
 /* Content-freshness note at the bottom of the Cookbook (SWR "as of …"). Quiet,
@@ -834,7 +866,27 @@ a.card {
   font-family: var(--mono);
   font-size: var(--t-caption);
   opacity: 0.65;
-  margin: var(--s-4) 0 0;
+  margin: 0;
+}
+
+/* Bottom footer: provenance on the left, the Hide control pushed to the far
+   right on the same baseline. On a narrow screen it wraps and the control drops
+   below. When there's no provenance (unverified), the slot's margin-left:auto
+   still keeps the control right-aligned. */
+.detail-footer {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+  margin-top: var(--s-5);
+}
+.detail-footer-control-slot {
+  margin-left: auto;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
 }
 
 /* ---- expanded detail: ingredients first ---- */
@@ -863,6 +915,32 @@ a.card {
   margin: var(--s-4) 0 var(--s-2);
 }
 
+/* Section heading + its "quick copy" link on one baseline row. */
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+.section-head h3 {
+  margin-bottom: var(--s-2);
+}
+.quick-copy {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  color: var(--enamel);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0.75;
+  white-space: nowrap;
+}
+.quick-copy:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
 .detail-cols ul {
   padding-left: var(--s-4);
 }
@@ -879,6 +957,51 @@ a.card {
   .detail-cols {
     grid-template-columns: 1fr;
   }
+}
+
+/* "Did you know?" fun facts: light quote handling — a soft enamel rule down the
+   left and a little indent set the blurb apart as an aside, without the weight
+   of a full callout box. */
+.fun-facts {
+  border-left: 3px solid var(--enamel);
+  padding-left: var(--s-4);
+  margin: var(--s-5) 0;
+  opacity: 0.9;
+}
+.fun-facts-heading {
+  font-family: var(--display);
+  font-weight: 600;
+  color: var(--enamel);
+  margin: 0 0 var(--s-1);
+}
+.fun-fact-text {
+  font-style: italic;
+  margin: 0;
+}
+.fun-fact-source {
+  font-size: var(--t-caption);
+  opacity: 0.7;
+}
+.fun-fact-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin-top: var(--s-2);
+}
+.fun-fact-count {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  opacity: 0.7;
+}
+.fun-fact-next {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  padding: 0.15rem var(--s-2);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--card);
+  color: inherit;
+  cursor: pointer;
 }
 
 /* ---- footer: build stamp + colophon ---- */
@@ -1204,6 +1327,17 @@ a.card {
     grid-template-columns: 1fr 1fr;
   }
 }
+/* Grid charts (many columns) can't shrink to a phone's width without the cells
+   collapsing into an unreadable jumble. Wrap them in a horizontal-scroll box
+   and give the table a min-width so columns keep a legible size and the box
+   scrolls instead. Pair tables (two narrow columns) are never wrapped. */
+.ref-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.ref-scroll table.ref {
+  min-width: 32rem;
+}
 table.ref {
   width: 100%;
   border-collapse: collapse;
@@ -1345,25 +1479,18 @@ table.ref.pairs td.eq {
   padding: 0;
 }
 
-/* --- Meal planner calendar + repeat control (Phase 6) --------------------- */
+/* --- Meal planner calendar (Phase 6) -------------------------------------- */
 .week-head {
   flex-wrap: wrap;
   gap: var(--s-2);
 }
-.week-repeat-wrap {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s-1);
-  font-size: var(--t-caption);
-}
-.week-repeat {
-  width: 3.5rem;
-  font-family: var(--body);
-  padding: var(--s-1);
-  border: var(--stroke) solid var(--line);
-  border-radius: var(--r-s);
-  background: var(--card);
-  color: var(--ink);
+/* Week actions: "+ Add week" and "⧉ Repeat planned weeks" on one row, wrapping
+   on narrow screens. */
+.week-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  margin-top: var(--s-3);
 }
 .calendar {
   margin-top: var(--s-5);
@@ -1472,5 +1599,32 @@ table.ref.pairs td.eq {
   margin-bottom: var(--s-1);
 }
 .palette-hint {
-  margin: var(--s-1) 0 0;
+  margin: 0;
+}
+/* Palette pager: ◀ hint ▶ on one centred row under the chips. Arrows are quiet
+   until hovered; hidden entirely when the palette fits on one page. */
+.palette-paging {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-3);
+  margin-top: var(--s-2);
+}
+.palette-page-btn {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  line-height: 1;
+  padding: 0.25rem var(--s-2);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--card);
+  color: inherit;
+  cursor: pointer;
+}
+.palette-page-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.palette-page-btn[hidden] {
+  display: none;
 }

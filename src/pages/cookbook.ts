@@ -54,12 +54,15 @@ type FeedViewController = {
 const renderFeedView = (
   container: HTMLElement,
   feedContainer: HTMLElement,
+  header: HTMLElement,
   initialEntries: CachedRecipe[],
   initialAuthorsByDid: Record<string, string>,
   viewer?: { did: string; pds: string },
   initialFetchedAt?: string | null,
 ): FeedViewController => {
-  const prefs = createBrowsePrefs({ prefix: 'cookbook' });
+  // Cookbook opens on Details (the reading-oriented view); Browse keeps its
+  // tiles-first default. Persisted per-consumer, so a choice here is sticky.
+  const prefs = createBrowsePrefs({ prefix: 'cookbook', defaultView: 'details' });
   let state = prefs.load();
   // Feed data is mutable so a background revalidate can swap it in place without
   // rebuilding the toolbar/source-control chrome (built once below).
@@ -71,7 +74,9 @@ const renderFeedView = (
   // members+you feed; Mine = that feed filtered to your DID; Liked = a SEPARATE
   // lazy fetch of your hearted recipes (OQ12 — not loaded until selected).
   type Source = 'all' | 'mine' | 'liked';
-  let source: Source = 'all';
+  // Default to Mine on your own cookbook (your recipes are what you came for);
+  // the anonymous cold-view has no "mine", so it opens on All.
+  let source: Source = viewer === undefined ? 'all' : 'mine';
   let likedEntries: CachedRecipe[] | null = null; // lazy cache
   let likedLoading = false;
 
@@ -208,19 +213,22 @@ const renderFeedView = (
       showCurrent();
     };
     seg.append(
-      mk('All', 'all', 'source-all'),
       mk('Mine', 'mine', 'source-mine'),
       mk('Liked', 'liked', 'source-liked'),
+      mk('All', 'all', 'source-all'),
     );
     reflectSource();
-    // A row: source control on the left, a "New Recipe" builder link on the far
-    // right (own cookbook only — mirrors Alchemy's own new-recipe button).
-    const row = el('div', 'cookbook-source-row');
+    // The source control sits inline with the toolbar controls (Tiles/Details/
+    // Meal/Cuisine) — one filter row — by prepending into the toolbar's controls.
+    const controlsEl = toolbar.element.querySelector('.browse-controls');
+    if (controlsEl !== null) controlsEl.prepend(seg);
+    else container.insertBefore(seg, toolbar.element);
+    // "New Recipe" builder link rides the title row, right-aligned (own cookbook
+    // only — mirrors Alchemy's own new-recipe button).
     const newRecipe = el('a', 'button button--primary new-recipe', 'New Recipe') as HTMLAnchorElement;
     newRecipe.href = './editor.html';
     newRecipe.dataset['testid'] = 'cookbook-new-recipe';
-    row.append(seg, newRecipe);
-    container.insertBefore(row, toolbar.element);
+    header.append(newRecipe);
   }
 
   // Content-freshness note at the bottom (SWR): a cache-first paint shows the
@@ -253,6 +261,7 @@ const renderFeedView = (
 const showFeed = async (
   container: HTMLElement,
   feedContainer: HTMLElement,
+  header: HTMLElement,
   you: { did: string; pds: string },
   opts: { config?: ReachConfig; isOwn?: boolean } = {},
 ): Promise<void> => {
@@ -270,7 +279,7 @@ const showFeed = async (
         memberDids.has(didOf(e.uri)),
       );
       const authorsByDid = Object.fromEntries(meta.authors.map((a) => [a.did, a.handle]));
-      controller = renderFeedView(container, feedContainer, cachedEntries, authorsByDid, viewer, meta.fetchedAt);
+      controller = renderFeedView(container, feedContainer, header, cachedEntries, authorsByDid, viewer, meta.fetchedAt);
     } catch (err) {
       log.warn('cookbook', 'cache-first paint failed', { error: String(err) });
     }
@@ -293,7 +302,7 @@ const showFeed = async (
     const now = new Date().toISOString();
     writeFeedMeta(you.did, authors, now);
     if (controller !== null) controller.update(feed.entries, feed.authorsByDid, now);
-    else renderFeedView(container, feedContainer, feed.entries, feed.authorsByDid, viewer, now);
+    else renderFeedView(container, feedContainer, header, feed.entries, feed.authorsByDid, viewer, now);
   } catch (err) {
     // Revalidate failed. If we already painted from cache, keep that stale view
     // (offline resilience — the freshness note still shows how old it is);
@@ -309,7 +318,11 @@ const main = async (): Promise<void> => {
   const app = document.getElementById('app');
   if (app === null) throw new Error('shell mount point #app missing');
   const content = el('section', 'panel');
-  content.append(el('h2', 'section-title', 'Cookbook'));
+  // Title row: "Cookbook" on the left; the own-cookbook "New Recipe" link is
+  // added to the right of it by renderFeedView (viewer-only).
+  const header = el('div', 'cookbook-header');
+  header.append(el('h2', 'section-title', 'Cookbook'));
+  content.append(header);
 
   const viewedDid = new URLSearchParams(window.location.search).get('did');
   const feedContainer = el('div');
@@ -323,7 +336,7 @@ const main = async (): Promise<void> => {
     void mountBuildStamp(app);
     try {
       const { pds } = await resolveDidDoc(viewedDid);
-      await showFeed(content, feedContainer, { did: viewedDid, pds });
+      await showFeed(content, feedContainer, header, { did: viewedDid, pds });
     } catch (err) {
       log.error('cookbook', 'cold-view load failed', { did: viewedDid, error: String(err) });
       feedContainer.replaceChildren(el('p', 'status', `couldn’t load cookbook: ${String(err)}`));
@@ -365,7 +378,7 @@ const main = async (): Promise<void> => {
     const { pds } = await retryOnce(() => resolveDidDoc(did));
     mountShell(app, content);
     void mountBuildStamp(app);
-    await showFeed(content, feedContainer, { did, pds }, {
+    await showFeed(content, feedContainer, header, { did, pds }, {
       config: createReachPrefs().load(),
       isOwn: true,
     });

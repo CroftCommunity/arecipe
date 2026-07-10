@@ -73,6 +73,8 @@ test('@live author → publish → appears in Alchemy (the write path)', async (
   });
   await expect(page.getByTestId('signed-in-did')).toContainText(TEST_DID, { timeout: 30_000 });
 
+  // New recipe lives on Alchemy (signIn lands on Account now).
+  await page.goto('/mine.html');
   await page.getByTestId('new-recipe').click();
   await expect(page).toHaveURL(/editor\.html/);
   const name = `Midnight Toast (${MARKER})`;
@@ -90,8 +92,12 @@ test('@live author → publish → appears in Alchemy (the write path)', async (
 
   await page.getByTestId('publish').click();
 
-  // Publish lands back on Alchemy with the record in Published.
+  // Publish lands back on Alchemy (the editor redirects there).
   await expect(page).toHaveURL(/mine\.html/, { timeout: 60_000 });
+  // The published record now surfaces on Cookbook → "Mine" (the Alchemy
+  // Published list was retired — one home for your published recipes).
+  await page.goto('/cookbook.html');
+  await page.getByTestId('source-mine').click();
   await expect(page.getByTestId('recipe-item').filter({ hasText: name })).toHaveCount(1, {
     timeout: 30_000,
   });

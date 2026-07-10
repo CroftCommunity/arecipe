@@ -21,6 +21,50 @@ import { createStarterPrefs, loadStarterFeed } from './starter.js';
 /** A placeable recipe: strong-ref material plus a display name. */
 export type PaletteItem = { uri: string; cid: string; name: string };
 
+/** A window over the palette for the pager: the visible slice plus the state
+ * the prev/next arrows and "Showing X–Y of N" hint need. */
+export type PalettePage = {
+  items: PaletteItem[];
+  total: number;
+  /** 1-based index of the first shown item (0 when empty). */
+  start: number;
+  /** 1-based index of the last shown item (0 when empty). */
+  end: number;
+  hasPrev: boolean;
+  hasNext: boolean;
+};
+
+/** Page/window the palette. A non-empty query searches the whole set by name
+ * (case-insensitive) and shows every match with no paging — the type-ahead is
+ * already the narrowing. Unfiltered, the set is windowed to `cap`, with prev/
+ * next arrows so a browser can cycle through recipes they wouldn't know to
+ * search for. A stale `offset` past the end clamps to the last page. Pure. */
+export const paginatePalette = (
+  all: PaletteItem[],
+  opts: { query: string; cap: number; offset: number },
+): PalettePage => {
+  const q = opts.query.trim().toLowerCase();
+  const matched = q === '' ? all : all.filter((i) => i.name.toLowerCase().includes(q));
+  const total = matched.length;
+  if (total === 0) {
+    return { items: [], total: 0, start: 0, end: 0, hasPrev: false, hasNext: false };
+  }
+  if (q !== '') {
+    return { items: matched, total, start: 1, end: total, hasPrev: false, hasNext: false };
+  }
+  const lastPageOffset = Math.floor((total - 1) / opts.cap) * opts.cap;
+  const offset = Math.min(Math.max(0, opts.offset), lastPageOffset);
+  const items = matched.slice(offset, offset + opts.cap);
+  return {
+    items,
+    total,
+    start: offset + 1,
+    end: offset + items.length,
+    hasPrev: offset > 0,
+    hasNext: offset + opts.cap < total,
+  };
+};
+
 /** The minimal recipe-entry shape every feed source yields. */
 type Entry = { uri: string; cid: string; value: Record<string, unknown> };
 

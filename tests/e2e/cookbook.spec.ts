@@ -113,19 +113,20 @@ test('cookbook cold-view has the shared toolbar driving the feed (Phase 8 wiring
   await expect(page.getByTestId('view-tiles')).toBeVisible({ timeout: 15_000 });
   await expect(page.getByTestId('view-details')).toBeVisible();
   await expect(page.getByTestId('recipes-status')).toBeVisible();
-  // Tiles view = a .recipe-grid; the feed has cards.
-  await expect(page.locator('.cookbook-feed .recipe-grid, [data-testid="cookbook-feed"] .recipe-grid')).toBeVisible();
+  // Cookbook opens on Details (rows) — the reading-oriented default (unlike
+  // Browse's tiles-first). The feed paints as .recipe-rows.
+  await expect(page.locator('[data-testid="cookbook-feed"] .recipe-rows')).toBeVisible();
   const count = await page.getByTestId('recipe-item').count();
   expect(count).toBeGreaterThan(0);
 
-  // Toggle Details → the feed re-renders as rows (both directions asserted).
-  await page.getByTestId('view-details').click();
-  await expect(page.locator('[data-testid="cookbook-feed"] .recipe-rows')).toBeVisible();
-  await expect(page.locator('[data-testid="cookbook-feed"] .recipe-grid')).toHaveCount(0);
-  // Back to Tiles.
+  // Toggle Tiles → the feed re-renders as a grid (both directions asserted).
   await page.getByTestId('view-tiles').click();
   await expect(page.locator('[data-testid="cookbook-feed"] .recipe-grid')).toBeVisible();
   await expect(page.locator('[data-testid="cookbook-feed"] .recipe-rows')).toHaveCount(0);
+  // Back to Details.
+  await page.getByTestId('view-details').click();
+  await expect(page.locator('[data-testid="cookbook-feed"] .recipe-rows')).toBeVisible();
+  await expect(page.locator('[data-testid="cookbook-feed"] .recipe-grid')).toHaveCount(0);
 });
 
 test('cold-view shows a content-freshness note and paints from cache while the revalidate stalls (SWR)', async ({

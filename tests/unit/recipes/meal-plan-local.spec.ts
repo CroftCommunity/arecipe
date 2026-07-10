@@ -6,7 +6,9 @@ import { describe, expect, it, vi } from 'vitest';
 import type { Logger } from '../../../src/log.js';
 import {
   createMealPlanStore,
+  duplicateWeeks,
   type LocalPlanInput,
+  type LocalWeek,
   type StorageLike,
 } from '../../../src/recipes/meal-plan-local.js';
 
@@ -34,6 +36,40 @@ const aPlan = (name: string): LocalPlanInput => ({
       days: Array.from({ length: 7 }, () => ({})),
     },
   ],
+});
+
+describe('duplicateWeeks', () => {
+  const week = (name: string): LocalWeek => ({
+    repeat: 1,
+    days: Array.from({ length: 7 }, (_unused, i) =>
+      i === 0 ? { recipe: { uri: `at://x/${name}`, cid: `cid-${name}`, name } } : {},
+    ),
+  });
+
+  it('appends a deep copy of every planned week, doubling the plan', () => {
+    const weeks = [week('a'), week('b')];
+    const out = duplicateWeeks(weeks, 6);
+    expect(out).toHaveLength(4);
+    expect(out[2]?.days[0]?.recipe?.name).toBe('a');
+    expect(out[3]?.days[0]?.recipe?.name).toBe('b');
+  });
+
+  it('deep-copies so editing a duplicate does not mutate the original', () => {
+    const weeks = [week('a')];
+    const out = duplicateWeeks(weeks, 6);
+    out[1]!.days[0] = {}; // clear the copy's first slot
+    expect(out[0]?.days[0]?.recipe?.name).toBe('a'); // original untouched
+  });
+
+  it('refuses to duplicate when doubling would exceed the max (returns input)', () => {
+    const weeks = [week('a'), week('b'), week('c'), week('d')]; // 4 → 8 > 6
+    expect(duplicateWeeks(weeks, 6)).toBe(weeks);
+  });
+
+  it('allows duplication that lands exactly on the max', () => {
+    const weeks = [week('a'), week('b'), week('c')]; // 3 → 6 == max
+    expect(duplicateWeeks(weeks, 6)).toHaveLength(6);
+  });
 });
 
 describe('createMealPlanStore', () => {
