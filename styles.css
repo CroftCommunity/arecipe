@@ -1402,3 +1402,53 @@ table.ref.pairs td.eq {
 .cal-slot {
   overflow-wrap: anywhere;
 }
+
+/* --- Meal planner palette source switch + filter (Phase 7) ---------------- */
+.palette-source {
+  display: flex;
+  gap: var(--s-1);
+  margin-bottom: var(--s-2);
+}
+.src-btn {
+  appearance: none;
+  flex: 1;
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-s);
+  background: var(--card);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 0.85rem;
+  padding: var(--s-1) var(--s-2);
+  cursor: pointer;
+  opacity: 0.7;
+}
+.src-btn--active {
+  border-color: var(--enamel);
+  opacity: 1;
+  font-weight: 700;
+}
+.palette-filter {
+  width: 100%;
+  font-family: var(--body);
+  padding: var(--s-1) var(--s-2);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-s);
+  background: var(--card);
+  color: var(--ink);
+  margin-bottom: var(--s-2);
+}
+.palette-handle {
+  display: flex;
+  gap: var(--s-1);
+  margin-bottom: var(--s-3);
+}
+.handle-input {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--body);
+  padding: var(--s-1) var(--s-2);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-s);
+  background: var(--card);
+  color: var(--ink);
+}

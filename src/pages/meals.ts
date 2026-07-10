@@ -1,13 +1,16 @@
-// Meals planner page. Phase 1 stood up the route; Phase 5 grew it into the
-// week builder (palette + tap-to-place + local persistence); Phase 6 adds the
-// per-week repeat control and the calendar below, which stamps each week
-// `repeat` times via the model's pure expandCalendar. The real Cookbook/Browse
-// palette (Phase 7), drag (Phase 8), and PDS sync (Phase 9) build on this.
+// Meals planner page. Phase 1 route → Phase 5 builder → Phase 6 calendar →
+// Phase 7 real palette: two sources behind a switch (My Cookbook / Browse) plus
+// add-a-cook-by-handle, reusing arecipe's existing feed reads. Drag (Phase 8)
+// and PDS sync (Phase 9) build on this.
 //
-// The planner works signed-out: the local store is the in-flight buffer; the
-// PDS record (Phase 9) is the durable, cross-browser home.
+// The planner works signed-out: Browse (the starter feed) needs no auth and is
+// the default when signed out; My Cookbook needs your identity, so it lazily
+// (dynamic-import) boots the session only when that source is chosen — the
+// initial bundle stays free of the heavy auth client. The local store is the
+// in-flight buffer; the PDS record (Phase 9) is the durable home.
 
 import { mountBuildStamp } from '../build-stamp.js';
+import { resolveDidDoc } from '../identity/did.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
 import { expandCalendar } from '../recipes/meal-plan.js';
@@ -17,11 +20,16 @@ import {
   type LocalWeek,
   type MealPlanStore,
 } from '../recipes/meal-plan-local.js';
+import {
+  loadCookbookPalette,
+  loadHandlePalette,
+  loadStarterPalette,
+  type PaletteItem,
+} from '../recipes/meal-plan-palette.js';
 import { registerServiceWorker } from '../sw-register.js';
 
-/** A placeable recipe: strong-ref material plus a display name. */
-export type PaletteItem = { uri: string; cid: string; name: string };
 export type PaletteProvider = () => Promise<PaletteItem[]>;
+type Source = 'cookbook' | 'browse';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
   const node = document.createElement(tag);
@@ -44,9 +52,18 @@ const clampRepeat = (raw: number): number => {
   return Math.min(REPEAT_MAX, n);
 };
 
-/** Default palette provider (Phase 5): an optional localStorage seed, inert in
- * production. Phase 7 replaces this with the real Cookbook/Browse providers. */
-const seededPalette: PaletteProvider = async () => {
+const sessionHintSignedIn = (): boolean => {
+  try {
+    return window.localStorage.getItem('arecipe-session') === '1';
+  } catch {
+    return false;
+  }
+};
+
+/** Optional localStorage palette seed (Phase 5 test/dev seam): when present it
+ * short-circuits the network sources so hermetic tests need no routing. Inert
+ * in production (no seed → the real providers load). */
+const readSeed = (): PaletteItem[] => {
   try {
     const raw = window.localStorage.getItem(PALETTE_SEED_KEY);
     if (raw === null) return [];
@@ -69,12 +86,18 @@ export const main = async (
   if (app === null) throw new Error('shell mount point #app missing');
 
   const store = deps.store ?? createMealPlanStore();
-  const provider = deps.palette ?? seededPalette;
+  const signedInHint = sessionHintSignedIn();
 
   // Single implicit plan (v1): edit the first plan, creating one if absent.
   let plan: LocalPlan = store.list()[0] ?? store.save({ name: 'My meal plan', weeks: [emptyWeek()] });
   let armed: PaletteItem | null = null;
-  let items: PaletteItem[] = [];
+
+  // Palette state: items from the active source + items added by handle, filtered.
+  let source: Source = signedInHint ? 'cookbook' : 'browse';
+  let sourceItems: PaletteItem[] = [];
+  let addedItems: PaletteItem[] = [];
+  let filterText = '';
+  let you: { did: string; pds: string } | null = null;
 
   const content = el('section', 'panel');
   content.append(el('h2', 'section-title', 'Meals'));
@@ -83,8 +106,37 @@ export const main = async (
   const palette = el('aside', 'palette');
   palette.dataset['testid'] = 'palette';
   palette.append(el('h3', 'palette-title', 'Recipes'));
+
+  const sourceSwitch = el('div', 'palette-source');
+  const cookbookBtn = el('button', 'src-btn', 'My Cookbook') as HTMLButtonElement;
+  cookbookBtn.type = 'button';
+  cookbookBtn.dataset['testid'] = 'source-cookbook';
+  const browseBtn = el('button', 'src-btn', 'Browse') as HTMLButtonElement;
+  browseBtn.type = 'button';
+  browseBtn.dataset['testid'] = 'source-browse';
+  sourceSwitch.append(cookbookBtn, browseBtn);
+  palette.append(sourceSwitch);
+
+  const filterInput = el('input', 'palette-filter') as HTMLInputElement;
+  filterInput.type = 'search';
+  filterInput.placeholder = 'filter recipes…';
+  filterInput.dataset['testid'] = 'palette-filter';
+  palette.append(filterInput);
+
+  const handleRow = el('div', 'palette-handle');
+  const handleInput = el('input', 'handle-input') as HTMLInputElement;
+  handleInput.type = 'text';
+  handleInput.placeholder = 'a cook’s handle — try rdur.dev';
+  handleInput.dataset['testid'] = 'palette-handle-input';
+  const handleAdd = el('button', 'button', 'Add') as HTMLButtonElement;
+  handleAdd.type = 'button';
+  handleAdd.dataset['testid'] = 'palette-handle-add';
+  handleRow.append(handleInput, handleAdd);
+  palette.append(handleRow);
+
   const chips = el('div', 'palette-chips');
   palette.append(chips);
+
   const builder = el('div', 'builder');
   builder.dataset['testid'] = 'builder';
   planner.append(palette, builder);
@@ -108,13 +160,36 @@ export const main = async (
     );
   };
 
+  const combined = (): PaletteItem[] => {
+    const seen = new Set<string>();
+    const out: PaletteItem[] = [];
+    for (const it of [...sourceItems, ...addedItems]) {
+      if (seen.has(it.uri)) continue;
+      seen.add(it.uri);
+      out.push(it);
+    }
+    return out;
+  };
+
+  const shown = (): PaletteItem[] => {
+    const q = filterText.trim().toLowerCase();
+    const all = combined();
+    return q === '' ? all : all.filter((i) => i.name.toLowerCase().includes(q));
+  };
+
+  const renderSourceSwitch = (): void => {
+    cookbookBtn.classList.toggle('src-btn--active', source === 'cookbook');
+    browseBtn.classList.toggle('src-btn--active', source === 'browse');
+  };
+
   const renderChips = (): void => {
     chips.replaceChildren();
-    if (items.length === 0) {
-      chips.append(el('p', 'status', 'No recipes yet — your Cookbook fills this in a later build.'));
+    const list = shown();
+    if (list.length === 0) {
+      chips.append(el('p', 'status', 'No recipes here yet — switch source or add a cook by handle.'));
       return;
     }
-    for (const item of items) {
+    for (const item of list) {
       const chip = el('button', 'chip', item.name) as HTMLButtonElement;
       chip.type = 'button';
       chip.dataset['testid'] = 'palette-chip';
@@ -127,6 +202,60 @@ export const main = async (
       chips.append(chip);
     }
   };
+
+  const loadSource = async (): Promise<void> => {
+    if (source === 'browse') {
+      sourceItems = await loadStarterPalette();
+    } else {
+      // Cookbook needs your identity — boot the session lazily (defers the heavy
+      // auth client off the initial bundle). Signed out, resolves starters only.
+      if (you === null && signedInHint) {
+        try {
+          const { bootSession } = await import('../auth/boot.js');
+          const { agent } = await bootSession();
+          if (agent?.did !== undefined) {
+            const { pds } = await resolveDidDoc(agent.did);
+            you = { did: agent.did, pds };
+          }
+        } catch (err) {
+          log.warn('meal-plan', 'auth for cookbook palette failed', { error: String(err) });
+        }
+      }
+      sourceItems = await loadCookbookPalette(you === null ? {} : { you });
+    }
+    renderChips();
+  };
+
+  const setSource = (next: Source): void => {
+    if (source === next) return;
+    source = next;
+    sourceItems = [];
+    renderSourceSwitch();
+    renderChips();
+    void loadSource();
+  };
+  cookbookBtn.addEventListener('click', () => setSource('cookbook'));
+  browseBtn.addEventListener('click', () => setSource('browse'));
+
+  filterInput.addEventListener('input', () => {
+    filterText = filterInput.value;
+    renderChips();
+  });
+
+  handleAdd.addEventListener('click', () => {
+    const handle = handleInput.value.trim();
+    if (handle === '') return;
+    handleAdd.disabled = true;
+    void loadHandlePalette(handle)
+      .then((added) => {
+        addedItems = [...addedItems, ...added];
+        handleInput.value = '';
+        renderChips();
+      })
+      .finally(() => {
+        handleAdd.disabled = false;
+      });
+  });
 
   const renderCalendar = (): void => {
     calBody.replaceChildren();
@@ -141,18 +270,16 @@ export const main = async (
       calBody.append(empty);
       return;
     }
-    // expandCalendar sequences the (week, rep) rows; the days are read from the
-    // typed source week so the display name survives.
     for (const cw of expandCalendar(plan.weeks)) {
-      const source = plan.weeks[cw.week - 1];
-      if (source === undefined) continue;
+      const src = plan.weeks[cw.week - 1];
+      if (src === undefined) continue;
       const row = el('div', 'cal-week');
       row.dataset['testid'] = 'cal-week';
       row.dataset['week'] = String(cw.week);
-      const label = source.repeat > 1 ? `Week ${cw.week} · ${cw.rep} of ${source.repeat}` : `Week ${cw.week}`;
+      const label = src.repeat > 1 ? `Week ${cw.week} · ${cw.rep} of ${src.repeat}` : `Week ${cw.week}`;
       row.append(el('div', 'cal-week-label', label));
       const daysEl = el('div', 'cal-days');
-      source.days.forEach((slot, di) => {
+      src.days.forEach((slot, di) => {
         const cell = el('div', 'cal-day');
         cell.append(el('span', 'day-label', DAY_LABELS[di]));
         if (slot.recipe !== undefined) {
@@ -266,17 +393,26 @@ export const main = async (
 
   mountShell(app, content);
   rerender();
+  renderSourceSwitch();
   renderChips();
-  try {
-    items = await provider();
-  } catch (err) {
-    log.warn('meal-plan', 'palette load failed', { error: String(err) });
-    items = [];
+
+  // Palette load: a test/dev seed short-circuits the network; otherwise load the
+  // real source (deps.palette, if injected, overrides both — for future tests).
+  if (deps.palette !== undefined) {
+    sourceItems = await deps.palette();
+    renderChips();
+  } else {
+    const seed = readSeed();
+    if (seed.length > 0) {
+      sourceItems = seed;
+      renderChips();
+    } else {
+      void loadSource();
+    }
   }
-  renderChips();
+
   void mountBuildStamp(app);
-  // signedIn is wired to a real agent in Phase 9 (auth arrives with PDS sync).
-  log.debug('shell', 'mounted', { page: 'meals', signedIn: false });
+  log.debug('shell', 'mounted', { page: 'meals', signedIn: signedInHint });
   void registerServiceWorker();
 };
 

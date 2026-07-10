@@ -1,6 +1,6 @@
 # Meals — a meal-planner tab for arecipe
 
-**Status:** In execution (started 2026-07-10). Phase 0 ✅ · Phase 1 ✅ · Phase 2 ✅ · Phase 3 ✅ · Phase 4 ✅ · Phase 5 ✅ · Phase 6 ✅ · Phases 7–9 pending.
+**Status:** In execution (started 2026-07-10). Phase 0 ✅ · Phase 1 ✅ · Phase 2 ✅ · Phase 3 ✅ · Phase 4 ✅ · Phase 5 ✅ · Phase 6 ✅ · Phase 7 ✅ · Phases 8–9 pending.
 
 ## Outcome Summary
 
@@ -13,7 +13,7 @@
 | 4 Local store | ✅ shipped | `e23b54a` | `src/recipes/meal-plan-local.ts` — `localStorage` in-flight buffer (`arecipe.mealplans.v1`), injectable storage+logger; corrected fail posture (propagate storage errors, tolerate corrupt reads with a warn), debug logs on save/remove. 7 unit tests. 250 unit total. Library phase — wired by P5. |
 | 5 Week builder + tap-to-place | ✅ shipped | `be59903` | `meals.ts` grown into the builder (palette chips, 7-day week rows, tap-to-arm/place/clear, add/remove week cap 6) persisting to the P4 store; planner CSS. Wiring e2e: tap→place→**reload-persist**→clear→add-week. This is P4's entry-point wiring proof. 92 e2e, 250 unit. |
 | 6 Calendar + repeat | ✅ shipped | `a4bea68` | Per-week `repeat` input (1–12, clamped) + calendar section driven by the model's `expandCalendar` (stamps in order, rep badge, empty state). Wiring e2e: repeat→3 ⇒ 3 stamped rows each carrying the filled day. This is P3 `expandCalendar`'s entry-point wiring proof. 94 e2e, 250 unit. |
-| 7 Palette (Cookbook + Browse) | ⬜ pending | — | |
+| 7 Palette (Cookbook + Browse) | ✅ shipped | `<pending-p7>` | `meal-plan-palette.ts` (3 loaders, replicated `membersToAuthors`, degrade+log seams) + source switch / filter / add-a-cook wired into `meals.ts`. 7 loader unit tests; hermetic e2e (Browse loads, filter narrows, switch toggles, handle appends). Auth deferred (dynamic import; meals stays 8K auth-free). Signed-in manual leg unrunnable here (no creds). 95 e2e, 257 unit. |
 | 8 Drag enhancement | ⬜ pending | — | |
 | 9 PDS sync | ⬜ pending | — | |
 
@@ -766,7 +766,34 @@ model function (do not re-implement in the page).
 
 ---
 
-### Phase 7: Palette from Cookbook + Browse source (starter feed + handle)
+### Phase 7: Palette from Cookbook + Browse source (starter feed + handle) — ✅ SHIPPED (`<pending-p7>`)
+**Delivered (2026-07-10):** `src/recipes/meal-plan-palette.ts` — `loadCookbookPalette`,
+`loadStarterPalette`, `loadHandlePalette`, each mapping feed entries → `{uri,cid,name}`,
+degrading to `[]` on failure with `log.warn('meal-plan','palette source failed',{source})`
+and `log.info('…','palette loaded',{source,count})`. The page-private `membersToAuthors`
+is **replicated** in-module per the Pass 3 seam correction (swap for the exported
+`cookbook-members-view.ts` when the in-flight branch merges — single import). `meals.ts`
+wires a source switch (My Cookbook / Browse), a text filter, and add-a-cook-by-handle.
+7 loader unit tests (mapping + degrade per source + `(untitled)` fallback) and a hermetic
+routed e2e (Browse loads, filter narrows to a subset / empties on no-match, source switch
+toggles active, handle-add appends a distinct cook). 95 e2e / 257 unit, lint+typecheck clean.
+**Deviations / decisions (2026-07-10):**
+- **Auth deferred, not pulled forward wholesale.** Cookbook needs your identity, so
+  `meals.ts` picks the default source from the cheap session **hint** and lazily
+  `import('../auth/boot.js')` only when the Cookbook source is chosen — the initial
+  meals bundle stays **8K, auth-free** (verified: no `createOAuthClient` in it). Phase 9
+  reuses this agent path for sync.
+- **Seed short-circuit retained, not "replaced".** The Phase 5 `localStorage` palette
+  seed now **short-circuits** the network sources (present → use seed, skip load), keeping
+  the Phase 5/6 tap-to-place tests hermetic without rewiring. Inert in production; the real
+  providers are the actual sources.
+- **Plain-text filter (facets deferred, ADVISORY).** Per the plan's "reuse `browse-state.ts`
+  facets if cheap, else plain text filter" — shipped the plain substring filter; cuisine/
+  category/photo facets are a follow-up.
+- **Signed-in manual leg unrunnable here.** Broad validation called for a manual signed-in
+  Cookbook run + handle pull; no credentials in this worktree (same limitation as D1). The
+  Cookbook loader is covered by unit tests and the handle leg by unit + routed e2e (rdur.dev).
+  A credentialed manual check is deferred alongside Phase 9's LIVE gate.
 **Goal:** Replace the injected palette with two real providers behind a source
 switch — **My Cookbook** and **Browse** — both feeding the same filterable chips.
 **Changes:**

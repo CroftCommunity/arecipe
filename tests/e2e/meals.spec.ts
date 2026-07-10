@@ -2,7 +2,46 @@
 // Phase 1 (route skeleton): the entry point (meals.html → meals.js → meals.ts
 // main()) mounts the shared shell and shows the "Meals" heading. RED until the
 // page + build registration exist; GREEN once the route is real and built.
+import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
+
+// Phase 7: route arecipe's real feed reads to fixtures so the palette's Browse
+// source (starter feed), the Cookbook source, and add-a-cook-by-handle all load
+// hermetically — any DID resolves to one fake PDS that serves the recorded
+// recipe list, re-uri'd per repo so cards are distinct.
+const recipeList = () =>
+  JSON.parse(
+    readFileSync(new URL('../fixtures/atproto/listRecords-exchange.recipe.recipe.json', import.meta.url), 'utf8'),
+  ) as { records: { uri: string; cid: string; value: { name: string } }[] };
+
+const routeFeeds = async (page: Page): Promise<void> => {
+  await page.route('https://plc.directory/**', async (route) => {
+    const did = decodeURIComponent(route.request().url().split('/').pop() ?? '');
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        id: did,
+        service: [
+          { id: '#atproto_pds', type: 'AtprotoPersonalDataServer', serviceEndpoint: 'https://pds.test' },
+        ],
+      }),
+    });
+  });
+  await page.route('https://pds.test/**', async (route) => {
+    const repo = new URL(route.request().url()).searchParams.get('repo') ?? 'did:plc:x';
+    const list = recipeList();
+    for (const r of list.records) r.uri = r.uri.replace(/did:plc:[a-z0-9]+/, repo);
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(list) });
+  });
+  await page.route('https://public.api.bsky.app/**', async (route) => {
+    if (route.request().url().includes('resolveHandle')) {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ did: 'did:plc:handleadd' }) });
+    } else {
+      await route.fulfill({ status: 404, contentType: 'application/json', body: '{}' });
+    }
+  });
+};
 
 // Phase 5 palette injection: the page reads an optional localStorage seed
 // (`arecipe.meals.palette-seed`) as its default provider — inert in production
@@ -109,4 +148,41 @@ test('calendar: shows an empty state until something is planned', async ({ page 
   await seedPalette(page);
   await page.goto('/meals.html');
   await expect(page.getByTestId('calendar-empty')).toBeVisible();
+});
+
+test('palette: Browse source loads, filter narrows, source switch toggles, add-a-cook appends', async ({
+  page,
+}) => {
+  await routeFeeds(page);
+  await page.goto('/meals.html'); // signed out → Browse is the default source
+
+  // Browse (starter feed) populates the palette from the routed fixtures.
+  const chips = page.getByTestId('palette-chip');
+  await expect(chips.first()).toBeVisible();
+  const initialCount = await chips.count();
+  expect(initialCount).toBeGreaterThan(0);
+
+  // Filtering to a non-matching term empties the list; a real substring narrows.
+  const filter = page.getByTestId('palette-filter');
+  await filter.fill('zzzznomatch');
+  await expect(chips).toHaveCount(0);
+  await filter.fill('Ham');
+  const hamCount = await chips.count();
+  expect(hamCount).toBeGreaterThan(0);
+  expect(hamCount).toBeLessThan(initialCount);
+  await filter.fill('');
+
+  // Source switch: Browse active by default; clicking My Cookbook toggles it.
+  await expect(page.getByTestId('source-browse')).toHaveClass(/src-btn--active/);
+  await page.getByTestId('source-cookbook').click();
+  await expect(page.getByTestId('source-cookbook')).toHaveClass(/src-btn--active/);
+  await expect(page.getByTestId('source-browse')).not.toHaveClass(/src-btn--active/);
+
+  // Back to Browse, then add a cook by handle appends that cook's recipes.
+  await page.getByTestId('source-browse').click();
+  await expect(chips.first()).toBeVisible();
+  const beforeAdd = await chips.count();
+  await page.getByTestId('palette-handle-input').fill('rdur.dev');
+  await page.getByTestId('palette-handle-add').click();
+  await expect.poll(() => chips.count()).toBeGreaterThan(beforeAdd);
 });
