@@ -112,9 +112,14 @@ export const availableFacets = (
   return { cuisine: [...cuisine].sort(), category: [...category].sort() };
 };
 
-const VIEW_KEY = 'browse-view-mode';
-const PHOTOS_KEY = 'browse-photos-only';
-const FACETS_KEY = 'browse-facets';
+// Keys are prefixed per consumer so Browse and Cookbook persist independently
+// (OQ11): a Details/facet choice on one page does not bleed into the other. The
+// default prefix 'browse' keeps Browse's existing keys unchanged (no migration).
+const keysFor = (prefix: string) => ({
+  VIEW_KEY: `${prefix}-view-mode`,
+  PHOTOS_KEY: `${prefix}-photos-only`,
+  FACETS_KEY: `${prefix}-facets`,
+});
 
 const defaultState = (): BrowseState => ({
   view: 'tiles',
@@ -130,8 +135,11 @@ export type BrowsePrefs = {
   save: (state: BrowseState) => void;
 };
 
-export const createBrowsePrefs = (opts: { storage?: StorageLike } = {}): BrowsePrefs => {
+export const createBrowsePrefs = (
+  opts: { storage?: StorageLike; prefix?: string } = {},
+): BrowsePrefs => {
   const storage = opts.storage ?? window.localStorage;
+  const { VIEW_KEY, PHOTOS_KEY, FACETS_KEY } = keysFor(opts.prefix ?? 'browse');
   const readItem = (key: string): string | null => {
     try {
       return storage.getItem(key);

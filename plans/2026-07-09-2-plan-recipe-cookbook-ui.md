@@ -43,7 +43,12 @@ Execution status (updated per phase; SHA recorded when the next phase commits):
   cold-view-feed-only + signed-out→Browse + landing reconciliation. Doc:
   `DESIGN.md`. Full gate green (231 unit / 95 e2e). @live GREEN (Account members
   render — `account-live.spec.ts`).
-- ⬜ Phases 7–11c — pending.
+- ✅ **Phase 6** committed `bd116dd` (chore `33e131a`).
+- ✅ **Phase 7** — extracted shared `renderToolbar` (`src/recipes/toolbar.ts`);
+  `browse.ts` consumes it (behavior identical); `createBrowsePrefs(prefix)`
+  parameterized (OQ11, default `'browse'`). Behavior-preserving refactor —
+  `browse.spec.ts` unedited and green (10/10). Full gate green (231 unit / 95 e2e).
+- ⬜ Phases 8–11c — pending.
 
 **Tooling note:** a separate chore commit excludes `.claude/` (untracked scratch
 holding a nested locked git worktree from another context) from ESLint + the
@@ -970,7 +975,24 @@ only exercises the members-render-with-real-graph path.*
 classes → no `styles.css` change, no inline styles. Intact.
 **Stop-point.**
 
-### Phase 7: Extract the Browse toolbar into a shared component
+### Phase 7: Extract the Browse toolbar into a shared component — ✅ SHIPPED
+
+**Delivered (2026-07-09):** New `src/recipes/toolbar.ts` — `renderToolbar({
+showDietLink, callbacks })` builds the `.browse-toolbar` DOM (segmented
+Tiles/Details, Photos-only, `.browse-facets`, count block with reset/status/diet
+link) with byte-identical testids/classes, wires control listeners to callbacks
+(`onViewChange`/`onPhotosToggle`/`onFacetChange`/`onReset`) + the outside-click
+dropdown close, and returns a `ToolbarController` the page drives
+(`reflectView`/`setPhotos`/`rebuildFacets`/`setStatus`/`setResetVisible`).
+`browse.ts` rewired to consume it — search form, starter feed, last-find, diet
+preference, `collapseVersions`, and the `renderCurrent`/`showCurrent` seams stay
+in the page; all status writes go through `toolbar.setStatus`. `browse-state.ts`
+`createBrowsePrefs({ prefix })` parameterized (OQ11): keys are `${prefix}-*`,
+default `'browse'` → Browse keys unchanged. **Characterization/refactor** (Pass 3):
+`browse.spec.ts` was **not** edited and stayed green 10/10 — the regression guard.
+Type fix caught by tsc: `rebuildFacets` takes the facet-**arrays** shape
+(`BrowseState['facets']`), not per-recipe `RecipeFacets`. Full gate green: 231
+unit, 95 e2e.
 
 **Goal:** A reusable `renderToolbar` both Browse and Cookbook can use;
 Browse behavior unchanged.
