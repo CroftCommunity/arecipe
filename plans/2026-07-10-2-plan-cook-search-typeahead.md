@@ -8,7 +8,7 @@
 | Phase | Outcome | Commit | Note |
 |-------|---------|--------|------|
 | 1 — actor-search data module | ✅ SHIPPED | `2f933f1` | AppView typeahead query → suggestions; soft-degrade; 11 unit tests. |
-| 2 — typeahead UI component | ⏳ pending | — | |
+| 2 — typeahead UI component | ✅ SHIPPED | `d90f715` | Debounced a11y listbox; generation guard; avatar; 10 unit tests. Visual smoke → Phase 3 live run. |
 | 3 — wire into Browse | ⏳ pending | — | |
 | 4 — wire into Meals | ⏳ pending | — | |
 
@@ -207,7 +207,11 @@ convention only).
 2. **Verification:** `npx vitest run tests/unit/identity/actor-search.spec.ts`.
 **Validation:** Narrow — wiring/unit tests sufficient.
 
-### Phase 2: Reusable typeahead UI component
+### Phase 2: Reusable typeahead UI component — ✅ SHIPPED (`d90f715`)
+
+**Delivered:** As specified. The visual/positioning + theme smoke was folded
+into Phase 3's live run (the component has no page to render in until it's
+wired); unit tests + typecheck cover the logic here.
 
 **Goal:** Attach accessible, debounced typeahead behavior to any existing
 `<input>`, driven by an injected `search` function.
