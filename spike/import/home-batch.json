@@ -1,0 +1,365 @@
+[
+  {
+    "id": "sweet-tooth-pop-corn",
+    "image": "preview/1783598067422-8f7bd89f-34e1-4cc2-8e93-ec8e7028ccd3.jpg",
+    "enhanced": "enhanced/popcorn-enh.png",
+    "confidence": "high",
+    "notes": "A kid's recipe (marked “Experimental”). Voice kept as written.",
+    "name": "Sweet Tooth Pop Corn",
+    "text": "A no-bake treat: popcorn drizzled with melted M&Ms, chocolate and crushed pretzels.",
+    "ingredients": [
+      "Your favorite popcorn",
+      "M&Ms",
+      "Chocolate",
+      "Crushed pretzels"
+    ],
+    "instructions": [
+      "Take your favorite popcorn and make it.",
+      "Take M&Ms with chocolate and crushed pretzels and melt in the microwave.",
+      "Drizzle over the popcorn and enjoy!"
+    ],
+    "recipeYield": "1",
+    "prepTime": null,
+    "cookTime": "PT2M",
+    "totalTime": null,
+    "recipeCategory": "snack",
+    "recipeCuisine": "",
+    "keywords": [
+      "dessert",
+      "no-bake",
+      "kids"
+    ],
+    "suitableForDiet": [],
+    "attribution": {
+      "type": "person",
+      "name": "Cadence Pettet",
+      "notes": "Reconstructed from a handwritten recipe card."
+    }
+  },
+  {
+    "id": "mexican-pie",
+    "image": "preview/1783598119760-6f79db7e-3263-41a5-baa0-b0c4057906f4.jpg",
+    "confidence": "high",
+    "notes": "First line reads \"Brown 1 lb hamburger – drain (can)\"; the \"(can)\" likely means drain the can of beans, not the meat — confirm.",
+    "name": "Mexican Pie",
+    "text": "A quick taco-seasoned beef and refried-bean pie topped with a sour cream–green sauce layer and melted cheddar.",
+    "ingredients": [
+      "1 lb hamburger",
+      "1 pkg taco seasoning",
+      "1 can refried beans",
+      "1 (8 oz) sour cream",
+      "1 (8 oz) green taco sauce",
+      "Cheddar cheese, shredded"
+    ],
+    "instructions": [
+      "Brown 1 lb hamburger and drain.",
+      "Add taco seasoning and refried beans.",
+      "Put the mixture in the bottom of 2 small pie pans.",
+      "Mix sour cream and green taco sauce; spread on top.",
+      "Sprinkle with cheddar cheese.",
+      "Bake at 350°F for 20–30 minutes, until the cheese is melted."
+    ],
+    "recipeYield": "2 small pies",
+    "prepTime": null,
+    "cookTime": null,
+    "totalTime": null,
+    "recipeCategory": "dinner",
+    "recipeCuisine": "mexican",
+    "keywords": [],
+    "suitableForDiet": [],
+    "attribution": {
+      "type": "person",
+      "name": "Amanda Larrison",
+      "notes": "Reconstructed from a handwritten recipe card."
+    }
+  },
+  {
+    "id": "crockpot-potato-soup",
+    "image": "preview/1783598145962-7b1cb48d-4e7a-42fd-999c-6f481377b4a7.jpg",
+    "confidence": "partial",
+    "notes": "Page 1 of 2. The card says \"(over)\" — a second page (likely a mash/blend + dairy finish) was NOT in the scan set. Needs the second page.",
+    "name": "Crockpot Potato Soup",
+    "text": "A hearty Instant Pot / slow-cooker potato soup with celery, carrots, onion and white beans.",
+    "ingredients": [
+      "0.75 of a 5 lb bag of potatoes, peeled and diced",
+      "3 stalks celery, diced",
+      "2–3 carrots, diced",
+      "0.5 onion, diced",
+      "5–6 cups water",
+      "1 can white beans, rinsed",
+      "2–3 bouillon cubes"
+    ],
+    "instructions": [
+      "Add everything to the Instant Pot insert.",
+      "Slow cook on high for 3.5 hours.",
+      "[Continues on a missing second page — needs the \"(over)\" side.]"
+    ],
+    "recipeYield": "6",
+    "prepTime": null,
+    "cookTime": "PT3H30M",
+    "totalTime": null,
+    "recipeCategory": "soup",
+    "recipeCuisine": "american",
+    "keywords": [
+      "slow cooker",
+      "instant pot"
+    ],
+    "suitableForDiet": [],
+    "attribution": {
+      "type": "person",
+      "name": "Amanda Larrison",
+      "notes": "Reconstructed from a handwritten recipe card."
+    }
+  },
+  {
+    "id": "grandmas-ham-and-bean-soup",
+    "image": "preview/1783598168646-f5f70b97-4c72-45cc-858f-73fde2af6e12.jpg",
+    "confidence": "high",
+    "notes": "A trailing \"→\" suggests a little more method off the page. Potatoes and carrots are listed but their add-step was not captured — confirm.",
+    "name": "Grandma's Ham & Bean Soup",
+    "text": "A slow, old-fashioned ham and bean soup built on dried beans and a ham bone.",
+    "ingredients": [
+      "Ham or ham bone",
+      "1 cup dried beans (Great Northern or other)",
+      "Potatoes",
+      "Onion",
+      "Carrots"
+    ],
+    "instructions": [
+      "Put the dried beans in a pot with water to cover. Bring to a boil and boil for 5 minutes.",
+      "Turn off the burner and let sit for 2 hours.",
+      "Add ham and onion. Cook for 60–90 minutes."
+    ],
+    "recipeYield": "",
+    "prepTime": null,
+    "cookTime": null,
+    "totalTime": null,
+    "recipeCategory": "soup",
+    "recipeCuisine": "american",
+    "keywords": [],
+    "suitableForDiet": [],
+    "attribution": {
+      "type": "person",
+      "name": "Barbara Dolan",
+      "notes": "Reconstructed from a handwritten recipe card."
+    }
+  },
+  {
+    "id": "chicken-broccoli-casserole",
+    "image": "preview/1783598207989-e7ced70b-6778-46fe-ab47-5b817278b77b.jpg",
+    "confidence": "partial",
+    "notes": "PAGE 2 ONLY — this scan is just the assembly. The ingredient list (page 1) was not in the zip. Do not publish without page 1.",
+    "name": "Chicken–Broccoli Casserole",
+    "text": "A layered chicken and broccoli casserole (assembly only — ingredient list missing).",
+    "ingredients": [
+      "Broccoli",
+      "Chicken",
+      "[Other ingredients from the missing page 1 — usually a cream-of-something soup, mayo, cheese]",
+      "Shredded cheese (topping)",
+      "Croutons (optional)"
+    ],
+    "instructions": [
+      "Broccoli in the bottom.",
+      "Chicken on top.",
+      "All [other] ingredients mixed and poured on top.",
+      "Cover with shredded cheese and croutons (optional)."
+    ],
+    "recipeYield": "",
+    "prepTime": null,
+    "cookTime": null,
+    "totalTime": null,
+    "recipeCategory": "dinner",
+    "recipeCuisine": "american",
+    "keywords": [
+      "casserole"
+    ],
+    "suitableForDiet": [],
+    "attribution": {
+      "type": "person",
+      "name": "Amanda Larrison",
+      "notes": "Reconstructed from a handwritten recipe card."
+    }
+  },
+  {
+    "id": "vegetable-dip",
+    "image": "preview/1783598234679-db985a46-712a-4953-88f5-60443358e6be.jpg",
+    "confidence": "high",
+    "notes": "Card note: \"MUST USE HELLMANN’S.\"",
+    "name": "Vegetable Dip",
+    "text": "A herby sour-cream-and-mayo dip for raw vegetables. The card insists on Hellmann’s.",
+    "ingredients": [
+      "2/3 cup sour cream",
+      "2/3 cup Hellmann's mayo",
+      "1 Tbl parsley flakes",
+      "1 tsp Spice Island Beau Monde",
+      "1 tsp dill weed",
+      "1 tsp onion flakes"
+    ],
+    "instructions": [
+      "Mix it all.",
+      "Must use Hellmann's."
+    ],
+    "recipeYield": "",
+    "prepTime": null,
+    "cookTime": null,
+    "totalTime": null,
+    "recipeCategory": "appetizer",
+    "recipeCuisine": "american",
+    "keywords": [
+      "dip",
+      "no-cook"
+    ],
+    "suitableForDiet": [
+      "exchange.recipe.defs#dietVegetarian"
+    ],
+    "attribution": {
+      "type": "person",
+      "name": "Amanda Larrison",
+      "notes": "Reconstructed from a handwritten recipe card."
+    }
+  },
+  {
+    "id": "cheese-cake",
+    "image": "preview/1783598263830-6012ee09-df0e-43f8-81ec-7e3fbc85f279.jpg",
+    "confidence": "high",
+    "notes": "",
+    "name": "Cheese Cake",
+    "text": "A no-bake condensed-milk cheesecake in a graham crust, finished with cherry pie filling.",
+    "ingredients": [
+      "1 (8 oz) package cream cheese, room temperature",
+      "1 (14 oz) can sweetened condensed milk",
+      "1/3 cup real lemon juice",
+      "1 tsp vanilla extract",
+      "Graham cracker crust",
+      "Cherry pie filling"
+    ],
+    "instructions": [
+      "Beat the cream cheese until fluffy and light.",
+      "Blend in the condensed milk, then add the lemon juice and vanilla.",
+      "Pour into the crust.",
+      "Let stand in the refrigerator 3 hours.",
+      "Top with cherry pie filling."
+    ],
+    "recipeYield": "",
+    "prepTime": null,
+    "cookTime": null,
+    "totalTime": null,
+    "recipeCategory": "dessert",
+    "recipeCuisine": "american",
+    "keywords": [
+      "no-bake"
+    ],
+    "suitableForDiet": [
+      "exchange.recipe.defs#dietVegetarian"
+    ],
+    "attribution": {
+      "type": "person",
+      "name": "Amanda Larrison",
+      "notes": "Reconstructed from a handwritten recipe card."
+    }
+  },
+  {
+    "id": "pistachio-salad",
+    "image": "preview/1783598283544-da38d699-403a-4300-8a2e-e03b5b4a6e55.jpg",
+    "confidence": "high",
+    "notes": "No method was written on the card — the steps below are the conventional prep, not from the scan. Confirm.",
+    "name": "Pistachio Salad",
+    "text": "A fluffy pistachio-pudding dessert salad with pineapple, marshmallows and cherries.",
+    "ingredients": [
+      "1 (15 oz) can crushed pineapple (save the juice)",
+      "1 (8 oz) Cool Whip",
+      "1 box pistachio instant pudding mix",
+      "1 cup mini marshmallows",
+      "1/2 cup maraschino cherries, cut up"
+    ],
+    "instructions": [
+      "1. Fold the pudding mix into the Cool Whip with the reserved pineapple juice.",
+      "2. Stir in the pineapple, marshmallows and cherries.",
+      "3. Chill (preferably overnight) before serving."
+    ],
+    "recipeYield": "6",
+    "prepTime": null,
+    "cookTime": null,
+    "totalTime": null,
+    "recipeCategory": "dessert",
+    "recipeCuisine": "american",
+    "keywords": [
+      "salad",
+      "no-bake"
+    ],
+    "suitableForDiet": [
+      "exchange.recipe.defs#dietVegetarian"
+    ],
+    "attribution": {
+      "type": "person",
+      "name": "Michael Larrison",
+      "notes": "Reconstructed from a handwritten recipe card."
+    }
+  },
+  {
+    "id": "apple-pie",
+    "image": "preview/1783598304796-486669ff-10ca-4d1c-ba48-77679e3cf21c.jpg",
+    "confidence": "high",
+    "notes": "Bake time on the card was left as a joke: \"your guess is as good as mine.\"",
+    "name": "Apple Pie",
+    "text": "A simple cinnamon apple pie filling — the card leaves the bake time to your judgment.",
+    "ingredients": [
+      "3/4 to 1 cup sugar",
+      "3 Tbls flour",
+      "1 tsp cinnamon",
+      "Apples: 6 small Granny Smith, or 4 large (about 5 cups)"
+    ],
+    "instructions": [
+      "1) Mix the sugar, flour and cinnamon with the apples.",
+      "2) Bake at 350°F.",
+      "Bake Time: \"your guess is as good as mine.\""
+    ],
+    "recipeYield": "1 pie",
+    "prepTime": null,
+    "cookTime": null,
+    "totalTime": null,
+    "recipeCategory": "dessert",
+    "recipeCuisine": "american",
+    "keywords": [],
+    "suitableForDiet": [
+      "exchange.recipe.defs#dietVegetarian"
+    ],
+    "attribution": {
+      "type": "person",
+      "name": "Barbara Dolan",
+      "notes": "Reconstructed from a handwritten recipe card."
+    }
+  },
+  {
+    "id": "salad-unknown",
+    "image": "preview/PXL_20260709_115333951.jpg",
+    "enhanced": "enhanced/salad-enh.png",
+    "confidence": "low",
+    "notes": "Faded ballpoint on crumpled lined paper, torn at the bottom (also scanned upside-down as a duplicate). Only fragments are legible — best filled in by hand from memory. Fields below are guesses.",
+    "name": "Tartar Sauce",
+    "text": "An olive forward tartar sauce. ",
+    "ingredients": [
+      "1–1½ cup mayonnaise",
+      "1 cup chopped olives",
+      "1/2 chopped sweet onion (golf ball sized)",
+      "1 TBL spoon of lemon juice",
+      "[torn / illegible]"
+    ],
+    "instructions": [
+      "Immersion blend to desired consistency."
+    ],
+    "recipeYield": "3",
+    "prepTime": null,
+    "cookTime": null,
+    "totalTime": null,
+    "recipeCategory": "dressing",
+    "recipeCuisine": "",
+    "keywords": [],
+    "suitableForDiet": [],
+    "attribution": {
+      "type": "person",
+      "name": "Donna Dupuis",
+      "notes": "Reconstructed from a handwritten recipe card."
+    }
+  }
+]
