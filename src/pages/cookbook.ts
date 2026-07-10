@@ -21,6 +21,7 @@ import { requestPersistence } from '../storage-persist.js';
 import { resolveCookbook, type ReachConfig } from '../social/cookbook.js';
 import { membersToAuthors } from '../social/cookbook-members-view.js';
 import { createReachPrefs } from '../social/reach.js';
+import { createSourcePref, type CookbookSource } from '../social/cookbook-source-pref.js';
 import { loadAuthorsFeed } from '../social/feed.js';
 import { listInteractionsFor } from '../social/interactions.js';
 import { loadLikedFeed } from '../social/liked-feed.js';
@@ -73,12 +74,18 @@ const renderFeedView = (
   // Source filter (OQ6, own signed-in cookbook only): All = the loaded
   // members+you feed; Mine = that feed filtered to your DID; Liked = a SEPARATE
   // lazy fetch of your hearted recipes (OQ12 — not loaded until selected).
-  type Source = 'all' | 'mine' | 'liked';
-  // Default to Mine on your own cookbook (your recipes are what you came for);
-  // the anonymous cold-view has no "mine", so it opens on All.
-  let source: Source = viewer === undefined ? 'all' : 'mine';
+  type Source = CookbookSource;
+  // Default to Mine on your own cookbook (your recipes are what you came for),
+  // but REMEMBER the last-chosen source so it's sticky across visits. The
+  // anonymous cold-view has no "mine" and no persistence — it opens on All.
+  const defaultSource: Source = 'mine';
+  const sourcePref = createSourcePref();
+  let source: Source = viewer === undefined ? 'all' : sourcePref.load(defaultSource);
   let likedEntries: CachedRecipe[] | null = null; // lazy cache
   let likedLoading = false;
+  // Set by the source control (own cookbook only) so the shared reset can also
+  // clear the source line back to the default.
+  let resetSource: (() => void) | null = null;
 
   const activeEntries = (): CachedRecipe[] => {
     if (source === 'mine') return viewer === undefined ? [] : entries.filter((e) => didOf(e.uri) === viewer.did);
@@ -120,7 +127,9 @@ const renderFeedView = (
         ? `${shown.length} of ${base.length} shown`
         : `${base.length} ${base.length === 1 ? 'recipe' : 'recipes'}`,
     );
-    toolbar.setResetVisible(hasFilters(effective));
+    // The reset (next to the count) clears the whole filter line — facets,
+    // photos, AND the source — so it shows whenever any of those is off-default.
+    toolbar.setResetVisible(hasFilters(effective) || (viewer !== undefined && source !== defaultSource));
     if (shown.length === 0) {
       feedContainer.replaceChildren(el('p', 'empty-state', emptyMessage()));
       return;
@@ -160,6 +169,7 @@ const renderFeedView = (
         state = { ...state, photosOnly: false, facets: { cuisine: [], category: [] } };
         prefs.save(state);
         toolbar.setPhotos(false);
+        if (resetSource !== null) resetSource(); // also clear the source line
         showCurrent();
       },
     },
@@ -191,6 +201,7 @@ const renderFeedView = (
     const selectSource = (key: Source): void => {
       if (source === key) return;
       source = key;
+      sourcePref.save(source); // remember the choice across visits
       reflectSource();
       // Lazy-load the liked feed on first selection (OQ12): a separate cross-PDS
       // fetch of your hearted recipes, cached after the first load.
@@ -211,6 +222,15 @@ const renderFeedView = (
         return;
       }
       showCurrent();
+    };
+    // Let the shared reset clear the source line back to the default (Mine is
+    // already loaded, so no lazy fetch — just reset + reflect; the caller
+    // re-renders).
+    resetSource = (): void => {
+      if (source === defaultSource) return;
+      source = defaultSource;
+      sourcePref.save(source);
+      reflectSource();
     };
     seg.append(
       mk('Mine', 'mine', 'source-mine'),

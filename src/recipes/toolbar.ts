@@ -94,7 +94,7 @@ export const renderToolbar = (opts: {
   countBlock.append(resetBtn, resetSep, recipesStatus);
   if (showDietLink) {
     const dietSep = el('span', 'reset-sep', '·'); // always shown: count · diet link
-    const dietLink = el('a', 'diet-pref-link', 'set dietary preference ↗') as HTMLAnchorElement;
+    const dietLink = el('a', 'diet-pref-link', 'preference ↗') as HTMLAnchorElement;
     dietLink.href = './settings.html#diet-preference';
     countBlock.append(dietSep, dietLink);
   }

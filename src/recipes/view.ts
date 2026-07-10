@@ -486,7 +486,18 @@ export const renderFacetDropdown = (opts: {
   const details = el('details', 'facet-dd');
   details.setAttribute('name', 'browse-facet');
   details.dataset['dimension'] = opts.dimension;
-  const summary = el('summary', 'facet-dd-summary', `${opts.label} ▾`);
+  // Summary: "Meal ▾", with a subtle count bubble when there's an ACTIVE filter
+  // (selected values that actually exist in this feed) — so it's clear a filter
+  // is at work without opening the dropdown.
+  const summary = el('summary', 'facet-dd-summary');
+  const activeCount = opts.selected.filter((v) => opts.available.includes(v)).length;
+  summary.append(document.createTextNode(opts.label));
+  if (activeCount > 0) {
+    const badge = el('span', 'facet-count', String(activeCount));
+    badge.setAttribute('aria-label', `${activeCount} selected`);
+    summary.append(document.createTextNode(' '), badge);
+  }
+  summary.append(document.createTextNode(' ▾'));
   const panel = el('div', 'facet-dd-panel');
   for (const value of opts.available) {
     const option = el('label', 'facet-dd-option');

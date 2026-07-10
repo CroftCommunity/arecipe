@@ -183,6 +183,35 @@ describe('renderFacetDropdown', () => {
     const dd = renderFacetDropdown({ dimension: 'cuisine', label: 'Cuisine', available: [], selected: [] });
     expect(dd).toBeNull();
   });
+
+  it('shows a count badge on the summary when selections are active', () => {
+    const dd = renderFacetDropdown({
+      dimension: 'cuisine',
+      label: 'Cuisine',
+      available: ['greek', 'italian', 'thai'],
+      selected: ['greek', 'thai'],
+    });
+    const badge = dd?.querySelector('.facet-count');
+    expect(badge?.textContent).toBe('2');
+  });
+
+  it('shows no badge when nothing is selected (or nothing selected is available)', () => {
+    const none = renderFacetDropdown({
+      dimension: 'cuisine',
+      label: 'Cuisine',
+      available: ['greek'],
+      selected: [],
+    });
+    expect(none?.querySelector('.facet-count')).toBeNull();
+    // A stale selection not present in `available` is inert → no badge.
+    const stale = renderFacetDropdown({
+      dimension: 'cuisine',
+      label: 'Cuisine',
+      available: ['greek'],
+      selected: ['thai'],
+    });
+    expect(stale?.querySelector('.facet-count')).toBeNull();
+  });
 });
 
 describe('renderRecipeDetail', () => {

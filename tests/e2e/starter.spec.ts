@@ -65,8 +65,9 @@ test('browse toolbar: count right-aligned, no "hidden" note, dietary-preference 
   // The status lives in a toolbar, right-aligned inside a count block.
   await expect(page.locator('.browse-toolbar')).toBeVisible();
   await expect(page.locator('.browse-count')).toHaveCSS('text-align', 'right');
-  // A "set dietary preference ↗" link points at the Settings dietary section.
-  const dietLink = page.locator('.browse-toolbar a', { hasText: 'set dietary preference' });
+  // A "preference ↗" link points at the Settings dietary section.
+  const dietLink = page.locator('.browse-toolbar a.diet-pref-link');
+  await expect(dietLink).toHaveText(/preference/);
   await expect(dietLink).toHaveAttribute('href', './settings.html#diet-preference');
 });
 

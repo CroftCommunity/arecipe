@@ -583,6 +583,23 @@ a {
   display: none;
 }
 
+/* Active-filter count bubble on a Meal/Cuisine summary — a small enamel pill so
+   it's clear a filter is at work without opening the dropdown. */
+.facet-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  padding: 0 0.28rem;
+  border-radius: var(--r-pill);
+  background: var(--enamel);
+  color: var(--card);
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
 .facet-dd[open] > .facet-dd-summary {
   border-color: var(--enamel);
   color: var(--enamel);
@@ -1277,6 +1294,12 @@ a.card {
   display: grid;
   gap: var(--s-2);
   margin-top: var(--s-3);
+}
+
+/* "Post comment" sits right-aligned under the textarea (a grid item pinned to
+   the end of the column). */
+.comment-post {
+  justify-self: end;
 }
 
 .comment-compose textarea {

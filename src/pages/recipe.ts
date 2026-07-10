@@ -212,7 +212,7 @@ const mountComments = async (
       if (replyingNote !== null) replyingNote.hidden = true;
     });
     replyingNote.append(cancelReply);
-    const post = el('button', 'button button--primary', 'Post comment') as HTMLButtonElement;
+    const post = el('button', 'button button--primary comment-post', 'Post comment') as HTMLButtonElement;
     post.type = 'submit';
     post.dataset['testid'] = 'comment-post';
     const status = el('p', 'status');
