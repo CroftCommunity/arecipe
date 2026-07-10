@@ -34,6 +34,16 @@ loose ideas a later session can pick up.
 
 ## Ideas / loose
 
+- [ ] **Give Browse the Cookbook cache-first SWR paint.** Cookbook paints from
+      the IndexedDB cache instantly, then revalidates in the background (see
+      `src/pages/cookbook.ts` `showFeed` + `readFeedMeta`/`writeFeedMeta`). Browse
+      caches records to IndexedDB with offline fallback + a sessionStorage
+      back-nav restore, but does NOT do that cache-first-then-revalidate paint —
+      a cold Browse load waits on the network. Worth porting the SWR pattern so
+      Browse paints stale-then-fresh like Cookbook. Now that Browse paginates at
+      50 (`6a3adde`), a lazy/deferred load of later pages could compound the win.
+      _Noted 2026-07-10._
+
 - [x] **Cook-search typeahead** — the handle inputs in Browse and add-a-cook
       (meals palette) suggest accounts as you type, via Bluesky's
       `app.bsky.actor.searchActorsTypeahead` (public AppView, CORS-open, no auth).
