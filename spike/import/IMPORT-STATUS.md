@@ -33,6 +33,12 @@ publishers are **idempotent** (skip by existing record name).
   `build-picker.mjs` (static picker page + 🚩 flag box), `refetch-alternates.mjs` (round-2),
   `image-record.mjs` + `attach-images.mjs` (uploadBlob + putRecord embed, idempotent, steps down
   width to stay under the 1 MB blob cap).
+- Recipebox home recipes: `home-batch-map.mjs` (+test) — home entry → record with
+  `#attributionPerson`; `isPublishable`/`hasPlaceholders` hold partial/low-confidence and
+  bracketed `[…]` gaps. `publish-home-batch.mjs` — dry-run/live publisher, idempotent by
+  **name + attributed person** (a family "Apple Pie" coexists with the scraped King Arthur one),
+  optional local photo → `uploadBlob` + `#imagesEmbed`. `home-batch.json` = the reconstructed
+  data of record (authored via the local `recipebox/correct.html` review page, gitignored).
 
 ## State — live records (catalogue import)
 
@@ -71,3 +77,22 @@ fact-checked, QA-clean:
   + twelve ×2). The raw `dish`/`altOf` fields in the corpus JSON are superseded by this map.
 - **Publishing is gated on the recipe-model extensions** (versions / fun facts). Plan is
   Pass-1/2/3 complete and ready to execute Phase 1. Nothing publishes until those fields exist.
+
+## State — recipebox home recipes (handwritten scans, `import/recipebox.zip`)
+
+Reconstructed from 11 handwritten-card scans (9 distinct recipes; 1 duplicate, 1 orphan page).
+Data of record: `spike/import/home-batch.json`; publisher: `publish-home-batch.mjs`.
+
+**8 live on arecipe.bsky.social:** Sweet Tooth Pop Corn (Cadence Pettet), Mexican Pie, Vegetable
+Dip, Cheese Cake (Amanda Larrison), Grandma's Ham & Bean Soup, Apple Pie (Barbara Dolan — carries
+a family photo blob embed), Pistachio Salad (Michael Larrison), Tartar Sauce (Donna Dupuis).
+
+**TODO — 2 held, each needs a missing scan page before it can publish:**
+- **Crockpot Potato Soup** — page 1 only; the card says "(over)" and page 2 (likely a mash/blend +
+  dairy finish) was not in the zip. Needs the second page.
+- **Chicken–Broccoli Casserole** — page 2 (assembly) only; the ingredient list (page 1) was not in
+  the zip. Do not publish without it.
+
+When a missing page arrives: add it to the entry in `home-batch.json`, drop the `[…]` placeholder
+line(s), set `confidence: "high"`, then `node spike/import/publish-home-batch.mjs --dry-run` and
+publish. The 8 already-live records skip automatically (idempotent by name + person).
