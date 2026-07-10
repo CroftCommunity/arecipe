@@ -8,7 +8,7 @@ import { resolveDidDoc } from '../identity/did.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
 import { createRecipeCache } from '../recipes/cache.js';
-import { createDraftStore } from '../recipes/drafts-local.js';
+import { createDraftStore, type DraftStatus } from '../recipes/drafts-local.js';
 import { listPdsDrafts } from '../recipes/drafts-sync.js';
 import { createRecipeReader } from '../recipes/read.js';
 import { retryOnce } from '../retry.js';
@@ -44,19 +44,60 @@ const main = async (): Promise<void> => {
 
   const draftsSection = el('section');
   draftsSection.append(el('h3', 'section-title', 'Drafts'));
+
+  // Status filter (Phase 11c): narrow the drafts list by draft status. Drafts
+  // only — the Published section below is separate (a "published" bucket, if
+  // ever surfaced, would source from there, not from draft.status — OQ13).
+  let statusFilter: 'all' | DraftStatus = 'all';
+  const filterBar = el('div', 'segmented alchemy-filter');
+  const filterButtons: [HTMLButtonElement, 'all' | DraftStatus][] = [];
+  const reflectFilter = (): void => {
+    for (const [btn, key] of filterButtons) {
+      const active = statusFilter === key;
+      btn.classList.toggle('segmented-option--active', active);
+      btn.setAttribute('aria-pressed', String(active));
+    }
+  };
+  const mkFilter = (label: string, key: 'all' | DraftStatus, testid: string): HTMLButtonElement => {
+    const btn = el('button', 'segmented-option', label) as HTMLButtonElement;
+    btn.type = 'button';
+    btn.dataset['testid'] = testid;
+    btn.addEventListener('click', () => {
+      statusFilter = key;
+      reflectFilter();
+      void renderDrafts();
+    });
+    filterButtons.push([btn, key]);
+    return btn;
+  };
+  filterBar.append(
+    mkFilter('All', 'all', 'filter-all'),
+    mkFilter('Draft', 'draft', 'filter-draft'),
+    mkFilter('Cooking', 'cooking', 'filter-cooking'),
+    mkFilter('Ready', 'ready', 'filter-ready'),
+  );
+  draftsSection.append(filterBar);
+
   const draftsList = el('div');
   draftsSection.append(draftsList);
   content.append(draftsSection);
   const drafts = createDraftStore();
   const renderDrafts = async (): Promise<void> => {
     const all = await drafts.list();
+    const shown = statusFilter === 'all' ? all : all.filter((d) => d.status === statusFilter);
     draftsList.replaceChildren();
-    if (all.length === 0) {
-      const none = el('p', 'status', 'no drafts — nothing here leaves this device');
+    if (shown.length === 0) {
+      const none = el(
+        'p',
+        'status',
+        all.length === 0
+          ? 'no drafts — nothing here leaves this device'
+          : `no ${statusFilter} drafts`,
+      );
       draftsList.append(none);
       return;
     }
-    for (const draft of all) {
+    for (const draft of shown) {
       const row = el('div', 'draft-row');
       row.dataset['testid'] = 'draft-row';
       const open = el('a', 'draft-link', draft.fields.name.trim() === '' ? '(untitled)' : draft.fields.name) as HTMLAnchorElement;
@@ -71,6 +112,7 @@ const main = async (): Promise<void> => {
       draftsList.append(row);
     }
   };
+  reflectFilter();
   void renderDrafts().catch((err: unknown) => {
     log.warn('drafts', 'list failed', { error: String(err) });
   });

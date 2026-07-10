@@ -7,7 +7,7 @@ import { mountBuildStamp } from '../build-stamp.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
 import { resolveDidDoc } from '../identity/did.js';
-import { createDraftStore } from '../recipes/drafts-local.js';
+import { createDraftStore, type DraftStatus } from '../recipes/drafts-local.js';
 import { removeDraftFromPds, syncDraftToPds } from '../recipes/drafts-sync.js';
 import { createRecordReader } from '../recipes/read.js';
 import { requestPersistence } from '../storage-persist.js';
@@ -115,6 +115,25 @@ const main = async (): Promise<void> => {
   content.append(el('h2', 'page-title', 'New recipe'));
   const fields = buildForm(content);
 
+  // Draft status (Phase 11c): draft · cooking · ready. Written on save; Alchemy
+  // filters the drafts list by it. (`published` is derived, not settable here.)
+  const statusField = el('label', 'editor-field');
+  statusField.append(el('span', 'editor-label', 'Status'));
+  const statusSelect = document.createElement('select');
+  statusSelect.dataset['testid'] = 'editor-status-select';
+  for (const [value, label] of [
+    ['draft', 'Draft'],
+    ['cooking', 'Cooking'],
+    ['ready', 'Ready'],
+  ] as const) {
+    const opt = document.createElement('option');
+    opt.value = value;
+    opt.textContent = label;
+    statusSelect.append(opt);
+  }
+  statusField.append(statusSelect);
+  content.append(statusField);
+
   // Photo (Phase 7): optional, one image, re-encoded on publish (EXIF gone).
   const photoField = el('label', 'editor-field');
   photoField.append(el('span', 'editor-label', 'Photo (optional)'));
@@ -168,8 +187,10 @@ const main = async (): Promise<void> => {
   let draftId = params.get('draft') ?? undefined;
   if (draftId !== undefined) {
     const existing = await drafts.get(draftId);
-    if (existing !== undefined) fillFields(fields, existing.fields);
-    else status.textContent = 'draft not found — starting fresh';
+    if (existing !== undefined) {
+      fillFields(fields, existing.fields);
+      statusSelect.value = existing.status;
+    } else status.textContent = 'draft not found — starting fresh';
   }
 
   // Edit mode (Phase 8): load a published recipe by AT-URI (public read),
@@ -196,7 +217,7 @@ const main = async (): Promise<void> => {
 
   saveButton.addEventListener('click', () => {
     void drafts
-      .save(readFields(fields), draftId)
+      .save(readFields(fields), draftId, statusSelect.value as DraftStatus)
       .then(async (draft) => {
         draftId = draft.id;
         // The URL names the draft so a reload resumes it.

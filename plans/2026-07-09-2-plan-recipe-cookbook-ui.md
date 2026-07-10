@@ -1,5 +1,11 @@
 # arecipe — recipe-page + cookbook UI overhaul (likes, overlay, hide, comments, toolbar)
 
+**Status: CLOSED ✅ (2026-07-09).** All 13 implementation phases shipped on
+`recipe-cookbook-ui` (off `origin/main` `7db0999`), each committed + green;
+plus a pre-existing like-write bug fixed. Nothing deferred except the noted
+follow-ups (TODO.md pwa-check; a possible Members-vs-liked 4th filter state per
+OQ6). Not pushed. See the Plan close-out in the Review Log.
+
 Pass 1 (base) — 2026-07-09. Analysis only, no code. Pass 2 (gap analysis) and
 Pass 3 (quality gates) to follow in fresh contexts before execution.
 
@@ -85,7 +91,17 @@ Execution status (updated per phase; SHA recorded when the next phase commits):
   record both-ways + legacy default + wiring (store.save→get→draftToRecord). No
   UI. Full gate green (239 / 97); @live `drafts-live` confirms the widened record
   still syncs (non-default @live round-trip lands in 11c with the editor control).
-- ⬜ Phase 11c — pending.
+  Committed `348b695`.
+- ✅ **Phase 11c** — Alchemy status control + filter. `editor.ts` status `<select>`
+  (draft/cooking/ready) written on save + prefilled on draft load; `mine.ts`
+  status filter bar (All/Draft/Cooking/Ready) over `drafts.list()`. Wiring test
+  (hermetic — drafts are local): `alchemy-status.spec.ts` (set status in editor →
+  filter in Alchemy, both directions + All). @live `draft-status-live.spec.ts`:
+  a "ready" status set in the editor reaches the real PDS record. Full gate green
+  (239 unit / 98 e2e); @live green.
+
+**✅ Plan complete — all 13 phases shipped (2026-07-09). See the close-out entry
+in the Review Log.**
 
 **Tooling note:** a separate chore commit excludes `.claude/` (untracked scratch
 holding a nested locked git worktree from another context) from ESLint + the
@@ -1467,7 +1483,20 @@ green (incl. a `@live` draft-sync check that the status round-trips, reusing
 **CSP:** no UI/styling in 11b; data-model only. N/A → intact.
 **Stop-point.**
 
-### Phase 11c: Alchemy status control + filter (UI)
+### Phase 11c: Alchemy status control + filter (UI) — ✅ SHIPPED
+
+**Delivered (2026-07-09):** `editor.ts` adds a status `<select>` (Draft/Cooking/
+Ready, testid `editor-status-select`) written to the draft on save
+(`drafts.save(..., statusSelect.value)`) and prefilled when a draft loads.
+`mine.ts` adds a segmented status filter bar above the Drafts list (All / Draft /
+Cooking / Ready, testids `filter-*`) filtering `drafts.list()` by `draft.status`;
+a "published" bucket, if ever added, sources from the Published section, not
+`draft.status` (OQ13). Wiring test `alchemy-status.spec.ts` (hermetic — drafts
+are local-first): set two drafts' statuses in the editor, then the Alchemy filter
+narrows to the selected status (both directions) and All restores. @live
+`draft-status-live.spec.ts`: a "ready" status set in the editor reaches the real
+PDS `app.arecipe.draft` record. Full gate green (239 unit / 98 e2e); @live green.
+Reuses `.segmented`/`.editor-field` styles (no new CSS).
 
 **Goal:** The editor lets you set a draft's status; Alchemy filters the drafts
 list by status.
@@ -1982,3 +2011,52 @@ step. It does **not** block Phases 3–8 (all hermetic).
 **Disposition.** Out of scope for the current phase; surfaced to the user. Not
 adding a phase for it unless the user wants it folded in — candidate `TODO`/
 separate fix on `main`.
+
+### Plan close-out — 2026-07-09
+
+**Shipped.** All 13 phases on `recipe-cookbook-ui` (off `origin/main` `7db0999`),
+one commit each, hermetic gate green throughout (final: 239 unit / 98 e2e) with
+@live coverage on every real write/read path. Observable result:
+- Recipe page: `liked` is the only interaction (`saved` removed, legacy
+  read-tolerated); the like heart + count overlay the banner (upper-right, OQ7);
+  "Hide" sits on the title row with an inline two-step confirm (unhide one-tap);
+  the comments block is centred + the composer is themed; content links read in
+  enamel in both themes.
+- Cookbook: members list moved to **Account**; Cookbook is the recipe feed with
+  the shared `renderToolbar` (Tiles/Details + Meal/Cuisine facets + count, own
+  `cookbook-*` prefs); an All/Mine/Liked source filter (Liked lazy, cross-PDS via
+  `loadLikedFeed`); a New Recipe button → editor. Signed-out Cookbook redirects
+  to Browse (hint-gated); stale hint → sign-in.
+- Alchemy (renamed from "My recipes"): heading + a draft `status`
+  (draft/cooking/ready) set in the editor and filtered in the drafts list;
+  status persists local↔PDS.
+- Browse behavior unchanged (toolbar extraction was behavior-preserving —
+  `browse.spec` unedited + green).
+New source modules: `recipes/toolbar.ts`, `social/cookbook-members-view.ts`,
+`social/liked-feed.ts`. New @live specs: account-members, liked-feed,
+cookbook-new-recipe, draft-status. Docs (README, DESIGN) + `TODO.md` updated.
+Commits: Phase 0 `3186475` → 1 `840341b` → 2 `eeef2ad` → 3 `0fdec11` →
+4 `b5096cb` → 5 `889993b` → chore `33e131a` → 6 `bd116dd` → 7 `ed8c855` →
+8 `59a1b52` → fix `ec6ca6b` → 9 `4ae26ac` → TODO `ee63709` → 10 `c2f79e8` →
+11a `50505e1` → 11b `348b695` → 11c (this commit).
+
+**Stopped or skipped.** Nothing dropped. Not pushed (per standing rule; consolidate
+onto latest `main` when the user asks). Deferred, tracked: (a) `TODO.md` —
+evaluate `pwa-check`; (b) OQ6's optional 4th "members-excluded" filter state
+(flagged, not built); (c) the Phase-8 @live cookbook-toggle (client-side; covered
+by the cold-view path).
+
+**Discoveries.** (1) The rebase onto `7db0999` (+37 commits: versioning, fun
+facts, Focus, Reference) landed mid-plan; Phase 0 re-grounded all line refs — the
+recipe page is now version-aware via `paintVersion` (Phases 2–5 operate on the
+`host`, re-mount per version flip). (2) The @live like-**write** was broken on
+`main` — an enabled-without-listener race (button enabled before its click
+handler attached, behind the slow cookbook-discovery loop); fixed in `ec6ca6b`,
+which unblocked Phase 9's @live. (3) OQ10's signed-out redirect collided with the
+CB3.1 signed-in landing; resolved by gating the redirect on the same
+`arecipe-session` hint index.html uses (no hint → Browse; stale hint → sign-in).
+(4) A locked nested git worktree under `.claude/worktrees/` polluted the
+lint+unit gate; excluded `.claude/` from ESLint + Vitest (`33e131a`).
+(5) Several signed-in-only surfaces (Account members, Cookbook source control,
+New Recipe) can't be reached hermetically, so their wiring proof is @live — a
+recurring shape worth noting for the next plan.
