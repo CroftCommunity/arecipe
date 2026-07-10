@@ -7,7 +7,7 @@
 | Phase | Outcome | Commit | Note |
 |---|---|---|---|
 | 0 Discovery | ✅ done | _(no code)_ | D1 structural PASS + D2/D3 verified; D1 live leg gated at Phase 9. |
-| 1 Route skeleton | ✅ shipped | `ea74d46` | `meals.html` + `src/pages/meals.ts` mount the shared shell; registered in build; wiring e2e GREEN (90/90 e2e, 229/229 unit). |
+| 1 Route skeleton | ✅ shipped | `b115baf` | `meals.html` + `src/pages/meals.ts` mount the shared shell; registered in build; wiring e2e GREEN (90/90 e2e, 229/229 unit). |
 | 2 Nav tab | ⬜ pending | — | |
 | 3 Lexicon + model | ⬜ pending | — | |
 | 4 Local store | ⬜ pending | — | |
@@ -416,7 +416,7 @@ updated with firsthand evidence. ✅ Met 2026-07-10 — D1 live leg gated at Pha
 
 ---
 
-### Phase 1: Route skeleton — `meals.html` + page stub + build registration — ✅ SHIPPED (`ea74d46`)
+### Phase 1: Route skeleton — `meals.html` + page stub + build registration — ✅ SHIPPED (`b115baf`)
 **Delivered (2026-07-10):** as specified. `meals.html` (mine.html shell, title "arecipe — meals"),
 `src/pages/meals.ts` (sync `main()`: `#app` → `content` section with `<h2 class="section-title">Meals</h2>`
 + placeholder → `mountShell` + `mountBuildStamp` + `registerServiceWorker`; no `bootSession` yet, per
