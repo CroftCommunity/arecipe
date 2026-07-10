@@ -79,6 +79,17 @@ body {
   line-height: 1.55;
 }
 
+/* Content links default to the themed enamel color (light + dark variants) so
+   anchors without a more specific class — e.g. .comment-author — read legibly
+   in both themes instead of the UA link-blue, which is unreadable on the dark
+   --tile. Every purpose-styled link is class-scoped and more specific, so it
+   still wins: .nav-auth / .diet-pref-link / .reset-filters-link / .draft-link
+   set their own color, and a.card sets `color: inherit`. This only reaches the
+   otherwise-unstyled content anchors. Underline stays (the UA link affordance). */
+a {
+  color: var(--enamel);
+}
+
 #app {
   max-width: 64rem;
   margin: 0 auto;

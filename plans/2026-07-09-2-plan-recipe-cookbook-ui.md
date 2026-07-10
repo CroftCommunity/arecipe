@@ -4,9 +4,20 @@ Pass 1 (base) — 2026-07-09. Analysis only, no code. Pass 2 (gap analysis) and
 Pass 3 (quality gates) to follow in fresh contexts before execution.
 
 **Execution isolation:** this plan is developed and will execute on branch
-`recipe-cookbook-ui`, branched off `main` at **`027a4f9`** (the watercolor
-banner commit) so it stays clear of another plan currently deploying to `main`.
-Rebase/merge onto the latest `main` before the feature branch is consolidated.
+`recipe-cookbook-ui`. Originally branched off `main` at `027a4f9`; **rebased onto
+`origin/main` `7db0999` on 2026-07-09** (the +37-commit versioning/fun-facts/
+Focus/Reference work landed on main) — see the "Phase 0 execution + rebase
+re-grounding" Review Log entry. Rebase/merge onto the latest `main` again before
+the feature branch is consolidated.
+
+## Outcome Summary
+
+Execution status (updated per phase; SHA recorded when the next phase commits):
+- ✅ **Phase 0** (`3186475`) — D1/D2 discovery + rebase re-grounding onto `7db0999`.
+- ✅ **Phase 1** — theme-aware link color (`a{color:var(--enamel)}`); `.comment-author`
+  reads enamel in both themes, not UA blue. Wiring test: `comments.spec.ts`
+  "themed enamel color" (light+dark). Full gate green (229 unit / 91 e2e).
+- ⬜ Phases 2–11c — pending.
 
 ## Problem Statement
 
@@ -438,7 +449,16 @@ cap value** and write it into Phase 9, because Phase 9's `log.warn('liked-feed',
 built.
 **Stop-point — report D1/D2 findings before Phase 1.**
 
-### Phase 1: Consistent, theme-aware link color (dark-mode fix)
+### Phase 1: Consistent, theme-aware link color (dark-mode fix) — ✅ SHIPPED
+
+**Delivered (2026-07-09):** single base rule `a { color: var(--enamel) }` added
+after `body{}` in `styles.css` (no `comments-view.ts` change — the `.comment-author`
+class already existed, confirming the Pass 2 prediction). Wiring test added to
+`tests/e2e/comments.spec.ts` ("comment-author link uses the themed enamel color,
+not UA blue", parametrized light+dark) — asserts `.comment-author` computed color
+equals the `.nav-auth` (nav-signin) enamel reference and is not UA blue
+`rgb(0,0,238)`. RED watched (blue vs enamel), then GREEN. Full gate green: eslint
++ tsc clean, 229 unit, 91 e2e (no card/nav/button regression from the global `a`).
 
 **Goal:** All content links read legibly in both themes (no UA blue on dark).
 **Changes:**

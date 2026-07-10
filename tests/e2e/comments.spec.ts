@@ -93,3 +93,36 @@ test('signed-out, there is no compose box — a sign-in note instead', async ({ 
   await expect(page.getByTestId('comment-compose')).toHaveCount(0);
   await expect(page.getByTestId('comment-signed-out')).toBeVisible();
 });
+
+// Phase 1 wiring: content links (the commenter handle) must read in the themed
+// enamel color, not UA link-blue (unreadable on the dark --tile). We assert the
+// discriminating facts rather than a hardcoded hex (robust to a token retune):
+// the .comment-author computed color EQUALS a known --enamel-bearing element
+// (.nav-auth, always in the topbar) and is NOT the UA blue it defaults to today.
+// Exercised through the real recipe-page render, in both themes.
+for (const scheme of ['light', 'dark'] as const) {
+  test(`comment-author link uses the themed enamel color, not UA blue (${scheme})`, async ({
+    page,
+  }) => {
+    await page.emulateMedia({ colorScheme: scheme });
+    await routeFixtures(page);
+    await page.goto(`/recipe.html?u=${encodeURIComponent(RECIPE_URI)}`);
+    await expect(page.getByTestId('comment-author').first()).toBeVisible({ timeout: 15_000 });
+
+    const colorOf = (testid: string): Promise<string> =>
+      page.evaluate(
+        (id) =>
+          getComputedStyle(document.querySelector(`[data-testid="${id}"]`)!).color,
+        testid,
+      );
+    const commentAuthor = await colorOf('comment-author');
+    // .nav-auth is the always-present topbar link that already resolves --enamel;
+    // signed-out it carries the nav-signin testid.
+    const enamelReference = await colorOf('nav-signin');
+
+    // Same themed color as the enamel reference…
+    expect(commentAuthor).toBe(enamelReference);
+    // …and not the UA link blue it falls back to without a color rule.
+    expect(commentAuthor).not.toBe('rgb(0, 0, 238)');
+  });
+}
