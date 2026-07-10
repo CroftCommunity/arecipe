@@ -56,8 +56,17 @@ Execution status (updated per phase; SHA recorded when the next phase commits):
   toolbar toggle (Tiles↔Details both directions + count). styles.css unchanged
   (reused `.browse-toolbar`). Full gate green (231 unit / 96 e2e). @live toggle
   deferred (client-side; cold-view exercises the same path; Phase 6 @live proved
-  signed-in cookbook loads).
-- ⬜ Phases 9–11c — pending.
+  signed-in cookbook loads). Committed `59a1b52`.
+- ✅ **fix** (`ec6ca6b`) — like-write enabled-without-listener race; unblocked
+  Phase 9's @live (see Fix entry).
+- ✅ **Phase 9** — liked feed + source filter. New `src/social/liked-feed.ts`
+  (`loadLikedFeed`: cross-PDS by-ref, empty-filter, cap+warn, skip-bad-ref);
+  `cookbook.ts` source control (All/Mine/Liked — own signed-in cookbook only;
+  Liked lazy per OQ12; source-specific empty states). Unit `liked-feed.spec.ts`
+  (4: cross-PDS/empty/cap/bad-ref); @live `liked-feed-live.spec.ts` (like → Liked
+  filter shows it). Full gate green (235 unit / 96 e2e); @live green. Reuses
+  `.segmented` styles (no CSS change).
+- ⬜ Phases 10–11c — pending.
 
 **Tooling note:** a separate chore commit excludes `.claude/` (untracked scratch
 holding a nested locked git worktree from another context) from ESLint + the
@@ -1149,7 +1158,23 @@ assertion would survive a mutation that swaps the two views.
 Intact.
 **Stop-point.**
 
-### Phase 9: Cookbook source filter — my recipes / liked (either·or)
+### Phase 9: Cookbook source filter — my recipes / liked (either·or) — ✅ SHIPPED
+
+**Delivered (2026-07-09):** New `src/social/liked-feed.ts` — `loadLikedFeed(
+interactions, {cap=50})` per the D2 design: filters empty refs (debug), de-dupes,
+caps with a `log.warn` (mirrors `read.ts:98`), then per-ref parses
+`at://…/exchange.recipe.recipe/…`, `resolveDidDoc`→pds (cross-PDS),
+`createRecordReader`, `cache.put`; a bad ref logs `warn` and is skipped (never
+blanks the feed). `cookbook.ts` `renderFeedView` gains a 3-state source control
+(All/Mine/Liked, OQ6) rendered only on the viewer's **own signed-in** cookbook
+(`isOwn`); **All** = the loaded members+you feed (no liked load), **Mine** =
+filtered to your DID, **Liked** = lazy `listInteractionsFor(kind:'liked')` →
+`loadLikedFeed` (OQ12, cached after first select, loading line). Source-specific
+empty states. Unit `liked-feed.spec.ts` (4 mutation-resistant: cross-PDS load
+hits two PDSes, empty-ref filtered, cap, bad-ref skipped). @live
+`liked-feed-live.spec.ts`: sign in → like → own Cookbook → Liked shows the
+hearted recipe. Full gate green: 235 unit, 96 e2e; @live green. Reuses
+`.segmented` styles (no `styles.css` change).
 
 **Goal:** On the Cookbook toolbar, filter the feed to my created recipes and/or
 my liked recipes (per OQ6 semantics).

@@ -22,6 +22,8 @@ import { resolveCookbook, type ReachConfig } from '../social/cookbook.js';
 import { membersToAuthors } from '../social/cookbook-members-view.js';
 import { createReachPrefs } from '../social/reach.js';
 import { loadAuthorsFeed } from '../social/feed.js';
+import { listInteractionsFor } from '../social/interactions.js';
+import { loadLikedFeed } from '../social/liked-feed.js';
 import { type CachedRecipe } from '../recipes/cache.js';
 import { availableFacets, createBrowsePrefs, matchesFilter, type BrowseState } from './browse-state.js';
 import { renderToolbar } from '../recipes/toolbar.js';
@@ -41,18 +43,41 @@ const el = (tag: string, className?: string, text?: string): HTMLElement => {
  * view/facet prefs (OQ11 — `createBrowsePrefs('cookbook')`) so a choice here
  * doesn't bleed into Browse, and shows no diet link (diet is a Browse/Settings
  * concern, so the cookbook filter ignores it). */
+const didOf = (uri: string): string => uri.split('/')[2] ?? '';
+
 const renderFeedView = (
   container: HTMLElement,
   feedContainer: HTMLElement,
   entries: CachedRecipe[],
   authorsByDid: Record<string, string>,
+  viewer?: { did: string; pds: string },
 ): void => {
   const prefs = createBrowsePrefs({ prefix: 'cookbook' });
   let state = prefs.load();
 
-  // Selected facets absent from this feed are kept in state but inert here.
+  // Source filter (OQ6, own signed-in cookbook only): All = the loaded
+  // members+you feed; Mine = that feed filtered to your DID; Liked = a SEPARATE
+  // lazy fetch of your hearted recipes (OQ12 — not loaded until selected).
+  type Source = 'all' | 'mine' | 'liked';
+  let source: Source = 'all';
+  let likedEntries: CachedRecipe[] | null = null; // lazy cache
+  let likedLoading = false;
+
+  const activeEntries = (): CachedRecipe[] => {
+    if (source === 'mine') return viewer === undefined ? [] : entries.filter((e) => didOf(e.uri) === viewer.did);
+    if (source === 'liked') return likedEntries ?? [];
+    return entries;
+  };
+  const emptyMessage = (): string =>
+    source === 'liked'
+      ? 'No liked recipes yet — tap the heart on a recipe to collect it here.'
+      : source === 'mine'
+        ? 'You haven’t published any recipes yet.'
+        : 'When the cooks in your cookbook publish recipes, they show up here.';
+
+  // Selected facets absent from the active source are kept in state but inert.
   const effectiveState = (): BrowseState => {
-    const available = availableFacets(entries);
+    const available = availableFacets(activeEntries());
     return {
       view: state.view,
       photosOnly: state.photosOnly,
@@ -66,19 +91,28 @@ const renderFeedView = (
     s.photosOnly || s.facets.cuisine.length > 0 || s.facets.category.length > 0;
 
   const renderCurrent = (): void => {
+    if (source === 'liked' && likedLoading) {
+      feedContainer.replaceChildren(el('p', 'status', 'loading your liked recipes…'));
+      return;
+    }
+    const base = activeEntries();
     const effective = effectiveState();
-    const shown = entries.filter((e) => matchesFilter(e.value, { state: effective, diet: [] }));
+    const shown = base.filter((e) => matchesFilter(e.value, { state: effective, diet: [] }));
     toolbar.setStatus(
       hasFilters(effective)
-        ? `${shown.length} of ${entries.length} shown`
-        : `${entries.length} ${entries.length === 1 ? 'recipe' : 'recipes'}`,
+        ? `${shown.length} of ${base.length} shown`
+        : `${base.length} ${base.length === 1 ? 'recipe' : 'recipes'}`,
     );
     toolbar.setResetVisible(hasFilters(effective));
+    if (shown.length === 0) {
+      feedContainer.replaceChildren(el('p', 'empty-state', emptyMessage()));
+      return;
+    }
     const render = state.view === 'details' ? renderRecipeDetailsList : renderRecipeList;
     feedContainer.replaceChildren(render(shown, { authorsByDid }));
   };
   const showCurrent = (): void => {
-    toolbar.rebuildFacets(availableFacets(entries), state.facets);
+    toolbar.rebuildFacets(availableFacets(activeEntries()), state.facets);
     renderCurrent();
   };
 
@@ -116,6 +150,60 @@ const renderFeedView = (
   toolbar.setPhotos(state.photosOnly);
   toolbar.reflectView(state.view);
   container.insertBefore(toolbar.element, feedContainer);
+
+  // Source control — only on the viewer's OWN signed-in cookbook (Mine/Liked are
+  // viewer-relative; the anonymous cold-view has no "my liked").
+  if (viewer !== undefined) {
+    const seg = el('div', 'segmented cookbook-source');
+    const buttons: [HTMLButtonElement, Source][] = [];
+    const mk = (label: string, key: Source, testid: string): HTMLButtonElement => {
+      const btn = el('button', 'segmented-option', label) as HTMLButtonElement;
+      btn.type = 'button';
+      btn.dataset['testid'] = testid;
+      btn.addEventListener('click', () => selectSource(key));
+      buttons.push([btn, key]);
+      return btn;
+    };
+    const reflectSource = (): void => {
+      for (const [btn, key] of buttons) {
+        const active = source === key;
+        btn.classList.toggle('segmented-option--active', active);
+        btn.setAttribute('aria-pressed', String(active));
+      }
+    };
+    const selectSource = (key: Source): void => {
+      if (source === key) return;
+      source = key;
+      reflectSource();
+      // Lazy-load the liked feed on first selection (OQ12): a separate cross-PDS
+      // fetch of your hearted recipes, cached after the first load.
+      if (key === 'liked' && likedEntries === null) {
+        likedLoading = true;
+        renderCurrent(); // show the loading line immediately
+        void (async () => {
+          try {
+            const liked = await listInteractionsFor({ pds: viewer.pds, did: viewer.did, kind: 'liked' });
+            likedEntries = await loadLikedFeed(liked);
+          } catch (err) {
+            log.warn('cookbook', 'liked feed load failed', { error: String(err) });
+            likedEntries = [];
+          }
+          likedLoading = false;
+          showCurrent();
+        })();
+        return;
+      }
+      showCurrent();
+    };
+    seg.append(
+      mk('All', 'all', 'source-all'),
+      mk('Mine', 'mine', 'source-mine'),
+      mk('Liked', 'liked', 'source-liked'),
+    );
+    reflectSource();
+    container.insertBefore(seg, toolbar.element);
+  }
+
   showCurrent();
 };
 
@@ -127,9 +215,9 @@ const showFeed = async (
   container: HTMLElement,
   feedContainer: HTMLElement,
   you: { did: string; pds: string },
-  config?: ReachConfig,
+  opts: { config?: ReachConfig; isOwn?: boolean } = {},
 ): Promise<void> => {
-  const members = await resolveCookbook(config === undefined ? { you } : { you, config });
+  const members = await resolveCookbook(opts.config === undefined ? { you } : { you, config: opts.config });
   const authors = await membersToAuthors(members);
   if (authors.length === 0) {
     feedContainer.replaceChildren(
@@ -141,7 +229,8 @@ const showFeed = async (
   if (feed.failedAuthors.length > 0) {
     log.warn('cookbook', 'some cooks unavailable', { failed: feed.failedAuthors });
   }
-  renderFeedView(container, feedContainer, feed.entries, feed.authorsByDid);
+  // The source control (All/Mine/Liked) is the viewer's own cookbook only.
+  renderFeedView(container, feedContainer, feed.entries, feed.authorsByDid, opts.isOwn === true ? you : undefined);
 };
 
 const main = async (): Promise<void> => {
@@ -204,7 +293,10 @@ const main = async (): Promise<void> => {
     const { pds } = await retryOnce(() => resolveDidDoc(did));
     mountShell(app, content);
     void mountBuildStamp(app);
-    await showFeed(content, feedContainer, { did, pds }, createReachPrefs().load());
+    await showFeed(content, feedContainer, { did, pds }, {
+      config: createReachPrefs().load(),
+      isOwn: true,
+    });
   } catch (err) {
     log.error('cookbook', 'cookbook load failed', { error: String(err) });
     status.textContent = `couldn’t load your cookbook: ${String(err)}`;
