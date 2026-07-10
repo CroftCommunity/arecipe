@@ -125,6 +125,33 @@ test('tap-to-place: arm a recipe, place it on a day, persist across reload, clea
   await expect(page.getByTestId('remove-week')).toHaveCount(2);
 });
 
+test('reset: clears the plan back to one empty week (inline confirm; cancel is safe)', async ({
+  page,
+}) => {
+  await seedPalette(page);
+  await page.goto('/meals.html');
+
+  // Build some state: two weeks with a placed recipe.
+  await page.getByTestId('palette-chip').filter({ hasText: 'Lasagna' }).click();
+  await page.getByTestId('week-row').first().getByTestId('day-slot').first().click();
+  await page.getByTestId('add-week').click();
+  await expect(page.getByTestId('week-row')).toHaveCount(2);
+  await expect(page.getByTestId('slot-filled').first()).toBeVisible();
+
+  // Reset → Cancel leaves everything intact.
+  await page.getByTestId('reset-plan').click();
+  await page.getByTestId('reset-cancel').click();
+  await expect(page.getByTestId('week-row')).toHaveCount(2);
+  await expect(page.getByTestId('slot-filled').first()).toBeVisible();
+
+  // Reset → Confirm clears the plan: one empty week, nothing placed.
+  await page.getByTestId('reset-plan').click();
+  await page.getByTestId('reset-confirm').click();
+  await expect(page.getByTestId('week-row')).toHaveCount(1);
+  await expect(page.getByTestId('slot-filled')).toHaveCount(0);
+  await expect(page.getByTestId('calendar-empty')).toBeVisible();
+});
+
 test('repeat planned weeks: duplicates the whole plan (meals and all) instead of adding a blank week', async ({
   page,
 }) => {
@@ -355,4 +382,17 @@ test('shared view: ?mealplan=&user= renders a read-only, dated calendar linking 
 test('shared view: a link without a user param explains what is missing', async ({ page }) => {
   await page.goto('/meals.html?mealplan=plan-1');
   await expect(page.getByTestId('shared-plan')).toContainText('needs a “user”', { timeout: 15_000 });
+});
+
+test('the planner header links to the "My plans" subpage', async ({ page }) => {
+  await page.goto('/meals.html');
+  await expect(page.getByTestId('my-plans')).toHaveAttribute('href', /meals\.html\?plans$/);
+});
+
+test('published-plans subpage: signed out, it invites sign-in and offers a back link', async ({
+  page,
+}) => {
+  await page.goto('/meals.html?plans');
+  await expect(page.getByTestId('published-plans')).toContainText('Sign in', { timeout: 15_000 });
+  await expect(page.getByTestId('plans-back')).toHaveAttribute('href', /meals\.html$/);
 });

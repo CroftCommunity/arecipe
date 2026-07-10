@@ -2,6 +2,12 @@
 // Open-world tolerance applies here too: a duration we can't parse renders
 // as "not set" rather than breaking the card.
 
+/** Shorten a long opaque id (e.g. a record rkey/ULID) to `head…tail` so it fits
+ *  on one line — the full value belongs in a title/tooltip. Ids of 12 chars or
+ *  fewer are returned unchanged. */
+export const abbreviateId = (id: string): string =>
+  id.length <= 12 ? id : `${id.slice(0, 6)}…${id.slice(-4)}`;
+
 export const formatDuration = (iso: string | undefined): string | null => {
   if (iso === undefined || iso === '') return null;
   const match = /^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/.exec(iso);

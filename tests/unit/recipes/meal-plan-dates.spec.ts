@@ -6,7 +6,12 @@
 //  - invalid anchors degrade to null (never throw, never render garbage)
 //  - formatShortDate gives a stable, locale-independent label
 import { describe, expect, it } from 'vitest';
-import { addDays, dateForSlot, formatShortDate } from '../../../src/recipes/meal-plan-dates.js';
+import {
+  addDays,
+  dateForSlot,
+  formatShortDate,
+  weekRangeLabel,
+} from '../../../src/recipes/meal-plan-dates.js';
 
 describe('addDays', () => {
   it('adds days within a month', () => {
@@ -42,6 +47,23 @@ describe('dateForSlot', () => {
 
   it('returns null for an invalid anchor', () => {
     expect(dateForSlot('nope', 1, 1)).toBeNull();
+  });
+});
+
+describe('weekRangeLabel', () => {
+  it('gives a real date range when anchored (first day → last day)', () => {
+    // 2 weeks from Mon Jul 13 → last day is +13 days = Jul 26.
+    expect(weekRangeLabel('2026-07-13', 2)).toBe('Jul 13 – Jul 26');
+    expect(weekRangeLabel('2026-07-13', 1)).toBe('Jul 13 – Jul 19');
+  });
+
+  it('falls back to a week count with no anchor', () => {
+    expect(weekRangeLabel(undefined, 3)).toBe('3 weeks');
+    expect(weekRangeLabel(undefined, 1)).toBe('1 week');
+  });
+
+  it('falls back to the week count when the anchor is invalid', () => {
+    expect(weekRangeLabel('nope', 2)).toBe('2 weeks');
   });
 });
 

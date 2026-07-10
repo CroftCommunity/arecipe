@@ -17,7 +17,7 @@ import { log } from '../log.js';
 import { mountShell } from '../nav.js';
 import { createResolver } from '../identity/resolve.js';
 import { expandCalendar } from '../recipes/meal-plan.js';
-import { dateForSlot, formatShortDate } from '../recipes/meal-plan-dates.js';
+import { dateForSlot, formatShortDate, weekRangeLabel } from '../recipes/meal-plan-dates.js';
 import {
   createMealPlanStore,
   duplicateWeeks,
@@ -25,7 +25,7 @@ import {
   type LocalWeek,
   type MealPlanStore,
 } from '../recipes/meal-plan-local.js';
-import { getPdsPlan, listPdsPlans, syncPlanToPds } from '../recipes/meal-plan-sync.js';
+import { getPdsPlan, listPdsPlans, removePlanFromPds, syncPlanToPds } from '../recipes/meal-plan-sync.js';
 import {
   loadCookbookPalette,
   loadHandlePalette,
@@ -203,6 +203,117 @@ const showSharedPlan = async (
   }
 };
 
+/** "Jul 10, 2026" from an ISO timestamp (date only, floating). */
+const publishedLabel = (iso: string): string => {
+  const datePart = iso.slice(0, 10);
+  const short = formatShortDate(datePart);
+  return short !== null ? `${short}, ${datePart.slice(0, 4)}` : datePart;
+};
+
+/** Your published meal plans (a Meals subpage: `meals.html?plans`). Signed-in
+ *  only — lists the account's app.arecipe.mealPlan records with their week range
+ *  and publish date, a link to the shareable view, and a guarded delete. */
+const showPublishedPlans = async (app: HTMLElement): Promise<void> => {
+  const content = el('section', 'panel');
+  const header = el('div', 'meals-header');
+  header.append(el('h2', 'section-title', 'Your published plans'));
+  const back = el('a', 'friend-link', '‹ Back to planner') as HTMLAnchorElement;
+  back.href = './meals.html';
+  back.dataset['testid'] = 'plans-back';
+  header.append(back);
+  content.append(header);
+  const body = el('div');
+  body.dataset['testid'] = 'published-plans';
+  content.append(body);
+  mountShell(app, content);
+  void mountBuildStamp(app);
+  void registerServiceWorker();
+
+  body.replaceChildren(el('p', 'status', 'loading your published plans…'));
+  let agent: Agent | null = null;
+  try {
+    const { bootSession } = await import('../auth/boot.js');
+    ({ agent } = await bootSession());
+  } catch (err) {
+    log.warn('meal-plan', 'auth for published plans failed', { error: String(err) });
+  }
+  if (agent === null || agent.did === undefined) {
+    body.replaceChildren(el('p', 'status', 'Sign in to see your published meal plans.'));
+    return;
+  }
+  const did = agent.did;
+  const boundAgent = agent;
+  try {
+    const { pds } = await resolveDidDoc(did);
+    const plans = await listPdsPlans(pds, did);
+    const render = (list: LocalPlan[]): void => {
+      if (list.length === 0) {
+        body.replaceChildren(
+          el('p', 'empty-state', 'No published meal plans yet — Publish one from the planner.'),
+        );
+        return;
+      }
+      body.replaceChildren();
+      for (const plan of list) {
+        const shareUrl = new URL('meals.html', window.location.href);
+        shareUrl.searchParams.set('mealplan', plan.id);
+        shareUrl.searchParams.set('user', did);
+        const row = el('div', 'plan-row');
+        row.dataset['testid'] = 'plan-row';
+
+        const info = el('div', 'plan-info');
+        const open = el('a', 'plan-link', plan.name) as HTMLAnchorElement;
+        open.href = shareUrl.toString();
+        open.dataset['testid'] = 'plan-open';
+        const meta = el(
+          'span',
+          'plan-meta',
+          `${weekRangeLabel(plan.startDate, plan.weeks.length)} · published ${publishedLabel(plan.updatedAt)}`,
+        );
+        meta.dataset['testid'] = 'plan-meta';
+        info.append(open, meta);
+
+        // Delete: guarded inline confirm (removes the PDS record).
+        const del = el('div', 'plan-del');
+        const renderDel = (): void => {
+          del.replaceChildren();
+          const btn = el('button', 'button', 'Delete') as HTMLButtonElement;
+          btn.type = 'button';
+          btn.dataset['testid'] = 'plan-delete';
+          btn.addEventListener('click', () => {
+            del.replaceChildren();
+            const note = el('span', 'reset-confirm-note', 'Delete? ');
+            const confirm = el('button', 'button', 'Confirm') as HTMLButtonElement;
+            confirm.type = 'button';
+            confirm.dataset['testid'] = 'plan-delete-confirm';
+            confirm.addEventListener('click', () => {
+              void removePlanFromPds(boundAgent, plan.id)
+                .then(() => render(list.filter((x) => x.id !== plan.id)))
+                .catch((err: unknown) => {
+                  del.replaceChildren(el('span', 'status', `delete failed: ${String(err)}`));
+                });
+            });
+            const cancel = el('button', 'button', 'Cancel') as HTMLButtonElement;
+            cancel.type = 'button';
+            cancel.dataset['testid'] = 'plan-delete-cancel';
+            cancel.addEventListener('click', () => renderDel());
+            del.append(note, confirm, cancel);
+          });
+          del.append(btn);
+        };
+        renderDel();
+
+        row.append(info, del);
+        body.append(row);
+      }
+    };
+    render(plans);
+    log.debug('shell', 'mounted', { page: 'meals', view: 'published-plans' });
+  } catch (err) {
+    body.replaceChildren(el('p', 'status', `couldn’t load your plans: ${String(err)}`));
+  }
+};
+
 export const main = async (
   deps: { palette?: PaletteProvider; store?: MealPlanStore } = {},
 ): Promise<void> => {
@@ -215,6 +326,11 @@ export const main = async (
   const sharedRkey = routeParams.get('mealplan');
   if (sharedRkey !== null && sharedRkey.trim() !== '') {
     await showSharedPlan(app, sharedRkey.trim(), routeParams.get('user'));
+    return;
+  }
+  // "Your published plans" subpage (signed-in management view).
+  if (routeParams.get('plans') !== null) {
+    await showPublishedPlans(app);
     return;
   }
 
@@ -241,7 +357,19 @@ export const main = async (
   let you: { did: string; pds: string } | null = null;
 
   const content = el('section', 'panel');
-  content.append(el('h2', 'section-title', 'Meals'));
+  // Title row: "Meals" on the left, a right-aligned "Reset" that clears the plan
+  // back to a single empty week (inline two-step confirm — it's destructive and
+  // syncs). Wired below, once persist/rerender exist.
+  const header = el('div', 'meals-header');
+  header.append(el('h2', 'section-title', 'Meals'));
+  const headerActions = el('div', 'meals-actions');
+  const plansLink = el('a', 'button meals-plans', 'My plans') as HTMLAnchorElement;
+  plansLink.href = './meals.html?plans';
+  plansLink.dataset['testid'] = 'my-plans';
+  const resetControl = el('div', 'meals-reset');
+  headerActions.append(plansLink, resetControl);
+  header.append(headerActions);
+  content.append(header);
 
   const planner = el('div', 'meal-planner');
   const palette = el('aside', 'palette');
@@ -341,10 +469,11 @@ export const main = async (
   calendar.append(calBody);
   content.append(calendar);
 
-  // Publish & share: the plan already syncs on every change; this surfaces a
-  // shareable, date-aligned link anyone (incl. anon) can open. Signed-in only.
+  // Publish: the plan already syncs on every change; publishing surfaces a
+  // shareable, date-aligned link anyone (incl. anon) can open — the same link
+  // also lists on the "My plans" subpage. Signed-in only.
   const shareSection = el('section', 'plan-share');
-  const publishBtn = el('button', 'button button--primary', 'Publish & share') as HTMLButtonElement;
+  const publishBtn = el('button', 'button button--primary', 'Publish') as HTMLButtonElement;
   publishBtn.type = 'button';
   publishBtn.dataset['testid'] = 'publish-plan';
   const shareSlot = el('div', 'plan-share-slot');
@@ -691,6 +820,47 @@ export const main = async (
     renderBuilder();
     renderCalendar();
   };
+
+  // Reset (title row, right-aligned): clear the plan back to a single empty week
+  // — drops every placement and the start date, then persists (write-through to
+  // the PDS when signed in). Destructive + synced, so it takes an inline two-step
+  // confirm (mirrors the recipe Hide control — no native dialog).
+  const renderResetControl = (): void => {
+    resetControl.replaceChildren();
+    const reset = el('button', 'button meals-reset-btn', 'Reset') as HTMLButtonElement;
+    reset.type = 'button';
+    reset.dataset['testid'] = 'reset-plan';
+    reset.addEventListener('click', () => {
+      resetControl.replaceChildren();
+      const note = el('span', 'reset-confirm-note', 'Reset the plan? ');
+      const confirm = el('button', 'button', 'Confirm') as HTMLButtonElement;
+      confirm.type = 'button';
+      confirm.dataset['testid'] = 'reset-confirm';
+      confirm.addEventListener('click', () => {
+        plan = store.save({ name: plan.name, weeks: [emptyWeek()] }, plan.id);
+        if (syncAgent !== null) {
+          void syncPlanToPds(syncAgent, plan).catch((err: unknown) => {
+            log.warn('meal-plan', 'PDS sync failed', { error: String(err) });
+          });
+        }
+        armed = null;
+        dragging = null;
+        filterText = '';
+        filterInput.value = '';
+        paletteOffset = 0;
+        renderResetControl();
+        rerender();
+        renderChips();
+      });
+      const cancel = el('button', 'button', 'Cancel') as HTMLButtonElement;
+      cancel.type = 'button';
+      cancel.dataset['testid'] = 'reset-cancel';
+      cancel.addEventListener('click', () => renderResetControl());
+      resetControl.append(note, confirm, cancel);
+    });
+    resetControl.append(reset);
+  };
+  renderResetControl();
 
   mountShell(app, content);
   rerender();

@@ -154,7 +154,7 @@ test('@live publish a plan, then open the shared link anonymously', async ({
   }, MARKER);
   await page.goto('/meals.html');
 
-  // Place a recipe and anchor a start date, then Publish & share.
+  // Place a recipe and anchor a start date, then Publish.
   await page.getByTestId('palette-chip').first().click();
   await page.getByTestId('week-row').first().getByTestId('day-slot').first().click();
   await page.getByTestId('plan-start-date').fill('2026-07-13');
@@ -177,6 +177,62 @@ test('@live publish a plan, then open the shared link anonymously', async ({
   await expect(meal).toBeVisible({ timeout: 30_000 });
   await expect(meal).toHaveAttribute('href', /recipe\.html\?u=/);
   await anon.close();
+
+  await purge();
+});
+
+test('@live "My plans" subpage lists a published plan, then deletes it', async ({ page, baseURL }) => {
+  test.skip(
+    HANDLE === '' || PASSWORD === '' || APP_PASSWORD === '',
+    'needs BSKY_TEST_* credentials in .env',
+  );
+  test.setTimeout(300_000);
+  await purge();
+  const origin = baseURL ?? 'http://127.0.0.1:4173';
+
+  await page.addInitScript((seed) => {
+    try {
+      localStorage.setItem('arecipe.meals.palette-seed', JSON.stringify(seed));
+    } catch {
+      /* ignore */
+    }
+  }, SEED);
+
+  await signIn(page, { handle: HANDLE, password: PASSWORD, origin });
+  await page.goto('/meals.html');
+  await page.evaluate((marker) => {
+    try {
+      const raw = localStorage.getItem('arecipe.mealplans.v1');
+      const all = raw === null ? {} : (JSON.parse(raw) as Record<string, { name: string }>);
+      for (const id of Object.keys(all)) all[id]!.name = `Managed Plan (${marker})`;
+      localStorage.setItem('arecipe.mealplans.v1', JSON.stringify(all));
+    } catch {
+      /* ignore */
+    }
+  }, MARKER);
+  await page.goto('/meals.html');
+
+  await page.getByTestId('palette-chip').first().click();
+  await page.getByTestId('week-row').first().getByTestId('day-slot').first().click();
+  await page.getByTestId('plan-start-date').fill('2026-07-13');
+  await page.getByTestId('publish-plan').click();
+  await expect(page.getByTestId('share-url')).toBeVisible({ timeout: 30_000 });
+
+  // The "My plans" subpage lists the published plan with its week range + a
+  // share link, and can delete it.
+  await page.getByTestId('my-plans').click();
+  await expect(page).toHaveURL(/meals\.html\?plans$/);
+  const row = page.getByTestId('plan-row').filter({ hasText: `Managed Plan (${MARKER})` });
+  await expect(row).toHaveCount(1, { timeout: 30_000 });
+  await expect(row.getByTestId('plan-open')).toHaveAttribute('href', /mealplan=.*user=/);
+  await expect(row.getByTestId('plan-meta')).toContainText('Jul 13');
+
+  await row.getByTestId('plan-delete').click();
+  await row.getByTestId('plan-delete-confirm').click();
+  await expect(page.getByTestId('plan-row').filter({ hasText: `Managed Plan (${MARKER})` })).toHaveCount(
+    0,
+    { timeout: 30_000 },
+  );
 
   await purge();
 });

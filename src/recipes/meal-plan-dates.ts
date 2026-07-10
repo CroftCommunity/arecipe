@@ -53,3 +53,17 @@ export const formatShortDate = (isoDate: string): string | null => {
   if (date === null) return null;
   return `${MONTHS[date.getUTCMonth()]} ${date.getUTCDate()}`;
 };
+
+/** A human label for how long a plan spans: a real date range ("Jul 13 – Jul
+ *  26") when anchored on a valid first-Monday, else a week count ("3 weeks").
+ *  `weekCount` is the number of planned weeks (7 days each). */
+export const weekRangeLabel = (startDate: string | undefined, weekCount: number): string => {
+  if (startDate !== undefined) {
+    const first = startDate;
+    const lastIso = dateForSlot(startDate, weekCount - 1, 6);
+    const start = formatShortDate(first);
+    const end = lastIso !== null ? formatShortDate(lastIso) : null;
+    if (start !== null && end !== null) return `${start} – ${end}`;
+  }
+  return `${weekCount} ${weekCount === 1 ? 'week' : 'weeks'}`;
+};

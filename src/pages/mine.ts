@@ -43,7 +43,7 @@ const main = async (): Promise<void> => {
   header.append(newRecipe);
 
   const draftsSection = el('section');
-  draftsSection.append(el('h3', 'section-title', 'Drafts'));
+  draftsSection.append(el('h3', 'section-title', 'Recipe Drafts'));
 
   // Status filter (Phase 11c): narrow the drafts list by draft status. Drafts
   // only — published recipes live on Cookbook → "Mine" now, not here (OQ13).
@@ -90,7 +90,7 @@ const main = async (): Promise<void> => {
         'p',
         'status',
         all.length === 0
-          ? 'no drafts — nothing here leaves this device'
+          ? 'Drafts are saved locally to a device — until they are published.'
           : `no ${statusFilter} drafts`,
       );
       draftsList.append(none);

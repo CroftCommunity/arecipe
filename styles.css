@@ -828,12 +828,69 @@ a {
    narrow screens. The All/Mine/Liked source control now rides inline with the
    toolbar controls (Tiles/Details/Meal/Cuisine) — one filter row. */
 .cookbook-header,
-.alchemy-header {
+.alchemy-header,
+.meals-header {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: var(--s-3);
   flex-wrap: wrap;
+}
+
+/* Meals title-row actions: "My plans" + "Reset", grouped at the right. */
+.meals-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+}
+/* Meals "Reset" control: the button, or its inline Reset? · Confirm / Cancel. */
+.meals-reset {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.reset-confirm-note {
+  font-size: var(--t-caption);
+  opacity: 0.8;
+}
+
+/* "Your published plans" subpage: one row per plan — name + meta on the left,
+   a guarded Delete on the right; the name links to the shareable view. */
+.plan-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+  background: var(--card);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  padding: var(--s-2) var(--s-3);
+  margin-bottom: var(--s-2);
+  max-width: 44rem;
+}
+.plan-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  min-width: 0;
+}
+.plan-link {
+  color: var(--enamel);
+  font-weight: 700;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+.plan-meta {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  opacity: 0.7;
+}
+.plan-del {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
 }
 
 /* Content-freshness note at the bottom of the Cookbook (SWR "as of …"). Quiet,

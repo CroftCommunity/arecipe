@@ -6,12 +6,24 @@
 // - thumbnail URLs point at the CDN with did + cid
 import { describe, expect, it } from 'vitest';
 import {
+  abbreviateId,
   firstImageCid,
   firstImageCredit,
   formatDuration,
   formatPublishedDate,
   thumbUrl,
 } from '../../../src/recipes/present.js';
+
+describe('abbreviateId', () => {
+  it('shortens a long id to head…tail so it fits one line', () => {
+    expect(abbreviateId('01KVQFHYF6PJP7KP84PNCJZ8K9')).toBe('01KVQF…Z8K9');
+  });
+
+  it('leaves a short id untouched', () => {
+    expect(abbreviateId('abc123')).toBe('abc123');
+    expect(abbreviateId('012345678901')).toBe('012345678901'); // 12 chars → unchanged
+  });
+});
 
 describe('formatDuration', () => {
   it('renders hours and minutes', () => {

@@ -7,6 +7,7 @@ import { log } from '../log.js';
 import { mountShell } from '../nav.js';
 import { createDietPreference, DIET_OPTIONS } from '../recipes/diet-preference.js';
 import { createExclusions } from '../recipes/exclusions.js';
+import { abbreviateId } from '../recipes/present.js';
 import { createStarterPrefs, STARTER_AUTHORS } from '../recipes/starter.js';
 import { createSocialPrefs } from '../social/prefs.js';
 import { registerServiceWorker } from '../sw-register.js';
@@ -210,7 +211,10 @@ const main = async (): Promise<void> => {
     for (const uri of all) {
       const row = el('div', 'draft-row');
       row.dataset['testid'] = 'hidden-row';
-      const link = el('a', 'draft-link', uri.split('/').slice(-1)[0] ?? uri) as HTMLAnchorElement;
+      // Show a short, single-line id (the raw rkey is a 26-char ULID that wraps
+      // into an ugly multi-line blob on mobile); the full URI stays in the title.
+      const rkey = uri.split('/').slice(-1)[0] ?? uri;
+      const link = el('a', 'draft-link', abbreviateId(rkey)) as HTMLAnchorElement;
       link.href = `./recipe.html?u=${encodeURIComponent(uri)}`;
       link.title = uri;
       const unhide = el('button', 'button', 'Unhide') as HTMLButtonElement;
