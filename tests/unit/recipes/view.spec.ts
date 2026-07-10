@@ -139,6 +139,21 @@ describe('renderRecipeDetailsList (Details view rows)', () => {
   });
 });
 
+describe('renderFocusView', () => {
+  const base = { name: 'No Pic', ingredients: ['x'], instructions: ['y'] };
+  const withImage = { ...base, embed: { images: [{ image: { ref: { $link: 'bafypic' } } }] } };
+
+  it('marks the photo area empty (small placeholder) when the recipe has no image', () => {
+    const view = renderFocusView(entry({ value: base }), { onExit: () => undefined });
+    expect(view.querySelector('.focus-photo-empty')).not.toBeNull();
+  });
+
+  it('does not mark it empty when there is an image (full banner)', () => {
+    const view = renderFocusView(entry({ value: withImage }), { onExit: () => undefined });
+    expect(view.querySelector('.focus-photo-empty')).toBeNull();
+  });
+});
+
 describe('renderFacetDropdown', () => {
   it('renders one checkbox option per available value, in a details with the dimension label', () => {
     const dd = renderFacetDropdown({

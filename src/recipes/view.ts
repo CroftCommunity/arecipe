@@ -370,7 +370,12 @@ export const renderFocusView = (
   exit.addEventListener('click', () => opts.onExit());
   top.append(exit);
   overlay.append(top);
-  overlay.append(photoWrapEl(entry));
+  // No image? Mark the photo area empty so it renders as a small top strip
+  // rather than a full-height banner of blank placeholder (which ate ~75% of a
+  // phone screen). CSS (.focus-view .focus-photo-empty) does the shrinking.
+  const photo = photoWrapEl(entry);
+  if (firstImageCid(entry.value) === null) photo.classList.add('focus-photo-empty');
+  overlay.append(photo);
   const cols = el('div', 'focus-cols');
   const ingredients = el('section');
   ingredients.append(el('h3', undefined, 'Ingredients'));

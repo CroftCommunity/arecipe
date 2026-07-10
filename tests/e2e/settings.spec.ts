@@ -75,3 +75,19 @@ test('clearing the diet preference restores all recipes on Browse', async ({ pag
   await expect(page.getByTestId('recipe-item')).toHaveCount(4);
   await expect(page.getByTestId('recipes-status')).toContainText('starter pack recipes');
 });
+
+test('settings: Hidden recipes is collapsed by default with a count, expandable', async ({
+  page,
+}) => {
+  await page.goto('/settings.html');
+  const section = page.getByTestId('hidden-recipes');
+  await expect(section).toBeVisible();
+  // Collapsed by default: the summary carries a count; rows are hidden until opened.
+  const summary = section.locator('summary').first();
+  await expect(summary).toContainText(/Hidden recipes \(\d+\)/);
+  const firstRow = section.getByTestId('hidden-row').first();
+  await expect(firstRow).toBeHidden();
+  // Expand → the rows appear.
+  await summary.click();
+  await expect(firstRow).toBeVisible();
+});

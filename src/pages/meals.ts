@@ -476,9 +476,20 @@ export const main = async (
   // shareable, date-aligned link anyone (incl. anon) can open — the same link
   // also lists on the "My plans" subpage. Signed-in only.
   const shareSection = el('section', 'plan-share');
+  const publishRow = el('div', 'plan-publish-row');
   const publishBtn = el('button', 'button button--primary', 'Publish') as HTMLButtonElement;
   publishBtn.type = 'button';
   publishBtn.dataset['testid'] = 'publish-plan';
+  // Reset on publish (default on): after publishing, start a FRESH working plan
+  // so the published record is preserved (a new local id → the old rkey is never
+  // overwritten) and the canvas is clear for the next plan.
+  const resetOnPublishLabel = el('label', 'browse-toggle');
+  const resetOnPublish = document.createElement('input');
+  resetOnPublish.type = 'checkbox';
+  resetOnPublish.checked = true;
+  resetOnPublish.dataset['testid'] = 'reset-on-publish';
+  resetOnPublishLabel.append(resetOnPublish, document.createTextNode('Reset on publish'));
+  publishRow.append(publishBtn, resetOnPublishLabel);
   const shareSlot = el('div', 'plan-share-slot');
   const renderShareLink = (link: string): HTMLElement => {
     const box = el('div', 'share-link');
@@ -518,10 +529,24 @@ export const main = async (
     shareSlot.replaceChildren(el('p', 'status', 'publishing…'));
     void syncPlanToPds(agent, plan)
       .then(() => {
+        // Build the share link from the PUBLISHED plan's id before any reset.
+        const publishedId = plan.id;
         const url = new URL('meals.html', window.location.href);
-        url.searchParams.set('mealplan', plan.id);
+        url.searchParams.set('mealplan', publishedId);
         url.searchParams.set('user', did);
         shareSlot.replaceChildren(renderShareLink(url.toString()));
+        // Reset on publish: freeze the published record and start fresh (a NEW
+        // local id, so the published rkey is never overwritten by later edits).
+        if (resetOnPublish.checked) {
+          plan = store.save({ name: 'My meal plan', weeks: [emptyWeek()] });
+          armed = null;
+          dragging = null;
+          filterText = '';
+          filterInput.value = '';
+          paletteOffset = 0;
+          rerender();
+          renderChips();
+        }
       })
       .catch((err: unknown) => {
         shareSlot.replaceChildren(el('p', 'status', `publish failed: ${String(err)}`));
@@ -530,7 +555,7 @@ export const main = async (
         publishBtn.disabled = false;
       });
   });
-  shareSection.append(publishBtn, shareSlot);
+  shareSection.append(publishRow, shareSlot);
   content.append(shareSection);
 
   const persist = (): void => {
@@ -844,12 +869,10 @@ export const main = async (
       confirm.type = 'button';
       confirm.dataset['testid'] = 'reset-confirm';
       confirm.addEventListener('click', () => {
-        plan = store.save({ name: plan.name, weeks: [emptyWeek()] }, plan.id);
-        if (syncAgent !== null) {
-          void syncPlanToPds(syncAgent, plan).catch((err: unknown) => {
-            log.warn('meal-plan', 'PDS sync failed', { error: String(err) });
-          });
-        }
+        // Start a FRESH plan (new local id), don't overwrite the current record —
+        // if it was published, its shared link must survive a reset. The blank
+        // plan stays local until you place something (no empty PDS record).
+        plan = store.save({ name: 'My meal plan', weeks: [emptyWeek()] });
         armed = null;
         dragging = null;
         filterText = '';

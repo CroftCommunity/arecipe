@@ -166,6 +166,10 @@ test('@live publish a plan, then open the shared link anonymously', async ({
   expect(url).toContain('mealplan=');
   expect(url).toContain('user=');
 
+  // Reset-on-publish is on by default: the working canvas clears (fresh plan)
+  // while the published record is preserved under its own id.
+  await expect(page.getByTestId('slot-filled')).toHaveCount(0, { timeout: 15_000 });
+
   // Open the link in a fresh ANONYMOUS context (no session) — the shared,
   // read-only calendar must render with each meal linking to its recipe.
   const anon = await browser.newContext();

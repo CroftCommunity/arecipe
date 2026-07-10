@@ -194,7 +194,12 @@ const main = async (): Promise<void> => {
   funFactsRow.append(funFactsBox, el('span', undefined, 'Include fun facts'));
   social.append(funFactsRow);
 
-  const hiddenSection = section('Hidden recipes', 'hidden-recipes');
+  // Collapsed by default (it can hold many baseline entries): a <details> whose
+  // summary carries the live count; the list is revealed only when expanded.
+  const hiddenSection = el('details', 'settings-section hidden-recipes');
+  hiddenSection.dataset['testid'] = 'hidden-recipes';
+  const hiddenSummary = el('summary', 'hidden-summary');
+  hiddenSection.append(hiddenSummary);
   hiddenSection.append(
     el('p', 'status', 'Recipes you (or the built-in baseline) hid from feeds. Unhide to restore.'),
   );
@@ -202,8 +207,9 @@ const main = async (): Promise<void> => {
   const hiddenList = el('div');
   hiddenSection.append(hiddenList);
   const renderHidden = (): void => {
-    hiddenList.replaceChildren();
     const all = exclusions.all();
+    hiddenSummary.textContent = `Hidden recipes (${all.length})`;
+    hiddenList.replaceChildren();
     if (all.length === 0) {
       hiddenList.append(el('p', 'status', 'nothing hidden'));
       return;

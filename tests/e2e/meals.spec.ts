@@ -418,3 +418,11 @@ test('taste preference: a "never" cuisine hides matching palette recipes (Meals)
   // "Never: Mexican" hides the taco chip from the placeable palette.
   await expect(page.getByTestId('palette-chip').filter({ hasText: 'Tacos' })).toHaveCount(0);
 });
+
+test('publish offers a "Reset on publish" checkbox, checked by default', async ({ page }) => {
+  await seedPalette(page);
+  await page.goto('/meals.html');
+  const box = page.getByTestId('reset-on-publish');
+  await expect(box).toBeVisible();
+  await expect(box).toBeChecked();
+});

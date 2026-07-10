@@ -1937,3 +1937,46 @@ table.ref.pairs td.eq {
 .taste-option input {
   accent-color: var(--enamel);
 }
+
+/* Collapsible "Hidden recipes" section on Settings: the summary reads like the
+   section heading and toggles the list. */
+.hidden-recipes {
+  cursor: pointer;
+}
+.hidden-summary {
+  font-family: var(--display);
+  font-weight: 600;
+  list-style: none;
+}
+.hidden-summary::-webkit-details-marker {
+  display: none;
+}
+.hidden-summary::before {
+  content: '▸ ';
+  color: var(--enamel);
+}
+.hidden-recipes[open] > .hidden-summary::before {
+  content: '▾ ';
+}
+
+/* Focus mode with no image: shrink the placeholder to a small top strip instead
+   of a full-height blank banner (which dominated a phone screen). */
+.focus-view .focus-photo-empty {
+  height: 4.5rem;
+  overflow: hidden;
+  border-radius: var(--r-m);
+  margin: 0 auto 1rem;
+  max-width: 900px;
+}
+.focus-view .focus-photo-empty .card-photo--empty {
+  height: 4.5rem;
+  min-height: 0;
+}
+
+/* Publish row: the Publish button + "Reset on publish" toggle on one line. */
+.plan-publish-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
