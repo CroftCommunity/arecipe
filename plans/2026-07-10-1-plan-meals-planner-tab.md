@@ -1,6 +1,6 @@
 # Meals — a meal-planner tab for arecipe
 
-**Status:** In execution (started 2026-07-10). Phase 0 ✅ · Phase 1 ✅ · Phase 2 ✅ · Phase 3 ✅ · Phases 4–9 pending.
+**Status:** In execution (started 2026-07-10). Phase 0 ✅ · Phase 1 ✅ · Phase 2 ✅ · Phase 3 ✅ · Phase 4 ✅ · Phases 5–9 pending.
 
 ## Outcome Summary
 
@@ -10,7 +10,7 @@
 | 1 Route skeleton | ✅ shipped | `b115baf` | `meals.html` + `src/pages/meals.ts` mount the shared shell; registered in build; wiring e2e GREEN (90/90 e2e, 229/229 unit). |
 | 2 Nav tab | ✅ shipped | `c083884` | Meals is the 5th destination (order Browse·Cookbook·My recipes·Meals·Reference); mobile 5-tab overflow found + fixed in `styles.css`, guarded by a 360px e2e fit assertion. 91/91 e2e, unit OK. |
 | 3 Lexicon + model | ✅ shipped | `824f1d0` | `src/recipes/meal-plan.ts` (types, `validateMealPlanValue`, `slotWithRecipe`, `expandCalendar`) + fixture + LEXICONS `planned` row. 11 model unit tests (boundaries: 6/7/8-day, repeat 0/1/12/13, expansion order). 243 unit total. Library phase — exports wired in P5/P6/P9 per the export→wiring map. |
-| 4 Local store | ⬜ pending | — | |
+| 4 Local store | ✅ shipped | `<pending-p4>` | `src/recipes/meal-plan-local.ts` — `localStorage` in-flight buffer (`arecipe.mealplans.v1`), injectable storage+logger; corrected fail posture (propagate storage errors, tolerate corrupt reads with a warn), debug logs on save/remove. 7 unit tests. 250 unit total. Library phase — wired by P5. |
 | 5 Week builder + tap-to-place | ⬜ pending | — | |
 | 6 Calendar + repeat | ⬜ pending | — | |
 | 7 Palette (Cookbook + Browse) | ⬜ pending | — | |
@@ -585,7 +585,18 @@ in array order); the unit test pins ordering explicitly.
 
 ---
 
-### Phase 4: Local store (in-flight buffer) — `meal-plan-local.ts`
+### Phase 4: Local store (in-flight buffer) — `meal-plan-local.ts` — ✅ SHIPPED (`<pending-p4>`)
+**Delivered (2026-07-10):** `src/recipes/meal-plan-local.ts` — `createMealPlanStore({
+storage?, logger? })` with `list`/`get`/`save`/`remove`, a stable id per plan
+(`crypto.randomUUID`), the versioned key `arecipe.mealplans.v1`, and the editable
+shape (`LocalWeek.repeat` + `LocalSlot.recipe = { uri, cid, name }` display-cached).
+Fail posture as corrected in Pass 3: storage read/write errors propagate (call-site
+warns); a corrupt stored value yields empty + `log.warn('meal-plan','discarding
+corrupt stored plan')`; `log.debug` on save/remove. 7 unit tests (round-trip,
+overwrite-by-id, remove, slot preservation, log seams, corrupt-tolerance,
+throwing-backend-propagation), RED→GREEN. **Library phase:** the store is wired
+into the page in P5; it correctly does not import `meal-plan.ts` (the editable
+buffer shape carries a cached `name`, distinct from the record's `PlanSlot`).
 **Goal:** A localStorage-backed **in-flight editing buffer** that creates, gets,
 lists, saves, and removes meal plans, reusing the drafts write-through mechanics.
 The buffer is **not** the authoritative copy — the PDS record (Phase 9) is the
