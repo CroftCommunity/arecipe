@@ -66,3 +66,29 @@ test('signed-out recipe page shows a read-only like count (wiring)', async ({ pa
   await expect(page.getByTestId('like-button')).toBeDisabled();
   await expect(page.getByTestId('save-button')).toHaveCount(0);
 });
+
+// Phase 3 wiring: the like control (heart + count) overlays the recipe banner
+// image in the upper-right, not a separate section below the detail. Assert the
+// structural fact (it is a descendant of .photo-wrap--banner via .like-overlay)
+// AND a top-right position (its box sits in the upper-right quadrant of the
+// banner), exercised through the real recipe-page render.
+test('the like control overlays the banner image, upper-right (wiring)', async ({ page }) => {
+  await routeFixtures(page);
+  await page.goto(`/recipe.html?u=${encodeURIComponent(RECIPE_URI)}`);
+  await expect(page.getByTestId('like-count')).toHaveText('1 like', { timeout: 15_000 });
+
+  // Heart + count both live inside the banner's .like-overlay.
+  const overlayLike = page.locator('.photo-wrap--banner .like-overlay [data-testid="like-button"]');
+  const overlayCount = page.locator('.photo-wrap--banner .like-overlay [data-testid="like-count"]');
+  await expect(overlayLike).toBeVisible();
+  await expect(overlayCount).toBeVisible();
+
+  // Positioned in the upper-right quadrant of the banner.
+  const banner = page.locator('.photo-wrap--banner');
+  const bBox = (await banner.boundingBox())!;
+  const oBox = (await overlayLike.boundingBox())!;
+  const oCenterX = oBox.x + oBox.width / 2;
+  const oCenterY = oBox.y + oBox.height / 2;
+  expect(oCenterX).toBeGreaterThan(bBox.x + bBox.width / 2); // right half
+  expect(oCenterY).toBeLessThan(bBox.y + bBox.height / 2); // top half
+});

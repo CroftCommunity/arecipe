@@ -264,15 +264,26 @@ const mountInteractions = async (
     return;
   }
 
-  const box = el('section', 'interactions');
-  box.dataset['testid'] = 'interactions';
+  const overlay = el('div', 'like-overlay');
+  overlay.dataset['testid'] = 'interactions';
   const likeBtn = el('button', 'button like-btn') as HTMLButtonElement;
   likeBtn.type = 'button';
   likeBtn.dataset['testid'] = 'like-button';
   const likeCount = el('span', 'like-count');
   likeCount.dataset['testid'] = 'like-count';
-  box.append(likeBtn, likeCount);
-  content.append(box);
+  overlay.append(likeBtn, likeCount);
+  // Mount as an image overlay in the banner's upper-right (not a section below
+  // the detail). `.photo-wrap--banner` already exists in `content` (the version
+  // host) because renderRecipeDetail ran before mountInteractions; on the
+  // no-photo placeholder the same banner node renders, so the control keeps its
+  // spot (OQ7). A missing banner is logged, never a silent no-op.
+  const banner = content.querySelector('.photo-wrap--banner');
+  if (banner !== null) {
+    banner.append(overlay);
+  } else {
+    log.warn('interactions', 'banner node missing for like overlay — appending to content');
+    content.append(overlay);
+  }
 
   const repos: InteractionRepo[] = [];
   const addRepo = async (did: string): Promise<void> => {

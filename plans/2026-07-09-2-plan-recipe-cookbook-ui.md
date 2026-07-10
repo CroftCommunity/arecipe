@@ -17,11 +17,16 @@ Execution status (updated per phase; SHA recorded when the next phase commits):
 - ✅ **Phase 1** (`840341b`) — theme-aware link color (`a{color:var(--enamel)}`);
   `.comment-author` reads enamel in both themes, not UA blue. Wiring test:
   `comments.spec.ts` "themed enamel color" (light+dark). Gate green.
-- ✅ **Phase 2** — removed `saved`; `liked` is the only interaction kind. Recipe
-  page shows like+count, no save control; legacy `saved` records read-tolerated
-  (filtered). Wiring test: `interactions.spec.ts` (`save-button` count 0) +
-  unit read-tolerance. Full gate green (228 unit / 91 e2e).
-- ⬜ Phases 3–11c — pending.
+- ✅ **Phase 2** (`eeef2ad`) — removed `saved`; `liked` is the only interaction
+  kind. Recipe page shows like+count, no save control; legacy `saved` records
+  read-tolerated (filtered). Wiring test: `interactions.spec.ts` (`save-button`
+  count 0) + unit read-tolerance. Hermetic green. **Note:** @live like-write is
+  broken on rebased `main` (pre-existing, not this change — see Discovery entry).
+- ✅ **Phase 3** — like heart + count as a banner image overlay (upper-right).
+  `.like-overlay` mounted into `.photo-wrap--banner` via querySelector; scrim CSS.
+  Wiring test: `interactions.spec.ts` "overlays the banner image, upper-right"
+  (descendant + top-right bbox). Full gate green (228 unit / 92 e2e).
+- ⬜ Phases 4–11c — pending.
 
 ## Problem Statement
 
@@ -587,7 +592,22 @@ save-button present (`save-button` testid absent). RED first (button exists).
 **CSP:** no styling change; no inline styles introduced. Intact.
 **Stop-point.**
 
-### Phase 3: Like heart as an image overlay (upper-right)
+### Phase 3: Like heart as an image overlay (upper-right) — ✅ SHIPPED
+
+**Delivered (2026-07-09):** `recipe.ts` `mountInteractions` — replaced the
+`.interactions` section (appended to host) with a `.like-overlay` div (heart +
+count, `like-button`/`like-count` testids kept) mounted into
+`content.querySelector('.photo-wrap--banner')`; a missing banner logs
+`log.warn` and falls back to appending on content (no silent no-op). `styles.css`
+— `.like-overlay` absolute top-right on `.photo-wrap` with a gradient scrim +
+white mono count. **`view.ts` untouched** (querySelector approach, per Pass 2 —
+Phase 3 = 2 files). Wiring test added to `interactions.spec.ts`: the like control
+is a descendant of `.photo-wrap--banner .like-overlay` and its box sits in the
+banner's upper-right quadrant. RED watched (no overlay), then GREEN.
+**OQ7 (placeholder) covered by construction:** `photoWrapEl` always renders
+`.photo-wrap` and the banner always gets `--banner`, so the overlay targets the
+same node with or without a photo. Full gate green: 228 unit, 92 e2e. Coexists
+with the `.detail-actions` Focus button (separate row) and bottom `.photo-credit`.
 
 **Goal:** The like control overlays the recipe banner (top-right); count stays
 readable; signed-out = read-only count.
