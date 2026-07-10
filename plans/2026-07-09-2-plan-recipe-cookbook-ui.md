@@ -176,10 +176,51 @@ same code.
   `a.card` at :696); `.comment-author` (`comments-view.ts:31`) sets no color →
   UA blue. `.provenance-author`/`.nav-auth` use `--enamel` (`:337`, `:194`).
   `--enamel` has light (`#175e54`) + dark (`#5cb3a1`) variants. Confirmed.
-- **Recipe detail structure.** `renderRecipeDetail` (`view.ts:280`): banner
-  (`.photo-wrap--banner`, with an overlay credit) → `h2.recipe-title` (`:293`)
-  → chips → lede → attribution → columns → provenance. The Hide button is
-  appended by `recipe.ts:427` far below (after revision-check note). Confirmed.
+- **Recipe detail structure. [Pass 3 exec / REBASE RE-GROUNDING 2026-07-09 —
+  line refs + structure updated after rebasing onto `origin/main` `7db0999`
+  (+37 commits: versioning, fun facts, Focus mode).]** `renderRecipeDetail`
+  (`view.ts:468`, was `:280`): banner (`.photo-wrap--banner`, `:476-477`, with
+  the `imageCreditOverlay` credit at `:478`; `imageCreditOverlay` def now `:176`,
+  was `:123`) → **NEW `.detail-actions` Focus-button block** (`:481-491`, only
+  when `options.onFocus` is set — right-aligned row, `styles.css:981`) →
+  `h2.recipe-title` (`:492`, was `:293`) → chips → lede → attribution → columns
+  → **NEW fun-facts section** (`:512-515`, when `showFunFacts !== false`) →
+  provenance. `.photo-wrap` still `position:relative` (`styles.css:741`);
+  `.photo-wrap--banner .photo-credit` still bottom (`:887`). **`renderRecipeDetail`
+  now takes `{author, onFocus?, showFunFacts?, ...}`.**
+- **Recipe page is now VERSION-AWARE via `paintVersion` (NEW — rebase). This is
+  the single most important re-grounding for Phases 2–5.** `recipe.ts` no longer
+  renders once into `content`; it renders through **`paintVersion(host, entry,
+  uri, author, getAgent, {checkStale})`** (`recipe.ts:411-468`), called on the
+  initial load (`:548`) **and on every version flip** (`mountVersionFlip` →
+  `flipTo` → `paintVersion`, `:510-518`). `paintVersion`:
+  (1) `host.replaceChildren(renderRecipeDetail(entry, {author, onFocus, showFunFacts}))`
+  (`:419-425`); (2) staleness check prepends a note (`:426-445`);
+  (3) **builds the Hide button inline** (`:448-460`) and appends it to `host`
+  (`:460`) — this REPLACES the old detached `recipe.ts:427` append; label logic
+  `Hide this recipe`/`Unhide this recipe` at `:452`, toggle + `log.info` at
+  `:454-459`; (4) `mountComments(host, …)` (`:462`) + `mountInteractions(host, …)`
+  (`:465`). **Container for Phases 3/4/5 is `host` (`.version-host`), not the
+  outer `content` (`.panel`).** Because `paintVersion` re-runs per flip, whatever
+  Phases 2–5 change re-applies to each version automatically (no extra wiring),
+  but tests must tolerate the `content > host > article` nesting (all selectors
+  are testid-based, so this is fine).
+- **Interactions/save current line refs (rebase; interactions.ts itself
+  UNCHANGED).** In `mountInteractions` (`recipe.ts:255-369`): `like-button`
+  `:268-270`, `like-count` `:271-272`, **`save-button` `:273-275`** (box.append
+  `:276`); `render()` reads `youSaved` `:296` and sets `saveBtn` `:301-302`;
+  generic `toggle(kind)` `:338`; `likeBtn`/`saveBtn` click wiring `:365`/`:366`.
+  (Phase 2 targets shift from the Pass 2 refs `:272/:300-302/:365` to these.)
+- **Comments current line refs (rebase).** `mountComments` `recipe.ts:113`;
+  `.comments` `<section>` `:124`; `.comment-compose` form `:200`; `.comment-text`
+  textarea `:202-204` (placeholder "Add a comment…"); `comment-post` `:215-217`.
+  Phase 5 stays CSS-only.
+- **Two NEW stale "My recipes" label refs surfaced by the rebase** (Phase 11a
+  scope grows): (a) `recipe.ts:245` signed-out comment pointer "Sign in on **My
+  recipes** to join the conversation." → "…on Alchemy…"; (b) `nav.ts` gained a
+  4th destination **Reference** (`:69-73`), so `docs/DESIGN.md`'s canonical nav
+  list is now "Browse · Cookbook · My recipes · Reference" — the 11a doc edit must
+  rename *My recipes* while preserving *Reference*.
 - **Image overlay precedent.** `imageCreditOverlay` already overlays the banner
   (`view.ts:123`, `:290`), so absolute-positioning on `.photo-wrap` is
   established. Confirmed.
@@ -310,24 +351,62 @@ open questions before committing to the toolbar/liked-feed phases.
       147-156,148,167,169-171` mapped to Phases 6/8/11a; `saved` hits are
       lexicon-level (no stale UI doc). Re-confirm during execution only if the
       docs changed since Pass 2.
-- [ ] **D1: Is the Browse toolbar cleanly extractable?** Read `browse.ts`
-      end-to-end + `browse-state.ts`. Determine the exact inputs a shared
-      `renderToolbar` needs (state, facets, callbacks) and what stays
-      page-specific. **Success:** a concrete extraction shape (signature + which
-      state is shared vs injected) written into Phase 7. **Disposition:**
-      throwaway notes.
-- [ ] **D2: Design the "liked recipes" by-ref loader.** **[Pass 2 sharpened]**
-      Pass 2 confirmed the load path does **not exist** — `loadAuthorsFeed`
-      (`social/feed.ts:33`) loads by *author*, and no by-URI/by-strongRef loader
-      exists. So D2 is a *design* task, not a *confirm* task. Read `social/feed.ts`
-      + `recipes/cache.ts` + `recipes/read.ts`; produce the concrete signature
-      and steps for `loadLikedFeed(interactions) → CachedRecipe[]`: filter empty
-      refs (`{uri:'',cid:''}`), parse `at://did/exchange.recipe.recipe/rkey`,
-      `resolveDidDoc(did)`→pds (cross-PDS), `createRecordReader`, `cache.put`,
-      `renderRecipeList`. Decide the **discovery cap** (how many liked records to
-      resolve/load). **Success:** the loader signature + cap written into Phase 9;
-      note that real cross-PDS verification needs `@live`. **Disposition:**
-      throwaway probe (design notes; the real loader is built TDD in Phase 9).
+- [x] **D1: Is the Browse toolbar cleanly extractable?** *(Answered — execution
+      2026-07-09, post-rebase.)* Read `browse.ts` end-to-end + `browse-state.ts`.
+      **YES, cleanly extractable — the Phase 7 [Pass 2] pinned shape holds against
+      current code.** Toolbar assembled at `browse.ts:49-92`: `.browse-toolbar`
+      (`:49`) → `.browse-controls` (`:50`: segmented `view-tiles`/`view-details`
+      `:52-60`, `photos-only` toggle `:63-68`, `.browse-facets` container `:72`) +
+      `.browse-count` (`:74`: `reset-filters` `:78`, `recipes-status` `:44`,
+      `diet-pref-link` `:85`). Two render seams confirmed exactly as planned:
+      **`renderCurrent()`** (`:177-213`, filter/view change — dropdowns stay open)
+      vs **`showCurrent()`** (`:242-245` = `rebuildToolbarFacets`+`renderCurrent`,
+      feed/reset). `createBrowsePrefs` (`browse-state.ts:133`) currently takes only
+      `{storage?}` with hardcoded keys `browse-view-mode`/`browse-photos-only`/
+      `browse-facets` (`:115-117`) → OQ11's `prefix` param is the exact change
+      pinned. **New since Pass 2 (rebase):** `renderCurrent` now calls
+      `collapseVersions(shown)` (`browse.ts:202`, from the version work) before
+      picking `renderRecipeDetailsList`/`renderRecipeList` (`:204`) — this stays
+      **Browse-specific inside the render seam**, NOT in the shared toolbar (Phase
+      8 decides whether Cookbook also collapses). **Disposition:** throwaway notes
+      (folded into Phase 7).
+- [x] **D2: Design the "liked recipes" by-ref loader.** *(Answered — execution
+      2026-07-09, post-rebase.)* Read `social/feed.ts` + `recipes/cache.ts` +
+      `recipes/read.ts`. **Confirmed: no by-URI loader exists; all primitives are
+      present and the design below is grounded in current code.** Final signature
+      for Phase 9:
+
+      ```
+      loadLikedFeed(interactions: Interaction[], opts?: { cap?: number })
+        → Promise<CachedRecipe[]>
+      ```
+      Steps (each primitive verified against the branch):
+      1. **Filter empty refs:** `interactions.filter(i => i.recipe.uri !== '')`
+         (the `{uri:'',cid:''}` fallback from `interactions.ts:77`). Empty-skip is
+         normal filtering → `log.debug` at most.
+      2. **Cap:** `const capped = refs.slice(0, cap)` (default cap **50**, matching
+         `recipe.ts:49` `COOKBOOK_DISCOVERY_CAP` for consistency). If
+         `capped.length < refs.length` → `log.warn('liked-feed', 'liked set
+         capped', {total, loaded, dropped})`. **Precedent to mirror:**
+         `createRecipeReader` already does exactly this no-silent-truncation warn
+         at `read.ts:98` ("listRecords page cap hit — truncating").
+      3. **Per ref (concurrent, each in its own try):** parse
+         `at://<did>/exchange.recipe.recipe/<rkey>` (own regex — `parseAtUri` is
+         local + unexported in `recipe.ts:60`; `RECIPE_COLLECTION` =
+         `'exchange.recipe.recipe'`, `read.ts:9`) → `const {pds} =
+         await resolveDidDoc(did)` (**cross-PDS**, `did.ts:11`) →
+         `await createRecordReader()({pds, did, rkey})` (`read.ts:45`, by-ref
+         getRecord) → `await cache.put(record)` (`cache.ts:79`, recomputes CID →
+         `verified`). On failure → `log.warn('liked-feed', 'ref load failed',
+         {uri, error})`, return null (one bad ref must not blank the feed).
+      4. **`return entries.filter(Boolean)`** → Cookbook renders via
+         `renderRecipeList` / `renderRecipeDetailsList`.
+
+      Reuses the same primitives as `loadAuthorsFeed` (`feed.ts:33`:
+      `resolveDidDoc`+`createRecipeReader`+`cache.put`) but keyed by **recipe URI**,
+      not author. Real cross-PDS verification needs `@live` (Phase 9 Broad).
+      **Disposition:** throwaway design notes; the real loader is built TDD in
+      Phase 9.
 - [x] **D3: Confirm the interpretation OQs.** OQ1/2/3/5/6 CONFIRMED in Pass 1;
       **OQ10–OQ13 CONFIRMED by the user in Pass 2** (see Open Questions). All
       interpretation OQs are now resolved — no BLOCKING interpretation gate
@@ -415,7 +494,10 @@ new contrast assertion.
   and `KINDS`; drop `youSaved` from `summarize`; keep read-tolerance for any
   legacy `saved` records (ignored, not errored).
 - [ ] `src/pages/recipe.ts` — remove `saveBtn` + its toggle wiring
-  (`:272`, `:300-302`, `:365`); keep like + count.
+  (**[rebase] refs now `:273-275` (build+append), `:296`/`:301-302` (render
+  `youSaved`), `:366` (click)** — see Verified Assumptions "Interactions/save
+  current line refs"; approach unchanged); keep like + count. The `toggle` fn
+  (`:338`) is generic over `kind` — drop the `'saved'` call site, keep `'liked'`.
 - [ ] `tests/unit` + `tests/e2e` — update interactions unit tests and the
   `interactions*.spec` to drop save; assert like-only behavior.
 **Call chain:** recipe page → `mountInteractions` → like only.
@@ -503,12 +585,26 @@ positioned top-right, and still toggles; count visible.
   new overlay has its positioning context; just ensure top-right vs bottom don't
   collide, and don't disturb `view.spec.ts:281,296` (which assert the existing
   credit overlay).
+**[Rebase re-grounding 2026-07-09]:** The overlay approach still holds, with
+three post-rebase adjustments (see Verified Assumptions "Recipe page is now
+VERSION-AWARE"):
+- **Container is `host`, not `content`.** `mountInteractions(host, …)` is called
+  at `recipe.ts:465` inside `paintVersion`, after `host.replaceChildren(
+  renderRecipeDetail(...))` at `:419`. So the overlay does
+  `host.querySelector('.photo-wrap--banner')` (the `content` param of
+  `mountInteractions` IS `host`). The banner exists when interactions mount.
+- **Re-mounts per version flip automatically.** `paintVersion` re-runs on every
+  flip, so the overlay is rebuilt for each version with no extra wiring — good.
+- **Coexists with the NEW `.detail-actions` Focus button** (`view.ts:481-491`,
+  right-aligned row *between* banner and title, `styles.css:981`) and the
+  existing bottom `.photo-credit`. The like overlay is top-right *on the banner*;
+  the Focus button is a separate row *below* the banner — no collision, but keep
+  the overlay inside `.photo-wrap--banner` (not `.detail-actions`).
 **[Pass 3 — debugging readiness]:** If the "like is a descendant of
 `.photo-wrap--banner`" assertion stays RED, check the **mount ordering**:
-`mountInteractions` (`recipe.ts:448`) must run *after*
-`content.replaceChildren(renderRecipeDetail(...))` (`:390/:405`), so
-`content.querySelector('.photo-wrap--banner')` is non-null when the overlay
-appends. A null querySelector silently appends nowhere (or throws on
+`mountInteractions` (`recipe.ts:465`) must run *after* `host.replaceChildren(
+renderRecipeDetail(...))` (`:419`), so `host.querySelector('.photo-wrap--banner')`
+is non-null when the overlay appends. A null querySelector silently appends nowhere (or throws on
 `.append`) — log `log.warn('recipe', 'banner node missing for like overlay')`
 on the null branch so the placeholder/no-photo path is diagnosable, and confirm
 the placeholder case still renders a `.photo-wrap--banner` (OQ7 needs the same
@@ -556,6 +652,21 @@ as today.
   (`recipe.ts:421-426`). OQ5's two-step confirm is for **Hide**; when the recipe
   is already hidden the control should offer one-tap **Unhide** (no confirm).
   Design the inline control for both states.
+**[Rebase re-grounding 2026-07-09]:** The Hide button now lives **inline in
+`paintVersion`** (`recipe.ts:448-460`), appended to `host` (`:460`) — this
+REPLACES the Pass 2 "old `:427` sibling append" (that line no longer exists).
+So Phase 4's move is: `view.ts` `renderRecipeDetail` renders the title row as
+`.recipe-title-row` (h2 at `:492` + empty `.title-control-slot`); `paintVersion`
+builds the Hide control (keeping the existing `exclusions.hide/unhide` +
+`log.info` at `:454-459`) and injects it into
+`host.querySelector('.title-control-slot')` instead of `host.append(hideButton)`
+at `:460`. The unhide path (`:452-459`, one-tap) is preserved; only Hide gets the
+two-step confirm (OQ5). Because `paintVersion` re-runs per version flip, the
+title-row control rebuilds per version automatically. `renderRecipeDetail` has a
+**single caller** — `paintVersion:420` (confirmed by grep) — so the title-row
+slot change is safe. Note the Focus button (`.detail-actions`, `view.ts:481-491`)
+is a separate right-aligned row above the title; the Hide control sits on the
+title row itself — distinct rows, no collision.
 **[Pass 3 — debugging readiness]:** If the confirm-flow e2e stays RED, check the
 **two-step state** is driven by swapping DOM/text in the control (Hide →
 "Hide? · Confirm / Cancel"), not by a native `confirm()` (OQ5 forbids it and it
@@ -868,8 +979,13 @@ Intact.
 my liked recipes (per OQ6 semantics).
 **Changes:**
 - [ ] `src/social/liked-feed.ts` (new) or extend interactions — load the
-  viewer's `liked` interaction records → their recipe strongRefs → recipes
-  (reuse the recipe cache/load path from Phase 0 D2).
+  viewer's `liked` interaction records → their recipe strongRefs → recipes.
+  **[D2 RESOLVED — build to the concrete signature in Phase 0 D2]:**
+  `loadLikedFeed(interactions, {cap=50}) → CachedRecipe[]` = filter empty refs →
+  cap (mirror `read.ts:98`'s truncation warn) → per-ref parse `at://…/
+  exchange.recipe.recipe/…` + `resolveDidDoc`→pds (cross-PDS) +
+  `createRecordReader` (`read.ts:45`) + `cache.put`, each in its own try. All
+  primitives verified present against the rebased tree.
 - [ ] `src/pages/cookbook.ts` — add the source control (mine / liked / either)
   to the toolbar; swap the feed source accordingly; empty/ signed-out states.
 - [ ] `tests` — unit for the liked-feed mapping; e2e for the source toggle.
@@ -997,14 +1113,21 @@ button already exists on `mine.ts:36-39`** (`new-recipe` testid → `./editor.ht
 the existing drafts + New-Recipe + published flow is unchanged.
 **Changes:**
 - [ ] `src/nav.ts` — rename the `DESTINATIONS` label "My recipes" → "Alchemy"
-  (`:67`). **Keep `href:'./mine.html'` and `testid:'tab-mine'` and the
-  `/mine\.html$/` `match`** — active-tab matching is by **pathname regex**
-  (`nav.ts:76`), not label, so the route/testid stay and only the visible label
-  changes.
+  (`:67`, ref confirmed post-rebase). **Keep `href:'./mine.html'` and
+  `testid:'tab-mine'` and the `/mine\.html$/` `match`** — active-tab matching is
+  by **pathname regex** (**[rebase] now `nav.ts:82`**, was `:76`), not label, so
+  the route/testid stay and only the visible label changes. **[rebase] Note a 4th
+  destination `Reference` was added upstream (`:69-73`)** — leave it untouched.
 - [ ] `src/pages/mine.ts` — add a `page-title` heading "Alchemy" (the page has
   **none** today); confirm the existing `new-recipe` button (`:36-39`) and Drafts
-  section stay. No new button needed.
-- [ ] Docs — `README.md:35`, `docs/DESIGN.md:148,167,169-171` "My recipes" → "Alchemy".
+  section stay. No new button needed. (`mine.ts` UNCHANGED by the rebase.)
+- [ ] **[rebase — NEW stale label]** `src/pages/recipe.ts:245` — the signed-out
+  comment pointer "Sign in on **My recipes** to join the conversation." → "…on
+  **Alchemy**…". (Added upstream by the comments work; not in the Pass 2 inventory.)
+- [ ] Docs — `README.md:35`, `docs/DESIGN.md:148,167,169-171` "My recipes" →
+  "Alchemy". **[rebase]** The `DESIGN.md:148` nav list is now "Browse · Cookbook ·
+  My recipes · Reference" (Reference added upstream) — rename *My recipes*, keep
+  *Reference*.
 **Call chain:** nav render → "Alchemy" tab → `mine.html` page (heading + drafts +
 existing New Recipe).
 **Wiring test:** `tests/e2e/nav.spec.ts` — the tab label reads "Alchemy" and
@@ -1469,3 +1592,72 @@ redirect idioms — all as Pass 2 recorded; nothing drifted.
 gate specific phases (OQ3 nav rename before the phases that reference Alchemy;
 OQ13 before Phase 11b), both resolved by the user in Pass 2. No new open
 questions surfaced by Pass 3.
+
+### Phase 0 execution + rebase re-grounding — 2026-07-09
+
+**Context.** Before Phase 1, rebased `recipe-cookbook-ui` onto the latest
+`origin/main` (`7db0999`) per user request — **+37 commits** landed (the "other
+plan" that was deploying to main: recipe versioning, "Did you know?" fun facts,
+⛶ Focus mode, Settings fun-facts toggle, a Reference page, dishKey collapse).
+The rebase was **mechanically clean** (our branch is plan-doc-only; the 3 plan
+commits replayed with zero code conflict). But the upstream changes touched
+files the Pass 2 grounding was verified against — `view.ts` (+205),
+`recipe.ts` (+165/−63), `styles.css` (+140), `nav.ts`, `read.ts` — so Phase 0
+was expanded to re-ground against current reality (Phase 0 is the only phase
+allowed to restructure later phases; the Discovery Exemption applied — read-only,
+no TDD/commits).
+
+**D1 (toolbar extractable?) — ANSWERED: yes.** `browse.ts` toolbar assembly
+(`:49-92`) and the two render seams (`renderCurrent` `:177` / `showCurrent`
+`:242`) are intact; the Pass 2 pinned `renderToolbar` shape holds verbatim.
+`createBrowsePrefs` (`browse-state.ts:133`) confirmed as `{storage?}`-only with
+hardcoded keys `:115-117` → OQ11's `prefix` param is the exact planned change.
+Only new wrinkle: `collapseVersions` now runs inside Browse's render seam
+(`browse.ts:202`) — stays Browse-specific for Phase 7's behavior-preserving
+extraction. Findings folded into Phase 7 + Phase 0 D1.
+
+**D2 (liked-loader design) — ANSWERED with a concrete, code-grounded signature.**
+Confirmed no by-URI loader exists; all primitives present: `createRecordReader`
+(`read.ts:45`, by-ref cross-PDS), `resolveDidDoc` (`did.ts:11`), `cache.put`
+(`cache.ts:79`), `RECIPE_COLLECTION='exchange.recipe.recipe'` (`read.ts:9`).
+Full `loadLikedFeed(interactions,{cap=50})` signature + steps written into
+Phase 0 D2 and Phase 9. **Bonus precedent:** `createRecipeReader` already ships
+the exact no-silent-truncation cap warn (`read.ts:98`) that Phase 9's cap should
+mirror. `parseAtUri` is local/unexported (`recipe.ts:60`) → liked-feed needs its
+own parse. Findings folded into Phase 0 D2 + Phase 9.
+
+**Rebase re-grounding — what changed (all line refs, no approach changes):**
+- **Recipe page is now version-aware via `paintVersion` (`recipe.ts:411-468`)** —
+  renders on initial load *and every version flip*. Phases 2–5 operate inside it;
+  their container is **`host` (`.version-host`)**, not the outer `content`. The
+  Hide button is now inline in `paintVersion` (`:448-460`), replacing the old
+  detached `:427` append. Re-mount-per-flip means Phase 2–5 changes re-apply to
+  each version automatically. Captured in a new Verified Assumptions entry;
+  Phases 3 and 4 got `[Rebase re-grounding]` notes.
+- **`renderRecipeDetail` (`view.ts:468`, was `:280`)** now includes a
+  `.detail-actions` Focus button (`:481-491`, between banner and title) and a fun-
+  facts section (`:512-515`), and takes `{onFocus?, showFunFacts?}`. `.photo-wrap
+  --banner` (`:477`), `imageCreditOverlay` (`:176`), `h2.recipe-title` (`:492`).
+  Phase 3 overlay + Phase 4 title-row both coexist (distinct rows). VA updated.
+- **Save/interactions refs shifted** (interactions.ts itself unchanged):
+  `save-button` `:273-275`, render `youSaved` `:296/:301-302`, click `:366`.
+  Phase 2 change item + VA updated.
+- **Comments refs shifted:** `mountComments` `:113`, `.comments` `:124`,
+  `.comment-compose` `:200`, `.comment-text` `:202-204`. Phase 5 stays CSS-only.
+- **Two NEW stale "My recipes" labels** the rebase introduced → added to Phase
+  11a: `recipe.ts:245` signed-out comment pointer, and `nav.ts` gained a 4th
+  **Reference** tab (`:69-73`) so the DESIGN nav-list edit must preserve it. Nav
+  match logic moved `:76`→`:82` (label still `:67`).
+- **Unchanged by the rebase (grounding fully holds):** `interactions.ts`,
+  `cookbook.ts`, `account.ts`, `mine.ts`, `editor.ts`, `drafts-local.ts`,
+  `drafts-sync.ts`, `comments-view.ts`, `exclusions.ts`, `browse-state.ts`,
+  `feed.ts`, `cache.ts` — so Phases 6, 8, 9, 10, 11a(mine), 11b, 11c grounding on
+  those files is intact. `styles.css` early rules mostly stable (`--enamel`
+  `:12/:58`, `a.card` `:696`, `.photo-wrap` `:741`, `.editor textarea` `:921-922`,
+  `.browse-toolbar` `:409`); still no bare `a{}` rule → Phase 1 holds.
+
+**Net effect on the plan:** no phase added/removed/reordered; no reasoning
+rewritten; no approach changed. The rebase shifted line references and added two
+coexistence concerns (Focus button, per-version re-mount) and two new stale
+labels — all folded into the affected phases. **Phase 0 stop-point reached —
+awaiting user review before Phase 1.**
