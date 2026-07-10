@@ -31,12 +31,24 @@ Execution status (updated per phase; SHA recorded when the next phase commits):
   `.title-control-slot`; `recipe.ts` builds the confirm control into the slot;
   `styles.css` flex row. Wiring test: `recipes.spec.ts` "Hide on the title row"
   (confirm hides / cancel reverts / unhide one-tap). Gate green.
-- ✅ **Phase 5** — centered `.comments` block (OQ8) + themed composer. `styles.css`
-  only. Wiring test: `comments.spec.ts` "centered and the composer is themed"
-  (both themes) — `.comments` max-width + auto margins via real render; composer
-  border === `--line` via an injected probe (composer is signed-in-only). Full
-  gate green (228 unit / 95 e2e).
-- ⬜ Phases 6–11c — pending.
+- ✅ **Phase 5** (`889993b`) — centered `.comments` block (OQ8) + themed composer.
+  `styles.css` only. Wiring test: `comments.spec.ts` "centered and the composer
+  is themed" (both themes). Gate green.
+- ✅ **Phase 6** — cookbook members → Account; Cookbook = feed; cold-view
+  feed-only; signed-out → Browse (hint-gated), stale hint → sign-in. New
+  `cookbook-members-view.ts` (`renderMembersList`/`membersToAuthors`/
+  `mountMembersList`); `account.ts` mounts it signed-in; `cookbook.ts` simplified
+  + hint-gated redirect (`hasSessionHint` added to `session-hint.ts`). Kept whole
+  (no 6b split). Wiring: unit members-view (render/empty/mapping) + e2e
+  cold-view-feed-only + signed-out→Browse + landing reconciliation. Doc:
+  `DESIGN.md`. Full gate green (231 unit / 95 e2e). @live GREEN (Account members
+  render — `account-live.spec.ts`).
+- ⬜ Phases 7–11c — pending.
+
+**Tooling note:** a separate chore commit excludes `.claude/` (untracked scratch
+holding a nested locked git worktree from another context) from ESLint + the
+Vitest unit glob — it was polluting the gate (double-counted tests, tsconfig-root
+lint error). Not part of any phase's feature work.
 
 ## Problem Statement
 
@@ -830,7 +842,25 @@ composer styled in both themes; 2) `npm test` green.
 `styles.css`; no inline styles. Intact.
 **Stop-point.**
 
-### Phase 6: Move the cookbook-members list to Account (off Cookbook)
+### Phase 6: Move the cookbook-members list to Account (off Cookbook) — ✅ SHIPPED
+
+**Delivered (2026-07-09):** New `src/social/cookbook-members-view.ts` exports
+`renderMembersList` + `membersToAuthors` + `mountMembersList(container, you,
+config)` (resolve→authors→render + explainer + Settings link + empty/error
+handling). `account.ts` mounts it signed-in ("Your cookbook" section, after the
+shell so the page shows immediately). `cookbook.ts` simplified to feed-only
+(`showFeed`, importing `membersToAuthors`), members removed from the signed-in
+view + the `?did=` cold-view; signed-out redirect **gated on `hasSessionHint()`**
+(new export on `session-hint.ts`) → Browse when anonymous, → sign-in on a stale
+hint (see Discovery resolution). Doc: `DESIGN.md` (members on Account, cold-view
+feed-only, signed-out redirects). Tests: unit `cookbook-members-view.spec.ts`
+(render rows/badges/empty + member→author mapping, RED→GREEN); e2e retargets —
+cold-view feed-only (no `cookbook-member`), signed-out→Browse, tab→Browse,
+`nav.spec` affordance dropped, `landing.spec` test 1 stubs cookbook.html. Kept
+whole (6b not split — see Discovery). Full gate green: 231 unit, 95 e2e.
+**@live GREEN:** `account-live.spec.ts` signs in and asserts Account renders
+`cookbook-members` with ≥1 member — the members-READ path works (unaffected by
+the pre-existing @live like-WRITE breakage).
 
 **Goal:** The cookbook-members list (with explainer + Settings link) renders on
 **Account** when signed in, and is **removed from Cookbook** (OQ4). Cookbook
@@ -1454,6 +1484,37 @@ rule only if needed — no inline styles. Intact.
   **Published section**, not from `draft.status`.
 
 ## Review Log
+
+<!-- NOTE: Discovery entries + per-phase SHIPPED markers are interleaved
+     chronologically below; see the Outcome Summary at the top for the phase map. -->
+
+### Discovery (mid-Phase-6, 2026-07-09): OQ10 redirect vs CB3.1 signed-in landing
+
+**Finding.** Phase 6's OQ10 change (signed-out Cookbook → redirect to Browse)
+collides with the pre-existing **CB3.1 "signed-in landing → Cookbook"** feature
+(`DESIGN.md:157`, `landing.spec.ts`). index.html's pre-paint script routes a
+visitor to `cookbook.html` when the zero-auth **session hint**
+(`localStorage 'arecipe-session'`, `src/auth/session-hint.ts`) is set. My first
+cut gated cookbook's redirect on the *resolved OAuth agent* (`agent === null`),
+so the hermetic landing test — which sets the hint but has no real OAuth session
+— reached `cookbook.html`, found no agent, and bounced back to Browse
+(`landing.spec.ts:19` failed). A real signed-in user (hint **and** a restorable
+session) is unaffected, but the mismatch shows the redirect should key off the
+**same hint** index.html uses, not the resolved agent.
+
+**Resolution (user-confirmed 2026-07-09).** Gate the redirect on the session
+hint — no hint ⇒ anonymous ⇒ Browse; hint present ⇒ signed-in surface ⇒ boot +
+load the feed. Same signal index.html uses (added `hasSessionHint()` to
+`session-hint.ts`). **Stale hint** (present but the OAuth session doesn't
+restore) ⇒ redirect to `signin.html` to re-authenticate (user's call). Landing
+tests retargeted: `landing.spec.ts` test 1 stubs `cookbook.html` to isolate
+index.html's routing hop (a real session stays on Cookbook; the hermetic
+hint-without-session would otherwise chain to sign-in). Both OQ10 and CB3.1
+preserved. **6b split decision:** the redirect churn touched 4 test spots
+(cookbook signed-out + tab, nav affordance, landing) plus the landing
+reconciliation — borderline against the Pass 3 trigger, but coherent (all the
+one signed-out behavior) and reviewable as one commit, so Phase 6 stayed whole.
+
 
 ### Pass 1: Base plan — 2026-07-09
 Built from the user's batched requests across the recipe page (drop saved →

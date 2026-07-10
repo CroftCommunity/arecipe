@@ -75,31 +75,33 @@ const routeCookbookFixtures = async (page: Page): Promise<void> => {
   }
 };
 
-test('the Cookbook tab exists and navigates from Browse (wiring)', async ({ page }) => {
+test('the Cookbook tab exists; signed-out it redirects to Browse (wiring)', async ({ page }) => {
   await page.goto('/');
   const tab = page.getByTestId('tab-cookbook');
   await expect(tab).toBeVisible({ timeout: 15_000 });
+  await expect(tab).toHaveAttribute('href', /cookbook\.html$/);
   await tab.click();
-  await expect(page).toHaveURL(/\/cookbook\.html$/);
-  await expect(page.getByRole('heading', { name: 'Cookbook' })).toBeVisible();
+  // Signed-out, the cookbook is a signed-in surface → bounce to Browse (OQ10).
+  await expect(page).toHaveURL(/\/index\.html$/, { timeout: 15_000 });
 });
 
-test('signed-out, the cookbook page shows the sign-in gate', async ({ page }) => {
+test('signed-out, the cookbook page redirects to Browse (OQ10)', async ({ page }) => {
+  // Anonymous visitors go to Browse — the cookbook is a signed-in surface now,
+  // and the members list moved to Account.
   await page.goto('/cookbook.html');
-  await expect(page.getByTestId('cookbook-signed-out')).toBeVisible({ timeout: 15_000 });
+  await expect(page).toHaveURL(/\/index\.html$/, { timeout: 15_000 });
 });
 
-test('cookbook.html?did= renders that account’s cookbook members + feed (cold-view)', async ({
+test('cookbook.html?did= renders the feed only — members moved to Account (OQ10)', async ({
   page,
 }) => {
   await routeCookbookFixtures(page);
   await page.goto(`/cookbook.html?did=${encodeURIComponent(VIEWED.did)}`);
-  // The Bluesky follow is resolved as a cookbook member...
-  await expect(page.getByTestId('cookbook-member').filter({ hasText: 'follow.example.com' })).toBeVisible({
-    timeout: 15_000,
-  });
-  // ...and that cook's recipes fill the feed (proves resolveCookbook → feed wiring).
+  // The follow's recipes fill the feed (proves resolveCookbook → feed wiring)...
   await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
+  // ...but the cold-view no longer renders the members list (it lives on Account).
+  await expect(page.getByTestId('cookbook-member')).toHaveCount(0);
+  await expect(page.getByTestId('cookbook-members')).toHaveCount(0);
 });
 
 test('legacy friends.html redirects to cookbook.html (query preserved)', async ({ page }) => {

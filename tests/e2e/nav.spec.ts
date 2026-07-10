@@ -28,9 +28,8 @@ test('every signed-out "Sign in" affordance points at the dedicated page (wiring
   // Nav top-right, on any page.
   await page.goto('/');
   await expect(page.getByTestId('nav-signin')).toHaveAttribute('href', /signin\.html$/);
-  // Cookbook signed-out gate.
-  await page.goto('/cookbook.html');
-  await expect(page.getByTestId('cookbook-signin-link')).toHaveAttribute('href', /signin\.html$/);
+  // (The Cookbook no longer has a signed-out gate — it redirects to Browse, see
+  // cookbook.spec.ts. Its former sign-in link is gone.)
   // Account signed-out note.
   await page.goto('/account.html');
   await expect(

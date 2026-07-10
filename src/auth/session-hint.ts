@@ -17,3 +17,15 @@ export const setSessionHint = (active: boolean): void => {
     /* private mode / blocked storage: harmless — landing defaults to Browse */
   }
 };
+
+/** Read the landing hint — true when a session was last seen active. The same
+ * zero-auth "is signed in?" signal index.html's pre-paint script reads inline;
+ * pages that gate signed-in surfaces (e.g. Cookbook) key off this so they stay
+ * consistent with the landing router. Defensive: a storage failure reads false. */
+export const hasSessionHint = (): boolean => {
+  try {
+    return window.localStorage.getItem(KEY) === '1';
+  } catch {
+    return false;
+  }
+};

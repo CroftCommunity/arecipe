@@ -3,8 +3,12 @@
 
 import { bootSession } from '../auth/boot.js';
 import { mountBuildStamp } from '../build-stamp.js';
+import { resolveDidDoc } from '../identity/did.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
+import { retryOnce } from '../retry.js';
+import { mountMembersList } from '../social/cookbook-members-view.js';
+import { createReachPrefs } from '../social/reach.js';
 import { registerServiceWorker } from '../sw-register.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -33,6 +37,25 @@ const main = async (): Promise<void> => {
       void provider.signOut().then(() => window.location.reload());
     });
     content.append(who, signOut);
+
+    // Who's in your cookbook (Phase 6): the members list moved here from
+    // Cookbook. The shared view resolves your starter cooks + Bluesky graph and
+    // renders them with source badges + a Settings link. Loads after the shell
+    // mounts so the page shows immediately; a failure degrades to a status line.
+    const membersSection = el('section', 'account-members');
+    membersSection.append(el('h3', 'section-title', 'Your cookbook'));
+    content.append(membersSection);
+    const did = agent.did;
+    if (did !== undefined) {
+      void (async () => {
+        try {
+          const { pds } = await retryOnce(() => resolveDidDoc(did));
+          await mountMembersList(membersSection, { did, pds }, createReachPrefs().load());
+        } catch (err) {
+          log.error('account', 'cookbook members load failed', { error: String(err) });
+        }
+      })();
+    }
   } else {
     const signedOut = el('p', 'empty-state');
     signedOut.dataset['testid'] = 'account-signed-out';

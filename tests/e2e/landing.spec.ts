@@ -18,6 +18,13 @@ const setHint = async (page: import('@playwright/test').Page): Promise<void> => 
 
 test('signed-in home landing redirects to the Cookbook', async ({ page }) => {
   await setHint(page);
+  // This test is about index.html's pre-paint routing decision. Stub cookbook.html
+  // so it doesn't run its own auth redirect (with only the hint and no live OAuth
+  // session, the real page would forward to sign-in — see cookbook.ts). A real
+  // signed-in visitor has a live session and stays on the Cookbook.
+  await page.route('**/cookbook.html', (route) =>
+    route.fulfill({ status: 200, contentType: 'text/html', body: '<!doctype html><title>cookbook</title>' }),
+  );
   await page.goto('/'); // home entry, no in-app referrer
   await expect(page).toHaveURL(/\/cookbook\.html$/, { timeout: 15_000 });
 });

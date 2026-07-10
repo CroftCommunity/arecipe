@@ -1,23 +1,25 @@
-// Cookbook page (CB3, was the Friends page). Your Cookbook = your own recipes +
-// a bounded, chosen reach: starter-pack cooks + who you follow on Bluesky + your
-// Bluesky followers. There is NO arecipe-native friend record anymore — "adding
-// a cook" means following on Bluesky or toggling a starter in Settings. Three
-// states:
-//   - ?did=<did>  : a shareable, public cold-view of any account's cookbook
+// Cookbook page (CB3). Your Cookbook = your own recipes + a bounded, chosen
+// reach: starter-pack cooks + who you follow on Bluesky + your Bluesky
+// followers. The MEMBERS LIST moved to Account (Phase 6); this page is the
+// recipe feed. Three states:
+//   - ?did=<did>  : a shareable, public cold-view of any account's recipe feed
 //                   (no auth) — also the hermetic seam.
-//   - signed in   : your cookbook members + their recipes feed.
-//   - signed out  : the sign-in gate.
-// Members + feed come from the shared scope module (src/social/cookbook.ts);
-// the feed reuses the multi-author loader (src/social/feed.ts).
+//   - signed in   : your cookbook feed.
+//   - signed out  : redirect to Browse — the cookbook is a signed-in surface,
+//                   and "who's in your cookbook" now lives on Account (OQ10).
+// Members + feed scope come from the shared module (src/social/cookbook.js); the
+// feed reuses the multi-author loader (src/social/feed.js).
 
 import { bootSession } from '../auth/boot.js';
+import { hasSessionHint } from '../auth/session-hint.js';
 import { mountBuildStamp } from '../build-stamp.js';
 import { resolveDidDoc } from '../identity/did.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
 import { retryOnce } from '../retry.js';
 import { requestPersistence } from '../storage-persist.js';
-import { resolveCookbook, type CookbookMember, type ReachConfig } from '../social/cookbook.js';
+import { resolveCookbook, type ReachConfig } from '../social/cookbook.js';
+import { membersToAuthors } from '../social/cookbook-members-view.js';
 import { createReachPrefs } from '../social/reach.js';
 import { loadAuthorsFeed, type FeedAuthor } from '../social/feed.js';
 import { renderRecipeList } from '../recipes/view.js';
@@ -28,56 +30,6 @@ const el = (tag: string, className?: string, text?: string): HTMLElement => {
   if (className !== undefined) node.className = className;
   if (text !== undefined) node.textContent = text;
   return node;
-};
-
-/** Human label for where a member came from (first/strongest source wins). */
-const SOURCE_LABEL: Record<CookbookMember['sources'][number], string> = {
-  you: 'you',
-  starter: 'starter',
-  follow: 'following',
-  follower: 'follower',
-};
-const SOURCE_ORDER = ['you', 'starter', 'follow', 'follower'] as const;
-const sourceLabel = (m: CookbookMember): string => {
-  const primary = SOURCE_ORDER.find((s) => m.sources.includes(s));
-  return primary === undefined ? '' : SOURCE_LABEL[primary];
-};
-
-/** Resolve each member to a feed author (handle for the card + profile link). */
-const membersToAuthors = async (members: CookbookMember[]): Promise<FeedAuthor[]> =>
-  Promise.all(
-    members.map(async (m) => {
-      if (m.handle !== undefined) return { handle: m.handle, did: m.did };
-      try {
-        const { handle } = await resolveDidDoc(m.did);
-        return { handle: handle ?? m.did, did: m.did };
-      } catch {
-        return { handle: m.did, did: m.did };
-      }
-    }),
-  );
-
-/** Render the member list with profile links + a source badge. */
-const renderMembersList = (members: CookbookMember[], authors: FeedAuthor[]): HTMLElement => {
-  const list = el('div', 'friends-list');
-  list.dataset['testid'] = 'cookbook-members';
-  const handleByDid = Object.fromEntries(authors.map((a) => [a.did, a.handle]));
-  if (members.length === 0) {
-    list.append(el('p', 'status', 'no cooks yet'));
-    return list;
-  }
-  for (const m of members) {
-    const row = el('div', 'friend-row');
-    row.dataset['testid'] = 'cookbook-member';
-    const handle = handleByDid[m.did] ?? m.did;
-    const link = el('a', 'friend-link', handle) as HTMLAnchorElement;
-    link.href = `https://bsky.app/profile/${handle}`;
-    link.target = '_blank';
-    link.rel = 'noopener';
-    row.append(link, el('span', 'chip', sourceLabel(m)));
-    list.append(row);
-  }
-  return list;
 };
 
 /** Load + render a set of cooks' recipes into the given container. */
@@ -95,20 +47,17 @@ const renderFeedInto = async (feedContainer: HTMLElement, authors: FeedAuthor[])
   }
 };
 
-/** Resolve a cookbook (members + feed) for the given account and render it. */
-const showCookbook = async (
-  container: HTMLElement,
-  membersMount: HTMLElement,
+/** Resolve a cookbook's members → authors and render their recipe feed. The
+ * members LIST is rendered on Account now; here we only need the authors to
+ * build the feed. Cold-view passes no config → resolveCookbook's all-on default;
+ * the signed-in path passes your reach prefs. */
+const showFeed = async (
   feedContainer: HTMLElement,
   you: { did: string; pds: string },
   config?: ReachConfig,
 ): Promise<void> => {
-  // Cold-view passes no config (we can't read the viewed account's prefs) →
-  // resolveCookbook's all-on default; the signed-in path passes your reach prefs.
   const members = await resolveCookbook(config === undefined ? { you } : { you, config });
   const authors = await membersToAuthors(members);
-  membersMount.replaceChildren(renderMembersList(members, authors));
-  container.insertBefore(membersMount, feedContainer);
   await renderFeedInto(feedContainer, authors);
 };
 
@@ -119,18 +68,18 @@ const main = async (): Promise<void> => {
   content.append(el('h2', 'section-title', 'Cookbook'));
 
   const viewedDid = new URLSearchParams(window.location.search).get('did');
-  const membersMount = el('div');
   const feedContainer = el('div');
   feedContainer.dataset['testid'] = 'cookbook-feed';
 
   if (viewedDid !== null && viewedDid !== '') {
-    // Public cold-view: anyone's cookbook, no auth.
+    // Public cold-view: anyone's recipe feed, no auth. Members live on Account,
+    // so the cold-view is feed-only.
     content.append(el('p', 'status', `Cookbook of ${viewedDid}`), feedContainer);
     mountShell(app, content);
     void mountBuildStamp(app);
     try {
       const { pds } = await resolveDidDoc(viewedDid);
-      await showCookbook(content, membersMount, feedContainer, { did: viewedDid, pds });
+      await showFeed(feedContainer, { did: viewedDid, pds });
     } catch (err) {
       log.error('cookbook', 'cold-view load failed', { did: viewedDid, error: String(err) });
       feedContainer.replaceChildren(el('p', 'status', `couldn’t load cookbook: ${String(err)}`));
@@ -140,49 +89,39 @@ const main = async (): Promise<void> => {
     return;
   }
 
+  // Anonymous (no session hint) → Browse: the cookbook is a signed-in surface
+  // and "who's in your cookbook" lives on Account (OQ10). Gate on the SAME
+  // zero-auth hint index.html uses to route signed-in visitors here, so a
+  // signed-in user whose OAuth session is still restoring is never bounced.
+  // `replace` so the cookbook URL doesn't sit in history and loop the back button.
+  if (!hasSessionHint()) {
+    log.info('cookbook', 'no session hint → redirecting to Browse');
+    window.location.replace('./index.html');
+    return;
+  }
+
   const { agent } = await bootSession();
   void requestPersistence();
 
   if (agent === null || agent.did === undefined) {
-    const gate = el('p', 'empty-state');
-    gate.dataset['testid'] = 'cookbook-signed-out';
-    const signInLink = el('a', 'friend-link', 'Sign in') as HTMLAnchorElement;
-    signInLink.href = './signin.html';
-    signInLink.dataset['testid'] = 'cookbook-signin-link';
-    gate.append(
-      signInLink,
-      document.createTextNode(
-        ' to see your cookbook — your starter cooks plus who you follow on Bluesky.',
-      ),
-    );
-    content.append(gate);
-    mountShell(app, content);
-    void mountBuildStamp(app);
-    log.debug('shell', 'mounted', { page: 'cookbook', signedIn: false });
-    void registerServiceWorker();
+    // Hint present but the OAuth session didn't restore (stale/expired hint) →
+    // send to sign-in to re-authenticate, not to Browse (the hint says signed-in).
+    log.info('cookbook', 'session hint but no live agent → redirecting to sign-in');
+    window.location.replace('./signin.html');
     return;
   }
 
-  // Signed in: your cookbook. Membership is your starters + Bluesky graph —
-  // managed by following on Bluesky / the starter toggles in Settings, not here.
-  const note = el(
-    'p',
-    'status',
-    'Your starter cooks plus who you follow on Bluesky. Follow more cooks on Bluesky, or manage starters in Settings.',
-  );
-  const settingsLink = el('a', 'friend-link', 'Settings ↗') as HTMLAnchorElement;
-  settingsLink.href = './settings.html';
-  note.append(document.createTextNode(' '), settingsLink);
+  // Signed in: your cookbook feed. (The members list + explainer live on Account.)
   const status = el('p', 'status');
   status.dataset['testid'] = 'cookbook-status';
-  content.append(note, status, membersMount, feedContainer);
+  content.append(status, feedContainer);
 
   const did = agent.did;
   try {
     const { pds } = await retryOnce(() => resolveDidDoc(did));
     mountShell(app, content);
     void mountBuildStamp(app);
-    await showCookbook(content, membersMount, feedContainer, { did, pds }, createReachPrefs().load());
+    await showFeed(feedContainer, { did, pds }, createReachPrefs().load());
   } catch (err) {
     log.error('cookbook', 'cookbook load failed', { error: String(err) });
     status.textContent = `couldn’t load your cookbook: ${String(err)}`;

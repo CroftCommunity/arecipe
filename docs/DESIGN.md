@@ -148,12 +148,16 @@ to be implemented with the page-per-destination restructure:
   Browse · Cookbook · My recipes. Your **Cookbook** is your own recipes plus a
   bounded, chosen **reach** — starter-pack cooks + who you follow on Bluesky +
   your Bluesky followers (Bluesky primitives; there is no arecipe-native friend
-  record anymore). The page shows your cookbook members (with a source badge)
-  and their recipes as a read feed. It also answers `cookbook.html?did=<did>` as
-  a shareable, signed-out **cold-view** of any account's cookbook — the same
-  page-not-modal, real-URL discipline as `recipe.html?u=`. The legacy
-  `friends.html` redirects here (query preserved). Browse stays broader and
-  zero-auth; the Cookbook is "my-people's-kitchen."
+  record anymore). The page is your **recipe feed** — the members' recipes as a
+  read feed. The **members list itself lives on Account** now ("who's in your
+  cookbook", with source badges + a Settings link — Phase 6), not on Cookbook.
+  It also answers `cookbook.html?did=<did>` as a shareable, signed-out
+  **cold-view** of any account's recipe feed (feed only — no members) — the same
+  page-not-modal, real-URL discipline as `recipe.html?u=`. **Signed-out, the
+  Cookbook redirects to Browse** (it is a signed-in surface; anonymous visitors
+  belong on Browse — OQ10). The legacy `friends.html` redirects here (query
+  preserved). Browse stays broader and zero-auth; the Cookbook is
+  "my-people's-kitchen."
 - **Signed-in landing → Cookbook** (CB3.1): a signed-in visitor arriving at the
   home entry (typed URL, PWA launch, external link — anything without an in-app
   referrer) is sent to their Cookbook; everyone else lands on Browse. Browse
@@ -166,8 +170,8 @@ to be implemented with the page-per-destination restructure:
   task with a distinct mental model, so it gets a dedicated document rather than
   a section on My recipes — enter a handle, sign in via atproto OAuth, land in
   the app (forwards to Cookbook on success). Every signed-out "Sign in"
-  affordance (nav top-right, the Cookbook gate, the Account note, the My recipes
-  pointer) points here. **My recipes stays account-free for drafting**: signed
+  affordance (nav top-right, the Account note, the My recipes pointer) points
+  here. (The Cookbook no longer has a signed-out gate — it redirects to Browse.) **My recipes stays account-free for drafting**: signed
   out it shows New recipe + local Drafts plus a short pointer to `signin.html`,
   not a login form. The OAuth callback (`?code=…`) round-trips back to the page
   that initiated it, so `signin.html` is the registered `redirect_uri`
