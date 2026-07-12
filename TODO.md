@@ -24,6 +24,11 @@ loose ideas a later session can pick up.
 
 ## Tooling / QA
 
+- [x] **Per-PR preview deploys.** Every same-repo PR gets a live, read-only
+      copy of the built app at `arecipe.app/pr-preview/pr-N/`, torn down on
+      close. Plain-git deploy (`scripts/pages-deploy.sh`), no third-party
+      actions. _See `docs/PREVIEWS.md`._
+
 - [ ] **Evaluate `pwa-check` for PWA validation.**
       <https://github.com/pwa-today/pwa-check> — run it against arecipe's PWA
       surface (manifest, service worker, offline boot, installability) and see

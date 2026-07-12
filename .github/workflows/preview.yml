@@ -59,13 +59,20 @@ jobs:
       - run: rm -f dist/CNAME
         if: github.event.action != 'closed'
 
+      # NB: block scalars (>-), not a plain scalar — the commit messages contain
+      # '#', and a space-then-'#' in a YAML plain scalar starts a comment, which
+      # would silently truncate the command and leave an unterminated quote.
       - name: Deploy preview
         if: github.event.action != 'closed'
-        run: bash scripts/pages-deploy.sh "pr-preview/pr-${PR}" dist "preview PR #${PR} (${{ github.sha }})"
+        run: >-
+          bash scripts/pages-deploy.sh "pr-preview/pr-${PR}" dist
+          "preview PR #${PR} (${{ github.sha }})"
 
       - name: Remove preview
         if: github.event.action == 'closed'
-        run: bash scripts/pages-deploy.sh "pr-preview/pr-${PR}" --remove "remove preview PR #${PR}"
+        run: >-
+          bash scripts/pages-deploy.sh "pr-preview/pr-${PR}" --remove
+          "remove preview PR #${PR}"
 
       # Sticky comment: one comment per PR, updated in place (no thread spam).
       - name: Comment preview status
