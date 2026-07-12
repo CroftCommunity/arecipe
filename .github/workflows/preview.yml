@@ -1,0 +1,62 @@
+# Per-PR preview deploys. Each open pull request gets a live, throwaway copy of
+# the built SPA at https://arecipe.app/pr-preview/pr-<N>/ for review and
+# refinement; it's removed automatically when the PR closes.
+#
+# Why this works cleanly here: every asset path in the app is relative (./…),
+# the manifest scope is "./", and the service worker registers against its own
+# directory — so the bundle runs correctly from a /pr-preview/pr-N/ subdirectory
+# with no base-URL rewriting. And because a preview is not the production origin,
+# authModeFor() degrades it to read-only: previews never offer live sign-in and
+# can't write to real accounts. See docs/PREVIEWS.md.
+name: preview
+
+on:
+  pull_request:
+    # `closed` is included so the preview is torn down on merge/close.
+    types: [opened, reopened, synchronize, closed]
+
+permissions:
+  contents: write # push the preview into the gh-pages branch
+  pull-requests: write # comment the preview URL on the PR
+
+# Share the `gh-pages` group with the production deploy (ci.yml) so writers of
+# that branch serialize instead of racing on `git push`.
+concurrency:
+  group: gh-pages
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    # Trusted, same-repo PRs only. A fork PR carries a read-only token that
+    # can't push gh-pages or comment, so skip it rather than fail loudly — no
+    # untrusted diff is ever built with write access here.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - uses: actions/checkout@v4
+
+      # Build only when there's something to preview. On `closed` we skip
+      # straight to the teardown step below.
+      - uses: actions/setup-node@v4
+        if: github.event.action != 'closed'
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+        if: github.event.action != 'closed'
+      - run: npm run build
+        if: github.event.action != 'closed'
+      # The custom domain belongs to the branch root, not the preview subtree; a
+      # stray CNAME under pr-preview/ is ignored by Pages, but drop it so the
+      # preview tree carries nothing that pretends to own the domain.
+      - run: rm -f dist/CNAME
+        if: github.event.action != 'closed'
+
+      # deploy on open/reopen/synchronize, remove on close — action: auto.
+      - uses: rossjrw/pr-preview-action@v1
+        with:
+          source-dir: ./dist
+          preview-branch: gh-pages
+          umbrella-dir: pr-preview
+          # Comment the real URL (custom domain), not the *.github.io default.
+          custom-url: arecipe.app

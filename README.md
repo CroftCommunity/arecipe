@@ -69,6 +69,10 @@ The executable build plan lives at
 - [docs/OUTREACH.md](docs/OUTREACH.md) — SEO and socialization: the honest niche
   target, the LLM-retrieval angle, and the six-month beachhead criteria.
 
+- [docs/PREVIEWS.md](docs/PREVIEWS.md) — per-PR preview deploys: every pull
+  request gets a live, read-only copy of the built app at
+  `arecipe.app/pr-preview/pr-N/`, plus the one-time GitHub Pages setup.
+
 ## Source artifacts
 
 `docs/sources/` holds the upstream research and specification the docs above are
