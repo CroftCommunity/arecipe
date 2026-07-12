@@ -35,11 +35,17 @@ Two workflows share the `gh-pages` branch:
 
 | Workflow | Trigger | What it does |
 | --- | --- | --- |
-| `ci.yml` → `deploy` | push to `main` (after the hermetic gate passes) | Publishes `dist/` to the **root** of `gh-pages` with `clean-exclude: pr-preview/` so it never wipes live previews. |
-| `preview.yml` → `preview` | `pull_request` (opened/reopened/synchronize/closed) | Builds `dist/` and deploys it to `gh-pages:/pr-preview/pr-<N>/`; removes that directory on close. |
+| `ci.yml` → `deploy` | push to `main` (after the hermetic gate passes) | Publishes `dist/` to the **root** of `gh-pages`, preserving `pr-preview/` so it never wipes live previews. |
+| `preview.yml` → `preview` | `pull_request` (opened/reopened/synchronize/closed) | Builds `dist/` and deploys it to `gh-pages:/pr-preview/pr-<N>/`, comments the URL on the PR, and removes the directory on close. |
 
 Both jobs use the concurrency group `gh-pages` so their `git push`es to the
 branch serialize instead of racing.
+
+Both the production deploy and the preview deploy/teardown run through one small
+script — **`scripts/pages-deploy.sh`** — which materialises `gh-pages` in a
+private worktree, replaces just the target subtree (`root`, preserving
+`pr-preview/`; or a single `pr-preview/pr-N`), and pushes with a rebase-retry.
+The preview URL comment is posted (and updated in place) by `actions/github-script`.
 
 The custom domain (`CNAME=arecipe.app`) lives at the **root** of `gh-pages`,
 written there by the production deploy (the build copies `CNAME` into `dist`).
@@ -80,23 +86,33 @@ None of the above is in code — they're repository settings a maintainer applie
 once. After them, open a PR from a branch in this repo and watch for the preview
 comment.
 
-## Supply-chain: pinned actions
+## Supply-chain: no third-party actions
 
-Every action these workflows call — first-party (`actions/checkout`,
-`actions/setup-node`) and third-party (`JamesIves/github-pages-deploy-action`,
-`rossjrw/pr-preview-action`) — is pinned to a full **commit SHA**, not a movable
-tag, with the human-readable version in a trailing comment:
+The deploy runs with `contents: write` and the comment step with
+`pull-requests: write`, so any action that runs here holds real write access to
+the repo and the published site. Rather than trust an individually-maintained
+action with that, the deploy is **plain git** (`scripts/pages-deploy.sh`) and
+the only actions used are **GitHub's own first-party** ones:
+
+- `actions/checkout`
+- `actions/setup-node`
+- `actions/github-script` (posts the preview-URL comment)
+
+(An earlier revision used `JamesIves/github-pages-deploy-action` and
+`rossjrw/pr-preview-action` — the latter a composite action that itself calls
+the former. Both were replaced by the ~90-line script, which does only what this
+repo needs and is auditable in one file.)
+
+Even the first-party actions are pinned to a full **commit SHA**, not a movable
+tag, with the version in a trailing comment:
 
 ```yaml
-- uses: rossjrw/pr-preview-action@ffa7509e91a3ec8dfc2e5536c4d5c1acdf7a6de9 # v1.8.1
+- uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
 ```
 
-A tag like `@v1` is a pointer its maintainer can silently repoint at new code;
-since these actions run with `contents: write` (and pr-preview-action with
-`pull-requests: write`), a repointed tag would execute untrusted code with write
-access to the repo and the site. A commit SHA can't be moved, so CI runs exactly
-the code that was reviewed. `.github/dependabot.yml` keeps the pins current by
-opening a weekly PR that bumps the SHA and its version comment together, so
+A tag like `@v7` is a pointer its maintainer can repoint at new code; a commit
+SHA can't be moved, so CI runs exactly the reviewed code. `.github/dependabot.yml`
+opens a weekly PR that bumps each SHA and its version comment together, so
 pinning doesn't become a staleness trap. This follows GitHub's own Actions
 hardening guidance and OWASP CI/CD recommendations.
 

@@ -32,10 +32,13 @@ jobs:
   #
   # Why a branch and not the Actions/Pages artifact source: per-PR previews
   # (.github/workflows/preview.yml) live in `gh-pages:/pr-preview/pr-N/`, and a
-  # repo can have only one Pages source. `clean-exclude: pr-preview/` keeps a
-  # production deploy from wiping the previews that share the branch. Flip the
-  # Pages source to "Deploy from a branch → gh-pages / root" once — see
-  # docs/PREVIEWS.md § One-time setup.
+  # repo can have only one Pages source. The deploy publishes to the branch root
+  # while preserving pr-preview/, so a production deploy never wipes live
+  # previews. Flip the Pages source to "Deploy from a branch → gh-pages / root"
+  # once — see docs/PREVIEWS.md § One-time setup.
+  #
+  # The push is plain git (scripts/pages-deploy.sh) — no third-party deploy
+  # action runs with write access to the repo. See docs/PREVIEWS.md.
   deploy:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     needs: test
@@ -55,9 +58,5 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - uses: JamesIves/github-pages-deploy-action@d92aa235d04922e8f08b40ce78cc5442fcfbfa2f # v4.8.0
-        with:
-          folder: dist
-          branch: gh-pages
-          clean: true
-          clean-exclude: pr-preview/ # never delete live PR previews
+      # Publish dist/ to the gh-pages root, preserving pr-preview/.
+      - run: bash scripts/pages-deploy.sh root dist "deploy ${{ github.sha }} to Pages"
