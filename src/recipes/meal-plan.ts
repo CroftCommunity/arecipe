@@ -40,13 +40,15 @@ export type MealPlanValue = {
   [key: string]: unknown;
 };
 
-/** One stamped row of the expanded calendar (a pure view of the weeks). */
-export type CalendarWeek = {
+/** One stamped row of the expanded calendar (a pure view of the weeks). Generic
+ * over the slot type so callers holding richer slots (e.g. the store's
+ * name-cached `LocalSlot`) keep that type through the expansion. */
+export type CalendarWeek<S = PlanSlot> = {
   /** 1-based index of the source week this row came from. */
   week: number;
   /** 1-based occurrence within that week's repeat count. */
   rep: number;
-  days: PlanSlot[];
+  days: S[];
 };
 
 const REQUIRED_STRING_FIELDS = ['name', 'createdAt', 'updatedAt'] as const;
@@ -94,10 +96,12 @@ const clampRepeat = (repeat: number | undefined): number => {
 /** Expand weeks into the flat calendar: each week stamped `repeat` times, in
  * array order, rep ascending. Pure — the record stores weeks, the calendar is
  * derived at render time. */
-export const expandCalendar = (weeks: PlanWeek[]): CalendarWeek[] =>
+export const expandCalendar = <S = PlanSlot>(
+  weeks: readonly { repeat?: number; days: S[] }[],
+): CalendarWeek<S>[] =>
   weeks.flatMap((week, i) => {
     const reps = clampRepeat(week.repeat);
-    return Array.from({ length: reps }, (_unused, k): CalendarWeek => ({
+    return Array.from({ length: reps }, (_unused, k): CalendarWeek<S> => ({
       week: i + 1,
       rep: k + 1,
       days: week.days,

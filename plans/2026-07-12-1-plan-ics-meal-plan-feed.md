@@ -22,7 +22,7 @@ refreshed by a scheduled GitHub Action (zero always-on backend), plus a one-tap
 | Phase | Status | Notes |
 |-------|--------|-------|
 | 0 Recon & grounding | ✅ | Findings below. No product code changed. |
-| 1 Shared derivation | ⏳ | |
+| 1 Shared derivation | ✅ | `src/recipes/meal-plan-calendar.ts` (`deriveDatedRows`/`deriveDatedSlots`), generic `expandCalendar`; `meals.ts` repointed. 8 characterization unit tests + 16 meals e2e green (behavior-preserving). |
 | 2 ICS serializer | ⏳ | |
 | 3 Feed assembler | ⏳ | |
 | 4 PDS reader | ⏳ | |

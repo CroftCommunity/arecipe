@@ -16,8 +16,8 @@ import { resolveDidDoc } from '../identity/did.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
 import { createResolver } from '../identity/resolve.js';
-import { expandCalendar } from '../recipes/meal-plan.js';
-import { dateForSlot, formatShortDate, weekRangeLabel } from '../recipes/meal-plan-dates.js';
+import { deriveDatedRows } from '../recipes/meal-plan-calendar.js';
+import { formatShortDate, weekRangeLabel } from '../recipes/meal-plan-dates.js';
 import { createTastePreference, matchesTaste } from '../recipes/taste-preference.js';
 import {
   createMealPlanStore,
@@ -105,34 +105,28 @@ const buildCalendarRows = (plan: LocalPlan, opts: { linkRecipes: boolean }): HTM
     empty.dataset['testid'] = 'calendar-empty';
     return [empty];
   }
-  const start = plan.startDate;
   const rows: HTMLElement[] = [];
-  let rowIndex = 0; // position in the flat calendar → the date offset (7 days each)
-  for (const cw of expandCalendar(plan.weeks)) {
-    const src = plan.weeks[cw.week - 1];
-    if (src === undefined) {
-      rowIndex += 1;
-      continue;
-    }
+  // Dates come from the SHARED derivation (deriveDatedRows) the .ics feed also
+  // uses — anti-drift by construction. rowIndex/date math lives there now.
+  for (const drow of deriveDatedRows(plan.weeks, plan.startDate)) {
     const row = el('div', 'cal-week');
     row.dataset['testid'] = 'cal-week';
-    row.dataset['week'] = String(cw.week);
+    row.dataset['week'] = String(drow.weekIndex);
     // Label: a real date range when anchored, else the abstract week label.
-    const weekStart = start !== undefined ? dateForSlot(start, rowIndex, 0) : null;
-    const weekEnd = start !== undefined ? dateForSlot(start, rowIndex, 6) : null;
-    const s = weekStart !== null ? formatShortDate(weekStart) : null;
-    const e = weekEnd !== null ? formatShortDate(weekEnd) : null;
+    const first = drow.days[0]?.date ?? null;
+    const last = drow.days[6]?.date ?? null;
+    const s = first !== null ? formatShortDate(first) : null;
+    const e = last !== null ? formatShortDate(last) : null;
     const label =
       s !== null && e !== null
         ? `${s} – ${e}`
-        : src.repeat > 1
-          ? `Week ${cw.week} · ${cw.rep} of ${src.repeat}`
-          : `Week ${cw.week}`;
+        : drow.repeat > 1
+          ? `Week ${drow.weekIndex} · ${drow.occurrenceIndex} of ${drow.repeat}`
+          : `Week ${drow.weekIndex}`;
     row.append(el('div', 'cal-week-label', label));
     const daysEl = el('div', 'cal-days');
-    src.days.forEach((slot, di) => {
+    for (const { dayIndex: di, date: dayIso, slot } of drow.days) {
       const cell = el('div', 'cal-day');
-      const dayIso = start !== undefined ? dateForSlot(start, rowIndex, di) : null;
       const shortDay = dayIso !== null ? formatShortDate(dayIso) : null;
       cell.append(el('span', 'day-label', shortDay !== null ? `${DAY_LABELS[di]} ${shortDay}` : DAY_LABELS[di]));
       if (slot.recipe !== undefined) {
@@ -147,10 +141,9 @@ const buildCalendarRows = (plan: LocalPlan, opts: { linkRecipes: boolean }): HTM
         }
       }
       daysEl.append(cell);
-    });
+    }
     row.append(daysEl);
     rows.push(row);
-    rowIndex += 1;
   }
   return rows;
 };
