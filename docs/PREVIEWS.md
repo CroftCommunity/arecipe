@@ -1,5 +1,9 @@
 # Per-PR previews
 
+> **Status: live.** Serving from `gh-pages` at `arecipe.app`; validated
+> end-to-end (deploy → live URL → sticky comment → teardown) via PR #4 on
+> 2026-07-12.
+
 Every pull request against `main` gets a **live, throwaway copy of the built
 app** at:
 
@@ -7,9 +11,11 @@ app** at:
 https://arecipe.app/pr-preview/pr-<N>/
 ```
 
-`rossjrw/pr-preview-action` comments the link on the PR when the preview is
-ready, redeploys it on every push, and deletes it when the PR closes. It's meant
-for reviewing and refining a change against the real, built PWA — not a mock.
+A workflow builds the PR, deploys it to that subdirectory, and posts a sticky
+comment with the link (updated on every push, flipped to "removed" on close).
+It's meant for reviewing and refining a change against the real, built PWA — not
+a mock. The deploy is plain git and the comment is `actions/github-script`; no
+third-party action runs (see *Supply-chain* below).
 
 ## Why this is safe and why it just works
 
@@ -81,6 +87,11 @@ admin applies them once. Do them in this order:
    Pages build errors with *"not allowed to deploy … due to environment
    protection rules,"* go to Settings → Environments → **github-pages** →
    *Deployment branches* and allow `gh-pages` (or remove the restriction).
+5. **(Recommended) Auto-delete merged branches.** Settings → General → *Pull
+   Requests* → **Automatically delete head branches**. Merging a PR fires the
+   `closed` event that tears its preview down, and this also removes the now-dead
+   head branch so it doesn't accumulate. Optional, but keeps the branch list
+   clean; it's a repo setting, so it can't be committed.
 
 None of the above is in code — they're repository settings a maintainer applies
 once. After them, open a PR from a branch in this repo and watch for the preview
