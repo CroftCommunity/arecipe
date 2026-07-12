@@ -28,7 +28,7 @@ refreshed by a scheduled GitHub Action (zero always-on backend), plus a one-tap
 | 4 PDS reader | ✅ | `src/recipes/ics-read.ts` (`listMealPlans(did)`): resolves DID→PDS (fetch-injectable `resolveDidDoc`), follows listRecords cursors, unauth, reuses exported `planFromRecord`. 5 hermetic tests (paging, resolution, open-world skip) + `tests/e2e/ics-feed-live.spec.ts` `@live` schema guard (verified live: DID→`stropharia…`, 0 records → graceful skip). |
 | 5 Generator entry point | ✅ | `src/recipes/ics-generate.ts` (`generateFeeds`, injected reader+writer) + `src/recipes/ics-feed-path.ts` (`feedFileName`/`feedPath`, DID-keyed) + esbuild-bundled CLI `scripts/build-ics-feed.mjs` (`npm run build:ics`) + `config/ics-feeds.json` allowlist. `build.mjs` copies `calendars/`→`dist/`. 6 unit tests; ran live (0 plans → valid empty feed), determinism byte-verified. |
 | 6 Scheduled Action | ✅ | `.github/workflows/ics-feed.yml`: daily cron + `workflow_dispatch`, `npm run build:ics`, commit-on-diff (`[skip ci]`), inline rebuild+deploy only when a feed changed. No secrets. YAML validated. Commit-on-diff no-op proven locally (byte-identical re-run). Actions-side dispatch run verifiable only post-merge (schedule/dispatch fire from the default branch). |
-| 7 meals.html affordance | ⏳ | |
+| 7 meals.html affordance | ✅ | `src/recipes/meal-plan-subscribe.ts` (`buildCalendarSubscribe`, allowlist-gated from the same config) + `meals.ts` header slot (DID from booted agent; localStorage seam for hermetic tests) + styles. Plain anchors, new tab, no third-party subresource. `tests/e2e/meals-subscribe.spec.ts` (4 tests) + CSP zero-violation confirmed + light/dark screenshots reviewed. |
 | 8 Docs + deploy verify | ⏳ | |
 
 ---

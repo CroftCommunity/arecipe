@@ -872,6 +872,26 @@ a {
   opacity: 0.8;
 }
 
+/* "Add to Google Calendar" affordance: a one-tap subscribe action plus the raw
+   feed URL for any other calendar app. Sits just under the meals header; the
+   slot collapses entirely when the account has no published feed. */
+.meals-subscribe-slot:empty {
+  display: none;
+}
+.cal-subscribe {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-2);
+  margin: var(--s-3) 0 var(--s-1);
+}
+.cal-subscribe-url {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  opacity: 0.75;
+  word-break: break-all;
+}
+
 /* "Your published plans" subpage: one row per plan — name + meta on the left,
    a guarded Delete on the right; the name links to the shareable view. */
 .plan-row {

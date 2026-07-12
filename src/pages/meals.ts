@@ -17,6 +17,7 @@ import { log } from '../log.js';
 import { mountShell } from '../nav.js';
 import { createResolver } from '../identity/resolve.js';
 import { deriveDatedRows } from '../recipes/meal-plan-calendar.js';
+import { buildCalendarSubscribe } from '../recipes/meal-plan-subscribe.js';
 import { formatShortDate, weekRangeLabel } from '../recipes/meal-plan-dates.js';
 import { createTastePreference, matchesTaste } from '../recipes/taste-preference.js';
 import {
@@ -86,6 +87,21 @@ const readSeed = (): PaletteItem[] => {
     });
   } catch {
     return [];
+  }
+};
+
+const MEALS_DID_SEAM_KEY = 'arecipe.meals.did';
+
+/** The current account DID for the "Add to Google Calendar" affordance. In
+ * production this is the booted session's DID; a localStorage seam (mirrors the
+ * palette seam) lets hermetic tests exercise the control without OAuth. Inert in
+ * production — no seam key is ever written there. */
+const readDidSeam = (): string | null => {
+  try {
+    const did = window.localStorage.getItem(MEALS_DID_SEAM_KEY);
+    return did !== null && did.startsWith('did:') ? did : null;
+  } catch {
+    return null;
   }
 };
 
@@ -363,9 +379,21 @@ export const main = async (
   plansLink.href = './meals.html?plans';
   plansLink.dataset['testid'] = 'my-plans';
   const resetControl = el('div', 'meals-reset');
+  // "Add to Google Calendar" slot — filled once we know the current DID and it
+  // has a published feed (see refreshSubscribe). Empty (and invisible) otherwise.
+  const subscribeSlot = el('div', 'meals-subscribe-slot');
   headerActions.append(plansLink, resetControl);
   header.append(headerActions);
   content.append(header);
+
+  // Show/refresh the subscribe control for a DID with a configured feed; a null
+  // or non-allowlisted DID leaves the slot empty. Idempotent.
+  const refreshSubscribe = (did: string | null): void => {
+    const control = did !== null ? buildCalendarSubscribe(did) : null;
+    subscribeSlot.replaceChildren(...(control !== null ? [control] : []));
+  };
+  content.append(subscribeSlot);
+  refreshSubscribe(readDidSeam()); // test/dev seam (inert in production)
 
   const planner = el('div', 'meal-planner');
   const palette = el('aside', 'palette');
@@ -915,6 +943,7 @@ export const main = async (
         const { agent } = await bootSession();
         if (agent?.did === undefined) return;
         syncAgent = agent;
+        refreshSubscribe(agent.did); // now that we know the DID, offer the feed
         const { pds } = await resolveDidDoc(agent.did);
         const remote = await listPdsPlans(pds, agent.did);
         let recovered = 0;
