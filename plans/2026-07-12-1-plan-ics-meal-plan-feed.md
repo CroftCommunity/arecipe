@@ -23,7 +23,7 @@ refreshed by a scheduled GitHub Action (zero always-on backend), plus a one-tap
 |-------|--------|-------|
 | 0 Recon & grounding | ✅ | Findings below. No product code changed. |
 | 1 Shared derivation | ✅ | `src/recipes/meal-plan-calendar.ts` (`deriveDatedRows`/`deriveDatedSlots`), generic `expandCalendar`; `meals.ts` repointed. 8 characterization unit tests + 16 meals e2e green (behavior-preserving). |
-| 2 ICS serializer | ⏳ | |
+| 2 ICS serializer | ✅ | `src/recipes/ics-serialize.ts` (`serializeCalendar`). RFC 5545: CRLF, 75-octet UTF-8-safe folding, TEXT escaping, all-day `VALUE=DATE` + non-inclusive `DTEND` (reuses `addDays`), weekly `RRULE`. 13 unit tests + hand-checked golden fixture `tests/fixtures/ics/golden-basic.ics`. |
 | 3 Feed assembler | ⏳ | |
 | 4 PDS reader | ⏳ | |
 | 5 Generator entry point | ⏳ | |
