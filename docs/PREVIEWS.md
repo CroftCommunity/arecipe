@@ -68,12 +68,25 @@ admin applies them once. Do them in this order:
 After that, open a PR from a branch in this repo and watch for the preview
 comment.
 
-## Optional hardening
+## Supply-chain: pinned actions
 
-The third-party actions are pinned to major tags (`JamesIves/…@v4`,
-`rossjrw/pr-preview-action@v1`) for readability. To pin the supply chain to
-immutable commits, replace each tag with the full commit SHA of the release you
-intend to use (and let Dependabot's `github-actions` ecosystem bump them).
+Every action these workflows call — first-party (`actions/checkout`,
+`actions/setup-node`) and third-party (`JamesIves/github-pages-deploy-action`,
+`rossjrw/pr-preview-action`) — is pinned to a full **commit SHA**, not a movable
+tag, with the human-readable version in a trailing comment:
+
+```yaml
+- uses: rossjrw/pr-preview-action@ffa7509e91a3ec8dfc2e5536c4d5c1acdf7a6de9 # v1.8.1
+```
+
+A tag like `@v1` is a pointer its maintainer can silently repoint at new code;
+since these actions run with `contents: write` (and pr-preview-action with
+`pull-requests: write`), a repointed tag would execute untrusted code with write
+access to the repo and the site. A commit SHA can't be moved, so CI runs exactly
+the code that was reviewed. `.github/dependabot.yml` keeps the pins current by
+opening a weekly PR that bumps the SHA and its version comment together, so
+pinning doesn't become a staleness trap. This follows GitHub's own Actions
+hardening guidance and OWASP CI/CD recommendations.
 
 ## Teardown / troubleshooting
 

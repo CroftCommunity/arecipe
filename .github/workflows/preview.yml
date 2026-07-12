@@ -33,11 +33,11 @@ jobs:
     # untrusted diff is ever built with write access here.
     if: github.event.pull_request.head.repo.full_name == github.repository
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
       # Build only when there's something to preview. On `closed` we skip
       # straight to the teardown step below.
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         if: github.event.action != 'closed'
         with:
           node-version: 22
@@ -53,7 +53,7 @@ jobs:
         if: github.event.action != 'closed'
 
       # deploy on open/reopen/synchronize, remove on close — action: auto.
-      - uses: rossjrw/pr-preview-action@v1
+      - uses: rossjrw/pr-preview-action@ffa7509e91a3ec8dfc2e5536c4d5c1acdf7a6de9 # v1.8.1
         with:
           source-dir: ./dist
           preview-branch: gh-pages
