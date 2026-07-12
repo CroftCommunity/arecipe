@@ -8,6 +8,10 @@
 # with no base-URL rewriting. And because a preview is not the production origin,
 # authModeFor() degrades it to read-only: previews never offer live sign-in and
 # can't write to real accounts. See docs/PREVIEWS.md.
+#
+# No third-party actions: the deploy is plain git (scripts/pages-deploy.sh) and
+# the PR comment is actions/github-script (first-party). Nothing an individual
+# maintains runs here with write access.
 name: preview
 
 on:
@@ -32,11 +36,14 @@ jobs:
     # can't push gh-pages or comment, so skip it rather than fail loudly — no
     # untrusted diff is ever built with write access here.
     if: github.event.pull_request.head.repo.full_name == github.repository
+    env:
+      PR: ${{ github.event.pull_request.number }}
+      PREVIEW_URL: https://arecipe.app/pr-preview/pr-${{ github.event.pull_request.number }}/
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
       # Build only when there's something to preview. On `closed` we skip
-      # straight to the teardown step below.
+      # straight to teardown.
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         if: github.event.action != 'closed'
         with:
@@ -52,11 +59,32 @@ jobs:
       - run: rm -f dist/CNAME
         if: github.event.action != 'closed'
 
-      # deploy on open/reopen/synchronize, remove on close — action: auto.
-      - uses: rossjrw/pr-preview-action@ffa7509e91a3ec8dfc2e5536c4d5c1acdf7a6de9 # v1.8.1
+      - name: Deploy preview
+        if: github.event.action != 'closed'
+        run: bash scripts/pages-deploy.sh "pr-preview/pr-${PR}" dist "preview PR #${PR} (${{ github.sha }})"
+
+      - name: Remove preview
+        if: github.event.action == 'closed'
+        run: bash scripts/pages-deploy.sh "pr-preview/pr-${PR}" --remove "remove preview PR #${PR}"
+
+      # Sticky comment: one comment per PR, updated in place (no thread spam).
+      - name: Comment preview status
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
         with:
-          source-dir: ./dist
-          preview-branch: gh-pages
-          umbrella-dir: pr-preview
-          # Comment the real URL (custom domain), not the *.github.io default.
-          custom-url: arecipe.app
+          script: |
+            const marker = '<!-- pr-preview -->';
+            const closed = context.payload.action === 'closed';
+            const sha = context.sha.slice(0, 7);
+            const body = closed
+              ? `${marker}\n🧹 Preview for this PR was removed (PR closed).`
+              : `${marker}\n🔎 **Live preview:** ${process.env.PREVIEW_URL}\n\n`
+                + `Read-only (no live sign-in — it's not the production origin). Updated for \`${sha}\`.`;
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number });
+            const existing = comments.find((c) => c.body && c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
