@@ -25,7 +25,7 @@ refreshed by a scheduled GitHub Action (zero always-on backend), plus a one-tap
 | 1 Shared derivation | ✅ | `src/recipes/meal-plan-calendar.ts` (`deriveDatedRows`/`deriveDatedSlots`), generic `expandCalendar`; `meals.ts` repointed. 8 characterization unit tests + 16 meals e2e green (behavior-preserving). |
 | 2 ICS serializer | ✅ | `src/recipes/ics-serialize.ts` (`serializeCalendar`). RFC 5545: CRLF, 75-octet UTF-8-safe folding, TEXT escaping, all-day `VALUE=DATE` + non-inclusive `DTEND` (reuses `addDays`), weekly `RRULE`. 13 unit tests + hand-checked golden fixture `tests/fixtures/ics/golden-basic.ics`. |
 | 3 Feed assembler | ✅ | `src/recipes/ics-assemble.ts` (`buildCalendar`). Expansion mode (one discrete VEVENT per anchored meal-slot); structural date-independent UIDs `<rkey>-w<week>-r<rep>-d<day>@arecipe.app`; skip empty/note-only slots + unanchored plans; DTSTAMP from `updatedAt`; URL = `arecipe.app/recipe.html?u=<uri>`; dedup by UID; stable (date, day, uid) order. 13 unit tests. |
-| 4 PDS reader | ⏳ | |
+| 4 PDS reader | ✅ | `src/recipes/ics-read.ts` (`listMealPlans(did)`): resolves DID→PDS (fetch-injectable `resolveDidDoc`), follows listRecords cursors, unauth, reuses exported `planFromRecord`. 5 hermetic tests (paging, resolution, open-world skip) + `tests/e2e/ics-feed-live.spec.ts` `@live` schema guard (verified live: DID→`stropharia…`, 0 records → graceful skip). |
 | 5 Generator entry point | ⏳ | |
 | 6 Scheduled Action | ⏳ | |
 | 7 meals.html affordance | ⏳ | |

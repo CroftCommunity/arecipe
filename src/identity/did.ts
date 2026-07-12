@@ -8,8 +8,11 @@ type DidDocument = {
   service?: { id: string; type?: string; serviceEndpoint: string }[];
 };
 
-export const resolveDidDoc = async (did: string): Promise<DidFacts> => {
-  const res = await fetch(`https://plc.directory/${encodeURIComponent(did)}`);
+export const resolveDidDoc = async (
+  did: string,
+  fetchFn: typeof fetch = fetch,
+): Promise<DidFacts> => {
+  const res = await fetchFn(`https://plc.directory/${encodeURIComponent(did)}`);
   if (!res.ok) throw new Error(`DID document fetch failed (HTTP ${res.status}) for ${did}`);
   const doc = (await res.json()) as DidDocument;
   const pds = doc.service?.find((s) => s.id === '#atproto_pds' || s.id.endsWith('#atproto_pds'));

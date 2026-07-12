@@ -64,8 +64,10 @@ export const removePlanFromPds = async (agent: Agent, id: string): Promise<void>
 
 const rkeyFromUri = (uri: string): string => uri.split('/').pop() ?? uri;
 
-/** Map a validated record value back to the local buffer shape (with names). */
-const planFromRecord = (uri: string, value: Record<string, unknown>): LocalPlan => {
+/** Map a validated record value back to the local buffer shape (with names).
+ *  Exported so the read-only feed reader (`ics-read.ts`) shares one mapping — a
+ *  drift between "recovered plan" and "feed plan" would be a correctness bug. */
+export const planFromRecord = (uri: string, value: Record<string, unknown>): LocalPlan => {
   const v = validateMealPlanValue(uri, value);
   const weeks: LocalWeek[] = v.weeks.map((w) => {
     const raw = w as { repeat?: unknown; days: Record<string, unknown>[] };
