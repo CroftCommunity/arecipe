@@ -24,20 +24,29 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm test
 
-  # Serve the static SPA from the repo via GitHub Pages. Read paths work on
-  # any origin (public + CORS-open, D2-verified); sign-in stays local-only
-  # until the hosted client-metadata document lands (M3) — the app detects
-  # non-loopback origins and hides sign-in instead of crashing.
+  # Publish the built SPA to the root of the `gh-pages` branch, which GitHub
+  # Pages serves at the custom domain (CNAME=arecipe.app, copied into dist by
+  # the build). Read paths work on any origin (public + CORS-open, D2-verified);
+  # sign-in is offered only on the production origin or loopback (authModeFor) —
+  # every other origin degrades to read-only instead of crashing.
+  #
+  # Why a branch and not the Actions/Pages artifact source: per-PR previews
+  # (.github/workflows/preview.yml) live in `gh-pages:/pr-preview/pr-N/`, and a
+  # repo can have only one Pages source. `clean-exclude: pr-preview/` keeps a
+  # production deploy from wiping the previews that share the branch. Flip the
+  # Pages source to "Deploy from a branch → gh-pages / root" once — see
+  # docs/PREVIEWS.md § One-time setup.
   deploy:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     needs: test
     runs-on: ubuntu-latest
     permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      contents: write # push the built site to the gh-pages branch
+    # Serialize every writer of gh-pages (this job + the preview workflow) so
+    # concurrent git pushes to that branch can't race. Shared group name.
+    concurrency:
+      group: gh-pages
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -46,8 +55,9 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - uses: actions/upload-pages-artifact@v3
+      - uses: JamesIves/github-pages-deploy-action@v4
         with:
-          path: dist
-      - id: deployment
-        uses: actions/deploy-pages@v4
+          folder: dist
+          branch: gh-pages
+          clean: true
+          clean-exclude: pr-preview/ # never delete live PR previews
