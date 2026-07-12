@@ -1,0 +1,6 @@
+{
+  "$comment": "Per-DID .ics meal-plan feed allowlist. The scheduled Action (.github/workflows/ics-feed.yml) generates calendars/<did>.ics for each DID here from that account's PUBLIC app.arecipe.mealPlan records. Arbitrary any-user on-demand subscribe is deliberately out of scope (it needs an always-on edge function; see plans/2026-07-12-1-plan-ics-meal-plan-feed.md). To add a feed, append the account's DID.",
+  "dids": [
+    "did:plc:xyfhcaweaeyew3zrgk6jaln7"
+  ]
+}

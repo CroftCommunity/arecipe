@@ -8,6 +8,7 @@ import { createHash } from 'node:crypto';
 import {
   copyFileSync,
   cpSync,
+  existsSync,
   mkdirSync,
   readFileSync,
   readdirSync,
@@ -149,6 +150,10 @@ writeFileSync('dist/friends.html', injectCsp(readFileSync('friends.html', 'utf8'
 copyFileSync('CNAME', 'dist/CNAME'); // custom domain survives every deploy
 copyFileSync('client-metadata.json', 'dist/client-metadata.json'); // hosted OAuth client id (8c)
 cpSync('assets', 'dist/assets', { recursive: true });
+// Meal-plan .ics feeds: committed by the scheduled feed workflow (build:ics),
+// copied into the deployed output so `arecipe.app/calendars/<did>.ics` serves.
+// Optional — the directory only exists once a feed has been generated.
+if (existsSync('calendars')) cpSync('calendars', 'dist/calendars', { recursive: true });
 
 // Version + per-page sizes.
 const sha = execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim();

@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
+    "build:ics": "node scripts/build-ics-feed.mjs",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.tests.json",
     "serve": "esbuild --servedir=dist --serve=127.0.0.1:4173",
     "test:unit": "vitest run tests/unit",
