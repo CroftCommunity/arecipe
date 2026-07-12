@@ -2,7 +2,7 @@
 
 date: 2026-07-12
 
-status: in progress
+status: implemented (post-deploy checks pending merge)
 
 owner: arecipe
 
@@ -29,7 +29,7 @@ refreshed by a scheduled GitHub Action (zero always-on backend), plus a one-tap
 | 5 Generator entry point | ✅ | `src/recipes/ics-generate.ts` (`generateFeeds`, injected reader+writer) + `src/recipes/ics-feed-path.ts` (`feedFileName`/`feedPath`, DID-keyed) + esbuild-bundled CLI `scripts/build-ics-feed.mjs` (`npm run build:ics`) + `config/ics-feeds.json` allowlist. `build.mjs` copies `calendars/`→`dist/`. 6 unit tests; ran live (0 plans → valid empty feed), determinism byte-verified. |
 | 6 Scheduled Action | ✅ | `.github/workflows/ics-feed.yml`: daily cron + `workflow_dispatch`, `npm run build:ics`, commit-on-diff (`[skip ci]`), inline rebuild+deploy only when a feed changed. No secrets. YAML validated. Commit-on-diff no-op proven locally (byte-identical re-run). Actions-side dispatch run verifiable only post-merge (schedule/dispatch fire from the default branch). |
 | 7 meals.html affordance | ✅ | `src/recipes/meal-plan-subscribe.ts` (`buildCalendarSubscribe`, allowlist-gated from the same config) + `meals.ts` header slot (DID from booted agent; localStorage seam for hermetic tests) + styles. Plain anchors, new tab, no third-party subresource. `tests/e2e/meals-subscribe.spec.ts` (4 tests) + CSP zero-violation confirmed + light/dark screenshots reviewed. |
-| 8 Docs + deploy verify | ⏳ | |
+| 8 Docs + deploy verify | ✅ (deploy checks pending merge) | `LEXICONS.md` (new consumer, no new NSID) + README build section (feed path, workflow/cadence, anti-drift, content-type, out-of-scope note). **External validation passed** on a rich populated feed (repeat expansion, Dec 31→Jan 1 rollover, emoji/accent folding, notes, URLs) via the reference `icalendar` parser: well-formed, all-day non-inclusive DTEND, unique UIDs, ≤75-octet lines, CRLF, date-ordered. Full gate green: lint + typecheck + 404 unit + build + 155 e2e; @live green locally. Deploy checks (200 + `text/calendar`, real Google subscribe) are post-merge (below). |
 
 ---
 
@@ -116,6 +116,35 @@ The dated calendar is derived by **two** pieces that must be reused **together**
 - `tests/fixtures/lexicons/app.arecipe.mealPlan.json` — the lexicon (record/#week/#slot).
 - `tests/fixtures/atproto/listRecords-*.json` — `listRecords` envelope shape (`{ records: [{uri,cid,value}] }`).
 - Reader hermetic tests inject `fetchFn` returning a `mealPlan` `listRecords` fixture (build via `planToRecord`).
+
+## Post-deploy verification (pending merge to `main`)
+
+These require the workflow on the default branch + a live deploy, so they run
+after this branch merges — they cannot be exercised from a feature branch:
+
+1. **`workflow_dispatch` dry run** of `ics-feed.yml`: first run generates + commits
+   + deploys; a second run with unchanged data produces **no commit** (commit-on-diff
+   is already proven locally: `npm run build:ics` twice is byte-identical).
+2. **Content type:** `curl -sI https://arecipe.app/calendars/<did>.ics` → `HTTP 200`
+   and `Content-Type: text/calendar`. GitHub Pages' default `.ics` MIME is
+   *expected* to be `text/calendar` but is **not assumed**; if it is not, the host
+   has no header-config knob — but Google Calendar parses webcal feeds by content,
+   so subscription still works. Re-verify and record here.
+3. **Real Google subscription smoke test:** add the `webcal` link, confirm meals
+   appear (allowing for Google's slow first poll).
+
+## Acceptance checklist
+
+- [x] Feed dates equal app-rendered dates for shared fixtures (shared `deriveDatedSlots`; `meals.ts` repointed, 16 meals e2e green).
+- [x] `.ics` is RFC 5545 valid (CRLF, folding, escaping, all-day `VALUE=DATE`, non-inclusive `DTEND`, required props) — external `icalendar` validation passed.
+- [x] UIDs structural and stable; a date change updates in place (Phase 3 tests).
+- [x] Re-running the generator on unchanged data produces no commit (byte-identical, verified).
+- [x] One continuous calendar aggregates all of a DID's plans and extends as weeks are published.
+- [x] Scheduled workflow publishes with no secrets, commit-on-diff.
+- [x] `meals.html` exposes the feed URL + `webcal` quick-subscribe, no third-party script, CSP unchanged.
+- [ ] Deployed feed returns `text/calendar`; a real Google subscription shows the meals. *(post-merge — see above)*
+- [x] `docs/LEXICONS.md` and build docs updated in the same change.
+- [x] Hermetic gate network-free and green; all network tests are `@live` or the scheduled job.
 
 ### Stop conditions — all cleared
 

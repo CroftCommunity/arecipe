@@ -28,6 +28,39 @@ suites, arriving with the auth phase) needs the out-of-band test-account
 credential in a gitignored `.env` and runs locally as a phase gate — never in
 push CI.
 
+### Meal-plan calendar feed (`.ics`)
+
+A subscribable iCalendar feed publishes a configured account's meal plans to
+Google Calendar (or any calendar app) as one continuously-extending calendar.
+Because the app is backendless, the feed can't be served by client JS (Google
+fetches server-side, runs no JS) or by the PDS (returns JSON), so it is produced
+by a **scheduled GitHub Action** (`.github/workflows/ics-feed.yml`, daily) that
+reads the public PDS and commits `calendars/<did>.ics` into the deployed output
+**only on diff** — no always-on backend, and **no credentials** (the meal-plan
+data is public).
+
+```sh
+npm run build:ics           # generate calendars/<did>.ics for each configured DID
+```
+
+- **Allowlist:** `config/ics-feeds.json` (per-DID; start with one). The Action
+  reads the same file; the meals.html "Add to Google Calendar" control appears
+  only for a DID on it. Arbitrary any-user on-demand subscribe is **out of scope**
+  (it needs an always-on edge function, which breaks the backendless posture) —
+  noted as a future option, not built.
+- **Anti-drift invariant:** feed dates are produced by the **same**
+  `deriveDatedSlots` derivation the planner renders with
+  (`src/recipes/meal-plan-calendar.ts`), so the calendar and the app cannot
+  diverge. A test asserts feed dates equal app-rendered dates.
+- **Reproducible:** `DTSTAMP` comes from each record's `updatedAt` (never
+  wall-clock), so an unchanged run writes byte-identical files and the Action
+  commits nothing.
+- **Content type:** the feed must serve as `text/calendar`. GitHub Pages' default
+  `.ics` MIME is **verified after deploy** (`docs/PRACTICES.md` deploy-proof
+  discipline), not assumed.
+- This job is network-touching and deliberately **outside** the hermetic push-CI
+  gate (`ci.yml`). Details: `plans/2026-07-12-1-plan-ics-meal-plan-feed.md`.
+
 Page-per-destination (no router): each top-level surface is its own document —
 `index.html` (Browse), `cookbook.html` (Cookbook — your own recipes plus a
 bounded reach: starter cooks + who you follow/your followers on Bluesky, and
