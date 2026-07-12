@@ -1,0 +1,76 @@
+# Scheduled meal-plan .ics feed publisher. NETWORK-TOUCHING and deliberately
+# OUTSIDE the hermetic push-CI gate (ci.yml): it reads live public PDS data and
+# writes generated artifacts. No credentials — app.arecipe.mealPlan records are
+# public, which is the whole premise of a secretless, backendless feed.
+#
+# Cadence: daily. Google Calendar polls an external .ics on its own slow schedule
+# (hours), so once a day keeps the feed fresh with margin. Also runnable on demand
+# via workflow_dispatch. Commit-on-diff: an unchanged run writes byte-identical
+# files (DTSTAMP comes from each record's updatedAt, never wall-clock), so there
+# is nothing to commit and nothing to deploy.
+#
+# Deploys inline: a push made with GITHUB_TOKEN does not trigger ci.yml, so this
+# workflow both commits the refreshed source AND deploys the rebuilt site itself.
+name: ics-feed
+
+on:
+  schedule:
+    - cron: '17 6 * * *' # 06:17 UTC daily
+  workflow_dispatch:
+
+permissions:
+  contents: write # commit refreshed calendars/*.ics
+  pages: write # deploy the rebuilt site
+  id-token: write
+
+# Never run two publishers at once; let an in-flight one finish (don't cancel a
+# deploy mid-flight).
+concurrency:
+  group: ics-feed
+  cancel-in-progress: false
+
+jobs:
+  generate-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Generate feeds from live PDS data
+        run: npm run build:ics
+
+      - name: Commit refreshed feeds (only on diff)
+        id: commit
+        run: |
+          if [ -n "$(git status --porcelain calendars)" ]; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add calendars
+            git commit -m 'chore(ics): refresh meal-plan feeds [skip ci]'
+            git push
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'no feed changes — nothing to commit or deploy'
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      # Only rebuild + deploy when a feed actually changed.
+      - name: Build site
+        if: steps.commit.outputs.changed == 'true'
+        run: npm run build
+      - name: Upload Pages artifact
+        if: steps.commit.outputs.changed == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - name: Deploy to GitHub Pages
+        id: deployment
+        if: steps.commit.outputs.changed == 'true'
+        uses: actions/deploy-pages@v4
