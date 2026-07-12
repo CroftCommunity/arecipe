@@ -1,0 +1,18 @@
+# Keep the SHA-pinned GitHub Actions current. The workflows pin third-party
+# (and first-party) actions to immutable commit SHAs for supply-chain safety
+# (docs/PREVIEWS.md § Optional hardening); Dependabot opens a reviewed PR when a
+# new release lands, updating both the SHA and its `# vX.Y.Z` comment so pinning
+# never becomes a staleness trap.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "ci"
+    groups:
+      # One PR per week for all action bumps, not one per action.
+      actions:
+        patterns:
+          - "*"
