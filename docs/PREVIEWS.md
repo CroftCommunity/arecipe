@@ -47,6 +47,11 @@ Because the domain covers the whole Pages site, previews are reachable under it
 at `/pr-preview/pr-N/`. The preview build strips its own `dist/CNAME` so nothing
 in the preview subtree claims the domain.
 
+**Jekyll is disabled.** A branch-served Pages site runs Jekyll by default (the
+old Actions/artifact source did not), which would reprocess this pre-built SPA.
+The build emits `dist/.nojekyll`, so the production deploy lands `.nojekyll` at
+the `gh-pages` root and the whole site — previews included — is served verbatim.
+
 ## One-time setup
 
 These are GitHub **repository settings** — they can't be committed, so a repo
@@ -64,8 +69,15 @@ admin applies them once. Do them in this order:
    permissions** → *Read and write permissions*. (The workflows also request
    `contents: write` explicitly, but an org-level "read-only" default would
    otherwise cap them.)
+4. **Let `gh-pages` deploy the environment.** The old Actions/artifact source
+   left a `github-pages` environment that may restrict deployments to `main`.
+   With the branch source, Pages' own builder deploys from `gh-pages`, so if the
+   Pages build errors with *"not allowed to deploy … due to environment
+   protection rules,"* go to Settings → Environments → **github-pages** →
+   *Deployment branches* and allow `gh-pages` (or remove the restriction).
 
-After that, open a PR from a branch in this repo and watch for the preview
+None of the above is in code — they're repository settings a maintainer applies
+once. After them, open a PR from a branch in this repo and watch for the preview
 comment.
 
 ## Supply-chain: pinned actions

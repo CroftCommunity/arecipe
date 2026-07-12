@@ -147,6 +147,12 @@ copyFileSync('manifest.webmanifest', 'dist/manifest.webmanifest');
 // injected here explicitly or this document would ship with none.
 writeFileSync('dist/friends.html', injectCsp(readFileSync('friends.html', 'utf8')));
 copyFileSync('CNAME', 'dist/CNAME'); // custom domain survives every deploy
+// The site is served from a branch (gh-pages), where GitHub Pages runs Jekyll
+// by default — which would reprocess this pre-built SPA and drop any
+// underscore-prefixed path. `.nojekyll` at the deploy root disables it. (Under
+// the old Actions/artifact Pages source this was unnecessary; the branch-based
+// per-PR preview model — docs/PREVIEWS.md — makes it required.)
+writeFileSync('dist/.nojekyll', '');
 copyFileSync('client-metadata.json', 'dist/client-metadata.json'); // hosted OAuth client id (8c)
 cpSync('assets', 'dist/assets', { recursive: true });
 
