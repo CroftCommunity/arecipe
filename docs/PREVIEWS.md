@@ -152,18 +152,28 @@ fires `preview.yml` on its own, and pushing more commits doesn't help
   `actions_run_trigger` → `run_workflow`, `workflow_id: preview.yml`,
   `ref: main`, `inputs: { pr: "<N>" }`. To tear down, dispatch with
   `inputs: { pr: "<N>", teardown: true }`.
-  **Caveat:** a `workflow_dispatch` trigger is only usable once the workflow
-  carrying it is on the default branch — so this helps every PR *after* the
-  change adding it merges to `main`, not that first PR.
+  (The `workflow_dispatch` trigger is on `main` as of PR #8, so it's live.)
 - **Human fallback:** ask a maintainer to close + reopen the PR (or push a commit
   from their own machine) — a human-initiated `pull_request` event fires the
   workflow normally.
-- **Manual deploy** (works before the dispatch trigger is on `main`): build and
-  push the subtree yourself with the same script the workflow uses —
-  `npm ci && npm run build && rm -f dist/CNAME` then
-  `bash scripts/pages-deploy.sh pr-preview/pr-<N> dist "preview PR #<N> (<sha>)"`.
+- **Manual deploy** (bypasses CI): build and push the subtree yourself with the
+  same script the workflow uses — `npm ci && npm run build && rm -f dist/CNAME`
+  then `bash scripts/pages-deploy.sh pr-preview/pr-<N> dist "preview PR #<N> (<sha>)"`.
   This writes to `gh-pages` directly (no sticky comment, no auto-teardown) and
   leaves the repo git identity set to `github-actions[bot]` — reset it after.
+
+**Tear the preview down when the PR is done — the agent's responsibility.** The
+automatic `closed`-event teardown is unreliable for an agent-driven merge/close
+(the same token-suppression rule that blocks the initial deploy can block the
+teardown), so **don't assume it fired**. After merging or closing a PR you
+deployed a preview for, confirm and remove it:
+
+- **Dispatch the teardown** (preferred): dispatch `preview.yml` against `main`
+  with `inputs: { pr: "<N>", teardown: true }`.
+- **Manual:** `bash scripts/pages-deploy.sh pr-preview/pr-<N> --remove "remove preview PR #<N>"`
+  (a "no changes to publish" result means it was already gone — that's success).
+- **Confirm:** `curl -sI https://arecipe.app/pr-preview/pr-<N>/` → `404`, base
+  site still `200`.
 
 See `CLAUDE.md` § *Previews on a PR* for the same procedure in agent-facing form.
 

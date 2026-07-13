@@ -69,8 +69,7 @@ To get a preview for an agent-opened PR, do **one** of these:
    `pr=<N>`; the workflow reads that PR, checks out its head, builds, and
    deploys. Via the GitHub MCP: `mcp__github__actions_run_trigger` →
    `run_workflow`, `workflow_id: preview.yml`, `ref: main`, `inputs: { pr: "<N>" }`.
-   **Caveat:** this only works once `preview.yml` with the `workflow_dispatch`
-   trigger is merged to `main`.
+   (The `workflow_dispatch` trigger is on `main` as of PR #8, so this is live.)
 
 2. **Ask a human to close + reopen the PR** (or push a commit from their machine).
    A human-initiated `pull_request` event fires the workflow normally.
@@ -92,3 +91,25 @@ To get a preview for an agent-opened PR, do **one** of these:
 
 **Verify** either way by polling the URL until it serves (Pages takes ~30–90s):
 `curl -sI https://arecipe.app/pr-preview/pr-<N>/` → `200`.
+
+**Clean up when the PR is done — this is on you.** A preview lives in the
+`gh-pages` branch and does NOT belong there once the PR merges or closes. The
+automatic `closed`-event teardown is unreliable for an agent-driven flow (the
+same token-suppression rule that blocks the initial deploy can block the
+teardown), so **do not assume it fired** — after you merge or close a PR you
+deployed a preview for, confirm the preview is gone and remove it if it isn't:
+
+1. **Preferred — dispatch the teardown** (trusted path, updates the sticky
+   comment): dispatch `preview.yml` against `main` with
+   `inputs: { pr: "<N>", teardown: true }` (GitHub MCP: `actions_run_trigger` →
+   `run_workflow`, `workflow_id: preview.yml`, `ref: main`).
+2. **Manual fallback** (writes `gh-pages` directly — get the user's OK per the
+   branch-safety rule, and reset `user.name`/`user.email` afterward as above):
+
+   ```
+   bash scripts/pages-deploy.sh pr-preview/pr-<N> --remove "remove preview PR #<N> (merged)"
+   ```
+
+**Confirm** the teardown: `curl -sI https://arecipe.app/pr-preview/pr-<N>/` →
+`404` (and the base site still `200`). A `--remove` that reports "no changes to
+publish" means it was already gone — that's success, not an error.
