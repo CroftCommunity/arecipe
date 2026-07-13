@@ -2060,3 +2060,14 @@ details.calendar-publish > summary {
   color: var(--enamel-deep);
 }
 .calendar-links { font-size: var(--t-caption); }
+
+/* Preview-only demo-session banner (never rendered on production or in tests). */
+.preview-demo-banner {
+  background: var(--yolk);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  text-align: center;
+  padding: var(--s-1) var(--s-3);
+}
+.preview-demo-banner .friend-link { color: var(--enamel-deep); font-weight: 700; }
