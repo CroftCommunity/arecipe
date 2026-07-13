@@ -117,6 +117,24 @@ test.describe('CSP: enforcing policy admits every document (Phase 2)', () => {
     expect(page.url()).toContain('did=probe');
   });
 
+  // calendar-setup.html: a static, JS-less guide page copied outside the HTML
+  // map. It must load under the enforcing CSP (hashed stylesheet 'self') with
+  // zero violations — a regression here means the CSP/SRI wiring for the extra
+  // static page broke.
+  test('calendar-setup.html: static guide loads under CSP with zero violations', async ({
+    page,
+  }) => {
+    await installCollector(page);
+    await page.goto('/calendar-setup.html', { waitUntil: 'load' });
+    await expect(page.getByRole('heading', { name: 'Publish a subscribable calendar' })).toBeVisible();
+    await page.waitForTimeout(300);
+    const meta = await readCspMeta(page);
+    expect(meta.content, 'guide carries an enforcing CSP meta').not.toBeNull();
+    expect(meta.charsetIsFirstChild, 'guide: <meta charset> is first head child').toBe(true);
+    const violations = await readViolations(page);
+    expect(violations, `guide CSP violations: ${JSON.stringify(violations)}`).toEqual([]);
+  });
+
   // Static-source assertion: friends.html's built output carries the CSP meta
   // with its own stub hash (it is copied outside the HTML loop, so this guards
   // the easy-to-miss path). Read the served document text directly.

@@ -146,6 +146,23 @@ copyFileSync('manifest.webmanifest', 'dist/manifest.webmanifest');
 // Legacy path → redirect stub (CB3). Copied outside the HTML map, so CSP is
 // injected here explicitly or this document would ship with none.
 writeFileSync('dist/friends.html', injectCsp(readFileSync('friends.html', 'utf8')));
+// Calendar-publish setup guide (P7): a static, JS-less page. It carries no page
+// bundle, so it's handled here rather than in the HTML map — but it DOES use the
+// shared stylesheet + fonts, so it gets the hashed CSS name + SRI + CSP exactly
+// like a mapped page (a <meta> CSP with style-src 'self' forbids inline styles).
+{
+  let html = readFileSync('calendar-setup.html', 'utf8');
+  html = html.replace('./styles.css', `./${cssName}`);
+  html = html.replace(
+    `<link rel="stylesheet" href="./${cssName}" />`,
+    `<link rel="stylesheet" href="./${cssName}" integrity="${stylesSri}" crossorigin="anonymous" />`,
+  );
+  html = html.replace(
+    `<link rel="stylesheet" href="./assets/fonts/fonts.css" />`,
+    `<link rel="stylesheet" href="./assets/fonts/fonts.css" integrity="${fontsSri}" crossorigin="anonymous" />`,
+  );
+  writeFileSync('dist/calendar-setup.html', injectCsp(html));
+}
 copyFileSync('CNAME', 'dist/CNAME'); // custom domain survives every deploy
 copyFileSync('client-metadata.json', 'dist/client-metadata.json'); // hosted OAuth client id (8c)
 cpSync('assets', 'dist/assets', { recursive: true });
@@ -191,6 +208,7 @@ const precache = [
   `./${cssName}`,
   ...Object.keys(HTML).map((f) => `./${f}`),
   './friends.html', // legacy redirect stub (offline-resolvable)
+  './calendar-setup.html', // calendar-publish setup guide (offline-resolvable)
   './manifest.webmanifest',
   './assets/fonts/fonts.css',
   ...readdirSync('assets/fonts')
