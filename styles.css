@@ -1636,36 +1636,72 @@ table.ref.pairs td.eq {
 }
 .week-days {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  /* minmax(0, …) lets a track shrink below its content's min-content width, so a
+     day's header (label + count on one row) can't force the 7-col grid wider than
+     the viewport on a narrow phone. */
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: var(--s-1);
 }
 .day {
   display: flex;
   flex-direction: column;
   gap: var(--s-1);
+  min-width: 0;
   min-height: 3.75rem;
   padding: var(--s-1);
   border: var(--stroke) solid var(--line);
   border-radius: var(--r-s);
   font-size: 0.72rem;
 }
-.day--empty {
+.day--empty,
+.day--placeable {
   cursor: pointer;
+}
+/* Armed + not full: the whole cell is a placement target — hint it. */
+.day--placeable {
+  border-color: var(--enamel);
+  border-style: dashed;
 }
 .day--filled {
   background: var(--enamel-soft);
   border-color: var(--enamel);
 }
+/* Day header: the label + a "placed/cap" count; tapping it expands the day. */
+.day-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-1);
+  flex-wrap: wrap;
+}
 .day-label {
   font-weight: 700;
   opacity: 0.6;
 }
+.day-count {
+  font-size: 0.65rem;
+  opacity: 0.55;
+  font-variant-numeric: tabular-nums;
+}
+/* Stacked meals within a day, one row each. */
+.day-meals {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
+.day-meal {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-1);
+}
 .slot-filled {
   line-height: 1.2;
   overflow-wrap: anywhere;
+  min-width: 0;
 }
 .slot-clear {
-  align-self: flex-end;
+  flex: none;
   appearance: none;
   border: 0;
   background: none;
@@ -1674,6 +1710,48 @@ table.ref.pairs td.eq {
   line-height: 1;
   cursor: pointer;
   padding: 0;
+}
+/* Expanded day (mobile-focused): break out to full width and give the meal
+   rows + their × and the "Clear day" button comfortable, tappable room. */
+.day--expanded {
+  grid-column: 1 / -1;
+  gap: var(--s-2);
+  padding: var(--s-2);
+  font-size: 0.85rem;
+}
+.day--expanded .day-meal {
+  align-items: center;
+  padding: var(--s-1) var(--s-2);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-s);
+  background: var(--card);
+}
+.day--expanded .slot-clear {
+  font-size: 1.35rem;
+  min-width: 1.75rem;
+  text-align: right;
+}
+.day-clear {
+  align-self: flex-start;
+}
+/* "Meals/day" cap control in the Meals title row. */
+.meals-perday {
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+  font-size: var(--t-caption);
+}
+.meals-perday-label {
+  opacity: 0.8;
+}
+.meals-perday-select {
+  font: inherit;
+  font-size: var(--t-caption);
+  padding: var(--s-1) var(--s-2);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-s);
+  background: var(--card);
+  color: inherit;
 }
 
 /* --- Meal planner calendar (Phase 6) -------------------------------------- */

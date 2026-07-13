@@ -27,6 +27,13 @@
             "type": "string",
             "description": "Optional ISO date (YYYY-MM-DD) for week 1. v1 renders relative week labels and ignores this; retained for a real-dates fast-follow."
           },
+          "mealsPerDay": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 6,
+            "default": 3,
+            "description": "Editor cap: how many meals a day may hold. Absent on records written before multi-meal; readers default it (never below the largest day already placed)."
+          },
           "weeks": {
             "type": "array",
             "maxLength": 6,
@@ -65,12 +72,35 @@
     },
     "slot": {
       "type": "object",
-      "description": "A single day cell. A strongRef cannot declare its target is a recipe (the same open-world caveat the doc records for consumed strongRefs); the app treats recipe as a recipe strongRef by construction.",
+      "description": "A single day cell holding an ordered list of meals (0..mealsPerDay). The legacy `recipe`/`note` fields describe a single-recipe day written before multi-meal; readers migrate such a slot to a one-entry `meals` list.",
+      "properties": {
+        "meals": {
+          "type": "array",
+          "maxLength": 6,
+          "description": "The meals placed on this day, in order. The meal-type label is not stored — it is derived from each recipe's own category at render time.",
+          "items": { "type": "ref", "ref": "#meal" }
+        },
+        "recipe": {
+          "type": "ref",
+          "ref": "com.atproto.repo.strongRef",
+          "description": "Deprecated (pre-multi-meal): a single recipe on this day. Tolerated on read and migrated to `meals`; not written by current clients."
+        },
+        "note": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Deprecated (pre-multi-meal): the note for the single-recipe day. See #meal.note."
+        }
+      }
+    },
+    "meal": {
+      "type": "object",
+      "description": "One placed meal: a recipe strongRef and an optional note. A strongRef cannot declare its target is a recipe (the same open-world caveat the doc records for consumed strongRefs); the app treats `recipe` as a recipe strongRef by construction.",
+      "required": ["recipe"],
       "properties": {
         "recipe": {
           "type": "ref",
           "ref": "com.atproto.repo.strongRef",
-          "description": "Optional strongRef to the recipe placed on this day."
+          "description": "strongRef to the recipe placed on this day."
         },
         "note": {
           "type": "string",

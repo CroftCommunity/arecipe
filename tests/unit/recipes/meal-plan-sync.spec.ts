@@ -12,17 +12,23 @@ import {
   syncPlanToPds,
 } from '../../../src/recipes/meal-plan-sync.js';
 
-const emptyDays = () => Array.from({ length: 7 }, () => ({}));
+const emptyDays = () => Array.from({ length: 7 }, () => ({ meals: [] }));
 
 const aPlan = (): LocalPlan => ({
   id: 'plan-1',
   name: 'Week',
+  mealsPerDay: 3,
   updatedAt: '2026-07-10T00:00:00.000Z',
   weeks: [
     {
       repeat: 2,
       days: [
-        { recipe: { uri: 'at://d/c/r', cid: 'bafyx', name: 'Lasagna' }, note: 'big batch' },
+        {
+          meals: [
+            { recipe: { uri: 'at://d/c/r', cid: 'bafyx', name: 'Lasagna' }, category: 'dinner', note: 'big batch' },
+            { recipe: { uri: 'at://d/c/r2', cid: 'bafyy', name: 'Oatmeal' }, category: 'breakfast' },
+          ],
+        },
         ...emptyDays().slice(1),
       ],
     },
@@ -30,21 +36,23 @@ const aPlan = (): LocalPlan => ({
 });
 
 describe('planToRecord', () => {
-  it('builds an app.arecipe.mealPlan value with strongRef slots + cached name', () => {
+  it('builds an app.arecipe.mealPlan value with a meals[] list + cached name/category + mealsPerDay', () => {
     const rec = planToRecord(aPlan());
     expect(rec['$type']).toBe('app.arecipe.mealPlan');
     expect(rec['name']).toBe('Week');
+    expect(rec['mealsPerDay']).toBe(3);
     expect(typeof rec['createdAt']).toBe('string');
     expect(typeof rec['updatedAt']).toBe('string');
     const weeks = rec['weeks'] as { repeat: number; days: Record<string, unknown>[] }[];
     expect(weeks[0]?.repeat).toBe(2);
-    // Filled slot: strongRef (uri+cid only) + a cached display name + note.
+    // Filled day: each meal is a strongRef (uri+cid only) + cached name/category (+note).
     expect(weeks[0]?.days[0]).toEqual({
-      recipe: { uri: 'at://d/c/r', cid: 'bafyx' },
-      name: 'Lasagna',
-      note: 'big batch',
+      meals: [
+        { recipe: { uri: 'at://d/c/r', cid: 'bafyx' }, name: 'Lasagna', category: 'dinner', note: 'big batch' },
+        { recipe: { uri: 'at://d/c/r2', cid: 'bafyy' }, name: 'Oatmeal', category: 'breakfast' },
+      ],
     });
-    expect(weeks[0]?.days[1]).toEqual({}); // empty slot stays empty
+    expect(weeks[0]?.days[1]).toEqual({ meals: [] }); // empty day → empty list
   });
 });
 
@@ -77,12 +85,40 @@ describe('listPdsPlans', () => {
     expect(plans).toHaveLength(1);
     expect(plans[0]?.id).toBe('plan-1'); // rkey → local id
     expect(plans[0]?.name).toBe('Week');
-    // Recovered slot carries the cached display name (lossless round-trip).
-    expect(plans[0]?.weeks[0]?.days[0]?.recipe).toEqual({
-      uri: 'at://d/c/r',
-      cid: 'bafyx',
-      name: 'Lasagna',
-    });
+    expect(plans[0]?.mealsPerDay).toBe(3);
+    // Recovered meals carry the cached display name + category (lossless round-trip).
+    expect(plans[0]?.weeks[0]?.days[0]?.meals).toEqual([
+      { recipe: { uri: 'at://d/c/r', cid: 'bafyx', name: 'Lasagna' }, category: 'dinner', note: 'big batch' },
+      { recipe: { uri: 'at://d/c/r2', cid: 'bafyy', name: 'Oatmeal' }, category: 'breakfast' },
+    ]);
+  });
+
+  it('migrates a legacy single-recipe record (no meals[]) to a one-meal day', async () => {
+    const legacy = {
+      uri: 'at://did:me/app.arecipe.mealPlan/legacy',
+      value: {
+        $type: 'app.arecipe.mealPlan',
+        name: 'Legacy',
+        createdAt: '2026-07-01T00:00:00.000Z',
+        updatedAt: '2026-07-01T00:00:00.000Z',
+        weeks: [
+          {
+            repeat: 1,
+            days: [
+              { recipe: { uri: 'at://d/c/r', cid: 'bafyx' }, name: 'Lasagna' },
+              ...Array.from({ length: 6 }, () => ({})),
+            ],
+          },
+        ],
+      },
+    };
+    const fetchFn = (async () => ({ ok: true, json: async () => ({ records: [legacy] }) })) as unknown as typeof fetch;
+    const plans = await listPdsPlans('https://pds.test', 'did:me', { fetchFn });
+    expect(plans[0]?.weeks[0]?.days[0]?.meals).toEqual([
+      { recipe: { uri: 'at://d/c/r', cid: 'bafyx', name: 'Lasagna' } },
+    ]);
+    expect(plans[0]?.weeks[0]?.days[1]?.meals).toEqual([]);
+    expect(plans[0]?.mealsPerDay).toBe(3); // absent → default
   });
 
   it('throws on a non-ok list response', async () => {
@@ -110,7 +146,7 @@ describe('getPdsPlan', () => {
     expect(calledUrl).toContain('rkey=plan-1');
     expect(plan.id).toBe('plan-1');
     expect(plan.name).toBe('Week');
-    expect(plan.weeks[0]?.days[0]?.recipe?.name).toBe('Lasagna');
+    expect(plan.weeks[0]?.days[0]?.meals[0]?.recipe.name).toBe('Lasagna');
   });
 
   it('throws on a non-ok getRecord response (plan not found)', async () => {

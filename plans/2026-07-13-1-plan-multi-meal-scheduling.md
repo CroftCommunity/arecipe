@@ -1,6 +1,11 @@
 # Multi-meal scheduling — many recipes per day, meal-typed calendar
 
-**Status:** 🟡 Proposed 2026-07-13. Branch `claude/multi-meal-scheduling-ux-uixghv`.
+**Status:** ✅ **Built 2026-07-13** on branch `claude/multi-meal-scheduling-ux-uixghv`.
+All layers landed with the confirmed design; full gate green (lint · typecheck ·
+369 unit · build · 155 e2e, incl. new multi-meal/cap/category-label/mobile-remove
+specs). The two flagged defaults hold: lowering the cap never deletes over-cap
+meals (and can't drop below what's already placed), and the calendar shows meals
+in placement order. Legacy single-`recipe` records/buffers migrate on read.
 
 ## Problem Statement
 

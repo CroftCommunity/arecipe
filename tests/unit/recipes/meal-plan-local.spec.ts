@@ -28,12 +28,14 @@ const recordingLogger = (): Logger => ({
   error: vi.fn(),
 });
 
+const emptyDay = () => ({ meals: [] });
+
 const aPlan = (name: string): LocalPlanInput => ({
   name,
   weeks: [
     {
       repeat: 1,
-      days: Array.from({ length: 7 }, () => ({})),
+      days: Array.from({ length: 7 }, emptyDay),
     },
   ],
 });
@@ -42,7 +44,7 @@ describe('duplicateWeeks', () => {
   const week = (name: string): LocalWeek => ({
     repeat: 1,
     days: Array.from({ length: 7 }, (_unused, i) =>
-      i === 0 ? { recipe: { uri: `at://x/${name}`, cid: `cid-${name}`, name } } : {},
+      i === 0 ? { meals: [{ recipe: { uri: `at://x/${name}`, cid: `cid-${name}`, name } }] } : { meals: [] },
     ),
   });
 
@@ -50,15 +52,15 @@ describe('duplicateWeeks', () => {
     const weeks = [week('a'), week('b')];
     const out = duplicateWeeks(weeks, 6);
     expect(out).toHaveLength(4);
-    expect(out[2]?.days[0]?.recipe?.name).toBe('a');
-    expect(out[3]?.days[0]?.recipe?.name).toBe('b');
+    expect(out[2]?.days[0]?.meals[0]?.recipe.name).toBe('a');
+    expect(out[3]?.days[0]?.meals[0]?.recipe.name).toBe('b');
   });
 
   it('deep-copies so editing a duplicate does not mutate the original', () => {
     const weeks = [week('a')];
     const out = duplicateWeeks(weeks, 6);
-    out[1]!.days[0] = {}; // clear the copy's first slot
-    expect(out[0]?.days[0]?.recipe?.name).toBe('a'); // original untouched
+    out[1]!.days[0] = { meals: [] }; // clear the copy's first slot
+    expect(out[0]?.days[0]?.meals[0]?.recipe.name).toBe('a'); // original untouched
   });
 
   it('refuses to duplicate when doubling would exceed the max (returns input)', () => {
@@ -98,16 +100,22 @@ describe('createMealPlanStore', () => {
     expect(store.get(saved.id)).toBeUndefined();
   });
 
-  it('preserves the display-cached recipe ref + note on a day slot', () => {
+  it('preserves the display-cached meals (ref + category + note) on a day slot', () => {
     const store = createMealPlanStore({ storage: memStorage() });
     const input: LocalPlanInput = {
-      name: 'with a recipe',
+      name: 'with meals',
+      mealsPerDay: 3,
       weeks: [
         {
           repeat: 2,
           days: [
-            { recipe: { uri: 'at://d/c/r', cid: 'bafyx', name: 'Lasagna' }, note: 'big batch' },
-            ...Array.from({ length: 6 }, () => ({})),
+            {
+              meals: [
+                { recipe: { uri: 'at://d/c/r', cid: 'bafyx', name: 'Lasagna' }, category: 'dinner', note: 'big batch' },
+                { recipe: { uri: 'at://d/c/r2', cid: 'bafyy', name: 'Oatmeal' }, category: 'breakfast' },
+              ],
+            },
+            ...Array.from({ length: 6 }, emptyDay),
           ],
         },
       ],
@@ -115,10 +123,64 @@ describe('createMealPlanStore', () => {
     const saved = store.save(input);
     const back = store.get(saved.id);
     expect(back?.weeks[0]?.repeat).toBe(2);
-    expect(back?.weeks[0]?.days[0]).toEqual({
-      recipe: { uri: 'at://d/c/r', cid: 'bafyx', name: 'Lasagna' },
-      note: 'big batch',
+    expect(back?.mealsPerDay).toBe(3);
+    expect(back?.weeks[0]?.days[0]?.meals).toEqual([
+      { recipe: { uri: 'at://d/c/r', cid: 'bafyx', name: 'Lasagna' }, category: 'dinner', note: 'big batch' },
+      { recipe: { uri: 'at://d/c/r2', cid: 'bafyy', name: 'Oatmeal' }, category: 'breakfast' },
+    ]);
+  });
+
+  it('defaults mealsPerDay when the input omits it', () => {
+    const store = createMealPlanStore({ storage: memStorage() });
+    const saved = store.save(aPlan('no cap set'));
+    expect(saved.mealsPerDay).toBe(3); // MEALS_PER_DAY_DEFAULT
+  });
+
+  it('never stores a cap below the largest day already placed', () => {
+    const store = createMealPlanStore({ storage: memStorage() });
+    const saved = store.save({
+      name: 'four on monday',
+      mealsPerDay: 1, // user tried to shrink below what is placed
+      weeks: [
+        {
+          repeat: 1,
+          days: [
+            { meals: Array.from({ length: 4 }, (_u, i) => ({ recipe: { uri: `at://x/${i}`, cid: `c${i}`, name: `R${i}` } })) },
+            ...Array.from({ length: 6 }, emptyDay),
+          ],
+        },
+      ],
     });
+    expect(saved.mealsPerDay).toBe(4);
+  });
+
+  it('migrates a legacy single-recipe stored plan to the meals shape on read', () => {
+    const legacy = {
+      'plan-1': {
+        id: 'plan-1',
+        name: 'Legacy week',
+        updatedAt: '2026-07-01T00:00:00.000Z',
+        weeks: [
+          {
+            repeat: 1,
+            days: [
+              { recipe: { uri: 'at://d/c/r', cid: 'bafyx', name: 'Lasagna' }, note: 'x2' },
+              ...Array.from({ length: 6 }, () => ({})),
+            ],
+          },
+        ],
+      },
+    };
+    const store = createMealPlanStore({
+      storage: memStorage({ 'arecipe.mealplans.v1': JSON.stringify(legacy) }),
+    });
+    const back = store.get('plan-1');
+    expect(back?.weeks[0]?.days[0]?.meals).toEqual([
+      { recipe: { uri: 'at://d/c/r', cid: 'bafyx', name: 'Lasagna' }, note: 'x2' },
+    ]);
+    expect(back?.weeks[0]?.days[1]?.meals).toEqual([]);
+    // A legacy plan with no cap defaults to at least the default.
+    expect(back?.mealsPerDay).toBe(3);
   });
 
   it('logs saved/removed at debug on the success paths', () => {

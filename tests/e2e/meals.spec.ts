@@ -202,9 +202,90 @@ test('drag (desktop): drag a palette chip onto a day places it; drag a filled sl
   await lasagna.dragTo(mon);
   await expect(mon.getByTestId('slot-filled')).toHaveText('Lasagna');
 
-  // Drag the filled Monday slot onto Wednesday — a move (source clears).
-  await mon.dragTo(wed);
+  // Drag the placed meal from Monday onto Wednesday — a move (source clears).
+  await mon.getByTestId('day-meal').dragTo(wed);
   await expect(wed.getByTestId('slot-filled')).toHaveText('Lasagna');
+  await expect(mon.getByTestId('slot-filled')).toHaveCount(0);
+});
+
+test('multi-meal: several recipes stack on one day and all show on the calendar', async ({
+  page,
+}) => {
+  await seedPalette(page);
+  await page.goto('/meals.html');
+
+  const mon = page.getByTestId('week-row').first().getByTestId('day-slot').first();
+
+  // Arm + place Lasagna, then arm + place Tacos on the SAME day — both stack.
+  await page.getByTestId('palette-chip').filter({ hasText: 'Lasagna' }).click();
+  await mon.click();
+  await page.getByTestId('palette-chip').filter({ hasText: 'Tacos' }).click();
+  await mon.click();
+  await expect(mon.getByTestId('slot-filled')).toHaveCount(2);
+
+  // Both survive a reload (the local buffer holds the meals list).
+  await page.reload();
+  const monAfter = page.getByTestId('week-row').first().getByTestId('day-slot').first();
+  await expect(monAfter.getByTestId('slot-filled')).toHaveCount(2);
+
+  // The calendar day carries both meals.
+  const calDay = page.getByTestId('cal-week').first().locator('.cal-day').first();
+  await expect(calDay).toContainText('Lasagna');
+  await expect(calDay).toContainText('Tacos');
+});
+
+test('meals/day cap: lowering it to 1 blocks adding a second meal', async ({ page }) => {
+  await seedPalette(page);
+  await page.goto('/meals.html');
+
+  // Set the cap to 1 up front.
+  await page.getByTestId('meals-per-day').selectOption('1');
+
+  const mon = page.getByTestId('week-row').first().getByTestId('day-slot').first();
+  await page.getByTestId('palette-chip').filter({ hasText: 'Lasagna' }).click();
+  await mon.click();
+  await expect(mon.getByTestId('slot-filled')).toHaveCount(1);
+
+  // A second placement on the full day is a no-op (still one meal).
+  await page.getByTestId('palette-chip').filter({ hasText: 'Tacos' }).click();
+  await mon.click();
+  await expect(mon.getByTestId('slot-filled')).toHaveCount(1);
+  await expect(mon.getByTestId('slot-filled')).toHaveText('Lasagna');
+
+  // The cap survives a reload (persisted on the plan).
+  await page.reload();
+  await expect(page.getByTestId('meals-per-day')).toHaveValue('1');
+});
+
+test('calendar labels a meal with the recipe’s own category ("Breakfast: …")', async ({ page }) => {
+  await seedPalette(page, [
+    { uri: 'at://did:plc:cook/exchange.recipe.recipe/oatmeal', cid: 'bafyo', name: 'Oatmeal', category: 'breakfast' },
+  ]);
+  await page.goto('/meals.html');
+
+  await page.getByTestId('palette-chip').filter({ hasText: 'Oatmeal' }).click();
+  await page.getByTestId('week-row').first().getByTestId('day-slot').first().click();
+
+  // The calendar line reads "Breakfast: Oatmeal" (label from recipeCategory).
+  await expect(page.getByTestId('cal-week').first()).toContainText('Breakfast: Oatmeal');
+});
+
+test('mobile: expand a day by its header, then Clear day removes its meals', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 780 });
+  await seedPalette(page);
+  await page.goto('/meals.html');
+
+  const mon = page.getByTestId('week-row').first().getByTestId('day-slot').first();
+  await page.getByTestId('palette-chip').filter({ hasText: 'Lasagna' }).click();
+  await mon.click();
+  await expect(mon.getByTestId('slot-filled')).toHaveCount(1);
+
+  // Nothing armed → tapping the day toggles the expanded editing panel, where
+  // "Clear day" appears and wipes the day in one tap.
+  await expect(mon.getByTestId('clear-day')).toHaveCount(0);
+  await mon.click();
+  await expect(mon.getByTestId('clear-day')).toBeVisible();
+  await mon.getByTestId('clear-day').click();
   await expect(mon.getByTestId('slot-filled')).toHaveCount(0);
 });
 

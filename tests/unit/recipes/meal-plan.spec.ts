@@ -1,14 +1,18 @@
-// Phase 3: the pure meal-plan model — validation (open-world, fail-loud on
-// required + the exactly-7-days structure), strongRef slot construction, and
+// Phase 3 + multi-meal: the pure meal-plan model — validation (open-world,
+// fail-loud on required + the exactly-7-days structure), meal construction, the
+// legacy single-recipe → meals-list migration, the meals-per-day clamp, and
 // calendar expansion. Pure functions, so these unit tests are the isolated
 // proof; entry-point wiring is proven by the mapped consumer phases (P6 for
-// expandCalendar, P9 for validateMealPlanValue/slotWithRecipe) per the plan's
-// export→wiring map.
+// expandCalendar, P9 for validateMealPlanValue) per the plan's export→wiring map.
 import { describe, expect, it } from 'vitest';
 import {
+  clampMealsPerDay,
+  MEALS_PER_DAY_DEFAULT,
+  MEALS_PER_DAY_MAX,
   MEAL_PLAN_COLLECTION,
   expandCalendar,
-  slotWithRecipe,
+  mealsOfSlot,
+  mealWithRecipe,
   validateMealPlanValue,
   type PlanSlot,
   type PlanWeek,
@@ -60,18 +64,54 @@ describe('validateMealPlanValue', () => {
   });
 });
 
-describe('slotWithRecipe', () => {
+describe('mealWithRecipe', () => {
   const ref = { uri: 'at://did:plc:abc/exchange.recipe.recipe/xyz', cid: 'bafyreiaaa' };
 
-  it('builds a slot carrying the strongRef of the entry', () => {
-    expect(slotWithRecipe(ref)).toEqual({ recipe: { uri: ref.uri, cid: ref.cid } });
+  it('builds a meal carrying the strongRef of the entry', () => {
+    expect(mealWithRecipe(ref)).toEqual({ recipe: { uri: ref.uri, cid: ref.cid } });
   });
 
   it('carries a note when one is given', () => {
-    expect(slotWithRecipe(ref, 'double batch')).toEqual({
+    expect(mealWithRecipe(ref, 'double batch')).toEqual({
       recipe: { uri: ref.uri, cid: ref.cid },
       note: 'double batch',
     });
+  });
+});
+
+describe('mealsOfSlot', () => {
+  const ref = { uri: 'at://x/exchange.recipe.recipe/a', cid: 'bafya' };
+
+  it('returns an explicit meals list as-is (authoritative even when empty)', () => {
+    const meals = [{ recipe: ref }];
+    expect(mealsOfSlot({ meals })).toBe(meals);
+    expect(mealsOfSlot({ meals: [] })).toEqual([]);
+  });
+
+  it('migrates a legacy single-recipe slot to a one-meal list, carrying the note', () => {
+    expect(mealsOfSlot({ recipe: ref, note: 'x2' })).toEqual([{ recipe: ref, note: 'x2' }]);
+  });
+
+  it('an empty legacy slot yields no meals', () => {
+    expect(mealsOfSlot({})).toEqual([]);
+  });
+});
+
+describe('clampMealsPerDay', () => {
+  it('defaults an absent/invalid value to the default', () => {
+    expect(clampMealsPerDay(undefined)).toBe(MEALS_PER_DAY_DEFAULT);
+    expect(clampMealsPerDay(Number.NaN)).toBe(MEALS_PER_DAY_DEFAULT);
+  });
+
+  it('clamps into [1, MAX]', () => {
+    expect(clampMealsPerDay(0)).toBe(MEALS_PER_DAY_DEFAULT); // below min → default
+    expect(clampMealsPerDay(1)).toBe(1);
+    expect(clampMealsPerDay(MEALS_PER_DAY_MAX + 5)).toBe(MEALS_PER_DAY_MAX);
+  });
+
+  it('never returns below the floor (largest day already placed)', () => {
+    expect(clampMealsPerDay(1, 4)).toBe(4); // a chosen cap of 1 can't hide 4 placed meals
+    expect(clampMealsPerDay(undefined, 5)).toBe(5);
   });
 });
 

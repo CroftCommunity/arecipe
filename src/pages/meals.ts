@@ -16,12 +16,18 @@ import { resolveDidDoc } from '../identity/did.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
 import { createResolver } from '../identity/resolve.js';
-import { expandCalendar } from '../recipes/meal-plan.js';
+import {
+  clampMealsPerDay,
+  expandCalendar,
+  MEALS_PER_DAY_MAX,
+  MEALS_PER_DAY_MIN,
+} from '../recipes/meal-plan.js';
 import { dateForSlot, formatShortDate, weekRangeLabel } from '../recipes/meal-plan-dates.js';
-import { createTastePreference, matchesTaste } from '../recipes/taste-preference.js';
+import { createTastePreference, matchesTaste, MEAL_OPTIONS } from '../recipes/taste-preference.js';
 import {
   createMealPlanStore,
   duplicateWeeks,
+  type LocalMeal,
   type LocalPlan,
   type LocalWeek,
   type MealPlanStore,
@@ -39,8 +45,10 @@ import { registerServiceWorker } from '../sw-register.js';
 export type PaletteProvider = () => Promise<PaletteItem[]>;
 type Source = 'cookbook' | 'browse';
 /** In-flight drag payload (Phase 8 desktop enhancement): a palette chip or an
- * already-placed slot being moved. Tap-to-place remains the touch-safe primary. */
-type Dragging = { kind: 'palette'; item: PaletteItem } | { kind: 'slot'; wi: number; di: number };
+ * already-placed meal being moved. Tap-to-place remains the touch-safe primary. */
+type Dragging =
+  | { kind: 'palette'; item: PaletteItem }
+  | { kind: 'meal'; wi: number; di: number; mi: number };
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
   const node = document.createElement(tag);
@@ -60,7 +68,24 @@ const PALETTE_CAP = 10;
 // Weeks keep a `repeat` field in the record (default 1) for the calendar
 // expansion; the UI no longer edits it — repetition is now "Repeat planned
 // weeks", which appends real week copies.
-const emptyWeek = (): LocalWeek => ({ repeat: 1, days: Array.from({ length: 7 }, () => ({})) });
+const emptyWeek = (): LocalWeek => ({ repeat: 1, days: Array.from({ length: 7 }, () => ({ meals: [] })) });
+
+/** A meal's type label from the recipe's own category ("breakfast" → "Breakfast"),
+ * preferring the curated vocabulary's casing. Empty when the recipe is
+ * uncategorized — the calendar then shows just the recipe name. */
+const mealTypeLabel = (category: string | undefined): string => {
+  if (category === undefined || category.trim() === '') return '';
+  const match = MEAL_OPTIONS.find((o) => o.value === category.toLowerCase());
+  if (match !== undefined) return match.label;
+  return category.charAt(0).toUpperCase() + category.slice(1);
+};
+
+/** A day's meal line as shown on the calendar: "Breakfast: Pancakes", or just
+ * "Pancakes" when the recipe carries no category. */
+const mealLineText = (meal: LocalMeal): string => {
+  const label = mealTypeLabel(meal.category);
+  return label === '' ? meal.recipe.name : `${label}: ${meal.recipe.name}`;
+};
 
 const sessionHintSignedIn = (): boolean => {
   try {
@@ -95,7 +120,7 @@ const readSeed = (): PaletteItem[] => {
  *  makes each placed meal a link to its recipe). Returns the empty-state element
  *  when nothing is planned. Pure. */
 const buildCalendarRows = (plan: LocalPlan, opts: { linkRecipes: boolean }): HTMLElement[] => {
-  const anyPlanned = plan.weeks.some((w) => w.days.some((s) => s.recipe !== undefined));
+  const anyPlanned = plan.weeks.some((w) => w.days.some((s) => s.meals.length > 0));
   if (!anyPlanned) {
     const empty = el(
       'p',
@@ -135,15 +160,19 @@ const buildCalendarRows = (plan: LocalPlan, opts: { linkRecipes: boolean }): HTM
       const dayIso = start !== undefined ? dateForSlot(start, rowIndex, di) : null;
       const shortDay = dayIso !== null ? formatShortDate(dayIso) : null;
       cell.append(el('span', 'day-label', shortDay !== null ? `${DAY_LABELS[di]} ${shortDay}` : DAY_LABELS[di]));
-      if (slot.recipe !== undefined) {
+      if (slot.meals.length > 0) {
         cell.classList.add('day--filled');
-        if (opts.linkRecipes) {
-          const link = el('a', 'cal-slot', slot.recipe.name) as HTMLAnchorElement;
-          link.href = `./recipe.html?u=${encodeURIComponent(slot.recipe.uri)}`;
-          link.dataset['testid'] = 'shared-meal';
-          cell.append(link);
-        } else {
-          cell.append(el('span', 'cal-slot', slot.recipe.name));
+        // One line per meal, "Type: Recipe" (type from the recipe's category).
+        for (const meal of slot.meals) {
+          const text = mealLineText(meal);
+          if (opts.linkRecipes) {
+            const link = el('a', 'cal-slot', text) as HTMLAnchorElement;
+            link.href = `./recipe.html?u=${encodeURIComponent(meal.recipe.uri)}`;
+            link.dataset['testid'] = 'shared-meal';
+            cell.append(link);
+          } else {
+            cell.append(el('span', 'cal-slot', text));
+          }
         }
       }
       daysEl.append(cell);
@@ -345,6 +374,10 @@ export const main = async (
   const createdFresh = existing === undefined; // for PDS-recovery reconciliation
   let armed: PaletteItem | null = null;
   let dragging: Dragging | null = null;
+  // Days the user has expanded (mobile): a tall, full-width panel where per-meal
+  // × and "Clear day" are comfortably tappable. Keyed `${weekIndex}:${dayIndex}`;
+  // survives re-renders (renderBuilder rebuilds the DOM each time).
+  const expandedDays = new Set<string>();
   // Set once the session is booted (signed in): enables write-through to the PDS.
   let syncAgent: Agent | null = null;
 
@@ -366,11 +399,29 @@ export const main = async (
   const header = el('div', 'meals-header');
   header.append(el('h2', 'section-title', 'Meals'));
   const headerActions = el('div', 'meals-actions');
+  // "Meals/day" cap: how many recipes a day may hold. A plan-level setting that
+  // gates adding (never deletes what's already placed); persisted + synced.
+  const perDayLabel = el('label', 'meals-perday');
+  perDayLabel.append(el('span', 'meals-perday-label', 'Meals/day'));
+  const perDaySelect = el('select', 'meals-perday-select') as HTMLSelectElement;
+  perDaySelect.dataset['testid'] = 'meals-per-day';
+  for (let n = MEALS_PER_DAY_MIN; n <= MEALS_PER_DAY_MAX; n += 1) {
+    const opt = document.createElement('option');
+    opt.value = String(n);
+    opt.textContent = String(n);
+    perDaySelect.append(opt);
+  }
+  perDaySelect.addEventListener('change', () => {
+    plan.mealsPerDay = clampMealsPerDay(Number(perDaySelect.value));
+    persist();
+    rerender();
+  });
+  perDayLabel.append(perDaySelect);
   const plansLink = el('a', 'button meals-plans', 'My plans') as HTMLAnchorElement;
   plansLink.href = './meals.html?plans';
   plansLink.dataset['testid'] = 'my-plans';
   const resetControl = el('div', 'meals-reset');
-  headerActions.append(plansLink, resetControl);
+  headerActions.append(perDayLabel, plansLink, resetControl);
   header.append(headerActions);
   content.append(header);
 
@@ -538,12 +589,13 @@ export const main = async (
         // Reset on publish: freeze the published record and start fresh (a NEW
         // local id, so the published rkey is never overwritten by later edits).
         if (resetOnPublish.checked) {
-          plan = store.save({ name: 'My meal plan', weeks: [emptyWeek()] });
+          plan = store.save({ name: 'My meal plan', weeks: [emptyWeek()], mealsPerDay: plan.mealsPerDay });
           armed = null;
           dragging = null;
           filterText = '';
           filterInput.value = '';
           paletteOffset = 0;
+          expandedDays.clear();
           rerender();
           renderChips();
         }
@@ -563,6 +615,7 @@ export const main = async (
       {
         name: plan.name,
         weeks: plan.weeks,
+        mealsPerDay: plan.mealsPerDay,
         ...(plan.startDate !== undefined ? { startDate: plan.startDate } : {}),
       },
       plan.id,
@@ -714,6 +767,8 @@ export const main = async (
   };
 
   const renderBuilder = (): void => {
+    const cap = plan.mealsPerDay;
+    perDaySelect.value = String(cap); // keep the header control in sync with the plan
     builder.replaceChildren();
     plan.weeks.forEach((week, wi) => {
       const row = el('div', 'week');
@@ -740,13 +795,51 @@ export const main = async (
 
       const daysEl = el('div', 'week-days');
       week.days.forEach((slot, di) => {
+        const key = `${wi}:${di}`;
+        const full = slot.meals.length >= cap;
+        const expanded = expandedDays.has(key);
         const cell = el('div', 'day');
         cell.dataset['testid'] = 'day-slot';
         cell.dataset['day'] = String(di);
-        cell.append(el('span', 'day-label', DAY_LABELS[di]));
+        if (slot.meals.length > 0) cell.classList.add('day--filled');
+        if (full) cell.classList.add('day--full');
+        if (expanded) cell.classList.add('day--expanded');
+        // Armed + not full ⇒ the cell is the tap target that adds the next meal.
+        cell.classList.add(armed !== null && !full ? 'day--placeable' : 'day--empty');
 
-        // Desktop drag: every cell is a drop target; the same store mutations
-        // as tap-to-place run on drop, so touch is unaffected (drag is additive).
+        // Header: the day label + a count, and the mobile expand toggle. Tapping
+        // the header expands the day (a roomy panel for removing meals) UNLESS a
+        // recipe is armed — then the whole cell is a placement target instead.
+        const head = el('div', 'day-head');
+        head.append(el('span', 'day-label', DAY_LABELS[di]));
+        if (slot.meals.length > 0 || cap > 1) {
+          head.append(el('span', 'day-count', `${slot.meals.length}/${cap}`));
+        }
+        cell.append(head);
+
+        // Tap-to-place primary: armed + under cap ⇒ append to the next open slot;
+        // otherwise (nothing armed) the tap expands/collapses the day for editing.
+        const onCellTap = (): void => {
+          if (armed !== null && slot.meals.length < cap) {
+            slot.meals.push({
+              recipe: { uri: armed.uri, cid: armed.cid, name: armed.name },
+              ...(armed.category !== undefined ? { category: armed.category } : {}),
+            });
+            armed = null;
+            persist();
+            renderChips();
+            rerender();
+          } else if (armed === null) {
+            if (expandedDays.has(key)) expandedDays.delete(key);
+            else expandedDays.add(key);
+            rerender();
+          }
+        };
+        cell.setAttribute('role', 'button');
+        cell.addEventListener('click', onCellTap);
+
+        // Desktop drag: every cell is a drop target; the same store mutations as
+        // tap-to-place run on drop, so touch is unaffected (drag is additive).
         cell.addEventListener('dragover', (ev) => {
           ev.preventDefault();
           cell.classList.add('day--over');
@@ -757,16 +850,20 @@ export const main = async (
           cell.classList.remove('day--over');
           if (dragging === null) return;
           if (dragging.kind === 'palette') {
-            week.days[di] = {
-              recipe: { uri: dragging.item.uri, cid: dragging.item.cid, name: dragging.item.name },
-            };
+            if (slot.meals.length < cap) {
+              slot.meals.push({
+                recipe: { uri: dragging.item.uri, cid: dragging.item.cid, name: dragging.item.name },
+                ...(dragging.item.category !== undefined ? { category: dragging.item.category } : {}),
+              });
+            }
           } else {
-            const srcWeek = plan.weeks[dragging.wi];
-            if (srcWeek !== undefined) {
-              const moved = srcWeek.days[dragging.di] ?? {};
-              const displaced = week.days[di] ?? {};
-              week.days[di] = moved; // move (or swap if the target was filled)
-              srcWeek.days[dragging.di] = displaced;
+            const srcDay = plan.weeks[dragging.wi]?.days[dragging.di];
+            if (srcDay !== undefined) {
+              const [moved] = srcDay.meals.splice(dragging.mi, 1); // move out of source
+              if (moved !== undefined) {
+                if (slot.meals.length < cap) slot.meals.push(moved);
+                else srcDay.meals.splice(dragging.mi, 0, moved); // target full: undo
+              }
             }
           }
           dragging = null;
@@ -776,40 +873,47 @@ export const main = async (
           rerender();
         });
 
-        const placed = slot.recipe;
-        if (placed !== undefined) {
-          cell.classList.add('day--filled');
-          // Drag a filled slot to another day to move/swap it.
-          cell.draggable = true;
-          cell.addEventListener('dragstart', (ev) => {
-            dragging = { kind: 'slot', wi, di };
-            ev.dataTransfer?.setData('text/plain', 'slot');
+        // The placed meals, one row each: name (drag handle) + a × to remove.
+        const mealsEl = el('div', 'day-meals');
+        slot.meals.forEach((meal, mi) => {
+          const mealEl = el('div', 'day-meal');
+          mealEl.dataset['testid'] = 'day-meal';
+          mealEl.draggable = true;
+          mealEl.addEventListener('dragstart', (ev) => {
+            dragging = { kind: 'meal', wi, di, mi };
+            ev.dataTransfer?.setData('text/plain', 'meal');
           });
-          const filled = el('span', 'slot-filled', placed.name);
+          const filled = el('span', 'slot-filled', mealLineText(meal));
           filled.dataset['testid'] = 'slot-filled';
           const clear = el('button', 'slot-clear', '×') as HTMLButtonElement;
           clear.type = 'button';
           clear.dataset['testid'] = 'slot-clear';
-          clear.setAttribute('aria-label', `Clear ${placed.name}`);
+          clear.setAttribute('aria-label', `Remove ${meal.recipe.name}`);
           clear.addEventListener('click', (ev) => {
             ev.stopPropagation();
-            week.days[di] = {};
+            slot.meals.splice(mi, 1);
             persist();
             rerender();
           });
-          cell.append(filled, clear);
-        } else {
-          cell.classList.add('day--empty');
-          cell.setAttribute('role', 'button');
-          cell.addEventListener('click', () => {
-            if (armed === null) return;
-            week.days[di] = { recipe: { uri: armed.uri, cid: armed.cid, name: armed.name } };
-            armed = null;
+          mealEl.append(filled, clear);
+          mealsEl.append(mealEl);
+        });
+        cell.append(mealsEl);
+
+        // Expanded (mobile-focused) footer: clear the whole day in one tap.
+        if (expanded && slot.meals.length > 0) {
+          const clearDay = el('button', 'button day-clear', 'Clear day') as HTMLButtonElement;
+          clearDay.type = 'button';
+          clearDay.dataset['testid'] = 'clear-day';
+          clearDay.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            slot.meals = [];
             persist();
-            renderChips();
             rerender();
           });
+          cell.append(clearDay);
         }
+
         daysEl.append(cell);
       });
       row.append(daysEl);
@@ -872,12 +976,13 @@ export const main = async (
         // Start a FRESH plan (new local id), don't overwrite the current record —
         // if it was published, its shared link must survive a reset. The blank
         // plan stays local until you place something (no empty PDS record).
-        plan = store.save({ name: 'My meal plan', weeks: [emptyWeek()] });
+        plan = store.save({ name: 'My meal plan', weeks: [emptyWeek()], mealsPerDay: plan.mealsPerDay });
         armed = null;
         dragging = null;
         filterText = '';
         filterInput.value = '';
         paletteOffset = 0;
+        expandedDays.clear();
         renderResetControl();
         rerender();
         renderChips();
@@ -940,7 +1045,7 @@ export const main = async (
           const untouched =
             createdFresh &&
             plan.weeks.length === 1 &&
-            plan.weeks.every((w) => w.days.every((s) => s.recipe === undefined));
+            plan.weeks.every((w) => w.days.every((s) => s.meals.length === 0));
           if (untouched) {
             store.remove(plan.id);
             plan = store.list()[0] ?? plan;
