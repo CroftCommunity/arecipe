@@ -9,6 +9,17 @@
 # authModeFor() degrades it to read-only: previews never offer live sign-in and
 # can't write to real accounts. See docs/PREVIEWS.md.
 #
+# Triggers:
+#   - pull_request (opened/reopened/synchronize/closed) — the normal path for a
+#     human-opened PR.
+#   - workflow_dispatch (input: pr) — the RELIABLE path for a PR opened
+#     programmatically (e.g. Claude Code via the API). GitHub does not start
+#     pull_request-triggered runs for events initiated by a bot/app token, so an
+#     agent-opened PR never fires this workflow on its own; workflow_dispatch is
+#     one of the few triggers exempt from that rule, so an agent can invoke it
+#     after opening the PR. NB: a workflow_dispatch trigger is only usable once
+#     this file is on the default branch (main). See docs/PREVIEWS.md § Agents.
+#
 # No third-party actions: the deploy is plain git (scripts/pages-deploy.sh) and
 # the PR comment is actions/github-script (first-party). Nothing an individual
 # maintains runs here with write access.
@@ -18,10 +29,21 @@ on:
   pull_request:
     # `closed` is included so the preview is torn down on merge/close.
     types: [opened, reopened, synchronize, closed]
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: PR number to (re)deploy a preview for
+        required: true
+        type: string
+      teardown:
+        description: Remove the preview instead of deploying it
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write # push the preview into the gh-pages branch
-  pull-requests: write # comment the preview URL on the PR
+  pull-requests: write # read the PR (dispatch) + comment the preview URL
 
 # Share the `gh-pages` group with the production deploy (ci.yml) so writers of
 # that branch serialize instead of racing on `git push`.
@@ -32,66 +54,115 @@ concurrency:
 jobs:
   preview:
     runs-on: ubuntu-latest
-    # Trusted, same-repo PRs only. A fork PR carries a read-only token that
-    # can't push gh-pages or comment, so skip it rather than fail loudly — no
-    # untrusted diff is ever built with write access here.
-    if: github.event.pull_request.head.repo.full_name == github.repository
-    env:
-      PR: ${{ github.event.pull_request.number }}
-      PREVIEW_URL: https://arecipe.app/pr-preview/pr-${{ github.event.pull_request.number }}/
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      # Resolve the PR context from EITHER the pull_request event or the
+      # workflow_dispatch input, and enforce the trust gate (same-repo only — a
+      # fork PR carries a read-only token that can't push gh-pages or comment, so
+      # skip rather than fail loudly). Outputs: skip, pr, sha, ref, closed.
+      - name: Resolve PR context
+        id: resolve
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        with:
+          script: |
+            let prNumber, headSha, headRef, headRepo, closed;
+            if (context.eventName === 'workflow_dispatch') {
+              prNumber = Number(context.payload.inputs.pr);
+              if (!Number.isInteger(prNumber) || prNumber <= 0) {
+                core.setFailed(`invalid "pr" input: ${context.payload.inputs.pr}`);
+                return;
+              }
+              const { data: pr } = await github.rest.pulls.get({
+                owner: context.repo.owner, repo: context.repo.repo, pull_number: prNumber,
+              });
+              headSha = pr.head.sha;
+              headRef = pr.head.ref;
+              headRepo = pr.head.repo ? pr.head.repo.full_name : '';
+              const teardown = String(context.payload.inputs.teardown) === 'true';
+              closed = teardown || pr.state === 'closed';
+            } else {
+              const pr = context.payload.pull_request;
+              prNumber = pr.number;
+              headSha = pr.head.sha;
+              headRef = pr.head.ref;
+              headRepo = pr.head.repo ? pr.head.repo.full_name : '';
+              closed = context.payload.action === 'closed';
+            }
+            const thisRepo = `${context.repo.owner}/${context.repo.repo}`;
+            if (headRepo !== thisRepo) {
+              core.notice(`Skipping preview: head repo "${headRepo}" is not "${thisRepo}" (fork PR).`);
+              core.setOutput('skip', 'true');
+              return;
+            }
+            core.setOutput('skip', 'false');
+            core.setOutput('pr', String(prNumber));
+            core.setOutput('sha', headSha);
+            core.setOutput('ref', headRef);
+            core.setOutput('closed', String(closed));
 
-      # Build only when there's something to preview. On `closed` we skip
-      # straight to teardown.
+      # Check out the PR HEAD to build its code (deploy); for a teardown we only
+      # need the deploy script, so the default branch is enough.
+      - name: Check out
+        if: steps.resolve.outputs.skip == 'false'
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          ref: ${{ steps.resolve.outputs.closed == 'true' && 'main' || steps.resolve.outputs.sha }}
+
+      # Build only when there's something to preview. On teardown we skip
+      # straight to removal.
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        if: github.event.action != 'closed'
+        if: steps.resolve.outputs.skip == 'false' && steps.resolve.outputs.closed == 'false'
         with:
           node-version: 22
           cache: npm
       - run: npm ci
-        if: github.event.action != 'closed'
+        if: steps.resolve.outputs.skip == 'false' && steps.resolve.outputs.closed == 'false'
       - run: npm run build
-        if: github.event.action != 'closed'
+        if: steps.resolve.outputs.skip == 'false' && steps.resolve.outputs.closed == 'false'
       # The custom domain belongs to the branch root, not the preview subtree; a
       # stray CNAME under pr-preview/ is ignored by Pages, but drop it so the
       # preview tree carries nothing that pretends to own the domain.
       - run: rm -f dist/CNAME
-        if: github.event.action != 'closed'
+        if: steps.resolve.outputs.skip == 'false' && steps.resolve.outputs.closed == 'false'
 
       # NB: block scalars (>-), not a plain scalar — the commit messages contain
       # '#', and a space-then-'#' in a YAML plain scalar starts a comment, which
       # would silently truncate the command and leave an unterminated quote.
       - name: Deploy preview
-        if: github.event.action != 'closed'
+        if: steps.resolve.outputs.skip == 'false' && steps.resolve.outputs.closed == 'false'
         run: >-
-          bash scripts/pages-deploy.sh "pr-preview/pr-${PR}" dist
-          "preview PR #${PR} (${{ github.sha }})"
+          bash scripts/pages-deploy.sh "pr-preview/pr-${{ steps.resolve.outputs.pr }}" dist
+          "preview PR #${{ steps.resolve.outputs.pr }} (${{ steps.resolve.outputs.sha }})"
 
       - name: Remove preview
-        if: github.event.action == 'closed'
+        if: steps.resolve.outputs.skip == 'false' && steps.resolve.outputs.closed == 'true'
         run: >-
-          bash scripts/pages-deploy.sh "pr-preview/pr-${PR}" --remove
-          "remove preview PR #${PR}"
+          bash scripts/pages-deploy.sh "pr-preview/pr-${{ steps.resolve.outputs.pr }}" --remove
+          "remove preview PR #${{ steps.resolve.outputs.pr }}"
 
       # Sticky comment: one comment per PR, updated in place (no thread spam).
       - name: Comment preview status
+        if: steps.resolve.outputs.skip == 'false'
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        env:
+          PR: ${{ steps.resolve.outputs.pr }}
+          SHA: ${{ steps.resolve.outputs.sha }}
+          CLOSED: ${{ steps.resolve.outputs.closed }}
         with:
           script: |
             const marker = '<!-- pr-preview -->';
-            const closed = context.payload.action === 'closed';
-            const sha = context.sha.slice(0, 7);
+            const closed = process.env.CLOSED === 'true';
+            const sha = (process.env.SHA || '').slice(0, 7);
+            const pr = Number(process.env.PR);
+            const url = `https://arecipe.app/pr-preview/pr-${pr}/`;
             const body = closed
               ? `${marker}\n🧹 Preview for this PR was removed (PR closed).`
-              : `${marker}\n🔎 **Live preview:** ${process.env.PREVIEW_URL}\n\n`
+              : `${marker}\n🔎 **Live preview:** ${url}\n\n`
                 + `Read-only (no live sign-in — it's not the production origin). Updated for \`${sha}\`.`;
             const { owner, repo } = context.repo;
-            const issue_number = context.issue.number;
-            const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number });
+            const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number: pr });
             const existing = comments.find((c) => c.body && c.body.includes(marker));
             if (existing) {
               await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
             } else {
-              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+              await github.rest.issues.createComment({ owner, repo, issue_number: pr, body });
             }

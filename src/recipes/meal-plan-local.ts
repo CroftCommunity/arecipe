@@ -12,15 +12,25 @@
 // a warn rather than throwing, so a garbled buffer never bricks the planner.
 
 import { log as defaultLogger, type Logger } from '../log.js';
+import { clampMealsPerDay } from './meal-plan.js';
+import { MEAL_OPTIONS } from './taste-preference.js';
 
 /** The subset of the Web Storage API the store depends on (injectable for tests). */
 export type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
-/** A day slot as the buffer holds it: the recipe ref carries a cached display
- * name (the record shape drops the name — that is Phase 9's concern). */
-export type LocalSlot = {
-  recipe?: { uri: string; cid: string; name: string };
+/** One placed meal as the buffer holds it: the recipe ref plus cached display
+ * hints — `name` (shown offline / on a fresh device) and `category` (the recipe's
+ * own meal type, e.g. "breakfast", which the calendar renders as its label).
+ * Both caches are non-authoritative; the strongRef is the source of truth. */
+export type LocalMeal = {
+  recipe: { uri: string; cid: string; name: string };
+  category?: string;
   note?: string;
+};
+
+/** A day cell as the buffer holds it: an ordered list of meals (0..cap). */
+export type LocalSlot = {
+  meals: LocalMeal[];
 };
 
 export type LocalWeek = {
@@ -33,6 +43,8 @@ export type LocalPlan = {
   id: string;
   name: string;
   weeks: LocalWeek[];
+  /** Editor cap: how many meals a day may hold (1–6). */
+  mealsPerDay: number;
   startDate?: string;
   updatedAt: string;
 };
@@ -41,13 +53,35 @@ export type LocalPlan = {
 export type LocalPlanInput = {
   name: string;
   weeks: LocalWeek[];
+  mealsPerDay?: number;
   startDate?: string;
 };
 
-const cloneSlot = (slot: LocalSlot): LocalSlot => ({
-  ...(slot.recipe !== undefined ? { recipe: { ...slot.recipe } } : {}),
-  ...(slot.note !== undefined ? { note: slot.note } : {}),
+/** A meal's type label from the recipe's own category ("breakfast" → "Breakfast"),
+ * preferring the curated vocabulary's casing. Empty when the recipe is
+ * uncategorized — callers then show just the recipe name. Pure. */
+export const mealTypeLabel = (category: string | undefined): string => {
+  if (category === undefined || category.trim() === '') return '';
+  const match = MEAL_OPTIONS.find((o) => o.value === category.toLowerCase());
+  if (match !== undefined) return match.label;
+  return category.charAt(0).toUpperCase() + category.slice(1);
+};
+
+/** A meal's one-line display: "Breakfast: Pancakes", or just "Pancakes" when the
+ * recipe carries no category. Shared by the planner calendar and the ICS export
+ * so both label meals identically. Pure. */
+export const mealLineText = (meal: LocalMeal): string => {
+  const label = mealTypeLabel(meal.category);
+  return label === '' ? meal.recipe.name : `${label}: ${meal.recipe.name}`;
+};
+
+const cloneMeal = (meal: LocalMeal): LocalMeal => ({
+  recipe: { ...meal.recipe },
+  ...(meal.category !== undefined ? { category: meal.category } : {}),
+  ...(meal.note !== undefined ? { note: meal.note } : {}),
 });
+
+const cloneSlot = (slot: LocalSlot): LocalSlot => ({ meals: slot.meals.map(cloneMeal) });
 
 const cloneWeek = (week: LocalWeek): LocalWeek => ({
   repeat: week.repeat,
@@ -62,6 +96,49 @@ const cloneWeek = (week: LocalWeek): LocalWeek => ({
 export const duplicateWeeks = (weeks: LocalWeek[], max: number): LocalWeek[] => {
   if (weeks.length === 0 || weeks.length * 2 > max) return weeks;
   return [...weeks, ...weeks.map(cloneWeek)];
+};
+
+/** Migrate a stored day slot to the meals-array shape: an explicit `meals` list
+ * is kept; a legacy single-`recipe` slot becomes a one-meal list; anything else
+ * becomes an empty day. Tolerant of the raw JSON shape (returning users may hold
+ * a pre-multi-meal buffer). Pure. */
+const migrateStoredSlot = (raw: unknown): LocalSlot => {
+  if (raw === null || typeof raw !== 'object') return { meals: [] };
+  const o = raw as Record<string, unknown>;
+  if (Array.isArray(o['meals'])) {
+    const meals = o['meals'].filter(
+      (m): m is LocalMeal =>
+        m !== null &&
+        typeof m === 'object' &&
+        typeof (m as { recipe?: { uri?: unknown } }).recipe?.uri === 'string',
+    );
+    return { meals };
+  }
+  const legacy = o['recipe'] as { uri?: unknown; cid?: unknown; name?: unknown } | undefined;
+  if (legacy !== undefined && typeof legacy.uri === 'string' && typeof legacy.cid === 'string') {
+    const meal: LocalMeal = {
+      recipe: { uri: legacy.uri, cid: legacy.cid, name: typeof legacy.name === 'string' ? legacy.name : '(recipe)' },
+      ...(typeof o['note'] === 'string' ? { note: o['note'] } : {}),
+    };
+    return { meals: [meal] };
+  }
+  return { meals: [] };
+};
+
+/** Normalize a stored plan into the current shape (slots → meals arrays, a
+ * defaulted `mealsPerDay` never below the largest day already placed). */
+const migrateStoredPlan = (raw: LocalPlan): LocalPlan => {
+  const weeks: LocalWeek[] = Array.isArray(raw.weeks)
+    ? raw.weeks.map((w) => {
+        const wr = w as unknown as { repeat?: unknown; days?: unknown };
+        const days = Array.isArray(wr.days) ? wr.days.map(migrateStoredSlot) : [];
+        return { repeat: typeof wr.repeat === 'number' ? wr.repeat : 1, days };
+      })
+    : [];
+  const maxDay = weeks.reduce((m, w) => Math.max(m, ...w.days.map((d) => d.meals.length), 0), 0);
+  const stored = typeof raw.mealsPerDay === 'number' ? raw.mealsPerDay : undefined;
+  const mealsPerDay = clampMealsPerDay(stored, maxDay);
+  return { ...raw, weeks, mealsPerDay };
 };
 
 export type MealPlanStore = {
@@ -86,9 +163,12 @@ export const createMealPlanStore = (
     if (raw === null) return {};
     try {
       const parsed: unknown = JSON.parse(raw);
-      return parsed !== null && typeof parsed === 'object'
-        ? (parsed as Record<string, LocalPlan>)
-        : {};
+      if (parsed === null || typeof parsed !== 'object') return {};
+      const out: Record<string, LocalPlan> = {};
+      for (const [id, plan] of Object.entries(parsed as Record<string, LocalPlan>)) {
+        out[id] = migrateStoredPlan(plan);
+      }
+      return out;
     } catch (err) {
       logger.warn('meal-plan', 'discarding corrupt stored plan', { error: String(err) });
       return {};
@@ -106,10 +186,12 @@ export const createMealPlanStore = (
     save: (plan, id) => {
       const all = readAll();
       const resolvedId = id ?? crypto.randomUUID();
+      const maxDay = plan.weeks.reduce((m, w) => Math.max(m, ...w.days.map((d) => d.meals.length), 0), 0);
       const stored: LocalPlan = {
         id: resolvedId,
         name: plan.name,
         weeks: plan.weeks,
+        mealsPerDay: clampMealsPerDay(plan.mealsPerDay, maxDay),
         ...(plan.startDate !== undefined ? { startDate: plan.startDate } : {}),
         updatedAt: new Date().toISOString(),
       };

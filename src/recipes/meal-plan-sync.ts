@@ -11,24 +11,27 @@
 
 import type { Agent } from '@atproto/api';
 import { log } from '../log.js';
-import { MEAL_PLAN_COLLECTION, slotWithRecipe, validateMealPlanValue } from './meal-plan.js';
-import type { LocalPlan, LocalSlot, LocalWeek } from './meal-plan-local.js';
+import { clampMealsPerDay, mealWithRecipe, MEAL_PLAN_COLLECTION, validateMealPlanValue } from './meal-plan.js';
+import type { LocalMeal, LocalPlan, LocalSlot, LocalWeek } from './meal-plan-local.js';
 
 export { MEAL_PLAN_COLLECTION };
 
-const slotToRecord = (slot: LocalSlot): Record<string, unknown> => {
-  if (slot.recipe === undefined) return {};
-  return {
-    ...slotWithRecipe({ uri: slot.recipe.uri, cid: slot.recipe.cid }, slot.note),
-    name: slot.recipe.name, // open-world display-name cache (see module note)
-  };
-};
+const mealToRecord = (meal: LocalMeal): Record<string, unknown> => ({
+  ...mealWithRecipe({ uri: meal.recipe.uri, cid: meal.recipe.cid }, meal.note),
+  name: meal.recipe.name, // open-world display-name cache (see module note)
+  ...(meal.category !== undefined ? { category: meal.category } : {}), // meal-type cache
+});
+
+const slotToRecord = (slot: LocalSlot): Record<string, unknown> => ({
+  meals: slot.meals.map(mealToRecord),
+});
 
 /** Build the app.arecipe.mealPlan record value from a local plan. */
 export const planToRecord = (plan: LocalPlan): Record<string, unknown> => ({
   $type: MEAL_PLAN_COLLECTION,
   name: plan.name,
   weeks: plan.weeks.map((w) => ({ repeat: w.repeat, days: w.days.map(slotToRecord) })),
+  mealsPerDay: plan.mealsPerDay,
   ...(plan.startDate !== undefined ? { startDate: plan.startDate } : {}),
   // LocalPlan tracks only updatedAt; v1 stamps createdAt = updatedAt on write.
   createdAt: plan.updatedAt,
@@ -64,30 +67,44 @@ export const removePlanFromPds = async (agent: Agent, id: string): Promise<void>
 
 const rkeyFromUri = (uri: string): string => uri.split('/').pop() ?? uri;
 
-/** Map a validated record value back to the local buffer shape (with names). */
+/** One meal from a record entry: the strongRef plus the cached name/category
+ * hints. Null when the entry carries no valid recipe strongRef. */
+const mealFromRecord = (raw: unknown): LocalMeal | null => {
+  if (raw === null || typeof raw !== 'object') return null;
+  const d = raw as Record<string, unknown>;
+  const recipe = d['recipe'] as { uri?: unknown; cid?: unknown } | undefined;
+  if (recipe === undefined || typeof recipe.uri !== 'string' || typeof recipe.cid !== 'string') return null;
+  const meal: LocalMeal = {
+    recipe: { uri: recipe.uri, cid: recipe.cid, name: typeof d['name'] === 'string' ? d['name'] : '(recipe)' },
+  };
+  if (typeof d['category'] === 'string') meal.category = d['category'];
+  if (typeof d['note'] === 'string') meal.note = d['note'];
+  return meal;
+};
+
+/** Map a validated record value back to the local buffer shape (with names).
+ * Reads the multi-meal `days[].meals[]` shape; migrates a legacy single-`recipe`
+ * slot to a one-meal day so plans written before multi-meal open unchanged. */
 const planFromRecord = (uri: string, value: Record<string, unknown>): LocalPlan => {
   const v = validateMealPlanValue(uri, value);
   const weeks: LocalWeek[] = v.weeks.map((w) => {
     const raw = w as { repeat?: unknown; days: Record<string, unknown>[] };
     const repeat = typeof raw.repeat === 'number' ? raw.repeat : 1;
     const days: LocalSlot[] = raw.days.map((d) => {
-      const recipe = d['recipe'] as { uri?: unknown; cid?: unknown } | undefined;
-      const name = d['name'];
-      if (recipe === undefined || typeof recipe.uri !== 'string' || typeof recipe.cid !== 'string') {
-        return {};
-      }
-      const slot: LocalSlot = {
-        recipe: { uri: recipe.uri, cid: recipe.cid, name: typeof name === 'string' ? name : '(recipe)' },
-      };
-      if (typeof d['note'] === 'string') slot.note = d['note'];
-      return slot;
+      const rawMeals = d['meals'];
+      const meals = Array.isArray(rawMeals)
+        ? rawMeals.map(mealFromRecord).filter((m): m is LocalMeal => m !== null)
+        : [mealFromRecord(d)].filter((m): m is LocalMeal => m !== null); // legacy single-recipe slot
+      return { meals };
     });
     return { repeat, days };
   });
+  const maxDay = weeks.reduce((m, w) => Math.max(m, ...w.days.map((day) => day.meals.length), 0), 0);
   return {
     id: rkeyFromUri(uri),
     name: v.name,
     weeks,
+    mealsPerDay: clampMealsPerDay(typeof v.mealsPerDay === 'number' ? v.mealsPerDay : undefined, maxDay),
     ...(typeof v.startDate === 'string' ? { startDate: v.startDate } : {}),
     updatedAt: v.updatedAt,
   };

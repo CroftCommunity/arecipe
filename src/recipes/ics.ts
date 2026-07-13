@@ -8,7 +8,7 @@
 // dates). See plans/2026-07-13-1-plan-calendar-ics-publish-to-pages.md.
 
 import { addDays, dateForSlot } from './meal-plan-dates.js';
-import type { LocalPlan } from './meal-plan-local.js';
+import { mealLineText, type LocalPlan } from './meal-plan-local.js';
 import { expandCalendar } from './meal-plan.js';
 
 /** The production origin whose recipe pages the calendar links to. */
@@ -22,15 +22,19 @@ export type CalendarEvent = {
   /** All-day event date, ISO `YYYY-MM-DD` (floating, no timezone). */
   date: string;
   summary: string;
-  recipeUri?: string;
+  /** Recipe links for the day's meals, in order (0 when a day is empty). */
+  recipeUris: string[];
 };
 
-/** The dated events for one plan: each filled day slot becomes one all-day
- * event. Undated plans (no `startDate`) or an unparseable anchor yield `[]`.
- * Mirrors `buildCalendarRows` exactly — a CUMULATIVE row index (7 days per
- * expanded row, repeats laid out consecutively) drives `dateForSlot`, and the
- * source days are read from `plan.weeks[cw.week-1]` so the cached recipe name is
- * available. */
+/** The dated events for one plan: each day that has meals becomes ONE all-day
+ * event carrying every meal on that day (multi-meal: several recipes per day).
+ * The summary is the meal-typed lines ("Breakfast: Oatmeal, Dinner: Lasagna",
+ * or just the name when a recipe is uncategorized), matching the app calendar's
+ * labels; each meal's recipe link rides in the description. Undated plans (no
+ * `startDate`) or an unparseable anchor yield `[]`. Mirrors `buildCalendarRows`
+ * exactly — a CUMULATIVE row index (7 days per expanded row, repeats laid out
+ * consecutively) drives `dateForSlot`, and the source days are read from
+ * `plan.weeks[cw.week-1]` so the cached recipe name/category is available. */
 export const planEvents = (plan: LocalPlan): CalendarEvent[] => {
   const start = plan.startDate;
   if (start === undefined) return [];
@@ -43,14 +47,14 @@ export const planEvents = (plan: LocalPlan): CalendarEvent[] => {
       continue;
     }
     src.days.forEach((slot, dayIndex) => {
-      if (slot.recipe === undefined) return;
+      if (slot.meals.length === 0) return;
       const date = dateForSlot(start, rowIndex, dayIndex);
       if (date === null) return;
       events.push({
         uid: `${plan.id}-${date.replace(/-/g, '')}@${UID_DOMAIN}`,
         date,
-        summary: slot.recipe.name,
-        recipeUri: slot.recipe.uri,
+        summary: slot.meals.map(mealLineText).join(', '),
+        recipeUris: slot.meals.map((m) => m.recipe.uri),
       });
     });
     rowIndex += 1;
@@ -140,8 +144,11 @@ export const buildMealPlanIcs = (
       `DTEND;VALUE=DATE:${toIcalDate(endIso ?? ev.date)}`,
       `SUMMARY:${escapeText(ev.summary)}`,
     );
-    if (ev.recipeUri !== undefined) {
-      lines.push(`DESCRIPTION:${escapeText(`${APP_ORIGIN}/recipe.html?u=${ev.recipeUri}`)}`);
+    if (ev.recipeUris.length > 0) {
+      // One recipe link per meal, newline-separated (a single-meal day is just
+      // the one link, unchanged from the pre-multi-meal calendar).
+      const links = ev.recipeUris.map((uri) => `${APP_ORIGIN}/recipe.html?u=${uri}`).join('\n');
+      lines.push(`DESCRIPTION:${escapeText(links)}`);
     }
     lines.push('END:VEVENT');
   }

@@ -13,11 +13,11 @@ import type { LocalPlan, LocalSlot } from '../../../src/recipes/meal-plan-local.
 
 const DTSTAMP = '2026-07-13T12:00:00.000Z';
 
-const filled = (name: string): LocalSlot => ({ recipe: { uri: 'at://x/y/1', cid: 'bafy', name } });
+const filled = (name: string): LocalSlot => ({ meals: [{ recipe: { uri: 'at://x/y/1', cid: 'bafy', name } }] });
 const planWith = (id: string, name: string, startDate: string): LocalPlan => {
-  const days: LocalSlot[] = Array.from({ length: 7 }, () => ({}));
+  const days: LocalSlot[] = Array.from({ length: 7 }, () => ({ meals: [] }));
   days[0] = filled(name);
-  return { id, name: id, weeks: [{ repeat: 1, days }], startDate, updatedAt: DTSTAMP };
+  return { id, name: id, weeks: [{ repeat: 1, days }], mealsPerDay: 3, startDate, updatedAt: DTSTAMP };
 };
 
 const cfg = (over: Partial<GithubPublishConfig> = {}): GithubPublishConfig => ({

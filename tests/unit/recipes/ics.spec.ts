@@ -13,14 +13,15 @@ import type { LocalPlan, LocalSlot, LocalWeek } from '../../../src/recipes/meal-
 const DTSTAMP = '2026-07-13T12:00:00.000Z';
 
 const filled = (name: string, uri = 'at://did:plc:x/exchange.recipe.recipe/1'): LocalSlot => ({
-  recipe: { uri, cid: 'bafyreiabc', name },
+  meals: [{ recipe: { uri, cid: 'bafyreiabc', name } }],
 });
-const emptyDays = (): LocalSlot[] => Array.from({ length: 7 }, () => ({}));
+const emptyDays = (): LocalSlot[] => Array.from({ length: 7 }, () => ({ meals: [] }));
 const week = (over: Partial<LocalWeek> = {}): LocalWeek => ({ repeat: 1, days: emptyDays(), ...over });
 const plan = (over: Partial<LocalPlan> = {}): LocalPlan => ({
   id: 'p1',
   name: 'My plan',
   weeks: [week()],
+  mealsPerDay: 3,
   updatedAt: '2026-07-13T00:00:00.000Z',
   ...over,
 });
@@ -59,6 +60,24 @@ describe('planEvents', () => {
       ['2026-07-13', 'Mon'],
       ['2026-07-16', 'Thu'],
     ]);
+  });
+
+  it('folds a multi-meal day into ONE event, meal-typed summary + a link per meal', () => {
+    const days = emptyDays();
+    days[0] = {
+      meals: [
+        { recipe: { uri: 'at://d/c/oatmeal', cid: 'bafyo', name: 'Oatmeal' }, category: 'breakfast' },
+        { recipe: { uri: 'at://d/c/lasagna', cid: 'bafyl', name: 'Lasagna' }, category: 'dinner' },
+      ],
+    };
+    const evs = planEvents(plan({ startDate: '2026-07-13', weeks: [week({ days })] }));
+    expect(evs).toHaveLength(1);
+    expect(evs[0]).toMatchObject({
+      date: '2026-07-13',
+      uid: 'p1-20260713@arecipe.app',
+      summary: 'Breakfast: Oatmeal, Dinner: Lasagna',
+      recipeUris: ['at://d/c/oatmeal', 'at://d/c/lasagna'],
+    });
   });
 });
 

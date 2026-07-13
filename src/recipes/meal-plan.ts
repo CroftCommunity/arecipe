@@ -16,9 +16,28 @@ export const MEAL_PLAN_COLLECTION = 'app.arecipe.mealPlan';
 const REPEAT_MIN = 1;
 const REPEAT_MAX = 12;
 
-/** A single day cell: optionally a recipe (as a strongRef) and/or a note. */
+/** Bounds for a plan's "meals per day" cap (how many recipes a day may hold). */
+export const MEALS_PER_DAY_MIN = 1;
+export const MEALS_PER_DAY_MAX = 6;
+export const MEALS_PER_DAY_DEFAULT = 3;
+
+/** One placed meal on a day: a recipe (as a strongRef) and an optional note.
+ * The meal-type LABEL is not stored here — it is derived from the recipe's own
+ * category at render time (and cached alongside the ref in the buffer/record for
+ * offline/cross-device display), so a day never carries a type the recipe
+ * doesn't. */
+export type PlanMeal = {
+  recipe: StrongRef;
+  note?: string;
+};
+
+/** A single day cell. The forward shape is a list of meals; `recipe`/`note`
+ * remain readable for records written before multi-meal (see `mealsOfSlot`). */
 export type PlanSlot = {
+  meals?: PlanMeal[];
+  /** @deprecated legacy single-recipe slot — migrate via `mealsOfSlot`. */
   recipe?: StrongRef;
+  /** @deprecated legacy single-slot note — migrate via `mealsOfSlot`. */
   note?: string;
 };
 
@@ -34,6 +53,9 @@ export type MealPlanValue = {
   createdAt: string;
   updatedAt: string;
   startDate?: string;
+  /** How many recipes a day may hold in the editor (1–6). Absent on records
+   * written before multi-meal — callers default it. */
+  mealsPerDay?: number;
   langs?: string[];
   text?: string;
   /** Open-world: everything else the record carries is preserved. */
@@ -78,11 +100,31 @@ export const validateMealPlanValue = (uri: string, value: Record<string, unknown
   return value as MealPlanValue;
 };
 
-/** Build a day slot placing the given recipe (by strongRef), optional note. */
-export const slotWithRecipe = (entry: { uri: string; cid: string }, note?: string): PlanSlot => ({
+/** Build a single meal placing the given recipe (by strongRef), optional note. */
+export const mealWithRecipe = (entry: { uri: string; cid: string }, note?: string): PlanMeal => ({
   recipe: strongRefOf(entry),
   ...(note !== undefined ? { note } : {}),
 });
+
+/** The meals on a day, migrating a legacy single-recipe slot to a one-meal list.
+ * A slot with an explicit `meals` array is authoritative (even when empty); only
+ * when `meals` is absent do we fall back to the legacy `recipe`/`note`. Pure. */
+export const mealsOfSlot = (slot: PlanSlot): PlanMeal[] => {
+  if (Array.isArray(slot.meals)) return slot.meals;
+  if (slot.recipe !== undefined) {
+    return [{ recipe: slot.recipe, ...(slot.note !== undefined ? { note: slot.note } : {}) }];
+  }
+  return [];
+};
+
+/** Coerce a possibly-absent/out-of-range meals-per-day cap into [1,6]. A caller
+ * may pass a floor (e.g. the largest day already placed) so opening an existing
+ * plan never renders a day as over-cap; the result is at least that floor. */
+export const clampMealsPerDay = (value: number | undefined, floor = MEALS_PER_DAY_MIN): number => {
+  const n = Math.floor(Number(value));
+  const base = Number.isFinite(n) && n >= MEALS_PER_DAY_MIN ? Math.min(MEALS_PER_DAY_MAX, n) : MEALS_PER_DAY_DEFAULT;
+  return Math.min(MEALS_PER_DAY_MAX, Math.max(base, Math.max(MEALS_PER_DAY_MIN, floor)));
+};
 
 /** Coerce a possibly-absent/out-of-range repeat into [1,12] (default 1). */
 const clampRepeat = (repeat: number | undefined): number => {
