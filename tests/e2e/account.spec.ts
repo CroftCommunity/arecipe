@@ -1,30 +1,41 @@
-// Account page — hermetic (no auth). The taste preference controls ("Only show
-// me" / "Never show me", by meal + cuisine) are device-local, so they render and
-// persist without a session. This guards the account taste UI: it mounts, offers
-// both buckets, and a choice survives a reload (localStorage-backed).
+// Account page — hermetic (no auth). The taste preference control ("Never show
+// me", by meal + cuisine) is device-local, so it renders and persists without a
+// session. It's a single multi-select dropdown (the Browse `.facet-dd` popover);
+// the "Only show me" bucket was removed. This guards the account taste UI: it
+// mounts, opens, and a choice survives a reload (localStorage-backed).
 import { expect, test } from '@playwright/test';
 
-test('account taste prefs render both buckets and a choice persists across reload', async ({
+test('account taste prefs are a "Never show me" dropdown whose choice persists across reload', async ({
   page,
 }) => {
   await page.goto('/account.html');
 
   const section = page.getByTestId('taste-prefs');
   await expect(section).toBeVisible({ timeout: 15_000 });
-  await expect(section).toContainText('Only show me');
   await expect(section).toContainText('Never show me');
+  // The "Only show me" bucket was removed from this page.
+  await expect(section).not.toContainText('Only show me');
 
-  // Pick a "Never show me" cuisine — it persists across a reload.
-  const thai = page.getByTestId('taste-never-cuisine-thai');
-  await thai.check();
-  await expect(thai).toBeChecked();
+  const dropdown = page.getByTestId('taste-never');
+  const openDropdown = async (): Promise<void> => {
+    await dropdown.locator('summary').click();
+    await expect(page.getByTestId('taste-never-cuisine-thai')).toBeVisible();
+  };
+
+  // Pick a "Never show me" cuisine — the summary count reflects it and it
+  // persists across a reload.
+  await openDropdown();
+  await page.getByTestId('taste-never-cuisine-thai').check();
+  await expect(page.getByTestId('taste-never-count')).toHaveText('1');
 
   await page.reload();
+  await openDropdown();
   await expect(page.getByTestId('taste-never-cuisine-thai')).toBeChecked();
 
   // Unchecking clears it (and persists cleared).
   await page.getByTestId('taste-never-cuisine-thai').uncheck();
   await page.reload();
+  await openDropdown();
   await expect(page.getByTestId('taste-never-cuisine-thai')).not.toBeChecked();
 });
 

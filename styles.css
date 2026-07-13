@@ -1983,17 +1983,21 @@ table.ref.pairs td.eq {
   }
 }
 
-/* ---- Account: taste preferences (Only show me / Never show me) ------------ */
-.taste-prefs .taste-bucket {
-  margin-top: var(--s-4);
+/* ---- Account: taste preference ("Never show me" multi-select) ------------- */
+/* One .facet-dd popover (the Browse dropdown idiom) holding the Meals + Cuisines
+   checkbox groups. Widen the panel past the toolbar default so the labelled
+   groups breathe and options can flow into columns. */
+.taste-never-dd {
+  margin-top: var(--s-3);
 }
-.taste-bucket-title {
-  font-family: var(--display);
-  font-weight: 600;
-  margin: 0 0 var(--s-2);
+.taste-never-dd .facet-dd-panel {
+  min-width: min(20rem, 80vw);
 }
 .taste-group {
-  margin: var(--s-2) 0;
+  margin-top: var(--s-2);
+}
+.taste-group:first-child {
+  margin-top: 0;
 }
 .taste-group-label {
   display: block;
@@ -2005,15 +2009,6 @@ table.ref.pairs td.eq {
   display: flex;
   flex-wrap: wrap;
   gap: var(--s-1) var(--s-3);
-}
-.taste-option {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s-1);
-  font-size: var(--t-caption);
-}
-.taste-option input {
-  accent-color: var(--enamel);
 }
 
 /* Collapsible "Hidden recipes" section on Settings: the summary reads like the

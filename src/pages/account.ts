@@ -29,9 +29,11 @@ const el = (tag: string, className?: string, text?: string): HTMLElement => {
   return node;
 };
 
-/** The standing taste filters (Only show me / Never show me, by meal + cuisine).
- *  Device-local (createTastePreference), applied across Browse, Cookbook, and the
- *  meal planner. Rendered on the account page as four checkbox groups. */
+/** The standing taste filter ("Never show me", by meal + cuisine). Device-local
+ *  (createTastePreference), applied across Browse, Cookbook, and the meal planner.
+ *  Rendered on the account page as a single multi-select dropdown (the Browse
+ *  `.facet-dd` popover idiom): a "Never show me ▾" summary with a selected-count
+ *  bubble, opening onto Meals + Cuisines checkbox groups. */
 const renderTastePrefs = (): HTMLElement => {
   const store = createTastePreference();
   let pref: TastePreference = store.load();
@@ -47,27 +49,45 @@ const renderTastePrefs = (): HTMLElement => {
     ),
   );
 
+  // "Never show me" (blacklist) as one multi-select dropdown. A native <details>
+  // popover reusing the Browse facet-dropdown styling; the summary carries a
+  // live count of how many meals + cuisines are hidden.
+  const details = el('details', 'facet-dd taste-never-dd') as HTMLDetailsElement;
+  details.dataset['testid'] = 'taste-never';
+  const summary = el('summary', 'facet-dd-summary');
+  const badge = el('span', 'facet-count');
+  badge.dataset['testid'] = 'taste-never-count';
+  const refreshBadge = (): void => {
+    const n = pref.never.category.length + pref.never.cuisine.length;
+    badge.textContent = String(n);
+    badge.style.display = n > 0 ? '' : 'none';
+    badge.setAttribute('aria-label', `${n} hidden`);
+  };
+  summary.append(document.createTextNode('Never show me '), badge, document.createTextNode(' ▾'));
+
+  const panel = el('div', 'facet-dd-panel');
+
   const group = (
     title: string,
     options: readonly TasteOption[],
-    bucket: 'only' | 'never',
     dim: 'category' | 'cuisine',
   ): HTMLElement => {
     const wrap = el('div', 'taste-group');
     wrap.append(el('span', 'taste-group-label', title));
     const opts = el('div', 'taste-options');
     for (const o of options) {
-      const label = el('label', 'taste-option');
+      const label = el('label', 'facet-dd-option');
       const box = document.createElement('input');
       box.type = 'checkbox';
-      box.checked = pref[bucket][dim].includes(o.value);
-      box.dataset['testid'] = `taste-${bucket}-${dim}-${o.value.replace(/\s+/g, '-')}`;
+      box.checked = pref.never[dim].includes(o.value);
+      box.dataset['testid'] = `taste-never-${dim}-${o.value.replace(/\s+/g, '-')}`;
       box.addEventListener('change', () => {
-        const set = new Set(pref[bucket][dim]);
+        const set = new Set(pref.never[dim]);
         if (box.checked) set.add(o.value);
         else set.delete(o.value);
-        pref = { ...pref, [bucket]: { ...pref[bucket], [dim]: [...set] } };
+        pref = { ...pref, never: { ...pref.never, [dim]: [...set] } };
         store.save(pref);
+        refreshBadge();
       });
       label.append(box, document.createTextNode(o.label));
       opts.append(label);
@@ -76,18 +96,11 @@ const renderTastePrefs = (): HTMLElement => {
     return wrap;
   };
 
-  const bucket = (title: string, key: 'only' | 'never'): HTMLElement => {
-    const b = el('div', 'taste-bucket');
-    b.dataset['testid'] = `taste-${key}`;
-    b.append(
-      el('h4', 'taste-bucket-title', title),
-      group('Meals', MEAL_OPTIONS, key, 'category'),
-      group('Cuisines', CUISINE_OPTIONS, key, 'cuisine'),
-    );
-    return b;
-  };
+  panel.append(group('Meals', MEAL_OPTIONS, 'category'), group('Cuisines', CUISINE_OPTIONS, 'cuisine'));
+  details.append(summary, panel);
+  refreshBadge();
 
-  section.append(bucket('Only show me', 'only'), bucket('Never show me', 'never'));
+  section.append(details);
   return section;
 };
 
