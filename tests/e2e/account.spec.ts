@@ -36,6 +36,11 @@ test('calendar-publish section renders for everyone; enabling reveals config and
   await expect(section).toBeVisible({ timeout: 15_000 });
   await section.locator('summary').click(); // expand the <details>
 
+  // The intro copy links "setup guide" before the feature is even enabled.
+  const introGuide = page.getByTestId('calendar-guide-link-intro');
+  await expect(introGuide).toBeVisible();
+  await expect(introGuide).toHaveAttribute('href', './calendar-setup.html');
+
   // Config body stays hidden until the feature is enabled on this device.
   await expect(page.getByTestId('calendar-config')).toBeHidden();
   await page.getByTestId('calendar-enabled').check();

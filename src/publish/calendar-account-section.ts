@@ -49,13 +49,18 @@ export const renderCalendarPublishSection = (
   summary.textContent = 'Publish a subscribable calendar (advanced)';
   details.append(summary);
 
-  details.append(
-    el(
-      'p',
-      'status',
-      'Push your published meal plans to a calendar file on your own GitHub Pages, so a calendar app (e.g. Google Calendar) can subscribe to it and update as you republish. This device only — your token stays in this browser and is never shared or synced. This has real security tradeoffs; read the setup guide first.',
+  const intro = el('p', 'status');
+  const introGuide = el('a', 'friend-link', 'setup guide') as HTMLAnchorElement;
+  introGuide.href = './calendar-setup.html';
+  introGuide.dataset['testid'] = 'calendar-guide-link-intro';
+  intro.append(
+    document.createTextNode(
+      'Push your published meal plans to a calendar file on your own GitHub Pages, so a calendar app (e.g. Google Calendar) can subscribe to it and update as you republish. This device only — your token stays in this browser and is never shared or synced. This has real security tradeoffs; read the ',
     ),
+    introGuide,
+    document.createTextNode(' first.'),
   );
+  details.append(intro);
 
   const cfg = client.config.load();
 
