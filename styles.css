@@ -2076,3 +2076,76 @@ table.ref.pairs td.eq {
   font-size: var(--t-caption);
   opacity: 0.75;
 }
+
+/* --- Calendar publish (advanced, opt-in) --------------------------------- */
+/* Status chip in the Meals header: quiet enamel pill with a Resync button. */
+.calendar-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-1) var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--enamel-soft);
+}
+.calendar-chip[hidden] { display: none; }
+.calendar-chip-label {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  color: var(--enamel-deep);
+  white-space: nowrap;
+}
+.calendar-resync { padding: var(--s-1) var(--s-2); font-size: var(--t-caption); }
+
+/* Account advanced section: a collapsible card matching .settings-section. */
+details.calendar-publish { max-width: 44rem; }
+details.calendar-publish > summary {
+  font-family: var(--display);
+  font-weight: 600;
+  color: var(--enamel);
+  cursor: pointer;
+}
+.calendar-config {
+  display: grid;
+  gap: var(--s-3);
+  margin-top: var(--s-3);
+  padding-top: var(--s-3);
+  border-top: var(--stroke) solid var(--line);
+}
+.calendar-config[hidden] { display: none; }
+.calendar-field { display: grid; gap: var(--s-1); }
+.calendar-field-label,
+.calendar-remember,
+.calendar-enable {
+  font-size: var(--t-caption);
+  color: var(--ink);
+}
+.calendar-field input {
+  font: inherit;
+  padding: var(--s-2);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+}
+.calendar-remember {
+  display: block;
+  line-height: 1.4;
+  opacity: 0.85;
+}
+.calendar-token-status,
+.calendar-status {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  color: var(--enamel-deep);
+}
+.calendar-links { font-size: var(--t-caption); }
+
+/* Preview-only demo-session banner (never rendered on production or in tests). */
+.preview-demo-banner {
+  background: var(--yolk);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  text-align: center;
+  padding: var(--s-1) var(--s-3);
+}
+.preview-demo-banner .friend-link { color: var(--enamel-deep); font-weight: 700; }

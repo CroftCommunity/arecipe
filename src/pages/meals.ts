@@ -22,12 +22,13 @@ import {
   MEALS_PER_DAY_MAX,
   MEALS_PER_DAY_MIN,
 } from '../recipes/meal-plan.js';
-import { dateForSlot, formatShortDate, weekRangeLabel } from '../recipes/meal-plan-dates.js';
-import { createTastePreference, matchesTaste, MEAL_OPTIONS } from '../recipes/taste-preference.js';
+import { dateForSlot, formatShortDate, nextMonday, weekRangeLabel } from '../recipes/meal-plan-dates.js';
+import { createCalendarClient } from '../publish/client.js';
+import { createTastePreference, matchesTaste } from '../recipes/taste-preference.js';
 import {
   createMealPlanStore,
   duplicateWeeks,
-  type LocalMeal,
+  mealLineText,
   type LocalPlan,
   type LocalWeek,
   type MealPlanStore,
@@ -69,23 +70,6 @@ const PALETTE_CAP = 10;
 // expansion; the UI no longer edits it — repetition is now "Repeat planned
 // weeks", which appends real week copies.
 const emptyWeek = (): LocalWeek => ({ repeat: 1, days: Array.from({ length: 7 }, () => ({ meals: [] })) });
-
-/** A meal's type label from the recipe's own category ("breakfast" → "Breakfast"),
- * preferring the curated vocabulary's casing. Empty when the recipe is
- * uncategorized — the calendar then shows just the recipe name. */
-const mealTypeLabel = (category: string | undefined): string => {
-  if (category === undefined || category.trim() === '') return '';
-  const match = MEAL_OPTIONS.find((o) => o.value === category.toLowerCase());
-  if (match !== undefined) return match.label;
-  return category.charAt(0).toUpperCase() + category.slice(1);
-};
-
-/** A day's meal line as shown on the calendar: "Breakfast: Pancakes", or just
- * "Pancakes" when the recipe carries no category. */
-const mealLineText = (meal: LocalMeal): string => {
-  const label = mealTypeLabel(meal.category);
-  return label === '' ? meal.recipe.name : `${label}: ${meal.recipe.name}`;
-};
 
 const sessionHintSignedIn = (): boolean => {
   try {
@@ -281,6 +265,11 @@ const showPublishedPlans = async (app: HTMLElement): Promise<void> => {
   try {
     const { pds } = await resolveDidDoc(did);
     const plans = await listPdsPlans(pds, did);
+    // Deleting a published plan (a date range) must also update the subscribable
+    // calendar in place (no-op unless enabled on this device); regenerate from
+    // the remaining set.
+    const calendarClient = createCalendarClient();
+    const listPublished = (): Promise<LocalPlan[]> => listPdsPlans(pds, did);
     const render = (list: LocalPlan[]): void => {
       if (list.length === 0) {
         body.replaceChildren(
@@ -319,7 +308,10 @@ const showPublishedPlans = async (app: HTMLElement): Promise<void> => {
             confirm.dataset['testid'] = 'plan-delete-confirm';
             confirm.addEventListener('click', () => {
               void removePlanFromPds(boundAgent, plan.id)
-                .then(() => render(list.filter((x) => x.id !== plan.id)))
+                .then(() => {
+                  void calendarClient.republish(listPublished); // in-place calendar update
+                  render(list.filter((x) => x.id !== plan.id));
+                })
                 .catch((err: unknown) => {
                   del.replaceChildren(el('span', 'status', `delete failed: ${String(err)}`));
                 });
@@ -421,7 +413,54 @@ export const main = async (
   plansLink.href = './meals.html?plans';
   plansLink.dataset['testid'] = 'my-plans';
   const resetControl = el('div', 'meals-reset');
-  headerActions.append(perDayLabel, plansLink, resetControl);
+
+  // Calendar-publish status chip (D9): a device-local enabled/sync indicator
+  // with a manual Resync. Hidden unless the feature is enabled on this device.
+  const calendarClient = createCalendarClient();
+  const listPublished = async (): Promise<LocalPlan[]> => {
+    const a = syncAgent;
+    if (a?.did === undefined) return [];
+    const pds = you?.pds ?? (await resolveDidDoc(a.did)).pds;
+    return listPdsPlans(pds, a.did);
+  };
+  const calChip = el('div', 'calendar-chip');
+  calChip.dataset['testid'] = 'calendar-sync-status';
+  const refreshChip = (): void => {
+    const cfg = calendarClient.config.load();
+    if (!cfg.enabled) {
+      calChip.hidden = true;
+      calChip.replaceChildren();
+      return;
+    }
+    calChip.hidden = false;
+    const st = calendarClient.syncState.load();
+    const labels: Record<string, string> = {
+      unknown: 'Calendar: on',
+      syncing: 'Calendar: syncing…',
+      synced: 'Calendar: synced ✓',
+      error: 'Calendar: sync failed ⚠',
+      'needs-token': 'Calendar: reconnect',
+    };
+    const label = el('span', 'calendar-chip-label', labels[st.status] ?? 'Calendar');
+    if (st.status === 'error' && st.message !== undefined) label.title = st.message;
+    const resync = el('button', 'button calendar-resync', 'Resync') as HTMLButtonElement;
+    resync.type = 'button';
+    resync.dataset['testid'] = 'calendar-resync';
+    resync.addEventListener('click', () => {
+      const p = calendarClient.republish(listPublished);
+      refreshChip(); // reflects 'syncing' (set synchronously at the start)
+      void p.finally(() => refreshChip());
+    });
+    calChip.replaceChildren(label, resync);
+    if (st.status === 'needs-token') {
+      const setLink = el('a', 'friend-link', 'Set token') as HTMLAnchorElement;
+      setLink.href = './account.html';
+      calChip.append(setLink);
+    }
+  };
+  refreshChip();
+
+  headerActions.append(perDayLabel, calChip, plansLink, resetControl);
   header.append(headerActions);
   content.append(header);
 
@@ -586,6 +625,12 @@ export const main = async (
         url.searchParams.set('mealplan', publishedId);
         url.searchParams.set('user', did);
         shareSlot.replaceChildren(renderShareLink(url.toString()));
+        // Also update the subscribable calendar (no-op unless enabled on this
+        // device). Runs after the PDS write so listPublished sees the new plan;
+        // a calendar failure never blocks publishing.
+        const calP = calendarClient.republish(listPublished);
+        refreshChip();
+        void calP.finally(() => refreshChip());
         // Reset on publish: freeze the published record and start fresh (a NEW
         // local id, so the published rkey is never overwritten by later edits).
         if (resetOnPublish.checked) {
@@ -628,6 +673,18 @@ export const main = async (
       });
     }
   };
+
+  // D7: default a fresh plan's anchor to the next Monday so it is dated
+  // (calendar-eligible) by default. Only when unset — never clobbers a chosen
+  // date, and clearing the input still returns the plan to abstract "Week N".
+  if (plan.startDate === undefined) {
+    const nm = nextMonday(new Date().toISOString().slice(0, 10));
+    if (nm !== null) {
+      plan.startDate = nm;
+      startInput.value = nm;
+      persist();
+    }
+  }
 
   const combined = (): PaletteItem[] => {
     const taste = tastePreference.load();

@@ -507,3 +507,31 @@ test('publish offers a "Reset on publish" checkbox, checked by default', async (
   await expect(box).toBeVisible();
   await expect(box).toBeChecked();
 });
+
+test('planner start-date defaults to the next Monday for a fresh plan (D7)', async ({ page }) => {
+  await page.goto('/meals.html');
+  const value = await page.getByTestId('plan-start-date').inputValue();
+  expect(value).not.toBe('');
+  // The default is always a Monday (UTC day 1).
+  expect(new Date(`${value}T00:00:00Z`).getUTCDay()).toBe(1);
+});
+
+test('calendar sync chip: hidden by default, shown when enabled on this device (D9)', async ({
+  page,
+}) => {
+  await page.goto('/meals.html');
+  await expect(page.getByTestId('calendar-sync-status')).toBeHidden();
+
+  // Enable the device-local feature and reload — the chip + Resync appear.
+  await page.addInitScript(() =>
+    localStorage.setItem(
+      'arecipe.calendar-publish.v1',
+      JSON.stringify({ enabled: true, repo: 'me/cal', path: 'meals.ics' }),
+    ),
+  );
+  await page.reload();
+  const chip = page.getByTestId('calendar-sync-status');
+  await expect(chip).toBeVisible();
+  await expect(chip).toContainText('Calendar');
+  await expect(page.getByTestId('calendar-resync')).toBeVisible();
+});

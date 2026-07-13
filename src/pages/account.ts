@@ -8,6 +8,10 @@ import { log } from '../log.js';
 import { mountShell } from '../nav.js';
 import { retryOnce } from '../retry.js';
 import { mountMembersList } from '../social/cookbook-members-view.js';
+import { renderCalendarPublishSection } from '../publish/calendar-account-section.js';
+import { createCalendarClient } from '../publish/client.js';
+import { listPdsPlans } from '../recipes/meal-plan-sync.js';
+import type { LocalPlan } from '../recipes/meal-plan-local.js';
 import { createReachPrefs } from '../social/reach.js';
 import {
   CUISINE_OPTIONS,
@@ -129,6 +133,7 @@ const main = async (): Promise<void> => {
         }
       })();
     }
+
   } else {
     const signedOut = el('p', 'empty-state');
     signedOut.dataset['testid'] = 'account-signed-out';
@@ -145,6 +150,19 @@ const main = async (): Promise<void> => {
   // Taste preferences are device-local (no account needed), so they render for
   // everyone on the account page — signed in or out.
   content.append(renderTastePrefs());
+
+  // Publish-a-calendar is likewise device-local, so it renders for everyone
+  // (configurable signed-out — the token/repo live in this browser). "Publish
+  // now" needs a session to list your published plans; without one it publishes
+  // an empty calendar. Rendering it unconditionally also makes it visible on the
+  // read-only PR preview, which has no live sign-in.
+  const listPublishedPlans = async (): Promise<LocalPlan[]> => {
+    const signedInDid = agent?.did;
+    if (signedInDid === undefined) return [];
+    const { pds } = await retryOnce(() => resolveDidDoc(signedInDid));
+    return listPdsPlans(pds, signedInDid);
+  };
+  content.append(renderCalendarPublishSection(createCalendarClient(), listPublishedPlans));
 
   mountShell(app, content);
   void mountBuildStamp(app);

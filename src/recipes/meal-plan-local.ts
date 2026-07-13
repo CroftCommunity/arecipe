@@ -13,6 +13,7 @@
 
 import { log as defaultLogger, type Logger } from '../log.js';
 import { clampMealsPerDay } from './meal-plan.js';
+import { MEAL_OPTIONS } from './taste-preference.js';
 
 /** The subset of the Web Storage API the store depends on (injectable for tests). */
 export type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
@@ -54,6 +55,24 @@ export type LocalPlanInput = {
   weeks: LocalWeek[];
   mealsPerDay?: number;
   startDate?: string;
+};
+
+/** A meal's type label from the recipe's own category ("breakfast" → "Breakfast"),
+ * preferring the curated vocabulary's casing. Empty when the recipe is
+ * uncategorized — callers then show just the recipe name. Pure. */
+export const mealTypeLabel = (category: string | undefined): string => {
+  if (category === undefined || category.trim() === '') return '';
+  const match = MEAL_OPTIONS.find((o) => o.value === category.toLowerCase());
+  if (match !== undefined) return match.label;
+  return category.charAt(0).toUpperCase() + category.slice(1);
+};
+
+/** A meal's one-line display: "Breakfast: Pancakes", or just "Pancakes" when the
+ * recipe carries no category. Shared by the planner calendar and the ICS export
+ * so both label meals identically. Pure. */
+export const mealLineText = (meal: LocalMeal): string => {
+  const label = mealTypeLabel(meal.category);
+  return label === '' ? meal.recipe.name : `${label}: ${meal.recipe.name}`;
 };
 
 const cloneMeal = (meal: LocalMeal): LocalMeal => ({

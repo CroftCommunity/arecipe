@@ -27,3 +27,29 @@ test('account taste prefs render both buckets and a choice persists across reloa
   await page.reload();
   await expect(page.getByTestId('taste-never-cuisine-thai')).not.toBeChecked();
 });
+
+test('calendar-publish section renders for everyone; enabling reveals config and persists', async ({
+  page,
+}) => {
+  await page.goto('/account.html');
+  const section = page.getByTestId('calendar-publish');
+  await expect(section).toBeVisible({ timeout: 15_000 });
+  await section.locator('summary').click(); // expand the <details>
+
+  // The intro copy links "setup guide" before the feature is even enabled.
+  const introGuide = page.getByTestId('calendar-guide-link-intro');
+  await expect(introGuide).toBeVisible();
+  await expect(introGuide).toHaveAttribute('href', './calendar-setup.html');
+
+  // Config body stays hidden until the feature is enabled on this device.
+  await expect(page.getByTestId('calendar-config')).toBeHidden();
+  await page.getByTestId('calendar-enabled').check();
+  await expect(page.getByTestId('calendar-config')).toBeVisible();
+  await expect(page.getByTestId('calendar-repo')).toBeVisible();
+  await expect(page.getByTestId('calendar-guide-link')).toBeVisible();
+
+  // The enable toggle is device-local and survives a reload.
+  await page.reload();
+  await page.getByTestId('calendar-publish').locator('summary').click();
+  await expect(page.getByTestId('calendar-enabled')).toBeChecked();
+});

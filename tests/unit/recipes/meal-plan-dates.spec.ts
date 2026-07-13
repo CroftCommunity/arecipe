@@ -10,6 +10,7 @@ import {
   addDays,
   dateForSlot,
   formatShortDate,
+  nextMonday,
   weekRangeLabel,
 } from '../../../src/recipes/meal-plan-dates.js';
 
@@ -76,5 +77,24 @@ describe('formatShortDate', () => {
 
   it('returns null for an invalid date', () => {
     expect(formatShortDate('nope')).toBeNull();
+  });
+});
+
+describe('nextMonday', () => {
+  it('returns the same day when today is a Monday', () => {
+    expect(nextMonday('2026-07-13')).toBe('2026-07-13'); // Mon
+  });
+  it('returns the upcoming Monday from mid-week', () => {
+    expect(nextMonday('2026-07-14')).toBe('2026-07-20'); // Tue -> +6
+    expect(nextMonday('2026-07-15')).toBe('2026-07-20'); // Wed -> +5
+  });
+  it('returns tomorrow from a Sunday', () => {
+    expect(nextMonday('2026-07-12')).toBe('2026-07-13'); // Sun -> +1
+  });
+  it('rolls across a month boundary', () => {
+    expect(nextMonday('2026-07-30')).toBe('2026-08-03'); // Thu -> next Mon
+  });
+  it('returns null for an unparseable date', () => {
+    expect(nextMonday('not-a-date')).toBeNull();
   });
 });

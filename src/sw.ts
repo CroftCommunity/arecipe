@@ -20,6 +20,15 @@ declare const __PRECACHE__: string[];
 const sw = self as unknown as ServiceWorkerGlobalScope;
 const CACHE = `arecipe-${__BUILD_VERSION__}`;
 
+// --- Calendar-publish token (plan D1, secure default path) -------------------
+// The page hands the GitHub PAT here via postMessage; it lives ONLY in this
+// worker's memory (never persisted, never returned to the page) and is attached
+// to outbound api.github.com writes below. An XSS in a page can trigger a write
+// but cannot read the token string. Cleared on eviction → the page re-enters
+// (or uses the opt-in "remember on this device" localStorage path instead).
+let githubToken: string | null = null;
+const GH_API_ORIGIN = 'https://api.github.com';
+
 sw.addEventListener('install', (event) => {
   event.waitUntil(
     (async () => {
@@ -50,14 +59,49 @@ sw.addEventListener('activate', (event) => {
 });
 
 sw.addEventListener('message', (event) => {
-  if ((event.data as { type?: string } | null)?.type === 'SKIP_WAITING') {
-    void sw.skipWaiting();
+  const data = event.data as { type?: string; token?: string } | null;
+  switch (data?.type) {
+    case 'SKIP_WAITING':
+      void sw.skipWaiting();
+      return;
+    case 'ARECIPE_GH_TOKEN_SET':
+      githubToken = typeof data.token === 'string' ? data.token : null;
+      return;
+    case 'ARECIPE_GH_TOKEN_CLEAR':
+      githubToken = null;
+      return;
+    case 'ARECIPE_GH_TOKEN_HAS':
+      // Reply on the port the page opened (MessageChannel round-trip).
+      event.ports[0]?.postMessage(githubToken !== null);
+      return;
+    default:
+      return;
   }
 });
 
 sw.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
-  if (url.origin !== sw.location.origin || event.request.method !== 'GET') return; // never touch cross-origin
+
+  // Calendar-publish: inject the in-memory token on api.github.com writes/reads
+  // ONLY while a token is held. With the feature off (the default) githubToken
+  // is null and this is a no-op — cross-origin traffic is untouched exactly as
+  // before. When held, the page never carries the Authorization header; the SW
+  // adds it here so the token stays out of page memory.
+  if (url.origin === GH_API_ORIGIN) {
+    if (githubToken !== null && (event.request.method === 'GET' || event.request.method === 'PUT')) {
+      const token = githubToken;
+      event.respondWith(
+        (async () => {
+          const headers = new Headers(event.request.headers);
+          headers.set('Authorization', `Bearer ${token}`);
+          return fetch(new Request(event.request, { headers }));
+        })(),
+      );
+    }
+    return; // token-less api.github.com traffic falls through untouched
+  }
+
+  if (url.origin !== sw.location.origin || event.request.method !== 'GET') return; // never touch other cross-origin
   if (url.pathname.endsWith('/build-info.json')) return; // always live (deploy checks, update detection)
 
   if (event.request.mode === 'navigate') {

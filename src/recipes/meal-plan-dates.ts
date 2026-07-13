@@ -54,6 +54,19 @@ export const formatShortDate = (isoDate: string): string | null => {
   return `${MONTHS[date.getUTCMonth()]} ${date.getUTCDate()}`;
 };
 
+/** The soonest Monday ON OR AFTER `todayIsoDate` (today itself if it is a
+ *  Monday) as an ISO `YYYY-MM-DD`. The planner uses this to default the
+ *  "starting Monday" picker so a fresh plan is dated (calendar-eligible) by
+ *  default. Null if `todayIsoDate` is unparseable. Clock-free — the caller
+ *  supplies `today`. */
+export const nextMonday = (todayIsoDate: string): string | null => {
+  const date = parseIsoDate(todayIsoDate);
+  if (date === null) return null;
+  const day = date.getUTCDay(); // 0=Sun … 6=Sat
+  const daysUntilMonday = (1 - day + 7) % 7; // 0 when today is Monday
+  return addDays(todayIsoDate, daysUntilMonday);
+};
+
 /** A human label for how long a plan spans: a real date range ("Jul 13 – Jul
  *  26") when anchored on a valid first-Monday, else a week count ("3 weeks").
  *  `weekCount` is the number of planned weeks (7 days each). */
