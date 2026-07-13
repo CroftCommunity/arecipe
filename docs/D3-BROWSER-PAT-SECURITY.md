@@ -18,12 +18,17 @@ non-extractable key, blast radius) this memo uses.
 
 A browser-held Contents-write PAT **breaks the central invariant that makes
 arecipe's no-backend model defensible** — *"an exfiltrated credential is inert
-off-device."* It should not be the default D3 path. A DPoP-safe alternative
-(client-side on-demand `.ics`, generated from the already-published PDS record
-and offered as a download/import) delivers the same user value without the
-regression. If a *hosted, stable, subscribable* URL is a hard requirement, that
-requirement — not this memo — is what forces a backend; accept the cost honestly
-rather than smuggling a bearer credential into the browser to avoid it.
+off-device."* It should not be the **default** D3 path. But it is not
+dismissible either: it uniquely enables one real, specific capability — a
+**stable `.ics` URL a calendar client (Google Calendar) subscribes to and
+re-polls**, updated in place on each republish. That "subscribe once, it updates
+when I republish" feed is **not** served by the on-demand-download alternative
+(you can't subscribe Google Calendar to a `blob:`), nor by the PDS record URL
+(XRPC JSON, not `text/calendar`). So the correct landing is a genuine trade-off,
+not a "don't": ship the download path as the default, and offer the browser-PAT
+client-push as a **hardened, opt-in** "publish to my own GitHub Pages" feature
+for the users who specifically want a subscribable URL. A fully *hosted, live*
+feed with app-side revocation is still backend territory.
 
 ---
 
@@ -117,25 +122,42 @@ in-place misuse" — i.e. strictly below today's model.
   OAuth. A PAT makes revocation *more* load-bearing (stolen = usable) while
   providing *less* automatic support. That is the wrong direction.
 
-## Is the capability even worth it?
+## What the capability is actually worth
 
-arecipe **already** ships a backendless, DPoP-safe sharing path: meal plans
-publish to the PDS and are read via `meals.html?mealplan=<id>&user=<did>`
-(anon-friendly — see `plans/2026-07-10-2-plan-meal-plan-publish-and-share.md`).
-The Pages `.ics` snapshot is an *additive convenience*, and the ICS probe
-([PAGES-ICS-PROBE.md](PAGES-ICS-PROBE.md)) already showed a committed `.ics` is a
-**frozen snapshot, not a live feed** — so even the "subscribable URL" upside is
-thin. The lone architectural selling point was "backendless + zero-third-party" —
-but a browser PAT trades a third-party *origin* (a proxy) for a third-party
-*credential class* (a portable bearer token) that breaks the local threat model.
-The "zero-third-party" win is partly illusory.
+Two distinct user needs, often conflated:
+
+- **Import once** (a static snapshot into a calendar) — fully served by the
+  DPoP-safe alternatives below (on-demand client-side `.ics` download, or the
+  existing PDS share `meals.html?mealplan=<id>&user=<did>`). No PAT needed.
+- **Subscribe and auto-update** (Google Calendar's "add by URL", which re-polls a
+  stable URL on its own schedule and picks up republished events) — **this is the
+  git use case, and it is real.** It is *not* interchangeable with the first: you
+  cannot subscribe a calendar client to a `blob:` download, and you cannot point
+  it at the PDS record (XRPC returns JSON, not `text/calendar`). The two probes
+  together show this works: Pages serves `.ics` as `text/calendar`
+  ([PAGES-ICS-PROBE.md](PAGES-ICS-PROBE.md)) and same-path republish propagates on
+  deploy (edge purge proven), while a browser can PUT the update in place
+  ([GITHUB-CORS-PROBE.md](GITHUB-CORS-PROBE.md)).
+
+So the earlier "frozen snapshot, not a live feed" framing was about the *file*,
+and it undersold the *subscription*: a stable URL that is republished in place is,
+from the subscriber's side, a self-updating feed — eventually-consistent, bounded
+by the client's poll interval (Google's is slow and not user-controllable, often
+hours), not by our `max-age=600`. That is a genuine capability that **no
+backendless path other than client-push-to-Pages delivers.** The security cost is
+equally genuine — a browser PAT trades a third-party *origin* (a proxy) for a
+third-party *credential class* (a portable bearer token) that breaks the local
+threat model. Neither cancels the other; hence: default to the safe path, gate the
+subscribable-URL capability behind the opt-in hardened flow.
 
 ## Alternatives, ranked
 
 1. **Keep the PDS path; generate the `.ics` client-side on demand** from the
    published meal-plan record and hand it to the user as a `blob:`/data-URL
-   download or import. No GitHub write, no token, **security model intact.** Loses
-   only a stable Pages-hosted URL — which is a frozen snapshot anyway.
+   download or import. No GitHub write, no token, **security model intact.**
+   Serves the *import-once* need — but **not** the *subscribe-and-auto-update*
+   need (you can't subscribe a calendar client to a download). Correct default;
+   not a substitute for the feed use case.
 2. **User-driven manual publish.** App produces the `.ics`; the user commits it to
    their own repo via GitHub's UI or `git`. Zero app-held credential; highest
    friction.
@@ -160,13 +182,20 @@ The "zero-third-party" win is partly illusory.
 
 ## Recommendation
 
-**Do not** make a browser-held Contents-write PAT the default D3 mechanism. Ship
-**alternative 1** (on-demand client-side `.ics`, DPoP-safe). Reserve a
-browser PAT for, at most, an opt-in "advanced: publish to my own GitHub Pages"
-flow built to alternative 4's hardening, with the SECURITY.md carve-out — and
-only if user demand for a hosted URL justifies it over a plain download. A
-genuinely *hosted, live* feed is alternative 3's territory and is not backendless;
-don't let the "no proxy needed" CORS result be mistaken for "no security cost."
+**Default:** ship **alternative 1** (on-demand client-side `.ics`, DPoP-safe) for
+the import-once need — most users want exactly that, and none of them should be
+handed a bearer token to get it.
+
+**Opt-in:** offer the browser-PAT client-push as an explicit "advanced: publish a
+subscribable calendar to my own GitHub Pages" feature, built to **alternative
+4's** hardening (isolated Actions-disabled repo, single-repo
+Contents:write+Metadata:read, short expiry, SW-held token, in-product revoke
+link) with the SECURITY.md carve-out. The subscribe-and-auto-update use case is
+real and backendless-only via this path, so this is a justified feature — not a
+default, and not a dismissal. A fully *hosted, live* feed with app-side
+revocation is alternative 3's territory (a real backend). Don't let the "no proxy
+needed" CORS result be read as "no security cost" — but don't let the security
+cost be read as "the feed use case isn't real," either.
 
 ## Scope note
 
