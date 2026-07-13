@@ -4,6 +4,7 @@
 // primary destinations, rendered at the bottom on small screens (thumb
 // reach), top on wide.
 
+import { mountPreviewDemoBanner } from './auth/preview-session.js';
 import { initThemeToggle } from './theme.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -89,4 +90,6 @@ export const renderTabs = (pathname: string): HTMLElement => {
 /** Mount the shared shell chrome around a page's own content element. */
 export const mountShell = (app: HTMLElement, content: HTMLElement): void => {
   app.replaceChildren(renderTopbar(), renderTabs(window.location.pathname), content);
+  // No-op unless this is a /pr-preview/ build (production + tests never match).
+  mountPreviewDemoBanner(app);
 };

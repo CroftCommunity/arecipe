@@ -4,6 +4,7 @@
 import type { Agent } from '@atproto/api';
 import { isDebugEnabled, log } from '../log.js';
 import { authModeFor, createOAuthClient } from './oauth-client.js';
+import { isPreviewDemoActive, mockSessionBoot } from './preview-session.js';
 import { setSessionHint } from './session-hint.js';
 import { createOAuthSessionProvider, type SessionProvider } from './session-provider.js';
 
@@ -14,6 +15,12 @@ export type SessionBoot = {
 
 /** Create the provider (loopback or hosted origins), restore any session, expose the debug hook. */
 export const bootSession = async (): Promise<SessionBoot> => {
+  // Preview-only demo session (read-only, fake account; opt-in via ?demo on a
+  // /pr-preview/ build). Refused anywhere else — see preview-session.ts.
+  if (isPreviewDemoActive()) {
+    log.info('auth', 'preview demo session active — read-only, fake account (not production)');
+    return mockSessionBoot();
+  }
   const mode = authModeFor(window.location.origin, window.location.hostname);
   const provider =
     mode === 'none' ? null : createOAuthSessionProvider({ client: createOAuthClient() });
