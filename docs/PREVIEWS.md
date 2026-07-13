@@ -42,7 +42,7 @@ Two workflows share the `gh-pages` branch:
 | Workflow | Trigger | What it does |
 | --- | --- | --- |
 | `ci.yml` → `deploy` | push to `main` (after the hermetic gate passes) | Publishes `dist/` to the **root** of `gh-pages`, preserving `pr-preview/` so it never wipes live previews. |
-| `preview.yml` → `preview` | `pull_request` (opened/reopened/synchronize/closed) | Builds `dist/` and deploys it to `gh-pages:/pr-preview/pr-<N>/`, comments the URL on the PR, and removes the directory on close. |
+| `preview.yml` → `preview` | `pull_request` (opened/reopened/synchronize/closed) **or** `workflow_dispatch` (input `pr`) | Resolves the PR from the event or the `pr` input, builds `dist/`, deploys it to `gh-pages:/pr-preview/pr-<N>/`, comments the URL on the PR, and removes the directory on close (or when dispatched with `teardown: true`). |
 
 Both jobs use the concurrency group `gh-pages` so their `git push`es to the
 branch serialize instead of racing.
@@ -126,6 +126,40 @@ SHA can't be moved, so CI runs exactly the reviewed code. `.github/dependabot.ym
 opens a weekly PR that bumps each SHA and its version comment together, so
 pinning doesn't become a staleness trap. This follows GitHub's own Actions
 hardening guidance and OWASP CI/CD recommendations.
+
+## Agents: previews for a programmatically-opened PR
+
+A PR opened by an **app/bot token** (the GitHub MCP, `create_pull_request`, most
+automation) does **not** trigger `pull_request` workflows — GitHub suppresses
+them to prevent token-driven workflow recursion. So an agent-opened PR never
+fires `preview.yml` on its own, and pushing more commits doesn't help
+(`synchronize` is suppressed the same way; only `ci.yml`, which also listens on
+`push`, re-runs). The base site stays up; only the `/pr-preview/pr-N/` path 404s.
+
+`workflow_dispatch` is one of the few triggers **exempt** from that rule, so
+`preview.yml` accepts a manual dispatch as the reliable agent path:
+
+- **Dispatch it** against **`main`** with input `pr=<N>`. The `Resolve PR
+  context` step reads that PR via the API, checks out its head, builds, deploys,
+  and posts the sticky comment — same trusted path as the automatic run, and
+  teardown on close still works. Via the GitHub MCP:
+  `actions_run_trigger` → `run_workflow`, `workflow_id: preview.yml`,
+  `ref: main`, `inputs: { pr: "<N>" }`. To tear down, dispatch with
+  `inputs: { pr: "<N>", teardown: true }`.
+  **Caveat:** a `workflow_dispatch` trigger is only usable once the workflow
+  carrying it is on the default branch — so this helps every PR *after* the
+  change adding it merges to `main`, not that first PR.
+- **Human fallback:** ask a maintainer to close + reopen the PR (or push a commit
+  from their own machine) — a human-initiated `pull_request` event fires the
+  workflow normally.
+- **Manual deploy** (works before the dispatch trigger is on `main`): build and
+  push the subtree yourself with the same script the workflow uses —
+  `npm ci && npm run build && rm -f dist/CNAME` then
+  `bash scripts/pages-deploy.sh pr-preview/pr-<N> dist "preview PR #<N> (<sha>)"`.
+  This writes to `gh-pages` directly (no sticky comment, no auto-teardown) and
+  leaves the repo git identity set to `github-actions[bot]` — reset it after.
+
+See `CLAUDE.md` § *Previews on a PR* for the same procedure in agent-facing form.
 
 ## Teardown / troubleshooting
 
