@@ -30,10 +30,10 @@ hardened, and off by default — it deliberately relaxes one security invariant
 | 1 ICS core (pure) | ⏳ | `src/recipes/ics.ts` — RFC 5545 serialize, all-day events, stable UIDs, multi-plan aggregate. Unit-only. |
 | 1b Start-Monday default | ⏳ | Pure `nextMonday(today)` + planner date picker defaults to it → plans are dated (calendar-eligible) by default. Unit + e2e. |
 | 2 GitHub Contents client | ⏳ | `src/publish/github-contents.ts` — GET-sha→PUT, 409 retry, UTF-8 base64. Injected `fetch`. Unit-only. |
-| 3 Config + token seams | ⏳ | `github-publish-config.ts` (localStorage, mirrors `reach.ts`) + `TokenProvider` (D1 impl). Token never re-exposed for render. |
+| 3 Config + token + sync-state seams | ⏳ | `github-publish-config.ts` + `TokenProvider` (SW-inject default / opt-in remember) + `github-sync-state.ts`. All device-local (D8); token never re-exposed. |
 | 4 Publish orchestrator | ⏳ | `calendar-publish.ts` `republishCalendar(deps)` — pure orchestration over injected deps. Unit-only. |
-| 5 Account UI (advanced) | ⏳ | Collapsed `<details>` enable + config form; write-only token field; "Publish now"; guide link. Hermetic e2e. |
-| 6 meals.ts hooks | ⏳ | Republish after publish AND after published-plan delete; never blocks the PDS op. Hermetic e2e. |
+| 5 Account UI (advanced) | ⏳ | Collapsed `<details>` enable + config form; write-only token field + "remember on this device"; "Publish now"; guide link. "This device only" labelling. Hermetic e2e. |
+| 6 meals.ts hooks + status chip | ⏳ | Republish after publish AND after published-plan delete; top-right enabled/sync indicator + manual Resync (D9); never blocks the PDS op. Hermetic e2e. |
 | 7 Setup guide page | ⏳ | `calendar-setup.html` (friends.html-style static + CSP inject); linked from account when enabled. |
 | 8 Security doc + polish | ⏳ | SECURITY.md carve-out; revoke link; short-expiry guidance; offline; flip D3 memo status. |
 
@@ -114,34 +114,37 @@ friends.html-style) [P7], `docs/SECURITY.md` [P8].
 
 ## Decisions
 
-### D1 — Token storage posture (CONFIRM BEFORE PHASE 3) — *recommended below*
+### D1 — Token storage posture — **LOCKED 2026-07-13: SW-inject default + opt-in "remember on this device"**
 
-The one real fork; it sizes Phase 3. Same-origin page JS can read **any**
-persistent store (localStorage / IndexedDB / Cache), so the only place a token is
-*not* page-readable is **service-worker memory** — which is ephemeral (re-enter
-on SW eviction). The tradeoff:
+The one real fork. The honest constraint: in a same-origin no-backend app, the
+*only* place a token is XSS-unexfiltratable is **service-worker RAM, never
+persisted** — SW memory vs page memory is the one boundary that holds. Any
+persistence (localStorage/IDB/Cache, encrypted or not) is reachable by a
+same-origin XSS: `non-extractable` blocks *exporting* a WebCrypto key's bytes but
+**not using it to decrypt**, so encrypted-at-rest does not resist XSS
+exfiltration (it only defends raw-disk theft — the "fully compromised device"
+*non-goal* already declined in SECURITY.md). So encrypted persistence was
+**dropped**: more code than localStorage for zero primary-threat gain.
 
-- **(A) localStorage** — trivial; token readable by any XSS (full exfiltration).
-  Matches `reach.ts` simplicity. Weakest.
-- **(B) SW-inject, in-memory** *(recommended)* — the SW holds the token in memory
-  and attaches `Authorization` to outbound `api.github.com` requests; the page
-  hands it over once and can never read the string back. XSS can still *drive*
-  writes (misuse in place) but **cannot exfiltrate** — this mirrors the DPoP
-  property SECURITY.md relies on. Cost: token re-entry when the SW is evicted;
-  more code (SW message channel + fetch handler).
-- **(C) SW-inject + encrypted persistence** — (B) plus persist the token
-  encrypted under a non-extractable WebCrypto key so it survives eviction. The
-  page can read the ciphertext but not decrypt without invoking the SW; adds real
-  complexity for partial benefit.
+**Chosen:**
+- **Default — SW-inject, in-memory.** The service worker holds the token in
+  memory and attaches `Authorization` to outbound `api.github.com` requests; the
+  page hands the token over once (via `postMessage`) and **can never read it
+  back**. XSS can still *drive* a write (misuse in place) but **cannot
+  exfiltrate** the token — mirrors the DPoP "inert if stolen" property SECURITY.md
+  relies on. Cost: re-enter the PAT when the browser evicts the idle SW.
+- **Opt-in — "remember on this device (less secure)".** An explicit, **unchecked**
+  toggle that persists the token to localStorage so it survives SW eviction (zero
+  re-entry). Checking it is a conscious acceptance of XSS-exfil exposure; the UI
+  states that plainly. When set, the SW rehydrates from localStorage on start; the
+  page still routes use through the SW (never reads it back for render).
 
-**Recommendation: (B).** It is the security bar the D3 memo set for this feature
-and it keeps the codebase's "exfiltrated credential is inert" story intact.
-Regardless of choice: fine-grained PAT scoped to a **single repo**,
+Regardless of path: fine-grained PAT scoped to a **single repo**,
 **Contents:write + Metadata:read only**, **short expiry**, an **isolated
 Actions-disabled repo**, and an in-product **revoke** link — the compensating
 controls that bound blast radius (D3 memo, alt-4). The `TokenProvider` interface
-makes A/B/C swappable without touching P1/P2/P4; **all cores can be built and
-tested against a fake provider before D1 is even implemented.**
+hides both paths behind one seam, so **P1/P2/P4 build and test against a fake
+provider** with no SW at all; the SW wiring is exercised in P3/P5/P6 e2e.
 
 ### D2 — Event shape: **all-day DATE events**
 
@@ -182,6 +185,42 @@ abstract "Week N". Setting the default persists `plan.startDate` for a fresh pla
 (so publish/ICS see it) rather than being a display-only hint. "On or after" is
 the chosen rule (planning can start this week if it's Monday); easily flipped to
 "strictly after" if preferred.
+
+### D8 — Publish config + token are DEVICE-LOCAL, not PDS-shared (be explicit)
+
+Unlike meal plans (PDS records, cross-device), the GitHub-publish config
+(`enabled`, `repo`, `path`) and the PAT live **only on the client that set them**
+— localStorage + SW memory, never written to the PDS. This is deliberate: a PAT
+is a bearer secret and **must not** be synced through the PDS (it would land in a
+readable repo record and defeat the entire D1 posture). Consequences, stated
+plainly in the UI and guide:
+- Each browser/device configures the feature **independently**; enabling it on
+  your laptop does nothing on your phone.
+- The calendar is republished **only from a client where the feature is
+  configured and the SW has the token** — publishing a plan from an
+  unconfigured device updates the PDS but **not** the `.ics`. The meals
+  status indicator (D9) makes this visible; a manual **Resync** from a configured
+  client reconciles the file to the current published set at any time.
+- This is the "single local client config" case, and that's fine for a personal
+  tool — but the UI labels it "**this device only**" so it is never mistaken for
+  account-level state.
+
+### D9 — Meals page status indicator (top-right) + manual Resync
+
+A compact chip on the planner (`meals.html`), top-right, `data-testid=
+"calendar-sync-status"`, reflecting device-local state:
+- **Hidden** when the feature is disabled on this device.
+- **On · synced ✓** (with a relative "· 2m ago" from a stored `lastSyncAt`) when
+  the last republish succeeded.
+- **Syncing…** during a republish.
+- **Sync failed ⚠** (hover/expand for the error) on failure.
+- **Reconnect** when enabled but the SW has no token (evicted, non-persistent
+  path) — links to the account section to re-enter.
+- A manual **Resync** button (`data-testid="calendar-resync"`) that runs
+  `republishCalendar` on demand (regenerate-from-current-set → PUT) — the primary
+  way to reconcile after publishing from another device, or after a transient
+  failure. Last-sync state is a tiny **device-local** `{ lastSyncAt, lastStatus }`
+  in localStorage (non-secret), read by the indicator.
 
 ### D6 — Regenerate-from-full-set, not incremental
 
@@ -265,14 +304,22 @@ Tests first:
   (corrupt → defaults, off); `enabled=false` is the zero-storage default.
   **Config holds no secret.**
 - `github-token.ts` — `TokenProvider` interface
-  `{ hasToken(): Promise<boolean>; set(t): Promise<void>; clear(): Promise<void>;
-  authorizationFor(req): … }` per **D1**. Contract test: **`get`-style readback
-  of the raw token is not part of the interface** (the UI can never render it);
-  `set` then `hasToken()===true`; `clear()` then `false`. For D1=(B): a
-  message-channel fake stands in for the SW in unit tests; the real SW wiring is
-  exercised in P5/P6 e2e.
-- **Done when:** config + provider specs green; "token not re-exposable" contract
-  encoded as a test.
+  `{ hasToken(): Promise<boolean>; set(t, opts:{ remember:boolean }): Promise<void>;
+  clear(): Promise<void>; authorizationFor(req): … }` per **D1**. Contract test:
+  **raw-token readback is not part of the interface** (the UI can never render
+  it); `set` then `hasToken()===true`; `clear()` then `false`. Two paths behind
+  the seam: **SW-inject in-memory** (default) and **opt-in `remember` →
+  localStorage rehydrate**; a message-channel fake stands in for the SW in unit
+  tests, real SW wiring lands in P5/P6 e2e. Test: `remember:false` leaves nothing
+  in storage (a storage spy sees no token write); `remember:true` persists and a
+  fresh provider `hasToken()===true`.
+- `github-sync-state.ts` (`tests/unit/publish/github-sync-state.spec.ts`) — a
+  tiny **device-local** `{ lastSyncAt, lastStatus }` store (localStorage,
+  non-secret) that D9's indicator reads; defensive read (corrupt → "unknown").
+- **All three stores are device-local (D8);** none touches the PDS. A test
+  asserts no PDS/agent dependency is imported by these modules.
+- **Done when:** config + provider + sync-state specs green; "token not
+  re-exposable" and "remember toggles persistence" contracts encoded as tests.
 
 ### Phase 4 — Publish orchestrator — `src/publish/calendar-publish.ts`
 Tests first (`tests/unit/publish/calendar-publish.spec.ts`), all deps faked:
@@ -294,13 +341,18 @@ Tests first (`tests/e2e/account.spec.ts` additions; hermetic, route
 - A collapsed `<details data-testid="calendar-publish">` "Publish a subscribable
   calendar (advanced)", with a one-line tradeoff note and an **Enable** checkbox
   (persists via config). Renders for signed-in users.
-- When enabled, reveal: **repo** input, **path** input, a **token** field that is
-  **write-only** — a password input that on save calls `token.set`, then shows
-  "token set ✓" with **Replace** / **Clear**; the stored token is **never**
-  rendered back (assert the input is empty on reload even when a token exists).
-  A **"Publish now"** button runs `republishCalendar` and shows status; a
-  **Revoke on GitHub** link (deep link to token settings) and a **Setup guide**
-  link (to `calendar-setup.html`) appear only when enabled.
+- When enabled, reveal: a "**this device only**" note (D8), **repo** input,
+  **path** input, a **token** field that is **write-only** — a password input that
+  on save calls `token.set({ remember })`, then shows "token set ✓" with
+  **Replace** / **Clear**; the stored token is **never** rendered back (assert the
+  input is empty on reload even when a token exists). A **"remember on this device
+  (less secure)"** checkbox (unchecked by default) drives `remember` (D1);
+  its label states the XSS-exfil tradeoff. A **"Publish now"** button runs
+  `republishCalendar` and shows status; a **Revoke on GitHub** link (deep link to
+  token settings) and a **Setup guide** link (to `calendar-setup.html`) appear
+  only when enabled.
+- e2e also: with `remember` unchecked, a token set does **not** appear in
+  localStorage (spy); with it checked, it persists and survives a reload.
 - e2e: enable → fill repo/path → set token → "Publish now" → assert a PUT hit the
   routed `contents/<path>` with an `Authorization` header and a base64 body that
   decodes to a `BEGIN:VCALENDAR`; assert a 401 route surfaces the auth error.
@@ -321,8 +373,18 @@ Tests first (`tests/e2e/meals.spec.ts` additions; hermetic, route both PDS and
   contains the deleted plan's events. Delete UI still completes if the calendar
   PUT fails.
 - Disabled ⇒ neither hook calls GitHub (assert no request to the routed API).
-- **Done when:** both hooks fire only when enabled, regenerate correctly, and
-  never block the underlying PDS op; e2e green.
+- **Status indicator + Resync (D9):** a top-right chip on `meals.html`
+  (`data-testid="calendar-sync-status"`) reflecting device-local state — hidden
+  when disabled; **On · synced ✓ · Nm ago** / **Syncing…** / **Sync failed ⚠** /
+  **Reconnect** (enabled but SW has no token). A **Resync** button
+  (`data-testid="calendar-resync"`) runs `republishCalendar` on demand and updates
+  the chip + `lastSyncAt`. e2e: enable + token → Resync → chip shows synced and a
+  PUT hit the routed API; a 500 route → chip shows failed and the planner still
+  works; disabled → chip absent. The chip/Resync read only device-local state
+  (D8) — no PDS coupling.
+- **Done when:** both hooks fire only when enabled, regenerate correctly, never
+  block the underlying PDS op, and the indicator + manual Resync reflect real
+  sync state; e2e green.
 
 ### Phase 7 — Setup guide page — `calendar-setup.html`
 - Static page (no JS bundle) copied + CSP-injected in `scripts/build.mjs` exactly
@@ -371,6 +433,14 @@ Tests first (`tests/e2e/meals.spec.ts` additions; hermetic, route both PDS and
   the csp.spec doc list, or it ships policy-less / breaks the zero-violation gate.
 - **Can't enforce token scope** — a user can over-scope the PAT. The guide steers
   hard to minimal scope + isolated repo; we cannot verify it. Documented.
+- **Device-local config (D8) surprises** — publishing from an unconfigured device
+  updates the PDS but not the `.ics`, and the calendar can drift from the true
+  published set. Mitigated by the D9 indicator (shows on/synced state) and manual
+  Resync (regenerate-from-set reconciles), plus clear "this device only" copy.
+- **SW eviction re-entry (D1 default path)** — with `remember` off, an evicted SW
+  loses the token and publishes silently no-op until re-entry. The D9 chip surfaces
+  **Reconnect**; the opt-in remember toggle removes the friction for users who
+  accept the tradeoff.
 
 ## Open questions (non-blocking; defaults chosen)
 
@@ -387,7 +457,8 @@ Tests first (`tests/e2e/meals.spec.ts` additions; hermetic, route both PDS and
 - `tests/unit/recipes/meal-plan-dates.spec.ts` (+) — `nextMonday` per-weekday + boundaries.
 - `tests/unit/publish/github-contents.spec.ts` — create/update/409/errors/base64/no-leak.
 - `tests/unit/publish/github-publish-config.spec.ts` — defaults/persist/corrupt.
-- `tests/unit/publish/github-token.spec.ts` — provider contract (no readback).
+- `tests/unit/publish/github-token.spec.ts` — provider contract (no readback; remember on/off persistence).
+- `tests/unit/publish/github-sync-state.spec.ts` — lastSyncAt/lastStatus read/write/corrupt.
 - `tests/unit/publish/calendar-publish.spec.ts` — orchestrator paths.
 - `tests/e2e/account.spec.ts` (+) — advanced section, write-only token, publish-now (routed).
 - `tests/e2e/meals.spec.ts` (+) — publish/delete hooks regenerate + never block PDS.
