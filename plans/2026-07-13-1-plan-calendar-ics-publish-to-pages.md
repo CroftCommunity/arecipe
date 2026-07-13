@@ -1,6 +1,10 @@
 # Subscribable meal-plan calendar — client-push `.ics` to the user's GitHub Pages
 
-**Status:** 📋 **Planned 2026-07-13.** TDD-first. An **opt-in, advanced**
+**Status:** 🚧 **Implemented 2026-07-13 (Phases 1–8), pending live verification.**
+All phases landed behind TDD: 406 unit tests + hermetic e2e green, `npm run
+build` clean. What remains is one manual `@live` check — a real publish to the
+owner's repo opened as a subscription in Google Calendar (see Risks). TDD-first.
+An **opt-in, advanced**
 capability: publish a single, rolling `.ics` of your published meal plans to a
 GitHub repo you own (Pages-served as `text/calendar`) so a calendar client
 (Google Calendar "add by URL") can **subscribe** and auto-update. Gated,

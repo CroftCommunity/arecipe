@@ -14,6 +14,12 @@ non-extractable key, blast radius) this memo uses.
 
 ---
 
+> **Status (2026-07-13): IMPLEMENTED as the opt-in, hardened flow.** Shipped per
+> `plans/2026-07-13-1-plan-calendar-ics-publish-to-pages.md` — off by default,
+> device-local, SW-held token by default (opt-in localStorage "remember"), with
+> the SECURITY.md carve-out ("Calendar publish (opt-in, advanced)"). The verdict
+> below stands: not the default path, legitimate as a bounded opt-in.
+
 ## Verdict: NO-GO as the default mechanism
 
 A browser-held Contents-write PAT **breaks the central invariant that makes

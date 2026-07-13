@@ -189,6 +189,49 @@ risks."
   under the enforced policy and asserted to fire zero
   `securitypolicyviolation` events before a build can deploy.
 
+## Calendar publish (opt-in, advanced) — a deliberate carve-out
+
+One optional, **off-by-default**, device-local feature relaxes the invariant this
+document otherwise holds: publishing a subscribable meal-plan `.ics` to the
+user's own GitHub Pages requires a GitHub fine-grained **PAT held in the
+browser** (`src/publish/*`, account page). A PAT is a **bearer** credential — it
+is *not* DPoP-bound, so unlike the OAuth token it is usable off-device if
+exfiltrated. That breaks "an exfiltrated credential is inert." We ship it anyway,
+consciously and bounded, because it is the only backendless way to deliver a
+calendar a client can *subscribe* to. The reasoning and the rejected
+alternatives are recorded in
+[D3-BROWSER-PAT-SECURITY.md](D3-BROWSER-PAT-SECURITY.md); the three probes behind
+it are [PAGES-ICS-PROBE.md](PAGES-ICS-PROBE.md),
+[GITHUB-CORS-PROBE.md](GITHUB-CORS-PROBE.md), and that memo.
+
+How the blast radius is bounded:
+
+- **Off by default; explicit opt-in per device.** Nothing exists until the user
+  enables it and pastes a token.
+- **Default storage keeps the token out of page memory.** The token is handed to
+  the service worker, which holds it in memory and injects `Authorization` on
+  `api.github.com` requests (`src/sw.ts`); the page never reads it back, so an
+  XSS can *drive* a write but cannot *exfiltrate* the token — the same
+  use-in-place-but-can't-take-it property DPoP gives the OAuth key. The opt-in
+  "remember on this device" toggle trades this for localStorage persistence
+  (XSS-readable), stated plainly in the UI.
+- **Device-local, never synced.** The token and config live only on the client
+  that set them; they are **never written to the PDS** (a bearer secret must not
+  travel through a readable repo record).
+- **Guided minimal scope.** The setup guide (`calendar-setup.html`) steers the
+  user to a *dedicated, Actions-disabled repo*, a fine-grained PAT scoped to that
+  one repo with **Contents: write + Metadata: read**, a **short expiry**, and an
+  in-product revoke link. We cannot enforce this — it is documented, not
+  guaranteed.
+- **CSP unchanged.** `connect-src` already admits `api.github.com` via its
+  `https:` fallback and `worker-src 'self'` admits the token-holding worker — no
+  new origin or relaxation was introduced for this feature.
+
+Residual: an active same-origin adversary (live XSS) can still trigger writes
+through the SW-held token, and the "remember on this device" path additionally
+exposes the token to exfiltration. This is the accepted, bounded cost of an
+optional feature — not a change to the default posture above.
+
 ## References
 
 - **Credential-storage decision (canonical):** the "OAuth secret storage" entry
