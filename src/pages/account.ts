@@ -134,15 +134,6 @@ const main = async (): Promise<void> => {
       })();
     }
 
-    // Advanced (device-local): publish a subscribable .ics of your published
-    // meal plans to your own GitHub Pages. The calendar is the union of your
-    // published plans (resolved from your PDS on demand).
-    const listPublishedPlans = async (): Promise<LocalPlan[]> => {
-      if (did === undefined) return [];
-      const { pds } = await retryOnce(() => resolveDidDoc(did));
-      return listPdsPlans(pds, did);
-    };
-    content.append(renderCalendarPublishSection(createCalendarClient(), listPublishedPlans));
   } else {
     const signedOut = el('p', 'empty-state');
     signedOut.dataset['testid'] = 'account-signed-out';
@@ -159,6 +150,19 @@ const main = async (): Promise<void> => {
   // Taste preferences are device-local (no account needed), so they render for
   // everyone on the account page — signed in or out.
   content.append(renderTastePrefs());
+
+  // Publish-a-calendar is likewise device-local, so it renders for everyone
+  // (configurable signed-out — the token/repo live in this browser). "Publish
+  // now" needs a session to list your published plans; without one it publishes
+  // an empty calendar. Rendering it unconditionally also makes it visible on the
+  // read-only PR preview, which has no live sign-in.
+  const listPublishedPlans = async (): Promise<LocalPlan[]> => {
+    const signedInDid = agent?.did;
+    if (signedInDid === undefined) return [];
+    const { pds } = await retryOnce(() => resolveDidDoc(signedInDid));
+    return listPdsPlans(pds, signedInDid);
+  };
+  content.append(renderCalendarPublishSection(createCalendarClient(), listPublishedPlans));
 
   mountShell(app, content);
   void mountBuildStamp(app);
