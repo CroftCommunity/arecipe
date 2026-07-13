@@ -57,10 +57,12 @@ describe('createTokenProvider', () => {
     expect(await provider.hasToken()).toBe(true); // SW holds it
   });
 
-  it('remember:true persists and survives a fresh provider', async () => {
+  it('remember:true persists to storage and does NOT hand the token to the SW', async () => {
     const storage = memStorage();
-    await createTokenProvider({ storage, sw: fakeSw() }).set('ghp_secret', { remember: true });
+    const sw = fakeSw();
+    await createTokenProvider({ storage, sw }).set('ghp_secret', { remember: true });
     expect(storage.map.size).toBe(1);
+    expect(sw.set).not.toHaveBeenCalled();
     expect(await createTokenProvider({ storage }).hasToken()).toBe(true);
   });
 

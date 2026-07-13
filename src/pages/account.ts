@@ -8,6 +8,10 @@ import { log } from '../log.js';
 import { mountShell } from '../nav.js';
 import { retryOnce } from '../retry.js';
 import { mountMembersList } from '../social/cookbook-members-view.js';
+import { renderCalendarPublishSection } from '../publish/calendar-account-section.js';
+import { createCalendarClient } from '../publish/client.js';
+import { listPdsPlans } from '../recipes/meal-plan-sync.js';
+import type { LocalPlan } from '../recipes/meal-plan-local.js';
 import { createReachPrefs } from '../social/reach.js';
 import {
   CUISINE_OPTIONS,
@@ -129,6 +133,16 @@ const main = async (): Promise<void> => {
         }
       })();
     }
+
+    // Advanced (device-local): publish a subscribable .ics of your published
+    // meal plans to your own GitHub Pages. The calendar is the union of your
+    // published plans (resolved from your PDS on demand).
+    const listPublishedPlans = async (): Promise<LocalPlan[]> => {
+      if (did === undefined) return [];
+      const { pds } = await retryOnce(() => resolveDidDoc(did));
+      return listPdsPlans(pds, did);
+    };
+    content.append(renderCalendarPublishSection(createCalendarClient(), listPublishedPlans));
   } else {
     const signedOut = el('p', 'empty-state');
     signedOut.dataset['testid'] = 'account-signed-out';

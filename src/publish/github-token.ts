@@ -38,6 +38,37 @@ export type TokenProvider = {
   authorizedFetch: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
 };
 
+/** The real SW channel: postMessages the controlling service worker (sw.ts).
+ * `has` round-trips over a MessageChannel with a short timeout (no controller,
+ * or no reply, ⇒ false). Injected as a fake in unit tests. */
+export const createSwTokenChannel = (): SwTokenChannel => {
+  const controller = (): ServiceWorker | null =>
+    typeof navigator !== 'undefined' && 'serviceWorker' in navigator
+      ? navigator.serviceWorker.controller
+      : null;
+  return {
+    set: async (token) => {
+      controller()?.postMessage({ type: 'ARECIPE_GH_TOKEN_SET', token });
+    },
+    clear: async () => {
+      controller()?.postMessage({ type: 'ARECIPE_GH_TOKEN_CLEAR' });
+    },
+    has: () => {
+      const c = controller();
+      if (c === null) return Promise.resolve(false);
+      return new Promise<boolean>((resolve) => {
+        const channel = new MessageChannel();
+        const timer = setTimeout(() => resolve(false), 500);
+        channel.port1.onmessage = (e: MessageEvent): void => {
+          clearTimeout(timer);
+          resolve(e.data === true);
+        };
+        c.postMessage({ type: 'ARECIPE_GH_TOKEN_HAS' }, [channel.port2]);
+      });
+    },
+  };
+};
+
 export const createTokenProvider = (
   opts: { storage?: StorageLike; sw?: SwTokenChannel; fetchFn?: typeof fetch; logger?: Logger } = {},
 ): TokenProvider => {
@@ -65,11 +96,27 @@ export const createTokenProvider = (
       }
     },
     set: async (token, { remember }) => {
+      // Two disjoint paths (D1): remember → page-level header from localStorage;
+      // otherwise → the SW holds it in memory and the page never keeps it.
+      if (remember) {
+        try {
+          storage.setItem(REMEMBER_KEY, token);
+        } catch {
+          /* private mode: remember silently downgrades to session-only */
+        }
+        if (sw !== undefined) {
+          try {
+            await sw.clear();
+          } catch {
+            /* ensure the SW isn't also holding a stale copy */
+          }
+        }
+        return;
+      }
       try {
-        if (remember) storage.setItem(REMEMBER_KEY, token);
-        else storage.removeItem(REMEMBER_KEY);
+        storage.removeItem(REMEMBER_KEY);
       } catch {
-        /* private mode: remember silently downgrades to session-only */
+        /* nothing persisted */
       }
       if (sw !== undefined) {
         try {
