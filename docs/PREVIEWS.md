@@ -129,6 +129,12 @@ hardening guidance and OWASP CI/CD recommendations.
 
 ## Agents: previews for a programmatically-opened PR
 
+**When to deploy one:** only for PRs with a user-visible **UI/UX** surface
+(pages, layout, styling, components, flows, copy) — those are what a reviewer
+needs to see running. Skip previews for docs / CI / tests / pure-logic changes
+that show nothing beyond the diff. (`CLAUDE.md` § *Previews on a PR* has the
+agent-facing version of this rule.)
+
 A PR opened by an **app/bot token** (the GitHub MCP, `create_pull_request`, most
 automation) does **not** trigger `pull_request` workflows — GitHub suppresses
 them to prevent token-driven workflow recursion. So an agent-opened PR never

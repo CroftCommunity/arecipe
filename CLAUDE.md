@@ -41,9 +41,18 @@ running `playwright install`:
 
 ## Previews on a PR — and the agent gotcha
 
-Every same-repo PR against `main` is meant to get a live, read-only copy of the
-built app at `https://arecipe.app/pr-preview/pr-<N>/`, deployed by
+A same-repo PR against `main` can get a live, read-only copy of the built app at
+`https://arecipe.app/pr-preview/pr-<N>/`, deployed by
 `.github/workflows/preview.yml`. Full details: `docs/PREVIEWS.md`.
+
+**When to bother.** A preview is for changes with a **user-visible UI/UX
+surface** — new/changed pages, layout, styling, components, flows, copy. When a
+PR touches that (`src/pages/*`, `src/recipes/view.ts`/`present.ts`, `*.html`,
+`styles.css`, and the like), deploy a preview and share the link so the change
+can be eyeballed against the real, built PWA. **Skip it** for changes with no
+visual surface — docs, CI/workflows, tests, pure refactors, model/sync logic —
+where a preview shows nothing a reviewer couldn't get from the diff. If in
+doubt, ask whether a preview would help before spending the deploy.
 
 **The gotcha:** when you open a PR **programmatically** (the GitHub MCP /
 `create_pull_request`, i.e. an app/bot token), GitHub does **not** start the
