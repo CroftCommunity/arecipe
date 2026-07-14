@@ -1983,32 +1983,24 @@ table.ref.pairs td.eq {
   }
 }
 
-/* ---- Account: taste preference ("Never show me" multi-select) ------------- */
-/* One .facet-dd popover (the Browse dropdown idiom) holding the Meals + Cuisines
-   checkbox groups. Widen the panel past the toolbar default so the labelled
-   groups breathe and options can flow into columns. */
-.taste-never-dd {
+/* ---- Account: taste preference ("Never show me" exclusions) --------------- */
+/* A titled block whose Meals ▾ / Cuisines ▾ dropdowns (the Browse .facet-dd
+   idiom) pick meals + cuisines to EXCLUDE site-wide. Each summary carries a
+   count bubble so selections show while collapsed. */
+.taste-never-block {
   margin-top: var(--s-3);
 }
-.taste-never-dd .facet-dd-panel {
-  min-width: min(20rem, 80vw);
+.taste-bucket-title {
+  font-family: var(--display);
+  font-weight: 600;
+  margin: 0 0 var(--s-1);
 }
-.taste-group {
-  margin-top: var(--s-2);
-}
-.taste-group:first-child {
-  margin-top: 0;
-}
-.taste-group-label {
-  display: block;
-  font-size: var(--t-caption);
-  opacity: 0.7;
-  margin-bottom: var(--s-1);
-}
-.taste-options {
+.taste-never-controls {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--s-1) var(--s-3);
+  align-items: center;
+  gap: var(--s-2);
+  margin-top: var(--s-2);
 }
 
 /* Collapsible "Hidden recipes" section on Settings: the summary reads like the

@@ -29,11 +29,12 @@ const el = (tag: string, className?: string, text?: string): HTMLElement => {
   return node;
 };
 
-/** The standing taste filter ("Never show me", by meal + cuisine). Device-local
- *  (createTastePreference), applied across Browse, Cookbook, and the meal planner.
- *  Rendered on the account page as a single multi-select dropdown (the Browse
- *  `.facet-dd` popover idiom): a "Never show me ▾" summary with a selected-count
- *  bubble, opening onto Meals + Cuisines checkbox groups. */
+/** The standing taste filter ("Never show me" — exclusions, by meal + cuisine).
+ *  Device-local (createTastePreference), applied across Browse, Cookbook, and the
+ *  meal planner. Rendered on the account page as a titled block whose Meals ▾ /
+ *  Cuisines ▾ dropdowns (the Browse `.facet-dd` popover idiom) pick values to
+ *  EXCLUDE site-wide; each summary carries a count bubble so selections show
+ *  while collapsed. */
 const renderTastePrefs = (): HTMLElement => {
   const store = createTastePreference();
   let pref: TastePreference = store.load();
@@ -41,42 +42,46 @@ const renderTastePrefs = (): HTMLElement => {
   const section = el('section', 'settings-section taste-prefs');
   section.dataset['testid'] = 'taste-prefs';
   section.append(el('h3', 'section-title', 'Taste'));
-  section.append(
+
+  // "Never show me": a title block over per-dimension dropdowns. Everything
+  // picked here is a standing EXCLUSION — hidden from every feed site-wide.
+  const block = el('div', 'taste-never-block');
+  block.dataset['testid'] = 'taste-never';
+  block.append(el('h4', 'taste-bucket-title', 'Never show me'));
+  block.append(
     el(
       'p',
       'status',
-      'Standing filters applied everywhere — Browse, your Cookbook, and the meal planner. Leave empty to show everything.',
+      'Meals and cuisines you pick here are excluded everywhere — hidden from Browse, your Cookbook, and the meal planner. Leave empty to show everything.',
     ),
   );
 
-  // "Never show me" (blacklist) as one multi-select dropdown. A native <details>
-  // popover reusing the Browse facet-dropdown styling; the summary carries a
-  // live count of how many meals + cuisines are hidden.
-  const details = el('details', 'facet-dd taste-never-dd') as HTMLDetailsElement;
-  details.dataset['testid'] = 'taste-never';
-  const summary = el('summary', 'facet-dd-summary');
-  const badge = el('span', 'facet-count');
-  badge.dataset['testid'] = 'taste-never-count';
-  const refreshBadge = (): void => {
-    const n = pref.never.category.length + pref.never.cuisine.length;
-    badge.textContent = String(n);
-    badge.style.display = n > 0 ? '' : 'none';
-    badge.setAttribute('aria-label', `${n} hidden`);
-  };
-  summary.append(document.createTextNode('Never show me '), badge, document.createTextNode(' ▾'));
-
-  const panel = el('div', 'facet-dd-panel');
-
-  const group = (
-    title: string,
+  // One multi-select dropdown per dimension — the same Meal ▾ / Cuisine ▾ idiom
+  // as the Browse toolbar. The summary count bubble reflects how many values are
+  // excluded on that dimension, visible without opening the dropdown.
+  const dropdown = (
+    label: string,
     options: readonly TasteOption[],
     dim: 'category' | 'cuisine',
   ): HTMLElement => {
-    const wrap = el('div', 'taste-group');
-    wrap.append(el('span', 'taste-group-label', title));
-    const opts = el('div', 'taste-options');
+    const details = el('details', 'facet-dd') as HTMLDetailsElement;
+    details.setAttribute('name', 'taste-never'); // exclusive accordion (one open)
+    details.dataset['testid'] = `taste-never-${dim}`;
+
+    const summary = el('summary', 'facet-dd-summary');
+    const badge = el('span', 'facet-count');
+    badge.dataset['testid'] = `taste-never-${dim}-count`;
+    const refreshBadge = (): void => {
+      const n = pref.never[dim].length;
+      badge.textContent = String(n);
+      badge.style.display = n > 0 ? '' : 'none';
+      badge.setAttribute('aria-label', `${n} excluded`);
+    };
+    summary.append(document.createTextNode(`${label} `), badge, document.createTextNode(' ▾'));
+
+    const panel = el('div', 'facet-dd-panel');
     for (const o of options) {
-      const label = el('label', 'facet-dd-option');
+      const opt = el('label', 'facet-dd-option');
       const box = document.createElement('input');
       box.type = 'checkbox';
       box.checked = pref.never[dim].includes(o.value);
@@ -89,18 +94,29 @@ const renderTastePrefs = (): HTMLElement => {
         store.save(pref);
         refreshBadge();
       });
-      label.append(box, document.createTextNode(o.label));
-      opts.append(label);
+      opt.append(box, document.createTextNode(o.label));
+      panel.append(opt);
     }
-    wrap.append(opts);
-    return wrap;
+    details.append(summary, panel);
+    refreshBadge();
+    return details;
   };
 
-  panel.append(group('Meals', MEAL_OPTIONS, 'category'), group('Cuisines', CUISINE_OPTIONS, 'cuisine'));
-  details.append(summary, panel);
-  refreshBadge();
+  const controls = el('div', 'taste-never-controls');
+  controls.append(
+    dropdown('Meals', MEAL_OPTIONS, 'category'),
+    dropdown('Cuisines', CUISINE_OPTIONS, 'cuisine'),
+  );
 
-  section.append(details);
+  // Close an open dropdown when tapping outside it (mirrors the Browse toolbar).
+  document.addEventListener('click', (event) => {
+    for (const dd of controls.querySelectorAll<HTMLDetailsElement>('details.facet-dd[open]')) {
+      if (!dd.contains(event.target as Node)) dd.removeAttribute('open');
+    }
+  });
+
+  block.append(controls);
+  section.append(block);
   return section;
 };
 

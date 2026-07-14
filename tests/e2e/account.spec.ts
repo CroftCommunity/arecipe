@@ -1,11 +1,12 @@
-// Account page — hermetic (no auth). The taste preference control ("Never show
-// me", by meal + cuisine) is device-local, so it renders and persists without a
-// session. It's a single multi-select dropdown (the Browse `.facet-dd` popover);
-// the "Only show me" bucket was removed. This guards the account taste UI: it
-// mounts, opens, and a choice survives a reload (localStorage-backed).
+// Account page — hermetic (no auth). The taste preference ("Never show me", by
+// meal + cuisine) is device-local, so it renders and persists without a session.
+// It's a titled block with two Browse-style dropdowns (Meals ▾ / Cuisines ▾),
+// each carrying a count bubble; the "Only show me" bucket was removed. This
+// guards the account taste UI: it mounts, the count bubble tracks + persists a
+// choice (visible while collapsed), and clearing it removes the bubble.
 import { expect, test } from '@playwright/test';
 
-test('account taste prefs are a "Never show me" dropdown whose choice persists across reload', async ({
+test('account taste "Never show me" excludes via per-dimension dropdowns with persistent counts', async ({
   page,
 }) => {
   await page.goto('/account.html');
@@ -16,26 +17,36 @@ test('account taste prefs are a "Never show me" dropdown whose choice persists a
   // The "Only show me" bucket was removed from this page.
   await expect(section).not.toContainText('Only show me');
 
-  const dropdown = page.getByTestId('taste-never');
-  const openDropdown = async (): Promise<void> => {
-    await dropdown.locator('summary').click();
+  // Two separate dropdowns — Meals ▾ and Cuisines ▾ (the Browse facet idiom).
+  await expect(page.getByTestId('taste-never-category')).toBeVisible();
+  const cuisines = page.getByTestId('taste-never-cuisine');
+  await expect(cuisines).toBeVisible();
+
+  const openCuisines = async (): Promise<void> => {
+    await cuisines.locator('summary').click();
     await expect(page.getByTestId('taste-never-cuisine-thai')).toBeVisible();
   };
+  const cuisineCount = page.getByTestId('taste-never-cuisine-count');
 
-  // Pick a "Never show me" cuisine — the summary count reflects it and it
-  // persists across a reload.
-  await openDropdown();
+  // No exclusions yet → no count bubble.
+  await expect(cuisineCount).toBeHidden();
+
+  // Exclude a cuisine — the count bubble appears and persists across a reload,
+  // visible without opening the dropdown.
+  await openCuisines();
   await page.getByTestId('taste-never-cuisine-thai').check();
-  await expect(page.getByTestId('taste-never-count')).toHaveText('1');
+  await expect(cuisineCount).toHaveText('1');
 
   await page.reload();
-  await openDropdown();
+  await expect(cuisineCount).toHaveText('1');
+  await openCuisines();
   await expect(page.getByTestId('taste-never-cuisine-thai')).toBeChecked();
 
-  // Unchecking clears it (and persists cleared).
+  // Unchecking clears it (and the bubble), persisted across a reload.
   await page.getByTestId('taste-never-cuisine-thai').uncheck();
   await page.reload();
-  await openDropdown();
+  await expect(cuisineCount).toBeHidden();
+  await openCuisines();
   await expect(page.getByTestId('taste-never-cuisine-thai')).not.toBeChecked();
 });
 
