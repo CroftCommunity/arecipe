@@ -32,6 +32,8 @@ import { createSearchMemo, queryEntries } from '../recipes/search.js';
 import { createTastePreference, matchesTaste } from '../recipes/taste-preference.js';
 import { renderToolbar } from '../recipes/toolbar.js';
 import { renderRecipeDetailsList, renderRecipeList } from '../recipes/view.js';
+import { renderShareButton, shareOrigin } from '../share/button.js';
+import { buildCookbookShareUrl } from '../share/urls.js';
 import { registerServiceWorker } from '../sw-register.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -48,6 +50,21 @@ const el = (tag: string, className?: string, text?: string): HTMLElement => {
  * doesn't bleed into Browse, and shows no diet link (diet is a Browse/Settings
  * concern, so the cookbook filter ignores it). */
 const didOf = (uri: string): string => uri.split('/')[2] ?? '';
+
+/** Share affordance: a one-tap Share button on the cookbook title row, wired to
+ * the canonical cookbook.html?did=<did> URL for the cookbook being viewed — the
+ * viewed DID on the cold-view, your own DID on the signed-in view. */
+const mountCookbookShare = (header: HTMLElement, did: string): void => {
+  header.append(
+    renderShareButton({
+      url: buildCookbookShareUrl(shareOrigin(), did),
+      title: 'Cookbook',
+      label: 'Share',
+      ariaLabel: 'Share this cookbook',
+      testid: 'share-cookbook',
+    }),
+  );
+};
 
 type FeedViewController = {
   /** Swap the feed data + freshness stamp in place (background revalidate). */
@@ -386,6 +403,7 @@ const main = async (): Promise<void> => {
     // Public cold-view: anyone's recipe feed, no auth. Members live on Account,
     // so the cold-view is feed-only.
     content.append(el('p', 'status', `Cookbook of ${viewedDid}`), feedContainer);
+    mountCookbookShare(header, viewedDid);
     mountShell(app, content);
     void mountBuildStamp(app);
     try {
@@ -428,6 +446,7 @@ const main = async (): Promise<void> => {
   content.append(status, feedContainer);
 
   const did = agent.did;
+  mountCookbookShare(header, did);
   try {
     const { pds } = await retryOnce(() => resolveDidDoc(did));
     mountShell(app, content);
