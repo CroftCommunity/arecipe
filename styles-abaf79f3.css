@@ -539,6 +539,26 @@ a {
   gap: var(--s-2);
 }
 
+/* Text search: a compact field in the toolbar row. Grows to fill spare width but
+   shrinks freely so it never forces horizontal overflow on a narrow phone (the
+   mobile-fit guard). */
+.recipe-search {
+  flex: 1 1 9rem;
+  min-width: 0;
+  max-width: 16rem;
+  font: inherit;
+  font-size: var(--t-caption);
+  padding: 0.15rem var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--card);
+  color: inherit;
+}
+.recipe-search::placeholder {
+  color: var(--ink);
+  opacity: 0.45;
+}
+
 /* Segmented control (Tiles | Details): two joined buttons, one active. */
 .segmented {
   display: inline-flex;
