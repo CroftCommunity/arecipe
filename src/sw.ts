@@ -14,6 +14,8 @@
 // - a waiting worker applies only on explicit SKIP_WAITING (the update
 //   toast asks the user; updates never ambush)
 
+import { navigationResponse } from './sw-nav.js';
+
 declare const __BUILD_VERSION__: string;
 declare const __PRECACHE__: string[];
 
@@ -105,34 +107,31 @@ sw.addEventListener('fetch', (event) => {
   if (url.pathname.endsWith('/build-info.json')) return; // always live (deploy checks, update detection)
 
   if (event.request.mode === 'navigate') {
-    // Cache-first app shell (robust offline; freshness comes from the SW
-    // update flow, not per-navigation network). HTML is stable-named and
-    // references hashed bundles, so a cached shell is never stale in a way
-    // that matters — a real deploy bumps the SW version, which swaps the
-    // whole cache and offers the update toast. A background revalidate
-    // keeps same-version HTML edits current without blocking the load.
+    // Navigation strategy (see src/sw-nav.ts): a KNOWN document (exact cache
+    // hit) is cache-first with a background revalidate — HTML is stable-named
+    // and references hashed bundles, so a cached shell is never stale in a way
+    // that matters (a real deploy bumps the SW version, swaps the whole cache,
+    // and offers the update toast). An UNKNOWN navigation is network-first, with
+    // the cached shell as an offline-only fallback — so a co-hosted foreign path
+    // (e.g. a /pr-preview/<n>/ deploy sharing the origin) is never handed our
+    // shell, whose hashed bundles would 404 under that path and blank the page.
     event.respondWith(
       (async () => {
         const cache = await caches.open(CACHE);
-        // ignoreSearch so `recipe.html?u=…` matches the precached
-        // `recipe.html` (query params select content at runtime, not a
-        // different document). Bare `/` directory nav falls back to index.
-        const cached =
-          (await cache.match(event.request, { ignoreSearch: true })) ??
-          (await cache.match(new URL('./index.html', sw.registration.scope).href));
-        const network = fetch(event.request)
-          .then((fresh) => {
-            if (fresh.ok) void cache.put(event.request, fresh.clone());
-            return fresh;
-          })
-          .catch(() => undefined);
-        if (cached !== undefined) {
-          void network; // revalidate in the background
-          return cached;
-        }
-        const fresh = await network;
-        if (fresh !== undefined) return fresh;
-        throw new Error('offline and not cached');
+        return navigationResponse({
+          // ignoreSearch so `recipe.html?u=…` matches the precached
+          // `recipe.html` (query params select content at runtime, not a
+          // different document). Bare `/` directory nav matches `./`.
+          matchExact: () => cache.match(event.request, { ignoreSearch: true }),
+          fetchNetwork: () =>
+            fetch(event.request)
+              .then((fresh) => {
+                if (fresh.ok) void cache.put(event.request, fresh.clone());
+                return fresh;
+              })
+              .catch(() => undefined),
+          matchShell: () => cache.match(new URL('./index.html', sw.registration.scope).href),
+        });
       })(),
     );
     return;
