@@ -368,6 +368,76 @@ const routeManyRecipes = async (page: Page, n: number): Promise<void> => {
   }
 };
 
+// Full-text search (recipe-text-search plan). The mixed fixture: Greek Salad
+// (ingredients incl. feta + tomato), American Pancakes, Italian Minestrone
+// (ingredients incl. tomato), Greek Vegan Lunch Bowl (ingredients incl. lemon).
+test('search: an ingredient-only term (feta) surfaces the recipe; status is honest', async ({
+  page,
+}) => {
+  await routeMixedFeed(page);
+  await page.goto('/');
+  await expect(page.getByTestId('recipe-item')).toHaveCount(4);
+  await page.getByTestId('recipe-search').fill('feta');
+  // "feta" appears only in Greek Salad's ingredients, not its title.
+  await expect(page.getByTestId('recipe-item')).toHaveCount(1);
+  await expect(page.getByText('Greek Salad')).toBeVisible();
+  await expect(page.getByTestId('recipes-status')).toContainText('1 of 4 shown');
+});
+
+test('search: a term in two recipes’ ingredients (tomato) returns both', async ({ page }) => {
+  await routeMixedFeed(page);
+  await page.goto('/');
+  await expect(page.getByTestId('recipe-item')).toHaveCount(4);
+  await page.getByTestId('recipe-search').fill('tomato');
+  // Ingredient reach: Greek Salad + Italian Minestrone both list tomato.
+  await expect(page.getByTestId('recipe-item')).toHaveCount(2);
+  await expect(page.getByText('Greek Salad')).toBeVisible();
+  await expect(page.getByText('Italian Minestrone')).toBeVisible();
+  await expect(page.getByTestId('recipes-status')).toContainText('2 of 4 shown');
+});
+
+test('search: a one-edit typo (pancaks) still finds Pancakes (fuzzy)', async ({ page }) => {
+  await routeMixedFeed(page);
+  await page.goto('/');
+  await expect(page.getByTestId('recipe-item')).toHaveCount(4);
+  await page.getByTestId('recipe-search').fill('pancaks');
+  await expect(page.getByTestId('recipe-item')).toHaveCount(1);
+  await expect(page.getByText('American Pancakes')).toBeVisible();
+});
+
+test('search: reset clears the query — back to 4 and the starter status string', async ({
+  page,
+}) => {
+  await routeMixedFeed(page);
+  await page.goto('/');
+  await expect(page.getByTestId('recipe-item')).toHaveCount(4);
+  await page.getByTestId('recipe-search').fill('feta');
+  await expect(page.getByTestId('recipe-item')).toHaveCount(1);
+  await expect(page.getByTestId('reset-filters')).toBeVisible();
+
+  await page.getByTestId('reset-filters').click();
+  await expect(page.getByTestId('recipe-item')).toHaveCount(4);
+  await expect(page.getByTestId('recipe-search')).toHaveValue('');
+  await expect(page.getByTestId('recipes-status')).toContainText('starter pack recipes');
+  await expect(page.getByTestId('recipes-status')).not.toContainText('of 4 shown');
+});
+
+test('search composes with a facet: cuisine greek + query lemon → only the Lunch Bowl', async ({
+  page,
+}) => {
+  await routeMixedFeed(page);
+  await page.goto('/');
+  await expect(page.getByTestId('recipe-item')).toHaveCount(4);
+  await openFacet(page, 'cuisine');
+  await page.locator('input[data-dimension=cuisine][data-value=greek]').check();
+  await expect(page.getByTestId('recipe-item')).toHaveCount(2); // Greek Salad + Lunch Bowl
+  await page.getByTestId('recipe-search').fill('lemon');
+  // Of the two Greek recipes, only the Lunch Bowl lists lemon.
+  await expect(page.getByTestId('recipe-item')).toHaveCount(1);
+  await expect(page.getByText('Greek Vegan Lunch Bowl')).toBeVisible();
+  await expect(page.getByTestId('recipes-status')).toContainText('1 of 4 shown');
+});
+
 test('browse paginates the feed at 50 with prev/next arrows', async ({ page }) => {
   await routeManyRecipes(page, 55);
   await page.goto('/');

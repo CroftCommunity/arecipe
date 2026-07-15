@@ -172,6 +172,25 @@ test('cold-view shows a content-freshness note and paints from cache while the r
   await expect(page.getByTestId('cookbook-freshness')).toContainText('as of');
 });
 
+test('cold-view: text search filters the cookbook feed (ingredient reach)', async ({ page }) => {
+  await routeCookbookFixtures(page);
+  await page.goto(`/cookbook.html?did=${encodeURIComponent(VIEWED.did)}`);
+  await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId('recipe-item')).toHaveCount(4);
+
+  // "feta" reaches Greek Salad's ingredients (not its title) — the same shared
+  // search input drives the cookbook feed.
+  await page.getByTestId('recipe-search').fill('feta');
+  await expect(page.getByTestId('recipe-item')).toHaveCount(1);
+  await expect(page.getByText('Greek Salad')).toBeVisible();
+  await expect(page.getByTestId('recipes-status')).toContainText('1 of 4 shown');
+
+  // Reset restores the full feed and clears the box.
+  await page.getByTestId('reset-filters').click();
+  await expect(page.getByTestId('recipe-item')).toHaveCount(4);
+  await expect(page.getByTestId('recipe-search')).toHaveValue('');
+});
+
 test('legacy friends.html redirects to cookbook.html (query preserved)', async ({ page }) => {
   await page.goto(`/friends.html?did=${encodeURIComponent(VIEWED.did)}`);
   await expect(page).toHaveURL(new RegExp(`/cookbook\\.html\\?did=`), { timeout: 15_000 });

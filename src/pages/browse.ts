@@ -15,6 +15,7 @@ import { collapseVersions } from '../recipes/model.js';
 import { createStarterPrefs, loadStarterFeed } from '../recipes/starter.js';
 import { createRecipeReader } from '../recipes/read.js';
 import { createDietPreference } from '../recipes/diet-preference.js';
+import { createSearchMemo, queryEntries } from '../recipes/search.js';
 import { availableFacets, createBrowsePrefs, matchesFilter, recipeFacets, type BrowseState } from './browse-state.js';
 import { createTastePreference, matchesTaste } from '../recipes/taste-preference.js';
 import { windowPage } from '../recipes/paginate.js';
@@ -84,6 +85,12 @@ const main = (): void => {
   const tastePreference = createTastePreference();
   let state: BrowseState = browsePrefs.load();
 
+  // Transient text-search query (D7): NOT persisted — navigating away drops it.
+  // The MiniSearch index is memoized on the feed's array identity (D6), so facet
+  // toggles reuse it and only a feed change rebuilds.
+  let query = '';
+  const searchMemo = createSearchMemo();
+
   // Only the newest action may render: slow async loads (the starter feed) must
   // never clobber a faster user search that superseded them.
   let generation = 0;
@@ -121,12 +128,16 @@ const main = (): void => {
   };
 
   const isFiltered = (s: BrowseState, diet: string[]): boolean =>
-    s.photosOnly || s.facets.cuisine.length > 0 || s.facets.category.length > 0 || diet.length > 0;
+    s.photosOnly ||
+    s.facets.cuisine.length > 0 ||
+    s.facets.category.length > 0 ||
+    diet.length > 0 ||
+    query.trim() !== '';
 
-  // Browse-owned filters only (photos + facets) — the reset control's scope. Diet
-  // is the Settings-owned app-wide preference, deliberately excluded.
+  // Browse-owned filters only (photos + facets + text query) — the reset control's
+  // scope. Diet is the Settings-owned app-wide preference, deliberately excluded.
   const hasBrowseFilters = (s: BrowseState): boolean =>
-    s.photosOnly || s.facets.cuisine.length > 0 || s.facets.category.length > 0;
+    s.photosOnly || s.facets.cuisine.length > 0 || s.facets.category.length > 0 || query.trim() !== '';
 
   // The filtered result set behind the current view: hidden removed, browse
   // facets + diet applied. renderCurrent renders it; the export action serializes
@@ -138,9 +149,16 @@ const main = (): void => {
     // The standing taste preference (Only/Never by meal + cuisine) applies on top
     // of the transient facet filters — an app-wide personal default.
     const taste = tastePreference.load();
-    const shown = kept.filter(
+    const facetFiltered = kept.filter(
       (e) => matchesFilter(e.value, { state: effective, diet }) && matchesTaste(recipeFacets(e.value), taste),
     );
+    // Text search runs AFTER the facet/diet/taste filter and BEFORE version
+    // collapse (D5): with an active query only matches survive, in score order;
+    // an empty query is the identity (facet order preserved). The index is over
+    // the whole feed (stable identity) — queryEntries intersects with the
+    // facet-filtered candidates.
+    const searcher = searchMemo(current?.entries ?? []);
+    const shown = queryEntries(searcher, query, facetFiltered);
     return { kept, shown, effective, diet };
   };
 
@@ -231,9 +249,17 @@ const main = (): void => {
         log.debug('browse', 'facets changed', { dimension, selected: [...selected] });
         renderCurrent();
       },
+      onQueryChange: (q) => {
+        query = q;
+        browseOffset = 0; // a new query set → back to page 1
+        log.debug('browse', 'query changed', { length: q.trim().length });
+        renderCurrent();
+      },
       onReset: () => {
         state = { ...state, photosOnly: false, facets: { cuisine: [], category: [] } };
         browsePrefs.save(state);
+        query = '';
+        toolbar.setSearch('');
         toolbar.setPhotos(false);
         browseOffset = 0;
         log.info('browse', 'filters reset');
