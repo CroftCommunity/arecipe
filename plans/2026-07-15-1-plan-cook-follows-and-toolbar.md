@@ -1,6 +1,10 @@
 # Cook follows + unified search/filter toolbar (Browse, Cookbook, Account)
 
-**Status:** 🚧 In progress on branch `claude/cook-follows-toolbar-h5iz1u`.
+**Status:** ✅ **Built 2026-07-15** on branch `claude/cook-follows-toolbar-h5iz1u`.
+All six phases landed with the locked design. Full gate green at the end of every
+phase (lint · typecheck both tsconfigs · 489 unit · build · 174 e2e). See the run
+summary at the bottom for red→green evidence, Phase 0 drift, the deliberately-
+changed e2e assertions, and the [verify-in-run] outcomes.
 
 ## Problem statement
 
@@ -85,3 +89,73 @@ D1–D9 as given in the run instructions. Key resolutions:
 - per-author facet/filter in the merged feed
 - relocating export
 - starter-pack UI changes
+
+## Run summary (2026-07-15)
+
+### Red → green evidence per phase
+
+- **Phase 1 — stores.** RED: `cook-follows-local.spec.ts` + `cook-follows-pds.spec.ts`
+  failed to import (modules absent). GREEN after adding the lexicon fixture +
+  LEXICONS row, then `cook-follows-local.ts` / `cook-follows-pds.ts` (15 tests).
+- **Phase 2 — membership.** RED: extended `cookbook.spec` (added source + priority),
+  `reach.spec` (added key), `cookbook-members-view.spec` (added badge + unfollow) —
+  6 failing. GREEN after the resolver `added` source, reach `added`, members-view
+  badge/unfollow, the shared `add-cook-panel`, and `mountMembersList` add/mirror/
+  unfollow/D6 wiring.
+- **Phase 3 — Browse.** RED: `default-feed.spec` (merge/dedup) failed absent. GREEN
+  after `mergeCookAuthors` + Browse preview bar / follow control / merged default
+  feed. e2e `cook-follows.spec` (preview-only, round-trip, follow→feed, durable
+  signed-out + zero PDS writes) authored and green.
+- **Phase 4 — toolbar.** RED: `toolbar.spec` D7 block (Filters disclosure, badge,
+  facet groups, slots) — failing. GREEN after the `renderToolbar` rewrite +
+  `renderFacetGroup` + both pages' wiring + CSS.
+- **Phase 5 — e2e/mobile.** Added mobile row-count guards + Filters-badge e2e;
+  made `mountMembersList` injectable and covered the signed-in add/unfollow/D6
+  flow hermetically (3 wiring tests, red first via absent behavior).
+
+### Phase 0 drift findings (vs §2 of the run file)
+
+The pre-search-run snapshot said the Browse lookup was a plain feed-replacing
+search. On main it already carried a `recipe-search` input (post search-run) on a
+single `.browse-controls` row — no `filters-dd`/`add-cook`/aggregate badge yet.
+Adapted the phase details (not the locked decisions): Part B moved the existing
+`recipe-search` to row 1 and collapsed photos/facets behind the new Filters
+disclosure; the handle lookup moved into the new `+ Cook` panel.
+
+### Deliberately-changed e2e assertions (D7 behavior change)
+
+The toolbar restructure intentionally changed these specs:
+- `browse.spec`: photos-only / facet / reset interactions now open `Filters ▾`
+  first; Meal/Cuisine are flat checkbox groups in that one popover (not per-
+  dimension dropdowns); the cook lookup moved to the `+ Cook` panel
+  (`add-cook`/`add-cook-input`/`add-cook-submit`) and now shows a preview.
+- `cookbook.spec`: reset lives inside `Filters ▾`.
+- `starter.spec`, `offline.spec`, `recipes.spec`, `two-device-read.spec`: Browse
+  lookups moved to the `+ Cook` panel.
+- `landing.spec`, `nav.spec`, `reference.spec`: Browse presence now asserted via
+  `recipe-search` (the old `find-recipes`/`handle-input` are gone from Browse).
+- `mobile-fit.spec`: Browse ready selector `recipe-search`; tap-target `add-cook`
+  replaces `find-recipes`.
+New coverage: Browse ≤2 / cold-view Cookbook ≤3 toolbar rows @390px; Filters badge
+count; preview/follow/merge; durable signed-out follow with zero PDS writes.
+
+### [verify-in-run] outcomes
+
+1. **NSID:** `app.arecipe.cookFollow` (flat `app.arecipe.*` style, value
+   `{subject, createdAt}` mirroring `app.bsky.graph.follow`).
+2. **listRecords for a novel `app.arecipe.*` collection:** assumed equivalent to
+   `app.arecipe.mealPlan` (public `listRecords` on own PDS, unauth). No live test
+   this run — recorded as assumption; the hermetic fetch-fake tests exercise the
+   read/parse path.
+3. **Toolbar rows / accordion:** main had one control row + a count line. The
+   single `Filters ▾` disclosure needs no exclusive-accordion `name` (only one
+   popover); the per-dimension dropdowns became flat groups inside it, so nested
+   popover stacking is a non-issue.
+
+### Notes / follow-ups
+
+- Signed-in **Account** cook-follows UI is covered hermetically by the injectable
+  `mountMembersList` unit tests; an end-to-end signed-in pass remains an `@live`
+  concern per the repo's split (needs real credentials, out of scope this run).
+- Deferred (D9), unchanged: follows-of-follows reach source; per-author facet in
+  the merged feed; relocating export; starter-pack UI changes.

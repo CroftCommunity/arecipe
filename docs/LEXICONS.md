@@ -125,4 +125,4 @@ ever revived, register the new NSID here first.
 - `discovery/alpha/ECOSYSTEM.md` — related-projects register (broader atproto ecosystem).
 - `plans/2026-07-09-1-plan-recipe-model-extensions.md` — the open-world extension-field work.
 
-_Last updated: 2026-07-09 (NSID docs pass — expanded with the recipe.exchange ecosystem overview)._
+_Last updated: 2026-07-15 (added `app.arecipe.cookFollow` — cook follows, live)._
