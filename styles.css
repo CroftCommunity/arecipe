@@ -2233,3 +2233,36 @@ details.calendar-publish > summary {
   flex: 1 1 12rem;
   margin: 0;
 }
+
+/* ---- Browse: cook preview + follow ---------------------------------------- */
+/* When a lookup previews a cook's recipes, this bar names the cook and offers
+   Follow / Following. Wraps on a phone; never forces horizontal overflow. */
+.preview-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  margin: var(--s-2) 0;
+  padding: var(--s-2) var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-l);
+  background: var(--enamel-soft);
+}
+/* A class-level `display` would otherwise defeat the `hidden` attribute. */
+.preview-bar[hidden] {
+  display: none;
+}
+.preview-handle {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  color: var(--enamel);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.follow-cook {
+  margin-left: auto;
+}
+.follow-cook--following {
+  background: var(--enamel-soft);
+  color: var(--enamel);
+}
