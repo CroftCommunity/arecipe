@@ -30,6 +30,7 @@
     "@atproto/oauth-client-browser": "^0.4.6",
     "@atproto/oauth-types": "^0.7.4",
     "@ipld/dag-cbor": "^10.0.1",
+    "minisearch": "^7.2.0",
     "multiformats": "^14.0.4"
   }
 }
