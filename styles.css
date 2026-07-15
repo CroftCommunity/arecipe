@@ -656,6 +656,10 @@ a {
   font-weight: 700;
   line-height: 1;
 }
+/* A class-level `display` would otherwise defeat the `hidden` attribute. */
+.facet-count[hidden] {
+  display: none;
+}
 
 .facet-dd[open] > .facet-dd-summary {
   border-color: var(--enamel);
