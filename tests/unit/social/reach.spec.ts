@@ -18,10 +18,11 @@ const memoryStorage = (): Pick<Storage, 'getItem' | 'setItem' | 'removeItem'> =>
 };
 
 describe('createReachPrefs', () => {
-  it('defaults every source on', () => {
+  it('defaults every source on (incl. the added/cook-follows source)', () => {
     const reach = createReachPrefs({ storage: memoryStorage() });
-    expect(reach.load()).toEqual({ starters: true, follows: true, followers: true });
+    expect(reach.load()).toEqual({ starters: true, added: true, follows: true, followers: true });
     expect(reach.isEnabled('followers')).toBe(true);
+    expect(reach.isEnabled('added')).toBe(true);
   });
 
   it('disabling a source persists and load() reflects it (both edges)', () => {
@@ -29,7 +30,7 @@ describe('createReachPrefs', () => {
     createReachPrefs({ storage }).setEnabled('followers', false);
     const fresh = createReachPrefs({ storage });
     expect(fresh.isEnabled('followers')).toBe(false);
-    expect(fresh.load()).toEqual({ starters: true, follows: true, followers: false });
+    expect(fresh.load()).toEqual({ starters: true, added: true, follows: true, followers: false });
     // Re-enabling clears it back to the default.
     fresh.setEnabled('followers', true);
     expect(createReachPrefs({ storage }).load().followers).toBe(true);
@@ -48,7 +49,7 @@ describe('createReachPrefs', () => {
       },
     };
     const reach = createReachPrefs({ storage: broken });
-    expect(reach.load()).toEqual({ starters: true, follows: true, followers: true });
+    expect(reach.load()).toEqual({ starters: true, added: true, follows: true, followers: true });
     expect(() => reach.setEnabled('follows', false)).not.toThrow();
   });
 });

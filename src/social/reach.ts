@@ -10,7 +10,7 @@ import type { ReachConfig } from './cookbook.js';
 
 /** A toggleable cookbook source (the ReachConfig keys). */
 export type ReachSource = keyof ReachConfig;
-const SOURCES: readonly ReachSource[] = ['starters', 'follows', 'followers'];
+const SOURCES: readonly ReachSource[] = ['starters', 'added', 'follows', 'followers'];
 
 const STORAGE_KEY = 'reach-sources-disabled';
 

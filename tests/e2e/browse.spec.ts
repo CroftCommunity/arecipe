@@ -41,6 +41,14 @@ const routeMixedFeed = async (page: Page): Promise<void> => {
   }
 };
 
+// D7: photos-only + Meal/Cuisine facets + reset all live inside ONE "Filters ▾"
+// disclosure. Open it before touching those controls.
+const openFilters = async (page: Page): Promise<void> => {
+  const dd = page.getByTestId('filters-dd');
+  const open = await dd.evaluate((node) => (node as HTMLDetailsElement).open);
+  if (!open) await dd.locator('summary').click();
+};
+
 test('photos-only hides the image-less recipe and updates the count (wiring)', async ({ page }) => {
   await routeMixedFeed(page);
   await page.goto('/');
@@ -51,6 +59,7 @@ test('photos-only hides the image-less recipe and updates the count (wiring)', a
   await expect(page.getByTestId('recipes-status')).not.toContainText('of 4 shown');
 
   // Photos only ON: the one image-less recipe (Minestrone) drops out.
+  await openFilters(page);
   await page.getByTestId('photos-only').check();
   await expect(page.getByTestId('recipe-item')).toHaveCount(3);
   await expect(page.getByTestId('recipes-status')).toContainText('3 of 4 shown');
@@ -70,8 +79,9 @@ test('reset filters clears active browse filters; status drops the verified coun
   // No browse filter → no visible reset control.
   await expect(page.getByTestId('reset-filters')).toBeHidden();
 
-  // Apply a filter: the reset control appears; the status reads "N of M shown"
-  // with NO verified count (per the trust-surface simplification).
+  // Apply a filter: the reset control appears (inside the open Filters popover);
+  // the status reads "N of M shown" with NO verified count.
+  await openFilters(page);
   await page.getByTestId('photos-only').check();
   await expect(page.getByTestId('recipe-item')).toHaveCount(3);
   const status = page.getByTestId('recipes-status');
@@ -111,6 +121,7 @@ test('Details view composes with photos-only', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
   await page.getByTestId('view-details').click();
+  await openFilters(page);
   await page.getByTestId('photos-only').check();
   await expect(page.locator('.recipe-rows')).toBeVisible();
   await expect(page.getByTestId('recipe-item')).toHaveCount(3); // image-less row dropped
@@ -120,11 +131,13 @@ test('photos-only choice persists across reload', async ({ page }) => {
   await routeMixedFeed(page);
   await page.goto('/');
   await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
+  await openFilters(page);
   await page.getByTestId('photos-only').check();
   await expect(page.getByTestId('recipe-item')).toHaveCount(3);
 
   await page.reload();
   await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
+  await openFilters(page);
   await expect(page.getByTestId('photos-only')).toBeChecked();
   await expect(page.getByTestId('recipe-item')).toHaveCount(3);
 });
@@ -132,29 +145,27 @@ test('photos-only choice persists across reload', async ({ page }) => {
 // Facet filtering. Mixed fixture: Greek Salad (greek/dinner), American Pancakes
 // (american/breakfast), Italian Minestrone (italian/dinner), Greek Vegan Lunch
 // Bowl (greek/lunch).
-const openFacet = async (page: Page, dimension: 'category' | 'cuisine'): Promise<void> => {
-  await page.locator(`details.facet-dd[data-dimension=${dimension}] summary`).click();
-};
-
+// D7: Meal + Cuisine are flat checkbox groups inside the single Filters popover
+// (no per-dimension dropdown). Open the popover, then tick values.
 test('Meal facet narrows to matching recipes and updates the count (wiring)', async ({ page }) => {
   await routeMixedFeed(page);
   await page.goto('/');
   await expect(page.getByTestId('recipe-item')).toHaveCount(4);
-  await openFacet(page, 'category');
+  await openFilters(page);
   await page.locator('input[data-dimension=category][data-value=dinner]').check();
   await expect(page.getByTestId('recipe-item')).toHaveCount(2); // Greek Salad + Minestrone
   await expect(page.getByTestId('recipes-status')).toContainText('2 of 4 shown');
 });
 
-test('OR within a dimension; multi-select keeps the dropdown open', async ({ page }) => {
+test('OR within a dimension; multi-select keeps the Filters popover open', async ({ page }) => {
   await routeMixedFeed(page);
   await page.goto('/');
   await expect(page.getByTestId('recipe-item')).toHaveCount(4);
-  await openFacet(page, 'category');
+  await openFilters(page);
   await page.locator('input[data-dimension=category][data-value=dinner]').check();
-  // The panel must stay open so a second selection is cumulative.
+  // The popover must stay open so a second selection is cumulative.
   await page.locator('input[data-dimension=category][data-value=breakfast]').check();
-  await expect(page.locator('details.facet-dd[data-dimension=category][open]')).toHaveCount(1);
+  await expect(page.getByTestId('filters-dd')).toHaveJSProperty('open', true);
   await expect(page.getByTestId('recipe-item')).toHaveCount(3); // 2 dinner + 1 breakfast
 });
 
@@ -162,9 +173,8 @@ test('AND across dimensions: cuisine greek + meal lunch → one recipe', async (
   await routeMixedFeed(page);
   await page.goto('/');
   await expect(page.getByTestId('recipe-item')).toHaveCount(4);
-  await openFacet(page, 'cuisine');
+  await openFilters(page); // both dimensions share one popover
   await page.locator('input[data-dimension=cuisine][data-value=greek]').check();
-  await openFacet(page, 'category');
   await page.locator('input[data-dimension=category][data-value=lunch]').check();
   await expect(page.getByTestId('recipe-item')).toHaveCount(1); // Greek Vegan Lunch Bowl
   await expect(page.getByTestId('recipes-status')).toContainText('1 of 4 shown');
@@ -174,14 +184,14 @@ test('facet selections persist across reload', async ({ page }) => {
   await routeMixedFeed(page);
   await page.goto('/');
   await expect(page.getByTestId('recipe-item')).toHaveCount(4);
-  await openFacet(page, 'category');
+  await openFilters(page);
   await page.locator('input[data-dimension=category][data-value=dinner]').check();
   await expect(page.getByTestId('recipe-item')).toHaveCount(2);
 
   await page.reload();
   await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
   await expect(page.getByTestId('recipe-item')).toHaveCount(2);
-  await openFacet(page, 'category');
+  await openFilters(page);
   await expect(page.locator('input[data-dimension=category][data-value=dinner]')).toBeChecked();
 });
 
@@ -274,24 +284,27 @@ const routeCookTypeahead = async (page: Page): Promise<void> => {
   });
 };
 
-test('cook typeahead: typing suggests cooks; picking one loads their recipes (wiring)', async ({
+// D7: the cook lookup moved into the toolbar "+ Cook" inline panel; its input is
+// `add-cook-input` and picking a suggestion runs the lookup → PREVIEW.
+test('cook typeahead: typing suggests cooks; picking one previews their recipes (wiring)', async ({
   page,
 }) => {
   await disableStarters(page);
   await routeCookTypeahead(page);
   await page.goto('/');
-  // Lands on the empty search box (starter pack off).
-  await expect(page.getByTestId('handle-input')).toBeVisible();
+  // Open the "+ Cook" panel to reveal the lookup input.
+  await page.getByTestId('add-cook').click();
+  await expect(page.getByTestId('add-cook-input')).toBeVisible();
 
   // Type a partial handle → the AppView suggestion appears.
-  await page.getByTestId('handle-input').fill('ch');
+  await page.getByTestId('add-cook-input').fill('ch');
   const options = page.locator('[role=option]');
   await expect(options).toHaveCount(1);
   await expect(options.first()).toContainText('cheftest.bsky.social');
 
-  // Pick it → the handle fills and the existing find path loads that cook's recipes.
+  // Pick it → the lookup previews that cook's recipes + shows the follow bar.
   await options.first().click();
-  await expect(page.getByTestId('handle-input')).toHaveValue('cheftest.bsky.social');
+  await expect(page.getByTestId('preview-bar')).toBeVisible({ timeout: 15_000 });
   await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
   await expect(page.getByTestId('recipe-item')).toHaveCount(4);
 });
@@ -304,7 +317,8 @@ test('cook typeahead does not fire below the minimum query length', async ({ pag
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ actors: [] }) });
   });
   await page.goto('/');
-  await page.getByTestId('handle-input').fill('c'); // one char — below minChars (2)
+  await page.getByTestId('add-cook').click();
+  await page.getByTestId('add-cook-input').fill('c'); // one char — below minChars (2)
   await expect(page.locator('[role=option]')).toHaveCount(0);
   // Give any (erroneous) debounced request time to fire before asserting none did.
   await page.waitForTimeout(400);
@@ -413,6 +427,7 @@ test('search: reset clears the query — back to 4 and the starter status string
   await expect(page.getByTestId('recipe-item')).toHaveCount(4);
   await page.getByTestId('recipe-search').fill('feta');
   await expect(page.getByTestId('recipe-item')).toHaveCount(1);
+  await openFilters(page);
   await expect(page.getByTestId('reset-filters')).toBeVisible();
 
   await page.getByTestId('reset-filters').click();
@@ -428,7 +443,7 @@ test('search composes with a facet: cuisine greek + query lemon → only the Lun
   await routeMixedFeed(page);
   await page.goto('/');
   await expect(page.getByTestId('recipe-item')).toHaveCount(4);
-  await openFacet(page, 'cuisine');
+  await openFilters(page);
   await page.locator('input[data-dimension=cuisine][data-value=greek]').check();
   await expect(page.getByTestId('recipe-item')).toHaveCount(2); // Greek Salad + Lunch Bowl
   await page.getByTestId('recipe-search').fill('lemon');
@@ -436,6 +451,41 @@ test('search composes with a facet: cuisine greek + query lemon → only the Lun
   await expect(page.getByTestId('recipe-item')).toHaveCount(1);
   await expect(page.getByText('Greek Vegan Lunch Bowl')).toBeVisible();
   await expect(page.getByTestId('recipes-status')).toContainText('1 of 4 shown');
+});
+
+// D7 mobile: Browse shows at most TWO control rows before content (the source
+// row is Cookbook-only and collapses here), and no horizontal overflow @390px.
+test('mobile (390px): Browse shows at most two toolbar rows before content', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 780 });
+  await routeMixedFeed(page);
+  await page.goto('/');
+  await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator('.browse-toolbar .toolbar-row:visible')).toHaveCount(2);
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow, 'no horizontal overflow @390px').toBeLessThanOrEqual(1);
+});
+
+// D7: the single Filters ▾ badge counts active browse filters (photos + facets);
+// reset clears them and hides the badge. The honest count stays outside.
+test('Filters ▾ badge counts active filters; reset clears it', async ({ page }) => {
+  await routeMixedFeed(page);
+  await page.goto('/');
+  await expect(page.getByTestId('recipe-item')).toHaveCount(4);
+  await expect(page.getByTestId('filters-count')).toBeHidden();
+
+  await openFilters(page);
+  await page.getByTestId('photos-only').check();
+  await page.locator('input[data-dimension=category][data-value=dinner]').check();
+  // photos (1) + one Meal facet (1) = 2 active filters.
+  await expect(page.getByTestId('filters-count')).toHaveText('2');
+  // The honest count lives OUTSIDE the disclosure.
+  await expect(page.getByTestId('recipes-status')).toContainText('shown');
+
+  await page.getByTestId('reset-filters').click();
+  await expect(page.getByTestId('filters-count')).toBeHidden();
+  await expect(page.getByTestId('recipe-item')).toHaveCount(4);
 });
 
 test('browse paginates the feed at 50 with prev/next arrows', async ({ page }) => {

@@ -49,7 +49,7 @@ const overflowOf = async (page: Page): Promise<number> =>
   page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
 
 const PAGES: { name: string; path: string; ready: string }[] = [
-  { name: 'browse', path: '/index.html', ready: '[data-testid=find-recipes]' },
+  { name: 'browse', path: '/index.html', ready: '[data-testid=recipe-search]' },
   { name: 'reference', path: '/reference.html', ready: 'section.ref-card' },
   { name: 'meals', path: '/meals.html', ready: '[data-testid=calendar]' },
   { name: 'settings', path: '/settings.html', ready: '[data-testid=build-facts]' },
@@ -83,9 +83,9 @@ for (const width of WIDTHS) {
 test('tap targets are ≥44px on a phone (browse controls + bottom nav)', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 780 });
   await page.goto('/index.html');
-  await page.getByTestId('find-recipes').waitFor({ timeout: 15_000 });
+  await page.getByTestId('recipe-search').waitFor({ timeout: 15_000 });
   const ids = [
-    'find-recipes', // .button
+    'add-cook', // .button (opens the cook lookup panel)
     'export-recipes', // small icon .button
     'view-tiles', // .segmented-option
     'view-details',

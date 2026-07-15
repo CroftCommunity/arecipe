@@ -156,7 +156,7 @@ const main = async (): Promise<void> => {
         try {
           const { pds, handle } = await retryOnce(() => resolveDidDoc(did));
           if (handle !== null) who.textContent = `Signed in: ${handle} · ${did}`;
-          await mountMembersList(membersSection, { did, pds }, createReachPrefs().load());
+          await mountMembersList(membersSection, { did, pds }, createReachPrefs().load(), { agent });
         } catch (err) {
           log.error('account', 'cookbook members load failed', { error: String(err) });
         }

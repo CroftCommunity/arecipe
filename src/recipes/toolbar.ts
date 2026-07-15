@@ -1,14 +1,18 @@
-// Shared view/filter toolbar (Phase 7), extracted from browse.ts so Browse and
-// Cookbook render the identical control bar: a Tiles/Details segmented toggle, a
-// Photos-only pill, Meal ▾ / Cuisine ▾ facet dropdowns, and a count block. The
-// toolbar owns only its own DOM + control listeners (wired to callbacks); the
-// page owns the feed/list and drives the toolbar through the returned controller
-// (reflectView / setPhotos / rebuildFacets / setStatus / setResetVisible). The
-// emitted class hooks + testids are byte-identical to Browse's original inline
-// toolbar, so `tests/e2e/browse.spec.ts` is the behavior-preserving guard.
+// Shared view/filter toolbar, unified to the D7 contract so Browse and Cookbook
+// render the identical control structure:
+//   Row 1  — the full-width recipe-search input + a page-actions slot (Browse
+//            mounts "+ Cook" and export there; Cookbook mounts nothing).
+//   Row 2  — a source slot (Cookbook mounts its Mine | Liked | All segmented;
+//            empty and collapsed elsewhere).
+//   Row 3  — the Tiles | Details view toggle + ONE "Filters ▾" disclosure with a
+//            count badge, and the honest "N of M shown" count OUTSIDE it.
+// The Filters popover holds photos-only, the Meal / Cuisine facet groups, the
+// diet-preference link (Browse only), and reset — so no control appears twice.
+// The toolbar owns only its own DOM + control listeners (wired to callbacks); the
+// page owns the feed/list and drives it through the returned controller.
 
 import type { BrowseState, ViewMode } from '../pages/browse-state.js';
-import { renderFacetDropdown } from './view.js';
+import { renderFacetGroup } from './view.js';
 
 /** Facet selection/availability: arrays of values per dimension (distinct from
  *  the per-recipe `RecipeFacets`, whose category/cuisine are single values). */
@@ -38,25 +42,31 @@ const SEARCH_DEBOUNCE_MS = 150;
 export type ToolbarController = {
   /** The `.browse-toolbar` element to mount. */
   element: HTMLElement;
+  /** Row-1 slot after the search input — Browse mounts "+ Cook" + export here. */
+  actionsSlot: HTMLElement;
+  /** Row-2 slot — Cookbook mounts its Mine | Liked | All segmented here. */
+  sourceSlot: HTMLElement;
   /** Reflect the active view on the segmented control (aria-pressed + class). */
   reflectView: (view: ViewMode) => void;
   /** Reflect the photos-only checkbox state (init / reset). */
   setPhotos: (photosOnly: boolean) => void;
-  /** Rebuild the Meal ▾ / Cuisine ▾ dropdowns from the feed's available facets.
+  /** Rebuild the Meal / Cuisine facet groups from the feed's available facets.
    *  Called when the feed changes — NOT on a facet checkbox change (so an open
-   *  dropdown survives multi-select). */
+   *  Filters popover survives multi-select). */
   rebuildFacets: (available: FacetArrays, selected: FacetArrays) => void;
-  /** Set the count/status line text. */
+  /** Set the honest count/status line text (shown OUTSIDE the disclosure). */
   setStatus: (text: string) => void;
-  /** Show/hide the "reset filters ·" control (only when a filter is active). */
+  /** Show/hide the reset control (only when a filter is active). */
   setResetVisible: (visible: boolean) => void;
+  /** Set the active-filter count on the Filters ▾ badge (hidden at zero). */
+  setFilterCount: (count: number) => void;
   /** Reflect a query value into the search box (init / reset). Display-only — it
    *  does NOT fire onQueryChange (the caller already owns the state change). */
   setSearch: (query: string) => void;
 };
 
 export const renderToolbar = (opts: {
-  /** Browse shows the "set dietary preference ↗" link; Cookbook does not. */
+  /** Browse shows the "preference ↗" diet link inside Filters; Cookbook does not. */
   showDietLink?: boolean;
   callbacks: ToolbarCallbacks;
 }): ToolbarController => {
@@ -64,9 +74,26 @@ export const renderToolbar = (opts: {
   const showDietLink = opts.showDietLink ?? false;
 
   const toolbar = el('div', 'browse-toolbar');
-  const controls = el('div', 'browse-controls');
 
-  // View-mode segmented control: Tiles | Details.
+  // --- Row 1: search + page actions ---
+  const rowSearch = el('div', 'toolbar-row toolbar-row--search');
+  const searchInput = document.createElement('input');
+  searchInput.type = 'search';
+  searchInput.className = 'recipe-search';
+  searchInput.placeholder = 'search recipes…';
+  searchInput.dataset['testid'] = 'recipe-search';
+  searchInput.setAttribute('aria-label', 'Search recipes');
+  const actionsSlot = el('div', 'toolbar-actions');
+  actionsSlot.dataset['testid'] = 'toolbar-actions';
+  rowSearch.append(searchInput, actionsSlot);
+
+  // --- Row 2: source slot (Cookbook) — collapses when empty (CSS). ---
+  const sourceSlot = el('div', 'toolbar-row toolbar-row--source');
+  sourceSlot.dataset['testid'] = 'toolbar-source';
+
+  // --- Row 3: view toggle + Filters ▾ + honest count ---
+  const rowControls = el('div', 'toolbar-row toolbar-row--controls');
+
   const viewSegmented = el('div', 'segmented');
   const viewTiles = el('button', 'segmented-option', 'Tiles') as HTMLButtonElement;
   viewTiles.type = 'button';
@@ -75,50 +102,53 @@ export const renderToolbar = (opts: {
   viewDetails.type = 'button';
   viewDetails.dataset['testid'] = 'view-details';
   viewSegmented.append(viewTiles, viewDetails);
-  controls.append(viewSegmented);
 
-  // Text search: a native search input (type=search gives the built-in clear
-  // affordance). Debounced so as-you-type doesn't re-run the pipeline per key.
-  const searchInput = document.createElement('input');
-  searchInput.type = 'search';
-  searchInput.className = 'recipe-search';
-  searchInput.placeholder = 'search recipes…';
-  searchInput.dataset['testid'] = 'recipe-search';
-  searchInput.setAttribute('aria-label', 'Search recipes');
-  controls.append(searchInput);
+  // The single Filters disclosure (the facet-dd popover idiom). One popover, so
+  // no exclusive-accordion `name` is needed to avoid stacking.
+  const filtersDd = el('details', 'facet-dd filters-dd') as HTMLDetailsElement;
+  filtersDd.dataset['testid'] = 'filters-dd';
+  const filtersSummary = el('summary', 'facet-dd-summary');
+  const filtersBadge = el('span', 'facet-count');
+  filtersBadge.dataset['testid'] = 'filters-count';
+  filtersBadge.hidden = true;
+  filtersSummary.append(document.createTextNode('Filters '), filtersBadge, document.createTextNode(' ▾'));
+  const filtersPanel = el('div', 'facet-dd-panel filters-panel');
 
-  // Photos-only toggle: a styled checkbox pill.
+  // Photos-only toggle (inside the popover).
   const photosToggleLabel = el('label', 'browse-toggle');
   const photosToggle = document.createElement('input');
   photosToggle.type = 'checkbox';
   photosToggle.dataset['testid'] = 'photos-only';
   photosToggleLabel.append(photosToggle, document.createTextNode('Photos only'));
-  controls.append(photosToggleLabel);
 
-  // Facet dropdowns (rebuilt from the current feed's available facets), held in
-  // their own container so a facet change refreshes count+list without
-  // rebuilding (and collapsing) the dropdowns.
+  // Meal / Cuisine facet groups container (rebuilt from the feed's facets).
   const facetsContainer = el('div', 'browse-facets');
-  controls.append(facetsContainer);
 
-  const countBlock = el('div', 'browse-count');
-  const recipesStatus = el('p', 'status');
-  recipesStatus.dataset['testid'] = 'recipes-status';
+  filtersPanel.append(photosToggleLabel, facetsContainer);
+
+  // Diet link (Browse only) + reset, both inside the popover.
+  if (showDietLink) {
+    const dietLink = el('a', 'diet-pref-link', 'preference ↗') as HTMLAnchorElement;
+    dietLink.href = './settings.html#diet-preference';
+    filtersPanel.append(dietLink);
+  }
   const resetBtn = el('button', 'reset-filters-link', 'reset filters') as HTMLButtonElement;
   resetBtn.type = 'button';
   resetBtn.dataset['testid'] = 'reset-filters';
   resetBtn.hidden = true;
-  const resetSep = el('span', 'reset-sep', '·');
-  resetSep.hidden = true;
-  // One dot-separated line: [reset filters ·] N of M shown [· set dietary preference ↗]
-  countBlock.append(resetBtn, resetSep, recipesStatus);
-  if (showDietLink) {
-    const dietSep = el('span', 'reset-sep', '·'); // always shown: count · diet link
-    const dietLink = el('a', 'diet-pref-link', 'preference ↗') as HTMLAnchorElement;
-    dietLink.href = './settings.html#diet-preference';
-    countBlock.append(dietSep, dietLink);
-  }
-  toolbar.append(controls, countBlock);
+  filtersPanel.append(resetBtn);
+
+  filtersDd.append(filtersSummary, filtersPanel);
+
+  // Honest count OUTSIDE the disclosure, right-aligned.
+  const countBlock = el('div', 'browse-count');
+  const recipesStatus = el('p', 'status');
+  recipesStatus.dataset['testid'] = 'recipes-status';
+  countBlock.append(recipesStatus);
+
+  rowControls.append(viewSegmented, filtersDd, countBlock);
+
+  toolbar.append(rowSearch, sourceSlot, rowControls);
 
   // --- control listeners → callbacks ---
   viewTiles.addEventListener('click', () => callbacks.onViewChange('tiles'));
@@ -134,7 +164,7 @@ export const renderToolbar = (opts: {
   });
 
   // Facet checkbox change (event-delegated): report the change; the page updates
-  // state + re-renders, leaving the dropdown open and intact.
+  // state + re-renders, leaving the Filters popover open and intact.
   facetsContainer.addEventListener('change', (event) => {
     const target = event.target;
     if (!(target instanceof HTMLInputElement) || target.type !== 'checkbox') return;
@@ -144,15 +174,15 @@ export const renderToolbar = (opts: {
     callbacks.onFacetChange(dimension, value, target.checked);
   });
 
-  // Close an open facet dropdown when clicking outside it (scoped to this bar).
+  // Close the Filters popover when clicking outside it (scoped to this bar).
   document.addEventListener('click', (event) => {
-    for (const dd of facetsContainer.querySelectorAll<HTMLDetailsElement>('details.facet-dd[open]')) {
-      if (!dd.contains(event.target as Node)) dd.removeAttribute('open');
-    }
+    if (filtersDd.open && !filtersDd.contains(event.target as Node)) filtersDd.removeAttribute('open');
   });
 
   return {
     element: toolbar,
+    actionsSlot,
+    sourceSlot,
     reflectView: (view) => {
       for (const [btn, mode] of [
         [viewTiles, 'tiles'],
@@ -167,27 +197,31 @@ export const renderToolbar = (opts: {
       photosToggle.checked = photosOnly;
     },
     rebuildFacets: (available, selected) => {
-      const meal = renderFacetDropdown({
+      const meal = renderFacetGroup({
         dimension: 'category',
         label: 'Meal',
         available: available.category,
         selected: selected.category,
       });
-      const cuisine = renderFacetDropdown({
+      const cuisine = renderFacetGroup({
         dimension: 'cuisine',
         label: 'Cuisine',
         available: available.cuisine,
         selected: selected.cuisine,
       });
-      const dropdowns = [meal, cuisine].filter((n): n is HTMLElement => n !== null);
-      facetsContainer.replaceChildren(...dropdowns);
+      const groups = [meal, cuisine].filter((n): n is HTMLElement => n !== null);
+      facetsContainer.replaceChildren(...groups);
     },
     setStatus: (text) => {
       recipesStatus.textContent = text;
     },
     setResetVisible: (visible) => {
       resetBtn.hidden = !visible;
-      resetSep.hidden = !visible;
+    },
+    setFilterCount: (count) => {
+      filtersBadge.textContent = String(count);
+      filtersBadge.hidden = count <= 0;
+      filtersBadge.setAttribute('aria-label', `${count} active filter${count === 1 ? '' : 's'}`);
     },
     setSearch: (q) => {
       // Cancel any pending debounced fire so a programmatic clear can't echo back.
