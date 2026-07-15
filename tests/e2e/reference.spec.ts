@@ -18,7 +18,7 @@ test('the top bar links to the Reference page and it renders the charts', async 
 
   // Native back returns to Browse — real documents, no SPA router.
   await page.goBack();
-  await expect(page.getByTestId('handle-input')).toBeVisible();
+  await expect(page.getByTestId('recipe-search')).toBeVisible();
 });
 
 test('each chart is directly linkable via a copyable # anchor', async ({ page }) => {

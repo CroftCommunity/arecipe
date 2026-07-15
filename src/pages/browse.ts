@@ -5,7 +5,7 @@
 // preference, and version collapse.
 
 import { mountBuildStamp } from '../build-stamp.js';
-import { attachActorTypeahead } from '../identity/actor-typeahead.js';
+import { renderAddCookPanel } from '../social/add-cook-panel.js';
 import { createResolver, type ResolvedIdentity } from '../identity/resolve.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
@@ -44,29 +44,25 @@ const main = (): void => {
   if (app === null) throw new Error('shell mount point #app missing');
 
   const content = el('section', 'panel');
-  const form = el('form', 'lookup') as HTMLFormElement;
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.placeholder = 'a cook’s handle — try rdur.dev';
-  input.dataset['testid'] = 'handle-input';
-  const findButton = el('button', 'button button--primary', 'Find recipes') as HTMLButtonElement;
-  findButton.type = 'submit';
-  findButton.dataset['testid'] = 'find-recipes';
   const listContainer = el('div');
 
   // Preview follow bar (D1/D2): when a lookup previews a cook's recipes, this bar
-  // names the cook and offers Follow / Following. Following adds them to the local
-  // cook-follows store so the default feed merges them in on the next reset/return.
-  // Hidden on the default feed (kind !== 'search').
+  // names the cook and offers Follow / Following + a "back to the feed" return.
+  // Following adds them to the local cook-follows store so the default feed merges
+  // them in on the next return. Hidden on the default feed (kind !== 'search').
   const previewBar = el('div', 'preview-bar');
   previewBar.dataset['testid'] = 'preview-bar';
   previewBar.hidden = true;
+  const backToFeed = el('button', 'button back-to-feed', '← Feed') as HTMLButtonElement;
+  backToFeed.type = 'button';
+  backToFeed.dataset['testid'] = 'back-to-feed';
+  backToFeed.setAttribute('aria-label', 'Back to the default feed');
   const previewHandle = el('span', 'preview-handle');
   previewHandle.dataset['testid'] = 'preview-handle';
   const followBtn = el('button', 'button follow-cook', 'Follow') as HTMLButtonElement;
   followBtn.type = 'button';
   followBtn.dataset['testid'] = 'follow-cook';
-  previewBar.append(previewHandle, followBtn);
+  previewBar.append(backToFeed, previewHandle, followBtn);
   // The cook currently previewed (drives the follow control). DID is required to
   // follow; a lookup with no resolvable DID hides the control.
   let previewAuthor: { handle: string; did: string } | null = null;
@@ -219,9 +215,12 @@ const main = (): void => {
           ? `${current.fetchedCount ?? current.entries.length} recipes cached (${verified} verified)`
           : `${kept.length} starter pack recipes (${verified} verified)${current.statusSuffix ?? ''}`,
     );
-    // Reset is visible when a browse filter is active OR when a cook preview is
-    // up — in a preview it doubles as "back to the default feed" (D1/D2).
-    toolbar.setResetVisible(hasBrowseFilters(effective) || current.kind === 'search');
+    toolbar.setResetVisible(hasBrowseFilters(effective));
+    // Filters ▾ badge = active browse filters (photos + facets); the text query
+    // is a row-1 control, counted separately by its own presence.
+    toolbar.setFilterCount(
+      (effective.photosOnly ? 1 : 0) + effective.facets.cuisine.length + effective.facets.category.length,
+    );
     const options: RenderOptions = {};
     if (current.author !== undefined) options.author = current.author;
     if (current.authorsByDid !== undefined) options.authorsByDid = current.authorsByDid;
@@ -309,19 +308,7 @@ const main = (): void => {
         toolbar.setPhotos(false);
         browseOffset = 0;
         log.info('browse', 'filters reset');
-        if (current?.kind === 'search') {
-          // Reset returns from a cook preview to the default feed (D1/D2); a cook
-          // followed in the preview is now merged in. Clear the lookup + last-find
-          // so a reload doesn't restore the preview.
-          input.value = '';
-          clearLastFind();
-          void showStarterFeed().catch((err: unknown) => {
-            log.warn('starter', 'default feed failed', { error: String(err) });
-            toolbar.setStatus('starter pack unavailable — search a cook above');
-          });
-          return;
-        }
-        showCurrent(); // rebuild the (now-empty) facet dropdowns + re-render
+        showCurrent(); // rebuild the (now-empty) facet groups + re-render
       },
     },
   });
@@ -456,8 +443,30 @@ const main = (): void => {
     exportPanel.hidden = false;
   });
 
-  form.append(input, findButton, exportButton);
-  content.append(form, exportPanel, toolbar.element, previewBar, listContainer, pager);
+  // "+ Cook" (D7): a compact toolbar-row-1 action that opens an inline panel
+  // housing the cook typeahead. Submitting a handle runs the lookup → PREVIEW.
+  const addCookButton = el('button', 'button add-cook', '+ Cook') as HTMLButtonElement;
+  addCookButton.type = 'button';
+  addCookButton.dataset['testid'] = 'add-cook';
+  addCookButton.setAttribute('aria-label', 'Look up a cook');
+  const addCookPanel = renderAddCookPanel({
+    buttonLabel: 'Look up',
+    placeholder: 'a cook’s handle — try rdur.dev',
+    onSubmit: (handle) => {
+      addCookPanel.element.hidden = true;
+      runFind(handle);
+    },
+  });
+  addCookPanel.element.hidden = true;
+  addCookButton.addEventListener('click', () => {
+    const opening = addCookPanel.element.hidden;
+    addCookPanel.element.hidden = !opening;
+    if (opening) addCookPanel.input.focus();
+  });
+
+  // Row-1 actions: "+ Cook" then export. (Export sits in the toolbar per D7.)
+  toolbar.actionsSlot.append(addCookButton, exportButton);
+  content.append(toolbar.element, addCookPanel.element, exportPanel, previewBar, listContainer, pager);
 
   const resolve = createResolver();
   const readRecipes = createRecipeReader();
@@ -527,22 +536,6 @@ const main = (): void => {
     });
   };
 
-  form.addEventListener('submit', (event) => {
-    event.preventDefault();
-    runFind(input.value.trim());
-  });
-
-  // Cook-search typeahead: suggest accounts as the user types (Bluesky AppView),
-  // so finding a cook doesn't require knowing their exact handle. Picking a
-  // suggestion fills the handle and runs the same find path as submit.
-  attachActorTypeahead({
-    input,
-    onSelect: (suggestion) => {
-      input.value = suggestion.handle;
-      runFind(suggestion.handle);
-    },
-  });
-
   // The default feed (D2): starter-pack cooks merged with the cooks you've
   // followed (local store), deduped by DID. Leaving preview mode returns here.
   const showStarterFeed = async (): Promise<void> => {
@@ -573,9 +566,22 @@ const main = (): void => {
     showCurrent();
   };
 
+  // Leave a preview and return to the default feed (the preview bar's "← Feed"):
+  // clears the remembered lookup + closes the add-cook panel, then reloads the
+  // merged default feed (any cook followed in the preview now appears in it).
+  const returnToFeed = (): void => {
+    clearLastFind();
+    addCookPanel.clear();
+    addCookPanel.element.hidden = true;
+    void showStarterFeed().catch((err: unknown) => {
+      log.warn('starter', 'default feed failed', { error: String(err) });
+      toolbar.setStatus('starter pack unavailable — search a cook above');
+    });
+  };
+  backToFeed.addEventListener('click', returnToFeed);
+
   const last = readLastFind();
   if (last !== null) {
-    input.value = last.handle;
     void (async () => {
       const entries = (await Promise.all(last.uris.map((u) => cache.get(u)))).filter(
         (e): e is NonNullable<typeof e> => e !== undefined,

@@ -57,8 +57,9 @@ const routeFixtures = async (page: Page): Promise<void> => {
 test('one action: handle in, verified recipe cards out (wiring)', async ({ page }) => {
   await routeFixtures(page);
   await page.goto('/');
-  await page.getByTestId('handle-input').fill('somechef.example.com');
-  await page.getByTestId('find-recipes').click();
+  await page.getByTestId('add-cook').click();
+  await page.getByTestId('add-cook-input').fill('somechef.example.com');
+  await page.getByTestId('add-cook-submit').click();
   await expect(page.getByTestId('recipes-status')).toHaveText('3 recipes cached (3 verified)', {
     timeout: 15_000,
   });
@@ -73,8 +74,9 @@ test('a card opens its own page; native back returns to the results (5d wiring)'
 }) => {
   await routeFixtures(page);
   await page.goto('/');
-  await page.getByTestId('handle-input').fill('somechef.example.com');
-  await page.getByTestId('find-recipes').click();
+  await page.getByTestId('add-cook').click();
+  await page.getByTestId('add-cook-input').fill('somechef.example.com');
+  await page.getByTestId('add-cook-submit').click();
   await expect(page.getByTestId('recipe-item')).toHaveCount(3);
 
   await page.getByTestId('recipe-item').first().click();
@@ -103,8 +105,9 @@ test('a cold recipe link renders with no prior cache (shareable URLs)', async ({
 test('an unresolvable handle surfaces the failure in the status line', async ({ page }) => {
   await routeFixtures(page);
   await page.goto('/');
-  await page.getByTestId('handle-input').fill('definitely-not-real-xyz9.bsky.social');
-  await page.getByTestId('find-recipes').click();
+  await page.getByTestId('add-cook').click();
+  await page.getByTestId('add-cook-input').fill('definitely-not-real-xyz9.bsky.social');
+  await page.getByTestId('add-cook-submit').click();
   await expect(page.getByTestId('recipes-status')).toContainText('Unable to resolve handle');
 });
 
@@ -155,8 +158,9 @@ test('revision staleness: same CID stays quiet; a new CID offers the latest (Pha
 test('intact cards are clean; detail carries the human provenance line', async ({ page }) => {
   await routeFixtures(page);
   await page.goto('/');
-  await page.getByTestId('handle-input').fill('somechef.example.com');
-  await page.getByTestId('find-recipes').click();
+  await page.getByTestId('add-cook').click();
+  await page.getByTestId('add-cook-input').fill('somechef.example.com');
+  await page.getByTestId('add-cook-submit').click();
   await expect(page.getByTestId('recipe-item')).toHaveCount(3);
   // Silent when good: no badge anywhere on intact cards.
   await expect(page.locator('.altered-stamp')).toHaveCount(0);

@@ -106,8 +106,9 @@ test('the shell and cached recipes survive going offline (8b wiring)', async ({ 
   await routeFixtures(page);
   await page.goto('/');
   // Search (fills the IndexedDB cache + sessionStorage last-find).
-  await page.getByTestId('handle-input').fill('somechef.example.com');
-  await page.getByTestId('find-recipes').click();
+  await page.getByTestId('add-cook').click();
+  await page.getByTestId('add-cook-input').fill('somechef.example.com');
+  await page.getByTestId('add-cook-submit').click();
   await expect(page.getByTestId('recipe-item')).toHaveCount(3, { timeout: 15_000 });
 
   // Wait until the SW is active AND the shell precache is populated.

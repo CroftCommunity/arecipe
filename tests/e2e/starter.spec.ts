@@ -127,9 +127,10 @@ test('a quick search is NOT clobbered by the slower starter feed (race)', async 
   );
 
   await page.goto('/');
-  // Search immediately, before the slow starter feed lands.
-  await page.getByTestId('handle-input').fill('somechef.example.com');
-  await page.getByTestId('find-recipes').click();
+  // Search immediately, before the slow starter feed lands (D7: via "+ Cook").
+  await page.getByTestId('add-cook').click();
+  await page.getByTestId('add-cook-input').fill('somechef.example.com');
+  await page.getByTestId('add-cook-submit').click();
   await expect(page.getByTestId('recipes-status')).toHaveText('3 recipes cached (3 verified)');
   // Wait past the starter feed's arrival: the search must still be showing.
   await page.waitForTimeout(3_000);

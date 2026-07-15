@@ -27,11 +27,11 @@ test('tabs navigate between documents and native back works (wiring)', async ({ 
   await expect(page.getByTestId('oauth-signin')).toHaveCount(0);
   // Native back returns to Browse — no SPA router, no trapped state.
   await page.goBack();
-  await expect(page.getByTestId('handle-input')).toBeVisible();
+  await expect(page.getByTestId('recipe-search')).toBeVisible();
   // Wordmark is the home link from anywhere.
   await page.getByTestId('tab-mine').click();
   await page.locator('a.wordmark-link').click();
-  await expect(page.getByTestId('handle-input')).toBeVisible();
+  await expect(page.getByTestId('recipe-search')).toBeVisible();
 });
 
 test('every signed-out "Sign in" affordance points at the dedicated page (wiring)', async ({

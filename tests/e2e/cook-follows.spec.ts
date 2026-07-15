@@ -86,9 +86,11 @@ const route = async (page: Page): Promise<void> => {
   });
 };
 
+// D7: the cook lookup lives in the toolbar "+ Cook" inline panel.
 const lookupCook = async (page: Page): Promise<void> => {
-  await page.getByTestId('handle-input').fill(COOK_HANDLE);
-  await page.getByTestId('find-recipes').click();
+  await page.getByTestId('add-cook').click();
+  await page.getByTestId('add-cook-input').fill(COOK_HANDLE);
+  await page.getByTestId('add-cook-submit').click();
 };
 
 test('looking up a cook previews their list only, with a Follow control', async ({ page }) => {
@@ -135,9 +137,9 @@ test('Follow → reset → the default feed merges the followed cook in', async 
   await page.getByTestId('follow-cook').click();
   await expect(page.getByTestId('follow-cook')).toHaveText('Following');
 
-  // Reset returns to the default feed, now merged: 4 starter + 1 followed = 5,
+  // "← Feed" returns to the default feed, now merged: 4 starter + 1 followed = 5,
   // including the cook's "Preview Special".
-  await page.getByTestId('reset-filters').click();
+  await page.getByTestId('back-to-feed').click();
   await expect(page.getByTestId('preview-bar')).toBeHidden();
   await expect(page.getByTestId('recipe-item')).toHaveCount(5);
   await expect(page.getByText('Preview Special')).toBeVisible();
@@ -157,7 +159,7 @@ test('signed-out follow is durable across reload and writes NO PDS record', asyn
 
   // Reload + re-preview → the control reflects Following from the durable store.
   await page.reload();
-  await expect(page.getByTestId('handle-input')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId('recipe-search')).toBeVisible({ timeout: 15_000 });
   await lookupCook(page);
   await expect(page.getByTestId('follow-cook')).toHaveText('Following');
 

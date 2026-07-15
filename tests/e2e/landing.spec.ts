@@ -31,7 +31,7 @@ test('signed-in home landing redirects to the Cookbook', async ({ page }) => {
 
 test('signed-out home landing stays on Browse', async ({ page }) => {
   await page.goto('/'); // no session hint
-  await expect(page.getByTestId('find-recipes')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId('recipe-search')).toBeVisible({ timeout: 15_000 });
   await expect(page).not.toHaveURL(/cookbook/);
 });
 
@@ -41,5 +41,5 @@ test('signed-in Browse-tab click stays on Browse (in-app referrer exempt)', asyn
   await page.goto('/cookbook.html');
   await page.getByTestId('tab-browse').click();
   await expect(page).toHaveURL(/\/index\.html$/, { timeout: 15_000 });
-  await expect(page.getByTestId('find-recipes')).toBeVisible();
+  await expect(page.getByTestId('recipe-search')).toBeVisible();
 });

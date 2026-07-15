@@ -16,8 +16,9 @@ const AUTHOR = 'rdur.dev';
 
 const findRecipes = async (page: Page): Promise<string[]> => {
   await page.goto('/'); // browsing lives on the Browse document (5b)
-  await page.getByTestId('handle-input').fill(AUTHOR);
-  await page.getByTestId('find-recipes').click();
+  await page.getByTestId('add-cook').click();
+  await page.getByTestId('add-cook-input').fill(AUTHOR);
+  await page.getByTestId('add-cook-submit').click();
   await expect(page.getByTestId('recipes-status')).toContainText('recipes cached', {
     timeout: 20_000,
   });

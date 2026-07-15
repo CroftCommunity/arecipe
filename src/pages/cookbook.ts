@@ -164,9 +164,14 @@ const renderFeedView = (
         ? `${shown.length} of ${base.length} shown`
         : `${base.length} ${base.length === 1 ? 'recipe' : 'recipes'}`,
     );
-    // The reset (next to the count) clears the whole filter line — facets,
-    // photos, AND the source — so it shows whenever any of those is off-default.
+    // The reset (inside the Filters popover) clears the whole filter line —
+    // facets, photos, AND the source — so it shows whenever any is off-default.
     toolbar.setResetVisible(hasFilters(effective) || (viewer !== undefined && source !== defaultSource));
+    // Filters ▾ badge = active browse filters (photos + facets); the query is a
+    // separate row-1 control.
+    toolbar.setFilterCount(
+      (effective.photosOnly ? 1 : 0) + effective.facets.cuisine.length + effective.facets.category.length,
+    );
     if (shown.length === 0) {
       feedContainer.replaceChildren(el('p', 'empty-state', emptyMessage()));
       return;
@@ -286,11 +291,9 @@ const renderFeedView = (
       mk('All', 'all', 'source-all'),
     );
     reflectSource();
-    // The source control sits inline with the toolbar controls (Tiles/Details/
-    // Meal/Cuisine) — one filter row — by prepending into the toolbar's controls.
-    const controlsEl = toolbar.element.querySelector('.browse-controls');
-    if (controlsEl !== null) controlsEl.prepend(seg);
-    else container.insertBefore(seg, toolbar.element);
+    // The source control is its own toolbar row (D7 row 2), mounted in the
+    // toolbar's dedicated source slot.
+    toolbar.sourceSlot.append(seg);
     // "New Recipe" builder link rides the title row, right-aligned (own cookbook
     // only — mirrors Alchemy's own new-recipe button).
     const newRecipe = el('a', 'button button--primary new-recipe', 'New Recipe') as HTMLAnchorElement;

@@ -518,37 +518,74 @@ a {
 /* Browse toolbar: transient controls (view mode, photos-only, facet
    dropdowns) live on the left as later phases add them; the count block is
    pushed to the right edge. */
+/* The unified toolbar (D7) stacks up to three rows: [search + actions],
+   [source — Cookbook only], [view toggle + Filters ▾ + count]. */
 .browse-toolbar {
   display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: var(--s-2) var(--s-3);
+  flex-direction: column;
+  gap: var(--s-2);
   margin: var(--s-2) 0;
 }
 
-.browse-controls {
+.toolbar-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--s-2);
 }
 
-.browse-facets {
+/* Row 1: the search field grows to fill the row; page actions sit at the end. */
+.toolbar-row--search {
+  flex-wrap: nowrap;
+}
+.toolbar-actions {
   display: flex;
   align-items: center;
   gap: var(--s-2);
+  flex: 0 0 auto;
 }
 
-/* Text search: a compact field in the toolbar row. Grows to fill spare width but
-   shrinks freely so it never forces horizontal overflow on a narrow phone (the
-   mobile-fit guard). */
+/* Row 2: the source segmented (Cookbook). Empty + collapsed on Browse. */
+.toolbar-row--source:empty {
+  display: none;
+}
+
+/* Row 3: view toggle + Filters ▾ on the left, the honest count pushed right. */
+.toolbar-row--controls .browse-count {
+  margin-left: auto;
+}
+
+/* The facet groups inside the Filters popover (flat checkbox lists, one per
+   dimension) — replaces the old inline Meal ▾ / Cuisine ▾ dropdowns. */
+.browse-facets {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.facet-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
+.facet-group-label {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  font-weight: 700;
+  opacity: 0.7;
+}
+.filters-panel {
+  gap: var(--s-2);
+}
+
+/* Text search: the primary row-1 control. Grows to fill spare width but shrinks
+   freely so it never forces horizontal overflow on a narrow phone (mobile-fit). */
 .recipe-search {
-  flex: 1 1 9rem;
+  flex: 1 1 6rem;
   min-width: 0;
-  max-width: 16rem;
   font: inherit;
   font-size: var(--t-caption);
-  padding: 0.15rem var(--s-3);
+  padding: 0.2rem var(--s-3);
   border: var(--stroke) solid var(--line);
   border-radius: var(--r-pill);
   background: var(--card);

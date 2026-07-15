@@ -185,7 +185,8 @@ test('cold-view: text search filters the cookbook feed (ingredient reach)', asyn
   await expect(page.getByText('Greek Salad')).toBeVisible();
   await expect(page.getByTestId('recipes-status')).toContainText('1 of 4 shown');
 
-  // Reset restores the full feed and clears the box.
+  // Reset (inside the Filters ▾ popover) restores the full feed and clears the box.
+  await page.getByTestId('filters-dd').locator('summary').click();
   await page.getByTestId('reset-filters').click();
   await expect(page.getByTestId('recipe-item')).toHaveCount(4);
   await expect(page.getByTestId('recipe-search')).toHaveValue('');
