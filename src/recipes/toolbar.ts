@@ -26,7 +26,14 @@ export type ToolbarCallbacks = {
   onPhotosToggle: (photosOnly: boolean) => void;
   onFacetChange: (dimension: 'cuisine' | 'category', value: string, checked: boolean) => void;
   onReset: () => void;
+  /** Text-search query changed (debounced). The raw input value is passed; the
+   *  page trims it (empty/whitespace = identity, per D4). */
+  onQueryChange: (query: string) => void;
 };
+
+// As-you-type debounce (D7): coalesce keystrokes so the pipeline re-runs once the
+// user pauses, not on every character.
+const SEARCH_DEBOUNCE_MS = 150;
 
 export type ToolbarController = {
   /** The `.browse-toolbar` element to mount. */
@@ -43,6 +50,9 @@ export type ToolbarController = {
   setStatus: (text: string) => void;
   /** Show/hide the "reset filters ·" control (only when a filter is active). */
   setResetVisible: (visible: boolean) => void;
+  /** Reflect a query value into the search box (init / reset). Display-only — it
+   *  does NOT fire onQueryChange (the caller already owns the state change). */
+  setSearch: (query: string) => void;
 };
 
 export const renderToolbar = (opts: {
@@ -66,6 +76,16 @@ export const renderToolbar = (opts: {
   viewDetails.dataset['testid'] = 'view-details';
   viewSegmented.append(viewTiles, viewDetails);
   controls.append(viewSegmented);
+
+  // Text search: a native search input (type=search gives the built-in clear
+  // affordance). Debounced so as-you-type doesn't re-run the pipeline per key.
+  const searchInput = document.createElement('input');
+  searchInput.type = 'search';
+  searchInput.className = 'recipe-search';
+  searchInput.placeholder = 'search recipes…';
+  searchInput.dataset['testid'] = 'recipe-search';
+  searchInput.setAttribute('aria-label', 'Search recipes');
+  controls.append(searchInput);
 
   // Photos-only toggle: a styled checkbox pill.
   const photosToggleLabel = el('label', 'browse-toggle');
@@ -105,6 +125,13 @@ export const renderToolbar = (opts: {
   viewDetails.addEventListener('click', () => callbacks.onViewChange('details'));
   photosToggle.addEventListener('change', () => callbacks.onPhotosToggle(photosToggle.checked));
   resetBtn.addEventListener('click', () => callbacks.onReset());
+
+  // Debounced search: coalesce keystrokes, then report the latest value once.
+  let searchTimer: ReturnType<typeof setTimeout> | undefined;
+  searchInput.addEventListener('input', () => {
+    if (searchTimer !== undefined) clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => callbacks.onQueryChange(searchInput.value), SEARCH_DEBOUNCE_MS);
+  });
 
   // Facet checkbox change (event-delegated): report the change; the page updates
   // state + re-renders, leaving the dropdown open and intact.
@@ -161,6 +188,11 @@ export const renderToolbar = (opts: {
     setResetVisible: (visible) => {
       resetBtn.hidden = !visible;
       resetSep.hidden = !visible;
+    },
+    setSearch: (q) => {
+      // Cancel any pending debounced fire so a programmatic clear can't echo back.
+      if (searchTimer !== undefined) clearTimeout(searchTimer);
+      searchInput.value = q;
     },
   };
 };

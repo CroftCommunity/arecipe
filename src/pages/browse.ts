@@ -88,7 +88,7 @@ const main = (): void => {
   // Transient text-search query (D7): NOT persisted — navigating away drops it.
   // The MiniSearch index is memoized on the feed's array identity (D6), so facet
   // toggles reuse it and only a feed change rebuilds.
-  const query = '';
+  let query = '';
   const searchMemo = createSearchMemo();
 
   // Only the newest action may render: slow async loads (the starter feed) must
@@ -249,9 +249,17 @@ const main = (): void => {
         log.debug('browse', 'facets changed', { dimension, selected: [...selected] });
         renderCurrent();
       },
+      onQueryChange: (q) => {
+        query = q;
+        browseOffset = 0; // a new query set → back to page 1
+        log.debug('browse', 'query changed', { length: q.trim().length });
+        renderCurrent();
+      },
       onReset: () => {
         state = { ...state, photosOnly: false, facets: { cuisine: [], category: [] } };
         browsePrefs.save(state);
+        query = '';
+        toolbar.setSearch('');
         toolbar.setPhotos(false);
         browseOffset = 0;
         log.info('browse', 'filters reset');

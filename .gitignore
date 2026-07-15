@@ -13,3 +13,6 @@ __pycache__/
 # root so it does NOT also ignore spike/import (tracked ops tooling).
 /import/
 /recipebox/
+
+# Throwaway Playwright config pointing at the pre-installed Chromium (env-specific).
+playwright.local.ts

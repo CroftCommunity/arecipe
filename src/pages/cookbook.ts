@@ -72,7 +72,7 @@ const renderFeedView = (
   // Transient text-search query (D7): not persisted. The MiniSearch index is
   // memoized on the active source's array identity (D6) — facet toggles reuse it;
   // a source switch or a feed update() rebuilds.
-  const query = '';
+  let query = '';
   const searchMemo = createSearchMemo();
   // Feed data is mutable so a background revalidate can swap it in place without
   // rebuilding the toolbar/source-control chrome (built once below).
@@ -185,9 +185,15 @@ const renderFeedView = (
         prefs.save(state);
         renderCurrent();
       },
+      onQueryChange: (q) => {
+        query = q;
+        renderCurrent();
+      },
       onReset: () => {
         state = { ...state, photosOnly: false, facets: { cuisine: [], category: [] } };
         prefs.save(state);
+        query = '';
+        toolbar.setSearch('');
         toolbar.setPhotos(false);
         if (resetSource !== null) resetSource(); // also clear the source line
         showCurrent();
