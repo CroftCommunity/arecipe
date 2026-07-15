@@ -2156,3 +2156,80 @@ details.calendar-publish > summary {
   padding: var(--s-1) var(--s-3);
 }
 .preview-demo-banner .friend-link { color: var(--enamel-deep); font-weight: 700; }
+
+/* ---- Cook follows: members list, add panel, publish offer ------------------ */
+/* The Account cookbook listing (cook-follows-members-view). Rows are the cook +
+   source badge + an optional per-row unfollow; the add panel + D6 publish offer
+   sit above the list. Kept mobile-first: everything wraps, nothing forces
+   horizontal overflow. */
+.friends-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  margin-top: var(--s-2);
+}
+.friend-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+.friend-link {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  color: var(--enamel);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.friend-unfollow {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  color: var(--enamel);
+  background: none;
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-pill);
+  padding: 0.1rem var(--s-2);
+  cursor: pointer;
+}
+
+.add-cook-panel {
+  margin-top: var(--s-2);
+}
+.add-cook-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+}
+.add-cook-input {
+  flex: 1 1 9rem;
+  min-width: 0;
+  max-width: 18rem;
+  font: inherit;
+  font-size: var(--t-caption);
+  padding: 0.2rem var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--card);
+  color: inherit;
+}
+.add-cook-status:empty {
+  display: none;
+}
+
+.publish-offer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+  margin: var(--s-2) 0;
+  padding: var(--s-2) var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-l);
+  background: var(--enamel-soft);
+}
+.publish-offer .status {
+  flex: 1 1 12rem;
+  margin: 0;
+}

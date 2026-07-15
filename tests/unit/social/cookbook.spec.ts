@@ -56,6 +56,38 @@ describe('resolveCookbook', () => {
     expect(members.find((m) => m.did === 'did:plc:follower000000000000a')?.handle).toBe('fan.one');
   });
 
+  it('includes local "added" cooks tagged, in priority order (you → starter → added → follow → follower)', async () => {
+    const added: FeedAuthor[] = [{ handle: 'added.cook', did: 'did:plc:added00000000000000000a' }];
+    const fetchFn = router({
+      follows: ['did:plc:follow0000000000000000a'],
+      followers: [{ did: 'did:plc:follower000000000000a', handle: 'fan.one' }],
+    });
+    const members = await resolveCookbook({ you: YOU, starters: STARTERS, added, fetchFn });
+    // Insertion order IS priority order; `added` sits between starter and follow.
+    expect(members.map((m) => m.did)).toEqual([
+      YOU.did,
+      STARTERS[0]!.did,
+      'did:plc:added00000000000000000a',
+      'did:plc:follow0000000000000000a',
+      'did:plc:follower000000000000a',
+    ]);
+    const addedMember = members.find((m) => m.did === 'did:plc:added00000000000000000a');
+    expect(addedMember?.sources).toContain('added');
+    expect(addedMember?.handle).toBe('added.cook');
+  });
+
+  it('honors the reach config: added disabled → local follows are skipped', async () => {
+    const added: FeedAuthor[] = [{ handle: 'added.cook', did: 'did:plc:added00000000000000000a' }];
+    const members = await resolveCookbook({
+      you: YOU,
+      starters: [],
+      added,
+      config: { starters: false, added: false, follows: false, followers: false },
+      fetchFn: router({}),
+    });
+    expect(members.map((m) => m.did)).toEqual([YOU.did]);
+  });
+
   it('dedups a DID that is both a follow and a follower, unioning the source tags', async () => {
     const dup = 'did:plc:dup00000000000000000a';
     const fetchFn = router({ follows: [dup], followers: [{ did: dup, handle: 'dup.h' }] });
@@ -70,7 +102,7 @@ describe('resolveCookbook', () => {
     const members = await resolveCookbook({
       you: YOU,
       starters: [],
-      config: { starters: false, follows: false, followers: true },
+      config: { starters: false, added: false, follows: false, followers: true },
       fetchFn,
     });
     const m = members.find((x) => x.did === 'did:plc:inv000000000000000a');
@@ -92,7 +124,7 @@ describe('resolveCookbook', () => {
     await resolveCookbook({
       you: YOU,
       starters: [],
-      config: { starters: false, follows: true, followers: false },
+      config: { starters: false, added: false, follows: true, followers: false },
       fetchFn,
     });
     const urls = (fetchFn as unknown as { mock: { calls: unknown[][] } }).mock.calls.map((c) => String(c[0]));
@@ -106,7 +138,7 @@ describe('resolveCookbook', () => {
     }) as unknown as typeof fetch;
     const members = await resolveCookbook({
       starters: STARTERS,
-      config: { starters: true, follows: true, followers: true },
+      config: { starters: true, added: false, follows: true, followers: true },
       fetchFn,
     });
     expect(members.map((m) => m.did)).toEqual([STARTERS[0]!.did]);

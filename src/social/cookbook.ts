@@ -22,21 +22,38 @@
 
 import { log } from '../log.js';
 import { createStarterPrefs } from '../recipes/starter.js';
+import { createCookFollowsLocal } from './cook-follows-local.js';
 import type { FeedAuthor } from './feed.js';
 
-/** Which source(s) named a member. A member can carry more than one. */
-export type CookbookSource = 'you' | 'starter' | 'follow' | 'follower';
+/** Which source(s) named a member. A member can carry more than one. `added` is
+ * the cook-follows source (D8): cooks you explicitly followed, held in the
+ * device-local store and mirrored down from PDS cookFollow records. */
+export type CookbookSource = 'you' | 'starter' | 'added' | 'follow' | 'follower';
 
 /** A resolved cookbook member repo. */
 export type CookbookMember = { did: string; handle?: string; sources: CookbookSource[] };
 
 /** Which reach sources are enabled. Depth (the like-graph network effect) is
  * NOT here — it is deferred to CB6 (see the plan). */
-export type ReachConfig = { starters: boolean; follows: boolean; followers: boolean };
+export type ReachConfig = { starters: boolean; added: boolean; follows: boolean; followers: boolean };
 
-const DEFAULT_REACH: ReachConfig = { starters: true, follows: true, followers: true };
+const DEFAULT_REACH: ReachConfig = { starters: true, added: true, follows: true, followers: true };
 const DEFAULT_APPVIEW = 'https://public.api.bsky.app';
 const FOLLOW_COLLECTION = 'app.bsky.graph.follow';
+
+/** The device-local cook-follows as feed authors. Defensive: any read failure
+ *  (e.g. no `window` in a non-DOM context) contributes nothing rather than
+ *  throwing — the resolver degrades a source, never the whole cookbook. */
+const readLocalAdded = (): FeedAuthor[] => {
+  try {
+    return createCookFollowsLocal()
+      .list()
+      .map((f) => ({ handle: f.handle, did: f.did }));
+  } catch (err) {
+    log.warn('cookbook', 'local added source failed', { error: String(err) });
+    return [];
+  }
+};
 
 /** Resolve the cookbook's depth-0 member repos from the enabled sources.
  * `you` (the signed-in account, `{did, pds}`) is required for follows/followers
@@ -48,6 +65,9 @@ export const resolveCookbook = async (args: {
   you?: { did: string; pds: string };
   config?: ReachConfig;
   starters?: FeedAuthor[];
+  /** Cooks you explicitly followed (the `added` source). Defaults to the
+   *  device-local cook-follows store, read defensively. Injectable for tests. */
+  added?: FeedAuthor[];
   fetchFn?: typeof fetch;
   appView?: string;
 }): Promise<CookbookMember[]> => {
@@ -73,6 +93,20 @@ export const resolveCookbook = async (args: {
     const starters = args.starters ?? createStarterPrefs().enabledAuthors();
     for (const author of starters) add(author.did, 'starter', author.handle);
     log.debug('cookbook', 'starters resolved', { count: starters.length });
+  }
+
+  // `added` sits between starter and follow in priority: an explicit follow is
+  // higher-signal than a passive bsky graph edge but below the curated starters.
+  // Reads the local store (the universal read model) by default; injectable.
+  if (config.added) {
+    const added = args.added ?? readLocalAdded();
+    for (const author of added) {
+      // A mirror-down stores the DID as a placeholder handle; treat that as
+      // unresolved so membersToAuthors resolves the real handle downstream.
+      const handle = author.handle !== '' && author.handle !== author.did ? author.handle : undefined;
+      add(author.did, 'added', handle);
+    }
+    log.debug('cookbook', 'added cooks resolved', { count: added.length });
   }
 
   const you = args.you;

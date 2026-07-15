@@ -95,9 +95,10 @@ describe('listCookFollows', () => {
 describe('followCook', () => {
   it('createRecords { subject, createdAt } in the cookFollow collection', async () => {
     const createRecord = vi.fn(
-      async (_arg: { repo: string; collection: string; record: Record<string, unknown> }) => ({
-        data: { uri: `at://${DID}/x/r1`, cid: 'bafy' },
-      }),
+      async (arg: { repo: string; collection: string; record: Record<string, unknown> }) => {
+        void arg;
+        return { data: { uri: `at://${DID}/x/r1`, cid: 'bafy' } };
+      },
     );
     const agent = { did: DID, com: { atproto: { repo: { createRecord } } } } as unknown as Agent;
     const res = await followCook(agent, 'did:plc:alice');
