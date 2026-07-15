@@ -90,14 +90,27 @@ empty states) · `--r-pill` (chips). One stroke width everywhere: `--stroke`
   banner when open), display-face title, chips row (time + stamp). Hover =
   enamel border, nothing louder.
 - **Toolbar (shared Browse + Cookbook)**: a compact control bar above the feed —
-  a Tiles/Details view toggle, a "Photos only" toggle, and transient `Meal ▾` /
-  `Cuisine ▾` multi-select filter dropdowns (OR within a dimension, AND across),
-  with the count right-aligned. Extracted to `src/recipes/toolbar.ts`
-  (`renderToolbar`, Phase 7) and adopted by Cookbook (Phase 8); each page keeps
-  its own persisted view/facet prefs (`browse-*` vs `cookbook-*` keys, OQ11) so
-  choices don't bleed across. Dietary preference is not a transient filter — it
-  is a persisted "Only show me" preference set in Settings (linked from the count
-  on **Browse only**; the Cookbook toolbar omits the diet link).
+  a Tiles/Details view toggle, a full-text `search recipes…` box, a "Photos only"
+  toggle, and transient `Meal ▾` / `Cuisine ▾` multi-select filter dropdowns (OR
+  within a dimension, AND across), with the count right-aligned. Extracted to
+  `src/recipes/toolbar.ts` (`renderToolbar`, Phase 7) and adopted by Cookbook
+  (Phase 8); each page keeps its own persisted view/facet prefs (`browse-*` vs
+  `cookbook-*` keys, OQ11) so choices don't bleed across. Dietary preference is
+  not a transient filter — it is a persisted "Only show me" preference set in
+  Settings (linked from the count on **Browse only**; the Cookbook toolbar omits
+  the diet link).
+- **Text search (shared Browse + Cookbook)**: the toolbar's `recipe-search` box
+  ranks the in-memory feed with MiniSearch (`src/recipes/search.ts`) — BM25 with
+  per-field boosts (name > ingredients > text > instructions > cuisine/category/
+  labels), `AND` term semantics, prefix + fuzzy(0.2), so `feta` reaches a recipe
+  whose *ingredients* list feta, `chicken lemon` means both, and `brocolli` still
+  finds broccoli. It runs after the facet/diet/taste filter and before version
+  collapse, so a match on any version surfaces its dish's representative card; an
+  empty query is the identity (feed order untouched). The query is transient
+  (never persisted) and the shared reset clears it. The index is rebuilt only on
+  a feed change (memoized on the entries array), not on every keystroke or facet
+  toggle. The Meals add-a-recipe palette keeps its own simple `includes()` name
+  filter — deliberately out of scope.
 - **Cook-search typeahead (Browse + Meals add-a-cook)**: the handle inputs
   suggest accounts as you type, so finding a cook doesn't require knowing their
   exact handle. Suggestions come from Bluesky's public AppView

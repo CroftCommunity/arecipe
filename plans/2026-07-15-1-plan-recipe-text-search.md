@@ -2,10 +2,14 @@
 
 **Status:** ✅ **Built 2026-07-15** on branch `claude/recipe-text-search-41wsk8`.
 All five phases landed TDD (red → green) with the locked design below; full gate
-green (lint · typecheck · unit · build · e2e). MiniSearch 7.2.0 (17.2 KB min /
-5.9 KB gzipped). Browse bundle 9.1 KB → ~15 KB gzipped-delta well under the
-15 KB flag. See the run summary for red-to-green evidence and [verify-in-run]
-outcomes.
+green (lint · typecheck · 443 unit · build · 165 e2e, incl. 22 new
+search/toolbar/composition specs across `search.spec.ts`, `toolbar.spec.ts`,
+`browse.spec.ts`, `cookbook.spec.ts`). MiniSearch 7.2.0 (17.2 KB min / 5.9 KB
+gzipped) code-splits into one shared chunk (~7.6 KB gzip incl. `search.ts` +
+`browse-state`/`model`), loaded by both Browse and Cookbook — under the 15 KB
+flag. [verify-in-run]: esbuild bundles minisearch cleanly, bundled types satisfy
+strict TS, and the browse document still ships zero auth code (nav bundle-split
+e2e green). Deferred items per D8 below.
 
 ## Problem Statement
 

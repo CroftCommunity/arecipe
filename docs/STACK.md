@@ -52,8 +52,12 @@ stand up and babysit is out of scope by design (see `PHILOSOPHY.md` §4, commitm
   against runtime XSS is preventing XSS: strict CSP, subresource integrity, no
   third-party script loads.
 
-- **Search: in-browser index** (MiniSearch or FlexSearch), built at cold-start over
-  cached recipes. Sub-100ms at 25-member scale. Known knee at ~500 members.
+- **Search: in-browser index — DECIDED: MiniSearch 7.x** (`src/recipes/search.ts`),
+  built over the cached in-memory feed and rebuilt only on a feed change. ~5.9 KB
+  gzipped, zero-dependency; BM25 ranking, per-field boosts, prefix + fuzzy. Heavier
+  engines (SQLite FTS5 WASM, Orama) were rejected for this bounded (hundreds–low-
+  thousands) corpus. Sub-100ms at this scale; revisit a Web Worker / persisted
+  index only if the corpus reaches tens of thousands.
 
 - **Frontend framework: DECIDED — none (vanilla HTML5+CSS+TS).** Build tooling:
   esbuild + Vitest + Playwright, confirmed by the Phase 0 toolchain spike. See §7.
