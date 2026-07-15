@@ -192,6 +192,22 @@ test('cold-view: text search filters the cookbook feed (ingredient reach)', asyn
   await expect(page.getByTestId('recipe-search')).toHaveValue('');
 });
 
+// D7 mobile: the cold-view Cookbook keeps its toolbar within three control rows
+// at a phone width (the source row is present on the signed-in own cookbook; the
+// cold-view has none, so this bounds ≤3), with no horizontal overflow.
+test('mobile (390px): cold-view Cookbook stays within three toolbar rows', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 780 });
+  await routeCookbookFixtures(page);
+  await page.goto(`/cookbook.html?did=${encodeURIComponent(VIEWED.did)}`);
+  await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
+  const rows = await page.locator('.browse-toolbar .toolbar-row:visible').count();
+  expect(rows).toBeLessThanOrEqual(3);
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow, 'no horizontal overflow @390px').toBeLessThanOrEqual(1);
+});
+
 test('legacy friends.html redirects to cookbook.html (query preserved)', async ({ page }) => {
   await page.goto(`/friends.html?did=${encodeURIComponent(VIEWED.did)}`);
   await expect(page).toHaveURL(new RegExp(`/cookbook\\.html\\?did=`), { timeout: 15_000 });

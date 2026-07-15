@@ -453,6 +453,41 @@ test('search composes with a facet: cuisine greek + query lemon → only the Lun
   await expect(page.getByTestId('recipes-status')).toContainText('1 of 4 shown');
 });
 
+// D7 mobile: Browse shows at most TWO control rows before content (the source
+// row is Cookbook-only and collapses here), and no horizontal overflow @390px.
+test('mobile (390px): Browse shows at most two toolbar rows before content', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 780 });
+  await routeMixedFeed(page);
+  await page.goto('/');
+  await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator('.browse-toolbar .toolbar-row:visible')).toHaveCount(2);
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow, 'no horizontal overflow @390px').toBeLessThanOrEqual(1);
+});
+
+// D7: the single Filters ▾ badge counts active browse filters (photos + facets);
+// reset clears them and hides the badge. The honest count stays outside.
+test('Filters ▾ badge counts active filters; reset clears it', async ({ page }) => {
+  await routeMixedFeed(page);
+  await page.goto('/');
+  await expect(page.getByTestId('recipe-item')).toHaveCount(4);
+  await expect(page.getByTestId('filters-count')).toBeHidden();
+
+  await openFilters(page);
+  await page.getByTestId('photos-only').check();
+  await page.locator('input[data-dimension=category][data-value=dinner]').check();
+  // photos (1) + one Meal facet (1) = 2 active filters.
+  await expect(page.getByTestId('filters-count')).toHaveText('2');
+  // The honest count lives OUTSIDE the disclosure.
+  await expect(page.getByTestId('recipes-status')).toContainText('shown');
+
+  await page.getByTestId('reset-filters').click();
+  await expect(page.getByTestId('filters-count')).toBeHidden();
+  await expect(page.getByTestId('recipe-item')).toHaveCount(4);
+});
+
 test('browse paginates the feed at 50 with prev/next arrows', async ({ page }) => {
   await routeManyRecipes(page, 55);
   await page.goto('/');

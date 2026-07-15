@@ -107,11 +107,17 @@ export const mountMembersList = async (
   container: HTMLElement,
   you: { did: string; pds: string },
   config?: ReachConfig,
-  opts: { agent?: Agent } = {},
+  opts: {
+    agent?: Agent;
+    /** Injectable for hermetic tests (defaults: real fetch / handle resolver). */
+    fetchFn?: typeof fetch;
+    resolver?: (handle: string) => Promise<{ did: string; handle: string }>;
+  } = {},
 ): Promise<void> => {
   const agent = opts.agent;
   const local = createCookFollowsLocal();
-  const resolver = createResolver();
+  const resolver = opts.resolver ?? createResolver();
+  const fetchOpt = opts.fetchFn === undefined ? {} : { fetchFn: opts.fetchFn };
 
   const note = el(
     'p',
@@ -161,7 +167,7 @@ export const mountMembersList = async (
     local.remove(did);
     if (agent !== undefined && publishedDids.has(did)) {
       try {
-        await unfollowCook(agent, did, you);
+        await unfollowCook(agent, did, you, fetchOpt);
         publishedDids.delete(did);
       } catch (err) {
         log.warn('cookbook-members', 'unpublish follow failed', { error: String(err) });
@@ -214,7 +220,11 @@ export const mountMembersList = async (
 
   const render = async (): Promise<void> => {
     try {
-      const members = await resolveCookbook(config === undefined ? { you } : { you, config });
+      const members = await resolveCookbook({
+        you,
+        ...(config === undefined ? {} : { config }),
+        ...fetchOpt,
+      });
       const authors = await membersToAuthors(members);
       listMount.replaceChildren(renderMembersList(members, authors, { onUnfollow: (did) => void unfollow(did) }));
       renderOffer();
@@ -229,9 +239,9 @@ export const mountMembersList = async (
   // failure degrades: local-only state still renders.
   if (agent !== undefined) {
     try {
-      const pds = await listCookFollows(you);
+      const pds = await listCookFollows(you, fetchOpt);
       publishedDids = new Set(pds.map((f) => f.subject));
-      await mirrorCookFollowsDown(local, you);
+      await mirrorCookFollowsDown(local, you, fetchOpt);
     } catch (err) {
       log.warn('cookbook-members', 'cook-follow mirror-down failed', { error: String(err) });
     }
