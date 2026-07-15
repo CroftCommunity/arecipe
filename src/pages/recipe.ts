@@ -33,6 +33,8 @@ import {
   type InteractionRepo,
 } from '../social/interactions.js';
 import { createSocialPrefs } from '../social/prefs.js';
+import { renderShareButton, shareOrigin } from '../share/button.js';
+import { buildRecipeShareUrl } from '../share/urls.js';
 import { registerServiceWorker } from '../sw-register.js';
 import type { Agent } from '@atproto/api';
 
@@ -465,6 +467,23 @@ const paintVersion = (
       showFunFacts: createSocialPrefs().includeFunFacts(),
     }),
   );
+  // Share affordance: a one-tap Share button beside the title, wired to the
+  // canonical recipe.html?u=…[&by=…] URL for the version currently shown (rebuilt
+  // per version because paintVersion runs on every flip). URL is normalized from
+  // the page's own u/by via buildRecipeShareUrl, not echoed raw.
+  const titleRow = host.querySelector('.recipe-title-row');
+  if (titleRow !== null) {
+    const name = (entry.value as { name?: string }).name;
+    titleRow.append(
+      renderShareButton({
+        url: buildRecipeShareUrl(shareOrigin(), uri, author),
+        title: name ?? 'Recipe',
+        label: 'Share',
+        ariaLabel: 'Share this recipe',
+        testid: 'share-recipe',
+      }),
+    );
+  }
   if (opts.checkStale) {
     void checkForNewerRevision(uri, entry.cid, (refresh) => {
       const note = document.createElement('p');
