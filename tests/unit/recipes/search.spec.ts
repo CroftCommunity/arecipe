@@ -4,7 +4,9 @@
 // fuzzy tolerance, and empty-query identity. No DOM — the page wiring is guarded
 // by e2e. Fixtures are built before the features that consume them.
 import { describe, expect, it } from 'vitest';
-import { createRecipeSearch, createSearchMemo } from '../../../src/recipes/search.js';
+import { createRecipeSearch, createSearchMemo, queryEntries } from '../../../src/recipes/search.js';
+import { collapseVersions } from '../../../src/recipes/model.js';
+import { matchesFilter, type BrowseState } from '../../../src/pages/browse-state.js';
 import type { CachedRecipe } from '../../../src/recipes/cache.js';
 
 const cached = (value: Record<string, unknown>, rkey: string): CachedRecipe => ({
@@ -157,5 +159,71 @@ describe('createSearchMemo — identity memoization', () => {
     expect(builds).toBe(1);
     memo([...arr]); // new reference — rebuild
     expect(builds).toBe(2);
+  });
+});
+
+// Phase 2 — the composition seam both pages share: query runs AFTER facets and
+// BEFORE collapseVersions (D5), over a whole-feed index memoized on identity (D6).
+const baseState = (over: Partial<BrowseState> = {}): BrowseState => ({
+  view: 'tiles',
+  photosOnly: false,
+  facets: { cuisine: [], category: [] },
+  ...over,
+});
+
+describe('queryEntries — composition with collapseVersions', () => {
+  it('surfaces the primary card when only a non-primary version’s content matches', () => {
+    // Two versions of one dish share dishKey "beef-stew". Only the NON-primary
+    // version carries feta; the primary does not. A "feta" query must still make
+    // the dish surface, and collapse must yield the PRIMARY as the representative.
+    const primary = recipe(
+      { name: 'Beef Stew', ingredients: ['beef', 'carrot'], dishKey: 'beef-stew', primaryVersion: true },
+      'stew-primary',
+    );
+    const variant = recipe(
+      { name: 'Beef Stew (Greek)', ingredients: ['beef', 'feta'], dishKey: 'beef-stew' },
+      'stew-variant',
+    );
+    const feed = [primary, variant];
+    const searcher = createRecipeSearch(feed);
+    const queried = queryEntries(searcher, 'feta', feed);
+    // Both versions of the dish are carried through so collapse sees the primary.
+    expect(queried.map((e) => e.uri).sort()).toEqual([primary.uri, variant.uri].sort());
+    const { representatives } = collapseVersions(queried);
+    expect(representatives.map((e) => e.uri)).toEqual([primary.uri]);
+  });
+});
+
+describe('queryEntries — composition with facets', () => {
+  it('applies the facet filter first, then the query (both narrow the result)', () => {
+    // Greek lemon bowl, an Italian lemon risotto (matches the query but wrong
+    // cuisine), and a Greek feta salad (right cuisine, wrong query).
+    const bowl = recipe(
+      { name: 'Greek Lunch Bowl', ingredients: ['chickpeas', 'lemon'], recipeCuisine: 'greek' },
+      'bowl',
+    );
+    const risotto = recipe(
+      { name: 'Lemon Risotto', ingredients: ['rice', 'lemon'], recipeCuisine: 'italian' },
+      'risotto',
+    );
+    const salad = recipe(
+      { name: 'Greek Salad', ingredients: ['cucumber', 'feta'], recipeCuisine: 'greek' },
+      'salad',
+    );
+    const feed = [bowl, risotto, salad];
+    const searcher = createRecipeSearch(feed); // indexed over the WHOLE feed
+    const greek = baseState({ facets: { cuisine: ['greek'], category: [] } });
+    const candidates = feed.filter((e) => matchesFilter(e.value, { state: greek, diet: [] }));
+    // Facet greek → {bowl, salad}; then query lemon → only the bowl survives.
+    const shown = queryEntries(searcher, 'lemon', candidates);
+    expect(shown.map((e) => e.uri)).toEqual([bowl.uri]);
+  });
+
+  it('empty query is identity over the candidates (facet order preserved)', () => {
+    const a = recipe({ name: 'A', recipeCuisine: 'greek' }, 'a');
+    const b = recipe({ name: 'B', recipeCuisine: 'greek' }, 'b');
+    const feed = [a, b];
+    const searcher = createRecipeSearch(feed);
+    expect(queryEntries(searcher, '   ', feed)).toEqual([a, b]);
   });
 });

@@ -11,7 +11,7 @@
 //
 import MiniSearch from 'minisearch';
 import type { CachedRecipe } from './cache.js';
-import { funFactsOf, versionLabelOf } from './model.js';
+import { dishKeyOf, funFactsOf, versionLabelOf } from './model.js';
 import { recipeFacets } from '../pages/browse-state.js';
 
 /** A trimmed string, or '' for anything non-string. Never throws. */
@@ -121,4 +121,59 @@ export const createSearchMemo = (
     }
     return lastSearch;
   };
+};
+
+/**
+ * The composition seam (D5), shared by Browse and Cookbook so the logic isn't
+ * forked per page. Given a searcher built over the WHOLE candidate feed and the
+ * already-facet-filtered `candidates`, return the subset to hand to
+ * `collapseVersions`, ordered by match score:
+ *
+ *  - Empty/whitespace query → the candidates unchanged (identity; feed order).
+ *  - Non-empty query → keep every candidate whose DISH matched. A match on any
+ *    version's content pulls in that version's siblings too (they share a
+ *    dishKey), so `collapseVersions` still sees the primary and surfaces the
+ *    dish's representative card — not whichever version happened to match. Dishes
+ *    order by their best (highest-scoring) matching version; ungrouped recipes by
+ *    their own score.
+ *
+ * The searcher indexes the whole feed (stable identity → memoizable) while the
+ * facet filter narrows `candidates`; intersecting here applies both (facets AND
+ * query) without rebuilding the index on every facet toggle.
+ */
+export const queryEntries = (
+  searcher: RecipeSearch,
+  q: string,
+  candidates: readonly CachedRecipe[],
+): CachedRecipe[] => {
+  if (q.trim() === '') return [...candidates];
+
+  const ranked = searcher.query(q);
+  const rankByUri = new Map<string, number>();
+  ranked.forEach((e, i) => rankByUri.set(e.uri, i));
+
+  // Best (lowest) rank seen for each matched dishKey, so a non-matching primary
+  // sibling inherits its matching version's position.
+  const rankByDish = new Map<string, number>();
+  for (const e of ranked) {
+    const dk = dishKeyOf(e.value);
+    if (dk === undefined) continue;
+    const i = rankByUri.get(e.uri)!;
+    const cur = rankByDish.get(dk);
+    if (cur === undefined || i < cur) rankByDish.set(dk, i);
+  }
+
+  const effectiveRank = (e: CachedRecipe): number | undefined => {
+    const own = rankByUri.get(e.uri);
+    const dk = dishKeyOf(e.value);
+    const dish = dk === undefined ? undefined : rankByDish.get(dk);
+    if (own !== undefined && dish !== undefined) return Math.min(own, dish);
+    return own ?? dish;
+  };
+
+  return candidates
+    .map((e) => ({ e, r: effectiveRank(e) }))
+    .filter((x): x is { e: CachedRecipe; r: number } => x.r !== undefined)
+    .sort((a, b) => a.r - b.r)
+    .map((x) => x.e);
 };

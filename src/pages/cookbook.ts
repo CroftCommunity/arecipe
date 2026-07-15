@@ -28,6 +28,7 @@ import { loadLikedFeed } from '../social/liked-feed.js';
 import { readFeedMeta, relativeFreshness, writeFeedMeta } from '../social/cookbook-feed-cache.js';
 import { createRecipeCache, type CachedRecipe } from '../recipes/cache.js';
 import { availableFacets, createBrowsePrefs, matchesFilter, recipeFacets, type BrowseState } from './browse-state.js';
+import { createSearchMemo, queryEntries } from '../recipes/search.js';
 import { createTastePreference, matchesTaste } from '../recipes/taste-preference.js';
 import { renderToolbar } from '../recipes/toolbar.js';
 import { renderRecipeDetailsList, renderRecipeList } from '../recipes/view.js';
@@ -67,6 +68,12 @@ const renderFeedView = (
   const prefs = createBrowsePrefs({ prefix: 'cookbook', defaultView: 'details' });
   const tastePreference = createTastePreference();
   let state = prefs.load();
+
+  // Transient text-search query (D7): not persisted. The MiniSearch index is
+  // memoized on the active source's array identity (D6) — facet toggles reuse it;
+  // a source switch or a feed update() rebuilds.
+  const query = '';
+  const searchMemo = createSearchMemo();
   // Feed data is mutable so a background revalidate can swap it in place without
   // rebuilding the toolbar/source-control chrome (built once below).
   let entries = initialEntries;
@@ -114,7 +121,13 @@ const renderFeedView = (
     };
   };
   const hasFilters = (s: BrowseState): boolean =>
-    s.photosOnly || s.facets.cuisine.length > 0 || s.facets.category.length > 0;
+    s.photosOnly || s.facets.cuisine.length > 0 || s.facets.category.length > 0 || query.trim() !== '';
+
+  // The searcher indexes the active source's whole set — `entries` for All/Mine
+  // (Mine is a subset, so the superset index covers it) and the separately
+  // fetched `likedEntries` for Liked. Both references are stable across facet
+  // toggles; a source switch or feed update() hands a new array and rebuilds.
+  const indexBase = (): readonly CachedRecipe[] => (source === 'liked' ? likedEntries ?? [] : entries);
 
   const renderCurrent = (): void => {
     if (source === 'liked' && likedLoading) {
@@ -124,9 +137,11 @@ const renderFeedView = (
     const base = activeEntries();
     const effective = effectiveState();
     const taste = tastePreference.load();
-    const shown = base.filter(
+    const facetFiltered = base.filter(
       (e) => matchesFilter(e.value, { state: effective, diet: [] }) && matchesTaste(recipeFacets(e.value), taste),
     );
+    // Text search after the facet/taste filter, before render (D5).
+    const shown = queryEntries(searchMemo(indexBase()), query, facetFiltered);
     toolbar.setStatus(
       hasFilters(effective)
         ? `${shown.length} of ${base.length} shown`
