@@ -1474,12 +1474,6 @@ a.card {
   margin-top: var(--s-3);
 }
 
-/* "Post comment" sits right-aligned under the textarea (a grid item pinned to
-   the end of the column). */
-.comment-post {
-  justify-self: end;
-}
-
 .comment-compose textarea {
   font: inherit;
   min-height: 4.5rem;
@@ -1497,9 +1491,9 @@ a.card {
 }
 
 /* The primary "Post comment" button hugs its content instead of stretching the
-   grid column. */
+   grid column, pinned to the end so it sits right-aligned under the textarea. */
 .comment-compose .button--primary {
-  justify-self: start;
+  justify-self: end;
 }
 
 .draft-row {
