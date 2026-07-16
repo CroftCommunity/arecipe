@@ -2060,10 +2060,12 @@ table.ref.pairs td.eq {
   }
 }
 
-/* ---- Account: taste preference ("Never show me" exclusions) --------------- */
-/* A titled block whose Meals ▾ / Cuisines ▾ dropdowns (the Browse .facet-dd
-   idiom) pick meals + cuisines to EXCLUDE site-wide. Each summary carries a
-   count bubble so selections show while collapsed. */
+/* ---- Account: taste preference ("Only show me" diet + "Never show me") ---- */
+/* Two titled blocks: "Only show me" (dietary whitelist checkboxes) above
+   "Never show me", whose Meals ▾ / Cuisines ▾ dropdowns (the Browse .facet-dd
+   idiom) pick meals + cuisines to EXCLUDE site-wide. Each dropdown summary
+   carries a count bubble so selections show while collapsed. */
+.taste-only-block,
 .taste-never-block {
   margin-top: var(--s-3);
 }
