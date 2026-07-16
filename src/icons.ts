@@ -91,6 +91,44 @@ export const referenceIcon = (): SVGSVGElement => {
   return svg;
 };
 
+// ---- Share glyph --------------------------------------------------------------
+// A TRAY WITH AN UP ARROW marks "send this out" — the share control's icon
+// variant (src/share/button.ts), mounted beside the Cookbook heading. Same
+// posture as the other glyphs: currentColor stroke, no fill, geometry pinned in
+// exported constants (Lucide "share").
+
+/** Committed glyph geometry — pinned by tests/unit/icons.spec.ts. */
+export const SHARE_ICON_VIEWBOX = '0 0 24 24';
+/** The open tray the arrow rises out of. */
+export const SHARE_ICON_TRAY_PATH = 'M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8';
+/** The arrowhead pointing up and out. */
+export const SHARE_ICON_ARROW_POINTS = '16 6 12 2 8 6';
+/** The arrow's stem, from the arrowhead down into the tray. */
+export const SHARE_ICON_STEM_PATH = 'M12 2v13';
+
+/** An inline share glyph: tray + up arrow, currentColor stroke, no fill,
+ *  aria-hidden (the accessible name lives on the control). */
+export const shareIcon = (): SVGSVGElement => {
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('viewBox', SHARE_ICON_VIEWBOX);
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.setAttribute('stroke-linejoin', 'round');
+  svg.setAttribute('aria-hidden', 'true');
+
+  const tray = document.createElementNS(SVG_NS, 'path');
+  tray.setAttribute('d', SHARE_ICON_TRAY_PATH);
+  const stem = document.createElementNS(SVG_NS, 'path');
+  stem.setAttribute('d', SHARE_ICON_STEM_PATH);
+  const arrow = document.createElementNS(SVG_NS, 'polyline');
+  arrow.setAttribute('points', SHARE_ICON_ARROW_POINTS);
+
+  svg.append(tray, stem, arrow);
+  return svg;
+};
+
 /** A quick link to the Reference page wrapping the open-book glyph. Icon-only,
  *  so the label is the accessible name (`aria-label` + `title`). Shared
  *  `.reference-link` class + testid style/locate every site alike. */

@@ -3,10 +3,13 @@
 //   Row 1  — the full-width recipe-search input + a page-actions slot (Browse
 //            mounts "+ Cook" and export there; Cookbook mounts nothing).
 //   Row 2  — a source slot (Cookbook mounts its Mine | Liked | All segmented;
-//            empty and collapsed elsewhere).
-//   Row 3  — the Tiles | Details view toggle + ONE "Filters ▾" disclosure with a
-//            count badge, and the honest "N of M shown" count OUTSIDE it, with
-//            the reset control in that same count block (reset-surface v2).
+//            empty and collapsed elsewhere). With `filtersInSourceRow` the
+//            "Filters ▾" disclosure rides this row too, right of the source
+//            control — one filter line (Cookbook own view).
+//   Row 3  — the Tiles | Details view toggle + the "Filters ▾" disclosure with a
+//            count badge (unless it moved to row 2), and the honest "N of M
+//            shown" count OUTSIDE it, with the reset control in that same count
+//            block (reset-surface v2).
 // The Filters popover holds photos-only, the Meal / Cuisine facet groups, and
 // the diet-preference link (Browse only). Reset does NOT live in the popover:
 // it sits in the count block (before the count) and appears only when a filter
@@ -79,10 +82,17 @@ export type ToolbarController = {
 export const renderToolbar = (opts: {
   /** Browse shows the "preference ↗" diet link inside Filters; Cookbook does not. */
   showDietLink?: boolean;
+  /** Mount Filters ▾ on the source row, right of the page's source control, so
+   *  ALL filtering reads as one line (Cookbook own view — owner mobile feedback
+   *  2026-07-16). The controls row then holds view toggle + reset + count only.
+   *  Default (false — Browse, cookbook cold-view): Filters stays on the
+   *  controls row and the empty source row collapses. */
+  filtersInSourceRow?: boolean;
   callbacks: ToolbarCallbacks;
 }): ToolbarController => {
   const { callbacks } = opts;
   const showDietLink = opts.showDietLink ?? false;
+  const filtersInSourceRow = opts.filtersInSourceRow ?? false;
 
   const toolbar = el('div', 'browse-toolbar');
 
@@ -98,9 +108,15 @@ export const renderToolbar = (opts: {
   actionsSlot.dataset['testid'] = 'toolbar-actions';
   rowSearch.append(searchInput, actionsSlot);
 
-  // --- Row 2: source slot (Cookbook) — collapses when empty (CSS). ---
-  const sourceSlot = el('div', 'toolbar-row toolbar-row--source');
-  sourceSlot.dataset['testid'] = 'toolbar-source';
+  // --- Row 2: source slot (Cookbook) — collapses when empty (CSS). With
+  // filtersInSourceRow the row is a composite [inner slot | Filters ▾]: the
+  // page's source control mounts into the INNER slot so it stays left of
+  // Filters in DOM (and tab) order, and the row never renders empty because
+  // the option implies a source control is coming. ---
+  const rowSource = el('div', 'toolbar-row toolbar-row--source');
+  rowSource.dataset['testid'] = 'toolbar-source';
+  const sourceSlot = filtersInSourceRow ? el('div', 'toolbar-source-slot') : rowSource;
+  if (filtersInSourceRow) rowSource.append(sourceSlot);
 
   // --- Row 3: view toggle + Filters ▾ + honest count ---
   const rowControls = el('div', 'toolbar-row toolbar-row--controls');
@@ -170,9 +186,14 @@ export const renderToolbar = (opts: {
   };
   compactMq.addEventListener('change', applyStatus);
 
-  rowControls.append(viewSegmented, filtersDd, countBlock);
+  if (filtersInSourceRow) {
+    rowSource.append(filtersDd);
+    rowControls.append(viewSegmented, countBlock);
+  } else {
+    rowControls.append(viewSegmented, filtersDd, countBlock);
+  }
 
-  toolbar.append(rowSearch, sourceSlot, rowControls);
+  toolbar.append(rowSearch, rowSource, rowControls);
 
   // --- control listeners → callbacks ---
   viewTiles.addEventListener('click', () => callbacks.onViewChange('tiles'));

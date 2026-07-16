@@ -217,6 +217,44 @@ test('mobile (390px): cold-view Cookbook stays within three toolbar rows', async
   expect(overflow, 'no horizontal overflow @390px').toBeLessThanOrEqual(1);
 });
 
+// Shared-cookbook view (owner feedback 2026-07-16): opening someone else's
+// cookbook (?did=) labels the page with a banner under the site banner —
+// "Viewing <handle>'s shared cookbook", the handle linked to their Bluesky
+// profile — replacing the old bare "Cookbook of <did>" status line.
+test('cold-view shows the shared-cookbook banner with the owner handle linked to their Bluesky profile', async ({
+  page,
+}) => {
+  await routeCookbookFixtures(page);
+  await page.goto(`/cookbook.html?did=${encodeURIComponent(VIEWED.did)}`);
+  const banner = page.getByTestId('shared-cookbook-banner');
+  await expect(banner).toBeVisible({ timeout: 15_000 });
+  await expect(banner).toContainText(/shared cookbook/);
+  await expect(banner).toContainText(/^Viewing /);
+  // The user paints as the DID first and upgrades to the resolved handle.
+  const user = page.getByTestId('shared-cookbook-user');
+  await expect(user).toHaveText('viewed.example.com', { timeout: 15_000 });
+  await expect(user).toHaveAttribute('href', 'https://bsky.app/profile/viewed.example.com');
+  // The old bare status line is gone (the banner replaces it).
+  await expect(page.locator('.panel', { hasText: 'Cookbook of did:' })).toHaveCount(0);
+  // Anonymous visitor: no ✕ — there is no own cookbook to return to.
+  await expect(page.getByTestId('shared-cookbook-close')).toHaveCount(0);
+});
+
+test('the shared-cookbook banner shows a ✕ back to your own cookbook when signed in (session hint)', async ({
+  page,
+}) => {
+  await routeCookbookFixtures(page);
+  // The zero-auth session hint marks "signed in" for shell affordances; the
+  // ?did= cold-view renders before any auth boot, so the hint alone drives the ✕.
+  await page.addInitScript(() => window.localStorage.setItem('arecipe-session', '1'));
+  await page.goto(`/cookbook.html?did=${encodeURIComponent(VIEWED.did)}`);
+  const close = page.getByTestId('shared-cookbook-close');
+  await expect(close).toBeVisible({ timeout: 15_000 });
+  // Same page path: closing IS navigating back to your own cookbook in place.
+  await expect(close).toHaveAttribute('href', /cookbook\.html$/);
+  await expect(close).toHaveAttribute('aria-label', /your cookbook/i);
+});
+
 test('legacy friends.html redirects to cookbook.html (query preserved)', async ({ page }) => {
   await page.goto(`/friends.html?did=${encodeURIComponent(VIEWED.did)}`);
   await expect(page).toHaveURL(new RegExp(`/cookbook\\.html\\?did=`), { timeout: 15_000 });

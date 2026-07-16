@@ -51,19 +51,55 @@ const el = (tag: string, className?: string, text?: string): HTMLElement => {
  * concern, so the cookbook filter ignores it). */
 const didOf = (uri: string): string => uri.split('/')[2] ?? '';
 
-/** Share affordance: a one-tap Share button on the cookbook title row, wired to
- * the canonical cookbook.html?did=<did> URL for the cookbook being viewed — the
- * viewed DID on the cold-view, your own DID on the signed-in view. */
-const mountCookbookShare = (header: HTMLElement, did: string): void => {
-  header.append(
+/** Share affordance: a one-tap share ICON beside the "Cookbook" heading, wired
+ * to the canonical cookbook.html?did=<did> URL for the cookbook being viewed —
+ * the viewed DID on the cold-view, your own DID on the signed-in view. Native
+ * share sheet on mobile, clipboard copy (+ "Copied" flash) on desktop. */
+const mountCookbookShare = (titleGroup: HTMLElement, did: string): void => {
+  titleGroup.append(
     renderShareButton({
       url: buildCookbookShareUrl(shareOrigin(), did),
       title: 'Cookbook',
       label: 'Share',
       ariaLabel: 'Share this cookbook',
       testid: 'share-cookbook',
+      icon: true,
     }),
   );
+};
+
+/** Shared-cookbook banner (cold-view only): "Viewing <user>'s shared cookbook",
+ * under the site banner. <user> paints as the DID and upgrades to the resolved
+ * Bluesky handle (the caller feeds it in via the returned setter), linking to
+ * the owner's Bluesky profile. Signed-in visitors (session hint) get a ✕ back
+ * to their own cookbook — same page path, so closing IS navigating home;
+ * anonymous visitors have no own cookbook, so no ✕. */
+const renderSharedBanner = (did: string): { element: HTMLElement; setHandle: (handle: string) => void } => {
+  const banner = el('div', 'shared-cookbook-banner');
+  banner.dataset['testid'] = 'shared-cookbook-banner';
+  const text = el('p', 'shared-cookbook-text');
+  const user = el('a', 'shared-cookbook-user', did) as HTMLAnchorElement;
+  user.dataset['testid'] = 'shared-cookbook-user';
+  user.href = `https://bsky.app/profile/${encodeURIComponent(did)}`;
+  user.target = '_blank';
+  user.rel = 'noopener';
+  text.append(document.createTextNode('Viewing '), user, document.createTextNode('’s shared cookbook'));
+  banner.append(text);
+  if (hasSessionHint()) {
+    const close = el('a', 'shared-cookbook-close', '✕') as HTMLAnchorElement;
+    close.dataset['testid'] = 'shared-cookbook-close';
+    close.href = './cookbook.html';
+    close.setAttribute('aria-label', 'Back to your cookbook');
+    close.title = 'Back to your cookbook';
+    banner.append(close);
+  }
+  return {
+    element: banner,
+    setHandle: (handle) => {
+      user.textContent = handle;
+      user.href = `https://bsky.app/profile/${encodeURIComponent(handle)}`;
+    },
+  };
 };
 
 type FeedViewController = {
@@ -83,6 +119,10 @@ const renderFeedView = (
   // Cookbook opens on Details (the reading-oriented view); Browse keeps its
   // tiles-first default. Persisted per-consumer, so a choice here is sticky.
   const prefs = createBrowsePrefs({ prefix: 'cookbook', defaultView: 'details' });
+  // Own view: Filters ▾ rides the Mine | Liked | Both row so all filtering is
+  // one line; the cold-view mounts no source control and keeps the default
+  // placement (also preserving its ≤3-toolbar-rows mobile guard).
+  const filtersInSourceRow = viewer !== undefined;
   const tastePreference = createTastePreference();
   let state = prefs.load();
 
@@ -218,6 +258,7 @@ const renderFeedView = (
 
   const toolbar = renderToolbar({
     showDietLink: false,
+    filtersInSourceRow,
     callbacks: {
       onViewChange: (view) => {
         if (state.view === view) return;
@@ -427,10 +468,13 @@ const main = async (): Promise<void> => {
   const app = document.getElementById('app');
   if (app === null) throw new Error('shell mount point #app missing');
   const content = el('section', 'panel');
-  // Title row: "Cookbook" on the left; the own-cookbook "New Recipe" link is
-  // added to the right of it by renderFeedView (viewer-only).
+  // Title row: "Cookbook" + the share icon grouped on the left; the
+  // own-cookbook "New Recipe" link is added to the right of the row by
+  // renderFeedView (viewer-only).
   const header = el('div', 'cookbook-header');
-  header.append(el('h2', 'section-title', 'Cookbook'));
+  const titleGroup = el('div', 'cookbook-title-group');
+  titleGroup.append(el('h2', 'section-title', 'Cookbook'));
+  header.append(titleGroup);
   content.append(header);
 
   const viewedDid = new URLSearchParams(window.location.search).get('did');
@@ -439,13 +483,17 @@ const main = async (): Promise<void> => {
 
   if (viewedDid !== null && viewedDid !== '') {
     // Public cold-view: anyone's recipe feed, no auth. Members live on Account,
-    // so the cold-view is feed-only.
-    content.append(el('p', 'status', `Cookbook of ${viewedDid}`), feedContainer);
-    mountCookbookShare(header, viewedDid);
+    // so the cold-view is feed-only. The shared-cookbook banner labels whose
+    // cookbook this is, at the top of the panel under the site banner.
+    const banner = renderSharedBanner(viewedDid);
+    content.prepend(banner.element);
+    content.append(feedContainer);
+    mountCookbookShare(titleGroup, viewedDid);
     mountShell(app, content);
     void mountBuildStamp(app);
     try {
-      const { pds } = await resolveDidDoc(viewedDid);
+      const { pds, handle } = await resolveDidDoc(viewedDid);
+      if (handle !== null) banner.setHandle(handle);
       await showFeed(content, feedContainer, header, { did: viewedDid, pds });
     } catch (err) {
       log.error('cookbook', 'cold-view load failed', { did: viewedDid, error: String(err) });
@@ -484,7 +532,7 @@ const main = async (): Promise<void> => {
   content.append(status, feedContainer);
 
   const did = agent.did;
-  mountCookbookShare(header, did);
+  mountCookbookShare(titleGroup, did);
   try {
     const { pds } = await retryOnce(() => resolveDidDoc(did));
     mountShell(app, content);

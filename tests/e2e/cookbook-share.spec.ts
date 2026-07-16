@@ -95,6 +95,10 @@ test('the cookbook cold-view shows a Share button that copies the canonical cook
   const share = page.getByTestId('share-cookbook');
   await expect(share).toBeVisible();
   await expect(share).toHaveAttribute('aria-label', /share/i);
+  // Icon-only (owner feedback 2026-07-16): the control is the share glyph beside
+  // the "Cookbook" heading — no text label; the name rides aria-label/title.
+  await expect(share.locator('svg')).toHaveCount(1);
+  await expect(share).not.toContainText(/share/i);
 
   const origin = new URL(page.url()).origin;
   const expected = `${origin}/cookbook.html?did=${encodeURIComponent(VIEWED.did)}`;

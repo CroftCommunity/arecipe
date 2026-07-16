@@ -14,10 +14,15 @@ import {
   RESET_ICON_ARC_PATH,
   RESET_ICON_ARROW_POINTS,
   RESET_ICON_VIEWBOX,
+  SHARE_ICON_ARROW_POINTS,
+  SHARE_ICON_STEM_PATH,
+  SHARE_ICON_TRAY_PATH,
+  SHARE_ICON_VIEWBOX,
   referenceIcon,
   referenceIconLink,
   resetIcon,
   resetIconButton,
+  shareIcon,
 } from '../../src/icons.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -114,6 +119,37 @@ describe('referenceIconLink', () => {
     const link = referenceIconLink();
     expect(link.classList.contains('reference-link')).toBe(true);
     expect(link.getAttribute('data-testid')).toBe('reference-link');
+  });
+});
+
+// --- Share glyph: the tray + up-arrow "send it out" mark (Lucide "share"), ----
+// consumed by the icon variant of the share control (src/share/button.ts) on
+// the cookbook title row.
+describe('shareIcon', () => {
+  it('is an inline SVG: aria-hidden, currentColor stroke, no fill', () => {
+    const svg = shareIcon();
+    expect(svg).toBeInstanceOf(SVGElement);
+    expect(svg.namespaceURI).toBe(SVG_NS);
+    expect(svg.getAttribute('aria-hidden')).toBe('true');
+    expect(svg.getAttribute('stroke')).toBe('currentColor');
+    expect(svg.getAttribute('fill')).toBe('none');
+    expect(svg.getAttribute('viewBox')).toBe(SHARE_ICON_VIEWBOX);
+  });
+
+  it('pins the tray + up-arrow geometry to the committed constants', () => {
+    const svg = shareIcon();
+    const paths = svg.querySelectorAll('path');
+    const arrow = svg.querySelector('polyline');
+    expect(paths.length).toBe(2);
+    expect(arrow).not.toBeNull();
+    // A change here must be a deliberate edit of the committed glyph, not drift.
+    expect(paths[0]!.getAttribute('d')).toBe(SHARE_ICON_TRAY_PATH);
+    expect(paths[1]!.getAttribute('d')).toBe(SHARE_ICON_STEM_PATH);
+    expect(arrow!.getAttribute('points')).toBe(SHARE_ICON_ARROW_POINTS);
+  });
+
+  it('returns a fresh node each call (no shared singleton to accidentally re-parent)', () => {
+    expect(shareIcon()).not.toBe(shareIcon());
   });
 });
 
