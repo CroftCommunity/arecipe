@@ -293,9 +293,6 @@ const renderFeedView = (
 
   const toolbar = renderToolbar({
     showDietLink: false,
-    // Every cookbook view has a source row now, so Filters ▾ always rides it —
-    // one filter line (owner mobile feedback 2026-07-16).
-    filtersInSourceRow: true,
     callbacks: {
       onViewChange: (view) => {
         if (state.view === view) return;
@@ -412,8 +409,8 @@ const renderFeedView = (
       mk('Both', 'both', 'source-both'),
     );
     reflectSource();
-    // The source control is its own toolbar row (D7 row 2), mounted in the
-    // toolbar's dedicated source slot.
+    // The source control rides the search row (toolbar row 1), right of the
+    // input — you search the selected context on one line.
     toolbar.sourceSlot.append(seg);
     // Active source needs the liked feed (Liked, or the own-view default Both)?
     // Kick off the lazy load now so the initial paint isn't missing them.

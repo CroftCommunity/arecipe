@@ -309,16 +309,24 @@ test('cold-view: text search filters the cookbook feed (ingredient reach)', asyn
   await expect(page.getByTestId('recipe-search')).toHaveValue('');
 });
 
-// D7 mobile: the Cookbook keeps its toolbar within three control rows at a
-// phone width — search, Created|Liked|Both + Filters ▾ (one filter line), and
-// the view/count controls — with no horizontal overflow.
-test('mobile (390px): cold-view Cookbook stays within three toolbar rows', async ({ page }) => {
+// Two-row toolbar (owner mobile feedback 2026-07-16): at a phone width the
+// Cookbook shows exactly TWO control rows — [search + Created|Liked|Both] and
+// [Tiles|Details + Filters ▾ + count] — with the source segmented sharing the
+// search line at the search input's height, and no horizontal overflow.
+test('mobile (390px): cold-view Cookbook shows two toolbar rows, source beside search at equal height', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 390, height: 780 });
   await routeCookbookFixtures(page);
   await page.goto(`/cookbook.html?did=${encodeURIComponent(VIEWED.did)}`);
   await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
-  const rows = await page.locator('.browse-toolbar .toolbar-row:visible').count();
-  expect(rows).toBeLessThanOrEqual(3);
+  await expect(page.locator('.browse-toolbar .toolbar-row:visible')).toHaveCount(2);
+  // The source segmented rides the search row: same top edge, same height as
+  // the search input (the toolbar stretches row-1 items to one shared height).
+  const search = (await page.getByTestId('recipe-search').boundingBox())!;
+  const seg = (await page.locator('.cookbook-source').boundingBox())!;
+  expect(Math.abs(seg.y - search.y), 'source control tops align with search').toBeLessThanOrEqual(1);
+  expect(Math.abs(seg.height - search.height), 'source control matches search height').toBeLessThanOrEqual(1);
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   );

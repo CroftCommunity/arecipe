@@ -209,38 +209,45 @@ describe('renderToolbar — D7 single Filters disclosure', () => {
   });
 });
 
-// One filter line (owner mobile feedback 2026-07-16): the Cookbook OWN view puts
-// Filters ▾ on the SAME row as its Mine | Liked | Both source control, so all
-// filtering reads as one line; the controls row below keeps Tiles | Details +
-// reset + count. Browse and the cookbook cold-view (no source control) keep the
-// default placement.
-describe('renderToolbar — filtersInSourceRow (Cookbook own view)', () => {
-  it('mounts the Filters disclosure on the source row, to the right of the page-mounted source control', () => {
-    const toolbar = renderToolbar({ callbacks: noopCallbacks(), filtersInSourceRow: true });
-    const sourceRow = toolbar.element.querySelector('.toolbar-row--source')!;
-    const filters = toolbar.element.querySelector<HTMLElement>('[data-testid="filters-dd"]')!;
-    expect(filters).not.toBeNull();
-    expect(sourceRow.contains(filters)).toBe(true);
-    expect(toolbar.element.querySelector('.toolbar-row--controls [data-testid="filters-dd"]')).toBeNull();
-    // The page's source control (mounted into sourceSlot) precedes Filters ▾ in
-    // DOM (and therefore tab) order: segmented on the left, Filters to its right.
+// Two-row layout (owner mobile feedback 2026-07-16): the source control (the
+// Cookbook Mine | Liked | Both segmented) rides the SEARCH row — you search the
+// selected context on one line — and the controls row below holds Tiles |
+// Details + Filters ▾ on the left with reset (when active) + count on the right.
+describe('renderToolbar — source control on the search row', () => {
+  it('mounts the source slot on the search row, after the search input and before the actions slot', () => {
+    const toolbar = renderToolbar({ callbacks: noopCallbacks() });
+    const searchRow = toolbar.element.querySelector('.toolbar-row--search')!;
+    expect(searchRow.contains(toolbar.sourceSlot)).toBe(true);
+    // A page-mounted source control lands between search and actions:
+    // [search input][Mine | Liked | Both][page actions].
     const seg = document.createElement('div');
     toolbar.sourceSlot.append(seg);
-    expect(sourceRow.contains(seg)).toBe(true);
-    expect((seg.compareDocumentPosition(filters) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0).toBe(true);
+    const input = searchRow.querySelector('[data-testid="recipe-search"]')!;
+    expect((input.compareDocumentPosition(seg) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0).toBe(true);
+    expect((seg.compareDocumentPosition(toolbar.actionsSlot) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0).toBe(true);
   });
 
-  it('keeps the reset + honest count on the controls row in that mode', () => {
-    const toolbar = renderToolbar({ callbacks: noopCallbacks(), filtersInSourceRow: true });
+  it('renders exactly two rows: [search + source + actions] and [view toggle + Filters + reset + count]', () => {
+    const toolbar = renderToolbar({ callbacks: noopCallbacks() });
+    const rows = toolbar.element.querySelectorAll('.toolbar-row');
+    expect(rows.length).toBe(2);
+    // No dedicated source row remains.
+    expect(toolbar.element.querySelector('.toolbar-row--source')).toBeNull();
+    // The controls row carries the whole second line.
     const controls = toolbar.element.querySelector('.toolbar-row--controls')!;
+    expect(controls.querySelector('[data-testid="view-tiles"]')).not.toBeNull();
+    expect(controls.querySelector('[data-testid="filters-dd"]')).not.toBeNull();
     expect(controls.querySelector('[data-testid="reset-filters"]')).not.toBeNull();
     expect(controls.querySelector('[data-testid="recipes-status"]')).not.toBeNull();
-    expect(controls.querySelector('[data-testid="view-tiles"]')).not.toBeNull();
   });
 
-  it('keeps Filters on the controls row by default (Browse / cookbook cold-view)', () => {
+  it('orders the controls row: view toggle, then Filters ▾, then the reset + count block', () => {
     const toolbar = renderToolbar({ callbacks: noopCallbacks() });
-    expect(toolbar.element.querySelector('.toolbar-row--controls [data-testid="filters-dd"]')).not.toBeNull();
-    expect(toolbar.element.querySelector('.toolbar-row--source [data-testid="filters-dd"]')).toBeNull();
+    const controls = toolbar.element.querySelector('.toolbar-row--controls')!;
+    const tiles = controls.querySelector('[data-testid="view-tiles"]')!;
+    const filters = controls.querySelector('[data-testid="filters-dd"]')!;
+    const count = controls.querySelector('.browse-count')!;
+    expect((tiles.compareDocumentPosition(filters) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0).toBe(true);
+    expect((filters.compareDocumentPosition(count) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0).toBe(true);
   });
 });
