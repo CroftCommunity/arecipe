@@ -501,6 +501,9 @@ a {
   background: var(--card);
   color: var(--enamel);
   cursor: pointer;
+  /* Several .button controls are anchors (Cookbook "New Recipe", Alchemy
+     "New") — kill the UA link underline for all of them here. */
+  text-decoration: none;
 }
 
 .button--primary {
@@ -601,9 +604,17 @@ a {
   white-space: nowrap;
 }
 
-/* Row 2: the source segmented (Cookbook). Empty + collapsed on Browse. */
+/* Row 2: the source segmented (Cookbook). Empty + collapsed on Browse. On the
+   cookbook OWN view the row is composite — the page's Mine | Liked | Both in an
+   inner slot, Filters ▾ to its right — so all filtering reads as one line. */
 .toolbar-row--source:empty {
   display: none;
+}
+.toolbar-source-slot {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-width: 0;
 }
 
 /* Row 3: view toggle + Filters ▾ on the left, the honest count pushed right. */
@@ -1027,6 +1038,97 @@ a {
   align-items: center;
 }
 
+/* "Cookbook" heading + the share icon, grouped on the title row's left. */
+.cookbook-title-group {
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+  min-width: 0;
+}
+
+/* Share icon button — the reset-icon-btn idiom (icon-only, name on aria-label/
+   title, ≥44px hit area around an ~18px glyph), enamel like the other share/
+   action affordances. The transient "Copied" confirmation swaps in text. */
+.share-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: var(--s-2);
+  border: none;
+  background: none;
+  color: var(--enamel);
+  border-radius: var(--r-m);
+  cursor: pointer;
+  flex: 0 0 auto;
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+}
+
+.share-icon-btn svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.share-icon-btn:hover,
+.share-icon-btn:active {
+  background: var(--enamel-soft);
+}
+
+/* Shared-cookbook banner (cold-view ?did=): a slim strip at the top of the
+   panel, under the site banner — "Viewing <user>'s shared cookbook" with the
+   owner linked to their Bluesky profile, and (signed-in only) a ✕ back to your
+   own cookbook, right-aligned with a padded ≥44px hit area. Bold enamel
+   outline so the you're-not-home state reads at a glance (palette-aligned —
+   guarded by the cookbook.spec style test). */
+.shared-cookbook-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-1) var(--s-3);
+  margin-bottom: var(--s-3);
+  background: var(--enamel-soft);
+  border: 2px solid var(--enamel);
+  border-radius: var(--r-m);
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+}
+
+.shared-cookbook-text {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere; /* long handles/DIDs wrap, never overflow (mobile-fit) */
+}
+
+.shared-cookbook-user {
+  color: var(--enamel-deep);
+  font-weight: 700;
+}
+
+/* The ✕ is a leave/undo-flavored action → rust, like the shared reset icon
+   buttons (same hover tint), and sized up from the caption text so it reads
+   as the banner's control rather than stray punctuation. */
+.shared-cookbook-close {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  flex: 0 0 auto;
+  color: var(--rust);
+  font-size: 1.25rem;
+  line-height: 1;
+  text-decoration: none;
+  border-radius: var(--r-m);
+}
+
+.shared-cookbook-close:hover,
+.shared-cookbook-close:active {
+  background: var(--rust-soft);
+}
+
 /* Alchemy drafts heading row: "Recipe Drafts" on the left, the "New" builder
    link right-aligned on the same line (it feeds this list). */
 .drafts-header {
@@ -1109,10 +1211,167 @@ a {
   font-size: var(--t-caption);
   opacity: 0.7;
 }
+.plan-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.plan-actions a.button {
+  text-decoration: none;
+}
 .plan-del {
   display: flex;
   align-items: center;
   gap: var(--s-2);
+}
+/* Divider between the published-plans list and the month calendar below it. */
+.plans-divider {
+  border: none;
+  border-top: var(--stroke) solid var(--line);
+  max-width: 44rem;
+  margin: var(--s-5) 0;
+}
+.plans-divider[hidden] {
+  display: none;
+}
+/* Read-only month calendar of the published plans: ‹ Month YYYY › over a
+   Monday-first 7-column grid. minmax(0, 1fr) columns so the grid compresses
+   to 320px instead of overflowing; day cells stay tappable (≥2.4rem tall). */
+.month-cal {
+  max-width: 44rem;
+}
+.month-cal[hidden] {
+  display: none;
+}
+.month-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  margin-bottom: var(--s-2);
+}
+.month-title {
+  margin: 0;
+}
+.month-nav {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  line-height: 1;
+  padding: 0.25rem var(--s-2);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--card);
+  color: inherit;
+  cursor: pointer;
+}
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--s-1);
+}
+.month-dow {
+  font-size: var(--t-caption);
+  text-align: center;
+  opacity: 0.7;
+}
+.month-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  min-height: 2.4rem;
+  padding: var(--s-1);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-s);
+  background: var(--card);
+  color: inherit;
+  font-family: var(--body);
+  font-size: var(--t-caption);
+}
+.month-cell--pad {
+  border-color: transparent;
+  background: transparent;
+}
+/* Planned days are the only interactive cells: enamel-tinted, tap to expand. */
+button.month-cell--filled {
+  appearance: none;
+  border-color: var(--enamel);
+  background: var(--enamel-soft);
+  cursor: pointer;
+}
+.month-cell--selected {
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px var(--enamel);
+}
+.month-daynum {
+  line-height: 1;
+}
+.month-count {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  line-height: 1;
+  padding: 0.1rem 0.3rem;
+  border-radius: var(--r-pill);
+  background: var(--enamel);
+  color: var(--card);
+}
+/* The selected day's recipes: a full-width row directly under its week. */
+.month-expand {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: var(--s-1);
+  padding: var(--s-2) var(--s-3);
+  border: var(--stroke) solid var(--enamel);
+  border-radius: var(--r-m);
+  background: var(--card);
+}
+.month-expand-title {
+  margin: 0;
+  font-size: var(--t-caption);
+}
+.month-meal {
+  color: var(--enamel);
+  font-size: var(--t-caption);
+  overflow-wrap: anywhere;
+}
+
+/* Edit-mode banner (meals.html?edit=<rkey>): the planner is holding a STAGED
+   copy of a published plan — edits stay local until "Publish update". */
+.edit-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+  background: var(--tile);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  padding: var(--s-2) var(--s-3);
+  margin-bottom: var(--s-3);
+}
+.edit-banner-text {
+  font-size: var(--t-caption);
+}
+
+/* Recovery notice (plain planner, fresh untouched canvas): plans found on the
+   PDS are offered back through the staged edit flow, never adopted live. */
+.recovery-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+  background: var(--tile);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  padding: var(--s-2) var(--s-3);
+  margin-bottom: var(--s-3);
+}
+.recovery-notice-text {
+  font-size: var(--t-caption);
+}
+.recovery-notice a.button {
+  text-decoration: none;
 }
 
 /* Content-freshness note at the bottom of the Cookbook (SWR "as of …"). Quiet,
