@@ -1,6 +1,12 @@
 # Signed releases v2 — signed manifests + verified-install default + version pin
 
-**Status:** 🚧 in progress (2026-07-16).
+**Status:** ✅ **Implemented 2026-07-16.** TDD-first (red → green per phase,
+evidenced in `RUN-SIGNED-RELEASES-SUMMARY.md`). Gate green at every part
+boundary: lint · typecheck (both tsconfigs) · 645 unit · build (signed +
+unsigned self-checks) · 195 hermetic e2e. Bundle-split guard intact (Browse
+ships zero auth code; the whole `src/release/` graph is auth-free). Owner's
+one-time step remains: install `ARECIPE_SIGNING_SEED` + commit the pubkey —
+checklist in `docs/RELEASE-SIGNING.md`.
 
 A staged, honest increment of BUILD-PLAN Phase 3's signed-delivery design
 (RUN-SIGNED-RELEASES v2; supersedes the unexecuted v1). Part 1: every normal
@@ -118,4 +124,45 @@ couldn't-check state (F4).
 
 ## Outcome Summary
 
-_To be completed at closeout._
+| Phase | Outcome | Note |
+|---|---|---|
+| 0 Re-ground | ✅ | Findings F1–F6 above; decisions unchanged, three adaptations (path-aware origin classes, pure-SW coverage, fixture-signed e2e dist, null-pin couldn't-check state). |
+| 1 Manifest core | ✅ | `src/release/{manifest,verify,keys}.ts`; committed fixtures cross-pin signer/verifier (`tests/fixtures/release/`, independent generator); build.mjs emits+signs, `--verify-manifest` self-check in the gate and in-process after every build (tamper + missing-when-expected proven to exit 1). |
+| 2 CI wiring | ✅ | Deploy job env `ARECIPE_SIGNING_SEED` (empty → honest unsigned, nothing breaks); preview.yml untouched; runbook `docs/RELEASE-SIGNING.md` with first-deploy checklist + threat table. |
+| 3 Config + SW | ✅ | `release/config.ts` (IDB, page+SW, device-local), pure `routing.ts` (pin > enforcement > normal; cleanup exemptions; activate verdicts a/b/c), `update-gate.ts` (toast gating); sw.ts thin wiring (claim-first activate self-verify with 10s bound, override fetch routing, META/CONFIG_CHANGED messages, manifest always-network). |
+| 4 Panel + banner | ✅ | Account "Release & version" panel (all states honest, interim named); Settings pointer (`release-pointer`); rust banner via nav shell, production-only, session-dismissible; stamp shows locked version under pin. Testids `check-updates`/`update-status`/`build-facts`/`build-stamp` preserved. |
+| 5 e2e + docs | ✅ | `tests/e2e/release.spec.ts` (8 tests: states, pin round-trip, racing deploy quiet, production banner via routed origin, loopback logs); mobile-fit panel tap targets ≥44px; D8 docs (BUILD-PLAN naming + increment note, LEXICONS planned rows, runbook). |
+
+### Deliberately-changed assertions
+
+- `tests/e2e/nav.spec.ts` — "settings page: app management…" asserted
+  `build-facts` on Settings; now asserts the `release-pointer` (link to
+  account.html) there instead, since the build block migrated to the Account
+  panel (which the release suite asserts). Reason: D7 migration, accepted
+  default.
+- `tests/e2e/mobile-fit.spec.ts` — the settings readiness selector
+  `[data-testid=build-facts]` → `[data-testid=release-pointer]` (same
+  migration).
+
+### [verify-in-run] outcomes
+
+- **authModeFor extraction (§2):** lives at `src/auth/oauth-client.ts:37`;
+  `PRODUCTION_ORIGIN`/`isLoopbackHostname` moved to auth-free
+  `src/release/origin.ts`, re-exported from oauth-client. Bundle-split guard
+  stays green; no auth code entered shared chunks.
+- **SW e2e probe (Phase 0):** Playwright cannot route SW-initiated fetches
+  (page/context routes are page-scoped; SW interception is experimental-only).
+  As planned, SW verdict/routing shipped as pure functions with 54 unit tests;
+  e2e asserts page-observable outcomes. The e2e dist is fixture-signed
+  (`build:e2e`) so "verified" is a real end-to-end state including the SW's
+  own activate self-verify.
+- **noble delta (D6): FLAGGED — over the 10 KB min budget in raw total, but
+  never eagerly loaded in pages.** `@noble/ed25519` is a dynamic import: pages
+  ship it as a lazy chunk (8,093 B min / 4,056 B gz) fetched ONLY if WebCrypto
+  Ed25519 is missing; the SW bundle inlines it (no splitting in the SW build).
+  Measured against main: sw.js 3,109 → 17,354 B min (1,323 → 7,519 B gz) —
+  that delta includes manifest+verify+config+routing, not just noble; browse
+  9,147 → 10,399 B min (3,827 → 4,214 B gz, banner + verify core, noble NOT
+  loaded). Decision kept per D6 (the fallback exists so the ON-default never
+  silently no-ops); if the SW inline weight bothers later, the candidate cut
+  is SW-side WebCrypto-only with `crypto-unavailable` → couldn't-check.
