@@ -46,18 +46,15 @@ const routeCookbookFixtures = async (page: Page): Promise<void> => {
     const url = new URL(route.request().url());
     const collection = url.searchParams.get('collection');
     const repo = url.searchParams.get('repo');
-    if (collection === 'app.bsky.graph.follow' && repo === VIEWED.did) {
-      return route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ records: [{ uri: `at://${VIEWED.did}/app.bsky.graph.follow/rk1`, value: { subject: FOLLOW.did, createdAt: '2026-07-08T00:00:00Z' } }] }),
-      });
-    }
-    if (collection === 'exchange.recipe.recipe' && repo === FOLLOW.did) {
+    // Shared view = the owner's recipes + likes (owner decision 2026-07-16):
+    // VIEWED's own recipes fill the feed; their interactions are empty here —
+    // this spec exercises the Share control, not the feed composition (that's
+    // cookbook.spec's exact-scope test).
+    if (collection === 'exchange.recipe.recipe' && repo === VIEWED.did) {
       const list = JSON.parse(atprotoFixture('listRecords-browse-mixed.json')) as {
         records: { uri: string }[];
       };
-      for (const r of list.records) r.uri = r.uri.replace(/did:plc:[a-z0-9]+/, FOLLOW.did);
+      for (const r of list.records) r.uri = r.uri.replace(/did:plc:[a-z0-9]+/, VIEWED.did);
       return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(list) });
     }
     return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ records: [] }) });
@@ -95,6 +92,10 @@ test('the cookbook cold-view shows a Share button that copies the canonical cook
   const share = page.getByTestId('share-cookbook');
   await expect(share).toBeVisible();
   await expect(share).toHaveAttribute('aria-label', /share/i);
+  // Icon-only (owner feedback 2026-07-16): the control is the share glyph beside
+  // the "Cookbook" heading — no text label; the name rides aria-label/title.
+  await expect(share.locator('svg')).toHaveCount(1);
+  await expect(share).not.toContainText(/share/i);
 
   const origin = new URL(page.url()).origin;
   const expected = `${origin}/cookbook.html?did=${encodeURIComponent(VIEWED.did)}`;

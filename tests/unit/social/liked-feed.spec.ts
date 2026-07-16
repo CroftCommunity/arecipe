@@ -78,7 +78,7 @@ describe('loadLikedFeed', () => {
   it('loads each liked recipe by ref, resolving DID→PDS per ref (cross-PDS)', async () => {
     stubNetwork();
     const feed = await loadLikedFeed([like(DID_A, 'r1'), like(DID_B, 'r2')]);
-    expect(feed.map((e) => (e.value as { name?: string }).name).sort()).toEqual([
+    expect(feed.entries.map((e) => (e.value as { name?: string }).name).sort()).toEqual([
       'Recipe r1',
       'Recipe r2',
     ]);
@@ -86,23 +86,34 @@ describe('loadLikedFeed', () => {
     expect(new Set(getRecordHosts)).toEqual(new Set(['a.test', 'b.test']));
   });
 
+  it('keeps the resolved author handles (already fetched for the PDS lookup)', async () => {
+    stubNetwork();
+    const feed = await loadLikedFeed([like(DID_A, 'r1'), like(DID_B, 'r2')]);
+    // The DID-doc stub's alsoKnownAs is at://<did>.example.com → that handle,
+    // so liked entries can render a real author instead of the raw-DID fallback.
+    expect(feed.authorsByDid).toEqual({
+      [DID_A]: `${DID_A}.example.com`,
+      [DID_B]: `${DID_B}.example.com`,
+    });
+  });
+
   it('filters empty refs (the {uri:""} fallback) without erroring', async () => {
     stubNetwork();
     const empty: Interaction = { ...like(DID_A, 'r1'), recipe: { uri: '', cid: '' } };
     const feed = await loadLikedFeed([like(DID_A, 'r1'), empty]);
-    expect(feed).toHaveLength(1);
-    expect((feed[0]!.value as { name?: string }).name).toBe('Recipe r1');
+    expect(feed.entries).toHaveLength(1);
+    expect((feed.entries[0]!.value as { name?: string }).name).toBe('Recipe r1');
   });
 
   it('caps discovery at the requested limit', async () => {
     stubNetwork();
     const feed = await loadLikedFeed([like(DID_A, 'r1'), like(DID_B, 'r2')], { cap: 1 });
-    expect(feed).toHaveLength(1);
+    expect(feed.entries).toHaveLength(1);
   });
 
   it('skips a ref that fails to load, keeping the rest (never blanks the feed)', async () => {
     stubNetwork();
     const feed = await loadLikedFeed([like(DID_A, 'r1'), like(DID_A, 'missing')]);
-    expect(feed.map((e) => (e.value as { name?: string }).name)).toEqual(['Recipe r1']);
+    expect(feed.entries.map((e) => (e.value as { name?: string }).name)).toEqual(['Recipe r1']);
   });
 });

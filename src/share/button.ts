@@ -13,6 +13,9 @@
 //
 // Kept dependency-free (DOM + navigator only): this module is imported by
 // recipe.html's entry, which must not pull @atproto/api into its bundle.
+// (src/icons.ts is likewise DOM-only, so the icon variant keeps that posture.)
+
+import { shareIcon } from '../icons.js';
 
 /** Base URL for a share link: the live origin + the current page's directory,
  * with no trailing slash. The bare origin for the root deploy; origin + subpath
@@ -30,22 +33,33 @@ export type ShareButtonOptions = {
   url: string;
   /** Title handed to the native share sheet (recipe/cookbook name). */
   title: string;
-  /** Visible + resting button label, e.g. "Share". */
+  /** Visible + resting button label, e.g. "Share". Icon variant: not shown
+   *  (the glyph is the face) but kept as the restore target after "Copied". */
   label: string;
   /** Accessible name — more specific than the label, e.g. "Share this recipe". */
   ariaLabel: string;
   /** `data-testid` for the button. */
   testid: string;
+  /** Icon-only variant: render the share glyph (src/icons.ts) instead of the
+   *  text label — `.share-icon-btn`, the reset-icon-btn idiom (≥44px hit area,
+   *  name on aria-label/title). Behavior is identical, including the transient
+   *  "Copied" text confirmation. */
+  icon?: boolean;
 };
 
 const CONFIRM_TEXT = 'Copied';
 const CONFIRM_MS = 1200;
 
 export const renderShareButton = (opts: ShareButtonOptions): HTMLButtonElement => {
+  const iconOnly = opts.icon ?? false;
   const btn = document.createElement('button');
   btn.type = 'button';
-  btn.className = 'button share-btn';
-  btn.textContent = opts.label;
+  btn.className = iconOnly ? 'share-icon-btn' : 'button share-btn';
+  const showResting = (): void => {
+    if (iconOnly) btn.replaceChildren(shareIcon());
+    else btn.textContent = opts.label;
+  };
+  showResting();
   btn.dataset['testid'] = opts.testid;
   btn.dataset['copy'] = opts.url;
   btn.setAttribute('aria-label', opts.ariaLabel);
@@ -53,7 +67,7 @@ export const renderShareButton = (opts: ShareButtonOptions): HTMLButtonElement =
 
   const flashCopied = (): void => {
     btn.textContent = CONFIRM_TEXT;
-    window.setTimeout(() => (btn.textContent = opts.label), CONFIRM_MS);
+    window.setTimeout(showResting, CONFIRM_MS);
   };
 
   btn.addEventListener('click', () => {

@@ -11,7 +11,15 @@ import type { FeedAuthor } from './feed.js';
 
 type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
-export type FeedMeta = { authors: FeedAuthor[]; fetchedAt: string };
+export type FeedMeta = {
+  authors: FeedAuthor[];
+  fetchedAt: string;
+  /** Shared-view only (shared = the owner's recipes + their likes): the liked
+   *  recipe uris shown last time. Liked recipes live on OTHER authors' repos,
+   *  so the author filter alone can't cover them on the instant paint — these
+   *  uris complete it. Absent on own-view meta and on pre-shared-scope writes. */
+  likedUris?: string[];
+};
 
 const keyFor = (did: string): string => `cookbook-feed:${did}`;
 
@@ -31,13 +39,18 @@ export const readFeedMeta = (did: string, opts: { storage?: StorageLike } = {}):
   try {
     const raw = storage.getItem(keyFor(did));
     if (raw === null) return null;
-    const parsed = JSON.parse(raw) as { authors?: unknown; fetchedAt?: unknown };
+    const parsed = JSON.parse(raw) as { authors?: unknown; fetchedAt?: unknown; likedUris?: unknown };
     if (!Array.isArray(parsed.authors) || typeof parsed.fetchedAt !== 'string') return null;
     const authors = parsed.authors.filter(
       (a): a is FeedAuthor =>
         typeof a === 'object' && a !== null && typeof (a as FeedAuthor).did === 'string',
     );
-    return { authors, fetchedAt: parsed.fetchedAt };
+    const meta: FeedMeta = { authors, fetchedAt: parsed.fetchedAt };
+    // Tolerant: absent on old writes; malformed entries degrade to the strings.
+    if (Array.isArray(parsed.likedUris)) {
+      meta.likedUris = parsed.likedUris.filter((u): u is string => typeof u === 'string');
+    }
+    return meta;
   } catch (err) {
     log.warn('cookbook', 'feed meta read failed', { did, error: String(err) });
     return null;
@@ -46,14 +59,13 @@ export const readFeedMeta = (did: string, opts: { storage?: StorageLike } = {}):
 
 export const writeFeedMeta = (
   did: string,
-  authors: FeedAuthor[],
-  fetchedAt: string,
+  meta: FeedMeta,
   opts: { storage?: StorageLike } = {},
 ): void => {
   const storage = storageOf(opts);
   if (storage === null) return;
   try {
-    storage.setItem(keyFor(did), JSON.stringify({ authors, fetchedAt }));
+    storage.setItem(keyFor(did), JSON.stringify(meta));
   } catch (err) {
     log.warn('cookbook', 'feed meta write failed', { did, error: String(err) });
   }

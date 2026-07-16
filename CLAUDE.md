@@ -15,16 +15,39 @@ npm run test          # lint · typecheck (src + tests) · unit (vitest) · buil
 Sub-parts: `npm run lint`, `npm run typecheck`, `npm run test:unit`, `npm run build`,
 `npm run test:e2e`. `@live` e2e (real PDS, credentials) run only via `npm run test:live`.
 
-**Playwright browser:** this environment ships Chromium under `/opt/pw-browsers`
-but the npm-pinned Playwright may expect a different build. If `test:e2e` errors
-with "Executable doesn't exist", point it at the installed binary rather than
-running `playwright install`:
+**Playwright browser — do this BEFORE your first e2e run.** This environment
+ships Chromium under `/opt/pw-browsers`, but the npm-pinned Playwright usually
+expects a *different* build number, so a stock `npm run test:e2e` fails with
+`browserType.launch: Executable doesn't exist at /opt/pw-browsers/…`. The
+tell-tale is **every test failing at once** — that's this, not your code. Do
+NOT run `playwright install` (no network for the download) and do not start
+debugging test code until you've ruled this out.
 
+Fix: write this throwaway config once, run e2e through it, and `rm` it before
+committing (never commit it):
+
+```bash
+cat > pw-local.config.ts <<'EOF'
+// Throwaway local config (NOT committed): points Playwright at the
+// environment's installed Chromium (build pin mismatch).
+import { defineConfig } from '@playwright/test';
+import base from './playwright.config.ts';
+
+export default defineConfig(base, {
+  use: {
+    ...base.use,
+    launchOptions: { executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' },
+  },
+});
+EOF
+npx playwright test --config=pw-local.config.ts --reporter=line
 ```
-# find it: ls /opt/pw-browsers  (e.g. chromium-1194/chrome-linux/chrome)
-# then run with a throwaway config that sets use.launchOptions.executablePath,
-# or export the path — do NOT commit that config.
-```
+
+If `/opt/pw-browsers` holds a different build than `chromium-1194`, adjust the
+path (`ls /opt/pw-browsers`). The config must live in the repo root — module
+resolution for `@playwright/test` fails from a temp dir outside it. This means
+`npm run test` (the full gate) will fail at its e2e step in this environment;
+run the other sub-gates directly and use the config above for e2e.
 
 ## Conventions
 
