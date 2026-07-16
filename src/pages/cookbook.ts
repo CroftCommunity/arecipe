@@ -134,9 +134,17 @@ const renderFeedView = (
         : 'Your cookbook is empty — publish a recipe, or tap the heart on one to collect it here.';
   };
 
-  // Selected facets absent from the active source are kept in state but inert.
+  // The active source narrowed by the standing taste preference (Settings) —
+  // the eligible pool behind the count, the facet dropdowns, and the shown
+  // set, mirroring Browse.
+  const eligibleEntries = (): CachedRecipe[] => {
+    const taste = tastePreference.load();
+    return activeEntries().filter((e) => matchesTaste(recipeFacets(e.value), taste));
+  };
+
+  // Selected facets absent from the eligible pool are kept in state but inert.
   const effectiveState = (): BrowseState => {
-    const available = availableFacets(activeEntries());
+    const available = availableFacets(eligibleEntries());
     return {
       view: state.view,
       photosOnly: state.photosOnly,
@@ -169,18 +177,15 @@ const renderFeedView = (
       feedContainer.replaceChildren(el('p', 'status', 'loading your liked recipes…'));
       return;
     }
-    const base = activeEntries();
+    const eligible = eligibleEntries();
     const effective = effectiveState();
-    const taste = tastePreference.load();
-    const facetFiltered = base.filter(
-      (e) => matchesFilter(e.value, { state: effective, diet: [] }) && matchesTaste(recipeFacets(e.value), taste),
-    );
-    // Text search after the facet/taste filter, before render (D5).
+    const facetFiltered = eligible.filter((e) => matchesFilter(e.value, { state: effective, diet: [] }));
+    // Text search after the facet filter, before render (D5).
     const shown = queryEntries(searchMemo(indexBase()), query, facetFiltered);
     toolbar.setStatus(
       hasFilters(effective)
-        ? `${shown.length} of ${base.length} recipes`
-        : `${base.length} ${base.length === 1 ? 'recipe' : 'recipes'}`,
+        ? `${shown.length} of ${eligible.length} recipes`
+        : `${eligible.length} ${eligible.length === 1 ? 'recipe' : 'recipes'}`,
     );
     // The reset (inside the Filters popover) clears the whole filter line —
     // facets, photos, AND the source — so it shows whenever any is off-default.
@@ -204,7 +209,7 @@ const renderFeedView = (
     feedContainer.replaceChildren(render(shown, { authorsByDid }));
   };
   const showCurrent = (): void => {
-    toolbar.rebuildFacets(availableFacets(activeEntries()), state.facets);
+    toolbar.rebuildFacets(availableFacets(eligibleEntries()), state.facets);
     renderCurrent();
   };
 

@@ -151,11 +151,27 @@ const main = (): void => {
   // cookFollow record; the signed-in pages mirror this store to/from the PDS.
   const cookFollows = createCookFollowsLocal();
 
-  // Selected facets that no longer exist in the current feed are kept in state
+  // A neutral state for the eligibility pass: no on-tab filters, so only the
+  // standing preferences (diet via matchesFilter, taste via matchesTaste) apply.
+  const NO_TAB_FILTERS: BrowseState = { view: 'tiles', photosOnly: false, facets: { cuisine: [], category: [] } };
+
+  // The user's eligible pool: hidden recipes removed, then the Settings-owned
+  // standing preferences (diet + taste) applied. Everything downstream — the
+  // baseline count, the facet dropdowns' available options, and the shown set —
+  // works from this pool, so a standing preference never surfaces as "eligible
+  // recipes not shown" or as a facet option that can only yield zero.
+  const eligibleEntries = (): CachedRecipe[] => {
+    const diet = dietPreference.load();
+    const taste = tastePreference.load();
+    return withoutHidden(current?.entries ?? []).filter(
+      (e) => matchesFilter(e.value, { state: NO_TAB_FILTERS, diet }) && matchesTaste(recipeFacets(e.value), taste),
+    );
+  };
+
+  // Selected facets that no longer exist in the eligible pool are kept in state
   // (so they re-apply when the user returns) but treated as inert here.
   const effectiveState = (): BrowseState => {
-    const available =
-      current === null ? { cuisine: [], category: [] } : availableFacets(withoutHidden(current.entries));
+    const available = availableFacets(eligibleEntries());
     return {
       view: state.view,
       photosOnly: state.photosOnly,
@@ -166,49 +182,40 @@ const main = (): void => {
     };
   };
 
-  const isFiltered = (s: BrowseState, diet: string[]): boolean =>
-    s.photosOnly ||
-    s.facets.cuisine.length > 0 ||
-    s.facets.category.length > 0 ||
-    diet.length > 0 ||
-    query.trim() !== '';
-
-  // Browse-owned filters only (photos + facets + text query) — the reset control's
-  // scope. Diet is the Settings-owned app-wide preference, deliberately excluded.
+  // On-tab filters only (photos + facets + text query): these drive both the
+  // reset control and the "X of N" status. The Settings-owned standing
+  // preferences (diet + taste) are deliberately excluded — they define the
+  // eligible pool (the N itself, see computeShown), not a filter over it.
   const hasBrowseFilters = (s: BrowseState): boolean =>
     s.photosOnly || s.facets.cuisine.length > 0 || s.facets.category.length > 0 || query.trim() !== '';
 
-  // The filtered result set behind the current view: hidden removed, browse
-  // facets + diet applied. renderCurrent renders it; the export action serializes
-  // the version-collapsed representatives (what's actually shown as cards).
-  const computeShown = (): { kept: CachedRecipe[]; shown: CachedRecipe[]; effective: BrowseState; diet: string[] } => {
-    const kept = withoutHidden(current?.entries ?? []);
-    const diet = dietPreference.load();
+  // The result sets behind the current view. Two layers, counted differently:
+  //   eligible — the standing-preference pool (see eligibleEntries): the
+  //     baseline "N" in the status.
+  //   shown — eligible narrowed by the on-tab filters (photos, facets, text
+  //     query): the "X" in "X of N", and what the export serializes.
+  const computeShown = (): { eligible: CachedRecipe[]; shown: CachedRecipe[]; effective: BrowseState } => {
+    const eligible = eligibleEntries();
     const effective = effectiveState();
-    // The standing taste preference (Only/Never by meal + cuisine) applies on top
-    // of the transient facet filters — an app-wide personal default.
-    const taste = tastePreference.load();
-    const facetFiltered = kept.filter(
-      (e) => matchesFilter(e.value, { state: effective, diet }) && matchesTaste(recipeFacets(e.value), taste),
-    );
-    // Text search runs AFTER the facet/diet/taste filter and BEFORE version
-    // collapse (D5): with an active query only matches survive, in score order;
-    // an empty query is the identity (facet order preserved). The index is over
-    // the whole feed (stable identity) — queryEntries intersects with the
-    // facet-filtered candidates.
+    const facetFiltered = eligible.filter((e) => matchesFilter(e.value, { state: effective, diet: [] }));
+    // Text search runs AFTER the facet filter and BEFORE version collapse (D5):
+    // with an active query only matches survive, in score order; an empty query
+    // is the identity (facet order preserved). The index is over the whole feed
+    // (stable identity) — queryEntries intersects with the candidates.
     const searcher = searchMemo(current?.entries ?? []);
     const shown = queryEntries(searcher, query, facetFiltered);
-    return { kept, shown, effective, diet };
+    return { eligible, shown, effective };
   };
 
   const renderCurrent = (): void => {
     if (current === null) return;
-    const { kept, shown, effective, diet } = computeShown();
-    // A plain count: "N recipes"; with a filter active, the honest "X of N recipes".
+    const { eligible, shown, effective } = computeShown();
+    // A plain count of the eligible pool: "N recipes"; with an on-tab filter
+    // active, the honest "X of N recipes".
     toolbar.setStatus(
-      isFiltered(effective, diet)
-        ? `${shown.length} of ${kept.length} recipes`
-        : `${kept.length} ${kept.length === 1 ? 'recipe' : 'recipes'}${current.statusSuffix ?? ''}`,
+      hasBrowseFilters(effective)
+        ? `${shown.length} of ${eligible.length} recipes`
+        : `${eligible.length} ${eligible.length === 1 ? 'recipe' : 'recipes'}${current.statusSuffix ?? ''}`,
     );
     toolbar.setResetVisible(hasBrowseFilters(effective));
     // Filters ▾ badge = active browse filters (photos + facets); the text query
@@ -237,17 +244,16 @@ const main = (): void => {
       kind: current.kind,
       view: state.view,
       shown: shown.length,
-      total: kept.length,
-      filtered: isFiltered(effective, diet),
+      total: eligible.length,
+      filtered: hasBrowseFilters(effective),
     });
   };
 
-  // Rebuild the facet dropdowns from the current feed's available facets. Called
-  // when `current` changes (feed vs search) — NOT on a facet checkbox change.
+  // Rebuild the facet dropdowns from the eligible pool's available facets.
+  // Called when `current` changes (feed vs search) — NOT on a facet checkbox
+  // change. (Reloading the page picks up Settings changes to diet/taste.)
   const rebuildToolbarFacets = (): void => {
-    const available =
-      current === null ? { cuisine: [], category: [] } : availableFacets(withoutHidden(current.entries));
-    toolbar.rebuildFacets(available, state.facets);
+    toolbar.rebuildFacets(availableFacets(eligibleEntries()), state.facets);
   };
 
   // Show the current list: rebuild the (feed-dependent) facet dropdowns, then
@@ -315,8 +321,10 @@ const main = (): void => {
   // Export: turn the currently-shown recipes into a downloadable file. The
   // button sits beside "Find recipes"; it opens an inline panel (no native
   // dialog) to pick a format and whether to include full details, then builds a
-  // download link. The version-collapsed representatives are what's exported —
-  // the same cards the user sees.
+  // download link. Every recipe that survived the filters is exported —
+  // including alternative versions the card view collapses behind a "N
+  // versions" badge — so the panel's count always matches the toolbar's
+  // recipe count and no data is silently dropped from the file.
   const recipeLink = (uri: string): string => {
     const url = new URL('recipe.html', window.location.href);
     url.searchParams.set('u', uri);
@@ -359,7 +367,7 @@ const main = (): void => {
   const buildExportPanel = (): void => {
     revokeDownload();
     exportPanel.replaceChildren();
-    const shownCount = collapseVersions(computeShown().shown).representatives.length;
+    const shownCount = computeShown().shown.length;
     exportPanel.append(el('p', 'export-title', `Export ${shownCount} shown recipe${shownCount === 1 ? '' : 's'}`));
 
     // Format choice (segmented).
@@ -399,7 +407,7 @@ const main = (): void => {
     const linkSlot = el('div', 'export-link-slot');
     const buildLink = (): void => {
       revokeDownload();
-      const recipes = collapseVersions(computeShown().shown).representatives.map(toExportRecipe);
+      const recipes = computeShown().shown.map(toExportRecipe);
       const text = serializeRecipes(recipes, { format, details: detailsToggle.checked });
       const blob = new Blob([text], { type: mimeFor(format) });
       downloadUrl = URL.createObjectURL(blob);
