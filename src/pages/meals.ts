@@ -13,7 +13,7 @@
 import type { Agent } from '@atproto/api';
 import { mountBuildStamp } from '../build-stamp.js';
 import { resolveDidDoc } from '../identity/did.js';
-import { resetIconButton } from '../icons.js';
+import { resetIcon, resetIconButton } from '../icons.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
 import { createResolver } from '../identity/resolve.js';
@@ -552,18 +552,22 @@ export const main = async (
   // also lists on the "Published" plans subpage. Signed-in only.
   const shareSection = el('section', 'plan-share');
   const publishRow = el('div', 'plan-publish-row');
-  const publishBtn = el('button', 'button button--primary', 'Publish') as HTMLButtonElement;
+  const publishBtn = el('button', 'button plan-publish-btn', 'Publish') as HTMLButtonElement;
   publishBtn.type = 'button';
   publishBtn.dataset['testid'] = 'publish-plan';
   // Reset on publish (default on): after publishing, start a FRESH working plan
   // so the published record is preserved (a new local id → the old rkey is never
-  // overwritten) and the canvas is clear for the next plan.
-  const resetOnPublishLabel = el('label', 'browse-toggle');
+  // overwritten) and the canvas is clear for the next plan. Icon-only (the
+  // shared reset glyph beside the checkbox), so the accessible name lives on
+  // the label's aria-label/title — rust, like every reset-flavored control.
+  const resetOnPublishLabel = el('label', 'browse-toggle reset-on-publish-toggle');
+  resetOnPublishLabel.setAttribute('aria-label', 'Reset on publish');
+  resetOnPublishLabel.title = 'Reset on publish';
   const resetOnPublish = document.createElement('input');
   resetOnPublish.type = 'checkbox';
   resetOnPublish.checked = true;
   resetOnPublish.dataset['testid'] = 'reset-on-publish';
-  resetOnPublishLabel.append(resetOnPublish, document.createTextNode('Reset on publish'));
+  resetOnPublishLabel.append(resetOnPublish, resetIcon());
   publishRow.append(publishBtn, resetOnPublishLabel);
   const shareSlot = el('div', 'plan-share-slot');
   const renderShareLink = (link: string): HTMLElement => {
@@ -793,7 +797,7 @@ export const main = async (
 
       // Remove only makes sense with more than one week — you can't remove the
       // only week, so on a single-week plan the button is omitted entirely
-      // (not just disabled). Repetition now lives in "Repeat weeks".
+      // (not just disabled). Repetition now lives in "⧉ Repeat".
       if (plan.weeks.length > 1) {
         const removeBtn = el('button', 'button week-remove', 'Remove') as HTMLButtonElement;
         removeBtn.type = 'button';
@@ -936,7 +940,7 @@ export const main = async (
 
     const actions = el('div', 'week-actions');
 
-    const addBtn = el('button', 'button button--primary add-week', '+ Add week') as HTMLButtonElement;
+    const addBtn = el('button', 'button button--primary add-week', '+ Add') as HTMLButtonElement;
     addBtn.type = 'button';
     addBtn.dataset['testid'] = 'add-week';
     addBtn.disabled = plan.weeks.length >= MAX_WEEKS;
@@ -950,7 +954,7 @@ export const main = async (
     // Repeat weeks: instead of adding a blank week, append a copy of
     // every currently-planned week (with its placed meals). Doubling the plan,
     // so it's disabled when that would blow past the max-week cap.
-    const repeatBtn = el('button', 'button repeat-weeks', '⧉ Repeat weeks') as HTMLButtonElement;
+    const repeatBtn = el('button', 'button repeat-weeks', '⧉ Repeat') as HTMLButtonElement;
     repeatBtn.type = 'button';
     repeatBtn.dataset['testid'] = 'repeat-weeks';
     repeatBtn.disabled = plan.weeks.length * 2 > MAX_WEEKS;

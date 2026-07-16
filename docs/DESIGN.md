@@ -17,7 +17,9 @@ with wet hands. Everything below derives from that. Tokens live in
 | `--enamel-soft` | `#175E5414` | Tint | Chip fills, photo placeholders, subtle hovers. |
 | `--yolk` | `#E8A013` | Focus / attention | Focus rings; sparing accent. Never text on tile (contrast). |
 | `--yolk-deep` | `#B87D0A` | Yolk-as-text | The wordmark "a"; when yolk must be readable. |
-| `--rust` | `#B4552D` | Warning | UNVERIFIED stamp and warn states only. Not a second accent. |
+| `--rust` | `#B4552D` | Warning / reset | UNVERIFIED stamp, warn states, and reset-flavored actions (reset icon, sign-out, the Meals Publish commit). Not a second accent. |
+| `--rust-deep` | `#94431F` | Rust hover | Hover state of `--rust` fills only. |
+| `--delft` | `#2B5F8A` | Cool link accent | Delft-blue pottery. Navigation-ish links that must read apart from both enamel actions and rust commits (the Meals "Published" link). Sparing. |
 | `--card` | `#FFFFFF` | Surfaces | Cards, inputs, buttons. |
 | `--line` | `#D9E2DE` | Strokes | All borders + dividers at `--stroke` (1.5px). |
 
@@ -38,6 +40,8 @@ cycle in the top bar, persisted; auto follows `prefers-color-scheme`).
 | `--enamel-deep` | `#79C7B6` | Hover lightens (inverted from light mode). |
 | `--yolk-deep` | `#E5B13D` | The wordmark "a" brightens on dark. |
 | `--rust` | `#E07A4F` | Warning stays loud — verified against the ALTERED? stamp. |
+| `--rust-deep` | `#E98F68` | Hover lightens (inverted, like `--enamel-deep`). |
+| `--delft` | `#6FB1D8` | Lightened for text/border contrast on dark. |
 | `--card` / `--line` | `#182622` / `#2B3B36` | |
 | `--stamp-veil` | `#101B18D9` | The ALTERED? stamp's backing veil. |
 
