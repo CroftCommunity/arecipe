@@ -188,7 +188,7 @@ const main = async (): Promise<void> => {
       content.append(sinceLine);
     }
 
-    const signOut = el('button', 'button', 'Sign out') as HTMLButtonElement;
+    const signOut = el('button', 'button sign-out-btn', 'Sign out') as HTMLButtonElement;
     signOut.type = 'button';
     signOut.dataset['testid'] = 'sign-out';
     signOut.addEventListener('click', () => {

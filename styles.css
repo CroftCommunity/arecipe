@@ -510,6 +510,24 @@ a {
   background: var(--enamel-deep);
 }
 
+/* Account sign-out: rust like the shared reset icon (both are "undo"-flavored
+   actions), right-aligned in the panel with breathing room above and below.
+   Block-level flex + the doubled selector: the mobile tap-target block below
+   sets `.button { display: inline-flex }`, which would make the button
+   inline-level and void the margin-left auto right-alignment. */
+.button.sign-out-btn {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  margin: var(--s-4) 0 var(--s-4) auto;
+  border-color: var(--rust);
+  color: var(--rust);
+}
+
+.button.sign-out-btn:hover {
+  background: var(--rust-soft);
+}
+
 /* Status lines carry machine facts → mono caption, quiet. */
 .status {
   font-family: var(--mono);
