@@ -564,15 +564,24 @@ a {
   gap: var(--s-2);
 }
 
-/* Row 1: the search field grows to fill the row; page actions sit at the end. */
+/* Row 1: the search field grows to fill the row; page actions sit at the end.
+   Everything stretches to one shared row height so the search input and the
+   action buttons ("+ Cook", export ↑) always line up edge-to-edge. */
 .toolbar-row--search {
   flex-wrap: nowrap;
+  align-items: stretch;
 }
 .toolbar-actions {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: var(--s-2);
   flex: 0 0 auto;
+}
+/* Row-1 action buttons: tighter horizontal padding than the default .button, so
+   more of the row goes to the search field. */
+.toolbar-actions .button {
+  padding-inline: var(--s-3);
+  white-space: nowrap;
 }
 
 /* Row 2: the source segmented (Cookbook). Empty + collapsed on Browse. */
