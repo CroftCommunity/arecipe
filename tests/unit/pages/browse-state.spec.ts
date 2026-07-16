@@ -146,6 +146,21 @@ describe('matchesFilter', () => {
       false,
     );
   });
+
+  it('dietMode "any" is OR across tokens — one satisfied token is enough', () => {
+    const twoTokens = { state: baseState(), diet: ['dietVegetarian', 'dietVegan'], dietMode: 'any' as const };
+    // veg is vegetarian but not vegan — passes under OR (fails under the AND default above).
+    expect(matchesFilter(veg, twoTokens)).toBe(true);
+    // meat satisfies neither token — still filtered out.
+    expect(matchesFilter(meat, twoTokens)).toBe(false);
+  });
+
+  it('dietMode "all" matches the default (explicit and omitted agree)', () => {
+    const diet = ['dietVegetarian', 'dietVegan'];
+    expect(matchesFilter(veg, { state: baseState(), diet, dietMode: 'all' })).toBe(
+      matchesFilter(veg, { state: baseState(), diet }),
+    );
+  });
 });
 
 describe('availableFacets', () => {

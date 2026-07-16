@@ -9,6 +9,7 @@
 
 import { log } from '../log.js';
 import type { CachedRecipe } from '../recipes/cache.js';
+import type { DietMode } from '../recipes/diet-preference.js';
 import { firstImageCid } from '../recipes/present.js';
 
 type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
@@ -69,13 +70,15 @@ export const recipeFacets = (value: Record<string, unknown>): RecipeFacets => {
  * Does a recipe survive the current filter?
  * - photos-only: AND clause (recipe must have an image).
  * - transient facets: OR within a dimension, AND across dimensions.
- * - app-wide diet preference: recipe must satisfy EVERY selected diet token.
+ * - app-wide diet preference: recipe must satisfy EVERY selected diet token
+ *   (dietMode 'all', the default) or AT LEAST ONE (dietMode 'any' — the
+ *   Account page's AND/OR toggle for flexible diet setups).
  */
 export const matchesFilter = (
   value: Record<string, unknown>,
-  opts: { state: BrowseState; diet: string[] },
+  opts: { state: BrowseState; diet: string[]; dietMode?: DietMode },
 ): boolean => {
-  const { state, diet } = opts;
+  const { state, diet, dietMode = 'all' } = opts;
   const facets = recipeFacets(value);
 
   if (state.photosOnly && !facets.hasImage) return false;
@@ -93,7 +96,13 @@ export const matchesFilter = (
     return false;
   }
 
-  if (diet.length > 0 && !diet.every((token) => facets.diet.includes(token))) return false;
+  if (diet.length > 0) {
+    const dietOk =
+      dietMode === 'any'
+        ? diet.some((token) => facets.diet.includes(token))
+        : diet.every((token) => facets.diet.includes(token));
+    if (!dietOk) return false;
+  }
 
   return true;
 };

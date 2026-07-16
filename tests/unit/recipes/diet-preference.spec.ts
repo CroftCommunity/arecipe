@@ -53,6 +53,31 @@ describe('diet preference', () => {
     expect(() => pref.save(['dietVegan'])).not.toThrow();
   });
 
+  it('combine mode defaults to "all" (strict AND) when unset', () => {
+    expect(createDietPreference({ storage: memoryStorage() }).loadMode()).toBe('all');
+  });
+
+  it('round-trips the "any" combine mode through storage', () => {
+    const storage = memoryStorage();
+    createDietPreference({ storage }).saveMode('any');
+    expect(createDietPreference({ storage }).loadMode()).toBe('any');
+  });
+
+  it('saving mode "all" clears it back to the default', () => {
+    const storage = memoryStorage();
+    const pref = createDietPreference({ storage });
+    pref.saveMode('any');
+    pref.saveMode('all');
+    expect(storage.getItem('diet-preference-mode')).toBeNull();
+    expect(createDietPreference({ storage }).loadMode()).toBe('all');
+  });
+
+  it('mode degrades to "all" when storage throws (private mode)', () => {
+    const pref = createDietPreference({ storage: brokenStorage });
+    expect(pref.loadMode()).toBe('all');
+    expect(() => pref.saveMode('any')).not.toThrow();
+  });
+
   it('exposes the canonical diet vocabulary (normalized tokens + labels) for Settings', () => {
     const tokens = DIET_OPTIONS.map((o) => o.token);
     expect(tokens).toContain('dietVegetarian');

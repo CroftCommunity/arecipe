@@ -11,9 +11,15 @@ import { log } from '../log.js';
 type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
 const STORAGE_KEY = 'diet-preference';
+const MODE_KEY = 'diet-preference-mode';
 
 /** Selected, normalized diet tokens (e.g. ['dietVegetarian', 'dietVegan']). */
 export type DietPreference = string[];
+
+/** How multiple selected tokens combine: 'all' = AND (recipe must satisfy every
+ * token — the strict default), 'any' = OR (satisfying one token is enough —
+ * flexible households like "vegetarian or gluten-free is fine"). */
+export type DietMode = 'all' | 'any';
 
 /** The canonical diet vocabulary the Account taste control offers. Tokens are the
  * NORMALIZED form `recipeFacets` produces (bare, no `#` prefix, no doubled
@@ -32,6 +38,10 @@ export type DietPreferenceStore = {
   load: () => DietPreference;
   /** Persist the preference; an empty array clears it back to the default. */
   save: (preference: DietPreference) => void;
+  /** The stored combine mode, or 'all' when unset/unreadable (= strict AND). */
+  loadMode: () => DietMode;
+  /** Persist the combine mode; 'all' clears it back to the default. */
+  saveMode: (mode: DietMode) => void;
 };
 
 export const createDietPreference = (opts: { storage?: StorageLike } = {}): DietPreferenceStore => {
@@ -55,6 +65,22 @@ export const createDietPreference = (opts: { storage?: StorageLike } = {}): Diet
         else storage.setItem(STORAGE_KEY, JSON.stringify(preference));
       } catch (err) {
         log.warn('browse', 'diet preference save failed', { key: STORAGE_KEY, error: String(err) });
+      }
+    },
+    loadMode: () => {
+      try {
+        return storage.getItem(MODE_KEY) === 'any' ? 'any' : 'all';
+      } catch (err) {
+        log.warn('browse', 'diet mode load failed', { key: MODE_KEY, error: String(err) });
+        return 'all';
+      }
+    },
+    saveMode: (mode) => {
+      try {
+        if (mode === 'all') storage.removeItem(MODE_KEY);
+        else storage.setItem(MODE_KEY, mode);
+      } catch (err) {
+        log.warn('browse', 'diet mode save failed', { key: MODE_KEY, error: String(err) });
       }
     },
   };

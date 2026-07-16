@@ -51,7 +51,35 @@ const renderTastePrefs = (): HTMLElement => {
   const only = el('div', 'taste-only-block');
   only.id = 'diet-preference';
   only.dataset['testid'] = 'diet-preference';
-  only.append(el('h4', 'taste-bucket-title', 'Only show me'));
+  const dietPref = createDietPreference();
+
+  // Heading row: the bucket title with the AND/OR mode toggle right-aligned
+  // beside it. 'all' = recipe must satisfy every checked diet; 'any' = one is
+  // enough (flexible setups like "vegetarian or gluten-free both work").
+  const onlyHead = el('div', 'taste-bucket-head');
+  onlyHead.append(el('h4', 'taste-bucket-title', 'Only show me'));
+  let dietMode = dietPref.loadMode();
+  const modeToggle = el('button', 'diet-mode-toggle') as HTMLButtonElement;
+  modeToggle.type = 'button';
+  modeToggle.dataset['testid'] = 'diet-mode-toggle';
+  const refreshModeToggle = (): void => {
+    modeToggle.textContent = dietMode === 'all' ? 'Match all (and)' : 'Match any (or)';
+    modeToggle.title =
+      dietMode === 'all'
+        ? 'Recipes must match every checked diet. Tap to require any one instead.'
+        : 'Recipes may match any one checked diet. Tap to require all instead.';
+    modeToggle.setAttribute('aria-label', modeToggle.title);
+  };
+  modeToggle.addEventListener('click', () => {
+    dietMode = dietMode === 'all' ? 'any' : 'all';
+    dietPref.saveMode(dietMode);
+    refreshModeToggle();
+    log.debug('diet', 'mode toggled', { mode: dietMode });
+  });
+  refreshModeToggle();
+  onlyHead.append(modeToggle);
+  only.append(onlyHead);
+
   only.append(
     el(
       'p',
@@ -59,7 +87,6 @@ const renderTastePrefs = (): HTMLElement => {
       'Your standing dietary preference. Browse hides recipes that don’t match. Leave all unchecked to show everything.',
     ),
   );
-  const dietPref = createDietPreference();
   const selectedDiet = new Set(dietPref.load());
   const dietBoxes: HTMLInputElement[] = [];
   for (const option of DIET_OPTIONS) {
