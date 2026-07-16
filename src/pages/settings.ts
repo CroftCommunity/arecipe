@@ -1,8 +1,9 @@
-// Settings page: APP MANAGEMENT (blockdoku split) — which build is running,
-// how the integrity check works, About. Domain/account settings live on
-// account.html. The update-check control arrives with Phase 8b.
+// Settings page: APP MANAGEMENT (blockdoku split) — how the integrity check
+// works, feeds, About. Domain/account settings live on account.html; build
+// facts + update checks migrated to Account → "Release & version" (signed
+// releases D7), leaving a pointer here.
 
-import { formatBuildStamp, mountBuildStamp, type BuildInfo } from '../build-stamp.js';
+import { mountBuildStamp } from '../build-stamp.js';
 import { resolveDidDoc } from '../identity/did.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
@@ -53,56 +54,27 @@ const main = async (): Promise<void> => {
   );
   content.append(guideTop);
 
-  const build = section('This build', 'build-facts');
-  try {
-    const res = await fetch('./build-info.json');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const info = (await res.json()) as BuildInfo;
-    const list = el('dl', 'facts');
-    const fact = (term: string, value: string): void => {
-      list.append(el('dt', undefined, term), el('dd', undefined, value));
-    };
-    fact('version', info.version);
-    fact('built', info.builtAt);
-    fact('this page delivered', formatBuildStamp(info).split('· ')[1] ?? '');
-    build.append(list);
-  } catch (err) {
-    build.append(el('p', 'status', 'build info unavailable'));
-    log.warn('build', 'build-info.json missing or invalid', { error: String(err) });
-  }
-  // Discoverable pointer to the changelog, in context with the version (the footer
-  // link is global; this is where someone reading "which build am I on" looks next).
+  // Build facts + the update check moved to Account → "Release & version"
+  // (signed releases D7) — Settings keeps this pointer plus the storage line.
+  const updates = section('Updates & storage', 'updates');
+  const pointer = el('p', 'status');
+  pointer.dataset['testid'] = 'release-pointer';
+  const pointerLink = el('a', 'friend-link', 'Account → Release & version') as HTMLAnchorElement;
+  pointerLink.href = './account.html';
+  pointer.append(
+    document.createTextNode('Build details, update checks and the version pin live under '),
+    pointerLink,
+    document.createTextNode('.'),
+  );
+  // Discoverable pointer to the changelog, in context with the version pointer
+  // (the footer link is global; this is where someone reading "which build am I
+  // on" looks next).
   const changelogP = el('p');
   const changelogLink = el('a', 'friend-link', "See what's changed") as HTMLAnchorElement;
   changelogLink.href = './changelog.html';
   changelogLink.dataset['testid'] = 'settings-changelog';
   changelogP.append(changelogLink, document.createTextNode(' — a timeline of updates.'));
-  build.append(changelogP);
-
-  const updates = section('Updates & storage', 'updates');
-  const checkButton = el('button', 'button', 'Check for updates') as HTMLButtonElement;
-  checkButton.type = 'button';
-  checkButton.dataset['testid'] = 'check-updates';
-  const updateStatus = el('p', 'status');
-  updateStatus.dataset['testid'] = 'update-status';
-  checkButton.addEventListener('click', () => {
-    void (async () => {
-      updateStatus.textContent = 'checking…';
-      const reg = await navigator.serviceWorker.getRegistration();
-      if (reg === undefined) {
-        updateStatus.textContent = 'no service worker registered';
-        return;
-      }
-      await reg.update();
-      updateStatus.textContent =
-        reg.waiting !== null || reg.installing !== null
-          ? 'update found — the toast will offer it'
-          : 'you are on the latest build';
-    })().catch((err: unknown) => {
-      updateStatus.textContent = `update check failed: ${String(err)}`;
-    });
-  });
-  updates.append(checkButton, updateStatus);
+  updates.append(pointer, changelogP);
   void (async () => {
     try {
       const estimate = await navigator.storage.estimate();
@@ -428,7 +400,6 @@ const main = async (): Promise<void> => {
   about.append(guidePara);
 
   content.append(
-    build,
     updates,
     starter,
     social,

@@ -56,7 +56,7 @@ test('the footer links to the changelog from another page', async ({ page }) => 
   await expect(link).toHaveAttribute('href', './changelog.html');
 });
 
-test('Settings links to the changelog from the "This build" section', async ({ page }) => {
+test('Settings links to the changelog from the "Updates & storage" section', async ({ page }) => {
   await page.goto('/settings.html');
   const link = page.getByTestId('settings-changelog');
   await expect(link).toBeVisible();
