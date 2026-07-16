@@ -2283,6 +2283,18 @@ details.calendar-publish > summary {
   padding: 0.1rem var(--s-2);
   cursor: pointer;
 }
+/* Members pager: ◀ "Showing X–Y of N" ▶ centred under the cooks list. Reuses
+   the .palette-page-btn arrows + .browse-pager-hint counter. */
+.members-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-3);
+  margin-top: var(--s-3);
+}
+.members-pager[hidden] {
+  display: none;
+}
 
 .add-cook-panel {
   margin-top: var(--s-2);
