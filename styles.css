@@ -15,6 +15,7 @@
   --yolk: #e8a013;
   --yolk-deep: #b87d0a;
   --rust: #b4552d;
+  --rust-soft: #b4552d14;
   --card: #ffffff;
   --line: #d9e2de;
 
@@ -61,6 +62,7 @@
   --yolk: #e8a013;
   --yolk-deep: #e5b13d;
   --rust: #e07a4f;
+  --rust-soft: #e07a4f24;
   --card: #182622;
   --line: #2b3b36;
   --stamp-veil: #101b18d9;
@@ -83,7 +85,7 @@ body {
    anchors without a more specific class — e.g. .comment-author — read legibly
    in both themes instead of the UA link-blue, which is unreadable on the dark
    --tile. Every purpose-styled link is class-scoped and more specific, so it
-   still wins: .nav-auth / .diet-pref-link / .reset-filters-link / .draft-link
+   still wins: .nav-auth / .diet-pref-link / .draft-link
    set their own color, and a.card sets `color: inherit`. This only reaches the
    otherwise-unstyled content anchors. Underline stays (the UA link affordance). */
 a {
@@ -740,26 +742,40 @@ a {
   color: var(--enamel);
 }
 
-/* Reset control: a link-styled button in the count block. Same themed color as
-   the diet link so it reads in dark mode; the middot separates it from the
-   "N of M shown" count. */
-.reset-filters-link {
-  font-family: var(--mono);
-  font-size: var(--t-caption);
-  color: var(--enamel);
-  background: none;
+/* Reset icon button — shared by the toolbar reset (Browse/Cookbook, mounted in
+   the count block before the honest count) and the Meals plan reset. Icon-only:
+   the label lives on aria-label/title (src/icons.ts). Rust stroke, contrast-
+   guarded ≥3:1 on --tile; the hit area is padded to ≥44px (WCAG 2.5.5) while the
+   glyph stays ~18px, and hover/press shows the soft rust tint. */
+.reset-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: var(--s-2);
   border: none;
-  padding: 0;
+  background: none;
+  color: var(--rust);
+  border-radius: var(--r-m);
   cursor: pointer;
-  text-decoration: underline;
+  flex: 0 0 auto;
 }
 
-.reset-sep {
-  font-family: var(--mono);
-  font-size: var(--t-caption);
-  color: var(--ink);
-  opacity: 0.5;
-  margin: 0 var(--s-1);
+/* A class-level `display` would otherwise defeat the `hidden` attribute (the
+   toolbar toggles reset via setResetVisible → .hidden). */
+.reset-icon-btn[hidden] {
+  display: none;
+}
+
+.reset-icon-btn svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.reset-icon-btn:hover,
+.reset-icon-btn:active {
+  background: var(--rust-soft);
 }
 
 /* ---- recipe cards ---- */

@@ -99,3 +99,56 @@ test('tap targets are ≥44px on a phone (browse controls + bottom nav)', async 
     expect(box!.height, `${id} tap height`).toBeGreaterThanOrEqual(44);
   }
 });
+
+// Reset-surface v2 (D6): the shared reset icon is icon-only, so its PADDED hit
+// area (not a bigger glyph) must still clear 44px on a phone. The Browse reset
+// only appears with a filter active, so route a hermetic feed and reveal it with
+// a query; the Meals reset renders unconditionally.
+const AUTHORS = [
+  { did: 'did:plc:spfl4xaktvvchr2cqp2r2xvp', pds: 'https://pds0.test', records: true },
+  { did: 'did:plc:26tsx5juuss4yealylyfbj4h', pds: 'https://pds1.test', records: false },
+  { did: 'did:plc:4cx7ts7lqgjtsfquo53qo3sz', pds: 'https://pds2.test', records: false },
+  { did: 'did:plc:vspq46f5zmrlesaszlyfliy2', pds: 'https://pds3.test', records: false },
+];
+
+const routeStarterFeed = async (page: Page): Promise<void> => {
+  const template = JSON.parse(identityFixture('plc-diddoc-ngvalidation2112.json')) as {
+    id: string;
+    service: { serviceEndpoint: string }[];
+  };
+  await page.route('https://plc.directory/**', async (route) => {
+    const did = decodeURIComponent(route.request().url().split('/').pop() ?? '');
+    const author = AUTHORS.find((a) => a.did === did);
+    if (author === undefined) return route.fulfill({ status: 404, body: '{}' });
+    const doc = { ...template, id: author.did, service: [{ ...template.service[0]!, serviceEndpoint: author.pds }] };
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(doc) });
+  });
+  for (const author of AUTHORS) {
+    await page.route(`${author.pds}/**`, async (route) => {
+      const body = author.records ? atprotoFixture('listRecords-browse-mixed.json') : JSON.stringify({ records: [] });
+      await route.fulfill({ status: 200, contentType: 'application/json', body });
+    });
+  }
+};
+
+test('tap target ≥44px on a phone (Browse reset, filter active)', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 780 });
+  await routeStarterFeed(page);
+  await page.goto('/index.html');
+  await page.getByTestId('recipe-item').first().waitFor({ timeout: 15_000 });
+  await page.getByTestId('recipe-search').fill('salad');
+  await expect(page.getByTestId('reset-filters')).toBeVisible();
+  const box = await page.getByTestId('reset-filters').boundingBox();
+  expect(box, 'reset-filters has a box').not.toBeNull();
+  expect(box!.height, 'reset-filters tap height').toBeGreaterThanOrEqual(44);
+});
+
+test('tap target ≥44px on a phone (Meals reset)', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 780 });
+  await page.goto('/meals.html');
+  const reset = page.getByTestId('reset-plan');
+  await reset.waitFor({ timeout: 15_000 });
+  const box = await reset.boundingBox();
+  expect(box, 'reset-plan has a box').not.toBeNull();
+  expect(box!.height, 'reset-plan tap height').toBeGreaterThanOrEqual(44);
+});

@@ -5,13 +5,18 @@
 //   Row 2  — a source slot (Cookbook mounts its Mine | Liked | All segmented;
 //            empty and collapsed elsewhere).
 //   Row 3  — the Tiles | Details view toggle + ONE "Filters ▾" disclosure with a
-//            count badge, and the honest "N of M shown" count OUTSIDE it.
-// The Filters popover holds photos-only, the Meal / Cuisine facet groups, the
-// diet-preference link (Browse only), and reset — so no control appears twice.
+//            count badge, and the honest "N of M shown" count OUTSIDE it, with
+//            the reset control in that same count block (reset-surface v2).
+// The Filters popover holds photos-only, the Meal / Cuisine facet groups, and
+// the diet-preference link (Browse only). Reset does NOT live in the popover:
+// it sits in the count block (before the count) and appears only when a filter
+// is active, so clearing is one visible tap — not two behind a closed
+// disclosure. No control appears twice.
 // The toolbar owns only its own DOM + control listeners (wired to callbacks); the
 // page owns the feed/list and drives it through the returned controller.
 
 import type { BrowseState, ViewMode } from '../pages/browse-state.js';
+import { resetIconButton } from '../icons.js';
 import { renderFacetGroup } from './view.js';
 
 /** Facet selection/availability: arrays of values per dimension (distinct from
@@ -126,25 +131,27 @@ export const renderToolbar = (opts: {
 
   filtersPanel.append(photosToggleLabel, facetsContainer);
 
-  // Diet link (Browse only) + reset, both inside the popover.
+  // Diet link (Browse only) inside the popover.
   if (showDietLink) {
     const dietLink = el('a', 'diet-pref-link', 'preference ↗') as HTMLAnchorElement;
     dietLink.href = './settings.html#diet-preference';
     filtersPanel.append(dietLink);
   }
-  const resetBtn = el('button', 'reset-filters-link', 'reset filters') as HTMLButtonElement;
-  resetBtn.type = 'button';
-  resetBtn.dataset['testid'] = 'reset-filters';
-  resetBtn.hidden = true;
-  filtersPanel.append(resetBtn);
 
   filtersDd.append(filtersSummary, filtersPanel);
 
-  // Honest count OUTSIDE the disclosure, right-aligned.
+  // Honest count OUTSIDE the disclosure, right-aligned — with the reset control
+  // (reset-surface v2, D4). Reset is the shared icon button (src/icons.ts), sits
+  // BEFORE the count so it reads "reset · N of M shown", and shows only when a
+  // filter is active (setResetVisible) — the contextual appearance is the
+  // discoverability mitigation for going icon-only.
   const countBlock = el('div', 'browse-count');
+  const resetBtn = resetIconButton('reset filters');
+  resetBtn.dataset['testid'] = 'reset-filters';
+  resetBtn.hidden = true;
   const recipesStatus = el('p', 'status');
   recipesStatus.dataset['testid'] = 'recipes-status';
-  countBlock.append(recipesStatus);
+  countBlock.append(resetBtn, recipesStatus);
 
   rowControls.append(viewSegmented, filtersDd, countBlock);
 

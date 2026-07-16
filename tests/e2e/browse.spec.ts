@@ -76,20 +76,25 @@ test('reset filters clears active browse filters; status drops the verified coun
   await routeMixedFeed(page);
   await page.goto('/');
   await expect(page.getByTestId('recipe-item')).toHaveCount(4);
-  // No browse filter → no visible reset control.
+  // No browse filter → no visible reset control anywhere.
   await expect(page.getByTestId('reset-filters')).toBeHidden();
 
-  // Apply a filter: the reset control appears (inside the open Filters popover);
-  // the status reads "N of M shown" with NO verified count.
+  // Apply a filter (photos-only lives in the popover; open it to toggle); the
+  // status reads "N of M shown" with NO verified count.
   await openFilters(page);
   await page.getByTestId('photos-only').check();
   await expect(page.getByTestId('recipe-item')).toHaveCount(3);
   const status = page.getByTestId('recipes-status');
   await expect(status).toContainText('3 of 4 shown');
   await expect(status).not.toContainText('verified');
+
+  // Reset-surface v2 (D4): the reset control shows in the count block, in sight,
+  // WITHOUT the Filters popover — close it and the reset is still there.
+  await page.getByTestId('filters-dd').locator('summary').click(); // close the popover
+  await expect(page.getByTestId('filters-dd')).toHaveJSProperty('open', false);
   await expect(page.getByTestId('reset-filters')).toBeVisible();
 
-  // Reset: full list back, photos-only unchecked, control hidden again.
+  // One tap: full list back, photos-only unchecked, control hidden again.
   await page.getByTestId('reset-filters').click();
   await expect(page.getByTestId('recipe-item')).toHaveCount(4);
   await expect(page.getByTestId('photos-only')).not.toBeChecked();
@@ -427,7 +432,8 @@ test('search: reset clears the query — back to 4 and the starter status string
   await expect(page.getByTestId('recipe-item')).toHaveCount(4);
   await page.getByTestId('recipe-search').fill('feta');
   await expect(page.getByTestId('recipe-item')).toHaveCount(1);
-  await openFilters(page);
+  // A query is a filter: reset shows in the count block with NO popover opened.
+  await expect(page.getByTestId('filters-dd')).toHaveJSProperty('open', false);
   await expect(page.getByTestId('reset-filters')).toBeVisible();
 
   await page.getByTestId('reset-filters').click();
@@ -483,6 +489,11 @@ test('Filters ▾ badge counts active filters; reset clears it', async ({ page }
   // The honest count lives OUTSIDE the disclosure.
   await expect(page.getByTestId('recipes-status')).toContainText('shown');
 
+  // Reset lives in the count block, not the popover: close the popover, then a
+  // single visible tap clears the facets and the badge.
+  await page.getByTestId('filters-dd').locator('summary').click(); // close
+  await expect(page.getByTestId('filters-dd')).toHaveJSProperty('open', false);
+  await expect(page.getByTestId('reset-filters')).toBeVisible();
   await page.getByTestId('reset-filters').click();
   await expect(page.getByTestId('filters-count')).toBeHidden();
   await expect(page.getByTestId('recipe-item')).toHaveCount(4);
