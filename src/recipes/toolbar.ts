@@ -1,11 +1,11 @@
 // Shared view/filter toolbar, unified to the D7 contract so Browse and Cookbook
 // render the identical control structure — two rows:
-//   Row 1  — the recipe-search input + a source slot (Cookbook mounts its
-//            Mine | Liked | Both segmented so you search the selected context
-//            on one line; empty and collapsed elsewhere) + a page-actions slot
-//            (Browse mounts "+ Cook" and export there; Cookbook mounts
-//            nothing). Everything on the row stretches to the search input's
-//            height.
+//   Row 1  — a source slot (Cookbook mounts its Mine | Liked | Both segmented
+//            so you pick the context, then search it on the same line; empty
+//            and collapsed elsewhere) + the recipe-search input + a
+//            page-actions slot (Browse mounts "+ Cook" and export there;
+//            Cookbook mounts nothing). Everything on the row stretches to the
+//            search input's height.
 //   Row 2  — the Tiles | Details view toggle + the "Filters ▾" disclosure with
 //            a count badge, and the honest "N of M shown" count OUTSIDE it on
 //            the right, with the reset control in that same count block
@@ -56,7 +56,7 @@ export type ToolbarController = {
   element: HTMLElement;
   /** Row-1 slot at the end of the row — Browse mounts "+ Cook" + export here. */
   actionsSlot: HTMLElement;
-  /** Row-1 slot right of the search input — Cookbook mounts its
+  /** Row-1 slot leading the row, before the search input — Cookbook mounts its
    *  Mine | Liked | Both segmented here (collapsed when empty). */
   sourceSlot: HTMLElement;
   /** Reflect the active view on the segmented control (aria-pressed + class). */
@@ -90,9 +90,9 @@ export const renderToolbar = (opts: {
 
   const toolbar = el('div', 'browse-toolbar');
 
-  // --- Row 1: search + source slot + page actions. The source slot sits right
-  // of the input (search-the-selected-context reads as one line) and collapses
-  // when empty (CSS); Browse mounts nothing there. ---
+  // --- Row 1: source slot + search + page actions. The source slot leads the
+  // row, the input follows (pick the context, then search it — one line) and
+  // collapses when empty (CSS); Browse mounts nothing there. ---
   const rowSearch = el('div', 'toolbar-row toolbar-row--search');
   const searchInput = document.createElement('input');
   searchInput.type = 'search';
@@ -104,7 +104,7 @@ export const renderToolbar = (opts: {
   sourceSlot.dataset['testid'] = 'toolbar-source';
   const actionsSlot = el('div', 'toolbar-actions');
   actionsSlot.dataset['testid'] = 'toolbar-actions';
-  rowSearch.append(searchInput, sourceSlot, actionsSlot);
+  rowSearch.append(sourceSlot, searchInput, actionsSlot);
 
   // --- Row 2: view toggle + Filters ▾ + honest count ---
   const rowControls = el('div', 'toolbar-row toolbar-row--controls');
