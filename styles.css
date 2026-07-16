@@ -986,13 +986,12 @@ a {
   max-width: 52rem;
 }
 
-/* Title row: just the recipe title now (the Hide control moved to the bottom
-   footer). Kept as a row so any future title-adjacent control has a home. */
+/* Title row: the recipe title with the share icon hugging it — the same
+   grouping as the cookbook heading's share control (.cookbook-title-group). */
 .recipe-title-row {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--s-3);
+  align-items: center;
+  gap: var(--s-1);
   flex-wrap: wrap;
 }
 
