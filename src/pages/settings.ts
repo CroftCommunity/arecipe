@@ -3,10 +3,13 @@
 // account.html. The update-check control arrives with Phase 8b.
 
 import { formatBuildStamp, mountBuildStamp, type BuildInfo } from '../build-stamp.js';
+import { resolveDidDoc } from '../identity/did.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
+import { createRecipeCache } from '../recipes/cache.js';
 import { createExclusions } from '../recipes/exclusions.js';
 import { abbreviateId } from '../recipes/present.js';
+import { createRecordReader } from '../recipes/read.js';
 import { createStarterPrefs, STARTER_AUTHORS } from '../recipes/starter.js';
 import { createSocialPrefs } from '../social/prefs.js';
 import { registerServiceWorker } from '../sw-register.js';
@@ -167,7 +170,7 @@ const main = async (): Promise<void> => {
 
   // Collapsed by default (it can hold many baseline entries): a <details> whose
   // summary carries the live count; the list is revealed only when expanded.
-  const hiddenSection = el('details', 'settings-section hidden-recipes');
+  const hiddenSection = el('details', 'settings-section hidden-recipes') as HTMLDetailsElement;
   hiddenSection.dataset['testid'] = 'hidden-recipes';
   const hiddenSummary = el('summary', 'hidden-summary');
   hiddenSection.append(hiddenSummary);
@@ -177,6 +180,11 @@ const main = async (): Promise<void> => {
   const exclusions = createExclusions();
   const hiddenList = el('div');
   hiddenSection.append(hiddenList);
+  // Human-readable labels: uri → recipe name, resolved lazily the first time the
+  // section is expanded (recipe cache first, then a best-effort fetch from the
+  // author's PDS) so the collapsed page stays network-free. Entries that can't
+  // be resolved keep the abbreviated id.
+  const hiddenNames = new Map<string, string>();
   const renderHidden = (): void => {
     const all = exclusions.all();
     hiddenSummary.textContent = `Hidden recipes (${all.length})`;
@@ -188,10 +196,11 @@ const main = async (): Promise<void> => {
     for (const uri of all) {
       const row = el('div', 'draft-row');
       row.dataset['testid'] = 'hidden-row';
-      // Show a short, single-line id (the raw rkey is a 26-char ULID that wraps
-      // into an ugly multi-line blob on mobile); the full URI stays in the title.
+      // Until the name arrives, show a short, single-line id (the raw rkey is a
+      // 26-char ULID that wraps into an ugly multi-line blob on mobile); the
+      // full URI stays in the title either way.
       const rkey = uri.split('/').slice(-1)[0] ?? uri;
-      const link = el('a', 'draft-link', abbreviateId(rkey)) as HTMLAnchorElement;
+      const link = el('a', 'draft-link', hiddenNames.get(uri) ?? abbreviateId(rkey)) as HTMLAnchorElement;
       link.href = `./recipe.html?u=${encodeURIComponent(uri)}`;
       link.title = uri;
       const unhide = el('button', 'button', 'Unhide') as HTMLButtonElement;
@@ -205,6 +214,34 @@ const main = async (): Promise<void> => {
       hiddenList.append(row);
     }
   };
+  const lookupHiddenName = async (uri: string): Promise<string | null> => {
+    const cache = createRecipeCache();
+    const cached = await cache.get(uri);
+    if (cached !== undefined) return (cached.value as { name?: string }).name ?? null;
+    const match = /^at:\/\/([^/]+)\/[^/]+\/([^/]+)$/.exec(uri);
+    if (match === null) return null;
+    const { pds } = await resolveDidDoc(match[1]!);
+    const record = await createRecordReader()({ pds, did: match[1]!, rkey: match[2]! });
+    await cache.put(record); // verified + cached like any other read
+    return record.value.name;
+  };
+  let hiddenNamesRequested = false;
+  hiddenSection.addEventListener('toggle', () => {
+    if (!hiddenSection.open || hiddenNamesRequested) return;
+    hiddenNamesRequested = true;
+    for (const uri of exclusions.all()) {
+      void lookupHiddenName(uri)
+        .then((name) => {
+          if (name !== null && name !== '') {
+            hiddenNames.set(uri, name);
+            renderHidden();
+          }
+        })
+        .catch((err: unknown) => {
+          log.debug('exclusions', 'hidden recipe name lookup failed', { uri, error: String(err) });
+        });
+    }
+  });
   renderHidden();
 
   const about = section('About', 'about');
