@@ -12,6 +12,7 @@ import { renderCalendarPublishSection } from '../publish/calendar-account-sectio
 import { createCalendarClient } from '../publish/client.js';
 import { listPdsPlans } from '../recipes/meal-plan-sync.js';
 import type { LocalPlan } from '../recipes/meal-plan-local.js';
+import { createDietPreference, DIET_OPTIONS } from '../recipes/diet-preference.js';
 import { createReachPrefs } from '../social/reach.js';
 import {
   CUISINE_OPTIONS,
@@ -29,12 +30,13 @@ const el = (tag: string, className?: string, text?: string): HTMLElement => {
   return node;
 };
 
-/** The standing taste filter ("Never show me" — exclusions, by meal + cuisine).
- *  Device-local (createTastePreference), applied across Browse, Cookbook, and the
- *  meal planner. Rendered on the account page as a titled block whose Meals ▾ /
- *  Cuisines ▾ dropdowns (the Browse `.facet-dd` popover idiom) pick values to
- *  EXCLUDE site-wide; each summary carries a count bubble so selections show
- *  while collapsed. */
+/** The standing taste filters, both buckets under one "Taste" section:
+ *  "Only show me" (the app-wide dietary preference — a whitelist, moved here
+ *  from Settings) above "Never show me" (exclusions, by meal + cuisine).
+ *  Device-local, applied across Browse, Cookbook, and the meal planner. The
+ *  never bucket renders as a titled block whose Meals ▾ / Cuisines ▾ dropdowns
+ *  (the Browse `.facet-dd` popover idiom) pick values to EXCLUDE site-wide;
+ *  each summary carries a count bubble so selections show while collapsed. */
 const renderTastePrefs = (): HTMLElement => {
   const store = createTastePreference();
   let pref: TastePreference = store.load();
@@ -42,6 +44,40 @@ const renderTastePrefs = (): HTMLElement => {
   const section = el('section', 'settings-section taste-prefs');
   section.dataset['testid'] = 'taste-prefs';
   section.append(el('h3', 'section-title', 'Taste'));
+
+  // "Only show me": the app-wide dietary preference. Written here, read by
+  // Browse's renderCurrent. The id is the anchor the Browse diet link targets.
+  const only = el('div', 'taste-only-block');
+  only.id = 'diet-preference';
+  only.dataset['testid'] = 'diet-preference';
+  only.append(el('h4', 'taste-bucket-title', 'Only show me'));
+  only.append(
+    el(
+      'p',
+      'status',
+      'Your standing dietary preference. Browse hides recipes that don’t match. Leave all unchecked to show everything.',
+    ),
+  );
+  const dietPref = createDietPreference();
+  const selectedDiet = new Set(dietPref.load());
+  const dietBoxes: HTMLInputElement[] = [];
+  for (const option of DIET_OPTIONS) {
+    const row = el('label', 'starter-row');
+    row.dataset['testid'] = 'diet-row';
+    const box = document.createElement('input');
+    box.type = 'checkbox';
+    box.dataset['token'] = option.token;
+    box.checked = selectedDiet.has(option.token);
+    box.addEventListener('change', () => {
+      const chosen = dietBoxes.filter((b) => b.checked).map((b) => b.dataset['token'] ?? '');
+      dietPref.save(chosen);
+      log.debug('diet', 'toggled', { token: option.token, on: box.checked });
+    });
+    dietBoxes.push(box);
+    row.append(box, el('span', undefined, option.label));
+    only.append(row);
+  }
+  section.append(only);
 
   // "Never show me": a title block over per-dimension dropdowns. Everything
   // picked here is a standing EXCLUSION — hidden from every feed site-wide.

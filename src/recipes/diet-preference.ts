@@ -1,6 +1,6 @@
 // Shared, app-wide dietary preference: the user's standing "Only show me"
-// setting. Written by Settings (Phase 8), read by Browse's renderCurrent
-// (Phase 3). Distinct from Browse's transient facet filters — diet is "what
+// setting. Written by the Account page's Taste section, read by Browse's
+// renderCurrent (Phase 3). Distinct from Browse's transient facet filters — diet is "what
 // you eat", a persisted personal default, so it lives in one app-wide store
 // rather than the per-browse filter state. Empty = "no preference / show
 // all". Storage is defensive (private mode degrades to "no preference"),
@@ -15,7 +15,7 @@ const STORAGE_KEY = 'diet-preference';
 /** Selected, normalized diet tokens (e.g. ['dietVegetarian', 'dietVegan']). */
 export type DietPreference = string[];
 
-/** The canonical diet vocabulary the Settings control offers. Tokens are the
+/** The canonical diet vocabulary the Account taste control offers. Tokens are the
  * NORMALIZED form `recipeFacets` produces (bare, no `#` prefix, no doubled
  * `Diet` suffix), so a preference matches a recipe's `suitableForDiet` after
  * normalization. */
