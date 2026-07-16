@@ -47,6 +47,11 @@ export type LocalPlan = {
   mealsPerDay: number;
   startDate?: string;
   updatedAt: string;
+  /** Set on a STAGED edit of a published plan: the published record's rkey.
+   * Local-only bookkeeping — publishing the copy re-putRecords under this rkey
+   * (an in-place replace); it is never written into the PDS record, and the
+   * plain planner never adopts a plan that carries it. */
+  editOf?: string;
 };
 
 /** What a caller supplies to save — content only; id + updatedAt are managed. */
@@ -55,6 +60,7 @@ export type LocalPlanInput = {
   weeks: LocalWeek[];
   mealsPerDay?: number;
   startDate?: string;
+  editOf?: string;
 };
 
 /** A meal's type label from the recipe's own category ("breakfast" → "Breakfast"),
@@ -193,6 +199,7 @@ export const createMealPlanStore = (
         weeks: plan.weeks,
         mealsPerDay: clampMealsPerDay(plan.mealsPerDay, maxDay),
         ...(plan.startDate !== undefined ? { startDate: plan.startDate } : {}),
+        ...(plan.editOf !== undefined ? { editOf: plan.editOf } : {}),
         updatedAt: new Date().toISOString(),
       };
       all[resolvedId] = stored;

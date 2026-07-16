@@ -242,3 +242,73 @@ test('@live "Published" plans subpage lists a published plan, then deletes it', 
 
   await purge();
 });
+
+test('@live edit a published plan in place from the Published subpage', async ({ page, baseURL }) => {
+  test.skip(
+    HANDLE === '' || PASSWORD === '' || APP_PASSWORD === '',
+    'needs BSKY_TEST_* credentials in .env',
+  );
+  test.setTimeout(300_000);
+  await purge();
+  const origin = baseURL ?? 'http://127.0.0.1:4173';
+
+  await page.addInitScript((seed) => {
+    try {
+      localStorage.setItem('arecipe.meals.palette-seed', JSON.stringify(seed));
+    } catch {
+      /* ignore */
+    }
+  }, SEED);
+
+  await signIn(page, { handle: HANDLE, password: PASSWORD, origin });
+  await page.goto('/meals.html');
+  await page.evaluate((marker) => {
+    try {
+      const raw = localStorage.getItem('arecipe.mealplans.v1');
+      const all = raw === null ? {} : (JSON.parse(raw) as Record<string, { name: string }>);
+      for (const id of Object.keys(all)) all[id]!.name = `Edited Plan (${marker})`;
+      localStorage.setItem('arecipe.mealplans.v1', JSON.stringify(all));
+    } catch {
+      /* ignore */
+    }
+  }, MARKER);
+  await page.goto('/meals.html');
+
+  // Publish a one-recipe plan (Monday), anchored on a Monday.
+  await page.getByTestId('palette-chip').first().click();
+  await page.getByTestId('week-row').first().getByTestId('day-slot').first().click();
+  await page.getByTestId('plan-start-date').fill('2026-07-13');
+  await page.getByTestId('publish-plan').click();
+  await expect(page.getByTestId('share-url')).toBeVisible({ timeout: 30_000 });
+
+  // Open the Published subpage and enter edit mode from the row's Edit button.
+  await page.goto('/meals.html?plans');
+  const row = page.getByTestId('plan-row').filter({ hasText: 'published' });
+  await expect(row).toHaveCount(1, { timeout: 30_000 });
+  const shareBefore = await row.getByTestId('plan-open').getAttribute('href');
+  await row.getByTestId('plan-edit').click();
+  await expect(page).toHaveURL(/meals\.html\?edit=/);
+
+  // The planner opens on a STAGED copy of the published plan: banner + the
+  // published placement already on the canvas.
+  await expect(page.getByTestId('edit-banner')).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId('slot-filled').first()).toBeVisible({ timeout: 30_000 });
+
+  // Edit in place: add the seeded recipe to Tuesday as well, then publish the
+  // update — it must replace the ORIGINAL record (same rkey → same share link).
+  await page.getByTestId('palette-chip').first().click();
+  await page.getByTestId('week-row').first().getByTestId('day-slot').nth(1).click();
+  await page.getByTestId('publish-plan').click();
+  await expect(page).toHaveURL(/meals\.html\?plans$/, { timeout: 30_000 });
+  const rowAfter = page.getByTestId('plan-row').filter({ hasText: 'published' });
+  await expect(rowAfter).toHaveCount(1, { timeout: 30_000 }); // replaced, not added
+  expect(await rowAfter.getByTestId('plan-open').getAttribute('href')).toBe(shareBefore);
+
+  // The record on the PDS now carries BOTH placements (Mon + Tue of week 1).
+  const [record] = await listTestPlans();
+  const weeks = (record?.value['weeks'] ?? []) as { days: { meals?: unknown[] }[] }[];
+  const filledDays = weeks[0]?.days.filter((d) => (d.meals ?? []).length > 0) ?? [];
+  expect(filledDays).toHaveLength(2);
+
+  await purge();
+});

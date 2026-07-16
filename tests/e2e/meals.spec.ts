@@ -448,6 +448,50 @@ test('published-plans subpage: signed out, it invites sign-in and offers a back 
   await expect(page.getByTestId('plans-back')).toHaveAttribute('href', /meals\.html$/);
 });
 
+test('edit route: signed out, it invites sign-in and links back to the published list', async ({
+  page,
+}) => {
+  // ?edit=<rkey> is the staged-edit entry point from the Published subpage —
+  // signed-in only (publishing back needs the account). Signed out it explains
+  // and offers the way back instead of mounting the planner.
+  await page.goto('/meals.html?edit=some-rkey');
+  await expect(page.getByTestId('edit-plan')).toContainText('Sign in', { timeout: 15_000 });
+  await expect(page.getByTestId('plans-back')).toHaveAttribute('href', /meals\.html\?plans$/);
+});
+
+test('a staged edit copy never becomes the plain planner working plan', async ({ page }) => {
+  // A staged copy (editOf set) exists in the local store, newer than anything
+  // else. The plain planner must NOT adopt it — otherwise its write-through
+  // would live-edit the published record. It opens a fresh working plan instead.
+  await seedPalette(page);
+  await page.addInitScript(() => {
+    const staged = {
+      id: 'staged-1',
+      name: 'My meal plan',
+      editOf: 'pub-1',
+      mealsPerDay: 3,
+      updatedAt: new Date().toISOString(),
+      weeks: [
+        {
+          repeat: 1,
+          days: [
+            { meals: [{ recipe: { uri: 'at://did:plc:cook/exchange.recipe.recipe/x', cid: 'bafyx', name: 'Staged Dish' } }] },
+            ...Array.from({ length: 6 }, () => ({ meals: [] })),
+          ],
+        },
+      ],
+    };
+    try {
+      localStorage.setItem('arecipe.mealplans.v1', JSON.stringify({ 'staged-1': staged }));
+    } catch {
+      /* private mode */
+    }
+  });
+  await page.goto('/meals.html');
+  await expect(page.getByTestId('builder')).toBeVisible();
+  await expect(page.getByTestId('slot-filled')).toHaveCount(0); // fresh plan, not the staged copy
+});
+
 test('taste preference: a "never" cuisine hides matching palette recipes (Meals)', async ({
   page,
 }) => {

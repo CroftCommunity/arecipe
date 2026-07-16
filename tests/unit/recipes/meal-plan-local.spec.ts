@@ -130,6 +130,21 @@ describe('createMealPlanStore', () => {
     ]);
   });
 
+  it('persists editOf (a staged edit of a published plan) and round-trips it', () => {
+    const store = createMealPlanStore({ storage: memStorage() });
+    const staged = store.save({ ...aPlan('staged copy'), editOf: 'pub-rkey' });
+    expect(staged.editOf).toBe('pub-rkey');
+    expect(store.get(staged.id)?.editOf).toBe('pub-rkey');
+    expect(store.list()[0]?.editOf).toBe('pub-rkey');
+  });
+
+  it('leaves editOf absent on ordinary plans (never stamps the field)', () => {
+    const store = createMealPlanStore({ storage: memStorage() });
+    const saved = store.save(aPlan('ordinary'));
+    expect(saved.editOf).toBeUndefined();
+    expect('editOf' in (store.get(saved.id) ?? {})).toBe(false);
+  });
+
   it('defaults mealsPerDay when the input omits it', () => {
     const store = createMealPlanStore({ storage: memStorage() });
     const saved = store.save(aPlan('no cap set'));

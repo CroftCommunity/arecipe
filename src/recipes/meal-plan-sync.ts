@@ -38,8 +38,10 @@ export const planToRecord = (plan: LocalPlan): Record<string, unknown> => ({
   updatedAt: plan.updatedAt,
 });
 
-/** rkey = the stable local plan id, so re-saves overwrite (idempotent). */
-const rkeyOf = (id: string): string => id;
+/** rkey = the stable local plan id, so re-saves overwrite (idempotent) — except
+ * a STAGED edit of a published plan (`editOf`), which publishes back onto the
+ * ORIGINAL record's rkey: an in-place replace that keeps the share link. */
+const rkeyOf = (plan: LocalPlan): string => plan.editOf ?? plan.id;
 
 export const syncPlanToPds = async (agent: Agent, plan: LocalPlan): Promise<void> => {
   const did = agent.did;
@@ -47,10 +49,10 @@ export const syncPlanToPds = async (agent: Agent, plan: LocalPlan): Promise<void
   await agent.com.atproto.repo.putRecord({
     repo: did,
     collection: MEAL_PLAN_COLLECTION,
-    rkey: rkeyOf(plan.id),
+    rkey: rkeyOf(plan),
     record: planToRecord(plan),
   });
-  log.info('meal-plan', 'synced to PDS', { id: plan.id });
+  log.info('meal-plan', 'synced to PDS', { id: plan.id, rkey: rkeyOf(plan) });
 };
 
 export const removePlanFromPds = async (agent: Agent, id: string): Promise<void> => {

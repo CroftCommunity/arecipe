@@ -1211,6 +1211,14 @@ a {
   font-size: var(--t-caption);
   opacity: 0.7;
 }
+.plan-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.plan-actions a.button {
+  text-decoration: none;
+}
 .plan-del {
   display: flex;
   align-items: center;
@@ -1325,6 +1333,24 @@ button.month-cell--filled {
   color: var(--enamel);
   font-size: var(--t-caption);
   overflow-wrap: anywhere;
+}
+
+/* Edit-mode banner (meals.html?edit=<rkey>): the planner is holding a STAGED
+   copy of a published plan — edits stay local until "Publish update". */
+.edit-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+  background: var(--tile);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  padding: var(--s-2) var(--s-3);
+  margin-bottom: var(--s-3);
+}
+.edit-banner-text {
+  font-size: var(--t-caption);
 }
 
 /* Content-freshness note at the bottom of the Cookbook (SWR "as of …"). Quiet,
