@@ -57,6 +57,15 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # Release signing (interim tier — docs/RELEASE-SIGNING.md): the Ed25519
+      # seed is exposed ONLY to this main-branch deploy job, so every normal
+      # deploy ships a signed release-manifest.json with zero manual steps.
+      # Until the secret is installed the env is empty and the build emits an
+      # honest unsigned manifest — nothing breaks. The build's in-process
+      # self-check fails the job if a present seed mismatches the committed
+      # pubkey or the emitted manifest doesn't verify.
       - run: npm run build
+        env:
+          ARECIPE_SIGNING_SEED: ${{ secrets.ARECIPE_SIGNING_SEED }}
       # Publish dist/ to the gh-pages root, preserving pr-preview/.
       - run: bash scripts/pages-deploy.sh root dist "deploy ${{ github.sha }} to Pages"
