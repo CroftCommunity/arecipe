@@ -32,13 +32,19 @@ loose ideas a later session can pick up.
       close. Plain-git deploy (`scripts/pages-deploy.sh`), no third-party
       actions. _See `docs/PREVIEWS.md`._
 
-- [ ] **Evaluate `pwa-check` for PWA validation.**
-      <https://github.com/pwa-today/pwa-check> — run it against arecipe's PWA
-      surface (manifest, service worker, offline boot, installability) and see
-      whether it belongs in the hermetic gate or as a periodic check. arecipe is
-      a zero-backend PWA (SW precache, offline reads, install), so an automated
-      PWA validator could catch manifest/SW regressions the current Playwright
-      suite doesn't. _Noted 2026-07-09 during the recipe-cookbook-ui branch._
+- [x] **Evaluate `pwa-check` for PWA validation.** _Evaluated 2026-07-16 →
+      **periodic / pre-release, not the hermetic gate.**_ Ran
+      `@pwa-today/pwa-check@0.0.7` against the built app: 27 pass, 12 warn, 0
+      fail. It statically validates manifest completeness/validity + icon
+      reachability + SW handler presence — a real regression class the Playwright
+      suite doesn't assert — but it never runs the SW, so it is blind to
+      arecipe's actual PWA risk (offline boot, SW nav fallback), which Playwright
+      already covers. `--fail-on-warn` is unusable here (10/12 warnings are
+      intentional omissions and 8 carry no code, so `--ignore-warn` can't silence
+      them). Deterministic; needs a served build + `npx` fetch. Full brief with
+      raw findings + a narrow `fail===0`-only gate suggestion for later:
+      `docs/sources/PWA-CHECK-EVALUATION.md`. _Noted 2026-07-09 during the
+      recipe-cookbook-ui branch._
 
 ## Ideas / loose
 
