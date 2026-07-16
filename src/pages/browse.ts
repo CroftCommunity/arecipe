@@ -211,11 +211,13 @@ const main = (): void => {
     if (current === null) return;
     const { eligible, shown, effective } = computeShown();
     // A plain count of the eligible pool: "N recipes"; with an on-tab filter
-    // active, the honest "X of N recipes".
+    // active, the honest "X of N recipes" ("X/N" at phone widths, where the
+    // long form pushes the reset + count off the controls row).
     toolbar.setStatus(
       hasBrowseFilters(effective)
         ? `${shown.length} of ${eligible.length} recipes`
         : `${eligible.length} ${eligible.length === 1 ? 'recipe' : 'recipes'}${current.statusSuffix ?? ''}`,
+      hasBrowseFilters(effective) ? `${shown.length}/${eligible.length}` : undefined,
     );
     toolbar.setResetVisible(hasBrowseFilters(effective));
     // Filters ▾ badge = active browse filters (photos + facets); the text query

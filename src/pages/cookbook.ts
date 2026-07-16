@@ -182,10 +182,13 @@ const renderFeedView = (
     const facetFiltered = eligible.filter((e) => matchesFilter(e.value, { state: effective, diet: [] }));
     // Text search after the facet filter, before render (D5).
     const shown = queryEntries(searchMemo(indexBase()), query, facetFiltered);
+    // Filtered: the honest "X of N recipes" — "X/N" at phone widths, where the
+    // long form pushes the reset + count off the controls row.
     toolbar.setStatus(
       hasFilters(effective)
         ? `${shown.length} of ${eligible.length} recipes`
         : `${eligible.length} ${eligible.length === 1 ? 'recipe' : 'recipes'}`,
+      hasFilters(effective) ? `${shown.length}/${eligible.length}` : undefined,
     );
     // The reset (inside the Filters popover) clears the whole filter line —
     // facets, photos, AND the source — so it shows whenever any is off-default.
