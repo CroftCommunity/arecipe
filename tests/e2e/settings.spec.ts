@@ -5,6 +5,9 @@ import { expect, test } from '@playwright/test';
 test('settings: Hidden recipes is collapsed by default with a count, expandable', async ({
   page,
 }) => {
+  // Expanding kicks off the name lookup; keep this test hermetic — the row must
+  // fall back to the abbreviated id when the lookup can't reach the network.
+  await page.route('https://plc.directory/**', (route) => route.abort());
   await page.goto('/settings.html');
   const section = page.getByTestId('hidden-recipes');
   await expect(section).toBeVisible();
@@ -13,7 +16,57 @@ test('settings: Hidden recipes is collapsed by default with a count, expandable'
   await expect(summary).toContainText(/Hidden recipes \(\d+\)/);
   const firstRow = section.getByTestId('hidden-row').first();
   await expect(firstRow).toBeHidden();
-  // Expand → the rows appear.
+  // Expand → the rows appear, labeled with the short id fallback.
   await summary.click();
   await expect(firstRow).toBeVisible();
+  await expect(firstRow.locator('a')).toContainText('01KVQF…Z8K9');
+});
+
+test('settings: expanding Hidden recipes resolves entries to recipe names', async ({ page }) => {
+  const HIDDEN_URI =
+    'at://did:plc:vspq46f5zmrlesaszlyfliy2/exchange.recipe.recipe/01KVQFHYF6PJP7KP84PNCJZ8K9';
+  await page.route('https://plc.directory/**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        id: 'did:plc:vspq46f5zmrlesaszlyfliy2',
+        alsoKnownAs: ['at://daffl.xyz'],
+        service: [
+          {
+            id: '#atproto_pds',
+            type: 'AtprotoPersonalDataServer',
+            serviceEndpoint: 'https://hiddenpds.test',
+          },
+        ],
+      }),
+    });
+  });
+  await page.route('https://hiddenpds.test/**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        uri: HIDDEN_URI,
+        cid: 'bafyreihxrjkyvfu3d3tpm5x6kmoxbpwbnyf7bfgu5g25pfhqcdvfjrpc24',
+        value: {
+          name: 'Test Recipe',
+          text: 'Love',
+          ingredients: ['Love'],
+          instructions: ['Do the things'],
+          createdAt: '2026-01-01T00:00:00.000Z',
+          updatedAt: '2026-01-01T00:00:00.000Z',
+        },
+      }),
+    });
+  });
+
+  await page.goto('/settings.html');
+  const section = page.getByTestId('hidden-recipes');
+  await section.locator('summary').first().click();
+  // The baseline entry resolves from its author's PDS to a human-readable name.
+  const firstRow = section.getByTestId('hidden-row').first();
+  await expect(firstRow.locator('a')).toContainText('Test Recipe');
+  // The full URI stays reachable via the link.
+  await expect(firstRow.locator('a')).toHaveAttribute('title', HIDDEN_URI);
 });
