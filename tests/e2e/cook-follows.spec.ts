@@ -145,6 +145,35 @@ test('Follow → reset → the default feed merges the followed cook in', async 
   await expect(page.getByText('Preview Special')).toBeVisible();
 });
 
+test('a published-marked follow (D1) merges into Browse and writes NO PDS record', async ({
+  page,
+}) => {
+  // A row carrying the D1 `publishedRkey` marker (e.g. mirrored down on a
+  // signed-in device, then read here signed-out) must round-trip through
+  // Browse's open-world local read untouched: the cook is merged into the
+  // default feed, and the zero-auth bundle still writes nothing to a PDS.
+  await route(page);
+  await page.addInitScript(
+    ([did, handle]) => {
+      localStorage.setItem(
+        'cook-follows',
+        JSON.stringify([{ did, handle, publishedRkey: 'r-published-elsewhere' }]),
+      );
+    },
+    [COOK_DID, COOK_HANDLE],
+  );
+  await page.goto('/');
+  // Default feed = 4 starter + the marked follow's 1 recipe, merged.
+  await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId('recipe-item')).toHaveCount(5);
+  await expect(page.getByText('Preview Special')).toBeVisible();
+  // The marker survived the durable store round-trip.
+  const stored = await page.evaluate(() => localStorage.getItem('cook-follows'));
+  expect(stored).toContain('r-published-elsewhere');
+  // Browse ships zero auth code — never a PDS write.
+  expect(createRecordCalls).toBe(0);
+});
+
 test('signed-out follow is durable across reload and writes NO PDS record', async ({ page }) => {
   await route(page);
   await page.goto('/');

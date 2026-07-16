@@ -11,7 +11,12 @@ import { resolveDidDoc } from '../identity/did.js';
 import { log } from '../log.js';
 import { resolveCookbook, type CookbookMember, type ReachConfig } from './cookbook.js';
 import { createCookFollowsLocal } from './cook-follows-local.js';
-import { followCook, listCookFollows, mirrorCookFollowsDown, unfollowCook } from './cook-follows-pds.js';
+import {
+  followCook,
+  mirrorCookFollowsDown,
+  publishCookFollow,
+  unfollowCook,
+} from './cook-follows-pds.js';
 import { renderAddCookPanel } from './add-cook-panel.js';
 import type { FeedAuthor } from './feed.js';
 
@@ -137,9 +142,13 @@ export const mountMembersList = async (
   const listMount = el('div');
   container.append(note, addPanel.element, offerMount, listMount);
 
-  // Track which follows are already published (have a PDS cookFollow record), to
-  // drive the D6 offer + know that an unfollow must also delete the record.
-  let publishedDids = new Set<string>();
+  // The D1 published marker on each local row is the source of truth for "is
+  // this follow on the PDS?" — it drives the D6 offer (unmarked rows only) and
+  // tells unfollow whether it must also delete the record. No parallel in-memory
+  // set: the reconciling mirror (below) keeps the markers honest across devices.
+  const rkeyOf = (uri: string): string => uri.split('/').pop() ?? uri;
+  const isPublished = (did: string): boolean =>
+    local.list().some((f) => f.did === did && f.publishedRkey !== undefined);
 
   const follow = async (handle: string): Promise<void> => {
     addPanel.setStatus('following…');
@@ -148,8 +157,9 @@ export const mountMembersList = async (
       local.add({ did: identity.did, handle: identity.handle });
       if (agent !== undefined) {
         try {
-          await followCook(agent, identity.did);
-          publishedDids.add(identity.did);
+          const { uri } = await followCook(agent, identity.did);
+          // D4: stamp the marker immediately so the row is not re-offered.
+          local.markPublished(identity.did, rkeyOf(uri));
         } catch (err) {
           // A local add still stands; the D6 offer will surface it for retry.
           log.warn('cookbook-members', 'publish follow failed', { error: String(err) });
@@ -164,11 +174,11 @@ export const mountMembersList = async (
   };
 
   const unfollow = async (did: string): Promise<void> => {
+    const wasPublished = isPublished(did); // read the marker before we drop the row
     local.remove(did);
-    if (agent !== undefined && publishedDids.has(did)) {
+    if (agent !== undefined && wasPublished) {
       try {
         await unfollowCook(agent, did, you, fetchOpt);
-        publishedDids.delete(did);
       } catch (err) {
         log.warn('cookbook-members', 'unpublish follow failed', { error: String(err) });
       }
@@ -180,8 +190,8 @@ export const mountMembersList = async (
     if (agent === undefined) return;
     for (const did of dids) {
       try {
-        await followCook(agent, did);
-        publishedDids.add(did);
+        // D3 adopt-first: never duplicates a record the PDS already has.
+        await publishCookFollow(agent, did, local, you, fetchOpt);
       } catch (err) {
         log.warn('cookbook-members', 'publish-all follow failed', { did, error: String(err) });
       }
@@ -192,9 +202,11 @@ export const mountMembersList = async (
   let offerDismissed = false;
   const renderOffer = (): void => {
     offerMount.replaceChildren();
-    // D6: only when signed in and some local follow has no matching PDS record.
+    // D6: only when signed in and some local follow has no PDS record yet —
+    // i.e. an unmarked row (no publishedRkey). The reconciling mirror has
+    // already stamped every published row and pruned remote unfollows.
     if (agent === undefined || offerDismissed) return;
-    const localOnly = local.list().filter((f) => !publishedDids.has(f.did));
+    const localOnly = local.list().filter((f) => f.publishedRkey === undefined);
     if (localOnly.length === 0) return;
 
     const offer = el('div', 'publish-offer');
@@ -234,13 +246,12 @@ export const mountMembersList = async (
     }
   };
 
-  // Signed in: mirror PDS cook follows down into the local store (D5) and learn
-  // which are published — both feed the `added` source and the D6 offer. A read
-  // failure degrades: local-only state still renders.
+  // Signed in: reconcile PDS cook follows into the local store (D2/D5) — stamps
+  // the published markers (feeding the `added` source and gating the D6 offer)
+  // and prunes follows unfollowed on another device. A read failure degrades:
+  // local-only state still renders.
   if (agent !== undefined) {
     try {
-      const pds = await listCookFollows(you, fetchOpt);
-      publishedDids = new Set(pds.map((f) => f.subject));
       await mirrorCookFollowsDown(local, you, fetchOpt);
     } catch (err) {
       log.warn('cookbook-members', 'cook-follow mirror-down failed', { error: String(err) });
