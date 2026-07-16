@@ -1902,11 +1902,12 @@ table.ref.pairs td.eq {
   flex-wrap: wrap;
   gap: var(--s-2);
 }
-/* Week actions: "+ Add week" and "⧉ Repeat planned weeks" on one row, wrapping
-   on narrow screens. */
+/* Week actions: "⧉ Repeat weeks" then "+ Add week" on one row, right-aligned
+   under the week grids; wraps (still right-aligned) if a viewport is too narrow. */
 .week-actions {
   display: flex;
   flex-wrap: wrap;
+  justify-content: flex-end;
   gap: var(--s-2);
   margin-top: var(--s-3);
 }
