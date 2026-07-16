@@ -92,3 +92,62 @@ describe('createCookFollowsLocal', () => {
     expect(local.list()).toEqual([]);
   });
 });
+
+// D1: the published marker. A row with `publishedRkey` means "this device
+// believes a PDS cookFollow record exists" (the mirror can prune it if the
+// record vanishes remotely); a row without it is local-only, pending publish.
+describe('createCookFollowsLocal — published marker (D1)', () => {
+  it('markPublished stamps the rkey on an existing row (upsert), surviving round-trip', () => {
+    const storage = memoryStorage();
+    const local = createCookFollowsLocal({ storage });
+    local.add(A);
+    local.markPublished(A.did, 'rkey-aaa');
+
+    const fresh = createCookFollowsLocal({ storage }).list();
+    expect(fresh).toEqual([{ ...A, publishedRkey: 'rkey-aaa' }]);
+  });
+
+  it('markPublished is a no-op when the DID is absent (never adds a row)', () => {
+    const storage = memoryStorage();
+    const local = createCookFollowsLocal({ storage });
+    local.add(A);
+    local.markPublished('did:plc:missing', 'rkey-x');
+    expect(local.list()).toEqual([A]); // unchanged, no phantom row
+  });
+
+  it('markPublished does not overwrite an existing row nor disturb siblings', () => {
+    const storage = memoryStorage();
+    const local = createCookFollowsLocal({ storage });
+    local.add(A);
+    local.add(B);
+    local.markPublished(B.did, 'rkey-bbb');
+    expect(local.list()).toEqual([A, { ...B, publishedRkey: 'rkey-bbb' }]);
+  });
+
+  it('re-stamping the same rkey is idempotent (no thrash)', () => {
+    const storage = memoryStorage();
+    const local = createCookFollowsLocal({ storage });
+    local.add(A);
+    local.markPublished(A.did, 'rkey-aaa');
+    local.markPublished(A.did, 'rkey-aaa');
+    expect(local.list()).toEqual([{ ...A, publishedRkey: 'rkey-aaa' }]);
+  });
+
+  it('parses pre-marker stored rows (JSON without publishedRkey) unchanged', () => {
+    const storage = memoryStorage();
+    // Simulate a store written before the marker existed.
+    storage.setItem('cook-follows', JSON.stringify([{ did: A.did, handle: A.handle }]));
+    const local = createCookFollowsLocal({ storage });
+    expect(local.list()).toEqual([A]);
+    expect(local.list()[0]!.publishedRkey).toBeUndefined();
+  });
+
+  it('add still first-write-wins and never clobbers an existing marker', () => {
+    const storage = memoryStorage();
+    const local = createCookFollowsLocal({ storage });
+    local.add(A);
+    local.markPublished(A.did, 'rkey-aaa');
+    local.add({ did: A.did, handle: 'alice-renamed.test' }); // idempotent no-op
+    expect(local.list()).toEqual([{ ...A, publishedRkey: 'rkey-aaa' }]);
+  });
+});

@@ -6,21 +6,24 @@ loose ideas a later session can pick up.
 
 ## Bugs
 
-- [ ] **Loopback (local dev) sessions can't refresh their token except on
-      signin.html.** The loopback OAuth `client_id` encodes the initiating
-      page's pathname (`src/auth/oauth-client.ts` `buildLoopbackMetadata` →
+- [x] **Loopback (local dev) sessions can't refresh their token except on
+      signin.html.** _Resolved 2026-07-16._ The loopback OAuth `client_id` used
+      to encode the initiating page's pathname (`buildLoopbackMetadata` →
       `redirect_uri` from `location.pathname`), so a token obtained on
-      `signin.html` is bound to signin.html's client. A token refresh on any
-      other page (`mine.html`, `account.html`, `cookbook.html`) is rejected with
-      "Token was not issued to this client" — and signin.html redirects away once
-      authed, so there is no reachable authed page that can refresh. Impact:
-      **local dev only** — once the access token expires, refresh fails across
-      pages. Production/hosted is unaffected (one fixed `client_id` from
-      `client-metadata.json`, shared by all pages). Surfaced by the `@live`
-      `two-tab-live` / `two-device-read` forceRefresh specs (marked `test.fixme`
-      until fixed). Fix direction: a stable loopback `client_id` across pages —
-      e.g. pin the loopback `redirect_uri` to one canonical page, or register all
-      page redirect_uris under a single client. _Noted 2026-07-10._
+      `signin.html` was bound to signin.html's client and a refresh on any other
+      page was rejected with "Token was not issued to this client" — and
+      signin.html redirects away once authed, leaving no reachable authed page to
+      refresh on. **Fix:** `buildLoopbackMetadata` now enumerates every authed
+      page's `redirect_uri` in one **pathname-independent** `client_id`
+      (`LOOPBACK_REDIRECT_PATHS`, `signin.html` first as the callback landing +
+      `redirect_uris[0]`). The atproto loopback spec permits repeated
+      `redirect_uri` params (verified against `@atproto/oauth-types`), so the
+      client_id is byte-identical on every page and a token minted during sign-in
+      refreshes anywhere. Production/hosted was always unaffected (one fixed
+      `client_id` from `client-metadata.json`, asserted byte-identical). The
+      `@live` `two-tab-live` / `two-device-read` forceRefresh specs are
+      un-`fixme`'d and force the refresh on `mine.html` (a different page than
+      signin.html). _Noted 2026-07-10._
 
 ## Tooling / QA
 
@@ -29,13 +32,19 @@ loose ideas a later session can pick up.
       close. Plain-git deploy (`scripts/pages-deploy.sh`), no third-party
       actions. _See `docs/PREVIEWS.md`._
 
-- [ ] **Evaluate `pwa-check` for PWA validation.**
-      <https://github.com/pwa-today/pwa-check> — run it against arecipe's PWA
-      surface (manifest, service worker, offline boot, installability) and see
-      whether it belongs in the hermetic gate or as a periodic check. arecipe is
-      a zero-backend PWA (SW precache, offline reads, install), so an automated
-      PWA validator could catch manifest/SW regressions the current Playwright
-      suite doesn't. _Noted 2026-07-09 during the recipe-cookbook-ui branch._
+- [x] **Evaluate `pwa-check` for PWA validation.** _Evaluated 2026-07-16 →
+      **periodic / pre-release, not the hermetic gate.**_ Ran
+      `@pwa-today/pwa-check@0.0.7` against the built app: 27 pass, 12 warn, 0
+      fail. It statically validates manifest completeness/validity + icon
+      reachability + SW handler presence — a real regression class the Playwright
+      suite doesn't assert — but it never runs the SW, so it is blind to
+      arecipe's actual PWA risk (offline boot, SW nav fallback), which Playwright
+      already covers. `--fail-on-warn` is unusable here (10/12 warnings are
+      intentional omissions and 8 carry no code, so `--ignore-warn` can't silence
+      them). Deterministic; needs a served build + `npx` fetch. Full brief with
+      raw findings + a narrow `fail===0`-only gate suggestion for later:
+      `docs/sources/PWA-CHECK-EVALUATION.md`. _Noted 2026-07-09 during the
+      recipe-cookbook-ui branch._
 
 ## Ideas / loose
 

@@ -15,6 +15,7 @@ import {
   followCook,
   listCookFollows,
   mirrorCookFollowsDown,
+  publishCookFollow,
   unfollowCook,
 } from '../../../src/social/cook-follows-pds.js';
 import { createCookFollowsLocal } from '../../../src/social/cook-follows-local.js';
@@ -161,5 +162,132 @@ describe('mirrorCookFollowsDown', () => {
     expect(dids).toContain('did:plc:localonly'); // local-only preserved
     expect(dids).toContain('did:plc:alice');
     expect(dids).toContain('did:plc:bob');
+  });
+
+  // D2: the mirror reconciles — it stamps each PDS record's rkey onto the local
+  // row, prunes marked rows the PDS no longer has (a remote unfollow from another
+  // device), and never touches unmarked (local-only) rows.
+  it('stamps each mirrored row with its PDS rkey (D2a)', async () => {
+    const storage = memoryStorage();
+    const local = createCookFollowsLocal({ storage });
+    const fetchFn = fetchReturning(
+      listBody([
+        { rkey: 'r1', subject: 'did:plc:alice' },
+        { rkey: 'r2', subject: 'did:plc:bob' },
+      ]),
+    );
+    await mirrorCookFollowsDown(local, { pds: PDS, did: DID }, { fetchFn });
+
+    const rows = createCookFollowsLocal({ storage }).list();
+    expect(rows.find((r) => r.did === 'did:plc:alice')!.publishedRkey).toBe('r1');
+    expect(rows.find((r) => r.did === 'did:plc:bob')!.publishedRkey).toBe('r2');
+  });
+
+  it('prunes a marked local row whose record is absent from the PDS (D2b)', async () => {
+    const storage = memoryStorage();
+    const local = createCookFollowsLocal({ storage });
+    // A follow this device published earlier, then unfollowed on another device.
+    local.add({ did: 'did:plc:gone', handle: 'gone.test' });
+    local.markPublished('did:plc:gone', 'r-gone');
+
+    const fetchFn = fetchReturning(listBody([{ rkey: 'r1', subject: 'did:plc:alice' }]));
+    await mirrorCookFollowsDown(local, { pds: PDS, did: DID }, { fetchFn });
+
+    const dids = createCookFollowsLocal({ storage }).list().map((f) => f.did);
+    expect(dids).not.toContain('did:plc:gone'); // remote unfollow reconciled away
+    expect(dids).toContain('did:plc:alice');
+  });
+
+  it('leaves unmarked (local-only) rows untouched even when absent from the PDS (D2c)', async () => {
+    const storage = memoryStorage();
+    const local = createCookFollowsLocal({ storage });
+    local.add({ did: 'did:plc:localonly', handle: 'local.test' }); // no marker
+
+    const fetchFn = fetchReturning(listBody([{ rkey: 'r1', subject: 'did:plc:alice' }]));
+    await mirrorCookFollowsDown(local, { pds: PDS, did: DID }, { fetchFn });
+
+    const rows = createCookFollowsLocal({ storage }).list();
+    const localOnly = rows.find((r) => r.did === 'did:plc:localonly')!;
+    expect(localOnly).toBeDefined(); // survives — it is D6 publish-offer material
+    expect(localOnly.publishedRkey).toBeUndefined();
+  });
+
+  it('re-stamps a rotated rkey rather than pruning the row', async () => {
+    const storage = memoryStorage();
+    const local = createCookFollowsLocal({ storage });
+    local.add({ did: 'did:plc:alice', handle: 'alice.test' });
+    local.markPublished('did:plc:alice', 'r-old');
+
+    const fetchFn = fetchReturning(listBody([{ rkey: 'r-new', subject: 'did:plc:alice' }]));
+    await mirrorCookFollowsDown(local, { pds: PDS, did: DID }, { fetchFn });
+
+    const alice = createCookFollowsLocal({ storage }).list().find((r) => r.did === 'did:plc:alice')!;
+    expect(alice).toBeDefined();
+    expect(alice.publishedRkey).toBe('r-new');
+  });
+});
+
+describe('publishCookFollow (D3 adopt-first)', () => {
+  const fakeAgent = () => {
+    const createRecord = vi.fn(async (arg: { record: { subject: string } }) => ({
+      data: { uri: `at://${DID}/${COOK_FOLLOW_COLLECTION}/created-${arg.record.subject}`, cid: 'c' },
+    }));
+    const agent = { did: DID, com: { atproto: { repo: { createRecord } } } } as unknown as Agent;
+    return { agent, createRecord };
+  };
+
+  it('adopts an existing PDS record without creating a duplicate', async () => {
+    const storage = memoryStorage();
+    const local = createCookFollowsLocal({ storage });
+    local.add({ did: 'did:plc:alice', handle: 'alice.test' });
+    const { agent, createRecord } = fakeAgent();
+    // The subject is already published (e.g. from another device) → adopt, no write.
+    const fetchFn = fetchReturning(listBody([{ rkey: 'r-existing', subject: 'did:plc:alice' }]));
+
+    const res = await publishCookFollow(agent, 'did:plc:alice', local, { pds: PDS, did: DID }, { fetchFn });
+
+    expect(createRecord).not.toHaveBeenCalled();
+    expect(res).toEqual({ rkey: 'r-existing', adopted: true });
+    expect(local.list().find((r) => r.did === 'did:plc:alice')!.publishedRkey).toBe('r-existing');
+  });
+
+  it('creates then stamps when the subject is not yet published', async () => {
+    const storage = memoryStorage();
+    const local = createCookFollowsLocal({ storage });
+    local.add({ did: 'did:plc:new', handle: 'new.test' });
+    const { agent, createRecord } = fakeAgent();
+    const fetchFn = fetchReturning(listBody([])); // nothing published yet
+
+    const res = await publishCookFollow(agent, 'did:plc:new', local, { pds: PDS, did: DID }, { fetchFn });
+
+    expect(createRecord).toHaveBeenCalledTimes(1);
+    expect(res.adopted).toBe(false);
+    expect(res.rkey).toBe('created-did:plc:new');
+    expect(local.list().find((r) => r.did === 'did:plc:new')!.publishedRkey).toBe('created-did:plc:new');
+  });
+
+  it('double publish yields exactly one record (idempotent under double-tap)', async () => {
+    const storage = memoryStorage();
+    const local = createCookFollowsLocal({ storage });
+    local.add({ did: 'did:plc:new', handle: 'new.test' });
+    const { agent, createRecord } = fakeAgent();
+    // A stateful fake PDS: createRecord makes the subject appear in later lists.
+    const published: { rkey: string; subject: string }[] = [];
+    createRecord.mockImplementation(async (arg: { record: { subject: string } }) => {
+      const rkey = `created-${arg.record.subject}`;
+      published.push({ rkey, subject: arg.record.subject });
+      return { data: { uri: `at://${DID}/${COOK_FOLLOW_COLLECTION}/${rkey}`, cid: 'c' } };
+    });
+    const fetchFn = (async () => ({
+      ok: true,
+      status: 200,
+      json: async () => JSON.parse(listBody(published)),
+    })) as unknown as typeof fetch;
+
+    await publishCookFollow(agent, 'did:plc:new', local, { pds: PDS, did: DID }, { fetchFn });
+    await publishCookFollow(agent, 'did:plc:new', local, { pds: PDS, did: DID }, { fetchFn });
+
+    expect(createRecord).toHaveBeenCalledTimes(1); // second call adopts, no new record
+    expect(published).toHaveLength(1);
   });
 });

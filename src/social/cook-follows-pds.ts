@@ -7,8 +7,18 @@
 // list/mirror reads take an injectable fetchFn and never need a session.
 //
 // D5: the local store is the universal read model. mirrorCookFollowsDown pulls
-// the PDS records into the local store on a signed-in load; it only ADDS, so
-// local-only follows (not yet published) survive for the D6 publish offer.
+// the PDS records into the local store on a signed-in load.
+//
+// D2/D3 (2026-07-16 hardening): the mirror is now RECONCILING, not add-only. It
+// stamps each PDS record's rkey onto the local row (the D1 published marker),
+// PRUNES marked local rows the PDS no longer has (a remote unfollow made on
+// another device), and leaves unmarked local-only rows alone (D6 offer
+// material). publishCookFollow is adopt-first: it never creates a duplicate for
+// a subject the PDS already has — making publish idempotent under double-tap and
+// migrating pre-marker rows.
+//
+// Known bound (D8): listCookFollows reads a single listRecords page (limit=100),
+// so reconciliation covers up to 100 follows; paginating past that is deferred.
 
 import type { Agent } from '@atproto/api';
 import { log } from '../log.js';
@@ -86,15 +96,57 @@ export const unfollowCook = async (
   log.info('cook-follows', 'unfollowed', { subject, rkey: match.rkey });
 };
 
-/** Mirror the PDS cook follows down into the local store (D5). Additive only —
- *  local-only follows (pending the D6 publish offer) are preserved. The subject
- *  DID is stored as the handle placeholder; display resolves the real handle. */
+/** Reconcile the PDS cook follows into the local store (D2/D5). For each PDS
+ *  record: upsert the row (first-write-wins keeps a resolved handle) and stamp
+ *  its rkey as the published marker. Then PRUNE any marked local row whose rkey
+ *  is gone from the PDS list — that follow was deleted remotely (another
+ *  device's unfollow) and must not survive or be re-offered. Unmarked
+ *  (local-only) rows are untouched — they are the D6 publish offer's material.
+ *  The subject DID is the handle placeholder; display resolves the real handle. */
 export const mirrorCookFollowsDown = async (
   local: CookFollowsLocal,
   target: { pds: string; did: string },
   opts: { fetchFn?: typeof fetch } = {},
 ): Promise<void> => {
   const follows = await listCookFollows(target, opts);
-  for (const f of follows) local.add({ did: f.subject, handle: f.subject });
-  log.debug('cook-follows', 'mirrored down', { count: follows.length });
+  const pdsRkeys = new Set(follows.map((f) => f.rkey));
+  // (a) upsert + stamp every PDS record (re-stamp handles a rotated rkey).
+  for (const f of follows) {
+    local.add({ did: f.subject, handle: f.subject });
+    local.markPublished(f.subject, f.rkey);
+  }
+  // (b) prune marked rows the PDS no longer has (reconcile a remote unfollow).
+  let pruned = 0;
+  for (const row of local.list()) {
+    if (row.publishedRkey !== undefined && !pdsRkeys.has(row.publishedRkey)) {
+      local.remove(row.did);
+      pruned += 1;
+    }
+  }
+  log.debug('cook-follows', 'mirrored down', { count: follows.length, pruned });
+};
+
+/** Adopt-first publish of a local-only follow (D3). Checks the fresh PDS list
+ *  for `subject`: if a record already exists, ADOPT it (stamp the marker, no
+ *  write); else createRecord and stamp the new rkey. Idempotent under
+ *  double-tap, and migrates pre-marker rows (they adopt on first publish rather
+ *  than duplicating). Stamps the local store either way. */
+export const publishCookFollow = async (
+  agent: Agent,
+  subject: string,
+  local: CookFollowsLocal,
+  target: { pds: string; did: string },
+  opts: { fetchFn?: typeof fetch } = {},
+): Promise<{ rkey: string; adopted: boolean }> => {
+  const existing = await listCookFollows(target, opts);
+  const match = existing.find((f) => f.subject === subject);
+  if (match !== undefined) {
+    log.info('cook-follows', 'adopting existing record on publish', { subject, rkey: match.rkey });
+    local.markPublished(subject, match.rkey);
+    return { rkey: match.rkey, adopted: true };
+  }
+  const { uri } = await followCook(agent, subject);
+  const rkey = rkeyFromUri(uri);
+  local.markPublished(subject, rkey);
+  return { rkey, adopted: false };
 };

@@ -43,13 +43,47 @@ export const authModeFor = (origin: string, hostname: string): AuthMode => {
 export const isLoopbackHostname = (hostname: string): boolean =>
   hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]';
 
-type LocationLike = { hostname: string; port: string; pathname: string };
+// `pathname` is accepted but DELIBERATELY IGNORED (callers pass window.location):
+// baking it into the client_id was the local-dev refresh bug (see below). Kept in
+// the type so the pathname-independence is a pinned regression, not silent.
+type LocationLike = { hostname: string; port: string; pathname?: string };
 
-/** Loopback client metadata for the given origin, with the scope baked into the client_id. */
+/** The app's authed pages — those that boot a session (importers of
+ * `auth/boot.ts`: signin, account, cookbook, editor, meals, mine, recipe) — as
+ * redirect_uri pathnames. `signin.html` MUST stay first: it is the sole page
+ * that completes the OAuth callback, and @atproto/oauth-client defaults BOTH the
+ * authorization request and the code exchange to `redirect_uris[0]`. The rest
+ * are enumerated purely so the loopback `client_id` is byte-identical on every
+ * page. Order is fixed → the client_id is stable. */
+export const LOOPBACK_REDIRECT_PATHS = [
+  '/signin.html', // callback landing — keep first (redirect_uris[0])
+  '/account.html',
+  '/cookbook.html',
+  '/editor.html',
+  '/meals.html',
+  '/mine.html',
+  '/recipe.html',
+] as const;
+
+/**
+ * Loopback client metadata for the given origin (D6). One STABLE `client_id`
+ * across all pages, with the scope and every authed page's redirect_uri baked
+ * in. The old form derived the single redirect_uri from `location.pathname`, so
+ * a token minted on signin.html was bound to signin.html's client and could not
+ * refresh on any other page ("Token was not issued to this client"); signin.html
+ * redirects away once authed, so no reachable page could refresh. Enumerating
+ * all pages' redirect_uris in one pathname-independent client_id fixes that.
+ * @atproto/oauth-types accepts repeated `redirect_uri` params (verified). Hosted
+ * mode is a separate fixed client_id (client-metadata.json) and is unaffected.
+ */
 export const buildLoopbackMetadata = (location: LocationLike): OAuthClientMetadataInput => {
   const host = location.hostname === 'localhost' ? '127.0.0.1' : location.hostname;
-  const redirectUri = `http://${host}${location.port === '' ? '' : `:${location.port}`}${location.pathname}`;
-  const clientId = `http://localhost?redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(LOOPBACK_SCOPE)}`;
+  const authority = `http://${host}${location.port === '' ? '' : `:${location.port}`}`;
+  const params = LOOPBACK_REDIRECT_PATHS.map(
+    (path) => `redirect_uri=${encodeURIComponent(`${authority}${path}`)}`,
+  );
+  params.push(`scope=${encodeURIComponent(LOOPBACK_SCOPE)}`);
+  const clientId = `http://localhost?${params.join('&')}`;
   return atprotoLoopbackClientMetadata(clientId);
 };
 

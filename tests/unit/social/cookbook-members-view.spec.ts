@@ -207,4 +207,43 @@ describe('mountMembersList — cook-follow wiring', () => {
     expect(container.querySelector('[data-testid="publish-offer"]')).toBeNull();
     expect(back.createRecord).not.toHaveBeenCalled();
   });
+
+  // Part 1 (D1/D2): the offer is driven by the published MARKER on each local
+  // row, not an in-memory set. A marked (published) row is never offered; a row
+  // the PDS no longer has (remote unfollow) is pruned by the reconciling mirror
+  // and vanishes from both the members list and the offer.
+  it('offers ONLY unmarked (local-only) rows — a published row is excluded', async () => {
+    createCookFollowsLocal().add({ did: 'did:plc:pub', handle: 'pub.cook' });
+    createCookFollowsLocal().add({ did: 'did:plc:local', handle: 'local.cook' });
+    const back = fakeBackend();
+    back.published.add('did:plc:pub'); // already published on the PDS
+    vi.stubGlobal('fetch', back.fetchFn);
+    const container = document.createElement('div');
+    await mountMembersList(container, YOU, ADDED_ONLY, { agent: back.agent, fetchFn: back.fetchFn });
+
+    const offer = container.querySelector('[data-testid="publish-offer"]');
+    expect(offer).not.toBeNull();
+    expect(offer!.textContent).toContain('local.cook');
+    expect(offer!.textContent).not.toContain('pub.cook'); // marked → not offered
+    // The mirror stamped the published row's marker.
+    expect(createCookFollowsLocal().list().find((f) => f.did === 'did:plc:pub')!.publishedRkey).toBe(
+      'did:plc:pub',
+    );
+  });
+
+  it('prunes a remotely-unfollowed row from the list AND the offer (D2b)', async () => {
+    // A follow published earlier (marked), then unfollowed on another device: its
+    // record is absent from the PDS list, so the reconciling mirror prunes it.
+    createCookFollowsLocal().add({ did: 'did:plc:gone', handle: 'gone.cook' });
+    createCookFollowsLocal().markPublished('did:plc:gone', 'r-gone');
+    const back = fakeBackend(); // published set is empty → 'r-gone' is absent
+    vi.stubGlobal('fetch', back.fetchFn);
+    const container = document.createElement('div');
+    await mountMembersList(container, YOU, ADDED_ONLY, { agent: back.agent, fetchFn: back.fetchFn });
+
+    expect(createCookFollowsLocal().has('did:plc:gone')).toBe(false); // reconciled away
+    const membersText = container.querySelector('[data-testid="cookbook-members"]')!.textContent!;
+    expect(membersText).not.toContain('gone.cook');
+    expect(container.querySelector('[data-testid="publish-offer"]')).toBeNull();
+  });
 });
