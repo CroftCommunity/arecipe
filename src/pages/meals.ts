@@ -384,16 +384,15 @@ export const main = async (
   let you: { did: string; pds: string } | null = null;
 
   const content = el('section', 'panel');
-  // Title row: "Meals" on the left, a right-aligned "Reset" that clears the plan
-  // back to a single empty week (inline two-step confirm — it's destructive and
-  // syncs). Wired below, once persist/rerender exist.
+  // Title row: "Meals" on the left, "Published" (+ the calendar chip) at the
+  // right. The per-day cap and the Reset control live on their own line below.
   const header = el('div', 'meals-header');
   header.append(el('h2', 'section-title', 'Meals'));
   const headerActions = el('div', 'meals-actions');
-  // "Meals/day" cap: how many recipes a day may hold. A plan-level setting that
-  // gates adding (never deletes what's already placed); persisted + synced.
+  // "Recipes per day" cap: how many recipes a day may hold. A plan-level setting
+  // that gates adding (never deletes what's already placed); persisted + synced.
   const perDayLabel = el('label', 'meals-perday');
-  perDayLabel.append(el('span', 'meals-perday-label', 'Meals/day'));
+  perDayLabel.append(el('span', 'meals-perday-label', 'Recipes per day'));
   const perDaySelect = el('select', 'meals-perday-select') as HTMLSelectElement;
   perDaySelect.dataset['testid'] = 'meals-per-day';
   for (let n = MEALS_PER_DAY_MIN; n <= MEALS_PER_DAY_MAX; n += 1) {
@@ -408,7 +407,7 @@ export const main = async (
     rerender();
   });
   perDayLabel.append(perDaySelect);
-  const plansLink = el('a', 'button meals-plans', 'My plans') as HTMLAnchorElement;
+  const plansLink = el('a', 'button meals-plans', 'Published') as HTMLAnchorElement;
   plansLink.href = './meals.html?plans';
   plansLink.dataset['testid'] = 'my-plans';
   const resetControl = el('div', 'meals-reset');
@@ -459,9 +458,13 @@ export const main = async (
   };
   refreshChip();
 
-  headerActions.append(perDayLabel, calChip, plansLink, resetControl);
+  headerActions.append(calChip, plansLink);
   header.append(headerActions);
-  content.append(header);
+  // Controls row (below the title): the "Recipes per day" cap on the left, the
+  // Reset control right-aligned when present.
+  const controlsRow = el('div', 'meals-controls');
+  controlsRow.append(perDayLabel, resetControl);
+  content.append(header, controlsRow);
 
   const planner = el('div', 'meal-planner');
   const palette = el('aside', 'palette');
@@ -546,7 +549,7 @@ export const main = async (
 
   // Publish: the plan already syncs on every change; publishing surfaces a
   // shareable, date-aligned link anyone (incl. anon) can open — the same link
-  // also lists on the "My plans" subpage. Signed-in only.
+  // also lists on the "Published" plans subpage. Signed-in only.
   const shareSection = el('section', 'plan-share');
   const publishRow = el('div', 'plan-publish-row');
   const publishBtn = el('button', 'button button--primary', 'Publish') as HTMLButtonElement;
@@ -968,7 +971,7 @@ export const main = async (
     renderCalendar();
   };
 
-  // Reset (title row, right-aligned): clear the plan back to a single empty week
+  // Reset (controls row, right-aligned): clear the plan back to a single empty week
   // — drops every placement and the start date, then persists (write-through to
   // the PDS when signed in). Destructive + synced, so it takes an inline two-step
   // confirm (mirrors the recipe Hide control — no native dialog).
@@ -977,7 +980,7 @@ export const main = async (
     // Reset-surface v2 (D5): the shared reset icon button (src/icons.ts) — the
     // same counterclockwise glyph as the toolbar reset. Destructive weight lives
     // in the confirm step below, not the glyph; the clockwise direction stays
-    // RESERVED for the calendar Resync sharing this header row.
+    // RESERVED for the calendar Resync in the title row above.
     const reset = resetIconButton('Reset plan');
     reset.dataset['testid'] = 'reset-plan';
     reset.addEventListener('click', () => {
