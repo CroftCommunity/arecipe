@@ -27,11 +27,43 @@ const authors = [
 describe('cookbook feed meta persistence', () => {
   it('round-trips the author set + fetchedAt, scoped per DID', () => {
     const storage = memoryStorage();
-    writeFeedMeta(DID, authors, '2026-07-10T00:00:00.000Z', { storage });
+    writeFeedMeta(DID, { authors, fetchedAt: '2026-07-10T00:00:00.000Z' }, { storage });
     const meta = readFeedMeta(DID, { storage });
     expect(meta).toEqual({ authors, fetchedAt: '2026-07-10T00:00:00.000Z' });
     // A different DID is a different cache slot.
     expect(readFeedMeta('did:plc:other', { storage })).toBeNull();
+  });
+
+  it('round-trips likedUris (the shared view: owner + their liked recipe uris)', () => {
+    const storage = memoryStorage();
+    const likedUris = [
+      'at://did:plc:x/exchange.recipe.recipe/r1',
+      'at://did:plc:y/exchange.recipe.recipe/r2',
+    ];
+    writeFeedMeta(DID, { authors, fetchedAt: '2026-07-10T00:00:00.000Z', likedUris }, { storage });
+    expect(readFeedMeta(DID, { storage })).toEqual({
+      authors,
+      fetchedAt: '2026-07-10T00:00:00.000Z',
+      likedUris,
+    });
+  });
+
+  it('tolerates persisted meta WITHOUT likedUris (pre-shared-scope writes)', () => {
+    const storage = memoryStorage();
+    // Simulate an old write: authors + fetchedAt only.
+    storage.setItem(
+      `cookbook-feed:${DID}`,
+      JSON.stringify({ authors, fetchedAt: '2026-07-10T00:00:00.000Z' }),
+    );
+    const meta = readFeedMeta(DID, { storage });
+    expect(meta?.authors).toEqual(authors);
+    expect(meta?.likedUris).toBeUndefined();
+    // And a malformed likedUris (non-array / mixed types) degrades to the valid strings.
+    storage.setItem(
+      `cookbook-feed:${DID}`,
+      JSON.stringify({ authors, fetchedAt: 't', likedUris: ['at://ok', 42, null] }),
+    );
+    expect(readFeedMeta(DID, { storage })?.likedUris).toEqual(['at://ok']);
   });
 
   it('returns null when nothing is cached and degrades on broken storage', () => {
@@ -46,7 +78,9 @@ describe('cookbook feed meta persistence', () => {
       removeItem: () => undefined,
     };
     expect(readFeedMeta(DID, { storage: broken })).toBeNull();
-    expect(() => writeFeedMeta(DID, authors, '2026-07-10T00:00:00.000Z', { storage: broken })).not.toThrow();
+    expect(() =>
+      writeFeedMeta(DID, { authors, fetchedAt: '2026-07-10T00:00:00.000Z' }, { storage: broken }),
+    ).not.toThrow();
   });
 });
 

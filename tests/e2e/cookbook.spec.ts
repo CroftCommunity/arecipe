@@ -3,10 +3,10 @@
 // membership/feed is exercised @live; here, with no credentials, we prove:
 //   - the Cookbook tab exists and navigates from Browse
 //   - signed-out, the page shows the sign-in gate
-//   - the READ feed renders via the shareable cookbook.html?did=<did> cold-view,
-//     over routed fixtures: the viewed account's Bluesky FOLLOW is resolved as a
-//     cookbook member and that cook's recipes fill the feed (resolveCookbook
-//     reached from the page entry point)
+//   - the READ feed renders via the shareable cookbook.html?did=<did> shared
+//     view, over routed fixtures: the shared cookbook is EXACTLY the viewed
+//     account's own recipes + their liked recipes (owner decision 2026-07-16) —
+//     their follow graph is routed but must no longer feed the view
 //   - the legacy friends.html redirects to cookbook.html (query preserved)
 import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
@@ -20,10 +20,50 @@ const VIEWED = { did: 'did:plc:viewed0000000000000000aa', pds: 'https://viewed.t
 const FOLLOW = { did: 'did:plc:follow0000000000000000aa', pds: 'https://follow.test' };
 const pdsByDid: Record<string, string> = { [VIEWED.did]: VIEWED.pds, [FOLLOW.did]: FOLLOW.pds };
 
-// Route the cookbook sources: plc.directory (only VIEWED + FOLLOW resolve;
-// starter DIDs 404 → degrade), getFollowers (empty), and listRecords dispatched
-// by collection (VIEWED's follows → FOLLOW; FOLLOW's recipes → the mixed
-// fixture; everything else empty).
+// Route the shared-cookbook sources (shared = exactly the owner's recipes +
+// their likes): plc.directory (only VIEWED + FOLLOW resolve), VIEWED's own
+// recipes (the mixed fixture's first two), VIEWED's `liked` interactions on two
+// of FOLLOW's recipes (getRecord'd per ref), and an un-liked "Follow-Only Dish"
+// on FOLLOW that must never appear. VIEWED's follow graph stays routed to prove
+// the shared feed no longer consults it.
+type FixtureRecord = { uri: string; cid: string; value: Record<string, unknown> };
+
+const cookbookFixtureRecords = (): {
+  viewedOwn: FixtureRecord[];
+  liked: FixtureRecord[];
+  followOnly: FixtureRecord;
+  likes: FixtureRecord[];
+} => {
+  const mixed = JSON.parse(atprotoFixture('listRecords-browse-mixed.json')) as {
+    records: FixtureRecord[];
+  };
+  const rekeyed = (index: number, did: string): FixtureRecord => {
+    const r = mixed.records[index]!;
+    return { ...r, uri: r.uri.replace(/did:plc:[a-z0-9]+/, did) };
+  };
+  // VIEWED published Greek Salad + American Pancakes; FOLLOW published Italian
+  // Minestrone + Greek Vegan Lunch Bowl (both liked by VIEWED) and the un-liked
+  // Follow-Only Dish.
+  const viewedOwn = [rekeyed(0, VIEWED.did), rekeyed(1, VIEWED.did)];
+  const liked = [rekeyed(2, FOLLOW.did), rekeyed(3, FOLLOW.did)];
+  const followOnly: FixtureRecord = {
+    uri: `at://${FOLLOW.did}/exchange.recipe.recipe/followonly0001`,
+    cid: 'bafyreifollowonly0001aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    value: { ...mixed.records[1]!.value, name: 'Follow-Only Dish' },
+  };
+  const likes = liked.map((r, i) => ({
+    uri: `at://${VIEWED.did}/app.arecipe.interaction/like${i + 1}`,
+    cid: `bafyreilike000${i + 1}aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`,
+    value: {
+      $type: 'app.arecipe.interaction',
+      kind: 'liked',
+      recipe: { uri: r.uri, cid: r.cid },
+      createdAt: '2026-07-10T00:00:00Z',
+    },
+  }));
+  return { viewedOwn, liked, followOnly, likes };
+};
+
 const routeCookbookFixtures = async (page: Page): Promise<void> => {
   const template = JSON.parse(identityFixture('plc-diddoc-ngvalidation2112.json')) as {
     id: string;
@@ -42,35 +82,51 @@ const routeCookbookFixtures = async (page: Page): Promise<void> => {
     };
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(doc) });
   });
-  // Followers: the accepted AppView dependency — empty for this test.
+  // Followers: the accepted AppView dependency — empty (and unused by the feed).
   await page.route('https://public.api.bsky.app/**', async (route) => {
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ followers: [] }) });
+  });
+  const { viewedOwn, liked, followOnly, likes } = cookbookFixtureRecords();
+  const json = (records: unknown): { status: number; contentType: string; body: string } => ({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify(records),
   });
   // listRecords dispatched by collection + repo.
   const routeListRecords = async (route: import('@playwright/test').Route): Promise<void> => {
     const url = new URL(route.request().url());
     const collection = url.searchParams.get('collection');
     const repo = url.searchParams.get('repo');
+    if (collection === 'exchange.recipe.recipe' && repo === VIEWED.did) {
+      return route.fulfill(json({ records: viewedOwn }));
+    }
+    if (collection === 'app.arecipe.interaction' && repo === VIEWED.did) {
+      return route.fulfill(json({ records: likes }));
+    }
     if (collection === 'app.bsky.graph.follow' && repo === VIEWED.did) {
-      return route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ records: [{ uri: `at://${VIEWED.did}/app.bsky.graph.follow/rk1`, value: { subject: FOLLOW.did, createdAt: '2026-07-08T00:00:00Z' } }] }),
-      });
+      // Still routed: the shared feed must NOT be built from follows anymore.
+      return route.fulfill(
+        json({ records: [{ uri: `at://${VIEWED.did}/app.bsky.graph.follow/rk1`, value: { subject: FOLLOW.did, createdAt: '2026-07-08T00:00:00Z' } }] }),
+      );
     }
     if (collection === 'exchange.recipe.recipe' && repo === FOLLOW.did) {
-      const list = JSON.parse(atprotoFixture('listRecords-browse-mixed.json')) as {
-        records: { uri: string }[];
-      };
-      for (const r of list.records) r.uri = r.uri.replace(/did:plc:[a-z0-9]+/, FOLLOW.did);
-      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(list) });
+      return route.fulfill(json({ records: [...liked, followOnly] }));
     }
-    return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ records: [] }) });
+    return route.fulfill(json({ records: [] }));
+  };
+  // getRecord (the liked refs, fetched per uri by loadLikedFeed).
+  const routeGetRecord = async (route: import('@playwright/test').Route): Promise<void> => {
+    const rkey = new URL(route.request().url()).searchParams.get('rkey');
+    const match = [...viewedOwn, ...liked, followOnly].find((r) => r.uri.endsWith(`/${rkey ?? ''}`));
+    if (match === undefined) return route.fulfill({ status: 404, body: '{}' });
+    return route.fulfill(json(match));
   };
   for (const pds of Object.values(pdsByDid)) {
     await page.route(`${pds}/**`, async (route) => {
-      if (route.request().url().includes('com.atproto.repo.listRecords')) return routeListRecords(route);
-      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ records: [] }) });
+      const url = route.request().url();
+      if (url.includes('com.atproto.repo.listRecords')) return routeListRecords(route);
+      if (url.includes('com.atproto.repo.getRecord')) return routeGetRecord(route);
+      return route.fulfill(json({ records: [] }));
     });
   }
 };
@@ -97,7 +153,7 @@ test('cookbook.html?did= renders the feed only — members moved to Account (OQ1
 }) => {
   await routeCookbookFixtures(page);
   await page.goto(`/cookbook.html?did=${encodeURIComponent(VIEWED.did)}`);
-  // The follow's recipes fill the feed (proves resolveCookbook → feed wiring)...
+  // The owner's recipes + likes fill the feed...
   await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
   // ...but the cold-view no longer renders the members list (it lives on Account).
   await expect(page.getByTestId('cookbook-member')).toHaveCount(0);
@@ -167,16 +223,46 @@ test('cold-view shows a content-freshness note and paints from cache while the r
     (did) => localStorage.getItem(`cookbook-feed:${did}`),
     VIEWED.did,
   );
-  expect(persisted).toContain(FOLLOW.did); // author set persisted for the next paint
+  // The owner (author set) AND their liked uris persist for the next paint —
+  // liked recipes live on other authors' DIDs, so the uris are what lets the
+  // instant paint cover the whole shared set.
+  expect(persisted).toContain(VIEWED.did);
+  expect(persisted).toContain('likedUris');
+  expect(persisted).toContain(FOLLOW.did); // via the liked recipe uris
 
   // Second visit: keep plc.directory (DID resolve) working, but STALL the feed
   // sources so the background revalidate never completes. The cache-first paint
-  // must still render the feed from IndexedDB — no stall waiting on the network.
+  // must still render the feed from IndexedDB — no stall waiting on the network —
+  // and it covers the COMPLETE shared set (own + liked), not just the owner's.
   for (const pds of Object.values(pdsByDid)) await page.route(`${pds}/**`, () => {}); // hang
   await page.route('https://public.api.bsky.app/**', () => {}); // hang
   await page.goto(`/cookbook.html?did=${encodeURIComponent(VIEWED.did)}`);
-  await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByTestId('recipe-item')).toHaveCount(4, { timeout: 10_000 });
   await expect(page.getByTestId('cookbook-freshness')).toContainText('as of');
+});
+
+// The shared-scope decision (owner, 2026-07-16): shared = EXACTLY the owner's
+// cookbook — their recipes + their likes — not their follow reach. VIEWED
+// follows FOLLOW (graph routed), yet FOLLOW's un-liked recipe must stay out.
+test('the shared view is exactly the owner’s recipes + their likes — never their follows’ feed', async ({
+  page,
+}) => {
+  await routeCookbookFixtures(page);
+  await page.goto(`/cookbook.html?did=${encodeURIComponent(VIEWED.did)}`);
+  await expect(page.getByTestId('recipe-item')).toHaveCount(4, { timeout: 15_000 });
+  // Their own two…
+  await expect(page.getByText('Greek Salad')).toBeVisible();
+  await expect(page.getByText('American Pancakes')).toBeVisible();
+  // …plus the two they liked (loaded via their interaction records)…
+  await expect(page.getByText('Italian Minestrone')).toBeVisible();
+  await expect(page.getByText('Greek Vegan Lunch Bowl')).toBeVisible();
+  // …and NOT the follow's un-liked recipe, even though VIEWED follows them.
+  await expect(page.getByText('Follow-Only Dish')).toHaveCount(0);
+  await expect(page.getByTestId('recipes-status')).toHaveText('4 recipes');
+  // Liked entries carry their real author's handle (resolved with the ref),
+  // not a raw-DID fallback — observable on the row link's `by=` param.
+  const likedRow = page.getByTestId('recipe-item').filter({ hasText: 'Italian Minestrone' });
+  await expect(likedRow).toHaveAttribute('href', /by=follow\.example\.com/);
 });
 
 test('cold-view: text search filters the cookbook feed (ingredient reach)', async ({ page }) => {

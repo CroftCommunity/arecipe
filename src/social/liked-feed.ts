@@ -20,11 +20,19 @@ const parseRecipeRef = (uri: string): { did: string; rkey: string } | null => {
   return match === null ? null : { did: match[1]!, rkey: match[2]! };
 };
 
+export type LikedFeed = {
+  entries: CachedRecipe[];
+  /** did → handle for the liked recipes' authors, kept from the per-ref DID-doc
+   *  resolve (already fetched for the PDS lookup) so liked entries render a
+   *  real author instead of the raw-DID fallback. */
+  authorsByDid: Record<string, string>;
+};
+
 /** Resolve a set of `liked` interactions to their recipes. */
 export const loadLikedFeed = async (
   interactions: Interaction[],
   opts: { cap?: number } = {},
-): Promise<CachedRecipe[]> => {
+): Promise<LikedFeed> => {
   const cap = opts.cap ?? LIKED_FEED_CAP;
   const cache = createRecipeCache();
   const read = createRecordReader();
@@ -48,6 +56,7 @@ export const loadLikedFeed = async (
     });
   }
 
+  const authorsByDid: Record<string, string> = {};
   const loaded = await Promise.all(
     capped.map(async (uri): Promise<CachedRecipe | null> => {
       const ref = parseRecipeRef(uri);
@@ -56,7 +65,8 @@ export const loadLikedFeed = async (
         return null;
       }
       try {
-        const { pds } = await resolveDidDoc(ref.did); // cross-PDS: may be another PDS
+        const { pds, handle } = await resolveDidDoc(ref.did); // cross-PDS: may be another PDS
+        if (handle !== null) authorsByDid[ref.did] = handle;
         const record = await read({ pds, did: ref.did, rkey: ref.rkey });
         return await cache.put(record);
       } catch (err) {
@@ -66,5 +76,5 @@ export const loadLikedFeed = async (
       }
     }),
   );
-  return loaded.filter((e): e is CachedRecipe => e !== null);
+  return { entries: loaded.filter((e): e is CachedRecipe => e !== null), authorsByDid };
 };

@@ -2,8 +2,10 @@
 // (Mine | Liked | Both — Both is the default). The whole-reach members feed is
 // Browse's job, not a cookbook view. The MEMBERS LIST moved to Account
 // (Phase 6); this page is the recipe feed. Three states:
-//   - ?did=<did>  : a shareable, public cold-view of any account's recipe feed
-//                   (no auth) — also the hermetic seam.
+//   - ?did=<did>  : the shareable, public SHARED view of that account's
+//                   cookbook — EXACTLY their recipes + their likes, the same
+//                   set their own "Both" shows (owner decision 2026-07-16; no
+//                   member fan-out, no auth) — also the hermetic seam.
 //   - signed in   : your cookbook feed.
 //   - signed out  : redirect to Browse — the cookbook is a signed-in surface,
 //                   and "who's in your cookbook" now lives on Account (OQ10).
@@ -25,7 +27,7 @@ import { createSourcePref, type CookbookSource } from '../social/cookbook-source
 import { loadAuthorsFeed } from '../social/feed.js';
 import { listInteractionsFor } from '../social/interactions.js';
 import { loadLikedFeed } from '../social/liked-feed.js';
-import { readFeedMeta, relativeFreshness, writeFeedMeta } from '../social/cookbook-feed-cache.js';
+import { readFeedMeta, relativeFreshness, writeFeedMeta, type FeedMeta } from '../social/cookbook-feed-cache.js';
 import { createRecipeCache, type CachedRecipe } from '../recipes/cache.js';
 import { availableFacets, createBrowsePrefs, matchesFilter, recipeFacets, type BrowseState } from './browse-state.js';
 import { createSearchMemo, queryEntries } from '../recipes/search.js';
@@ -149,6 +151,9 @@ const renderFeedView = (
   const sourcePref = createSourcePref();
   let source: Source = sourcePref.load(defaultSource);
   let likedEntries: CachedRecipe[] | null = null; // lazy cache
+  // Liked recipes' author handles (resolved with each ref) — merged under the
+  // feed's own map at render, so liked entries show a real author.
+  let likedAuthorsByDid: Record<string, string> = {};
   let likedLoading = false;
   // Set by the source control (own cookbook only) so the shared reset can also
   // clear the source line back to the default.
@@ -166,7 +171,7 @@ const renderFeedView = (
     return [...mine, ...(likedEntries ?? []).filter((e) => !seen.has(e.uri))];
   };
   const emptyMessage = (): string => {
-    if (viewer === undefined) return 'When the cooks in your cookbook publish recipes, they show up here.';
+    if (viewer === undefined) return 'This cookbook is empty — nothing published or liked yet.';
     return source === 'liked'
       ? 'No liked recipes yet — tap the heart on a recipe to collect it here.'
       : source === 'mine'
@@ -249,7 +254,8 @@ const renderFeedView = (
       return;
     }
     const render = state.view === 'details' ? renderRecipeDetailsList : renderRecipeList;
-    feedContainer.replaceChildren(render(shown, { authorsByDid }));
+    // Feed/member handles win on conflict (they're the page's primary source).
+    feedContainer.replaceChildren(render(shown, { authorsByDid: { ...likedAuthorsByDid, ...authorsByDid } }));
   };
   const showCurrent = (): void => {
     toolbar.rebuildFacets(availableFacets(eligibleEntries()), state.facets);
@@ -327,8 +333,10 @@ const renderFeedView = (
       likedLoading = true;
       void (async () => {
         try {
-          const liked = await listInteractionsFor({ pds: viewer.pds, did: viewer.did, kind: 'liked' });
-          likedEntries = await loadLikedFeed(liked);
+          const interactions = await listInteractionsFor({ pds: viewer.pds, did: viewer.did, kind: 'liked' });
+          const liked = await loadLikedFeed(interactions);
+          likedEntries = liked.entries;
+          likedAuthorsByDid = liked.authorsByDid;
         } catch (err) {
           log.warn('cookbook', 'liked feed load failed', { error: String(err) });
           likedEntries = [];
@@ -404,29 +412,35 @@ const renderFeedView = (
   };
 };
 
-/** Resolve a cookbook's members → authors, load their recipes, and mount the
- * toolbar-driven feed view. The members LIST is rendered on Account now; here we
- * only need the authors to build the feed. Cold-view passes no config →
- * resolveCookbook's all-on default; the signed-in path passes your reach prefs. */
+/** Load a cookbook feed and mount the toolbar-driven view. Two scopes:
+ *  - OWN view (isOwn): resolve your cookbook members (reach prefs) → their
+ *    recipes; the Mine | Liked | Both control narrows client-side.
+ *  - SHARED view (?did=): EXACTLY the owner's cookbook — their recipes + their
+ *    likes, deduped, own first (owner decision 2026-07-16). No member fan-out;
+ *    a liked-fetch failure degrades to own-only, never blanks the feed.
+ *  Both paint cache-first from the persisted meta and revalidate after. */
 const showFeed = async (
   container: HTMLElement,
   feedContainer: HTMLElement,
   header: HTMLElement,
   you: { did: string; pds: string },
-  opts: { config?: ReachConfig; isOwn?: boolean } = {},
+  opts: { config?: ReachConfig; isOwn?: boolean; handle?: string } = {},
 ): Promise<void> => {
   const viewer = opts.isOwn === true ? you : undefined;
   let controller: FeedViewController | null = null;
 
   // 1) Cache-first paint: if we've resolved this cookbook before, render the
-  //    persisted authors' recipes straight from the IndexedDB cache — instant,
-  //    no network. The freshness note shows how stale it is.
+  //    persisted authors' recipes — plus, on the shared view, the persisted
+  //    liked uris (liked recipes live on OTHER authors' repos, so the author
+  //    filter alone can't cover them) — straight from the IndexedDB cache.
+  //    Instant, no network. The freshness note shows how stale it is.
   const meta = readFeedMeta(you.did);
   if (meta !== null && meta.authors.length > 0) {
     try {
       const memberDids = new Set(meta.authors.map((a) => a.did));
-      const cachedEntries = (await createRecipeCache().list()).filter((e) =>
-        memberDids.has(didOf(e.uri)),
+      const likedUris = new Set(meta.likedUris ?? []);
+      const cachedEntries = (await createRecipeCache().list()).filter(
+        (e) => memberDids.has(didOf(e.uri)) || likedUris.has(e.uri),
       );
       const authorsByDid = Object.fromEntries(meta.authors.map((a) => [a.did, a.handle]));
       controller = renderFeedView(container, feedContainer, header, cachedEntries, authorsByDid, viewer, meta.fetchedAt);
@@ -437,22 +451,48 @@ const showFeed = async (
 
   // 2) Revalidate in the background (or the foreground on a cold first visit).
   try {
-    const members = await resolveCookbook(opts.config === undefined ? { you } : { you, config: opts.config });
-    const authors = await membersToAuthors(members);
-    if (authors.length === 0) {
-      feedContainer.replaceChildren(
-        el('p', 'empty-state', 'When the cooks in your cookbook publish recipes, they show up here.'),
-      );
-      return;
-    }
-    const feed = await loadAuthorsFeed(authors);
-    if (feed.failedAuthors.length > 0) {
-      log.warn('cookbook', 'some cooks unavailable', { failed: feed.failedAuthors });
-    }
+    let loaded: { entries: CachedRecipe[]; authorsByDid: Record<string, string>; meta: FeedMeta };
     const now = new Date().toISOString();
-    writeFeedMeta(you.did, authors, now);
-    if (controller !== null) controller.update(feed.entries, feed.authorsByDid, now);
-    else renderFeedView(container, feedContainer, header, feed.entries, feed.authorsByDid, viewer, now);
+    if (opts.isOwn === true) {
+      const members = await resolveCookbook(opts.config === undefined ? { you } : { you, config: opts.config });
+      const authors = await membersToAuthors(members);
+      if (authors.length === 0) {
+        feedContainer.replaceChildren(
+          el('p', 'empty-state', 'When the cooks in your cookbook publish recipes, they show up here.'),
+        );
+        return;
+      }
+      const feed = await loadAuthorsFeed(authors);
+      if (feed.failedAuthors.length > 0) {
+        log.warn('cookbook', 'some cooks unavailable', { failed: feed.failedAuthors });
+      }
+      loaded = { entries: feed.entries, authorsByDid: feed.authorsByDid, meta: { authors, fetchedAt: now } };
+    } else {
+      // Shared scope: the owner's own recipes + the recipes they liked.
+      const authors = [{ did: you.did, handle: opts.handle ?? you.did }];
+      const feed = await loadAuthorsFeed(authors);
+      if (feed.failedAuthors.length > 0) {
+        log.warn('cookbook', 'shared cookbook owner unavailable', { failed: feed.failedAuthors });
+      }
+      let liked: { entries: CachedRecipe[]; authorsByDid: Record<string, string> } = {
+        entries: [],
+        authorsByDid: {},
+      };
+      try {
+        liked = await loadLikedFeed(await listInteractionsFor({ pds: you.pds, did: you.did, kind: 'liked' }));
+      } catch (err) {
+        log.warn('cookbook', 'shared liked load failed — showing published only', { error: String(err) });
+      }
+      const own = new Set(feed.entries.map((e) => e.uri));
+      loaded = {
+        entries: [...feed.entries, ...liked.entries.filter((e) => !own.has(e.uri))],
+        authorsByDid: { ...liked.authorsByDid, ...feed.authorsByDid },
+        meta: { authors, fetchedAt: now, likedUris: liked.entries.map((e) => e.uri) },
+      };
+    }
+    writeFeedMeta(you.did, loaded.meta);
+    if (controller !== null) controller.update(loaded.entries, loaded.authorsByDid, now);
+    else renderFeedView(container, feedContainer, header, loaded.entries, loaded.authorsByDid, viewer, now);
   } catch (err) {
     // Revalidate failed. If we already painted from cache, keep that stale view
     // (offline resilience — the freshness note still shows how old it is);
@@ -494,7 +534,13 @@ const main = async (): Promise<void> => {
     try {
       const { pds, handle } = await resolveDidDoc(viewedDid);
       if (handle !== null) banner.setHandle(handle);
-      await showFeed(content, feedContainer, header, { did: viewedDid, pds });
+      await showFeed(
+        content,
+        feedContainer,
+        header,
+        { did: viewedDid, pds },
+        handle === null ? {} : { handle },
+      );
     } catch (err) {
       log.error('cookbook', 'cold-view load failed', { did: viewedDid, error: String(err) });
       feedContainer.replaceChildren(el('p', 'status', `couldn’t load cookbook: ${String(err)}`));

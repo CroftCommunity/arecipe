@@ -46,18 +46,15 @@ const routeCookbookFixtures = async (page: Page): Promise<void> => {
     const url = new URL(route.request().url());
     const collection = url.searchParams.get('collection');
     const repo = url.searchParams.get('repo');
-    if (collection === 'app.bsky.graph.follow' && repo === VIEWED.did) {
-      return route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ records: [{ uri: `at://${VIEWED.did}/app.bsky.graph.follow/rk1`, value: { subject: FOLLOW.did, createdAt: '2026-07-08T00:00:00Z' } }] }),
-      });
-    }
-    if (collection === 'exchange.recipe.recipe' && repo === FOLLOW.did) {
+    // Shared view = the owner's recipes + likes (owner decision 2026-07-16):
+    // VIEWED's own recipes fill the feed; their interactions are empty here —
+    // this spec exercises the Share control, not the feed composition (that's
+    // cookbook.spec's exact-scope test).
+    if (collection === 'exchange.recipe.recipe' && repo === VIEWED.did) {
       const list = JSON.parse(atprotoFixture('listRecords-browse-mixed.json')) as {
         records: { uri: string }[];
       };
-      for (const r of list.records) r.uri = r.uri.replace(/did:plc:[a-z0-9]+/, FOLLOW.did);
+      for (const r of list.records) r.uri = r.uri.replace(/did:plc:[a-z0-9]+/, VIEWED.did);
       return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(list) });
     }
     return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ records: [] }) });
