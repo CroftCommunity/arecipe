@@ -18,14 +18,12 @@ test('@live two tabs survive a forced refresh (single-use refresh token hazard)'
   baseURL,
 }) => {
   test.skip(HANDLE === '' || PASSWORD === '', 'needs BSKY_TEST_HANDLE/PASSWORD in .env');
-  // Known-broken on loopback since the 2026-07-08 dedicated-signin migration:
-  // the loopback OAuth client_id encodes the initiating page's pathname
-  // (oauth-client.ts), so the token is bound to signin.html's client — and
-  // signin.html redirects away once authed, leaving no reachable authed page
-  // whose client can run forceRefresh. Production/hosted uses one fixed
-  // client_id (client-metadata.json) and is unaffected. Fix = stable loopback
-  // client_id across pages. Tracked in TODO.md.
-  test.fixme(true, 'loopback forceRefresh client_id mismatch — see TODO.md');
+  // Un-fixme'd 2026-07-16 (D6): the loopback client_id is now STABLE across
+  // pages — it enumerates every authed page's redirect_uri and no longer bakes
+  // the initiating page's pathname in (oauth-client.ts). A token minted during
+  // sign-in (on signin.html) therefore refreshes on any other authed page. This
+  // test forces the refresh on mine.html — a DIFFERENT page than signin.html —
+  // which is exactly the case that used to fail.
   test.setTimeout(180_000);
   const origin = baseURL ?? 'http://127.0.0.1:4173';
 
@@ -41,11 +39,10 @@ test('@live two tabs survive a forced refresh (single-use refresh token hazard)'
   await page2.goto('/account.html'); // same context → same localStorage, debug flag inherited
   await expect(page2.getByTestId('signed-in-did')).toContainText('did:plc:', { timeout: 30_000 });
 
-  // Force a refresh in tab 1 — the single-use refresh token rotates. The
-  // loopback OAuth client_id encodes the page's pathname (oauth-client.ts), so
-  // the refresh must run on the page whose client the token was issued to
-  // (mine.html); running it on account.html would be rejected as "not issued to
-  // this client".
+  // Force a refresh in tab 1 — the single-use refresh token rotates. Run it on
+  // mine.html, a different page than signin.html: with the stable loopback
+  // client_id (D6) the token is not bound to the initiating page, so this is
+  // accepted. (Before the fix it was rejected as "not issued to this client".)
   await page.goto('/mine.html');
   const refreshed = await page.evaluate(async () => {
     const dbg = (window as Window & { arecipeDebug?: { forceRefresh: () => Promise<unknown> } })
