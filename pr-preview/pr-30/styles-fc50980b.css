@@ -1,0 +1,2446 @@
+/* arecipe design tokens + components.
+   The rules behind these values live in docs/DESIGN.md — palette, type
+   roles, the spacing scale, and component practices. Derivation rule:
+   spacing only from --s-*, color only from the palette, radii only from
+   --r-*. If a value isn't derivable, the system (or the design) is wrong —
+   fix it there, not inline. */
+
+:root {
+  /* palette — "enamelware, not parchment" */
+  --tile: #f4f7f5;
+  --ink: #1c2b27;
+  --enamel: #175e54;
+  --enamel-deep: #124b43;
+  --enamel-soft: #175e5414;
+  --yolk: #e8a013;
+  --yolk-deep: #b87d0a;
+  --yolk-soft: #b87d0a14;
+  --rust: #b4552d;
+  --rust-soft: #b4552d14;
+  --card: #ffffff;
+  --line: #d9e2de;
+
+  /* type roles */
+  --display: 'Fraunces', georgia, serif;
+  --body: 'Atkinson Hyperlegible', system-ui, sans-serif;
+  --mono: ui-monospace, 'SF Mono', menlo, monospace;
+  --t-caption: 0.72rem;
+  --t-stamp: 0.66rem;
+  --t-body: 1.0625rem;
+  --t-card-title: 1.15rem;
+  --t-section: 1.2rem;
+  --t-wordmark: 2rem;
+
+  /* spacing scale (4px base) */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2.5rem;
+  --s-7: 4rem;
+
+  /* radii + strokes */
+  --r-s: 0.2rem;
+  --r-m: 0.5rem;
+  --r-l: 0.75rem;
+  --r-pill: 999px;
+  --stroke: 1.5px;
+
+  /* component-specific */
+  --stamp-veil: #ffffffd9;
+}
+
+/* Dark enamelware — same kitchen at night. Hues re-tuned for the contrast
+   floors (docs/DESIGN.md); resolved theme is applied as data-theme by a
+   pre-paint inline script + src/theme.ts. */
+[data-theme='dark'] {
+  --tile: #101b18;
+  --ink: #e2ebe7;
+  --enamel: #5cb3a1;
+  --enamel-deep: #79c7b6;
+  --enamel-soft: #5cb3a124;
+  --yolk: #e8a013;
+  --yolk-deep: #e5b13d;
+  --yolk-soft: #e5b13d24;
+  --rust: #e07a4f;
+  --rust-soft: #e07a4f24;
+  --card: #182622;
+  --line: #2b3b36;
+  --stamp-veil: #101b18d9;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--tile);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: var(--t-body);
+  line-height: 1.55;
+}
+
+/* Content links default to the themed enamel color (light + dark variants) so
+   anchors without a more specific class — e.g. .comment-author — read legibly
+   in both themes instead of the UA link-blue, which is unreadable on the dark
+   --tile. Every purpose-styled link is class-scoped and more specific, so it
+   still wins: .nav-auth / .diet-pref-link / .draft-link
+   set their own color, and a.card sets `color: inherit`. This only reaches the
+   otherwise-unstyled content anchors. Underline stays (the UA link affordance). */
+a {
+  color: var(--enamel);
+}
+
+#app {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 0 var(--s-4) var(--s-7);
+}
+
+:focus-visible {
+  outline: 3px solid var(--yolk);
+  outline-offset: 2px;
+}
+
+/* ---- header ---- */
+
+.topbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 4rem;
+  padding: var(--s-3) 0 var(--s-2);
+  isolation: isolate; /* keep the wash behind only the header content */
+}
+
+/* Watercolor banner wash: the countryside art at low opacity behind the
+   header, masked so it fades out toward the wordmark (left) and the controls
+   (right). The busy deck/pie side never sits solid under the top-right
+   controls, so text stays legible. Delivered via the external stylesheet +
+   a same-origin image (CSP: style-src 'self', img-src 'self'). */
+.topbar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: url(./assets/top-banner.jpg) center 55% / cover no-repeat;
+  opacity: 0.49;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 24%, #000 76%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 24%, #000 76%, transparent);
+  pointer-events: none;
+}
+
+[data-theme='dark'] .topbar::before {
+  opacity: 0.43;
+}
+
+.wordmark {
+  font-family: var(--display);
+  font-weight: 550;
+  font-size: var(--t-wordmark);
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: var(--enamel);
+}
+
+.wordmark-link {
+  color: inherit;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+/* Butterfly-spatula mark: theme-variant pair, one shown at a time. */
+.logo {
+  height: 1.5em;
+  width: auto;
+}
+
+.logo--dark {
+  display: none;
+}
+
+[data-theme='dark'] .logo--light {
+  display: none;
+}
+
+[data-theme='dark'] .logo--dark {
+  display: inline;
+}
+
+.nav-gear {
+  font-size: 1.25rem;
+  text-decoration: none;
+  color: var(--enamel);
+  opacity: 0.75;
+  padding: var(--s-1) var(--s-2);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--body);
+}
+
+.nav-gear:hover {
+  opacity: 1;
+}
+
+/* The differentiated "a": the wordmark reads "a recipe". */
+.wordmark-a {
+  color: var(--yolk-deep);
+  font-weight: 400;
+  padding-right: 0.06em;
+}
+
+.auth-area {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+/* Top-right sign-in / account link — a legible text affordance so sign-in is
+   discoverable without hunting the tabs. */
+.nav-auth {
+  text-decoration: none;
+  color: var(--enamel);
+  font-family: var(--body);
+  font-weight: 600;
+  font-size: var(--t-caption);
+  padding: var(--s-1) var(--s-2);
+  border: var(--stroke) solid var(--enamel);
+  border-radius: var(--r-m);
+}
+
+.nav-auth:hover {
+  background: var(--enamel-soft);
+}
+
+.auth-who {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  opacity: 0.7;
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---- tabs ---- */
+
+.tabs {
+  display: flex;
+  gap: var(--s-1);
+  border-bottom: 2px solid var(--line);
+  margin-bottom: var(--s-5);
+}
+
+.tab {
+  appearance: none;
+  border: 0;
+  background: none;
+  font-family: var(--body);
+  font-size: 1rem;
+  padding: var(--s-2) var(--s-3);
+  cursor: pointer;
+  color: var(--ink);
+  opacity: 0.62;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+}
+
+.tab--active {
+  opacity: 1;
+  border-bottom-color: var(--enamel);
+  font-weight: 700;
+}
+
+.tab {
+  text-decoration: none;
+  display: inline-block;
+}
+
+/* Mobile: primary destinations move to a bottom bar (thumb reach). */
+@media (max-width: 40rem) {
+  .tabs {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    display: flex;
+    justify-content: space-around;
+    background: var(--card);
+    border-top: var(--stroke) solid var(--line);
+    border-bottom: 0;
+    padding: var(--s-1) 0 calc(var(--s-1) + env(safe-area-inset-bottom));
+    z-index: 10;
+  }
+
+  .tab {
+    border-bottom: 0;
+    margin-bottom: 0;
+    /* Four destinations on mobile (Reference is desktop-only below): tighten
+       the horizontal padding + font so the full-label bottom bar fits a narrow
+       phone without wrapping or horizontal overflow. Guarded by
+       tests/e2e/meals.spec.ts's 360px fit assertion. */
+    padding: var(--s-2) var(--s-1);
+    font-size: 0.9rem;
+  }
+
+  /* Reference leaves the mobile bottom bar (thumb row stays 4 primary
+     destinations); on a phone it's reached via the open-book quick links on
+     the recipe page, the editor, and Alchemy instead. Double-class selector:
+     the tap-target block further down also sets `.tab { display: inline-flex }`
+     at this breakpoint, and this must outrank it. */
+  .tab.tab--desktop-only {
+    display: none;
+  }
+
+  .tab--active {
+    color: var(--enamel);
+    border-bottom: 0;
+  }
+
+  #app {
+    padding-bottom: var(--s-7);
+  }
+}
+
+/* ---- settings sections ---- */
+
+.page-title {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.5rem;
+  margin: 0 0 var(--s-4);
+}
+
+.settings-section {
+  background: var(--card);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-l);
+  padding: var(--s-4) var(--s-4) var(--s-4);
+  margin-bottom: var(--s-4);
+  max-width: 44rem;
+}
+
+.settings-section h3 {
+  font-family: var(--display);
+  font-weight: 600;
+  color: var(--enamel);
+  margin: 0 0 var(--s-2);
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--s-1) var(--s-4);
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  margin: 0;
+}
+
+.facts dd {
+  margin: 0;
+}
+
+.starter-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-1) 0;
+  cursor: pointer;
+}
+
+.starter-row input {
+  accent-color: var(--enamel);
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.starter-author,
+.provenance-author {
+  color: var(--enamel);
+}
+
+/* ---- lookup row + controls ---- */
+
+.lookup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  margin: 0 0 var(--s-2);
+}
+
+.lookup input {
+  flex: 1 1 14rem;
+  font: inherit;
+  padding: var(--s-2) var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--card);
+  color: inherit;
+}
+
+.lookup input::placeholder {
+  color: var(--ink);
+  opacity: 0.45;
+}
+
+/* Export button (↑ export glyph) beside "Find recipes": square, secondary. */
+.export-recipes {
+  flex: none;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+/* Export panel: an inline choose-format-and-download card (no native dialog),
+   revealed under the search row when the export button is tapped. */
+.export-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding: var(--s-4);
+  margin: 0 0 var(--s-3);
+  background: var(--card);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-l);
+  max-width: 32rem;
+}
+.export-panel[hidden] {
+  display: none;
+}
+.export-title {
+  font-family: var(--display);
+  font-weight: 600;
+  margin: 0;
+}
+.export-format {
+  align-self: flex-start;
+}
+.export-link-slot:empty {
+  display: none;
+}
+.export-close {
+  align-self: flex-start;
+}
+
+/* --- Cook typeahead: suggestions under the handle inputs ------------------ */
+/* The dropdown is inserted right after its input; the container row is made
+ * the positioning anchor so it drops full-width under the search row. */
+.lookup {
+  position: relative;
+}
+.typeahead {
+  position: absolute;
+  top: calc(100% + var(--s-1));
+  left: 0;
+  right: 0;
+  z-index: 20;
+  margin: 0;
+  padding: var(--s-1) 0;
+  list-style: none;
+  background: var(--card);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  box-shadow: 0 6px 20px #0000001f;
+  max-height: 18rem;
+  overflow-y: auto;
+}
+.typeahead[hidden] {
+  display: none;
+}
+.typeahead-option {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-2) var(--s-3);
+  cursor: pointer;
+}
+.typeahead-option--active,
+.typeahead-option:hover {
+  background: var(--enamel-soft);
+}
+.typeahead-avatar {
+  flex: none;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: var(--r-pill);
+  object-fit: cover;
+  background: var(--tile);
+}
+.typeahead-handle {
+  font-weight: 700;
+  color: var(--enamel);
+}
+.typeahead-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.7;
+  font-size: var(--t-caption);
+}
+
+.button {
+  font: inherit;
+  font-weight: 700;
+  padding: var(--s-2) var(--s-4);
+  border-radius: var(--r-m);
+  border: var(--stroke) solid var(--enamel);
+  background: var(--card);
+  color: var(--enamel);
+  cursor: pointer;
+}
+
+.button--primary {
+  background: var(--enamel);
+  color: var(--card);
+}
+
+.button:hover {
+  background: var(--enamel-soft);
+}
+
+.button--primary:hover {
+  background: var(--enamel-deep);
+}
+
+/* Account sign-out: rust like the shared reset icon (both are "undo"-flavored
+   actions), right-aligned in the panel with breathing room above and below.
+   Block-level flex + the doubled selector: the mobile tap-target block below
+   sets `.button { display: inline-flex }`, which would make the button
+   inline-level and void the margin-left auto right-alignment. */
+.button.sign-out-btn {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  margin: var(--s-4) 0 var(--s-4) auto;
+  border-color: var(--rust);
+  color: var(--rust);
+}
+
+.button.sign-out-btn:hover {
+  background: var(--rust-soft);
+}
+
+/* Status lines carry machine facts → mono caption, quiet. */
+.status {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  min-height: 1.2em;
+  margin: var(--s-1) 0;
+  opacity: 0.75;
+}
+
+.empty-state {
+  border: var(--stroke) dashed var(--line);
+  border-radius: var(--r-l);
+  padding: var(--s-6) var(--s-5);
+  text-align: center;
+  opacity: 0.8;
+}
+
+/* Browse toolbar: transient controls (view mode, photos-only, facet
+   dropdowns) live on the left as later phases add them; the count block is
+   pushed to the right edge. */
+/* The unified toolbar (D7) stacks up to three rows: [search + actions],
+   [source — Cookbook only], [view toggle + Filters ▾ + count]. */
+.browse-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  margin: var(--s-2) 0;
+}
+
+.toolbar-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+/* Row 1: the search field grows to fill the row; page actions sit at the end. */
+.toolbar-row--search {
+  flex-wrap: nowrap;
+}
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  flex: 0 0 auto;
+}
+
+/* Row 2: the source segmented (Cookbook). Empty + collapsed on Browse. */
+.toolbar-row--source:empty {
+  display: none;
+}
+
+/* Row 3: view toggle + Filters ▾ on the left, the honest count pushed right. */
+.toolbar-row--controls .browse-count {
+  margin-left: auto;
+}
+
+/* The facet groups inside the Filters popover (flat checkbox lists, one per
+   dimension) — replaces the old inline Meal ▾ / Cuisine ▾ dropdowns. */
+.browse-facets {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.facet-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
+.facet-group-label {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  font-weight: 700;
+  opacity: 0.7;
+}
+.filters-panel {
+  gap: var(--s-2);
+}
+
+/* Text search: the primary row-1 control. Grows to fill spare width but shrinks
+   freely so it never forces horizontal overflow on a narrow phone (mobile-fit). */
+.recipe-search {
+  flex: 1 1 6rem;
+  min-width: 0;
+  font: inherit;
+  font-size: var(--t-caption);
+  padding: 0.2rem var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--card);
+  color: inherit;
+}
+.recipe-search::placeholder {
+  color: var(--ink);
+  opacity: 0.45;
+}
+
+/* Segmented control (Tiles | Details): two joined buttons, one active. */
+.segmented {
+  display: inline-flex;
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-pill);
+  overflow: hidden;
+}
+
+.segmented-option {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  padding: 0.15rem var(--s-3);
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.segmented-option--active {
+  background: var(--enamel);
+  color: var(--paper, #fff);
+}
+
+/* Facet dropdowns (Meal ▾ / Cuisine ▾): native <details> as a popover. The
+   panel is absolutely positioned so opening one doesn't reflow the toolbar. */
+.facet-dd {
+  position: relative;
+}
+
+.facet-dd-summary {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  padding: 0.15rem var(--s-2);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  list-style: none;
+  white-space: nowrap;
+}
+
+.facet-dd-summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Active-filter count bubble on a Meal/Cuisine summary — a small enamel pill so
+   it's clear a filter is at work without opening the dropdown. */
+.facet-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  padding: 0 0.28rem;
+  border-radius: var(--r-pill);
+  background: var(--enamel);
+  color: var(--card);
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1;
+}
+/* A class-level `display` would otherwise defeat the `hidden` attribute. */
+.facet-count[hidden] {
+  display: none;
+}
+
+.facet-dd[open] > .facet-dd-summary {
+  border-color: var(--enamel);
+  color: var(--enamel);
+}
+
+.facet-dd-panel {
+  position: absolute;
+  z-index: 20;
+  margin-top: var(--s-1);
+  min-width: 10rem;
+  max-height: 16rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  padding: var(--s-2);
+  background: var(--card);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-l);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.18);
+}
+
+.facet-dd-option {
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  cursor: pointer;
+}
+
+.facet-dd-option input {
+  accent-color: var(--enamel);
+}
+
+/* Toggle pill: same vocabulary as .chip, but interactive. */
+.browse-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  padding: 0.15rem var(--s-2);
+  border-radius: var(--r-pill);
+  background: var(--enamel-soft);
+  color: var(--enamel);
+  cursor: pointer;
+  user-select: none;
+}
+
+.browse-toggle input {
+  accent-color: var(--enamel);
+}
+
+.browse-count {
+  margin-left: auto;
+  text-align: right;
+  /* One dot-separated line: reset filters · N of M shown · set dietary pref ↗.
+     Wraps as a unit on narrow screens, stays right-aligned. */
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--s-1);
+}
+
+.browse-count .status {
+  margin: 0;
+}
+
+.diet-pref-link {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  /* Explicit themed color: without it the anchor fell back to the UA default
+     link blue, unreadable on the dark --tile background. --enamel has a light
+     and a dark variant, so it reads in both themes. */
+  color: var(--enamel);
+}
+
+/* Reset icon button — shared by the toolbar reset (Browse/Cookbook, mounted in
+   the count block before the honest count) and the Meals plan reset. Icon-only:
+   the label lives on aria-label/title (src/icons.ts). Rust stroke, contrast-
+   guarded ≥3:1 on --tile; the hit area is padded to ≥44px (WCAG 2.5.5) while the
+   glyph stays ~18px, and hover/press shows the soft rust tint. */
+.reset-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: var(--s-2);
+  border: none;
+  background: none;
+  color: var(--rust);
+  border-radius: var(--r-m);
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+/* A class-level `display` would otherwise defeat the `hidden` attribute (the
+   toolbar toggles reset via setResetVisible → .hidden). */
+.reset-icon-btn[hidden] {
+  display: none;
+}
+
+.reset-icon-btn svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.reset-icon-btn:hover,
+.reset-icon-btn:active {
+  background: var(--rust-soft);
+}
+
+/* Reference quick link: the open-book glyph linking to the kitchen charts —
+   rendered by icons.ts's referenceIconLink on the recipe detail (beside
+   Focus), the editor header, and the Alchemy header. Same padded ≥44px hit
+   area as the reset icon; enamel like the other nav-ish affordances. */
+.reference-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: var(--s-2);
+  color: var(--enamel);
+  border-radius: var(--r-m);
+  flex: 0 0 auto;
+}
+
+.reference-link svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.reference-link:hover,
+.reference-link:active {
+  background: var(--enamel-soft);
+}
+
+/* ---- recipe cards ---- */
+
+.recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: var(--s-4);
+  margin-top: var(--s-4);
+}
+
+/* ---- Details view: one row per recipe (thumb left, text right) ---- */
+
+.recipe-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  margin-top: var(--s-4);
+}
+
+.recipe-row {
+  display: flex;
+  gap: var(--s-3);
+  align-items: center;
+  background: var(--card);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-l);
+  overflow: hidden;
+  padding: var(--s-2);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 120ms ease;
+}
+
+.recipe-row:hover {
+  border-color: var(--enamel);
+}
+
+.recipe-row-thumb {
+  flex: 0 0 auto;
+  width: 6rem;
+}
+
+/* The row thumb floats on the card face, so the image (or its placeholder)
+   gets the same themed stroke the cards use — set into the card rather than
+   pasted on. Slight radius to match the card's rounded language. */
+.recipe-row-thumb .card-photo {
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+}
+
+.recipe-row-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  min-width: 0;
+  padding: 0 var(--s-2);
+}
+
+.recipe-row-text {
+  font-size: var(--t-caption);
+  opacity: 0.8;
+  margin: 0;
+}
+
+.recipe-row-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1);
+}
+
+.card {
+  background: var(--card);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-l);
+  overflow: hidden;
+  transition: border-color 120ms ease;
+}
+
+.card:hover {
+  border-color: var(--enamel);
+}
+
+.card[open] {
+  grid-column: 1 / -1;
+  border-color: var(--enamel);
+}
+
+.card-face {
+  display: block;
+  cursor: pointer;
+  list-style: none;
+}
+
+.card-face::-webkit-details-marker {
+  display: none;
+}
+
+.card-photo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  background: var(--enamel-soft);
+}
+
+/* Banners (detail page) stay banners, not billboards. */
+.photo-wrap--banner .card-photo {
+  aspect-ratio: auto;
+  height: 16rem;
+  border-radius: var(--r-l);
+}
+
+/* ---- recipe detail page ---- */
+
+.recipe-detail {
+  max-width: 52rem;
+}
+
+/* Title row: just the recipe title now (the Hide control moved to the bottom
+   footer). Kept as a row so any future title-adjacent control has a home. */
+.recipe-title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+
+.recipe-title {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.6rem;
+  line-height: 1.2;
+  margin: var(--s-4) 0 var(--s-2);
+}
+
+.hide-control {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.hide-confirm-note {
+  font-family: var(--body);
+  font-size: var(--t-caption);
+  opacity: 0.75;
+}
+
+/* Cookbook title row: "Cookbook" heading on the left, the own-cookbook "New
+   Recipe" builder link pushed to the far right, on the same line. Wraps on
+   narrow screens. The All/Mine/Liked source control now rides inline with the
+   toolbar controls (Tiles/Details/Meal/Cuisine) — one filter row. */
+.cookbook-header,
+.alchemy-header,
+.editor-header,
+.meals-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+
+/* The open-book Reference link centers on the heading's line (baseline would
+   sink the padded 44px box below the title text). */
+.alchemy-header,
+.editor-header {
+  align-items: center;
+}
+
+/* Alchemy drafts heading row: "Recipe Drafts" on the left, the "New" builder
+   link right-aligned on the same line (it feeds this list). */
+.drafts-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+
+/* Meals title-row actions: calendar chip + "Published", grouped at the right. */
+.meals-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+}
+/* "Published" link in the Meals title row: yolk accent to set it apart from the
+   enamel actions; no underline (it's a button, not body copy). --yolk-deep is
+   theme-tuned, so it reads in light and dark. */
+.meals-plans {
+  text-decoration: none;
+  color: var(--yolk-deep);
+  border-color: var(--yolk-deep);
+}
+.meals-plans:hover {
+  background: var(--yolk-soft);
+}
+/* Controls row below the title: "Recipes per day" on the left, the Reset
+   control right-aligned on the same line (wraps if the inline confirm won't
+   fit at 320px). */
+.meals-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+}
+/* Meals "Reset" control: the button, or its inline Reset? · Confirm / Cancel. */
+.meals-reset {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.reset-confirm-note {
+  font-size: var(--t-caption);
+  opacity: 0.8;
+}
+
+/* "Your published plans" subpage: one row per plan — name + meta on the left,
+   a guarded Delete on the right; the name links to the shareable view. */
+.plan-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+  background: var(--card);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  padding: var(--s-2) var(--s-3);
+  margin-bottom: var(--s-2);
+  max-width: 44rem;
+}
+.plan-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  min-width: 0;
+}
+.plan-link {
+  color: var(--enamel);
+  font-weight: 700;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+.plan-meta {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  opacity: 0.7;
+}
+.plan-del {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+/* Content-freshness note at the bottom of the Cookbook (SWR "as of …"). Quiet,
+   centred, set off from the feed — a companion to the build stamp below it. */
+.content-freshness {
+  margin-top: var(--s-5);
+  text-align: center;
+}
+
+.card .card-title {
+  text-decoration: none;
+}
+
+a.card {
+  text-decoration: none;
+  color: inherit;
+}
+
+.card-photo--empty {
+  display: grid;
+  place-items: center;
+}
+
+.placeholder-mark {
+  height: 4rem;
+  width: auto;
+  opacity: 0.45;
+}
+
+.card-title {
+  display: block;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: var(--t-card-title);
+  line-height: 1.25;
+  padding: var(--s-3) var(--s-3) var(--s-1);
+}
+
+.chips {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-1) var(--s-3) var(--s-3);
+}
+
+.chip {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  padding: 0.15rem var(--s-2);
+  border-radius: var(--r-pill);
+  background: var(--enamel-soft);
+  color: var(--enamel);
+}
+
+/* Trust surface: silent when good, loud when bad. The signature element is
+   the ALTERED? rubber stamp — it appears only when integrity checking
+   actually caught something. */
+
+.photo-wrap {
+  position: relative;
+}
+
+.altered-stamp {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-12deg);
+  font-family: var(--mono);
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--rust);
+  border: 3px double var(--rust);
+  border-radius: var(--r-s);
+  padding: var(--s-1) var(--s-3);
+  background: var(--stamp-veil);
+}
+
+.altered-warning {
+  font-size: 0.85rem;
+  color: var(--rust);
+  margin: 0;
+  padding: 0 var(--s-3) var(--s-3);
+}
+
+/* Quiet human provenance line at the end of an intact detail. */
+.provenance {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  opacity: 0.65;
+  margin: 0;
+}
+
+/* Bottom footer: provenance on the left, the Hide control pushed to the far
+   right on the same baseline. On a narrow screen it wraps and the control drops
+   below. When there's no provenance (unverified), the slot's margin-left:auto
+   still keeps the control right-aligned. */
+.detail-footer {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+  margin-top: var(--s-5);
+}
+.detail-footer-control-slot {
+  margin-left: auto;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+/* ---- expanded detail: ingredients first ---- */
+
+.card-detail {
+  padding: 0 var(--s-4) var(--s-5);
+  border-top: var(--stroke) solid var(--line);
+}
+
+.lede {
+  max-width: 44rem;
+  opacity: 0.85;
+}
+
+.detail-cols {
+  display: grid;
+  grid-template-columns: minmax(14rem, 1fr) 2fr;
+  gap: 0 var(--s-6);
+}
+
+.detail-cols h3 {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: var(--t-section);
+  color: var(--enamel);
+  margin: var(--s-4) 0 var(--s-2);
+}
+
+/* Section heading + its "quick copy" link on one baseline row. */
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+.section-head h3 {
+  margin-bottom: var(--s-2);
+}
+/* Icon-only copy affordance (⧉) beside a section heading. */
+.quick-copy {
+  font-size: 1.15rem;
+  line-height: 1;
+  color: var(--enamel);
+  background: none;
+  border: none;
+  padding: 0 var(--s-1);
+  cursor: pointer;
+  opacity: 0.7;
+}
+.quick-copy:hover {
+  opacity: 1;
+}
+
+.detail-cols ul {
+  padding-left: var(--s-4);
+}
+
+.detail-cols ol {
+  padding-left: var(--s-5);
+}
+
+.detail-cols ol li {
+  margin-bottom: var(--s-3);
+}
+
+@media (max-width: 40rem) {
+  .detail-cols {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* "Did you know?" fun facts: light quote handling — a soft enamel rule down the
+   left and a little indent set the blurb apart as an aside, without the weight
+   of a full callout box. */
+.fun-facts {
+  border-left: 3px solid var(--enamel);
+  padding-left: var(--s-4);
+  margin: var(--s-5) 0;
+  opacity: 0.9;
+}
+.fun-facts-heading {
+  font-family: var(--display);
+  font-weight: 600;
+  color: var(--enamel);
+  margin: 0 0 var(--s-1);
+}
+.fun-fact-text {
+  font-style: italic;
+  margin: 0;
+}
+.fun-fact-source {
+  font-size: var(--t-caption);
+  opacity: 0.7;
+}
+.fun-fact-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin-top: var(--s-2);
+}
+.fun-fact-count {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  opacity: 0.7;
+}
+.fun-fact-next {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  padding: 0.15rem var(--s-2);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--card);
+  color: inherit;
+  cursor: pointer;
+}
+
+/* ---- footer: build stamp + colophon ---- */
+
+.site-footer {
+  margin-top: var(--s-7);
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  opacity: 0.55;
+  text-align: center;
+  display: grid;
+  gap: var(--s-1);
+}
+
+.site-footer p {
+  margin: 0;
+}
+
+.colophon {
+  color: inherit;
+  text-decoration: none;
+}
+
+.colophon:hover {
+  color: var(--enamel);
+  opacity: 1;
+}
+
+.colophon svg {
+  vertical-align: -1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
+
+/* Off-network credit (attribution). */
+.attribution {
+  font-size: 0.85rem;
+  opacity: 0.75;
+  margin: 0 0 var(--s-2);
+}
+
+.attribution-link {
+  color: var(--enamel);
+}
+
+/* Image credit (Wikimedia Commons). On the card: one thin, quiet line along
+   the bottom edge — present but out of the way. On the detail banner: a
+   gradient overlay pinned to the foot of the photo, linking to the source so
+   CC BY / BY-SA attribution stays visible with the image. */
+.photo-credit {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0.9rem var(--s-3) 0.35rem;
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  color: #fff;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.62), rgba(0, 0, 0, 0));
+  text-align: right;
+  pointer-events: none;
+}
+
+/* Banner corners are rounded, so round the overlay to match; on cards the
+   image's bottom edge is straight, so it stays square. */
+.photo-wrap--banner .photo-credit {
+  border-radius: 0 0 var(--r-l) var(--r-l);
+}
+
+/* Cards are small — dial the credit down a touch so it stays out of the way. */
+.card .photo-credit {
+  font-size: calc(var(--t-caption) * 0.85);
+}
+
+/* Like heart overlaid on the banner's upper-right (Phase 3): a glyph-only toggle
+   — outline ♡ that fills to ♥ on like. No pill/scrim; a drop shadow keeps the
+   white glyph legible over any image. The count lives in the bottom .photo-credit
+   line (see recipe.ts). Shares .photo-wrap (position: relative) with the credit —
+   top vs bottom, no collision. On the no-photo placeholder the banner still
+   renders, so the heart keeps its spot (OQ7). All styling here — no inline styles. */
+.like-overlay {
+  position: absolute;
+  top: var(--s-2);
+  right: var(--s-2);
+}
+
+.like-overlay .like-btn {
+  border: none;
+  background: none;
+  padding: 0.1rem 0.35rem;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85);
+  cursor: pointer;
+}
+
+.like-overlay .like-btn:disabled {
+  cursor: default; /* signed-out: read-only, but still visible */
+}
+
+.photo-credit-link {
+  color: #fff;
+  text-decoration: underline;
+  pointer-events: auto;
+}
+
+/* ---- editor (Phase 6) ---- */
+
+.editor {
+  display: grid;
+  gap: var(--s-3);
+  max-width: 44rem;
+  margin-bottom: var(--s-4);
+}
+
+.editor-field {
+  display: grid;
+  gap: var(--s-1);
+}
+
+.editor-label {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.editor input,
+.editor textarea {
+  font: inherit;
+  padding: var(--s-2) var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--card);
+  color: inherit;
+}
+
+.section-title {
+  font-family: var(--display);
+  font-weight: 600;
+  color: var(--enamel);
+  margin: var(--s-5) 0 var(--s-2);
+}
+
+/* Comments (Phase 5): center the whole block (heading + thread + composer) at a
+   readable width so lines don't sprawl on wide screens (OQ8), and give the
+   composer the design-system field treatment — mirrors `.editor textarea`
+   (border/radius/background via tokens), with an enamel focus ring. All in the
+   external stylesheet; no inline styles. */
+.comments {
+  max-width: 44rem;
+  margin: var(--s-6) auto 0;
+}
+
+.comment-compose {
+  display: grid;
+  gap: var(--s-2);
+  margin-top: var(--s-3);
+}
+
+.comment-compose textarea {
+  font: inherit;
+  min-height: 4.5rem;
+  padding: var(--s-2) var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--card);
+  color: inherit;
+  resize: vertical;
+}
+
+.comment-compose textarea:focus-visible {
+  outline: 2px solid var(--enamel);
+  outline-offset: 1px;
+}
+
+/* The primary "Post comment" button hugs its content instead of stretching the
+   grid column, pinned to the end so it sits right-aligned under the textarea. */
+.comment-compose .button--primary {
+  justify-self: end;
+}
+
+.draft-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  /* Wrap on narrow screens so a long, unbreakable label (e.g. a hidden recipe's
+     ULID in Settings) drops the control below it instead of overflowing. */
+  flex-wrap: wrap;
+  background: var(--card);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  padding: var(--s-2) var(--s-3);
+  margin-bottom: var(--s-2);
+  max-width: 44rem;
+}
+
+.draft-link {
+  color: var(--enamel);
+  font-weight: 700;
+  text-decoration: none;
+  min-width: 0; /* allow the flex item to shrink below its content width */
+  overflow-wrap: anywhere; /* break a long id/URL rather than overflow */
+}
+
+.editor-photo-preview {
+  max-width: 16rem;
+  border-radius: var(--r-m);
+  border: var(--stroke) solid var(--line);
+}
+
+/* Update toast (8b): asks, never ambushes. Fixed bar, not a modal. */
+.update-toast {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(var(--s-6) + env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  background: var(--card);
+  border: var(--stroke) solid var(--enamel);
+  border-radius: var(--r-l);
+  padding: var(--s-2) var(--s-4);
+  box-shadow: 0 4px 14px #0003;
+  z-index: 20;
+}
+
+/* Recipe-model extensions: ⛶ Focus (cook mode) + version bar */
+.detail-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--s-2);
+  margin: 0.4rem 0;
+}
+.focus-view {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  overflow: auto;
+  /* Opaque app surface. Was `var(--paper)` — an undefined token with no
+     fallback, so the overlay rendered transparent and the page bled through
+     (read as "broken" on mobile). --tile is the themed app background. */
+  background: var(--tile);
+  color: var(--ink);
+  /* Respect the notch / home indicator so the exit control and content aren't
+     tucked under the safe-area on phones. */
+  padding: calc(1.4rem + env(safe-area-inset-top)) calc(1.4rem + env(safe-area-inset-right))
+    calc(1.4rem + env(safe-area-inset-bottom)) calc(1.4rem + env(safe-area-inset-left));
+}
+.focus-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  max-width: 900px;
+  margin: 0 auto 1rem;
+}
+.focus-top .focus-title { margin: 0; }
+.focus-cols {
+  max-width: 900px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 2rem;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+@media (max-width: 640px) { .focus-cols { grid-template-columns: 1fr; } }
+/* Version-flip bar (above the banner on multi-version recipes): a ‹ N of M ›
+   pill on the left, a "▦ View All" link on the right, on one row. Was unstyled
+   (the code renders .version-bar; the old .recipe-controls rule was dead), so
+   the arrows fell back to default browser buttons — off-key for the page. */
+.version-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+  margin: var(--s-4) 0;
+}
+.version-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-pill);
+  padding: 0.15rem 0.4rem;
+}
+.version-count {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  white-space: nowrap;
+  padding: 0 var(--s-2);
+}
+.version-prev,
+.version-next {
+  appearance: none;
+  border: 0;
+  background: none;
+  color: var(--enamel);
+  font-size: 1.2rem;
+  line-height: 1;
+  padding: 0 var(--s-1);
+  cursor: pointer;
+  border-radius: var(--r-s);
+}
+.version-prev:hover,
+.version-next:hover {
+  background: var(--enamel-soft);
+}
+.version-viewall {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  color: var(--enamel);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.version-viewall:hover {
+  text-decoration: underline;
+}
+
+/* ---- reference page (kitchen charts) ----
+   Static conversion/roasting charts transcribed from the scanned reference
+   cards. Card idiom mirrors .settings-section; each section is a scroll
+   target (id) so a chart is directly linkable, with a copyable "#" anchor. */
+.ref-head {
+  text-align: center;
+  margin: var(--s-5) 0 var(--s-6);
+}
+.ref-head h1 {
+  font-family: var(--display);
+  font-size: var(--t-wordmark);
+  color: var(--enamel);
+  margin: 0 0 var(--s-2);
+}
+.ref-head p {
+  margin: 0;
+  opacity: 0.75;
+}
+.ref-card {
+  background: var(--card);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-l);
+  padding: var(--s-5);
+  margin-bottom: var(--s-5);
+  scroll-margin-top: var(--s-4); /* clear of the top of the viewport on #anchor jumps */
+}
+.ref-card h2 {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: var(--t-section);
+  color: var(--enamel);
+  margin: 0 0 var(--s-4);
+}
+/* Copyable in-page anchor: quiet until the heading is hovered/focused. */
+.ref-anchor {
+  color: var(--enamel);
+  text-decoration: none;
+  font-weight: 700;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+.ref-card h2:hover .ref-anchor,
+.ref-anchor:focus-visible,
+.ref-card:target .ref-anchor {
+  opacity: 0.6;
+}
+.ref-anchor:hover {
+  opacity: 1;
+}
+/* The targeted chart gets a soft enamel wash so a deep link lands obviously. */
+.ref-card:target {
+  border-color: var(--enamel);
+  background: var(--enamel-soft);
+}
+.ref-cols {
+  display: grid;
+  gap: var(--s-5) var(--s-6);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 40rem) {
+  .ref-cols.two {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+/* Grid charts (many columns) can't shrink to a phone's width without the cells
+   collapsing into an unreadable jumble. Wrap them in a horizontal-scroll box
+   and give the table a min-width so columns keep a legible size and the box
+   scrolls instead. Pair tables (two narrow columns) are never wrapped. */
+.ref-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.ref-scroll table.ref {
+  min-width: 32rem;
+}
+table.ref {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-body);
+}
+table.ref th {
+  text-align: left;
+  font-weight: 700;
+  border-bottom: var(--stroke) solid var(--enamel);
+  padding: var(--s-2) var(--s-3);
+  vertical-align: bottom;
+}
+table.ref td {
+  padding: var(--s-2) var(--s-3);
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+table.ref tr:last-child td {
+  border-bottom: none;
+}
+table.ref.pairs td:first-child {
+  font-weight: 700;
+  width: 45%;
+}
+table.ref.pairs td.eq {
+  color: var(--enamel);
+  width: 1.5rem;
+  text-align: center;
+  font-weight: 700;
+}
+.ref-note {
+  margin: var(--s-3) 0 0;
+  font-size: var(--t-caption);
+  opacity: 0.7;
+}
+.ref-foot {
+  text-align: center;
+  font-size: var(--t-stamp);
+  opacity: 0.55;
+  margin-top: var(--s-6);
+}
+
+/* --- Meal planner (src/pages/meals.ts) ------------------------------------ */
+/* Mobile-first: palette above the builder; two columns on wider screens. */
+.meal-planner {
+  display: grid;
+  gap: var(--s-4);
+}
+@media (min-width: 48rem) {
+  .meal-planner {
+    grid-template-columns: 15rem 1fr;
+    align-items: start;
+  }
+}
+.palette-title {
+  font-family: var(--display);
+  font-size: var(--t-section);
+  margin: 0 0 var(--s-2);
+}
+.palette-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+.chip {
+  appearance: none;
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--card);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 0.9rem;
+  padding: var(--s-1) var(--s-3);
+  cursor: pointer;
+}
+.chip--armed {
+  border-color: var(--enamel);
+  background: var(--enamel);
+  color: #fff;
+  font-weight: 700;
+}
+.builder {
+  display: grid;
+  gap: var(--s-4);
+}
+.week {
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  padding: var(--s-3);
+}
+.week-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--s-2);
+}
+.week-name {
+  font-weight: 700;
+}
+.week-days {
+  display: grid;
+  /* minmax(0, …) lets a track shrink below its content's min-content width, so a
+     day's header (label + count on one row) can't force the 7-col grid wider than
+     the viewport on a narrow phone. */
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--s-1);
+}
+.day {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  min-width: 0;
+  min-height: 3.75rem;
+  padding: var(--s-1);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-s);
+  font-size: 0.72rem;
+}
+.day--empty,
+.day--placeable {
+  cursor: pointer;
+}
+/* Armed + not full: the whole cell is a placement target — hint it. */
+.day--placeable {
+  border-color: var(--enamel);
+  border-style: dashed;
+}
+.day--filled {
+  background: var(--enamel-soft);
+  border-color: var(--enamel);
+}
+/* Day header: the label + a "placed/cap" count; tapping it expands the day. */
+.day-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-1);
+  flex-wrap: wrap;
+}
+.day-label {
+  font-weight: 700;
+  opacity: 0.6;
+}
+.day-count {
+  font-size: 0.65rem;
+  opacity: 0.55;
+  font-variant-numeric: tabular-nums;
+}
+/* Stacked meals within a day, one row each. */
+.day-meals {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
+.day-meal {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-1);
+}
+.slot-filled {
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.slot-clear {
+  flex: none;
+  appearance: none;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+/* Expanded day (mobile-focused): break out to full width and give the meal
+   rows + their × and the "Clear day" button comfortable, tappable room. */
+.day--expanded {
+  grid-column: 1 / -1;
+  gap: var(--s-2);
+  padding: var(--s-2);
+  font-size: 0.85rem;
+}
+.day--expanded .day-meal {
+  align-items: center;
+  padding: var(--s-1) var(--s-2);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-s);
+  background: var(--card);
+}
+.day--expanded .slot-clear {
+  font-size: 1.35rem;
+  min-width: 1.75rem;
+  text-align: right;
+}
+.day-clear {
+  align-self: flex-start;
+}
+/* "Recipes per day" cap control in the Meals controls row. */
+.meals-perday {
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+  font-size: var(--t-caption);
+}
+.meals-perday-label {
+  opacity: 0.8;
+}
+.meals-perday-select {
+  font: inherit;
+  font-size: var(--t-caption);
+  padding: var(--s-1) var(--s-2);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-s);
+  background: var(--card);
+  color: inherit;
+}
+
+/* --- Meal planner calendar (Phase 6) -------------------------------------- */
+.week-head {
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+/* Week actions: "⧉ Repeat weeks" then "+ Add week" on one row, right-aligned
+   under the week grids; wraps (still right-aligned) if a viewport is too narrow. */
+.week-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--s-2);
+  margin-top: var(--s-3);
+}
+.calendar {
+  margin-top: var(--s-5);
+}
+/* Start-date control: label + date input on one row above the calendar. */
+.cal-start {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--s-3);
+  font-size: var(--t-caption);
+}
+.cal-start-input {
+  font: inherit;
+  padding: var(--s-1) var(--s-2);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-s);
+  background: var(--card);
+  color: inherit;
+}
+/* Publish & share: the button, then a generated read-only link + copy/open. */
+.plan-share {
+  margin-top: var(--s-5);
+}
+.share-link {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+  margin-top: var(--s-2);
+}
+.share-link-input {
+  flex: 1 1 16rem;
+  font: inherit;
+  font-size: var(--t-caption);
+  padding: var(--s-1) var(--s-2);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-s);
+  background: var(--card);
+  color: inherit;
+}
+.share-open {
+  white-space: nowrap;
+}
+.shared-plan-head {
+  margin-bottom: var(--s-3);
+}
+.cal-body {
+  display: grid;
+  gap: var(--s-3);
+}
+.cal-week {
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  padding: var(--s-2) var(--s-3);
+}
+.cal-week-label {
+  font-weight: 700;
+  margin-bottom: var(--s-1);
+}
+/* 7 columns with a floor width so the calendar scrolls horizontally on a
+   narrow phone rather than crushing the cells (the JSX's @media intent). */
+.cal-days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(4rem, 1fr));
+  gap: var(--s-1);
+  overflow-x: auto;
+}
+.cal-day {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  min-height: 3rem;
+  padding: var(--s-1);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-s);
+  font-size: 0.72rem;
+}
+.cal-slot {
+  overflow-wrap: anywhere;
+}
+
+/* --- Meal planner palette source switch + filter (Phase 7) ---------------- */
+.palette-source {
+  display: flex;
+  gap: var(--s-1);
+  margin-bottom: var(--s-2);
+}
+.src-btn {
+  appearance: none;
+  flex: 1;
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-s);
+  background: var(--card);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 0.85rem;
+  padding: var(--s-1) var(--s-2);
+  cursor: pointer;
+  opacity: 0.7;
+}
+.src-btn--active {
+  border-color: var(--enamel);
+  opacity: 1;
+  font-weight: 700;
+}
+.palette-filter {
+  width: 100%;
+  font-family: var(--body);
+  padding: var(--s-1) var(--s-2);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-s);
+  background: var(--card);
+  color: var(--ink);
+  margin-bottom: var(--s-2);
+}
+
+/* --- Meal planner drag drop-target (Phase 8) ----------------------------- */
+.day--over {
+  border-color: var(--enamel);
+  background: var(--enamel-soft);
+}
+
+/* --- Meal planner: capped-list hint (feedback) --------------------------- */
+.palette-hint {
+  margin: 0;
+}
+/* Palette pager: ◀ hint ▶ on one centred row under the chips. Arrows are quiet
+   until hovered; hidden entirely when the palette fits on one page. */
+.palette-paging {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-3);
+  margin-top: var(--s-2);
+}
+.palette-page-btn {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  line-height: 1;
+  padding: 0.25rem var(--s-2);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--card);
+  color: inherit;
+  cursor: pointer;
+}
+.palette-page-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.palette-page-btn[hidden] {
+  display: none;
+}
+
+/* ---- Mobile tap targets (WCAG 2.5.5) --------------------------------------
+   On phones, interactive controls get a ≥44px hit height with their content
+   vertically centered. Scoped to the app's mobile breakpoint so desktop
+   density is unchanged. Controls inside the tight 7-column calendar grid (the
+   day-slot × clear) are deliberately excluded so they can't widen a cell and
+   overflow the row. */
+@media (max-width: 40rem) {
+  .button,
+  .segmented-option,
+  .src-btn,
+  .chip,
+  .facet-dd-summary,
+  .palette-page-btn,
+  .nav-gear,
+  .nav-auth,
+  .fun-fact-next,
+  .version-prev,
+  .version-next,
+  .quick-copy,
+  .share-open,
+  .tab {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* Icon-only controls get a min width too — but NOT the topbar gears: two of
+     them plus the sign-in/account link would overflow a 320px header. They keep
+     the ≥44px height above; their natural width stays (still an easy target). */
+  .version-prev,
+  .version-next {
+    min-width: 44px;
+  }
+}
+
+/* ---- Account: taste preference ("Only show me" diet + "Never show me") ---- */
+/* Two titled blocks: "Only show me" (dietary whitelist checkboxes) above
+   "Never show me", whose Meals ▾ / Cuisines ▾ dropdowns (the Browse .facet-dd
+   idiom) pick meals + cuisines to EXCLUDE site-wide. Each dropdown summary
+   carries a count bubble so selections show while collapsed. */
+.taste-only-block,
+.taste-never-block {
+  margin-top: var(--s-3);
+}
+.taste-bucket-title {
+  font-family: var(--display);
+  font-weight: 600;
+  margin: 0 0 var(--s-1);
+}
+
+/* "Only show me" heading row: bucket title left, the AND/OR mode toggle
+   right-aligned on the same line. */
+.taste-bucket-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  margin: 0 0 var(--s-1);
+}
+.taste-bucket-head > .taste-bucket-title {
+  margin: 0;
+}
+
+/* The AND/OR toggle: a small mono pill (the .facet-dd-summary idiom) that
+   flips how checked diets combine — "Match all (and)" ⇄ "Match any (or)". */
+.diet-mode-toggle {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  padding: 0.15rem var(--s-2);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--card);
+  color: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.diet-mode-toggle:hover {
+  border-color: var(--enamel);
+  color: var(--enamel);
+}
+.taste-never-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+  margin-top: var(--s-2);
+}
+
+/* Collapsible "Hidden recipes" section on Settings: the summary reads like the
+   section heading and toggles the list. */
+.hidden-recipes {
+  cursor: pointer;
+}
+.hidden-summary {
+  font-family: var(--display);
+  font-weight: 600;
+  list-style: none;
+}
+.hidden-summary::-webkit-details-marker {
+  display: none;
+}
+.hidden-summary::before {
+  content: '▸ ';
+  color: var(--enamel);
+}
+.hidden-recipes[open] > .hidden-summary::before {
+  content: '▾ ';
+}
+
+/* Focus mode with no image: shrink the placeholder to a small top strip instead
+   of a full-height blank banner (which dominated a phone screen). */
+.focus-view .focus-photo-empty {
+  height: 4.5rem;
+  overflow: hidden;
+  border-radius: var(--r-m);
+  margin: 0 auto 1rem;
+  max-width: 900px;
+}
+.focus-view .focus-photo-empty .card-photo--empty {
+  height: 4.5rem;
+  min-height: 0;
+}
+
+/* Publish row: the Publish button + "Reset on publish" toggle on one line. */
+.plan-publish-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+
+/* Browse pager: ◀ "Showing X–Y of N" ▶ centred below the feed. Reuses the
+   .palette-page-btn arrow styling. */
+.browse-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-3);
+  margin: var(--s-5) 0 var(--s-4);
+}
+.browse-pager[hidden] {
+  display: none;
+}
+.browse-pager-hint {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  opacity: 0.75;
+}
+
+/* --- Calendar publish (advanced, opt-in) --------------------------------- */
+/* Status chip in the Meals header: quiet enamel pill with a Resync button. */
+.calendar-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-1) var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--enamel-soft);
+}
+.calendar-chip[hidden] { display: none; }
+.calendar-chip-label {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  color: var(--enamel-deep);
+  white-space: nowrap;
+}
+.calendar-resync { padding: var(--s-1) var(--s-2); font-size: var(--t-caption); }
+
+/* Account advanced section: a collapsible card matching .settings-section. */
+details.calendar-publish { max-width: 44rem; }
+details.calendar-publish > summary {
+  font-family: var(--display);
+  font-weight: 600;
+  color: var(--enamel);
+  cursor: pointer;
+}
+.calendar-config {
+  display: grid;
+  gap: var(--s-3);
+  margin-top: var(--s-3);
+  padding-top: var(--s-3);
+  border-top: var(--stroke) solid var(--line);
+}
+.calendar-config[hidden] { display: none; }
+.calendar-field { display: grid; gap: var(--s-1); }
+.calendar-field-label,
+.calendar-remember,
+.calendar-enable {
+  font-size: var(--t-caption);
+  color: var(--ink);
+}
+.calendar-field input {
+  font: inherit;
+  padding: var(--s-2);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+}
+.calendar-remember {
+  display: block;
+  line-height: 1.4;
+  opacity: 0.85;
+}
+.calendar-token-status,
+.calendar-status {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  color: var(--enamel-deep);
+}
+.calendar-links { font-size: var(--t-caption); }
+
+/* Preview-only demo-session banner (never rendered on production or in tests). */
+.preview-demo-banner {
+  background: var(--yolk);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  text-align: center;
+  padding: var(--s-1) var(--s-3);
+}
+.preview-demo-banner .friend-link { color: var(--enamel-deep); font-weight: 700; }
+
+/* ---- Cook follows: members list, add panel, publish offer ------------------ */
+/* The Account cookbook listing (cook-follows-members-view). Rows are the cook +
+   source badge + an optional per-row unfollow; the add panel + D6 publish offer
+   sit above the list. Kept mobile-first: everything wraps, nothing forces
+   horizontal overflow. */
+.friends-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  margin-top: var(--s-2);
+}
+.friend-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+.friend-link {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  color: var(--enamel);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.friend-unfollow {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  color: var(--enamel);
+  background: none;
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-pill);
+  padding: 0.1rem var(--s-2);
+  cursor: pointer;
+}
+/* Members pager: ◀ "Showing X–Y of N" ▶ centred under the cooks list. Reuses
+   the .palette-page-btn arrows + .browse-pager-hint counter. */
+.members-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-3);
+  margin-top: var(--s-3);
+}
+.members-pager[hidden] {
+  display: none;
+}
+
+.add-cook-panel {
+  margin-top: var(--s-2);
+}
+.add-cook-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+}
+.add-cook-input {
+  flex: 1 1 9rem;
+  min-width: 0;
+  max-width: 18rem;
+  font: inherit;
+  font-size: var(--t-caption);
+  padding: 0.2rem var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--card);
+  color: inherit;
+}
+.add-cook-status:empty {
+  display: none;
+}
+
+.publish-offer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+  margin: var(--s-2) 0;
+  padding: var(--s-2) var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-l);
+  background: var(--enamel-soft);
+}
+.publish-offer .status {
+  flex: 1 1 12rem;
+  margin: 0;
+}
+
+/* ---- Browse: cook preview + follow ---------------------------------------- */
+/* When a lookup previews a cook's recipes, this bar names the cook and offers
+   Follow / Following. Wraps on a phone; never forces horizontal overflow. */
+.preview-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  margin: var(--s-2) 0;
+  padding: var(--s-2) var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-l);
+  background: var(--enamel-soft);
+}
+/* A class-level `display` would otherwise defeat the `hidden` attribute. */
+.preview-bar[hidden] {
+  display: none;
+}
+.preview-handle {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  color: var(--enamel);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.follow-cook {
+  margin-left: auto;
+}
+.follow-cook--following {
+  background: var(--enamel-soft);
+  color: var(--enamel);
+}
