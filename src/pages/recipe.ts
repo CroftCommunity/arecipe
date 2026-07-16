@@ -467,9 +467,10 @@ const paintVersion = (
       showFunFacts: createSocialPrefs().includeFunFacts(),
     }),
   );
-  // Share affordance: a one-tap Share button beside the title, wired to the
-  // canonical recipe.html?u=…[&by=…] URL for the version currently shown (rebuilt
-  // per version because paintVersion runs on every flip). URL is normalized from
+  // Share affordance: a one-tap share ICON beside the title — the same icon-only
+  // control the cookbook heading carries — wired to the canonical
+  // recipe.html?u=…[&by=…] URL for the version currently shown (rebuilt per
+  // version because paintVersion runs on every flip). URL is normalized from
   // the page's own u/by via buildRecipeShareUrl, not echoed raw.
   const titleRow = host.querySelector('.recipe-title-row');
   if (titleRow !== null) {
@@ -481,6 +482,7 @@ const paintVersion = (
         label: 'Share',
         ariaLabel: 'Share this recipe',
         testid: 'share-recipe',
+        icon: true,
       }),
     );
   }

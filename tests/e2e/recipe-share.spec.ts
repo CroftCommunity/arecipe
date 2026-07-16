@@ -1,9 +1,11 @@
-// Share affordances (hermetic): the recipe page shows a one-tap Share button
-// near the title. Playwright never exposes the native share sheet, so we delete
-// navigator.share before load to exercise the deterministic clipboard fallback:
-// activating Share copies the canonical recipe.html?u=<at-uri>[&by=<handle>] URL
-// for the currently viewed recipe and flashes a transient confirmation. Mirrors
-// interactions.spec's routed-fixture recipe page.
+// Share affordances (hermetic): the recipe page shows a one-tap share ICON
+// beside the title — the same icon-only control the cookbook heading carries
+// (owner request 2026-07-16), sharing THIS recipe's page. Playwright never
+// exposes the native share sheet, so we delete navigator.share before load to
+// exercise the deterministic clipboard fallback: activating Share copies the
+// canonical recipe.html?u=<at-uri>[&by=<handle>] URL for the currently viewed
+// recipe and flashes a transient confirmation. Mirrors interactions.spec's
+// routed-fixture recipe page.
 import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
 
@@ -67,6 +69,10 @@ test('the recipe page shows a Share button that copies the canonical recipe URL 
   const share = page.getByTestId('share-recipe');
   await expect(share).toBeVisible();
   await expect(share).toHaveAttribute('aria-label', /share/i);
+  // Icon-only, matching the cookbook heading's share control: the share glyph
+  // beside the recipe title — no text label; the name rides aria-label/title.
+  await expect(share.locator('svg')).toHaveCount(1);
+  await expect(share).not.toContainText(/share/i);
 
   // The copy seam (mirrors the quick-copy `data-copy` idiom) carries the exact
   // canonical URL for the CURRENTLY VIEWED recipe under the live origin.
