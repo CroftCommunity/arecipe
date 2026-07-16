@@ -537,6 +537,17 @@ a {
   opacity: 0.75;
 }
 
+/* Account: the signed-in identity lines are the page's primary facts, not fine
+   print — read a few points larger than other status captions. The DID is one
+   long unbreakable token, so break it rather than overflow a phone viewport. */
+.status.session-status {
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+.session-status .friend-link {
+  font-size: inherit; /* the handle link reads at the line's size, not caption */
+}
+
 .empty-state {
   border: var(--stroke) dashed var(--line);
   border-radius: var(--r-l);
