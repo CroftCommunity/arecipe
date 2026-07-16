@@ -56,3 +56,51 @@ export const resetIconButton = (label: string): HTMLButtonElement => {
   btn.append(resetIcon());
   return btn;
 };
+
+// ---- Reference glyph ---------------------------------------------------------
+// An OPEN BOOK marks the culinary Reference page (kitchen charts). One helper
+// draws it so every quick link — recipe detail, editor, Alchemy — renders the
+// identical mark. Same posture as the reset glyph: currentColor stroke, no
+// fill, geometry pinned in exported constants (Lucide "book-open").
+
+/** Committed glyph geometry — pinned by tests/unit/icons.spec.ts. */
+export const REFERENCE_ICON_VIEWBOX = '0 0 24 24';
+/** The left page of the open book. */
+export const REFERENCE_ICON_LEFT_PAGE_PATH = 'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z';
+/** The right page of the open book. */
+export const REFERENCE_ICON_RIGHT_PAGE_PATH = 'M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z';
+
+/** An inline open-book glyph: currentColor stroke, no fill, aria-hidden (the
+ *  accessible name lives on the link). */
+export const referenceIcon = (): SVGSVGElement => {
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('viewBox', REFERENCE_ICON_VIEWBOX);
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.setAttribute('stroke-linejoin', 'round');
+  svg.setAttribute('aria-hidden', 'true');
+
+  const left = document.createElementNS(SVG_NS, 'path');
+  left.setAttribute('d', REFERENCE_ICON_LEFT_PAGE_PATH);
+  const right = document.createElementNS(SVG_NS, 'path');
+  right.setAttribute('d', REFERENCE_ICON_RIGHT_PAGE_PATH);
+
+  svg.append(left, right);
+  return svg;
+};
+
+/** A quick link to the Reference page wrapping the open-book glyph. Icon-only,
+ *  so the label is the accessible name (`aria-label` + `title`). Shared
+ *  `.reference-link` class + testid style/locate every site alike. */
+export const referenceIconLink = (): HTMLAnchorElement => {
+  const link = document.createElement('a');
+  link.className = 'reference-link';
+  link.href = './reference.html';
+  link.dataset['testid'] = 'reference-link';
+  link.setAttribute('aria-label', 'Culinary reference charts');
+  link.title = 'Culinary reference charts';
+  link.append(referenceIcon());
+  return link;
+};

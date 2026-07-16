@@ -5,6 +5,7 @@
 // the end of the detail); a failed integrity check gets the rust ALTERED?
 // rubber stamp + always-visible warning wherever the recipe appears.
 
+import { referenceIconLink } from '../icons.js';
 import { recipeFacets } from '../pages/browse-state.js';
 import type { CachedRecipe } from './cache.js';
 import { dishKeyOf, funFactsOf, versionLabelOf, type FunFact } from './model.js';
@@ -571,7 +572,10 @@ export const renderRecipeDetail = (
     focusBtn.dataset['testid'] = 'focus-btn';
     focusBtn.setAttribute('aria-label', 'Focus mode — full-screen cook view');
     focusBtn.addEventListener('click', () => onFocus());
-    actions.append(focusBtn);
+    // Reference quick link rides beside Focus: while cooking, the kitchen
+    // charts (weights, substitutions, roasting) are one tap away — on mobile
+    // the Reference tab left the bottom bar, so this IS the path to it.
+    actions.append(referenceIconLink(), focusBtn);
     article.append(actions);
   }
   // Title row: just the title now — the Hide control moved to the bottom footer

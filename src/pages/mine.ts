@@ -4,6 +4,7 @@
 
 import { bootSession } from '../auth/boot.js';
 import { mountBuildStamp } from '../build-stamp.js';
+import { referenceIconLink } from '../icons.js';
 import { resolveDidDoc } from '../identity/did.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
@@ -27,23 +28,26 @@ const main = async (): Promise<void> => {
   const content = el('section', 'panel');
   // Alchemy (renamed from "My recipes"): your drafting workspace — create,
   // edit, save, publish. The heading names the space; the route/testid stay
-  // `mine.html`/`tab-mine`. Title row: "Alchemy" on the left, "New recipe"
-  // right-aligned on the same line.
+  // `mine.html`/`tab-mine`. Title row: "Alchemy" on the left, the open-book
+  // Reference quick link right-aligned on the same line.
   const header = el('div', 'alchemy-header');
-  header.append(el('h2', 'page-title', 'Alchemy'));
+  header.append(el('h2', 'page-title', 'Alchemy'), referenceIconLink());
   content.append(header);
   const { provider, agent } = await bootSession();
   void requestPersistence();
 
   // Authoring entry + local drafts are for everyone — drafting needs no
-  // account; publishing (in the editor) does.
-  const newRecipe = el('a', 'button button--primary', 'New recipe') as HTMLAnchorElement;
+  // account; publishing (in the editor) does. "New" rides the Recipe Drafts
+  // heading line (the drafts list is what it feeds), short because the
+  // heading already says "Recipe".
+  const newRecipe = el('a', 'button button--primary', 'New') as HTMLAnchorElement;
   newRecipe.href = './editor.html';
   newRecipe.dataset['testid'] = 'new-recipe';
-  header.append(newRecipe);
 
   const draftsSection = el('section');
-  draftsSection.append(el('h3', 'section-title', 'Recipe Drafts'));
+  const draftsHeader = el('div', 'drafts-header');
+  draftsHeader.append(el('h3', 'section-title', 'Recipe Drafts'), newRecipe);
+  draftsSection.append(draftsHeader);
 
   // Status filter (Phase 11c): narrow the drafts list by draft status. Drafts
   // only — published recipes live on Cookbook → "Mine" now, not here (OQ13).

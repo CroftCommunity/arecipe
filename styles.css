@@ -281,12 +281,21 @@ a {
   .tab {
     border-bottom: 0;
     margin-bottom: 0;
-    /* Five destinations (Meals added in the meals-planner work): tighten the
-       horizontal padding + font so the full-label bottom bar fits a narrow
+    /* Four destinations on mobile (Reference is desktop-only below): tighten
+       the horizontal padding + font so the full-label bottom bar fits a narrow
        phone without wrapping or horizontal overflow. Guarded by
        tests/e2e/meals.spec.ts's 360px fit assertion. */
     padding: var(--s-2) var(--s-1);
     font-size: 0.9rem;
+  }
+
+  /* Reference leaves the mobile bottom bar (thumb row stays 4 primary
+     destinations); on a phone it's reached via the open-book quick links on
+     the recipe page, the editor, and Alchemy instead. Double-class selector:
+     the tap-target block further down also sets `.tab { display: inline-flex }`
+     at this breakpoint, and this must outrank it. */
+  .tab.tab--desktop-only {
+    display: none;
   }
 
   .tab--active {
@@ -777,6 +786,32 @@ a {
   background: var(--rust-soft);
 }
 
+/* Reference quick link: the open-book glyph linking to the kitchen charts —
+   rendered by icons.ts's referenceIconLink on the recipe detail (beside
+   Focus), the editor header, and the Alchemy header. Same padded ≥44px hit
+   area as the reset icon; enamel like the other nav-ish affordances. */
+.reference-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: var(--s-2);
+  color: var(--enamel);
+  border-radius: var(--r-m);
+  flex: 0 0 auto;
+}
+
+.reference-link svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.reference-link:hover,
+.reference-link:active {
+  background: var(--enamel-soft);
+}
+
 /* ---- recipe cards ---- */
 
 .recipe-grid {
@@ -922,9 +957,27 @@ a {
    toolbar controls (Tiles/Details/Meal/Cuisine) — one filter row. */
 .cookbook-header,
 .alchemy-header,
+.editor-header,
 .meals-header {
   display: flex;
   align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+
+/* The open-book Reference link centers on the heading's line (baseline would
+   sink the padded 44px box below the title text). */
+.alchemy-header,
+.editor-header {
+  align-items: center;
+}
+
+/* Alchemy drafts heading row: "Recipe Drafts" on the left, the "New" builder
+   link right-aligned on the same line (it feeds this list). */
+.drafts-header {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
   gap: var(--s-3);
   flex-wrap: wrap;
@@ -1448,7 +1501,13 @@ a.card {
 }
 
 /* Recipe-model extensions: ⛶ Focus (cook mode) + version bar */
-.detail-actions { display: flex; justify-content: flex-end; margin: 0.4rem 0; }
+.detail-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--s-2);
+  margin: 0.4rem 0;
+}
 .focus-view {
   position: fixed;
   inset: 0;
