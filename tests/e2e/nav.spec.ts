@@ -52,11 +52,17 @@ test('every signed-out "Sign in" affordance points at the dedicated page (wiring
   await expect(page.getByTestId('mine-signin-pointer')).toHaveAttribute('href', /signin\.html$/);
 });
 
-test('settings page: app management with build facts, integrity explainer, About', async ({
+test('settings page: app management with a release pointer, integrity explainer, About', async ({
   page,
 }) => {
   await page.goto('/settings.html');
-  await expect(page.getByTestId('build-facts')).toContainText(/version/i);
+  // Build facts + update checks migrated to Account → Release & version
+  // (signed releases D7); Settings keeps the pointer.
+  await expect(page.getByTestId('release-pointer')).toContainText(/Release & version/);
+  await expect(page.getByTestId('release-pointer').getByRole('link')).toHaveAttribute(
+    'href',
+    /account\.html$/,
+  );
   await expect(page.getByTestId('integrity-explainer')).toContainText(/fingerprint/i);
   await expect(page.getByTestId('about')).toContainText(/AT Protocol/);
 });

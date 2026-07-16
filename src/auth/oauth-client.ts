@@ -11,15 +11,18 @@ import {
   type OAuthClientMetadataInput,
 } from '@atproto/oauth-types';
 import { log } from '../log.js';
+import { isLoopbackHostname, PRODUCTION_ORIGIN } from '../release/origin.js';
 import clientMetadataJson from '../../client-metadata.json';
 
 /** D1: bare `atproto` cannot call appview RPCs; transition:generic can. */
 export const LOOPBACK_SCOPE = 'atproto transition:generic';
 
-/** The production origin whose hosted client-metadata document this build
- * carries. Sign-in is offered only here (client_id must match the origin)
- * or on loopback; every other origin is read-only. */
-export const PRODUCTION_ORIGIN = 'https://arecipe.app';
+// The production origin + loopback test live in the auth-free
+// src/release/origin.ts (the release banner needs them on Browse, which ships
+// zero auth code); re-exported here so auth callers keep one import site.
+// Sign-in is offered only on the production origin (client_id must match) or
+// on loopback; every other origin is read-only.
+export { isLoopbackHostname, PRODUCTION_ORIGIN };
 
 /** The hosted client-metadata document, served verbatim at
  * `${PRODUCTION_ORIGIN}/client-metadata.json` (see build.mjs) and burned in
@@ -39,9 +42,6 @@ export const authModeFor = (origin: string, hostname: string): AuthMode => {
   if (origin === PRODUCTION_ORIGIN) return 'hosted';
   return 'none';
 };
-
-export const isLoopbackHostname = (hostname: string): boolean =>
-  hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]';
 
 // `pathname` is accepted but DELIBERATELY IGNORED (callers pass window.location):
 // baking it into the client_id was the local-dev refresh bug (see below). Kept in

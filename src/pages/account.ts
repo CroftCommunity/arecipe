@@ -22,6 +22,12 @@ import {
   type TasteOption,
   type TastePreference,
 } from '../recipes/taste-preference.js';
+import { renderReleasePanel } from '../release/panel.js';
+import { bakedPubkeyHex } from '../release/build-meta.js';
+import { createReleaseConfig } from '../release/config.js';
+import { notifyReleaseConfigChanged, requestSwReleaseMeta } from '../release/sw-meta.js';
+import { checkOriginManifest } from '../release/verify.js';
+import type { BuildInfo } from '../build-stamp.js';
 import { registerServiceWorker } from '../sw-register.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -284,6 +290,36 @@ const main = async (): Promise<void> => {
     return listPdsPlans(pds, signedInDid);
   };
   content.append(renderCalendarPublishSection(createCalendarClient(), listPublishedPlans));
+
+  // Release & version (signed releases D7): verify state, running version,
+  // the version pin and install-only-verified toggles (device-local), and the
+  // check-updates control + build facts migrated here from Settings (which
+  // keeps a pointer). Device-local, so it renders signed in or out.
+  content.append(
+    renderReleasePanel({
+      config: createReleaseConfig(),
+      check: async () => {
+        const running = await requestSwReleaseMeta();
+        return checkOriginManifest({
+          pubkeyHex: bakedPubkeyHex(),
+          ...(running !== null ? { running } : {}),
+        });
+      },
+      runningMeta: () => requestSwReleaseMeta(),
+      buildInfo: async () => {
+        try {
+          const res = await fetch('./build-info.json');
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return (await res.json()) as BuildInfo;
+        } catch (err) {
+          log.warn('build', 'build-info.json missing or invalid', { error: String(err) });
+          return null;
+        }
+      },
+      updateRegistration: () => navigator.serviceWorker.getRegistration(),
+      notifyConfigChanged: () => notifyReleaseConfigChanged(),
+    }),
+  );
 
   mountShell(app, content);
   void mountBuildStamp(app);

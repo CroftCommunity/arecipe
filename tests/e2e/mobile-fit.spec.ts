@@ -52,7 +52,7 @@ const PAGES: { name: string; path: string; ready: string }[] = [
   { name: 'browse', path: '/index.html', ready: '[data-testid=recipe-search]' },
   { name: 'reference', path: '/reference.html', ready: 'section.ref-card' },
   { name: 'meals', path: '/meals.html', ready: '[data-testid=calendar]' },
-  { name: 'settings', path: '/settings.html', ready: '[data-testid=build-facts]' },
+  { name: 'settings', path: '/settings.html', ready: '[data-testid=release-pointer]' },
   { name: 'account', path: '/account.html', ready: '[data-testid=account-signed-out]' },
   { name: 'signin', path: '/signin.html', ready: 'form' },
   { name: 'editor', path: '/editor.html', ready: '[data-testid=editor-name]' },

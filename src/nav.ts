@@ -5,6 +5,13 @@
 // reach), top on wide.
 
 import { mountPreviewDemoBanner } from './auth/preview-session.js';
+import { mountReleaseBanner } from './release/banner.js';
+import { bakedPubkeyHex } from './release/build-meta.js';
+import { createReleaseConfig } from './release/config.js';
+import { classifyOrigin } from './release/origin.js';
+import { requestSwReleaseMeta } from './release/sw-meta.js';
+import { checkOriginManifest } from './release/verify.js';
+import { log } from './log.js';
 import { initThemeToggle } from './theme.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -97,4 +104,27 @@ export const mountShell = (app: HTMLElement, content: HTMLElement): void => {
   app.replaceChildren(renderTopbar(), renderTabs(window.location.pathname), content);
   // No-op unless this is a /pr-preview/ build (production + tests never match).
   mountPreviewDemoBanner(app);
+  // Release banner (signed releases D7): app-wide — including Browse, which is
+  // why the whole release/ import graph is auth-free — but it only ever SHOWS
+  // for unsigned/invalid verdicts on the production origin; preview/loopback
+  // log instead. Async and failure-tolerant: the shell never waits on it.
+  void mountReleaseBanner(app, {
+    originClass: classifyOrigin(window.location),
+    check: async () => {
+      const running = await requestSwReleaseMeta();
+      return checkOriginManifest({
+        pubkeyHex: bakedPubkeyHex(),
+        ...(running !== null ? { running } : {}),
+      });
+    },
+    storedVerdict: () =>
+      createReleaseConfig()
+        .load()
+        .then((cfg) => cfg.verdict)
+        .catch(() => undefined),
+    storage: window.sessionStorage,
+    log: (message) => log.info('release', message),
+  }).catch((err: unknown) => {
+    log.warn('release', 'banner mount failed', { error: String(err) });
+  });
 };

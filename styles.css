@@ -2491,6 +2491,41 @@ details.calendar-publish > summary {
 }
 .preview-demo-banner .friend-link { color: var(--enamel-deep); font-weight: 700; }
 
+/* Release banner (signed releases D7): the trust surface's loud state — shown
+   app-wide ONLY for unsigned/invalid release verdicts on the production
+   origin. Rust family like every other "something's wrong" surface; a plain
+   bar in normal flow (not a modal), dismissible per session. */
+.release-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  background: var(--rust-soft);
+  color: var(--rust-deep);
+  border-bottom: var(--stroke) solid var(--rust);
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  text-align: center;
+  padding: var(--s-1) var(--s-3);
+}
+.release-banner-dismiss {
+  border: var(--stroke) solid var(--rust);
+  border-radius: var(--r-m);
+  background: transparent;
+  color: var(--rust);
+  font: inherit;
+  padding: 0 var(--s-2);
+  min-height: 28px;
+  cursor: pointer;
+}
+.release-banner-dismiss:hover { background: var(--rust-soft); }
+
+/* Release & version panel (Account): reuses the settings-section card; only
+   the state line gets release-specific treatment so bad news reads at a
+   glance. */
+.release-state { font-family: var(--mono); }
+
 /* ---- Cook follows: members list, add panel, publish offer ------------------ */
 /* The Account cookbook listing (cook-follows-members-view). Rows are the cook +
    source badge + an optional per-row unfollow; the add panel + D6 publish offer

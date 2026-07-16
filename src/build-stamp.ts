@@ -5,6 +5,7 @@
 // what the signed manifest attests.
 
 import { log } from './log.js';
+import { createReleaseConfig } from './release/config.js';
 
 export type BuildInfo = {
   version: string;
@@ -18,8 +19,25 @@ const kb = (bytes: number): string => `${(bytes / 1024).toFixed(1)} KB`;
 export const formatBuildStamp = (info: BuildInfo): string =>
   `v${info.version} · ${kb(info.mainBytes)} (${kb(info.mainGzipBytes)} gz)`;
 
+export type BuildStampDeps = {
+  /** The device-local version pin, if set (signed releases D4): a pinned
+   * install shows the RUNNING (locked) version, never network build-info —
+   * the network would advertise exactly the upgrade the pin refuses. */
+  lockedVersion?: () => Promise<string | null>;
+  fetchFn?: typeof fetch;
+};
+
+const defaultLockedVersion = (): Promise<string | null> =>
+  createReleaseConfig()
+    .load()
+    .then((cfg) => cfg.lockedVersion ?? null)
+    .catch(() => null);
+
 /** Fetch build-info.json (emitted by scripts/build.mjs) and mount the footer stamp + colophon. */
-export const mountBuildStamp = async (parent: HTMLElement): Promise<void> => {
+export const mountBuildStamp = async (
+  parent: HTMLElement,
+  deps: BuildStampDeps = {},
+): Promise<void> => {
   const footer = document.createElement('footer');
   footer.className = 'site-footer';
   const stamp = document.createElement('p');
@@ -48,7 +66,13 @@ export const mountBuildStamp = async (parent: HTMLElement): Promise<void> => {
   footer.append(stamp, colophon);
   parent.append(footer);
   try {
-    const res = await fetch('./build-info.json');
+    const locked = await (deps.lockedVersion ?? defaultLockedVersion)();
+    if (locked !== null) {
+      stamp.textContent = `v${locked} · version locked`;
+      log.info('build', 'running locked build', { lockedVersion: locked });
+      return;
+    }
+    const res = await (deps.fetchFn ?? fetch)('./build-info.json');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const info = (await res.json()) as BuildInfo;
     stamp.textContent = formatBuildStamp(info);
