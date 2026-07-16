@@ -1,7 +1,13 @@
 # Run-follow-through — cook-follows hardening + live proof + loopback refresh fix
 
-**Status:** 🟡 **In progress 2026-07-16** on branch
-`claude/cook-follows-hardening-live-d6qvnj`. Closes the two audited residuals of
+**Status:** ✅ **Done 2026-07-16** on branch
+`claude/cook-follows-hardening-live-d6qvnj`. All four parts shipped; the hermetic
+gate (`npm test`) is green at every part boundary (final: lint · typecheck · 507
+unit · build · 175 e2e). Live-tier execution (Parts 2/3's `@live` specs) is
+blocked here for lack of `BSKY_TEST_*` creds — specs are authored to convention
+and verified to skip cleanly under `LIVE=1`; their green awaits a credentialed
+`npm run test:live`. See `RUN-FOLLOW-THROUGH-SUMMARY.md` for red→green evidence,
+the D6 probe answer, and FINDINGS F1–F3. Closes the two audited residuals of
 the cook-follows run (reviewed 2026-07-15), fixes the one open TODO.md bug that
 keeps two `@live` specs `fixme`d, and clears the `pwa-check` evaluation item.
 Four parts; the gate (`npm test`) is green at every part boundary. Run summary
