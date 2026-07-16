@@ -21,6 +21,24 @@ test('the top bar links to the Reference page and it renders the charts', async 
   await expect(page.getByTestId('recipe-search')).toBeVisible();
 });
 
+test('on a phone the bottom bar hides Reference; the open-book quick links reach it', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 360, height: 780 });
+
+  // Alchemy: the quick link rides the "Alchemy" title line.
+  await page.goto('/mine.html');
+  await expect(page.getByTestId('tab-reference')).toBeHidden();
+  await page.getByTestId('reference-link').click();
+  await expect(page).toHaveURL(/reference\.html$/);
+  await expect(page.locator('section.ref-card').first()).toBeVisible();
+
+  // Editor: the quick link rides the "New recipe" title line.
+  await page.goto('/editor.html');
+  await page.getByTestId('reference-link').click();
+  await expect(page).toHaveURL(/reference\.html$/);
+});
+
 test('each chart is directly linkable via a copyable # anchor', async ({ page }) => {
   await page.goto('/reference.html');
   // Every section carries an anchor whose href is its own fragment.

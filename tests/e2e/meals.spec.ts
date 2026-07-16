@@ -73,18 +73,22 @@ test('meals.html mounts the shared shell with a Meals heading (wiring)', async (
   await expect(page.getByRole('heading', { level: 2, name: 'Meals' })).toBeVisible();
 });
 
-test('the 5-tab bottom bar fits a narrow phone without horizontal overflow (Phase 2 risk)', async ({
+test('the mobile bottom bar fits a narrow phone without horizontal overflow (Phase 2 risk)', async ({
   page,
 }) => {
-  // Phase 2 added Meals as a 5th destination; the mobile tab bar is a
-  // no-wrap flex row, so 5 tabs must still fit a small phone. iPhone SE width.
+  // The mobile tab bar is a no-wrap flex row, so the tabs must still fit a
+  // small phone. iPhone SE width.
   await page.setViewportSize({ width: 360, height: 780 });
   await page.goto('/meals.html');
 
-  // All five destinations are present and the active one is Meals.
-  for (const id of ['tab-browse', 'tab-cookbook', 'tab-mine', 'tab-meals', 'tab-reference']) {
+  // The four primary destinations are present and the active one is Meals.
+  // Reference is desktop-only: still in the DOM (it IS a tab on wide screens)
+  // but hidden from the mobile thumb row — reached via the open-book quick
+  // links on recipe/editor/Alchemy instead.
+  for (const id of ['tab-browse', 'tab-cookbook', 'tab-mine', 'tab-meals']) {
     await expect(page.getByTestId(id)).toBeVisible();
   }
+  await expect(page.getByTestId('tab-reference')).toBeHidden();
   await expect(page.getByTestId('tab-meals')).toHaveClass(/tab--active/);
 
   // The tab bar must not overflow its own width (no clipped/scrolled tabs).

@@ -371,6 +371,14 @@ describe('renderRecipeDetail', () => {
     el.querySelector<HTMLButtonElement>('[data-testid=focus-btn]')?.click();
     expect(opened).toBe(1);
   });
+
+  it('rides the Reference quick link beside Focus in the actions row', () => {
+    const el = renderRecipeDetail(entry(), { onFocus: () => undefined });
+    const link = el.querySelector('.detail-actions [data-testid=reference-link]');
+    expect(link?.getAttribute('href')).toBe('./reference.html');
+    // No Focus (list contexts) → no actions row, so no reference link either.
+    expect(renderRecipeDetail(entry()).querySelector('[data-testid=reference-link]')).toBeNull();
+  });
 });
 
 describe('renderFocusView (cook mode)', () => {

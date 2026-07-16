@@ -4,6 +4,7 @@
 
 import { bootSession } from '../auth/boot.js';
 import { mountBuildStamp } from '../build-stamp.js';
+import { referenceIconLink } from '../icons.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
 import { resolveDidDoc } from '../identity/did.js';
@@ -112,7 +113,11 @@ const main = async (): Promise<void> => {
   if (app === null) throw new Error('shell mount point #app missing');
 
   const content = el('section', 'panel');
-  content.append(el('h2', 'page-title', 'New recipe'));
+  // Title row: "New recipe" on the left, the open-book Reference quick link
+  // right-aligned — recipe authors get the kitchen charts one tap away.
+  const header = el('div', 'editor-header');
+  header.append(el('h2', 'page-title', 'New recipe'), referenceIconLink());
+  content.append(header);
   const fields = buildForm(content);
 
   // Draft status (Phase 11c): draft · cooking · ready. Written on save; Alchemy

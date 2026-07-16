@@ -72,6 +72,10 @@ const DESTINATIONS = [
     href: './reference.html',
     testid: 'tab-reference',
     match: /\/reference\.html$/,
+    // Reference stays a tab on desktop but leaves the mobile bottom bar (4
+    // primary destinations fit a thumb row better) — on a phone the page is
+    // reached via the open-book quick links on recipe/editor/Alchemy instead.
+    desktopOnly: true,
   },
 ] as const;
 
@@ -81,6 +85,7 @@ export const renderTabs = (pathname: string): HTMLElement => {
     const link = el('a', 'tab', dest.label) as HTMLAnchorElement;
     link.href = dest.href;
     link.dataset['testid'] = dest.testid;
+    if ('desktopOnly' in dest && dest.desktopOnly) link.classList.add('tab--desktop-only');
     if (dest.match.test(pathname)) link.classList.add('tab--active');
     tabs.append(link);
   }

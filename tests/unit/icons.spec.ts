@@ -8,9 +8,14 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
+  REFERENCE_ICON_LEFT_PAGE_PATH,
+  REFERENCE_ICON_RIGHT_PAGE_PATH,
+  REFERENCE_ICON_VIEWBOX,
   RESET_ICON_ARC_PATH,
   RESET_ICON_ARROW_POINTS,
   RESET_ICON_VIEWBOX,
+  referenceIcon,
+  referenceIconLink,
   resetIcon,
   resetIconButton,
 } from '../../src/icons.js';
@@ -64,6 +69,51 @@ describe('resetIconButton', () => {
 
   it('carries the shared .reset-icon-btn class so all three sites style identically', () => {
     expect(resetIconButton('Reset plan').classList.contains('reset-icon-btn')).toBe(true);
+  });
+});
+
+// --- Reference glyph: the open book marking the culinary Reference page. -----
+describe('referenceIcon', () => {
+  it('is an inline SVG: aria-hidden, currentColor stroke, no fill', () => {
+    const svg = referenceIcon();
+    expect(svg).toBeInstanceOf(SVGElement);
+    expect(svg.namespaceURI).toBe(SVG_NS);
+    expect(svg.getAttribute('aria-hidden')).toBe('true');
+    expect(svg.getAttribute('stroke')).toBe('currentColor');
+    expect(svg.getAttribute('fill')).toBe('none');
+    expect(svg.getAttribute('viewBox')).toBe(REFERENCE_ICON_VIEWBOX);
+  });
+
+  it('pins the open-book geometry to the committed constants', () => {
+    const paths = referenceIcon().querySelectorAll('path');
+    expect(paths.length).toBe(2);
+    // A change here must be a deliberate edit of the committed glyph, not drift.
+    expect(paths[0]!.getAttribute('d')).toBe(REFERENCE_ICON_LEFT_PAGE_PATH);
+    expect(paths[1]!.getAttribute('d')).toBe(REFERENCE_ICON_RIGHT_PAGE_PATH);
+  });
+
+  it('returns a fresh node each call (no shared singleton to accidentally re-parent)', () => {
+    expect(referenceIcon()).not.toBe(referenceIcon());
+  });
+});
+
+describe('referenceIconLink', () => {
+  it('links to reference.html with an accessible name (aria-label + title), containing exactly the icon', () => {
+    const link = referenceIconLink();
+    expect(link.tagName.toLowerCase()).toBe('a');
+    expect(link.getAttribute('href')).toBe('./reference.html');
+    expect(link.getAttribute('aria-label')).toBe('Culinary reference charts');
+    expect(link.getAttribute('title')).toBe('Culinary reference charts');
+    expect(link.children.length).toBe(1);
+    const svg = link.querySelector('svg');
+    expect(svg).not.toBeNull();
+    expect(svg!.querySelector('path')!.getAttribute('d')).toBe(REFERENCE_ICON_LEFT_PAGE_PATH);
+  });
+
+  it('carries the shared .reference-link class + testid so every site styles/locates identically', () => {
+    const link = referenceIconLink();
+    expect(link.classList.contains('reference-link')).toBe(true);
+    expect(link.getAttribute('data-testid')).toBe('reference-link');
   });
 });
 

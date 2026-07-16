@@ -90,6 +90,19 @@ describe('renderTabs', () => {
     ]);
   });
 
+  it('marks Reference desktop-only (hidden from the mobile bottom bar via CSS)', () => {
+    const tabs = renderTabs('/index.html');
+    expect(
+      tabs.querySelector('[data-testid=tab-reference]')?.classList.contains('tab--desktop-only'),
+    ).toBe(true);
+    // The four primary destinations stay in the mobile bottom bar.
+    for (const id of ['tab-browse', 'tab-cookbook', 'tab-mine', 'tab-meals']) {
+      expect(
+        tabs.querySelector(`[data-testid=${id}]`)?.classList.contains('tab--desktop-only'),
+      ).toBe(false);
+    }
+  });
+
   it.each([
     ['/', 'tab-browse'],
     ['/index.html', 'tab-browse'],
