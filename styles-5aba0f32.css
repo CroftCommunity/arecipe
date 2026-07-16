@@ -568,8 +568,8 @@ a {
 /* Browse toolbar: transient controls (view mode, photos-only, facet
    dropdowns) live on the left as later phases add them; the count block is
    pushed to the right edge. */
-/* The unified toolbar (D7) stacks up to three rows: [search + actions],
-   [source — Cookbook only], [view toggle + Filters ▾ + count]. */
+/* The unified toolbar (D7) stacks two rows: [search + source + actions] and
+   [view toggle + Filters ▾ + count]. */
 .browse-toolbar {
   display: flex;
   flex-direction: column;
@@ -584,9 +584,11 @@ a {
   gap: var(--s-2);
 }
 
-/* Row 1: the search field grows to fill the row; page actions sit at the end.
-   Everything stretches to one shared row height so the search input and the
-   action buttons ("+ Cook", export ↑) always line up edge-to-edge. */
+/* Row 1: the source segmented (Cookbook's Mine | Liked | Both) leads the row,
+   the search field grows to fill the rest, page actions sit at the end.
+   Everything stretches to one shared row height so the source control, the
+   search input, and the action buttons ("+ Cook", export ↑) always line up
+   edge-to-edge. */
 .toolbar-row--search {
   flex-wrap: nowrap;
   align-items: stretch;
@@ -604,20 +606,19 @@ a {
   white-space: nowrap;
 }
 
-/* Row 2: the source segmented (Cookbook). Empty + collapsed on Browse. On the
-   cookbook OWN view the row is composite — the page's Mine | Liked | Both in an
-   inner slot, Filters ▾ to its right — so all filtering reads as one line. */
-.toolbar-row--source:empty {
-  display: none;
-}
+/* Row-1 source slot: collapses when empty (Browse) so it never eats a flex gap.
+   Its segmented stretches to the row (= search input) height. */
 .toolbar-source-slot {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: var(--s-2);
-  min-width: 0;
+  flex: 0 0 auto;
+}
+.toolbar-source-slot:empty {
+  display: none;
 }
 
-/* Row 3: view toggle + Filters ▾ on the left, the honest count pushed right. */
+/* Row 2: view toggle + Filters ▾ on the left, the honest count pushed right. */
 .toolbar-row--controls .browse-count {
   margin-left: auto;
 }
