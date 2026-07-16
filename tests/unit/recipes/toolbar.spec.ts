@@ -214,17 +214,17 @@ describe('renderToolbar — D7 single Filters disclosure', () => {
 // selected context on one line — and the controls row below holds Tiles |
 // Details + Filters ▾ on the left with reset (when active) + count on the right.
 describe('renderToolbar — source control on the search row', () => {
-  it('mounts the source slot on the search row, after the search input and before the actions slot', () => {
+  it('mounts the source slot on the search row, before the search input (actions slot last)', () => {
     const toolbar = renderToolbar({ callbacks: noopCallbacks() });
     const searchRow = toolbar.element.querySelector('.toolbar-row--search')!;
     expect(searchRow.contains(toolbar.sourceSlot)).toBe(true);
-    // A page-mounted source control lands between search and actions:
-    // [search input][Mine | Liked | Both][page actions].
+    // A page-mounted source control leads the row, the search input follows:
+    // [Mine | Liked | Both][search input][page actions].
     const seg = document.createElement('div');
     toolbar.sourceSlot.append(seg);
     const input = searchRow.querySelector('[data-testid="recipe-search"]')!;
-    expect((input.compareDocumentPosition(seg) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0).toBe(true);
-    expect((seg.compareDocumentPosition(toolbar.actionsSlot) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0).toBe(true);
+    expect((seg.compareDocumentPosition(input) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0).toBe(true);
+    expect((input.compareDocumentPosition(toolbar.actionsSlot) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0).toBe(true);
   });
 
   it('renders exactly two rows: [search + source + actions] and [view toggle + Filters + reset + count]', () => {
