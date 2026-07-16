@@ -103,7 +103,9 @@ Session persistence is entirely library-owned and deliberately so.
   `arecipe-session` (`src/auth/session-hint.ts:8`) lets zero-auth pages redirect
   a signed-in visitor (read in `index.html`'s landing script and `src/nav.ts:44`).
   It carries no token material; worst case its forgery sends a visitor to a page
-  that then finds no session and falls back.
+  that then finds no session and falls back. A companion `arecipe-session-since`
+  timestamp (display-only, shown on the Account page) is stamped/cleared
+  alongside it and is likewise not a credential.
 
 ## XSS prevention — the primary defense
 
