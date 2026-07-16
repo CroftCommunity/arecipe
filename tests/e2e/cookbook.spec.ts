@@ -172,6 +172,9 @@ test('taste preference: a "never" cuisine hides matching recipes in the cookbook
   await routeCookbookFixtures(page);
   await page.goto(`/cookbook.html?did=${encodeURIComponent(VIEWED.did)}`);
   await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
+  // Widen to Both (created + liked) so the taste filter is proven across the
+  // whole shared set — one Greek recipe is theirs, one is a liked recipe.
+  await page.getByTestId('source-both').click();
   // The mixed feed has two Greek recipes; the standing "Never: Greek" hides them.
   await expect(page.getByText('Greek Salad')).toHaveCount(0);
   await expect(page.getByText('Greek Vegan Lunch Bowl')).toHaveCount(0);
@@ -233,27 +236,40 @@ test('cold-view shows a content-freshness note and paints from cache while the r
   // Second visit: keep plc.directory (DID resolve) working, but STALL the feed
   // sources so the background revalidate never completes. The cache-first paint
   // must still render the feed from IndexedDB — no stall waiting on the network —
-  // and it covers the COMPLETE shared set (own + liked), not just the owner's.
+  // Created (2 own) by default, and the cached liked set behind Both.
   for (const pds of Object.values(pdsByDid)) await page.route(`${pds}/**`, () => {}); // hang
   await page.route('https://public.api.bsky.app/**', () => {}); // hang
   await page.goto(`/cookbook.html?did=${encodeURIComponent(VIEWED.did)}`);
-  await expect(page.getByTestId('recipe-item')).toHaveCount(4, { timeout: 10_000 });
+  await expect(page.getByTestId('recipe-item')).toHaveCount(2, { timeout: 10_000 });
+  await page.getByTestId('source-both').click();
+  await expect(page.getByTestId('recipe-item')).toHaveCount(4);
   await expect(page.getByTestId('cookbook-freshness')).toContainText('as of');
 });
 
 // The shared-scope decision (owner, 2026-07-16): shared = EXACTLY the owner's
 // cookbook — their recipes + their likes — not their follow reach. VIEWED
 // follows FOLLOW (graph routed), yet FOLLOW's un-liked recipe must stay out.
+// The shared view carries the same source control as the own cookbook, relabeled
+// owner-relative — Created | Liked | Both — defaulting to Created.
 test('the shared view is exactly the owner’s recipes + their likes — never their follows’ feed', async ({
   page,
 }) => {
   await routeCookbookFixtures(page);
   await page.goto(`/cookbook.html?did=${encodeURIComponent(VIEWED.did)}`);
-  await expect(page.getByTestId('recipe-item')).toHaveCount(4, { timeout: 15_000 });
-  // Their own two…
+  // Created (the shared default): the owner's published recipes only.
+  await expect(page.getByTestId('recipe-item')).toHaveCount(2, { timeout: 15_000 });
   await expect(page.getByText('Greek Salad')).toBeVisible();
   await expect(page.getByText('American Pancakes')).toBeVisible();
-  // …plus the two they liked (loaded via their interaction records)…
+  await expect(page.getByText('Italian Minestrone')).toHaveCount(0);
+  // Owner-relative labels: Created | Liked | Both, Created active.
+  await expect(page.getByTestId('source-mine')).toHaveText('Created');
+  await expect(page.getByTestId('source-mine')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByTestId('source-liked')).toHaveText('Liked');
+  await expect(page.getByTestId('source-both')).toHaveText('Both');
+
+  // Both: their recipes + the two they liked (via their interaction records)…
+  await page.getByTestId('source-both').click();
+  await expect(page.getByTestId('recipe-item')).toHaveCount(4);
   await expect(page.getByText('Italian Minestrone')).toBeVisible();
   await expect(page.getByText('Greek Vegan Lunch Bowl')).toBeVisible();
   // …and NOT the follow's un-liked recipe, even though VIEWED follows them.
@@ -263,33 +279,39 @@ test('the shared view is exactly the owner’s recipes + their likes — never t
   // not a raw-DID fallback — observable on the row link's `by=` param.
   const likedRow = page.getByTestId('recipe-item').filter({ hasText: 'Italian Minestrone' });
   await expect(likedRow).toHaveAttribute('href', /by=follow\.example\.com/);
+
+  // Liked alone: just their liked recipes.
+  await page.getByTestId('source-liked').click();
+  await expect(page.getByTestId('recipe-item')).toHaveCount(2);
+  await expect(page.getByText('Greek Salad')).toHaveCount(0);
+  await expect(page.getByText('Italian Minestrone')).toBeVisible();
 });
 
 test('cold-view: text search filters the cookbook feed (ingredient reach)', async ({ page }) => {
   await routeCookbookFixtures(page);
   await page.goto(`/cookbook.html?did=${encodeURIComponent(VIEWED.did)}`);
-  await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
-  await expect(page.getByTestId('recipe-item')).toHaveCount(4);
+  // Created (the shared default): the owner's two published recipes.
+  await expect(page.getByTestId('recipe-item')).toHaveCount(2, { timeout: 15_000 });
 
   // "feta" reaches Greek Salad's ingredients (not its title) — the same shared
   // search input drives the cookbook feed.
   await page.getByTestId('recipe-search').fill('feta');
   await expect(page.getByTestId('recipe-item')).toHaveCount(1);
   await expect(page.getByText('Greek Salad')).toBeVisible();
-  await expect(page.getByTestId('recipes-status')).toContainText('1 of 4 recipes');
+  await expect(page.getByTestId('recipes-status')).toContainText('1 of 2 recipes');
 
   // Reset-surface v2: with a query active the reset shows in the count block —
   // no popover needed — and restores the full feed while clearing the box.
   await expect(page.getByTestId('filters-dd')).toHaveJSProperty('open', false);
   await expect(page.getByTestId('reset-filters')).toBeVisible();
   await page.getByTestId('reset-filters').click();
-  await expect(page.getByTestId('recipe-item')).toHaveCount(4);
+  await expect(page.getByTestId('recipe-item')).toHaveCount(2);
   await expect(page.getByTestId('recipe-search')).toHaveValue('');
 });
 
-// D7 mobile: the cold-view Cookbook keeps its toolbar within three control rows
-// at a phone width (the source row is present on the signed-in own cookbook; the
-// cold-view has none, so this bounds ≤3), with no horizontal overflow.
+// D7 mobile: the Cookbook keeps its toolbar within three control rows at a
+// phone width — search, Created|Liked|Both + Filters ▾ (one filter line), and
+// the view/count controls — with no horizontal overflow.
 test('mobile (390px): cold-view Cookbook stays within three toolbar rows', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 780 });
   await routeCookbookFixtures(page);

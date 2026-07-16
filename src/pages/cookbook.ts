@@ -3,9 +3,11 @@
 // Browse's job, not a cookbook view. The MEMBERS LIST moved to Account
 // (Phase 6); this page is the recipe feed. Three states:
 //   - ?did=<did>  : the shareable, public SHARED view of that account's
-//                   cookbook — EXACTLY their recipes + their likes, the same
-//                   set their own "Both" shows (owner decision 2026-07-16; no
-//                   member fan-out, no auth) — also the hermetic seam.
+//                   cookbook — EXACTLY their recipes + their likes (owner
+//                   decision 2026-07-16; no member fan-out, no auth), with the
+//                   same source control relabeled owner-relative
+//                   (Created | Liked | Both, Created default) — also the
+//                   hermetic seam.
 //   - signed in   : your cookbook feed.
 //   - signed out  : redirect to Browse — the cookbook is a signed-in surface,
 //                   and "who's in your cookbook" now lives on Account (OQ10).
@@ -104,9 +106,32 @@ const renderSharedBanner = (did: string): { element: HTMLElement; setHandle: (ha
   };
 };
 
+type LikedSet = { entries: CachedRecipe[]; authorsByDid: Record<string, string> };
+
 type FeedViewController = {
-  /** Swap the feed data + freshness stamp in place (background revalidate). */
-  update: (entries: CachedRecipe[], authorsByDid: Record<string, string>, fetchedAt: string) => void;
+  /** Swap the feed data + freshness stamp in place (background revalidate).
+   *  `liked` rides along on the shared view, whose liked set is caller-loaded. */
+  update: (
+    entries: CachedRecipe[],
+    authorsByDid: Record<string, string>,
+    fetchedAt: string,
+    liked?: LikedSet,
+  ) => void;
+};
+
+/** Whose cookbook the feed view shows, and how. Both views carry the same
+ *  source control; the labels and default differ (Mine/Both on your own,
+ *  Created on someone's shared cookbook). */
+type FeedViewScope = {
+  /** The cookbook's owner — "Mine"/"Created" filters to this DID; the lazy
+   *  liked fetch reads this repo's interactions. */
+  subject: { did: string; pds: string };
+  /** Your own signed-in cookbook? Gates the sticky source pref, the Mine (vs
+   *  Created) label, the Both (vs Created) default, and the New Recipe link. */
+  isOwn: boolean;
+  /** Shared view only: the subject's liked recipes, preloaded by the caller
+   *  (showFeed loads them with the feed; the own view lazy-fetches instead). */
+  liked?: LikedSet;
 };
 
 const renderFeedView = (
@@ -115,16 +140,12 @@ const renderFeedView = (
   header: HTMLElement,
   initialEntries: CachedRecipe[],
   initialAuthorsByDid: Record<string, string>,
-  viewer?: { did: string; pds: string },
+  view: FeedViewScope,
   initialFetchedAt?: string | null,
 ): FeedViewController => {
   // Cookbook opens on Details (the reading-oriented view); Browse keeps its
   // tiles-first default. Persisted per-consumer, so a choice here is sticky.
   const prefs = createBrowsePrefs({ prefix: 'cookbook', defaultView: 'details' });
-  // Own view: Filters ▾ rides the Mine | Liked | Both row so all filtering is
-  // one line; the cold-view mounts no source control and keeps the default
-  // placement (also preserving its ≤3-toolbar-rows mobile guard).
-  const filtersInSourceRow = viewer !== undefined;
   const tastePreference = createTastePreference();
   let state = prefs.load();
 
@@ -139,39 +160,47 @@ const renderFeedView = (
   let authorsByDid = initialAuthorsByDid;
   let fetchedAt: string | null = initialFetchedAt ?? null;
 
-  // Source filter (OQ6, own signed-in cookbook only): Mine = the loaded feed
-  // filtered to your DID; Liked = a SEPARATE lazy fetch of your hearted recipes
-  // (OQ12 — not loaded until needed); Both = Mine + Liked, deduped. The whole
-  // members feed ("All") is not a cookbook view — that's what Browse is for.
+  // Source filter (OQ6): Mine/Created = the loaded feed filtered to the
+  // subject's DID; Liked = the subject's hearted recipes (a SEPARATE fetch —
+  // lazy on the own view per OQ12, preloaded on the shared view); Both =
+  // Mine + Liked, deduped. The whole members feed ("All") is not a cookbook
+  // view — that's what Browse is for.
   type Source = CookbookSource;
-  // Default to Both (your cookbook = what you made + what you collected), but
-  // REMEMBER the last-chosen source so it's sticky across visits. The anonymous
-  // cold-view has no source control — it always shows the viewed feed whole.
-  const defaultSource: Source = 'both';
+  // Own view: default Both (your cookbook = what you made + what you
+  // collected), sticky via the source pref. Shared view: default Created —
+  // you open someone's cookbook for what THEY make; their likes are one tap
+  // away (owner decision 2026-07-16). Not persisted (per-visit).
+  const defaultSource: Source = view.isOwn ? 'both' : 'mine';
   const sourcePref = createSourcePref();
-  let source: Source = sourcePref.load(defaultSource);
-  let likedEntries: CachedRecipe[] | null = null; // lazy cache
+  let source: Source = view.isOwn ? sourcePref.load(defaultSource) : defaultSource;
+  // null = not fetched yet (own-view lazy load); the shared view arrives with
+  // its liked set (possibly empty) already loaded.
+  let likedEntries: CachedRecipe[] | null = view.liked?.entries ?? null;
   // Liked recipes' author handles (resolved with each ref) — merged under the
   // feed's own map at render, so liked entries show a real author.
-  let likedAuthorsByDid: Record<string, string> = {};
+  let likedAuthorsByDid: Record<string, string> = view.liked?.authorsByDid ?? {};
   let likedLoading = false;
-  // Set by the source control (own cookbook only) so the shared reset can also
-  // clear the source line back to the default.
+  // Set by the source control so the shared reset can also clear the source
+  // line back to the default.
   let resetSource: (() => void) | null = null;
 
-  const mineEntries = (): CachedRecipe[] =>
-    viewer === undefined ? [] : entries.filter((e) => didOf(e.uri) === viewer.did);
+  const mineEntries = (): CachedRecipe[] => entries.filter((e) => didOf(e.uri) === view.subject.did);
   const activeEntries = (): CachedRecipe[] => {
-    if (viewer === undefined) return entries; // cold-view: the whole viewed feed
     if (source === 'mine') return mineEntries();
     if (source === 'liked') return likedEntries ?? [];
-    // Both: yours + liked, deduped by uri (a liked recipe of your own shows once).
+    // Both: created + liked, deduped by uri (a self-liked recipe shows once).
     const mine = mineEntries();
     const seen = new Set(mine.map((e) => e.uri));
     return [...mine, ...(likedEntries ?? []).filter((e) => !seen.has(e.uri))];
   };
   const emptyMessage = (): string => {
-    if (viewer === undefined) return 'This cookbook is empty — nothing published or liked yet.';
+    if (!view.isOwn) {
+      return source === 'liked'
+        ? 'They haven’t liked any recipes yet.'
+        : source === 'mine'
+          ? 'They haven’t published any recipes yet.'
+          : 'This cookbook is empty — nothing published or liked yet.';
+    }
     return source === 'liked'
       ? 'No liked recipes yet — tap the heart on a recipe to collect it here.'
       : source === 'mine'
@@ -209,7 +238,7 @@ const renderFeedView = (
   // feed update() hands a new array and rebuilds.
   let bothBase: { entries: CachedRecipe[]; liked: CachedRecipe[] | null; merged: CachedRecipe[] } | null = null;
   const indexBase = (): readonly CachedRecipe[] => {
-    if (viewer === undefined || source === 'mine') return entries;
+    if (source === 'mine') return entries;
     if (source === 'liked') return likedEntries ?? [];
     if (bothBase === null || bothBase.entries !== entries || bothBase.liked !== likedEntries) {
       bothBase = { entries, liked: likedEntries, merged: [...entries, ...(likedEntries ?? [])] };
@@ -235,9 +264,9 @@ const renderFeedView = (
         : `${eligible.length} ${eligible.length === 1 ? 'recipe' : 'recipes'}`,
       hasFilters(effective) ? `${shown.length}/${eligible.length}` : undefined,
     );
-    // The reset (inside the Filters popover) clears the whole filter line —
-    // facets, photos, AND the source — so it shows whenever any is off-default.
-    toolbar.setResetVisible(hasFilters(effective) || (viewer !== undefined && source !== defaultSource));
+    // The reset (in the count block) clears the whole filter line — facets,
+    // photos, AND the source — so it shows whenever any is off-default.
+    toolbar.setResetVisible(hasFilters(effective) || source !== defaultSource);
     // Filters ▾ badge = active browse filters (photos + facets); the query is a
     // separate row-1 control.
     toolbar.setFilterCount(
@@ -264,7 +293,9 @@ const renderFeedView = (
 
   const toolbar = renderToolbar({
     showDietLink: false,
-    filtersInSourceRow,
+    // Every cookbook view has a source row now, so Filters ▾ always rides it —
+    // one filter line (owner mobile feedback 2026-07-16).
+    filtersInSourceRow: true,
     callbacks: {
       onViewChange: (view) => {
         if (state.view === view) return;
@@ -305,9 +336,10 @@ const renderFeedView = (
   toolbar.reflectView(state.view);
   container.insertBefore(toolbar.element, feedContainer);
 
-  // Source control — only on the viewer's OWN signed-in cookbook (Mine/Liked are
-  // viewer-relative; the anonymous cold-view has no "my liked").
-  if (viewer !== undefined) {
+  // Source control — on every cookbook view, subject-relative: your own reads
+  // Mine | Liked | Both; someone's shared cookbook reads Created | Liked | Both
+  // (same keys + testids, only the first label differs).
+  {
     const seg = el('div', 'segmented cookbook-source');
     const buttons: [HTMLButtonElement, Source][] = [];
     const mk = (label: string, key: Source, testid: string): HTMLButtonElement => {
@@ -325,15 +357,20 @@ const renderFeedView = (
         btn.setAttribute('aria-pressed', String(active));
       }
     };
-    // Lazy-load the liked feed (OQ12): a separate cross-PDS fetch of your
-    // hearted recipes, cached after the first load. Kicked off on selecting a
-    // liked-bearing source (Liked or Both) AND on mount when one is the active
-    // source (else it would render without your liked recipes ever fetching).
+    // Lazy-load the liked feed (OQ12): a separate cross-PDS fetch of the
+    // subject's hearted recipes, cached after the first load. Kicked off on
+    // selecting a liked-bearing source (Liked or Both) AND on mount when one is
+    // the active source. The shared view arrives with liked preloaded
+    // (likedEntries !== null), so this never fires there.
     const loadLiked = (): void => {
       likedLoading = true;
       void (async () => {
         try {
-          const interactions = await listInteractionsFor({ pds: viewer.pds, did: viewer.did, kind: 'liked' });
+          const interactions = await listInteractionsFor({
+            pds: view.subject.pds,
+            did: view.subject.did,
+            kind: 'liked',
+          });
           const liked = await loadLikedFeed(interactions);
           likedEntries = liked.entries;
           likedAuthorsByDid = liked.authorsByDid;
@@ -348,7 +385,7 @@ const renderFeedView = (
     const selectSource = (key: Source): void => {
       if (source === key) return;
       source = key;
-      sourcePref.save(source); // remember the choice across visits
+      if (view.isOwn) sourcePref.save(source); // sticky across visits (own only)
       reflectSource();
       if (key !== 'mine' && likedEntries === null) {
         loadLiked(); // sets likedLoading = true
@@ -359,18 +396,18 @@ const renderFeedView = (
       }
       showCurrent();
     };
-    // Let the shared reset clear the source line back to the default (Both);
-    // the caller re-renders. Both needs the liked feed, so kick off the lazy
-    // fetch if it hasn't happened yet.
+    // Let the shared reset clear the source line back to the default; the
+    // caller re-renders. A liked-bearing default needs the liked feed, so kick
+    // off the lazy fetch if it hasn't happened yet.
     resetSource = (): void => {
       if (source === defaultSource) return;
       source = defaultSource;
-      sourcePref.save(source);
+      if (view.isOwn) sourcePref.save(source);
       reflectSource();
-      if (likedEntries === null) loadLiked();
+      if (defaultSource !== 'mine' && likedEntries === null) loadLiked();
     };
     seg.append(
-      mk('Mine', 'mine', 'source-mine'),
+      mk(view.isOwn ? 'Mine' : 'Created', 'mine', 'source-mine'),
       mk('Liked', 'liked', 'source-liked'),
       mk('Both', 'both', 'source-both'),
     );
@@ -378,15 +415,18 @@ const renderFeedView = (
     // The source control is its own toolbar row (D7 row 2), mounted in the
     // toolbar's dedicated source slot.
     toolbar.sourceSlot.append(seg);
-    // "New Recipe" builder link rides the title row, right-aligned (own cookbook
-    // only — mirrors Alchemy's own new-recipe button).
+    // Active source needs the liked feed (Liked, or the own-view default Both)?
+    // Kick off the lazy load now so the initial paint isn't missing them.
+    if (source !== 'mine' && likedEntries === null) loadLiked();
+  }
+
+  // "New Recipe" builder link rides the title row, right-aligned (own cookbook
+  // only — mirrors Alchemy's own new-recipe button).
+  if (view.isOwn) {
     const newRecipe = el('a', 'button button--primary new-recipe', 'New Recipe') as HTMLAnchorElement;
     newRecipe.href = './editor.html';
     newRecipe.dataset['testid'] = 'cookbook-new-recipe';
     header.append(newRecipe);
-    // Active source needs the liked feed (Liked or the default Both)? Kick off
-    // the lazy load now so the initial paint isn't missing your liked recipes.
-    if (source !== 'mine' && likedEntries === null) loadLiked();
   }
 
   // Content-freshness note at the bottom (SWR): a cache-first paint shows the
@@ -402,9 +442,13 @@ const renderFeedView = (
   showCurrent();
 
   return {
-    update: (nextEntries, nextAuthorsByDid, nextFetchedAt) => {
+    update: (nextEntries, nextAuthorsByDid, nextFetchedAt, nextLiked) => {
       entries = nextEntries;
       authorsByDid = nextAuthorsByDid;
+      if (nextLiked !== undefined) {
+        likedEntries = nextLiked.entries;
+        likedAuthorsByDid = nextLiked.authorsByDid;
+      }
       fetchedAt = nextFetchedAt;
       updateFreshness();
       showCurrent();
@@ -426,24 +470,31 @@ const showFeed = async (
   you: { did: string; pds: string },
   opts: { config?: ReachConfig; isOwn?: boolean; handle?: string } = {},
 ): Promise<void> => {
-  const viewer = opts.isOwn === true ? you : undefined;
+  const isOwn = opts.isOwn === true;
   let controller: FeedViewController | null = null;
 
   // 1) Cache-first paint: if we've resolved this cookbook before, render the
-  //    persisted authors' recipes — plus, on the shared view, the persisted
-  //    liked uris (liked recipes live on OTHER authors' repos, so the author
-  //    filter alone can't cover them) — straight from the IndexedDB cache.
-  //    Instant, no network. The freshness note shows how stale it is.
+  //    persisted authors' recipes — plus, on the shared view, the recipes
+  //    behind the persisted liked uris (liked recipes live on OTHER authors'
+  //    repos, so the author filter alone can't cover them) — straight from the
+  //    IndexedDB cache. Instant, no network; the freshness note shows the age.
   const meta = readFeedMeta(you.did);
   if (meta !== null && meta.authors.length > 0) {
     try {
       const memberDids = new Set(meta.authors.map((a) => a.did));
       const likedUris = new Set(meta.likedUris ?? []);
-      const cachedEntries = (await createRecipeCache().list()).filter(
-        (e) => memberDids.has(didOf(e.uri)) || likedUris.has(e.uri),
-      );
+      const cachedAll = await createRecipeCache().list();
+      const cachedEntries = cachedAll.filter((e) => memberDids.has(didOf(e.uri)));
       const authorsByDid = Object.fromEntries(meta.authors.map((a) => [a.did, a.handle]));
-      controller = renderFeedView(container, feedContainer, header, cachedEntries, authorsByDid, viewer, meta.fetchedAt);
+      const view: FeedViewScope = isOwn
+        ? { subject: you, isOwn }
+        : {
+            subject: you,
+            isOwn,
+            // Cached liked bodies; the handles arrive with the revalidate.
+            liked: { entries: cachedAll.filter((e) => likedUris.has(e.uri)), authorsByDid: {} },
+          };
+      controller = renderFeedView(container, feedContainer, header, cachedEntries, authorsByDid, view, meta.fetchedAt);
     } catch (err) {
       log.warn('cookbook', 'cache-first paint failed', { error: String(err) });
     }
@@ -451,9 +502,14 @@ const showFeed = async (
 
   // 2) Revalidate in the background (or the foreground on a cold first visit).
   try {
-    let loaded: { entries: CachedRecipe[]; authorsByDid: Record<string, string>; meta: FeedMeta };
+    let loaded: {
+      entries: CachedRecipe[];
+      authorsByDid: Record<string, string>;
+      meta: FeedMeta;
+      liked?: LikedSet;
+    };
     const now = new Date().toISOString();
-    if (opts.isOwn === true) {
+    if (isOwn) {
       const members = await resolveCookbook(opts.config === undefined ? { you } : { you, config: opts.config });
       const authors = await membersToAuthors(members);
       if (authors.length === 0) {
@@ -468,31 +524,33 @@ const showFeed = async (
       }
       loaded = { entries: feed.entries, authorsByDid: feed.authorsByDid, meta: { authors, fetchedAt: now } };
     } else {
-      // Shared scope: the owner's own recipes + the recipes they liked.
+      // Shared scope: the owner's own recipes + the recipes they liked. The
+      // liked set stays separate — the feed view's Created | Liked | Both
+      // control does the narrowing/merging.
       const authors = [{ did: you.did, handle: opts.handle ?? you.did }];
       const feed = await loadAuthorsFeed(authors);
       if (feed.failedAuthors.length > 0) {
         log.warn('cookbook', 'shared cookbook owner unavailable', { failed: feed.failedAuthors });
       }
-      let liked: { entries: CachedRecipe[]; authorsByDid: Record<string, string> } = {
-        entries: [],
-        authorsByDid: {},
-      };
+      let liked: LikedSet = { entries: [], authorsByDid: {} };
       try {
         liked = await loadLikedFeed(await listInteractionsFor({ pds: you.pds, did: you.did, kind: 'liked' }));
       } catch (err) {
         log.warn('cookbook', 'shared liked load failed — showing published only', { error: String(err) });
       }
-      const own = new Set(feed.entries.map((e) => e.uri));
       loaded = {
-        entries: [...feed.entries, ...liked.entries.filter((e) => !own.has(e.uri))],
-        authorsByDid: { ...liked.authorsByDid, ...feed.authorsByDid },
+        entries: feed.entries,
+        authorsByDid: feed.authorsByDid,
+        liked,
         meta: { authors, fetchedAt: now, likedUris: liked.entries.map((e) => e.uri) },
       };
     }
     writeFeedMeta(you.did, loaded.meta);
-    if (controller !== null) controller.update(loaded.entries, loaded.authorsByDid, now);
-    else renderFeedView(container, feedContainer, header, loaded.entries, loaded.authorsByDid, viewer, now);
+    if (controller !== null) controller.update(loaded.entries, loaded.authorsByDid, now, loaded.liked);
+    else {
+      const view: FeedViewScope = isOwn ? { subject: you, isOwn } : { subject: you, isOwn, liked: loaded.liked };
+      renderFeedView(container, feedContainer, header, loaded.entries, loaded.authorsByDid, view, now);
+    }
   } catch (err) {
     // Revalidate failed. If we already painted from cache, keep that stale view
     // (offline resilience — the freshness note still shows how old it is);

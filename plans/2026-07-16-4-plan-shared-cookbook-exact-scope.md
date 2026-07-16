@@ -92,6 +92,24 @@ un-liked recipes must NOT appear.
    `src/pages/cookbook.ts` (shared loader + cache paint + empty copy + liked
    author merge). Full gate.
 
+## Amendment (same day, owner feedback)
+
+The shared view also carries the **source control**, owner-relative:
+**Created | Liked | Both**, defaulting to **Created** (you open someone's
+cookbook for what they make; their likes are one tap away). Implementation:
+`renderFeedView` now takes a `FeedViewScope` — `subject` (whose cookbook,
+drives the Created/Mine filter and the liked fetch) + `isOwn` (gates the Mine
+label, the Both default, the sticky source pref, and the New Recipe link) +
+an optional preloaded `liked` set (the shared view loads liked with the feed;
+the own view keeps the OQ12 lazy fetch). Keys and testids stay
+`mine|liked|both` — only the first label reads "Created". The shared choice is
+per-visit (not persisted); reset returns it to Created. `showFeed` no longer
+merges own+liked — the source control does — and the SWR cache paint hands the
+cached liked set through so Both works offline. Filters ▾ now rides the source
+row on EVERY cookbook view (the shared view has a source row too), still ≤3
+toolbar rows at phone widths. Owner-relative empty copy ("They haven't
+published/liked any recipes yet.").
+
 ## Outcome
 
 Shipped as planned; one in-flight adjustment: the "liked entries carry a real
