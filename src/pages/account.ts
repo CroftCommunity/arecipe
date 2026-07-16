@@ -7,6 +7,7 @@ import { resolveDidDoc } from '../identity/did.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
 import { retryOnce } from '../retry.js';
+import { getSessionSince } from '../auth/session-hint.js';
 import { mountMembersList } from '../social/cookbook-members-view.js';
 import { renderCalendarPublishSection } from '../publish/calendar-account-section.js';
 import { createCalendarClient } from '../publish/client.js';
@@ -171,20 +172,36 @@ const main = async (): Promise<void> => {
     // members load below resolves the DID document anyway, so we upgrade this to
     // "@handle · did:…" — the username with the DID beside it — once it lands.
     who.textContent = `Signed in: ${agent.did ?? 'unknown'}`;
+    content.append(who);
+
+    // "Signed in since": the first time this device saw the session (stamped by
+    // the boot flow — the OAuth library exposes no login time of its own).
+    // Absent on the preview demo session and pre-stamp sessions; just omitted.
+    const since = getSessionSince();
+    if (since !== null) {
+      const sinceLine = el(
+        'p',
+        'status',
+        `Signed in since ${since.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}`,
+      );
+      sinceLine.dataset['testid'] = 'signed-in-since';
+      content.append(sinceLine);
+    }
+
     const signOut = el('button', 'button', 'Sign out') as HTMLButtonElement;
     signOut.type = 'button';
     signOut.dataset['testid'] = 'sign-out';
     signOut.addEventListener('click', () => {
       void provider.signOut().then(() => window.location.reload());
     });
-    content.append(who, signOut);
+    content.append(signOut);
 
     // Who's in your cookbook (Phase 6): the members list moved here from
     // Cookbook. The shared view resolves your starter cooks + Bluesky graph and
     // renders them with source badges + a Settings link. Loads after the shell
     // mounts so the page shows immediately; a failure degrades to a status line.
     const membersSection = el('section', 'account-members');
-    membersSection.append(el('h3', 'section-title', 'Your cookbook'));
+    membersSection.append(el('h3', 'section-title', 'Cooks you follow'));
     content.append(membersSection);
     const did = agent.did;
     if (did !== undefined) {
