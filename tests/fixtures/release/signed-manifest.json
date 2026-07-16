@@ -1,0 +1,13 @@
+{
+  "buildNumber": 100,
+  "version": "2026.07.16-fixt100",
+  "builtAt": "2026-07-16T12:00:00.000Z",
+  "files": {
+    "index.html": "fd64a522101bf73e8eb86d4eb09258f189b4712d4a785633533d4f1e66929868",
+    "browse-abc123.js": "7bfea4ca2938755ac6be1acbdba12f430b7c7b205ab8b49f05b7951892dba8bc",
+    "styles-def456.css": "7c98040a541657584690ae2a1cc3b42a8b53b159cc60c5d3abbfecbaeac6c94a",
+    "sw.js": "46d04ea38947b6a023f663b4f4aecffaa33a88bc99b7049363ef45d09257c339"
+  },
+  "pubkeyFingerprint": "3ed011cee12d6d12e7a7b3980cd5bb886a839e9f02e74863efaff2cc098c74b5",
+  "sig": "KqttOAeXHb4slefeQFZOx0G00FFni2WyjugWP2MukIL3vEvsyns/5zYb03ScQv9PtLPrapeXNP9VAdWVAN8RDw=="
+}

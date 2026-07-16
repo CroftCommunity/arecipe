@@ -4,18 +4,137 @@
 // is compiled with the build version + the stable-shell precache list baked
 // in. build-info.json stays stable-named and uncached (deploy checks).
 import { execSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
+import { createHash, createPrivateKey, createPublicKey, sign, verify } from 'node:crypto';
 import {
   copyFileSync,
   cpSync,
   mkdirSync,
+  mkdtempSync,
   readFileSync,
   readdirSync,
   rmSync,
+  statSync,
   writeFileSync,
 } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { gzipSync } from 'node:zlib';
 import { buildSync } from 'esbuild';
+
+// --- Release signing (signed releases D1/D2) ---------------------------------
+// The canonicalization is the ONE shared implementation in src/release/
+// (esbuild-bundled here so signer and browser verifier can never drift); the
+// signing key is the `ARECIPE_SIGNING_SEED` env (base64 32-byte Ed25519 seed):
+// present in CI's main-branch deploy job (and in `build:e2e` via the committed
+// FIXTURE seed) — absent locally, where the manifest is emitted honestly
+// unsigned (sig: null). Ed25519 DER framing: PKCS8/SPKI are fixed prefixes
+// around the raw 32 bytes.
+const PKCS8_PREFIX = Buffer.from('302e020100300506032b657004220420', 'hex');
+const SPKI_PREFIX = Buffer.from('302a300506032b6570032100', 'hex');
+
+const releaseCore = await (async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'arecipe-release-'));
+  buildSync({
+    entryPoints: ['src/release/manifest.ts', 'src/release/keys.ts'],
+    bundle: true,
+    format: 'esm',
+    outdir: dir,
+  });
+  const [manifest, keys] = await Promise.all([
+    import(pathToFileURL(join(dir, 'manifest.js')).href),
+    import(pathToFileURL(join(dir, 'keys.js')).href),
+  ]);
+  return { ...manifest, ...keys };
+})();
+
+const signingSeed = (() => {
+  const b64 = process.env.ARECIPE_SIGNING_SEED?.trim();
+  if (b64 === undefined || b64 === '') return null;
+  const seed = Buffer.from(b64, 'base64');
+  if (seed.length !== 32) throw new Error('ARECIPE_SIGNING_SEED must be a base64 32-byte seed');
+  return seed;
+})();
+const signingKey =
+  signingSeed === null
+    ? null
+    : createPrivateKey({ key: Buffer.concat([PKCS8_PREFIX, signingSeed]), format: 'der', type: 'pkcs8' });
+// The pubkey this build pins for its clients: derived from the seed when
+// signing, else the committed key (src/release/keys.ts), else null (signing
+// not yet enabled). A seed whose pubkey mismatches a committed key is a
+// misconfiguration — fail the build, never sign with the wrong key.
+const derivedPubkeyHex =
+  signingKey === null
+    ? null
+    : createPublicKey(signingKey).export({ format: 'der', type: 'spki' }).subarray(-32).toString('hex');
+if (
+  derivedPubkeyHex !== null &&
+  releaseCore.RELEASE_PUBKEY_HEX !== null &&
+  derivedPubkeyHex !== releaseCore.RELEASE_PUBKEY_HEX
+) {
+  console.error('release signing: ARECIPE_SIGNING_SEED does not match the committed pubkey (src/release/keys.ts)');
+  process.exit(1);
+}
+const releasePubkeyHex = derivedPubkeyHex ?? releaseCore.RELEASE_PUBKEY_HEX;
+const pubkeyFingerprint =
+  releasePubkeyHex === null
+    ? null
+    : createHash('sha256').update(Buffer.from(releasePubkeyHex, 'hex')).digest('hex');
+
+const walkDist = (dir, prefix = '') =>
+  readdirSync(dir).flatMap((name) => {
+    const full = join(dir, name);
+    return statSync(full).isDirectory() ? walkDist(full, `${prefix}${name}/`) : [`${prefix}${name}`];
+  });
+
+const hashDistFiles = () => {
+  const files = {};
+  for (const path of walkDist('dist').filter((f) => f !== 'release-manifest.json').sort()) {
+    files[path] = createHash('sha256').update(readFileSync(`dist/${path}`)).digest('hex');
+  }
+  return files;
+};
+
+// Self-check (wired into the gate as `node scripts/build.mjs --verify-manifest`
+// and run in-process at the end of every build): the emitted manifest must
+// name every dist file with its true hash, and the signature must be present
+// and valid whenever a key is expected — a bad or missing-when-expected sig
+// exits nonzero.
+const verifyDistManifest = () => {
+  const manifest = JSON.parse(readFileSync('dist/release-manifest.json', 'utf8'));
+  const fail = (msg) => {
+    console.error(`release-manifest self-check FAILED: ${msg}`);
+    process.exit(1);
+  };
+  const actual = hashDistFiles();
+  const missing = Object.keys(actual).filter((f) => manifest.files[f] !== actual[f]);
+  const extra = Object.keys(manifest.files).filter((f) => actual[f] === undefined);
+  if (missing.length > 0 || extra.length > 0) {
+    fail(`file coverage/hash mismatch (bad-or-missing: ${missing.join(', ') || '—'}; extra: ${extra.join(', ') || '—'})`);
+  }
+  if (releasePubkeyHex === null) {
+    if (manifest.sig !== null) fail('manifest is signed but this build expects no key');
+    console.log('release-manifest self-check OK (unsigned build — no signing key expected)');
+    return;
+  }
+  if (manifest.sig === null) fail('manifest is unsigned but a signing key was expected');
+  if (manifest.pubkeyFingerprint !== pubkeyFingerprint) fail('pubkeyFingerprint mismatch');
+  const pubkey = createPublicKey({
+    key: Buffer.concat([SPKI_PREFIX, Buffer.from(releasePubkeyHex, 'hex')]),
+    format: 'der',
+    type: 'spki',
+  });
+  const canonical = releaseCore.canonicalManifestBytes(manifest);
+  if (!verify(null, canonical, pubkey, Buffer.from(manifest.sig, 'base64'))) {
+    fail('signature does not verify');
+  }
+  console.log(`release-manifest self-check OK (signed, fingerprint ${manifest.pubkeyFingerprint.slice(0, 16)}…)`);
+};
+
+if (process.argv.includes('--verify-manifest')) {
+  verifyDistManifest();
+  process.exit(0);
+}
 
 const PAGES = [
   'browse',
@@ -61,6 +180,10 @@ const result = buildSync({
   entryNames: '[name]-[hash]',
   outdir: 'dist',
   metafile: true,
+  // The pinned release pubkey only — NOT version/buildNumber, which change
+  // every deploy and would churn every content-hashed bundle name. Pages learn
+  // the running build's version/buildNumber from the controlling SW instead.
+  define: { __RELEASE_PUBKEY__: JSON.stringify(releasePubkeyHex) },
 });
 const bundleOf = {};
 for (const [outPath, meta] of Object.entries(result.metafile.outputs)) {
@@ -173,8 +296,11 @@ writeFileSync('dist/.nojekyll', '');
 copyFileSync('client-metadata.json', 'dist/client-metadata.json'); // hosted OAuth client id (8c)
 cpSync('assets', 'dist/assets', { recursive: true });
 
-// Version + per-page sizes.
+// Version + per-page sizes. The date-sha version stays the display string;
+// buildNumber (commit count) is the MONOTONIC counter the release manifest
+// and the client-side regression check compare (D1).
 const sha = execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim();
+const buildNumber = Number(execSync('git rev-list --count HEAD', { encoding: 'utf8' }).trim());
 const now = new Date();
 const date = now.toISOString().slice(0, 10).replaceAll('-', '.');
 const version = `${date}-${sha}`;
@@ -233,6 +359,8 @@ buildSync({
   outfile: 'dist/sw.js',
   define: {
     __BUILD_VERSION__: JSON.stringify(version),
+    __BUILD_NUMBER__: JSON.stringify(buildNumber),
+    __RELEASE_PUBKEY__: JSON.stringify(releasePubkeyHex),
     __PRECACHE__: JSON.stringify(precache),
   },
 });
@@ -240,14 +368,36 @@ buildSync({
 // mainBytes = the landing page (browse) — what most visitors download first.
 const info = {
   version,
+  buildNumber,
   builtAt: now.toISOString(),
   mainBytes: pages['browse'].bytes,
   mainGzipBytes: pages['browse'].gzipBytes,
   pages,
 };
 writeFileSync('dist/build-info.json', JSON.stringify(info));
+
+// --- Release manifest (last: it names every other dist file) ----------------
+// Signed when the seed env is present (CI main deploys, build:e2e), emitted
+// with sig: null otherwise — local and preview builds are honestly unsigned.
+const unsignedManifest = {
+  buildNumber,
+  version,
+  builtAt: now.toISOString(),
+  files: hashDistFiles(),
+  pubkeyFingerprint: signingKey === null ? null : pubkeyFingerprint,
+};
+const manifest = {
+  ...unsignedManifest,
+  sig:
+    signingKey === null
+      ? null
+      : sign(null, releaseCore.canonicalManifestBytes(unsignedManifest), signingKey).toString('base64'),
+};
+writeFileSync('dist/release-manifest.json', JSON.stringify(manifest));
+verifyDistManifest();
+
 console.log(
-  `built ${version}: ` +
+  `built ${version} (#${buildNumber}${manifest.sig === null ? ', unsigned' : ', signed'}): ` +
     PAGES.map(
       (p) => `${p} ${(pages[p].bytes / 1024).toFixed(0)}K/${(pages[p].gzipBytes / 1024).toFixed(0)}Kgz`,
     ).join(' · '),
