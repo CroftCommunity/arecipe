@@ -1079,7 +1079,9 @@ a {
 /* Shared-cookbook banner (cold-view ?did=): a slim strip at the top of the
    panel, under the site banner — "Viewing <user>'s shared cookbook" with the
    owner linked to their Bluesky profile, and (signed-in only) a ✕ back to your
-   own cookbook, right-aligned with a padded ≥44px hit area. */
+   own cookbook, right-aligned with a padded ≥44px hit area. Bold enamel
+   outline so the you're-not-home state reads at a glance (palette-aligned —
+   guarded by the cookbook.spec style test). */
 .shared-cookbook-banner {
   display: flex;
   align-items: center;
@@ -1087,6 +1089,7 @@ a {
   padding: var(--s-1) var(--s-3);
   margin-bottom: var(--s-3);
   background: var(--enamel-soft);
+  border: 2px solid var(--enamel);
   border-radius: var(--r-m);
   font-family: var(--mono);
   font-size: var(--t-caption);
@@ -1103,6 +1106,9 @@ a {
   font-weight: 700;
 }
 
+/* The ✕ is a leave/undo-flavored action → rust, like the shared reset icon
+   buttons (same hover tint), and sized up from the caption text so it reads
+   as the banner's control rather than stray punctuation. */
 .shared-cookbook-close {
   margin-left: auto;
   display: inline-flex;
@@ -1111,13 +1117,16 @@ a {
   min-width: 44px;
   min-height: 44px;
   flex: 0 0 auto;
-  color: inherit;
+  color: var(--rust);
+  font-size: 1.25rem;
+  line-height: 1;
   text-decoration: none;
   border-radius: var(--r-m);
 }
 
-.shared-cookbook-close:hover {
-  background: var(--card);
+.shared-cookbook-close:hover,
+.shared-cookbook-close:active {
+  background: var(--rust-soft);
 }
 
 /* Alchemy drafts heading row: "Recipe Drafts" on the left, the "New" builder

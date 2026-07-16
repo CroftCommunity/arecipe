@@ -341,6 +341,42 @@ test('the shared-cookbook banner shows a ✕ back to your own cookbook when sign
   await expect(close).toHaveAttribute('aria-label', /your cookbook/i);
 });
 
+// Banner styling (owner feedback 2026-07-16): a BOLD, palette-aligned outline
+// (the enamel accent) and a larger ✕ in the same rust as the filter reset
+// buttons. Asserted against probe elements resolving the CSS custom properties,
+// so the guard follows the palette rather than pinning hex values.
+test('the shared-cookbook banner has a bold enamel outline and a large rust ✕', async ({ page }) => {
+  await routeCookbookFixtures(page);
+  await page.addInitScript(() => window.localStorage.setItem('arecipe-session', '1'));
+  await page.goto(`/cookbook.html?did=${encodeURIComponent(VIEWED.did)}`);
+  await expect(page.getByTestId('shared-cookbook-close')).toBeVisible({ timeout: 15_000 });
+  const styles = await page.evaluate(() => {
+    const probe = document.createElement('span');
+    document.body.append(probe);
+    probe.style.color = 'var(--enamel)';
+    const enamel = getComputedStyle(probe).color;
+    probe.style.color = 'var(--rust)';
+    const rust = getComputedStyle(probe).color;
+    probe.remove();
+    const banner = getComputedStyle(document.querySelector('[data-testid="shared-cookbook-banner"]')!);
+    const close = getComputedStyle(document.querySelector('[data-testid="shared-cookbook-close"]')!);
+    return {
+      enamel,
+      rust,
+      borderColor: banner.borderTopColor,
+      borderWidth: parseFloat(banner.borderTopWidth),
+      closeColor: close.color,
+      closeFontSize: parseFloat(close.fontSize),
+    };
+  });
+  // Bold outline in the palette accent.
+  expect(styles.borderColor).toBe(styles.enamel);
+  expect(styles.borderWidth).toBeGreaterThanOrEqual(2);
+  // ✕ matches the reset buttons' rust and reads larger than the caption text.
+  expect(styles.closeColor).toBe(styles.rust);
+  expect(styles.closeFontSize).toBeGreaterThanOrEqual(19);
+});
+
 test('legacy friends.html redirects to cookbook.html (query preserved)', async ({ page }) => {
   await page.goto(`/friends.html?did=${encodeURIComponent(VIEWED.did)}`);
   await expect(page).toHaveURL(new RegExp(`/cookbook\\.html\\?did=`), { timeout: 15_000 });
