@@ -19,7 +19,7 @@ import { createRecipeReader } from '../recipes/read.js';
 import { createDietPreference } from '../recipes/diet-preference.js';
 import { createSearchMemo, queryEntries } from '../recipes/search.js';
 import { availableFacets, createBrowsePrefs, matchesFilter, recipeFacets, type BrowseState } from './browse-state.js';
-import { createTastePreference, isEmptyTaste, matchesTaste, type TastePreference } from '../recipes/taste-preference.js';
+import { createTastePreference, matchesTaste } from '../recipes/taste-preference.js';
 import { windowPage } from '../recipes/paginate.js';
 import {
   extensionFor,
@@ -166,57 +166,51 @@ const main = (): void => {
     };
   };
 
-  const isFiltered = (s: BrowseState, diet: string[], taste: TastePreference): boolean =>
-    s.photosOnly ||
-    s.facets.cuisine.length > 0 ||
-    s.facets.category.length > 0 ||
-    diet.length > 0 ||
-    !isEmptyTaste(taste) ||
-    query.trim() !== '';
-
-  // Browse-owned filters only (photos + facets + text query) — the reset control's
-  // scope. Diet is the Settings-owned app-wide preference, deliberately excluded.
+  // On-tab filters only (photos + facets + text query): these drive both the
+  // reset control and the "X of N" status. The Settings-owned standing
+  // preferences (diet + taste) are deliberately excluded — they define the
+  // eligible pool (the N itself, see computeShown), not a filter over it.
   const hasBrowseFilters = (s: BrowseState): boolean =>
     s.photosOnly || s.facets.cuisine.length > 0 || s.facets.category.length > 0 || query.trim() !== '';
 
-  // The filtered result set behind the current view: hidden removed, browse
-  // facets + diet applied. renderCurrent renders it; the export action serializes
-  // the version-collapsed representatives (what's actually shown as cards).
-  const computeShown = (): {
-    kept: CachedRecipe[];
-    shown: CachedRecipe[];
-    effective: BrowseState;
-    diet: string[];
-    taste: TastePreference;
-  } => {
+  // A neutral state for the eligibility pass: no on-tab filters, so only the
+  // standing preferences (diet via matchesFilter, taste via matchesTaste) apply.
+  const NO_TAB_FILTERS: BrowseState = { view: 'tiles', photosOnly: false, facets: { cuisine: [], category: [] } };
+
+  // The result sets behind the current view. Two layers, counted differently:
+  //   eligible — hidden removed, then the Settings-owned standing preferences
+  //     (diet + taste) applied. This is the user's whole pool: the baseline "N"
+  //     in the status. A standing preference shrinks the pool itself — it must
+  //     never read as "eligible recipes not shown".
+  //   shown — eligible narrowed by the on-tab filters (photos, facets, text
+  //     query): the "X" in "X of N", and what the export serializes.
+  const computeShown = (): { eligible: CachedRecipe[]; shown: CachedRecipe[]; effective: BrowseState } => {
     const kept = withoutHidden(current?.entries ?? []);
     const diet = dietPreference.load();
-    const effective = effectiveState();
-    // The standing taste preference (Only/Never by meal + cuisine) applies on top
-    // of the transient facet filters — an app-wide personal default.
     const taste = tastePreference.load();
-    const facetFiltered = kept.filter(
-      (e) => matchesFilter(e.value, { state: effective, diet }) && matchesTaste(recipeFacets(e.value), taste),
+    const eligible = kept.filter(
+      (e) => matchesFilter(e.value, { state: NO_TAB_FILTERS, diet }) && matchesTaste(recipeFacets(e.value), taste),
     );
-    // Text search runs AFTER the facet/diet/taste filter and BEFORE version
-    // collapse (D5): with an active query only matches survive, in score order;
-    // an empty query is the identity (facet order preserved). The index is over
-    // the whole feed (stable identity) — queryEntries intersects with the
-    // facet-filtered candidates.
+    const effective = effectiveState();
+    const facetFiltered = eligible.filter((e) => matchesFilter(e.value, { state: effective, diet: [] }));
+    // Text search runs AFTER the facet filter and BEFORE version collapse (D5):
+    // with an active query only matches survive, in score order; an empty query
+    // is the identity (facet order preserved). The index is over the whole feed
+    // (stable identity) — queryEntries intersects with the candidates.
     const searcher = searchMemo(current?.entries ?? []);
     const shown = queryEntries(searcher, query, facetFiltered);
-    return { kept, shown, effective, diet, taste };
+    return { eligible, shown, effective };
   };
 
   const renderCurrent = (): void => {
     if (current === null) return;
-    const { kept, shown, effective, diet, taste } = computeShown();
-    // A plain count: "N recipes"; with a filter active (including the app-wide
-    // taste preference), the honest "X of N recipes".
+    const { eligible, shown, effective } = computeShown();
+    // A plain count of the eligible pool: "N recipes"; with an on-tab filter
+    // active, the honest "X of N recipes".
     toolbar.setStatus(
-      isFiltered(effective, diet, taste)
-        ? `${shown.length} of ${kept.length} recipes`
-        : `${kept.length} ${kept.length === 1 ? 'recipe' : 'recipes'}${current.statusSuffix ?? ''}`,
+      hasBrowseFilters(effective)
+        ? `${shown.length} of ${eligible.length} recipes`
+        : `${eligible.length} ${eligible.length === 1 ? 'recipe' : 'recipes'}${current.statusSuffix ?? ''}`,
     );
     toolbar.setResetVisible(hasBrowseFilters(effective));
     // Filters ▾ badge = active browse filters (photos + facets); the text query
@@ -245,8 +239,8 @@ const main = (): void => {
       kind: current.kind,
       view: state.view,
       shown: shown.length,
-      total: kept.length,
-      filtered: isFiltered(effective, diet, taste),
+      total: eligible.length,
+      filtered: hasBrowseFilters(effective),
     });
   };
 

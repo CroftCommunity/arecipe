@@ -171,16 +171,18 @@ const renderFeedView = (
     }
     const base = activeEntries();
     const effective = effectiveState();
+    // The standing taste preference (Settings) defines the eligible pool — the
+    // baseline "N" in the status — mirroring Browse: a Settings-owned preference
+    // shrinks the pool itself rather than reading as "eligible recipes hidden".
     const taste = tastePreference.load();
-    const facetFiltered = base.filter(
-      (e) => matchesFilter(e.value, { state: effective, diet: [] }) && matchesTaste(recipeFacets(e.value), taste),
-    );
-    // Text search after the facet/taste filter, before render (D5).
+    const eligible = base.filter((e) => matchesTaste(recipeFacets(e.value), taste));
+    const facetFiltered = eligible.filter((e) => matchesFilter(e.value, { state: effective, diet: [] }));
+    // Text search after the facet filter, before render (D5).
     const shown = queryEntries(searchMemo(indexBase()), query, facetFiltered);
     toolbar.setStatus(
       hasFilters(effective)
-        ? `${shown.length} of ${base.length} recipes`
-        : `${base.length} ${base.length === 1 ? 'recipe' : 'recipes'}`,
+        ? `${shown.length} of ${eligible.length} recipes`
+        : `${eligible.length} ${eligible.length === 1 ? 'recipe' : 'recipes'}`,
     );
     // The reset (inside the Filters popover) clears the whole filter line —
     // facets, photos, AND the source — so it shows whenever any is off-default.

@@ -120,6 +120,9 @@ test('taste preference: a "never" cuisine hides matching recipes in the cookbook
   await expect(page.getByText('Greek Salad')).toHaveCount(0);
   await expect(page.getByText('Greek Vegan Lunch Bowl')).toHaveCount(0);
   await expect(page.getByText('Italian Minestrone')).toBeVisible();
+  // A standing preference redefines the eligible pool: the plain count is 2 —
+  // never "2 of 4", which would read as eligible recipes withheld.
+  await expect(page.getByTestId('recipes-status')).toHaveText('2 recipes');
 });
 
 test('cookbook cold-view has the shared toolbar driving the feed (Phase 8 wiring)', async ({

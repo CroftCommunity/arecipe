@@ -65,11 +65,13 @@ test('diet preference persists and filters Browse to matching recipes (wiring)',
   await page.reload();
   await expect(page.locator('#diet-preference input[data-token=dietVegetarian]')).toBeChecked();
 
-  // Cross-page: Browse now hides the one non-vegetarian recipe (Pancakes).
+  // Cross-page: Browse now hides the one non-vegetarian recipe (Pancakes). A
+  // standing preference redefines the eligible pool, so the count is the plain
+  // "3 recipes" — not "3 of 4", which would read as eligible recipes withheld.
   await page.goto('/');
   await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
   await expect(page.getByTestId('recipe-item')).toHaveCount(3);
-  await expect(page.getByTestId('recipes-status')).toContainText('3 of 4 recipes');
+  await expect(page.getByTestId('recipes-status')).toHaveText('3 recipes');
 });
 
 test('clearing the diet preference restores all recipes on Browse', async ({ page }) => {

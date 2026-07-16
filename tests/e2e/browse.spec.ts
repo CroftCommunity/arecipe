@@ -538,9 +538,12 @@ test('export counts and serializes every shown recipe, not just collapsed cards'
   expect(csv).toContain('Classic Moist Banana Bread');
 });
 
-// The app-wide taste preference (Settings) filters the shown set, so the status
-// must show the honest "X of N recipes" — not a plain total the list contradicts.
-test('taste preference: status shows the honest "X of N"; export matches', async ({ page }) => {
+// The app-wide taste preference (Settings) redefines the eligible pool: the
+// status counts that pool as the plain total (not "X of N", which would read
+// as eligible recipes withheld), and on-tab filters count against it.
+test('taste preference: the count IS the eligible pool; on-tab filters count against it', async ({
+  page,
+}) => {
   await routeMixedFeed(page);
   await page.addInitScript(() => {
     window.localStorage.setItem(
@@ -549,11 +552,19 @@ test('taste preference: status shows the honest "X of N"; export matches', async
     );
   });
   await page.goto('/');
-  // Both Greek recipes drop out; the count says so instead of claiming 4.
+  // Both Greek recipes drop out of the pool: the plain count is 2, not "2 of 4".
   await expect(page.getByTestId('recipe-item')).toHaveCount(2, { timeout: 15_000 });
-  await expect(page.getByTestId('recipes-status')).toContainText('2 of 4 recipes');
+  await expect(page.getByTestId('recipes-status')).toHaveText('2 recipes');
 
   // The export panel counts the same shown set.
   await page.getByTestId('export-recipes').click();
   await expect(page.locator('.export-title')).toHaveText('Export 2 shown recipes');
+
+  // An on-tab filter narrows WITHIN the pool: "X of 2", never "of 4".
+  await page.getByTestId('export-close').click();
+  await page.getByTestId('recipe-search').fill('tomato');
+  // Of the eligible pair, only Italian Minestrone lists tomato (Greek Salad is
+  // out of the pool).
+  await expect(page.getByTestId('recipe-item')).toHaveCount(1);
+  await expect(page.getByTestId('recipes-status')).toHaveText('1 of 2 recipes');
 });
