@@ -519,22 +519,89 @@ a {
   background: var(--enamel-deep);
 }
 
-/* Account sign-out: rust like the shared reset icon (both are "undo"-flavored
-   actions), right-aligned in the panel with breathing room above and below.
-   Block-level flex + the doubled selector: the mobile tap-target block below
-   sets `.button { display: inline-flex }`, which would make the button
-   inline-level and void the margin-left auto right-alignment. */
-.button.sign-out-btn {
+/* Account danger zone: the sign-out + delete-all bubble at the FOOT of the
+   page (a .settings-section card). Sign out wears rust like the shared reset
+   icon (both are "undo"-flavored actions); "Delete all arecipe data" wears
+   rust-deep — the same hue one step darker, matching its heavier consequence.
+   Both actions are guarded: sign out by the meals-reset inline two-step
+   confirm, delete by the type-the-handle challenge + hard browser confirm. */
+.account-danger .signout-row {
   display: flex;
   align-items: center;
-  width: fit-content;
-  margin: var(--s-4) 0 var(--s-4) auto;
+  justify-content: flex-end;
+  gap: var(--s-2);
+}
+
+.button.sign-out-btn {
   border-color: var(--rust);
   color: var(--rust);
 }
 
 .button.sign-out-btn:hover {
   background: var(--rust-soft);
+}
+
+/* Delete block sits under a divider, everything right-aligned under the
+   full-width honored copy. */
+.account-danger .delete-block {
+  display: grid;
+  justify-items: end;
+  gap: var(--s-2);
+  margin-top: var(--s-3);
+  padding-top: var(--s-3);
+  border-top: var(--stroke) solid var(--line);
+}
+
+.account-danger .danger-copy {
+  justify-self: stretch;
+  margin: 0;
+}
+
+.button.delete-data-btn {
+  border-color: var(--rust-deep);
+  color: var(--rust-deep);
+}
+
+.button.delete-data-btn:hover:not(:disabled) {
+  background: var(--rust-soft);
+}
+
+.button.delete-data-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.account-danger .delete-controls {
+  display: grid;
+  justify-items: end;
+  gap: var(--s-2);
+  width: 100%;
+}
+
+.delete-confirm-label {
+  display: grid;
+  gap: var(--s-1);
+  justify-items: stretch;
+  width: 100%;
+  max-width: 24rem;
+  font-size: var(--t-caption);
+}
+
+.delete-confirm-input {
+  font: inherit;
+  font-family: var(--mono);
+  padding: var(--s-2);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+}
+
+.delete-confirm-actions {
+  display: flex;
+  gap: var(--s-2);
+}
+
+.delete-data-status {
+  margin: 0;
 }
 
 /* Status lines carry machine facts → mono caption, quiet. */
