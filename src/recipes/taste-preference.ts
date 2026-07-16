@@ -1,7 +1,8 @@
 // App-wide taste preference (Account page): standing "Only show me" / "Never
 // show me" filters by meal category and cuisine, chosen from curated
-// vocabularies. A different axis from the diet preference (which stays on
-// Settings), applied across the feeds (Browse, Cookbook) and the Meals palette.
+// vocabularies. A different axis from the diet preference (which shares the
+// Account Taste section), applied across the feeds (Browse, Cookbook) and the
+// Meals palette.
 // Empty = "no preference / show all". Storage is defensive (private mode
 // degrades to no preference), matching diet-preference / exclusions.
 

@@ -1,5 +1,5 @@
-// Shared app-wide dietary "Only show me" preference: written by Settings
-// (Phase 8), read by Browse's renderCurrent (Phase 3). Behaviors:
+// Shared app-wide dietary "Only show me" preference: written by the Account
+// page's Taste section, read by Browse's renderCurrent (Phase 3). Behaviors:
 // - defaults to empty (no preference / show all) when unset
 // - round-trips selected diet tokens through storage
 // - saving an empty preference clears it back to the default

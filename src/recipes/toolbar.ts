@@ -134,7 +134,7 @@ export const renderToolbar = (opts: {
   // Diet link (Browse only) inside the popover.
   if (showDietLink) {
     const dietLink = el('a', 'diet-pref-link', 'preference ↗') as HTMLAnchorElement;
-    dietLink.href = './settings.html#diet-preference';
+    dietLink.href = './account.html#diet-preference';
     filtersPanel.append(dietLink);
   }
 

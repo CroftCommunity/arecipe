@@ -97,8 +97,8 @@ empty states) · `--r-pill` (chips). One stroke width everywhere: `--stroke`
   (Phase 8); each page keeps its own persisted view/facet prefs (`browse-*` vs
   `cookbook-*` keys, OQ11) so choices don't bleed across. Dietary preference is
   not a transient filter — it is a persisted "Only show me" preference set in
-  Settings (linked from the count on **Browse only**; the Cookbook toolbar omits
-  the diet link).
+  the Account page's Taste section (linked from the count on **Browse only**;
+  the Cookbook toolbar omits the diet link).
 - **Text search (shared Browse + Cookbook)**: the toolbar's `recipe-search` box
   ranks the in-memory feed with MiniSearch (`src/recipes/search.ts`) — BM25 with
   per-field boosts (name > ingredients > text > instructions > cuisine/category/
