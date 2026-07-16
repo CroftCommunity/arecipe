@@ -19,7 +19,7 @@ const findRecipes = async (page: Page): Promise<string[]> => {
   await page.getByTestId('add-cook').click();
   await page.getByTestId('add-cook-input').fill(AUTHOR);
   await page.getByTestId('add-cook-submit').click();
-  await expect(page.getByTestId('recipes-status')).toContainText('recipes cached', {
+  await expect(page.getByTestId('recipes-status')).toContainText(/\d+ recipes/, {
     timeout: 20_000,
   });
   return page.locator('[data-testid=recipe-item] .card-title').allTextContents();

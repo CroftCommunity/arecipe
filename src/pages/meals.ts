@@ -1,7 +1,8 @@
 // Meals planner page. Phase 1 route → Phase 5 builder → Phase 6 calendar →
-// Phase 7 real palette: two sources behind a switch (My Cookbook / Browse) plus
-// add-a-cook-by-handle, reusing arecipe's existing feed reads. Drag (Phase 8)
-// and PDS sync (Phase 9) build on this.
+// Phase 7 real palette: two sources behind a switch (My Cookbook / Browse),
+// reusing arecipe's existing feed reads. Adding a cook by handle lives on the
+// Browse tab (the discovery surface), not here. Drag (Phase 8) and PDS sync
+// (Phase 9) build on this.
 //
 // The planner works signed-out: Browse (the starter feed) needs no auth and is
 // the default when signed out; My Cookbook needs your identity, so it lazily
@@ -11,7 +12,6 @@
 
 import type { Agent } from '@atproto/api';
 import { mountBuildStamp } from '../build-stamp.js';
-import { attachActorTypeahead } from '../identity/actor-typeahead.js';
 import { resolveDidDoc } from '../identity/did.js';
 import { resetIconButton } from '../icons.js';
 import { log } from '../log.js';
@@ -37,7 +37,6 @@ import {
 import { getPdsPlan, listPdsPlans, removePlanFromPds, syncPlanToPds } from '../recipes/meal-plan-sync.js';
 import {
   loadCookbookPalette,
-  loadHandlePalette,
   loadStarterPalette,
   paginatePalette,
   type PaletteItem,
@@ -374,10 +373,9 @@ export const main = async (
   // Set once the session is booted (signed in): enables write-through to the PDS.
   let syncAgent: Agent | null = null;
 
-  // Palette state: items from the active source + items added by handle, filtered.
+  // Palette state: items from the active source, filtered.
   let source: Source = signedInHint ? 'cookbook' : 'browse';
   let sourceItems: PaletteItem[] = [];
-  let addedItems: PaletteItem[] = [];
   let filterText = '';
   // Unfiltered, the palette shows one page (PALETTE_CAP) at a time; the arrows
   // step this offset so a browser can cycle recipes they'd not know to search.
@@ -468,23 +466,6 @@ export const main = async (
   const planner = el('div', 'meal-planner');
   const palette = el('aside', 'palette');
   palette.dataset['testid'] = 'palette';
-
-  // Add-a-cook is a SECONDARY discovery mode (primary is the Browse tab): pull
-  // in a specific cook whose recipes aren't already in your corpus. It sits
-  // above the Recipes picker so it reads as a distinct affordance.
-  const addCook = el('div', 'palette-addcook');
-  addCook.append(el('span', 'palette-addcook-label', 'Add a cook by handle'));
-  const handleRow = el('div', 'palette-handle');
-  const handleInput = el('input', 'handle-input') as HTMLInputElement;
-  handleInput.type = 'text';
-  handleInput.placeholder = 'a cook’s handle — try rdur.dev';
-  handleInput.dataset['testid'] = 'palette-handle-input';
-  const handleAdd = el('button', 'button', 'Add') as HTMLButtonElement;
-  handleAdd.type = 'button';
-  handleAdd.dataset['testid'] = 'palette-handle-add';
-  handleRow.append(handleInput, handleAdd);
-  addCook.append(handleRow);
-  palette.append(addCook);
 
   palette.append(el('h3', 'palette-title', 'Recipes'));
 
@@ -691,7 +672,7 @@ export const main = async (
     const taste = tastePreference.load();
     const seen = new Set<string>();
     const out: PaletteItem[] = [];
-    for (const it of [...sourceItems, ...addedItems]) {
+    for (const it of sourceItems) {
       if (seen.has(it.uri)) continue;
       // Apply the standing taste preference — a "never" cuisine/category keeps
       // those recipes out of the placeable palette too (filter applies here).
@@ -788,34 +769,6 @@ export const main = async (
     filterText = filterInput.value;
     paletteOffset = 0; // re-filtering resets to the first page of results
     renderChips();
-  });
-
-  // Add-a-cook, shared by the Add button and a typeahead pick.
-  const addCookByHandle = (handle: string): void => {
-    if (handle === '') return;
-    handleAdd.disabled = true;
-    void loadHandlePalette(handle)
-      .then((added) => {
-        addedItems = [...addedItems, ...added];
-        handleInput.value = '';
-        renderChips();
-      })
-      .finally(() => {
-        handleAdd.disabled = false;
-      });
-  };
-
-  handleAdd.addEventListener('click', () => addCookByHandle(handleInput.value.trim()));
-
-  // Cook-search typeahead on the add-a-cook input: suggest accounts as you type,
-  // so pulling in a specific cook doesn't require their exact handle. Picking a
-  // suggestion runs the same add path as the Add button.
-  attachActorTypeahead({
-    input: handleInput,
-    onSelect: (suggestion) => {
-      handleInput.value = suggestion.handle;
-      addCookByHandle(suggestion.handle);
-    },
   });
 
   const renderCalendar = (): void => {

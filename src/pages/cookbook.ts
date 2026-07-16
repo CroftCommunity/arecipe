@@ -1,7 +1,7 @@
-// Cookbook page (CB3). Your Cookbook = your own recipes + a bounded, chosen
-// reach: starter-pack cooks + who you follow on Bluesky + your Bluesky
-// followers. The MEMBERS LIST moved to Account (Phase 6); this page is the
-// recipe feed. Three states:
+// Cookbook page (CB3). Your Cookbook = your own recipes + the ones you liked
+// (Mine | Liked | Both — Both is the default). The whole-reach members feed is
+// Browse's job, not a cookbook view. The MEMBERS LIST moved to Account
+// (Phase 6); this page is the recipe feed. Three states:
 //   - ?did=<did>  : a shareable, public cold-view of any account's recipe feed
 //                   (no auth) — also the hermetic seam.
 //   - signed in   : your cookbook feed.
@@ -97,33 +97,42 @@ const renderFeedView = (
   let authorsByDid = initialAuthorsByDid;
   let fetchedAt: string | null = initialFetchedAt ?? null;
 
-  // Source filter (OQ6, own signed-in cookbook only): All = the loaded
-  // members+you feed; Mine = that feed filtered to your DID; Liked = a SEPARATE
-  // lazy fetch of your hearted recipes (OQ12 — not loaded until selected).
+  // Source filter (OQ6, own signed-in cookbook only): Mine = the loaded feed
+  // filtered to your DID; Liked = a SEPARATE lazy fetch of your hearted recipes
+  // (OQ12 — not loaded until needed); Both = Mine + Liked, deduped. The whole
+  // members feed ("All") is not a cookbook view — that's what Browse is for.
   type Source = CookbookSource;
-  // Default to Mine on your own cookbook (your recipes are what you came for),
-  // but REMEMBER the last-chosen source so it's sticky across visits. The
-  // anonymous cold-view has no "mine" and no persistence — it opens on All.
-  const defaultSource: Source = 'mine';
+  // Default to Both (your cookbook = what you made + what you collected), but
+  // REMEMBER the last-chosen source so it's sticky across visits. The anonymous
+  // cold-view has no source control — it always shows the viewed feed whole.
+  const defaultSource: Source = 'both';
   const sourcePref = createSourcePref();
-  let source: Source = viewer === undefined ? 'all' : sourcePref.load(defaultSource);
+  let source: Source = sourcePref.load(defaultSource);
   let likedEntries: CachedRecipe[] | null = null; // lazy cache
   let likedLoading = false;
   // Set by the source control (own cookbook only) so the shared reset can also
   // clear the source line back to the default.
   let resetSource: (() => void) | null = null;
 
+  const mineEntries = (): CachedRecipe[] =>
+    viewer === undefined ? [] : entries.filter((e) => didOf(e.uri) === viewer.did);
   const activeEntries = (): CachedRecipe[] => {
-    if (source === 'mine') return viewer === undefined ? [] : entries.filter((e) => didOf(e.uri) === viewer.did);
+    if (viewer === undefined) return entries; // cold-view: the whole viewed feed
+    if (source === 'mine') return mineEntries();
     if (source === 'liked') return likedEntries ?? [];
-    return entries;
+    // Both: yours + liked, deduped by uri (a liked recipe of your own shows once).
+    const mine = mineEntries();
+    const seen = new Set(mine.map((e) => e.uri));
+    return [...mine, ...(likedEntries ?? []).filter((e) => !seen.has(e.uri))];
   };
-  const emptyMessage = (): string =>
-    source === 'liked'
+  const emptyMessage = (): string => {
+    if (viewer === undefined) return 'When the cooks in your cookbook publish recipes, they show up here.';
+    return source === 'liked'
       ? 'No liked recipes yet — tap the heart on a recipe to collect it here.'
       : source === 'mine'
         ? 'You haven’t published any recipes yet.'
-        : 'When the cooks in your cookbook publish recipes, they show up here.';
+        : 'Your cookbook is empty — publish a recipe, or tap the heart on one to collect it here.';
+  };
 
   // Selected facets absent from the active source are kept in state but inert.
   const effectiveState = (): BrowseState => {
@@ -140,11 +149,20 @@ const renderFeedView = (
   const hasFilters = (s: BrowseState): boolean =>
     s.photosOnly || s.facets.cuisine.length > 0 || s.facets.category.length > 0 || query.trim() !== '';
 
-  // The searcher indexes the active source's whole set — `entries` for All/Mine
-  // (Mine is a subset, so the superset index covers it) and the separately
-  // fetched `likedEntries` for Liked. Both references are stable across facet
-  // toggles; a source switch or feed update() hands a new array and rebuilds.
-  const indexBase = (): readonly CachedRecipe[] => (source === 'liked' ? likedEntries ?? [] : entries);
+  // The searcher indexes a superset of the active source — `entries` for Mine
+  // (a subset, so the superset index covers it), the separately fetched
+  // `likedEntries` for Liked, and their memoized concatenation for Both. Each
+  // reference is stable across facet toggles; a source switch, liked load, or
+  // feed update() hands a new array and rebuilds.
+  let bothBase: { entries: CachedRecipe[]; liked: CachedRecipe[] | null; merged: CachedRecipe[] } | null = null;
+  const indexBase = (): readonly CachedRecipe[] => {
+    if (viewer === undefined || source === 'mine') return entries;
+    if (source === 'liked') return likedEntries ?? [];
+    if (bothBase === null || bothBase.entries !== entries || bothBase.liked !== likedEntries) {
+      bothBase = { entries, liked: likedEntries, merged: [...entries, ...(likedEntries ?? [])] };
+    }
+    return bothBase.merged;
+  };
 
   const renderCurrent = (): void => {
     if (source === 'liked' && likedLoading) {
@@ -161,7 +179,7 @@ const renderFeedView = (
     const shown = queryEntries(searchMemo(indexBase()), query, facetFiltered);
     toolbar.setStatus(
       hasFilters(effective)
-        ? `${shown.length} of ${base.length} shown`
+        ? `${shown.length} of ${base.length} recipes`
         : `${base.length} ${base.length === 1 ? 'recipe' : 'recipes'}`,
     );
     // The reset (inside the Filters popover) clears the whole filter line —
@@ -173,7 +191,13 @@ const renderFeedView = (
       (effective.photosOnly ? 1 : 0) + effective.facets.cuisine.length + effective.facets.category.length,
     );
     if (shown.length === 0) {
-      feedContainer.replaceChildren(el('p', 'empty-state', emptyMessage()));
+      // Both paints your own recipes while the liked fetch is in flight; with
+      // nothing of yours to show, say "loading" rather than a premature empty.
+      feedContainer.replaceChildren(
+        source === 'both' && likedLoading
+          ? el('p', 'status', 'loading your liked recipes…')
+          : el('p', 'empty-state', emptyMessage()),
+      );
       return;
     }
     const render = state.view === 'details' ? renderRecipeDetailsList : renderRecipeList;
@@ -247,9 +271,9 @@ const renderFeedView = (
       }
     };
     // Lazy-load the liked feed (OQ12): a separate cross-PDS fetch of your
-    // hearted recipes, cached after the first load. Kicked off both on selecting
-    // Liked AND on mount when Liked is the remembered source (else a persisted
-    // "liked" would render the empty state without ever fetching).
+    // hearted recipes, cached after the first load. Kicked off on selecting a
+    // liked-bearing source (Liked or Both) AND on mount when one is the active
+    // source (else it would render without your liked recipes ever fetching).
     const loadLiked = (): void => {
       likedLoading = true;
       void (async () => {
@@ -269,26 +293,29 @@ const renderFeedView = (
       source = key;
       sourcePref.save(source); // remember the choice across visits
       reflectSource();
-      if (key === 'liked' && likedEntries === null) {
+      if (key !== 'mine' && likedEntries === null) {
         loadLiked(); // sets likedLoading = true
-        renderCurrent(); // show the loading line immediately
+        // Liked shows its loading line immediately; Both paints Mine now and
+        // merges the liked recipes in when the fetch lands (showCurrent above).
+        renderCurrent();
         return;
       }
       showCurrent();
     };
-    // Let the shared reset clear the source line back to the default (Mine is
-    // already loaded, so no lazy fetch — just reset + reflect; the caller
-    // re-renders).
+    // Let the shared reset clear the source line back to the default (Both);
+    // the caller re-renders. Both needs the liked feed, so kick off the lazy
+    // fetch if it hasn't happened yet.
     resetSource = (): void => {
       if (source === defaultSource) return;
       source = defaultSource;
       sourcePref.save(source);
       reflectSource();
+      if (likedEntries === null) loadLiked();
     };
     seg.append(
       mk('Mine', 'mine', 'source-mine'),
       mk('Liked', 'liked', 'source-liked'),
-      mk('All', 'all', 'source-all'),
+      mk('Both', 'both', 'source-both'),
     );
     reflectSource();
     // The source control is its own toolbar row (D7 row 2), mounted in the
@@ -300,9 +327,9 @@ const renderFeedView = (
     newRecipe.href = './editor.html';
     newRecipe.dataset['testid'] = 'cookbook-new-recipe';
     header.append(newRecipe);
-    // Remembered as Liked? Kick off the lazy load now so the initial paint shows
-    // the loading line (then the feed) rather than the "no liked recipes" empty.
-    if (source === 'liked' && likedEntries === null) loadLiked();
+    // Active source needs the liked feed (Liked or the default Both)? Kick off
+    // the lazy load now so the initial paint isn't missing your liked recipes.
+    if (source !== 'mine' && likedEntries === null) loadLiked();
   }
 
   // Content-freshness note at the bottom (SWR): a cache-first paint shows the

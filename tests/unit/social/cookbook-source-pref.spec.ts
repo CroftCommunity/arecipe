@@ -1,4 +1,4 @@
-// Cookbook source preference (Mine | Liked | All): the signed-in cookbook
+// Cookbook source preference (Mine | Liked | Both): the signed-in cookbook
 // remembers which source you last chose so it doesn't reset every visit.
 // Defensive persistence with an injectable storage — mirrors createBrowsePrefs.
 import { describe, expect, it } from 'vitest';
@@ -21,7 +21,7 @@ const broken: Pick<Storage, 'getItem' | 'setItem'> = {
 describe('createSourcePref', () => {
   it('returns the given fallback when nothing is stored', () => {
     expect(createSourcePref({ storage: memoryStorage() }).load('mine')).toBe('mine');
-    expect(createSourcePref({ storage: memoryStorage() }).load('all')).toBe('all');
+    expect(createSourcePref({ storage: memoryStorage() }).load('both')).toBe('both');
   });
 
   it('round-trips a saved source', () => {
@@ -33,6 +33,11 @@ describe('createSourcePref', () => {
   it('ignores a stored value that is not a known source', () => {
     const pref = createSourcePref({ storage: memoryStorage({ 'cookbook-source': 'bogus' }) });
     expect(pref.load('mine')).toBe('mine');
+  });
+
+  it("treats the retired 'all' source as unknown (falls back to the default)", () => {
+    const pref = createSourcePref({ storage: memoryStorage({ 'cookbook-source': 'all' }) });
+    expect(pref.load('both')).toBe('both');
   });
 
   it('degrades to the fallback when storage throws (private mode)', () => {
