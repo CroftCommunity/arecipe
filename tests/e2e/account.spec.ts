@@ -164,6 +164,17 @@ test('account taste "Never show me" excludes via per-dimension dropdowns with pe
   await expect(page.getByTestId('taste-never-cuisine-thai')).not.toBeChecked();
 });
 
+// Danger zone (plan 2026-07-16-5): sign out + "Delete all arecipe data" both
+// need a session, so the signed-out page renders NEITHER control (the flows
+// themselves are unit-tested; the signed-in mount is proven @live).
+test('signed-out account page shows no sign-out or delete-data controls', async ({ page }) => {
+  await page.goto('/account.html');
+  await expect(page.getByTestId('account-signed-out')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId('account-danger')).toHaveCount(0);
+  await expect(page.getByTestId('sign-out')).toHaveCount(0);
+  await expect(page.getByTestId('delete-data')).toHaveCount(0);
+});
+
 test('calendar-publish section renders for everyone; enabling reveals config and persists', async ({
   page,
 }) => {

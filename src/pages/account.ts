@@ -1,6 +1,8 @@
 // Account page: DOMAIN settings (blockdoku split) — who you are, sign out.
 // App management lives on settings.html.
 
+import { renderDangerZone } from '../account/danger-zone.js';
+import { wipeLocalData, wipePdsArecipeData } from '../account/wipe.js';
 import { bootSession } from '../auth/boot.js';
 import { mountBuildStamp } from '../build-stamp.js';
 import { resolveDidDoc } from '../identity/did.js';
@@ -192,6 +194,11 @@ const main = async (): Promise<void> => {
   content.append(el('h2', 'page-title', 'Account'));
   const { provider, agent } = await bootSession();
 
+  // The resolved handle feeds the danger zone's type-to-confirm challenge; it
+  // upgrades from null once the DID document lands (the same resolution that
+  // upgrades the "Signed in:" line below).
+  let resolvedHandle: string | null = null;
+
   if (agent !== null && provider !== null) {
     const who = el('p', 'status session-status');
     who.dataset['testid'] = 'signed-in-did';
@@ -216,14 +223,6 @@ const main = async (): Promise<void> => {
       content.append(sinceLine);
     }
 
-    const signOut = el('button', 'button sign-out-btn', 'Sign out') as HTMLButtonElement;
-    signOut.type = 'button';
-    signOut.dataset['testid'] = 'sign-out';
-    signOut.addEventListener('click', () => {
-      void provider.signOut().then(() => window.location.reload());
-    });
-    content.append(signOut);
-
     // Who's in your cookbook (Phase 6): the members list moved here from
     // Cookbook. The shared view resolves your starter cooks + Bluesky graph and
     // renders them paginated with source badges + a Settings link, in the same
@@ -237,6 +236,7 @@ const main = async (): Promise<void> => {
       void (async () => {
         try {
           const { pds, handle } = await retryOnce(() => resolveDidDoc(did));
+          resolvedHandle = handle;
           if (handle !== null) {
             const profile = el('a', 'friend-link', handle) as HTMLAnchorElement;
             profile.href = `https://bsky.app/profile/${encodeURIComponent(handle)}`;
@@ -284,6 +284,20 @@ const main = async (): Promise<void> => {
     return listPdsPlans(pds, signedInDid);
   };
   content.append(renderCalendarPublishSection(createCalendarClient(), listPublishedPlans));
+
+  // Danger zone (plan 2026-07-16-5): sign out + "Delete all arecipe data",
+  // LAST on the page — both need a session. The challenge text is the resolved
+  // handle (the DID until resolution lands — never a free pass).
+  if (agent !== null && provider !== null) {
+    content.append(
+      renderDangerZone({
+        signOut: () => provider.signOut(),
+        confirmText: () => resolvedHandle ?? agent.did ?? '',
+        wipePds: (onProgress) => wipePdsArecipeData(agent, onProgress),
+        wipeLocal: () => wipeLocalData(),
+      }),
+    );
+  }
 
   mountShell(app, content);
   void mountBuildStamp(app);
