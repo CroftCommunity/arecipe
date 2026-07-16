@@ -853,6 +853,14 @@ a {
   width: 6rem;
 }
 
+/* The row thumb floats on the card face, so the image (or its placeholder)
+   gets the same themed stroke the cards use — set into the card rather than
+   pasted on. Slight radius to match the card's rounded language. */
+.recipe-row-thumb .card-photo {
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+}
+
 .recipe-row-body {
   display: flex;
   flex-direction: column;
