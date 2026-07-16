@@ -2150,6 +2150,37 @@ table.ref.pairs td.eq {
   font-weight: 600;
   margin: 0 0 var(--s-1);
 }
+
+/* "Only show me" heading row: bucket title left, the AND/OR mode toggle
+   right-aligned on the same line. */
+.taste-bucket-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  margin: 0 0 var(--s-1);
+}
+.taste-bucket-head > .taste-bucket-title {
+  margin: 0;
+}
+
+/* The AND/OR toggle: a small mono pill (the .facet-dd-summary idiom) that
+   flips how checked diets combine — "Match all (and)" ⇄ "Match any (or)". */
+.diet-mode-toggle {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  padding: 0.15rem var(--s-2);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--card);
+  color: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.diet-mode-toggle:hover {
+  border-color: var(--enamel);
+  color: var(--enamel);
+}
 .taste-never-controls {
   display: flex;
   flex-wrap: wrap;

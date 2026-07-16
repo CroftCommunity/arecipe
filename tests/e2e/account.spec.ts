@@ -79,6 +79,37 @@ test('diet preference persists and filters Browse to matching recipes (wiring)',
   await expect(page.locator('input[data-dimension=cuisine][data-value=greek]')).toHaveCount(1);
 });
 
+test('AND/OR mode toggle widens a multi-diet preference from all-of to any-of on Browse', async ({
+  page,
+}) => {
+  await routeMixedFeed(page);
+  await page.goto('/account.html');
+
+  // The toggle sits in the "Only show me" heading row and defaults to AND.
+  const toggle = page.getByTestId('diet-mode-toggle');
+  await expect(toggle).toBeVisible({ timeout: 15_000 });
+  await expect(toggle).toHaveText('Match all (and)');
+
+  // Vegetarian + Vegan under AND: only the Greek Vegan Lunch Bowl carries both.
+  await page.locator('#diet-preference input[data-token=dietVegetarian]').check();
+  await page.locator('#diet-preference input[data-token=dietVegan]').check();
+  await page.goto('/');
+  await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId('recipe-item')).toHaveCount(1);
+
+  // Flip to OR — persists across reload — and Browse now admits any recipe
+  // matching either diet (3 of the 4; Pancakes carries no diet at all).
+  await page.goto('/account.html');
+  await toggle.click();
+  await expect(toggle).toHaveText('Match any (or)');
+  await page.reload();
+  await expect(page.getByTestId('diet-mode-toggle')).toHaveText('Match any (or)');
+  await page.goto('/');
+  await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId('recipe-item')).toHaveCount(3);
+  await expect(page.getByTestId('recipes-status')).toHaveText('3 recipes');
+});
+
 test('clearing the diet preference restores all recipes on Browse', async ({ page }) => {
   await routeMixedFeed(page);
   await page.goto('/account.html');

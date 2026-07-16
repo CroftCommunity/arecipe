@@ -162,9 +162,12 @@ const main = (): void => {
   // recipes not shown" or as a facet option that can only yield zero.
   const eligibleEntries = (): CachedRecipe[] => {
     const diet = dietPreference.load();
+    const dietMode = dietPreference.loadMode();
     const taste = tastePreference.load();
     return withoutHidden(current?.entries ?? []).filter(
-      (e) => matchesFilter(e.value, { state: NO_TAB_FILTERS, diet }) && matchesTaste(recipeFacets(e.value), taste),
+      (e) =>
+        matchesFilter(e.value, { state: NO_TAB_FILTERS, diet, dietMode }) &&
+        matchesTaste(recipeFacets(e.value), taste),
     );
   };
 
