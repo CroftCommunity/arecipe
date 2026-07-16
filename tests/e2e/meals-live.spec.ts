@@ -1,7 +1,9 @@
 // Phase 9 wiring (@live): a meal plan syncs to the REAL PDS and survives
 // eviction. Sign in → place a recipe on a day → the app.arecipe.mealPlan record
-// exists on the account's PDS → wipe local storage → reload → the plan is
-// recovered from the PDS. Runs only with BSKY_TEST_* creds (`npm run test:live`);
+// exists on the account's PDS → wipe local storage → reload → a recovery notice
+// offers the plan back through the STAGED edit flow (recovery v2: remote records
+// are never silently adopted as the live working plan — one may be published,
+// and write-through would edit it). Runs only with BSKY_TEST_* creds (`npm run test:live`);
 // cleanup is HARD-GUARDED to the test account (marker name + pre-run/teardown
 // purge). NOTE: authored to mirror drafts-live.spec.ts but not yet executed —
 // this worktree has no test credentials (see the plan's D1 live-leg deferral).
@@ -103,8 +105,10 @@ test('@live meal plan syncs to the PDS and survives eviction', async ({ page, ba
   // The record exists on the account's PDS (authenticated read).
   await expect.poll(async () => (await listTestPlans()).length, { timeout: 30_000 }).toBeGreaterThan(0);
 
-  // Simulated eviction: wipe the local plans, reload — the plan comes back from
-  // the PDS and the placed recipe reappears (recovered with its cached name).
+  // Simulated eviction: wipe the local plans, reload — the plan is NOT silently
+  // adopted (the PDS copy may be a published, shared record; write-through must
+  // never live-edit one). Instead a recovery notice offers to resume the most
+  // recent record through the staged edit flow.
   await page.evaluate(() => {
     try {
       localStorage.removeItem('arecipe.mealplans.v1');
@@ -113,6 +117,15 @@ test('@live meal plan syncs to the PDS and survives eviction', async ({ page, ba
     }
   });
   await page.goto('/meals.html');
+  const notice = page.getByTestId('recovery-notice');
+  await expect(notice).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId('slot-filled')).toHaveCount(0); // fresh canvas, nothing adopted
+
+  // Resume: opens the record as a STAGED copy (banner + the placed recipe back
+  // on the canvas), publishable in place from there.
+  await notice.getByTestId('recovery-resume').click();
+  await expect(page).toHaveURL(/meals\.html\?edit=/);
+  await expect(page.getByTestId('edit-banner')).toBeVisible({ timeout: 30_000 });
   await expect(page.getByTestId('slot-filled').first()).toBeVisible({ timeout: 30_000 });
 
   await purge();
@@ -239,6 +252,76 @@ test('@live "Published" plans subpage lists a published plan, then deletes it', 
   await row.getByTestId('plan-delete-confirm').click();
   // Only this test's plan existed (purged at start), so the list empties.
   await expect(page.getByTestId('plan-row')).toHaveCount(0, { timeout: 30_000 });
+
+  await purge();
+});
+
+test('@live edit a published plan in place from the Published subpage', async ({ page, baseURL }) => {
+  test.skip(
+    HANDLE === '' || PASSWORD === '' || APP_PASSWORD === '',
+    'needs BSKY_TEST_* credentials in .env',
+  );
+  test.setTimeout(300_000);
+  await purge();
+  const origin = baseURL ?? 'http://127.0.0.1:4173';
+
+  await page.addInitScript((seed) => {
+    try {
+      localStorage.setItem('arecipe.meals.palette-seed', JSON.stringify(seed));
+    } catch {
+      /* ignore */
+    }
+  }, SEED);
+
+  await signIn(page, { handle: HANDLE, password: PASSWORD, origin });
+  await page.goto('/meals.html');
+  await page.evaluate((marker) => {
+    try {
+      const raw = localStorage.getItem('arecipe.mealplans.v1');
+      const all = raw === null ? {} : (JSON.parse(raw) as Record<string, { name: string }>);
+      for (const id of Object.keys(all)) all[id]!.name = `Edited Plan (${marker})`;
+      localStorage.setItem('arecipe.mealplans.v1', JSON.stringify(all));
+    } catch {
+      /* ignore */
+    }
+  }, MARKER);
+  await page.goto('/meals.html');
+
+  // Publish a one-recipe plan (Monday), anchored on a Monday.
+  await page.getByTestId('palette-chip').first().click();
+  await page.getByTestId('week-row').first().getByTestId('day-slot').first().click();
+  await page.getByTestId('plan-start-date').fill('2026-07-13');
+  await page.getByTestId('publish-plan').click();
+  await expect(page.getByTestId('share-url')).toBeVisible({ timeout: 30_000 });
+
+  // Open the Published subpage and enter edit mode from the row's Edit button.
+  await page.goto('/meals.html?plans');
+  const row = page.getByTestId('plan-row').filter({ hasText: 'published' });
+  await expect(row).toHaveCount(1, { timeout: 30_000 });
+  const shareBefore = await row.getByTestId('plan-open').getAttribute('href');
+  await row.getByTestId('plan-edit').click();
+  await expect(page).toHaveURL(/meals\.html\?edit=/);
+
+  // The planner opens on a STAGED copy of the published plan: banner + the
+  // published placement already on the canvas.
+  await expect(page.getByTestId('edit-banner')).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId('slot-filled').first()).toBeVisible({ timeout: 30_000 });
+
+  // Edit in place: add the seeded recipe to Tuesday as well, then publish the
+  // update — it must replace the ORIGINAL record (same rkey → same share link).
+  await page.getByTestId('palette-chip').first().click();
+  await page.getByTestId('week-row').first().getByTestId('day-slot').nth(1).click();
+  await page.getByTestId('publish-plan').click();
+  await expect(page).toHaveURL(/meals\.html\?plans$/, { timeout: 30_000 });
+  const rowAfter = page.getByTestId('plan-row').filter({ hasText: 'published' });
+  await expect(rowAfter).toHaveCount(1, { timeout: 30_000 }); // replaced, not added
+  expect(await rowAfter.getByTestId('plan-open').getAttribute('href')).toBe(shareBefore);
+
+  // The record on the PDS now carries BOTH placements (Mon + Tue of week 1).
+  const [record] = await listTestPlans();
+  const weeks = (record?.value['weeks'] ?? []) as { days: { meals?: unknown[] }[] }[];
+  const filledDays = weeks[0]?.days.filter((d) => (d.meals ?? []).length > 0) ?? [];
+  expect(filledDays).toHaveLength(2);
 
   await purge();
 });

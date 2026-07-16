@@ -51,6 +51,11 @@ run the other sub-gates directly and use the config above for e2e.
 
 ## Conventions
 
+- **TDD first, always.** Write the tests before the implementation — unit
+  (vitest) for model/pure logic, hermetic e2e for page wiring, an `@live` spec
+  when the behavior touches a real PDS — and confirm they are RED before making
+  them green. A behavior change starts by rewriting the test that pins the old
+  behavior. No implementation lands without a failing test that demanded it.
 - **Open-world atproto reads.** Boundary validators (`src/recipes/*`,
   `read.ts`) tolerate and preserve unknown fields; only missing/mistyped
   **required** fields fail loud. Match that posture in new record code.

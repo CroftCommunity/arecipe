@@ -35,6 +35,7 @@ import {
   type LocalWeek,
   type MealPlanStore,
 } from '../recipes/meal-plan-local.js';
+import { findStagedEdit, latestPlan, stagePlanForEdit, workingPlans } from '../recipes/meal-plan-edit.js';
 import { getPdsPlan, listPdsPlans, removePlanFromPds, syncPlanToPds } from '../recipes/meal-plan-sync.js';
 import {
   addMonths,
@@ -411,6 +412,13 @@ const showPublishedPlans = async (app: HTMLElement): Promise<void> => {
         meta.dataset['testid'] = 'plan-meta';
         info.append(open, meta);
 
+        // Actions: Edit (opens the plan STAGED in the planner — republishing
+        // replaces this record in place) + a guarded Delete.
+        const actions = el('div', 'plan-actions');
+        const edit = el('a', 'button', 'Edit') as HTMLAnchorElement;
+        edit.href = `./meals.html?edit=${encodeURIComponent(plan.id)}`;
+        edit.dataset['testid'] = 'plan-edit';
+
         // Delete: guarded inline confirm (removes the PDS record).
         const del = el('div', 'plan-del');
         const renderDel = (): void => {
@@ -444,7 +452,8 @@ const showPublishedPlans = async (app: HTMLElement): Promise<void> => {
         };
         renderDel();
 
-        row.append(info, del);
+        actions.append(edit, del);
+        row.append(info, actions);
         listEl.append(row);
       }
     };
@@ -478,8 +487,67 @@ export const main = async (
   const store = deps.store ?? createMealPlanStore();
   const signedInHint = sessionHintSignedIn();
 
-  // Single implicit plan (v1): edit the first plan, creating one if absent.
-  const existing = store.list()[0];
+  // Edit mode (?edit=<rkey>): open a published plan as a STAGED local copy —
+  // edits stay local (no write-through) until "Publish update" replaces the
+  // published record in place (same rkey → the share link survives). Signed-in
+  // only: publishing back needs the account, so the session boots eagerly here.
+  const editParam = routeParams.get('edit');
+  const editRkey = editParam !== null && editParam.trim() !== '' ? editParam.trim() : null;
+  let editStaged: LocalPlan | null = null;
+  let editAgent: Agent | null = null;
+  if (editRkey !== null) {
+    const loadPanel = el('section', 'panel');
+    const editBody = el('div');
+    editBody.dataset['testid'] = 'edit-plan';
+    loadPanel.append(el('h2', 'section-title', 'Edit published plan'), editBody);
+    const backToPlans = (): HTMLAnchorElement => {
+      const back = el('a', 'friend-link', '‹ Back to published plans') as HTMLAnchorElement;
+      back.href = './meals.html?plans';
+      back.dataset['testid'] = 'plans-back';
+      return back;
+    };
+    editBody.replaceChildren(el('p', 'status', 'loading your published plan…'));
+    mountShell(app, loadPanel);
+    try {
+      const { bootSession } = await import('../auth/boot.js');
+      const { agent } = await bootSession();
+      if (agent?.did === undefined) {
+        editBody.replaceChildren(
+          el('p', 'status', 'Sign in to edit a published meal plan.'),
+          backToPlans(),
+        );
+        void mountBuildStamp(app);
+        void registerServiceWorker();
+        return;
+      }
+      editAgent = agent;
+      // Resume an in-flight staged edit; otherwise fetch the published record
+      // and stage a fresh copy.
+      const resumed = findStagedEdit(store, editRkey);
+      if (resumed !== undefined) {
+        editStaged = resumed;
+      } else {
+        const { pds } = await resolveDidDoc(agent.did);
+        editStaged = stagePlanForEdit(store, await getPdsPlan(pds, agent.did, editRkey));
+      }
+    } catch (err) {
+      log.warn('meal-plan', 'edit-mode load failed', { rkey: editRkey, error: String(err) });
+      editBody.replaceChildren(
+        el('p', 'status', `couldn’t load this published plan: ${String(err)}`),
+        backToPlans(),
+      );
+      void mountBuildStamp(app);
+      void registerServiceWorker();
+      return;
+    }
+  }
+  const editing = editStaged !== null;
+
+  // Single implicit plan (v1): edit the first WORKING plan, creating one if
+  // absent. Staged edit copies are keyed to their published record (edit mode
+  // above) and are never adopted here — a plain visit must not write-through
+  // onto a published record.
+  const existing = editStaged ?? workingPlans(store)[0];
   let plan: LocalPlan = existing ?? store.save({ name: 'My meal plan', weeks: [emptyWeek()] });
   const createdFresh = existing === undefined; // for PDS-recovery reconciliation
   let armed: PaletteItem | null = null;
@@ -488,8 +556,9 @@ export const main = async (
   // × and "Clear day" are comfortably tappable. Keyed `${weekIndex}:${dayIndex}`;
   // survives re-renders (renderBuilder rebuilds the DOM each time).
   const expandedDays = new Set<string>();
-  // Set once the session is booted (signed in): enables write-through to the PDS.
-  let syncAgent: Agent | null = null;
+  // Set once the session is booted (signed in): enables write-through to the
+  // PDS. Edit mode already booted eagerly above.
+  let syncAgent: Agent | null = editAgent;
 
   // Palette state: items from the active source, filtered.
   let source: Source = signedInHint ? 'cookbook' : 'browse';
@@ -584,6 +653,56 @@ export const main = async (
   controlsRow.append(perDayLabel, resetControl);
   content.append(header, controlsRow);
 
+  // Edit-mode banner: the canvas holds a STAGED copy of a published plan.
+  // Discard removes the copy (the published record is untouched) and returns
+  // to the list; publishing below replaces the record in place.
+  if (editing) {
+    const banner = el('div', 'edit-banner');
+    banner.dataset['testid'] = 'edit-banner';
+    banner.append(
+      el(
+        'span',
+        'edit-banner-text',
+        `Editing published plan (${planTitle(plan)}) — changes stay here until you publish.`,
+      ),
+    );
+    const discard = el('button', 'button', 'Discard edits') as HTMLButtonElement;
+    discard.type = 'button';
+    discard.dataset['testid'] = 'edit-discard';
+    discard.addEventListener('click', () => {
+      store.remove(plan.id);
+      window.location.assign('./meals.html?plans');
+    });
+    banner.append(discard);
+    content.append(banner);
+  }
+
+  // Recovery notice (plain planner only): when this load created a fresh,
+  // still-untouched canvas and the account has plans on the PDS, offer the most
+  // recent one back through the STAGED edit flow (?edit=<rkey>) instead of
+  // adopting it live — a remote record may be published (shared), and adopting
+  // it would let write-through edit it silently. Hidden until recovery finds
+  // something; hidden again the moment the canvas is touched (offer moot).
+  const recoveryNotice = el('div', 'recovery-notice');
+  recoveryNotice.dataset['testid'] = 'recovery-notice';
+  recoveryNotice.hidden = true;
+  if (!editing) content.append(recoveryNotice);
+  const renderRecoveryNotice = (latest: LocalPlan, count: number): void => {
+    const label = count === 1 ? 'a plan on your account' : `${count} plans on your account`;
+    recoveryNotice.replaceChildren(
+      el(
+        'span',
+        'recovery-notice-text',
+        `Found ${label} — resume the latest (${planTitle(latest)}) to edit and republish it, or open Published to browse them.`,
+      ),
+    );
+    const resume = el('a', 'button', 'Resume latest') as HTMLAnchorElement;
+    resume.href = `./meals.html?edit=${encodeURIComponent(latest.id)}`;
+    resume.dataset['testid'] = 'recovery-resume';
+    recoveryNotice.append(resume);
+    recoveryNotice.hidden = false;
+  };
+
   const planner = el('div', 'meal-planner');
   const palette = el('aside', 'palette');
   palette.dataset['testid'] = 'palette';
@@ -670,7 +789,11 @@ export const main = async (
   // also lists on the "Published" plans subpage. Signed-in only.
   const shareSection = el('section', 'plan-share');
   const publishRow = el('div', 'plan-publish-row');
-  const publishBtn = el('button', 'button plan-publish-btn', 'Publish') as HTMLButtonElement;
+  const publishBtn = el(
+    'button',
+    'button plan-publish-btn',
+    editing ? 'Publish update' : 'Publish',
+  ) as HTMLButtonElement;
   publishBtn.type = 'button';
   publishBtn.dataset['testid'] = 'publish-plan';
   // Reset on publish (default on): after publishing, start a FRESH working plan
@@ -686,7 +809,10 @@ export const main = async (
   resetOnPublish.checked = true;
   resetOnPublish.dataset['testid'] = 'reset-on-publish';
   resetOnPublishLabel.append(resetOnPublish, resetIcon());
-  publishRow.append(publishBtn, resetOnPublishLabel);
+  publishRow.append(publishBtn);
+  // Reset-on-publish is about starting the NEXT plan; a staged edit returns to
+  // the published list instead, so the toggle is omitted in edit mode.
+  if (!editing) publishRow.append(resetOnPublishLabel);
   const shareSlot = el('div', 'plan-share-slot');
   const renderShareLink = (link: string): HTMLElement => {
     const box = el('div', 'share-link');
@@ -725,7 +851,17 @@ export const main = async (
     publishBtn.disabled = true;
     shareSlot.replaceChildren(el('p', 'status', 'publishing…'));
     void syncPlanToPds(agent, plan)
-      .then(() => {
+      .then(async () => {
+        // Staged edit republished: the write above replaced the ORIGINAL record
+        // (rkey = editOf), so drop the staged copy, refresh the subscribable
+        // calendar in place, and return to the published list — the row keeps
+        // its share link, now serving the edited plan.
+        if (plan.editOf !== undefined) {
+          store.remove(plan.id);
+          await calendarClient.republish(listPublished).catch(() => undefined);
+          window.location.assign('./meals.html?plans');
+          return;
+        }
         // Build the share link from the PUBLISHED plan's id before any reset.
         const publishedId = plan.id;
         const url = new URL('meals.html', window.location.href);
@@ -763,18 +899,22 @@ export const main = async (
   content.append(shareSection);
 
   const persist = (): void => {
+    recoveryNotice.hidden = true; // the canvas is being worked on — the resume offer is moot
     plan = store.save(
       {
         name: plan.name,
         weeks: plan.weeks,
         mealsPerDay: plan.mealsPerDay,
         ...(plan.startDate !== undefined ? { startDate: plan.startDate } : {}),
+        ...(plan.editOf !== undefined ? { editOf: plan.editOf } : {}), // staged edits keep their source rkey
       },
       plan.id,
     );
     // Optimistic write-through: local save is instant; the PDS catches up in the
     // background when signed in (the record is the durable, cross-browser home).
-    if (syncAgent !== null) {
+    // A staged edit (editOf) is the exception — it stays local until "Publish
+    // update" replaces the published record deliberately.
+    if (syncAgent !== null && plan.editOf === undefined) {
       void syncPlanToPds(syncAgent, plan).catch((err: unknown) => {
         log.warn('meal-plan', 'PDS sync failed', { error: String(err) });
       });
@@ -784,7 +924,8 @@ export const main = async (
   // D7: default a fresh plan's anchor to the next Monday so it is dated
   // (calendar-eligible) by default. Only when unset — never clobbers a chosen
   // date, and clearing the input still returns the plan to abstract "Week N".
-  if (plan.startDate === undefined) {
+  // Skipped for a staged edit: the copy stays faithful to the published record.
+  if (plan.startDate === undefined && !editing) {
     const nm = nextMonday(new Date().toISOString().slice(0, 10));
     if (nm !== null) {
       plan.startDate = nm;
@@ -1134,7 +1275,9 @@ export const main = async (
     });
     resetControl.append(reset);
   };
-  renderResetControl();
+  // Edit mode has no Reset — "Discard edits" (the banner) is the way out of a
+  // staged copy; Reset's fresh-working-plan semantics don't apply there.
+  if (!editing) renderResetControl();
 
   mountShell(app, content);
   rerender();
@@ -1156,10 +1299,16 @@ export const main = async (
     }
   }
 
-  // PDS sync (signed in): boot the session lazily, enable write-through, and
-  // recover any plans that live on the PDS but are missing locally (fresh
-  // browser / eviction). Signed-out stays local-only — no auth, no network.
-  if (signedInHint) {
+  // PDS sync (signed in): boot the session lazily and enable write-through.
+  // Recovery v2 (plans/2026-07-16-3, follow-up): remote plans are NEVER copied
+  // into the local store or adopted as the working plan — a PDS record may be
+  // published (its share link in others' hands), and adoption would let the
+  // write-through above live-edit it. Instead, when this load created a fresh
+  // canvas that is still untouched, offer the most recent record back through
+  // the staged edit flow (the notice above). Signed-out stays local-only — no
+  // auth, no network. Skipped in edit mode: the eager boot already set the
+  // agent, and the canvas already holds the staged plan.
+  if (signedInHint && !editing) {
     void (async () => {
       try {
         const { bootSession } = await import('../auth/boot.js');
@@ -1168,30 +1317,16 @@ export const main = async (
         syncAgent = agent;
         const { pds } = await resolveDidDoc(agent.did);
         const remote = await listPdsPlans(pds, agent.did);
-        let recovered = 0;
-        for (const rp of remote) {
-          if (store.get(rp.id) === undefined) {
-            store.save(
-              { name: rp.name, weeks: rp.weeks, ...(rp.startDate !== undefined ? { startDate: rp.startDate } : {}) },
-              rp.id,
-            );
-            recovered += 1;
-          }
-        }
-        if (recovered > 0) {
-          // v1 single-plan reconciliation: if we created an empty plan this load
-          // and it is still untouched, adopt the recovered plan instead.
-          const untouched =
-            createdFresh &&
-            plan.weeks.length === 1 &&
-            plan.weeks.every((w) => w.days.every((s) => s.meals.length === 0));
-          if (untouched) {
-            store.remove(plan.id);
-            plan = store.list()[0] ?? plan;
-          }
-          log.info('meal-plan', 'recovered from PDS', { count: recovered });
-          rerender();
-        }
+        // Only a fresh, still-untouched canvas gets the offer (checked NOW, not
+        // at load: the user may have started placing while the list loaded).
+        const untouched =
+          createdFresh &&
+          plan.weeks.length === 1 &&
+          plan.weeks.every((w) => w.days.every((s) => s.meals.length === 0));
+        const latest = latestPlan(remote);
+        if (!untouched || latest === undefined) return;
+        renderRecoveryNotice(latest, remote.length);
+        log.info('meal-plan', 'offering PDS recovery', { count: remote.length, latest: latest.id });
       } catch (err) {
         log.warn('meal-plan', 'PDS plan recovery failed', { error: String(err) });
       }

@@ -54,6 +54,11 @@ describe('planToRecord', () => {
     });
     expect(weeks[0]?.days[1]).toEqual({ meals: [] }); // empty day → empty list
   });
+
+  it('never leaks the local editOf bookkeeping into the record value', () => {
+    const rec = planToRecord({ ...aPlan(), id: 'staged-local', editOf: 'plan-1' });
+    expect('editOf' in rec).toBe(false);
+  });
 });
 
 describe('syncPlanToPds', () => {
@@ -61,6 +66,15 @@ describe('syncPlanToPds', () => {
     const putRecord = vi.fn(async () => ({}));
     const agent = { did: 'did:me', com: { atproto: { repo: { putRecord } } } } as unknown as Agent;
     await syncPlanToPds(agent, aPlan());
+    expect(putRecord).toHaveBeenCalledWith(
+      expect.objectContaining({ repo: 'did:me', collection: 'app.arecipe.mealPlan', rkey: 'plan-1' }),
+    );
+  });
+
+  it('putRecords under the editOf rkey when the plan is a staged edit (in-place replace)', async () => {
+    const putRecord = vi.fn(async () => ({}));
+    const agent = { did: 'did:me', com: { atproto: { repo: { putRecord } } } } as unknown as Agent;
+    await syncPlanToPds(agent, { ...aPlan(), id: 'staged-local', editOf: 'plan-1' });
     expect(putRecord).toHaveBeenCalledWith(
       expect.objectContaining({ repo: 'did:me', collection: 'app.arecipe.mealPlan', rkey: 'plan-1' }),
     );
