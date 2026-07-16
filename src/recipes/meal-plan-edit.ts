@@ -30,3 +30,9 @@ export const stagePlanForEdit = (store: MealPlanStore, published: LocalPlan): Lo
  * are excluded (adopting one would write-through-edit the published record). */
 export const workingPlans = (store: MealPlanStore): LocalPlan[] =>
   store.list().filter((p) => p.editOf === undefined);
+
+/** The most recently updated plan — the resume-offer target when a fresh device
+ * finds records on the PDS (recovery v2 offers it through the staged edit flow
+ * instead of adopting it live). Pure; the input array is not reordered. */
+export const latestPlan = (plans: LocalPlan[]): LocalPlan | undefined =>
+  [...plans].sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1))[0];

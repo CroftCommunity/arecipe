@@ -11,6 +11,7 @@ import {
 } from '../../../src/recipes/meal-plan-local.js';
 import {
   findStagedEdit,
+  latestPlan,
   stagePlanForEdit,
   workingPlans,
 } from '../../../src/recipes/meal-plan-edit.js';
@@ -75,6 +76,24 @@ describe('findStagedEdit', () => {
     const staged = stagePlanForEdit(store, publishedPlan());
     expect(findStagedEdit(store, 'pub-rkey-1')?.id).toBe(staged.id);
     expect(findStagedEdit(store, 'other-rkey')).toBeUndefined();
+  });
+});
+
+describe('latestPlan', () => {
+  it('picks the most recently updated plan (input order irrelevant); undefined on empty', () => {
+    const older = { ...publishedPlan(), id: 'older', updatedAt: '2026-07-01T00:00:00.000Z' };
+    const newer = { ...publishedPlan(), id: 'newer', updatedAt: '2026-07-12T00:00:00.000Z' };
+    expect(latestPlan([older, newer])?.id).toBe('newer');
+    expect(latestPlan([newer, older])?.id).toBe('newer');
+    expect(latestPlan([])).toBeUndefined();
+  });
+
+  it('does not reorder the caller’s array', () => {
+    const older = { ...publishedPlan(), id: 'older', updatedAt: '2026-07-01T00:00:00.000Z' };
+    const newer = { ...publishedPlan(), id: 'newer', updatedAt: '2026-07-12T00:00:00.000Z' };
+    const input = [older, newer];
+    latestPlan(input);
+    expect(input.map((p) => p.id)).toEqual(['older', 'newer']);
   });
 });
 

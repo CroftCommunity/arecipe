@@ -35,7 +35,7 @@ import {
   type LocalWeek,
   type MealPlanStore,
 } from '../recipes/meal-plan-local.js';
-import { findStagedEdit, stagePlanForEdit, workingPlans } from '../recipes/meal-plan-edit.js';
+import { findStagedEdit, latestPlan, stagePlanForEdit, workingPlans } from '../recipes/meal-plan-edit.js';
 import { getPdsPlan, listPdsPlans, removePlanFromPds, syncPlanToPds } from '../recipes/meal-plan-sync.js';
 import {
   addMonths,
@@ -677,6 +677,32 @@ export const main = async (
     content.append(banner);
   }
 
+  // Recovery notice (plain planner only): when this load created a fresh,
+  // still-untouched canvas and the account has plans on the PDS, offer the most
+  // recent one back through the STAGED edit flow (?edit=<rkey>) instead of
+  // adopting it live — a remote record may be published (shared), and adopting
+  // it would let write-through edit it silently. Hidden until recovery finds
+  // something; hidden again the moment the canvas is touched (offer moot).
+  const recoveryNotice = el('div', 'recovery-notice');
+  recoveryNotice.dataset['testid'] = 'recovery-notice';
+  recoveryNotice.hidden = true;
+  if (!editing) content.append(recoveryNotice);
+  const renderRecoveryNotice = (latest: LocalPlan, count: number): void => {
+    const label = count === 1 ? 'a plan on your account' : `${count} plans on your account`;
+    recoveryNotice.replaceChildren(
+      el(
+        'span',
+        'recovery-notice-text',
+        `Found ${label} — resume the latest (${planTitle(latest)}) to edit and republish it, or open Published to browse them.`,
+      ),
+    );
+    const resume = el('a', 'button', 'Resume latest') as HTMLAnchorElement;
+    resume.href = `./meals.html?edit=${encodeURIComponent(latest.id)}`;
+    resume.dataset['testid'] = 'recovery-resume';
+    recoveryNotice.append(resume);
+    recoveryNotice.hidden = false;
+  };
+
   const planner = el('div', 'meal-planner');
   const palette = el('aside', 'palette');
   palette.dataset['testid'] = 'palette';
@@ -873,6 +899,7 @@ export const main = async (
   content.append(shareSection);
 
   const persist = (): void => {
+    recoveryNotice.hidden = true; // the canvas is being worked on — the resume offer is moot
     plan = store.save(
       {
         name: plan.name,
@@ -1272,11 +1299,15 @@ export const main = async (
     }
   }
 
-  // PDS sync (signed in): boot the session lazily, enable write-through, and
-  // recover any plans that live on the PDS but are missing locally (fresh
-  // browser / eviction). Signed-out stays local-only — no auth, no network.
-  // Skipped in edit mode: the eager boot above already set the agent, and
-  // recovery/adoption exists for the plain planner's working plan.
+  // PDS sync (signed in): boot the session lazily and enable write-through.
+  // Recovery v2 (plans/2026-07-16-3, follow-up): remote plans are NEVER copied
+  // into the local store or adopted as the working plan — a PDS record may be
+  // published (its share link in others' hands), and adoption would let the
+  // write-through above live-edit it. Instead, when this load created a fresh
+  // canvas that is still untouched, offer the most recent record back through
+  // the staged edit flow (the notice above). Signed-out stays local-only — no
+  // auth, no network. Skipped in edit mode: the eager boot already set the
+  // agent, and the canvas already holds the staged plan.
   if (signedInHint && !editing) {
     void (async () => {
       try {
@@ -1286,30 +1317,16 @@ export const main = async (
         syncAgent = agent;
         const { pds } = await resolveDidDoc(agent.did);
         const remote = await listPdsPlans(pds, agent.did);
-        let recovered = 0;
-        for (const rp of remote) {
-          if (store.get(rp.id) === undefined) {
-            store.save(
-              { name: rp.name, weeks: rp.weeks, ...(rp.startDate !== undefined ? { startDate: rp.startDate } : {}) },
-              rp.id,
-            );
-            recovered += 1;
-          }
-        }
-        if (recovered > 0) {
-          // v1 single-plan reconciliation: if we created an empty plan this load
-          // and it is still untouched, adopt the recovered plan instead.
-          const untouched =
-            createdFresh &&
-            plan.weeks.length === 1 &&
-            plan.weeks.every((w) => w.days.every((s) => s.meals.length === 0));
-          if (untouched) {
-            store.remove(plan.id);
-            plan = store.list()[0] ?? plan;
-          }
-          log.info('meal-plan', 'recovered from PDS', { count: recovered });
-          rerender();
-        }
+        // Only a fresh, still-untouched canvas gets the offer (checked NOW, not
+        // at load: the user may have started placing while the list loaded).
+        const untouched =
+          createdFresh &&
+          plan.weeks.length === 1 &&
+          plan.weeks.every((w) => w.days.every((s) => s.meals.length === 0));
+        const latest = latestPlan(remote);
+        if (!untouched || latest === undefined) return;
+        renderRecoveryNotice(latest, remote.length);
+        log.info('meal-plan', 'offering PDS recovery', { count: remote.length, latest: latest.id });
       } catch (err) {
         log.warn('meal-plan', 'PDS plan recovery failed', { error: String(err) });
       }

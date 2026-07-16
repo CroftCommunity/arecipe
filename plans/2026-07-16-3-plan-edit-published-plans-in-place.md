@@ -73,10 +73,38 @@ straight onto the published record, and the plain planner (`meals.html`) picks
 
 ## Out of scope (noted, pre-existing)
 
-- PDS recovery on a fresh device can adopt the most recent *published* plan as
-  the working plan (id = rkey → write-through live-edits it). Pre-existing
-  behavior, unchanged here; `editOf` staging is strictly additive.
+- ~~PDS recovery on a fresh device can adopt the most recent *published* plan as
+  the working plan (id = rkey → write-through live-edits it).~~ **Addressed the
+  same day — see "Follow-up: recovery v2" below.**
 - Multi-plan management in the planner proper (still the v1 single working plan).
+
+## Follow-up: recovery v2 (same day, owner-requested)
+
+The quirk above, fixed with the staging model this run introduced:
+
+**Before.** On load (signed in), recovery copied every PDS record missing
+locally into the store as a plain working plan (id = rkey), and — when the load
+had just created a fresh, untouched canvas — adopted the most recent one as
+*the* working plan. From then on `persist()`'s write-through silently live-edited
+that record, which may be a **published, shared** plan.
+
+**After.** Recovery never copies remote records into the local store and never
+adopts one as the working plan. When the fresh canvas is still untouched (the
+same adoption condition, but re-checked *after* the list loads — the user may
+have started placing meanwhile), the planner shows a **recovery notice**
+(testid `recovery-notice`): "Found N plans on your account — resume the latest
+(<range>) …" with a **Resume latest** link (testid `recovery-resume`) to
+`meals.html?edit=<rkey>` — the staged edit flow, whose banner + explicit
+"Publish update" make any change to the record deliberate. The notice hides on
+the first `persist()` (the canvas is being worked on; the offer is moot). The
+local store now only ever holds plans created on this device: working plans and
+staged edit copies.
+
+Consequence, accepted: after eviction the working canvas starts blank and
+continuity is one tap away (Resume latest), instead of the old silent adoption.
+The `@live` eviction test was rewritten to pin the new flow (notice → resume →
+staged banner + recipe back on the canvas); `latestPlan` (meal-plan-edit.ts) is
+unit-pinned including not reordering its input.
 
 ## Tests (written first)
 

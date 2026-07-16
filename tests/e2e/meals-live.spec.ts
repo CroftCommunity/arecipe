@@ -1,7 +1,9 @@
 // Phase 9 wiring (@live): a meal plan syncs to the REAL PDS and survives
 // eviction. Sign in → place a recipe on a day → the app.arecipe.mealPlan record
-// exists on the account's PDS → wipe local storage → reload → the plan is
-// recovered from the PDS. Runs only with BSKY_TEST_* creds (`npm run test:live`);
+// exists on the account's PDS → wipe local storage → reload → a recovery notice
+// offers the plan back through the STAGED edit flow (recovery v2: remote records
+// are never silently adopted as the live working plan — one may be published,
+// and write-through would edit it). Runs only with BSKY_TEST_* creds (`npm run test:live`);
 // cleanup is HARD-GUARDED to the test account (marker name + pre-run/teardown
 // purge). NOTE: authored to mirror drafts-live.spec.ts but not yet executed —
 // this worktree has no test credentials (see the plan's D1 live-leg deferral).
@@ -103,8 +105,10 @@ test('@live meal plan syncs to the PDS and survives eviction', async ({ page, ba
   // The record exists on the account's PDS (authenticated read).
   await expect.poll(async () => (await listTestPlans()).length, { timeout: 30_000 }).toBeGreaterThan(0);
 
-  // Simulated eviction: wipe the local plans, reload — the plan comes back from
-  // the PDS and the placed recipe reappears (recovered with its cached name).
+  // Simulated eviction: wipe the local plans, reload — the plan is NOT silently
+  // adopted (the PDS copy may be a published, shared record; write-through must
+  // never live-edit one). Instead a recovery notice offers to resume the most
+  // recent record through the staged edit flow.
   await page.evaluate(() => {
     try {
       localStorage.removeItem('arecipe.mealplans.v1');
@@ -113,6 +117,15 @@ test('@live meal plan syncs to the PDS and survives eviction', async ({ page, ba
     }
   });
   await page.goto('/meals.html');
+  const notice = page.getByTestId('recovery-notice');
+  await expect(notice).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId('slot-filled')).toHaveCount(0); // fresh canvas, nothing adopted
+
+  // Resume: opens the record as a STAGED copy (banner + the placed recipe back
+  // on the canvas), publishable in place from there.
+  await notice.getByTestId('recovery-resume').click();
+  await expect(page).toHaveURL(/meals\.html\?edit=/);
+  await expect(page.getByTestId('edit-banner')).toBeVisible({ timeout: 30_000 });
   await expect(page.getByTestId('slot-filled').first()).toBeVisible({ timeout: 30_000 });
 
   await purge();
