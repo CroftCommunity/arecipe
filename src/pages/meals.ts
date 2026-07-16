@@ -1,6 +1,8 @@
 // Meals planner page. Phase 1 route → Phase 5 builder → Phase 6 calendar →
-// Phase 7 real palette: two sources behind a switch (My Cookbook / Browse),
-// reusing arecipe's existing feed reads. Adding a cook by handle lives on the
+// Phase 7 real palette: two sources behind a switch — My Cookbook (your
+// authored + liked recipes, the Cookbook page's "Both" scope) and Browse (the
+// starter feed) — reusing arecipe's existing feed reads. Adding a cook by
+// handle lives on the
 // Browse tab (the discovery surface), not here. Drag (Phase 8) and PDS sync
 // (Phase 9) build on this.
 //
@@ -1000,8 +1002,9 @@ export const main = async (
     if (source === 'browse') {
       sourceItems = await loadStarterPalette();
     } else {
-      // Cookbook needs your identity — boot the session lazily (defers the heavy
-      // auth client off the initial bundle). Signed out, resolves starters only.
+      // Cookbook (your authored + liked recipes) needs your identity — boot the
+      // session lazily (defers the heavy auth client off the initial bundle).
+      // Signed out there is no cookbook, so the palette comes back empty.
       if (you === null && signedInHint) {
         try {
           const { bootSession } = await import('../auth/boot.js');

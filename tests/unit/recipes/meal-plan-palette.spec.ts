@@ -21,33 +21,95 @@ const recordingLogger = (): Logger => ({
 
 const entry = (uri: string, cid: string, name: unknown) => ({ uri, cid, value: { name } });
 
+// My Cookbook = EXACTLY the Cookbook page's "Both" scope: your authored recipes
+// + your liked recipes, deduped (own first). No member/reach fan-out — that
+// corpus is Browse's, and mirroring it made the two sources look identical.
 describe('loadCookbookPalette', () => {
-  it('maps feed entries to { uri, cid, name } and logs the load', async () => {
+  const you = { did: 'did:you', pds: 'https://pds.you.test' };
+  const liked = (uri: string) => ({
+    uri: `at://did:you/app.arecipe.interaction/${uri.split('/').pop() ?? 'x'}`,
+    cid: 'cidint',
+    kind: 'liked' as const,
+    recipe: { uri, cid: 'cidref' },
+    author: 'did:you',
+    createdAt: '2026-07-16T00:00:00Z',
+  });
+
+  it('merges your authored + liked recipes, own first, deduped by uri', async () => {
     const logger = recordingLogger();
     const out = await loadCookbookPalette(
-      {},
+      { you },
       {
-        resolveCookbook: async () => [],
-        membersToAuthors: async () => [{ handle: 'c.test', did: 'did:c' }],
-        loadAuthorsFeed: async () => ({ entries: [entry('at://d/c/soup', 'cidsoup', 'Soup')] }),
+        readRecipes: async (target) => {
+          expect(target).toEqual({ pds: you.pds, did: you.did });
+          return [entry('at://did:you/c/soup', 'cidsoup', 'Soup')];
+        },
+        listInteractions: async (target) => {
+          expect(target).toEqual({ pds: you.pds, did: you.did, kind: 'liked' });
+          return [liked('at://did:other/c/pie'), liked('at://did:you/c/soup')];
+        },
+        likedFeed: async () => ({
+          entries: [
+            entry('at://did:other/c/pie', 'cidpie', 'Pie'),
+            // A self-liked recipe also arrives via the authored leg — dedupe.
+            entry('at://did:you/c/soup', 'cidsoup', 'Soup'),
+          ],
+        }),
         logger,
       },
     );
-    expect(out).toEqual([{ uri: 'at://d/c/soup', cid: 'cidsoup', name: 'Soup' }]);
+    expect(out).toEqual([
+      { uri: 'at://did:you/c/soup', cid: 'cidsoup', name: 'Soup' },
+      { uri: 'at://did:other/c/pie', cid: 'cidpie', name: 'Pie' },
+    ]);
     expect(logger.info).toHaveBeenCalledWith('meal-plan', 'palette loaded', {
       source: 'cookbook',
-      count: 1,
+      count: 2,
     });
   });
 
-  it('degrades to [] and warns when the source throws', async () => {
-    const logger = recordingLogger();
+  it('is empty signed out — the cookbook is YOUR recipes, so no identity means none', async () => {
+    const readRecipes = vi.fn();
+    const listInteractions = vi.fn();
     const out = await loadCookbookPalette(
       {},
+      { readRecipes, listInteractions, logger: recordingLogger() },
+    );
+    expect(out).toEqual([]);
+    expect(readRecipes).not.toHaveBeenCalled();
+    expect(listInteractions).not.toHaveBeenCalled();
+  });
+
+  it('degrades to authored-only (with a warn) when the liked leg fails', async () => {
+    const logger = recordingLogger();
+    const out = await loadCookbookPalette(
+      { you },
       {
-        resolveCookbook: async () => {
-          throw new Error('appview down');
+        readRecipes: async () => [entry('at://did:you/c/soup', 'cidsoup', 'Soup')],
+        listInteractions: async () => {
+          throw new Error('interactions listing down');
         },
+        logger,
+      },
+    );
+    expect(out).toEqual([{ uri: 'at://did:you/c/soup', cid: 'cidsoup', name: 'Soup' }]);
+    expect(logger.warn).toHaveBeenCalledWith(
+      'meal-plan',
+      'liked palette leg failed — authored only',
+      expect.objectContaining({ error: expect.stringContaining('interactions listing down') }),
+    );
+  });
+
+  it('degrades to [] and warns when the authored read throws', async () => {
+    const logger = recordingLogger();
+    const out = await loadCookbookPalette(
+      { you },
+      {
+        readRecipes: async () => {
+          throw new Error('pds down');
+        },
+        listInteractions: async () => [],
+        likedFeed: async () => ({ entries: [] }),
         logger,
       },
     );
