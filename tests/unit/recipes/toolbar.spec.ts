@@ -69,13 +69,15 @@ const filtersBadge = (root: HTMLElement): HTMLElement =>
   root.querySelector<HTMLElement>('[data-testid="filters-count"]')!;
 
 describe('renderToolbar — D7 single Filters disclosure', () => {
-  it('collapses photos + facets + reset behind one Filters ▾ disclosure', () => {
+  it('collapses photos + facets behind one Filters ▾ disclosure (reset lives outside it)', () => {
     const toolbar = renderToolbar({ callbacks: noopCallbacks() });
     const dd = filtersDisclosure(toolbar.element);
     expect(dd).not.toBeNull();
-    // Photos-only, the facet container, and reset all live INSIDE the disclosure.
+    // Photos-only and the facet container live INSIDE the disclosure.
     expect(dd.querySelector('[data-testid="photos-only"]')).not.toBeNull();
-    expect(dd.querySelector('[data-testid="reset-filters"]')).not.toBeNull();
+    // Reset-surface v2 (D4): reset is NO LONGER inside the popover — it moves to
+    // the honest-count block so an active filter shows a one-tap clear in sight.
+    expect(dd.querySelector('[data-testid="reset-filters"]')).toBeNull();
     // The search input and view toggle stay OUTSIDE the disclosure (rows 1/3).
     expect(dd.querySelector('[data-testid="recipe-search"]')).toBeNull();
     expect(dd.querySelector('[data-testid="view-tiles"]')).toBeNull();
@@ -110,6 +112,39 @@ describe('renderToolbar — D7 single Filters disclosure', () => {
     expect(badge.hidden).toBe(false);
     toolbar.setFilterCount(0);
     expect(badge.hidden).toBe(true);
+  });
+
+  it('mounts reset in the count block, before the honest status, as the shared icon button', () => {
+    const toolbar = renderToolbar({ callbacks: noopCallbacks() });
+    const countBlock = toolbar.element.querySelector<HTMLElement>('.browse-count')!;
+    const reset = countBlock.querySelector<HTMLButtonElement>('[data-testid="reset-filters"]')!;
+    expect(reset).not.toBeNull();
+    // It is the shared icon-button helper: icon-only, labelled, class-shared.
+    expect(reset.tagName.toLowerCase()).toBe('button');
+    expect(reset.classList.contains('reset-icon-btn')).toBe(true);
+    expect(reset.getAttribute('aria-label')).toBe('reset filters');
+    expect(reset.querySelector('svg')).not.toBeNull();
+    // Ordered before the honest count so it reads "reset · N of M shown".
+    const status = countBlock.querySelector<HTMLElement>('[data-testid="recipes-status"]')!;
+    expect(reset.compareDocumentPosition(status) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('setResetVisible toggles the relocated reset; hidden by default', () => {
+    const toolbar = renderToolbar({ callbacks: noopCallbacks() });
+    const reset = toolbar.element.querySelector<HTMLButtonElement>('[data-testid="reset-filters"]')!;
+    expect(reset.hidden).toBe(true); // no active filter → no reset
+    toolbar.setResetVisible(true);
+    expect(reset.hidden).toBe(false);
+    toolbar.setResetVisible(false);
+    expect(reset.hidden).toBe(true);
+  });
+
+  it('clicking the relocated reset fires onReset', () => {
+    let fired = 0;
+    const toolbar = renderToolbar({ callbacks: noopCallbacks({ onReset: () => (fired += 1) }) });
+    const reset = toolbar.element.querySelector<HTMLButtonElement>('[data-testid="reset-filters"]')!;
+    reset.click();
+    expect(fired).toBe(1);
   });
 
   it('exposes a source slot (Cookbook) and an actions slot (Browse) for page controls', () => {

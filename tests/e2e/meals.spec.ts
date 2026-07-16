@@ -126,6 +126,22 @@ test('tap-to-place: arm a recipe, place it on a day, persist across reload, clea
   await expect(page.getByTestId('remove-week')).toHaveCount(2);
 });
 
+// Reset-surface v2 (D5): the meals reset is the SAME shared icon button as the
+// toolbar reset — a labelled, icon-only counterclockwise arrow. The confirm gate
+// is unchanged (covered below); this only pins the control's shape.
+test('reset control is the shared reset icon button (labelled, icon-only)', async ({ page }) => {
+  await seedPalette(page);
+  await page.goto('/meals.html');
+  const reset = page.getByTestId('reset-plan');
+  await expect(reset).toBeVisible();
+  await expect(reset).toHaveAttribute('aria-label', 'Reset plan');
+  await expect(reset).toHaveAttribute('title', 'Reset plan');
+  // Icon-only via the shared helper: the class + inline svg, no text label.
+  expect(await reset.evaluate((n) => n.classList.contains('reset-icon-btn'))).toBe(true);
+  expect(await reset.evaluate((n) => n.querySelector('svg') !== null)).toBe(true);
+  await expect(reset).toHaveText('');
+});
+
 test('reset: clears the plan back to one empty week (inline confirm; cancel is safe)', async ({
   page,
 }) => {
