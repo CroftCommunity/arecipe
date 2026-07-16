@@ -186,7 +186,7 @@ test('repeat planned weeks: duplicates the whole plan (meals and all) instead of
     page.getByTestId('week-row').first().getByTestId('slot-filled'),
   ).toHaveText('Lasagna');
 
-  // "Repeat planned weeks" appends a copy of the current plan (week 1 → 1 + 2),
+  // "Repeat weeks" appends a copy of the current plan (week 1 → 1 + 2),
   // and the copy carries the same placed meal.
   await page.getByTestId('repeat-weeks').click();
   await expect(page.getByTestId('week-row')).toHaveCount(2);
