@@ -1114,6 +1114,116 @@ a {
   align-items: center;
   gap: var(--s-2);
 }
+/* Divider between the published-plans list and the month calendar below it. */
+.plans-divider {
+  border: none;
+  border-top: var(--stroke) solid var(--line);
+  max-width: 44rem;
+  margin: var(--s-5) 0;
+}
+.plans-divider[hidden] {
+  display: none;
+}
+/* Read-only month calendar of the published plans: ‹ Month YYYY › over a
+   Monday-first 7-column grid. minmax(0, 1fr) columns so the grid compresses
+   to 320px instead of overflowing; day cells stay tappable (≥2.4rem tall). */
+.month-cal {
+  max-width: 44rem;
+}
+.month-cal[hidden] {
+  display: none;
+}
+.month-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  margin-bottom: var(--s-2);
+}
+.month-title {
+  margin: 0;
+}
+.month-nav {
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  line-height: 1;
+  padding: 0.25rem var(--s-2);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--card);
+  color: inherit;
+  cursor: pointer;
+}
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--s-1);
+}
+.month-dow {
+  font-size: var(--t-caption);
+  text-align: center;
+  opacity: 0.7;
+}
+.month-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  min-height: 2.4rem;
+  padding: var(--s-1);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-s);
+  background: var(--card);
+  color: inherit;
+  font-family: var(--body);
+  font-size: var(--t-caption);
+}
+.month-cell--pad {
+  border-color: transparent;
+  background: transparent;
+}
+/* Planned days are the only interactive cells: enamel-tinted, tap to expand. */
+button.month-cell--filled {
+  appearance: none;
+  border-color: var(--enamel);
+  background: var(--enamel-soft);
+  cursor: pointer;
+}
+.month-cell--selected {
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px var(--enamel);
+}
+.month-daynum {
+  line-height: 1;
+}
+.month-count {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  line-height: 1;
+  padding: 0.1rem 0.3rem;
+  border-radius: var(--r-pill);
+  background: var(--enamel);
+  color: var(--card);
+}
+/* The selected day's recipes: a full-width row directly under its week. */
+.month-expand {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: var(--s-1);
+  padding: var(--s-2) var(--s-3);
+  border: var(--stroke) solid var(--enamel);
+  border-radius: var(--r-m);
+  background: var(--card);
+}
+.month-expand-title {
+  margin: 0;
+  font-size: var(--t-caption);
+}
+.month-meal {
+  color: var(--enamel);
+  font-size: var(--t-caption);
+  overflow-wrap: anywhere;
+}
 
 /* Content-freshness note at the bottom of the Cookbook (SWR "as of …"). Quiet,
    centred, set off from the feed — a companion to the build stamp below it. */

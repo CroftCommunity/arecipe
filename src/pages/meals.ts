@@ -30,11 +30,19 @@ import {
   createMealPlanStore,
   duplicateWeeks,
   mealLineText,
+  type LocalMeal,
   type LocalPlan,
   type LocalWeek,
   type MealPlanStore,
 } from '../recipes/meal-plan-local.js';
 import { getPdsPlan, listPdsPlans, removePlanFromPds, syncPlanToPds } from '../recipes/meal-plan-sync.js';
+import {
+  addMonths,
+  defaultMonth,
+  mealsByDate,
+  monthGrid,
+  monthLabel,
+} from '../recipes/meal-plan-month.js';
 import {
   loadCookbookPalette,
   loadStarterPalette,
@@ -270,14 +278,124 @@ const showPublishedPlans = async (app: HTMLElement): Promise<void> => {
     // the remaining set.
     const calendarClient = createCalendarClient();
     const listPublished = (): Promise<LocalPlan[]> => listPdsPlans(pds, did);
+
+    // Below the list (past a divider): a read-only month calendar with every
+    // published plan filled in. Days holding meals are tappable — selecting one
+    // expands the day to its recipes as links; everything else is inert. Month
+    // arrows page through; the view opens on today's month (or the nearest
+    // planned one). Derived entirely from the same published list, so a delete
+    // above redraws it.
+    const listEl = el('div', 'plan-list');
+    const divider = el('hr', 'plans-divider');
+    const monthCal = el('section', 'month-cal');
+    monthCal.dataset['testid'] = 'plans-calendar';
+    let month: string | null = null; // sticky across redraws; null until first render
+    let selectedDate: string | null = null;
+
+    const dayExpand = (iso: string, dow: string, meals: LocalMeal[]): HTMLElement => {
+      const panel = el('div', 'month-expand');
+      panel.dataset['testid'] = 'month-expand';
+      const short = formatShortDate(iso);
+      panel.append(el('h4', 'month-expand-title', short !== null ? `${dow} · ${short}` : dow));
+      for (const meal of meals) {
+        const link = el('a', 'month-meal', mealLineText(meal)) as HTMLAnchorElement;
+        link.href = `./recipe.html?u=${encodeURIComponent(meal.recipe.uri)}`;
+        link.dataset['testid'] = 'month-meal';
+        panel.append(link);
+      }
+      return panel;
+    };
+
+    const renderMonthCal = (list: LocalPlan[]): void => {
+      const byDate = mealsByDate(list);
+      const today = new Date().toISOString().slice(0, 10);
+      month = month ?? defaultMonth(today, byDate.keys());
+      const cells = month !== null ? monthGrid(month) : null;
+      if (byDate.size === 0 || month === null || cells === null) {
+        divider.hidden = true;
+        monthCal.hidden = true;
+        monthCal.replaceChildren();
+        return;
+      }
+      divider.hidden = false;
+      monthCal.hidden = false;
+      const current = month;
+      // A selection only survives while its day is still planned and visible.
+      if (selectedDate !== null && (!cells.includes(selectedDate) || !byDate.has(selectedDate))) {
+        selectedDate = null;
+      }
+
+      const head = el('div', 'month-head');
+      const nav = (delta: number, glyph: string, label: string, testid: string): HTMLButtonElement => {
+        const btn = el('button', 'month-nav', glyph) as HTMLButtonElement;
+        btn.type = 'button';
+        btn.dataset['testid'] = testid;
+        btn.setAttribute('aria-label', label);
+        btn.addEventListener('click', () => {
+          month = addMonths(current, delta);
+          selectedDate = null;
+          renderMonthCal(list);
+        });
+        return btn;
+      };
+      const title = el('h3', 'palette-title month-title', monthLabel(current) ?? current);
+      title.dataset['testid'] = 'month-title';
+      head.append(nav(-1, '‹', 'Previous month', 'month-prev'), title, nav(1, '›', 'Next month', 'month-next'));
+
+      const grid = el('div', 'month-grid');
+      grid.dataset['testid'] = 'month-grid';
+      for (const dow of DAY_LABELS) grid.append(el('div', 'month-dow', dow));
+      // The selected day's recipes render as a full-width panel directly under
+      // its week row (grid auto-placement: it follows that row's 7th cell).
+      const selIndex = selectedDate !== null ? cells.indexOf(selectedDate) : -1;
+      const panelAfter = selIndex >= 0 ? Math.floor(selIndex / 7) * 7 + 6 : -1;
+      cells.forEach((iso, i) => {
+        if (iso === null) {
+          grid.append(el('div', 'month-cell month-cell--pad'));
+        } else {
+          const dayNum = String(Number(iso.slice(8, 10)));
+          const meals = byDate.get(iso);
+          if (meals === undefined) {
+            const cell = el('div', 'month-cell');
+            cell.append(el('span', 'month-daynum', dayNum));
+            grid.append(cell);
+          } else {
+            const btn = el('button', 'month-cell month-cell--filled') as HTMLButtonElement;
+            btn.type = 'button';
+            btn.dataset['testid'] = 'month-day';
+            btn.dataset['date'] = iso;
+            if (selectedDate === iso) btn.classList.add('month-cell--selected');
+            btn.setAttribute('aria-expanded', String(selectedDate === iso));
+            const short = formatShortDate(iso) ?? iso;
+            btn.setAttribute('aria-label', `${short}, ${meals.length} ${meals.length === 1 ? 'recipe' : 'recipes'}`);
+            btn.append(el('span', 'month-daynum', dayNum), el('span', 'month-count', String(meals.length)));
+            btn.addEventListener('click', () => {
+              selectedDate = selectedDate === iso ? null : iso;
+              renderMonthCal(list);
+            });
+            grid.append(btn);
+          }
+        }
+        if (i === panelAfter && selectedDate !== null) {
+          const meals = byDate.get(selectedDate);
+          if (meals !== undefined) {
+            grid.append(dayExpand(selectedDate, DAY_LABELS[selIndex % 7] ?? '', meals));
+          }
+        }
+      });
+      monthCal.replaceChildren(head, grid);
+    };
+
     const render = (list: LocalPlan[]): void => {
+      body.replaceChildren(listEl, divider, monthCal);
+      renderMonthCal(list);
       if (list.length === 0) {
-        body.replaceChildren(
+        listEl.replaceChildren(
           el('p', 'empty-state', 'No published meal plans yet — Publish one from the planner.'),
         );
         return;
       }
-      body.replaceChildren();
+      listEl.replaceChildren();
       for (const plan of list) {
         const shareUrl = new URL('meals.html', window.location.href);
         shareUrl.searchParams.set('mealplan', plan.id);
@@ -327,7 +445,7 @@ const showPublishedPlans = async (app: HTMLElement): Promise<void> => {
         renderDel();
 
         row.append(info, del);
-        body.append(row);
+        listEl.append(row);
       }
     };
     render(plans);
