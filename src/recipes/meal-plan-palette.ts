@@ -1,10 +1,11 @@
 // Meal-plan palette loaders (Phase 7): turn arecipe's recipe feeds into
 // placeable palette items. Two sources behind a switch — My Cookbook (your
-// bounded reach) and Browse (the starter feed) — plus an add-a-cook-by-handle
-// leg, reusing the same read paths Cookbook and Browse already run. Each loader
-// maps feed entries to { uri, cid, name } and degrades like those pages (a
-// failed source contributes nothing, never blanks the palette), logging its
-// seam so a blank palette is diagnosable (source failed vs. genuinely empty).
+// authored + liked recipes, the Cookbook page's "Both" scope) and Browse (the
+// starter feed) — plus an add-a-cook-by-handle leg, reusing the same read paths
+// Cookbook and Browse already run. Each loader maps feed entries to { uri, cid,
+// name } and degrades like those pages (a failed source contributes nothing,
+// never blanks the palette), logging its seam so a blank palette is diagnosable
+// (source failed vs. genuinely empty).
 //
 // There is no dish-name free-text search: atproto has no cross-repo index
 // without an AppView and arecipe ships none. Reach beyond your Cookbook is by
@@ -14,9 +15,9 @@ import { createResolver } from '../identity/resolve.js';
 import { recipeFacets } from '../pages/browse-state.js';
 import { log as defaultLogger, type Logger } from '../log.js';
 import { createRecipeReader } from './read.js';
-import { resolveCookbook, type CookbookMember, type ReachConfig } from '../social/cookbook.js';
-import { membersToAuthors } from '../social/cookbook-members-view.js';
-import { loadAuthorsFeed, type FeedAuthor } from '../social/feed.js';
+import { loadLikedFeed as defaultLoadLikedFeed } from '../social/liked-feed.js';
+import { listInteractionsFor, type Interaction } from '../social/interactions.js';
+import type { FeedAuthor } from '../social/feed.js';
 import { createStarterPrefs, loadStarterFeed } from './starter.js';
 
 /** A placeable recipe: strong-ref material plus a display name, and (when known)
@@ -104,29 +105,42 @@ const collect = async (
   }
 };
 
-/** My Cookbook: your bounded reach (own recipes + starters + follows/followers).
- * `you` is required for follows/followers; omit it and only starters resolve. */
+/** My Cookbook: EXACTLY the Cookbook page's "Both" scope — your authored
+ * recipes + your liked recipes, deduped by uri (own first). No member/reach
+ * fan-out here: that corpus is Browse's job, and duplicating it made the two
+ * palette sources indistinguishable. `you` is required — signed out there is
+ * no cookbook, so the palette is empty (the page defaults to Browse then).
+ * A liked-leg failure degrades to authored-only, never blanks the palette. */
 export const loadCookbookPalette = async (
-  args: { you?: { did: string; pds: string }; config?: ReachConfig },
+  args: { you?: { did: string; pds: string } },
   deps: {
-    resolveCookbook?: (a: { you?: { did: string; pds: string }; config?: ReachConfig }) => Promise<CookbookMember[]>;
-    membersToAuthors?: (m: CookbookMember[]) => Promise<FeedAuthor[]>;
-    loadAuthorsFeed?: FeedLoader;
+    readRecipes?: (target: { pds: string; did: string }) => Promise<Entry[]>;
+    listInteractions?: (target: { pds: string; did: string; kind: 'liked' }) => Promise<Interaction[]>;
+    likedFeed?: (interactions: Interaction[]) => Promise<{ entries: Entry[] }>;
     logger?: Logger;
   } = {},
 ): Promise<PaletteItem[]> => {
-  const resolve = deps.resolveCookbook ?? resolveCookbook;
-  const toAuthors = deps.membersToAuthors ?? membersToAuthors;
-  const loadFeed = deps.loadAuthorsFeed ?? loadAuthorsFeed;
   const logger = deps.logger ?? defaultLogger;
+  const you = args.you;
+  if (you === undefined) {
+    logger.info('meal-plan', 'palette loaded', { source: 'cookbook', count: 0 });
+    return [];
+  }
+  const read = deps.readRecipes ?? createRecipeReader();
+  const listInteractions = deps.listInteractions ?? listInteractionsFor;
+  const likedFeed = deps.likedFeed ?? defaultLoadLikedFeed;
   return collect(
     'cookbook',
     async () => {
-      const members = await resolve(
-        args.config === undefined ? { you: args.you } : { you: args.you, config: args.config },
-      );
-      const authors = await toAuthors(members);
-      return (await loadFeed(authors)).entries;
+      const own = await read({ pds: you.pds, did: you.did });
+      let liked: Entry[] = [];
+      try {
+        liked = (await likedFeed(await listInteractions({ pds: you.pds, did: you.did, kind: 'liked' }))).entries;
+      } catch (err) {
+        logger.warn('meal-plan', 'liked palette leg failed — authored only', { error: String(err) });
+      }
+      const seen = new Set(own.map((e) => e.uri));
+      return [...own, ...liked.filter((e) => !seen.has(e.uri))];
     },
     logger,
   );
