@@ -198,9 +198,10 @@ const main = async (): Promise<void> => {
 
     // Who's in your cookbook (Phase 6): the members list moved here from
     // Cookbook. The shared view resolves your starter cooks + Bluesky graph and
-    // renders them with source badges + a Settings link. Loads after the shell
-    // mounts so the page shows immediately; a failure degrades to a status line.
-    const membersSection = el('section', 'account-members');
+    // renders them paginated with source badges + a Settings link, in the same
+    // .settings-section card as Taste. Loads after the shell mounts so the page
+    // shows immediately; a failure degrades to a status line.
+    const membersSection = el('section', 'settings-section account-members');
     membersSection.append(el('h3', 'section-title', 'Cooks you follow'));
     content.append(membersSection);
     const did = agent.did;

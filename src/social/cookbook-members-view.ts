@@ -18,7 +18,12 @@ import {
   unfollowCook,
 } from './cook-follows-pds.js';
 import { renderAddCookPanel } from './add-cook-panel.js';
+import { windowPage } from '../recipes/paginate.js';
 import type { FeedAuthor } from './feed.js';
+
+/** Cooks per page in the Account list — the same cap as the Meals palette, so a
+ *  long Bluesky graph doesn't run the page down; the pager steps through it. */
+const MEMBERS_PAGE_SIZE = 10;
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
   const node = document.createElement(tag);
@@ -140,7 +145,26 @@ export const mountMembersList = async (
   });
   const offerMount = el('div');
   const listMount = el('div');
-  container.append(note, addPanel.element, offerMount, listMount);
+
+  // Pager: ◀ "Showing X–Y of N" ▶ under the list — the same idiom as the Browse
+  // feed and the Meals palette. Hidden when everything fits on one page.
+  let membersOffset = 0;
+  const pager = el('div', 'members-pager');
+  pager.dataset['testid'] = 'members-pager';
+  pager.hidden = true;
+  const pagerPrev = el('button', 'palette-page-btn', '◀') as HTMLButtonElement;
+  pagerPrev.type = 'button';
+  pagerPrev.dataset['testid'] = 'members-prev';
+  pagerPrev.setAttribute('aria-label', 'Previous cooks');
+  const pagerHint = el('span', 'browse-pager-hint');
+  pagerHint.dataset['testid'] = 'members-page-hint';
+  const pagerNext = el('button', 'palette-page-btn', '▶') as HTMLButtonElement;
+  pagerNext.type = 'button';
+  pagerNext.dataset['testid'] = 'members-next';
+  pagerNext.setAttribute('aria-label', 'Next cooks');
+  pager.append(pagerPrev, pagerHint, pagerNext);
+
+  container.append(note, addPanel.element, offerMount, listMount, pager);
 
   // The D1 published marker on each local row is the source of truth for "is
   // this follow on the PDS?" — it drives the D6 offer (unmarked rows only) and
@@ -230,6 +254,32 @@ export const mountMembersList = async (
     offerMount.append(offer);
   };
 
+  // Windowing state: the resolved members/authors are cached so the arrows
+  // re-window without re-fetching. `render()` refreshes the cache (after a
+  // follow/unfollow); `renderPage()` just flips pages over it.
+  let loaded: { members: CookbookMember[]; authors: FeedAuthor[] } | null = null;
+  const renderPage = (): void => {
+    if (loaded === null) return;
+    const page = windowPage(loaded.members, { offset: membersOffset, size: MEMBERS_PAGE_SIZE });
+    membersOffset = page.total === 0 ? 0 : page.start - 1; // sync to the clamped window
+    const paged = page.total > MEMBERS_PAGE_SIZE;
+    pager.hidden = !paged;
+    pagerHint.textContent = paged ? `Showing ${page.start}–${page.end} of ${page.total}` : '';
+    pagerPrev.disabled = !page.hasPrev;
+    pagerNext.disabled = !page.hasNext;
+    listMount.replaceChildren(
+      renderMembersList(page.items, loaded.authors, { onUnfollow: (did) => void unfollow(did) }),
+    );
+  };
+  pagerPrev.addEventListener('click', () => {
+    membersOffset = Math.max(0, membersOffset - MEMBERS_PAGE_SIZE);
+    renderPage();
+  });
+  pagerNext.addEventListener('click', () => {
+    membersOffset += MEMBERS_PAGE_SIZE;
+    renderPage();
+  });
+
   const render = async (): Promise<void> => {
     try {
       const members = await resolveCookbook({
@@ -238,10 +288,12 @@ export const mountMembersList = async (
         ...fetchOpt,
       });
       const authors = await membersToAuthors(members);
-      listMount.replaceChildren(renderMembersList(members, authors, { onUnfollow: (did) => void unfollow(did) }));
+      loaded = { members, authors };
+      renderPage();
       renderOffer();
     } catch (err) {
       log.error('cookbook-members', 'members load failed', { error: String(err) });
+      pager.hidden = true;
       listMount.replaceChildren(el('p', 'status', `couldn’t load your cookbook members: ${String(err)}`));
     }
   };

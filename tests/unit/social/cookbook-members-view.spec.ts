@@ -231,6 +231,61 @@ describe('mountMembersList — cook-follow wiring', () => {
     );
   });
 
+  // Pagination: the list windows to 10 cooks a page with ◀ / ▶ arrows and a
+  // "Showing X–Y of N" hint (the Browse/Meals pager idiom). A short list keeps
+  // the pager hidden entirely.
+  // "you" carries no handle, so membersToAuthors tries a DID-doc resolve; a
+  // failing fetch stub keeps that hermetic (it falls back to showing the DID).
+  const stubFailingFetch = (): void => {
+    vi.stubGlobal(
+      'fetch',
+      (async () => ({ ok: false, status: 404, json: async () => ({}) })) as unknown as typeof fetch,
+    );
+  };
+
+  it('windows a long list to 10 per page with arrows + a range hint', async () => {
+    stubFailingFetch();
+    // 14 local follows + "you" = 15 members → two pages (10 + 5).
+    for (let i = 0; i < 14; i++) {
+      createCookFollowsLocal().add({ did: `did:plc:cook${String(i).padStart(2, '0')}`, handle: `cook${i}.example` });
+    }
+    const container = document.createElement('div');
+    await mountMembersList(container, YOU, ADDED_ONLY);
+
+    const rows = (): NodeListOf<Element> =>
+      container.querySelectorAll('[data-testid="cookbook-member"]');
+    const hint = container.querySelector('[data-testid="members-page-hint"]')!;
+    const prev = container.querySelector<HTMLButtonElement>('[data-testid="members-prev"]')!;
+    const next = container.querySelector<HTMLButtonElement>('[data-testid="members-next"]')!;
+
+    expect(rows()).toHaveLength(10);
+    expect(hint.textContent).toBe('Showing 1–10 of 15');
+    expect(container.querySelector<HTMLElement>('[data-testid="members-pager"]')!.hidden).toBe(false);
+    expect(prev.disabled).toBe(true);
+    expect(next.disabled).toBe(false);
+
+    // ▶ steps to the last page; ◀ steps back to the first.
+    next.click();
+    expect(rows()).toHaveLength(5);
+    expect(hint.textContent).toBe('Showing 11–15 of 15');
+    expect(prev.disabled).toBe(false);
+    expect(next.disabled).toBe(true);
+    prev.click();
+    expect(rows()).toHaveLength(10);
+    expect(hint.textContent).toBe('Showing 1–10 of 15');
+  });
+
+  it('hides the pager when everything fits on one page', async () => {
+    stubFailingFetch();
+    createCookFollowsLocal().add({ did: 'did:plc:solo', handle: 'solo.cook' });
+    const container = document.createElement('div');
+    await mountMembersList(container, YOU, ADDED_ONLY);
+
+    expect(container.querySelectorAll('[data-testid="cookbook-member"]')).toHaveLength(2); // you + solo
+    expect(container.querySelector<HTMLElement>('[data-testid="members-pager"]')!.hidden).toBe(true);
+    expect(container.querySelector('[data-testid="members-page-hint"]')!.textContent).toBe('');
+  });
+
   it('prunes a remotely-unfollowed row from the list AND the offer (D2b)', async () => {
     // A follow published earlier (marked), then unfollowed on another device: its
     // record is absent from the PDS list, so the reconciling mirror prunes it.
