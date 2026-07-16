@@ -14,6 +14,7 @@
   --enamel-soft: #175e5414;
   --yolk: #e8a013;
   --yolk-deep: #b87d0a;
+  --yolk-soft: #b87d0a14;
   --rust: #b4552d;
   --rust-soft: #b4552d14;
   --card: #ffffff;
@@ -61,6 +62,7 @@
   --enamel-soft: #5cb3a124;
   --yolk: #e8a013;
   --yolk-deep: #e5b13d;
+  --yolk-soft: #e5b13d24;
   --rust: #e07a4f;
   --rust-soft: #e07a4f24;
   --card: #182622;
@@ -991,10 +993,31 @@ a {
   flex-wrap: wrap;
 }
 
-/* Meals title-row actions: "My plans" + "Reset", grouped at the right. */
+/* Meals title-row actions: calendar chip + "Published", grouped at the right. */
 .meals-actions {
   display: flex;
   align-items: center;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+}
+/* "Published" link in the Meals title row: yolk accent to set it apart from the
+   enamel actions; no underline (it's a button, not body copy). --yolk-deep is
+   theme-tuned, so it reads in light and dark. */
+.meals-plans {
+  text-decoration: none;
+  color: var(--yolk-deep);
+  border-color: var(--yolk-deep);
+}
+.meals-plans:hover {
+  background: var(--yolk-soft);
+}
+/* Controls row below the title: "Recipes per day" on the left, the Reset
+   control right-aligned on the same line (wraps if the inline confirm won't
+   fit at 320px). */
+.meals-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: var(--s-2);
   flex-wrap: wrap;
 }
@@ -1877,7 +1900,7 @@ table.ref.pairs td.eq {
 .day-clear {
   align-self: flex-start;
 }
-/* "Meals/day" cap control in the Meals title row. */
+/* "Recipes per day" cap control in the Meals controls row. */
 .meals-perday {
   display: flex;
   align-items: center;

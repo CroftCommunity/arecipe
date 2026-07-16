@@ -435,7 +435,7 @@ test('shared view: a link without a user param explains what is missing', async 
   await expect(page.getByTestId('shared-plan')).toContainText('needs a “user”', { timeout: 15_000 });
 });
 
-test('the planner header links to the "My plans" subpage', async ({ page }) => {
+test('the planner header links to the "Published" plans subpage', async ({ page }) => {
   await page.goto('/meals.html');
   await expect(page.getByTestId('my-plans')).toHaveAttribute('href', /meals\.html\?plans$/);
 });

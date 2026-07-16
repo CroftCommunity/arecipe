@@ -185,7 +185,7 @@ test('@live publish a plan, then open the shared link anonymously', async ({
   await purge();
 });
 
-test('@live "My plans" subpage lists a published plan, then deletes it', async ({ page, baseURL }) => {
+test('@live "Published" plans subpage lists a published plan, then deletes it', async ({ page, baseURL }) => {
   test.skip(
     HANDLE === '' || PASSWORD === '' || APP_PASSWORD === '',
     'needs BSKY_TEST_* credentials in .env',
@@ -222,7 +222,7 @@ test('@live "My plans" subpage lists a published plan, then deletes it', async (
   await page.getByTestId('publish-plan').click();
   await expect(page.getByTestId('share-url')).toBeVisible({ timeout: 30_000 });
 
-  // The "My plans" subpage lists the published plan with its week range + a
+  // The "Published" plans subpage lists the published plan with its week range + a
   // share link, and can delete it.
   await page.getByTestId('my-plans').click();
   await expect(page).toHaveURL(/meals\.html\?plans$/);
