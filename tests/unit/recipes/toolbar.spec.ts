@@ -63,12 +63,38 @@ describe('renderToolbar — search input', () => {
   });
 });
 
+/** Replace window.matchMedia with a controllable stub: `fire(matches)` flips the
+ *  state and notifies the toolbar's change listener, like a real viewport cross. */
+const stubMatchMedia = (matches: boolean): { fire: (matches: boolean) => void } => {
+  const state = { matches };
+  const listeners: ((ev: MediaQueryListEvent) => void)[] = [];
+  vi.spyOn(window, 'matchMedia').mockImplementation(
+    (query: string) =>
+      ({
+        get matches() {
+          return state.matches;
+        },
+        media: query,
+        addEventListener: (_type: string, cb: (ev: MediaQueryListEvent) => void) => listeners.push(cb),
+        removeEventListener: () => {},
+      }) as unknown as MediaQueryList,
+  );
+  return {
+    fire: (next) => {
+      state.matches = next;
+      for (const cb of listeners) cb({ matches: next } as MediaQueryListEvent);
+    },
+  };
+};
+
 const filtersDisclosure = (root: HTMLElement): HTMLDetailsElement =>
   root.querySelector<HTMLDetailsElement>('[data-testid="filters-dd"]')!;
 const filtersBadge = (root: HTMLElement): HTMLElement =>
   root.querySelector<HTMLElement>('[data-testid="filters-count"]')!;
 
 describe('renderToolbar — D7 single Filters disclosure', () => {
+  afterEach(() => vi.restoreAllMocks());
+
   it('collapses photos + facets behind one Filters ▾ disclosure (reset lives outside it)', () => {
     const toolbar = renderToolbar({ callbacks: noopCallbacks() });
     const dd = filtersDisclosure(toolbar.element);
@@ -145,6 +171,32 @@ describe('renderToolbar — D7 single Filters disclosure', () => {
     const reset = toolbar.element.querySelector<HTMLButtonElement>('[data-testid="reset-filters"]')!;
     reset.click();
     expect(fired).toBe(1);
+  });
+
+  it('setStatus shows the full text at desktop widths even when a compact form is given', () => {
+    const { fire } = stubMatchMedia(false);
+    const toolbar = renderToolbar({ callbacks: noopCallbacks() });
+    const status = toolbar.element.querySelector<HTMLElement>('[data-testid="recipes-status"]')!;
+    toolbar.setStatus('3 of 12 recipes', '3/12');
+    expect(status.textContent).toBe('3 of 12 recipes');
+    // Crossing INTO the phone breakpoint re-picks the compact form live.
+    fire(true);
+    expect(status.textContent).toBe('3/12');
+  });
+
+  it('setStatus shows the compact form at phone widths, full text when none is given', () => {
+    const { fire } = stubMatchMedia(true);
+    const toolbar = renderToolbar({ callbacks: noopCallbacks() });
+    const status = toolbar.element.querySelector<HTMLElement>('[data-testid="recipes-status"]')!;
+    toolbar.setStatus('3 of 12 recipes', '3/12');
+    expect(status.textContent).toBe('3/12');
+    // No compact variant (the unfiltered "N recipes") → the full text everywhere.
+    toolbar.setStatus('12 recipes');
+    expect(status.textContent).toBe('12 recipes');
+    // Crossing OUT of the phone breakpoint restores the full text.
+    toolbar.setStatus('3 of 12 recipes', '3/12');
+    fire(false);
+    expect(status.textContent).toBe('3 of 12 recipes');
   });
 
   it('exposes a source slot (Cookbook) and an actions slot (Browse) for page controls', () => {

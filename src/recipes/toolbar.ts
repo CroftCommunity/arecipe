@@ -44,6 +44,10 @@ export type ToolbarCallbacks = {
 // user pauses, not on every character.
 const SEARCH_DEBOUNCE_MS = 150;
 
+// Phone cutoff for the compact status variant — the stylesheet's 40rem mobile
+// breakpoint, so text and layout switch together.
+const COMPACT_STATUS_QUERY = '(max-width: 40rem)';
+
 export type ToolbarController = {
   /** The `.browse-toolbar` element to mount. */
   element: HTMLElement;
@@ -59,8 +63,10 @@ export type ToolbarController = {
    *  Called when the feed changes — NOT on a facet checkbox change (so an open
    *  Filters popover survives multi-select). */
   rebuildFacets: (available: FacetArrays, selected: FacetArrays) => void;
-  /** Set the honest count/status line text (shown OUTSIDE the disclosure). */
-  setStatus: (text: string) => void;
+  /** Set the honest count/status line text (shown OUTSIDE the disclosure).
+   *  `compact` is an optional short form ("3/12") shown instead at phone widths,
+   *  where the long "X of N recipes" wraps the controls row. */
+  setStatus: (text: string, compact?: string) => void;
   /** Show/hide the reset control (only when a filter is active). */
   setResetVisible: (visible: boolean) => void;
   /** Set the active-filter count on the Filters ▾ badge (hidden at zero). */
@@ -153,6 +159,17 @@ export const renderToolbar = (opts: {
   recipesStatus.dataset['testid'] = 'recipes-status';
   countBlock.append(resetBtn, recipesStatus);
 
+  // Compact-status plumbing: keep both variants and re-pick when the viewport
+  // crosses the phone breakpoint (rotation, window resize), so the shown text
+  // always matches the width — not the width at last render.
+  let statusText = '';
+  let statusCompact: string | undefined;
+  const compactMq = window.matchMedia(COMPACT_STATUS_QUERY);
+  const applyStatus = (): void => {
+    recipesStatus.textContent = compactMq.matches && statusCompact !== undefined ? statusCompact : statusText;
+  };
+  compactMq.addEventListener('change', applyStatus);
+
   rowControls.append(viewSegmented, filtersDd, countBlock);
 
   toolbar.append(rowSearch, sourceSlot, rowControls);
@@ -219,8 +236,10 @@ export const renderToolbar = (opts: {
       const groups = [meal, cuisine].filter((n): n is HTMLElement => n !== null);
       facetsContainer.replaceChildren(...groups);
     },
-    setStatus: (text) => {
-      recipesStatus.textContent = text;
+    setStatus: (text, compact) => {
+      statusText = text;
+      statusCompact = compact;
+      applyStatus();
     },
     setResetVisible: (visible) => {
       resetBtn.hidden = !visible;

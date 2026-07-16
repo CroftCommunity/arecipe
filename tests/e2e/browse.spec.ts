@@ -182,6 +182,27 @@ test('AND across dimensions: cuisine greek + meal lunch → one recipe', async (
   await expect(page.getByTestId('recipes-status')).toContainText('1 of 4 recipes');
 });
 
+// At phone widths the filtered count compacts to "X/N" (the long "X of N
+// recipes" pushes the reset + count off the controls row); the unfiltered
+// count keeps its full "N recipes" form. Desktop keeps the long form — the
+// other tests in this file, at the default viewport, guard that.
+test('filtered count compacts to "X/N" at a phone width', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 780 });
+  await routeMixedFeed(page);
+  await page.goto('/');
+  await expect(page.getByTestId('recipe-item')).toHaveCount(4);
+  await expect(page.getByTestId('recipes-status')).toHaveText('4 recipes');
+
+  await openFilters(page);
+  await page.getByTestId('photos-only').check();
+  await expect(page.getByTestId('recipe-item')).toHaveCount(3);
+  await expect(page.getByTestId('recipes-status')).toHaveText('3/4');
+
+  // Widening past the breakpoint restores the long form without a re-render.
+  await page.setViewportSize({ width: 1024, height: 780 });
+  await expect(page.getByTestId('recipes-status')).toHaveText('3 of 4 recipes');
+});
+
 test('facet selections persist across reload', async ({ page }) => {
   await routeMixedFeed(page);
   await page.goto('/');
