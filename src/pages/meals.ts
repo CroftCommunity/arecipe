@@ -790,7 +790,7 @@ export const main = async (
 
       // Remove only makes sense with more than one week — you can't remove the
       // only week, so on a single-week plan the button is omitted entirely
-      // (not just disabled). Repetition now lives in "Repeat planned weeks".
+      // (not just disabled). Repetition now lives in "Repeat weeks".
       if (plan.weeks.length > 1) {
         const removeBtn = el('button', 'button week-remove', 'Remove') as HTMLButtonElement;
         removeBtn.type = 'button';
@@ -944,10 +944,10 @@ export const main = async (
       rerender();
     });
 
-    // Repeat planned weeks: instead of adding a blank week, append a copy of
+    // Repeat weeks: instead of adding a blank week, append a copy of
     // every currently-planned week (with its placed meals). Doubling the plan,
     // so it's disabled when that would blow past the max-week cap.
-    const repeatBtn = el('button', 'button repeat-weeks', '⧉ Repeat planned weeks') as HTMLButtonElement;
+    const repeatBtn = el('button', 'button repeat-weeks', '⧉ Repeat weeks') as HTMLButtonElement;
     repeatBtn.type = 'button';
     repeatBtn.dataset['testid'] = 'repeat-weeks';
     repeatBtn.disabled = plan.weeks.length * 2 > MAX_WEEKS;
@@ -959,7 +959,7 @@ export const main = async (
       rerender();
     });
 
-    actions.append(addBtn, repeatBtn);
+    actions.append(repeatBtn, addBtn);
     builder.append(actions);
   };
 
