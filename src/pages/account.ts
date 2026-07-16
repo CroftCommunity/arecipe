@@ -166,11 +166,12 @@ const main = async (): Promise<void> => {
   const { provider, agent } = await bootSession();
 
   if (agent !== null && provider !== null) {
-    const who = el('p', 'status');
+    const who = el('p', 'status session-status');
     who.dataset['testid'] = 'signed-in-did';
     // Show the DID immediately (works even if the handle never resolves); the
     // members load below resolves the DID document anyway, so we upgrade this to
-    // "@handle · did:…" — the username with the DID beside it — once it lands.
+    // "@handle · did:…" — the username linking to the Bluesky profile, with the
+    // DID beside it — once it lands.
     who.textContent = `Signed in: ${agent.did ?? 'unknown'}`;
     content.append(who);
 
@@ -181,7 +182,7 @@ const main = async (): Promise<void> => {
     if (since !== null) {
       const sinceLine = el(
         'p',
-        'status',
+        'status session-status',
         `Signed in since ${since.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}`,
       );
       sinceLine.dataset['testid'] = 'signed-in-since';
@@ -209,7 +210,17 @@ const main = async (): Promise<void> => {
       void (async () => {
         try {
           const { pds, handle } = await retryOnce(() => resolveDidDoc(did));
-          if (handle !== null) who.textContent = `Signed in: ${handle} · ${did}`;
+          if (handle !== null) {
+            const profile = el('a', 'friend-link', handle) as HTMLAnchorElement;
+            profile.href = `https://bsky.app/profile/${encodeURIComponent(handle)}`;
+            profile.target = '_blank';
+            profile.rel = 'noopener';
+            who.replaceChildren(
+              document.createTextNode('Signed in: '),
+              profile,
+              document.createTextNode(` · ${did}`),
+            );
+          }
           await mountMembersList(membersSection, { did, pds }, createReachPrefs().load(), { agent });
         } catch (err) {
           log.error('account', 'cookbook members load failed', { error: String(err) });
