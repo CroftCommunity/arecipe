@@ -510,3 +510,50 @@ test('browse paginates the feed at 50 with prev/next arrows', async ({ page }) =
   await page.getByTestId('browse-prev').click();
   await expect(page.getByTestId('recipe-item')).toHaveCount(50);
 });
+
+// Export-count bug: the toolbar counts recipes (records), but the export used to
+// count — and serialize — only the version-collapsed card representatives, so a
+// feed with alternative versions read "N recipes" up top and "Export M shown
+// recipes" (M < N) in the panel, silently dropping the alternates from the file.
+test('export counts and serializes every shown recipe, not just collapsed cards', async ({
+  page,
+}) => {
+  await routeVersionsFeed(page);
+  await page.goto('/');
+  // The two banana-bread versions collapse to ONE card…
+  await expect(page.getByTestId('recipe-item')).toHaveCount(1, { timeout: 15_000 });
+  // …while the toolbar counts both records.
+  await expect(page.getByTestId('recipes-status')).toHaveText('2 recipes');
+
+  // The export panel must advertise the SAME count the toolbar shows.
+  await page.getByTestId('export-recipes').click();
+  await expect(page.locator('.export-title')).toHaveText('Export 2 shown recipes');
+
+  // And the file itself carries both versions — nothing silently dropped.
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByTestId('export-download').click();
+  const download = await downloadPromise;
+  const csv = readFileSync(await download.path(), 'utf8');
+  expect(csv).toContain('My Favorite Banana Bread');
+  expect(csv).toContain('Classic Moist Banana Bread');
+});
+
+// The app-wide taste preference (Settings) filters the shown set, so the status
+// must show the honest "X of N recipes" — not a plain total the list contradicts.
+test('taste preference: status shows the honest "X of N"; export matches', async ({ page }) => {
+  await routeMixedFeed(page);
+  await page.addInitScript(() => {
+    window.localStorage.setItem(
+      'taste-preference',
+      JSON.stringify({ only: { cuisine: [], category: [] }, never: { cuisine: ['greek'], category: [] } }),
+    );
+  });
+  await page.goto('/');
+  // Both Greek recipes drop out; the count says so instead of claiming 4.
+  await expect(page.getByTestId('recipe-item')).toHaveCount(2, { timeout: 15_000 });
+  await expect(page.getByTestId('recipes-status')).toContainText('2 of 4 recipes');
+
+  // The export panel counts the same shown set.
+  await page.getByTestId('export-recipes').click();
+  await expect(page.locator('.export-title')).toHaveText('Export 2 shown recipes');
+});

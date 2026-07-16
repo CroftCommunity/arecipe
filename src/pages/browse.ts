@@ -19,7 +19,7 @@ import { createRecipeReader } from '../recipes/read.js';
 import { createDietPreference } from '../recipes/diet-preference.js';
 import { createSearchMemo, queryEntries } from '../recipes/search.js';
 import { availableFacets, createBrowsePrefs, matchesFilter, recipeFacets, type BrowseState } from './browse-state.js';
-import { createTastePreference, matchesTaste } from '../recipes/taste-preference.js';
+import { createTastePreference, isEmptyTaste, matchesTaste, type TastePreference } from '../recipes/taste-preference.js';
 import { windowPage } from '../recipes/paginate.js';
 import {
   extensionFor,
@@ -166,11 +166,12 @@ const main = (): void => {
     };
   };
 
-  const isFiltered = (s: BrowseState, diet: string[]): boolean =>
+  const isFiltered = (s: BrowseState, diet: string[], taste: TastePreference): boolean =>
     s.photosOnly ||
     s.facets.cuisine.length > 0 ||
     s.facets.category.length > 0 ||
     diet.length > 0 ||
+    !isEmptyTaste(taste) ||
     query.trim() !== '';
 
   // Browse-owned filters only (photos + facets + text query) — the reset control's
@@ -181,7 +182,13 @@ const main = (): void => {
   // The filtered result set behind the current view: hidden removed, browse
   // facets + diet applied. renderCurrent renders it; the export action serializes
   // the version-collapsed representatives (what's actually shown as cards).
-  const computeShown = (): { kept: CachedRecipe[]; shown: CachedRecipe[]; effective: BrowseState; diet: string[] } => {
+  const computeShown = (): {
+    kept: CachedRecipe[];
+    shown: CachedRecipe[];
+    effective: BrowseState;
+    diet: string[];
+    taste: TastePreference;
+  } => {
     const kept = withoutHidden(current?.entries ?? []);
     const diet = dietPreference.load();
     const effective = effectiveState();
@@ -198,15 +205,16 @@ const main = (): void => {
     // facet-filtered candidates.
     const searcher = searchMemo(current?.entries ?? []);
     const shown = queryEntries(searcher, query, facetFiltered);
-    return { kept, shown, effective, diet };
+    return { kept, shown, effective, diet, taste };
   };
 
   const renderCurrent = (): void => {
     if (current === null) return;
-    const { kept, shown, effective, diet } = computeShown();
-    // A plain count: "N recipes"; with a filter active, the honest "X of N recipes".
+    const { kept, shown, effective, diet, taste } = computeShown();
+    // A plain count: "N recipes"; with a filter active (including the app-wide
+    // taste preference), the honest "X of N recipes".
     toolbar.setStatus(
-      isFiltered(effective, diet)
+      isFiltered(effective, diet, taste)
         ? `${shown.length} of ${kept.length} recipes`
         : `${kept.length} ${kept.length === 1 ? 'recipe' : 'recipes'}${current.statusSuffix ?? ''}`,
     );
@@ -238,7 +246,7 @@ const main = (): void => {
       view: state.view,
       shown: shown.length,
       total: kept.length,
-      filtered: isFiltered(effective, diet),
+      filtered: isFiltered(effective, diet, taste),
     });
   };
 
@@ -315,8 +323,10 @@ const main = (): void => {
   // Export: turn the currently-shown recipes into a downloadable file. The
   // button sits beside "Find recipes"; it opens an inline panel (no native
   // dialog) to pick a format and whether to include full details, then builds a
-  // download link. The version-collapsed representatives are what's exported —
-  // the same cards the user sees.
+  // download link. Every recipe that survived the filters is exported —
+  // including alternative versions the card view collapses behind a "N
+  // versions" badge — so the panel's count always matches the toolbar's
+  // recipe count and no data is silently dropped from the file.
   const recipeLink = (uri: string): string => {
     const url = new URL('recipe.html', window.location.href);
     url.searchParams.set('u', uri);
@@ -359,7 +369,7 @@ const main = (): void => {
   const buildExportPanel = (): void => {
     revokeDownload();
     exportPanel.replaceChildren();
-    const shownCount = collapseVersions(computeShown().shown).representatives.length;
+    const shownCount = computeShown().shown.length;
     exportPanel.append(el('p', 'export-title', `Export ${shownCount} shown recipe${shownCount === 1 ? '' : 's'}`));
 
     // Format choice (segmented).
@@ -399,7 +409,7 @@ const main = (): void => {
     const linkSlot = el('div', 'export-link-slot');
     const buildLink = (): void => {
       revokeDownload();
-      const recipes = collapseVersions(computeShown().shown).representatives.map(toExportRecipe);
+      const recipes = computeShown().shown.map(toExportRecipe);
       const text = serializeRecipes(recipes, { format, details: detailsToggle.checked });
       const blob = new Blob([text], { type: mimeFor(format) });
       downloadUrl = URL.createObjectURL(blob);
