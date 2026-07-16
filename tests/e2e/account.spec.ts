@@ -69,7 +69,7 @@ test('diet preference persists and filters Browse to matching recipes (wiring)',
   await page.goto('/');
   await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
   await expect(page.getByTestId('recipe-item')).toHaveCount(3);
-  await expect(page.getByTestId('recipes-status')).toContainText('3 of 4 shown');
+  await expect(page.getByTestId('recipes-status')).toContainText('3 of 4 recipes');
 });
 
 test('clearing the diet preference restores all recipes on Browse', async ({ page }) => {
@@ -81,7 +81,7 @@ test('clearing the diet preference restores all recipes on Browse', async ({ pag
   await page.goto('/');
   await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
   await expect(page.getByTestId('recipe-item')).toHaveCount(4);
-  await expect(page.getByTestId('recipes-status')).toContainText('starter pack recipes');
+  await expect(page.getByTestId('recipes-status')).toHaveText('4 recipes');
 });
 
 test('account taste "Never show me" excludes via per-dimension dropdowns with persistent counts', async ({

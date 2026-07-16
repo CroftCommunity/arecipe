@@ -49,7 +49,7 @@ test('a first-time visitor sees starter-pack recipes with zero input (wiring)', 
   await page.goto('/');
   await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
   await expect(page.getByTestId('recipe-item')).toHaveCount(12); // 3 fixtures × 4 authors
-  await expect(page.getByTestId('recipes-status')).toContainText('starter pack');
+  await expect(page.getByTestId('recipes-status')).toHaveText('12 recipes');
 });
 
 test('browse toolbar: count right-aligned, no "hidden" note, dietary-preference link (wiring)', async ({
@@ -59,7 +59,7 @@ test('browse toolbar: count right-aligned, no "hidden" note, dietary-preference 
   await page.goto('/');
   await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
   const status = page.getByTestId('recipes-status');
-  await expect(status).toContainText('starter pack recipes');
+  await expect(status).toContainText('12 recipes');
   // The "· N hidden" note is dropped from the displayed string (Phase 1).
   await expect(status).not.toContainText('hidden');
   // The status lives in a toolbar, right-aligned inside a count block.
@@ -131,10 +131,10 @@ test('a quick search is NOT clobbered by the slower starter feed (race)', async 
   await page.getByTestId('add-cook').click();
   await page.getByTestId('add-cook-input').fill('somechef.example.com');
   await page.getByTestId('add-cook-submit').click();
-  await expect(page.getByTestId('recipes-status')).toHaveText('3 recipes cached (3 verified)');
+  await expect(page.getByTestId('recipes-status')).toHaveText('3 recipes');
   // Wait past the starter feed's arrival: the search must still be showing.
   await page.waitForTimeout(3_000);
-  await expect(page.getByTestId('recipes-status')).toHaveText('3 recipes cached (3 verified)');
+  await expect(page.getByTestId('recipes-status')).toHaveText('3 recipes');
 });
 
 test('unchecking an author removes their cards from the default feed', async ({ page }) => {

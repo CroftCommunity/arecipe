@@ -183,7 +183,7 @@ test('cold-view: text search filters the cookbook feed (ingredient reach)', asyn
   await page.getByTestId('recipe-search').fill('feta');
   await expect(page.getByTestId('recipe-item')).toHaveCount(1);
   await expect(page.getByText('Greek Salad')).toBeVisible();
-  await expect(page.getByTestId('recipes-status')).toContainText('1 of 4 shown');
+  await expect(page.getByTestId('recipes-status')).toContainText('1 of 4 recipes');
 
   // Reset-surface v2: with a query active the reset shows in the count block —
   // no popover needed — and restores the full feed while clearing the box.

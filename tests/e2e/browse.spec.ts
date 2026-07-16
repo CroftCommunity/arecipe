@@ -53,24 +53,23 @@ test('photos-only hides the image-less recipe and updates the count (wiring)', a
   await routeMixedFeed(page);
   await page.goto('/');
   await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
-  // Unfiltered: all four recipes, original starter-pack status string.
+  // Unfiltered: all four recipes, the plain count.
   await expect(page.getByTestId('recipe-item')).toHaveCount(4);
-  await expect(page.getByTestId('recipes-status')).toContainText('starter pack recipes');
-  await expect(page.getByTestId('recipes-status')).not.toContainText('of 4 shown');
+  await expect(page.getByTestId('recipes-status')).toHaveText('4 recipes');
 
   // Photos only ON: the one image-less recipe (Minestrone) drops out.
   await openFilters(page);
   await page.getByTestId('photos-only').check();
   await expect(page.getByTestId('recipe-item')).toHaveCount(3);
-  await expect(page.getByTestId('recipes-status')).toContainText('3 of 4 shown');
+  await expect(page.getByTestId('recipes-status')).toContainText('3 of 4 recipes');
 
-  // Photos only OFF: back to all four and the original string.
+  // Photos only OFF: back to all four and the plain count.
   await page.getByTestId('photos-only').uncheck();
   await expect(page.getByTestId('recipe-item')).toHaveCount(4);
-  await expect(page.getByTestId('recipes-status')).toContainText('starter pack recipes');
+  await expect(page.getByTestId('recipes-status')).toHaveText('4 recipes');
 });
 
-test('reset filters clears active browse filters; status drops the verified count (wiring)', async ({
+test('reset filters clears active browse filters; status shows the honest count (wiring)', async ({
   page,
 }) => {
   await routeMixedFeed(page);
@@ -80,13 +79,11 @@ test('reset filters clears active browse filters; status drops the verified coun
   await expect(page.getByTestId('reset-filters')).toBeHidden();
 
   // Apply a filter (photos-only lives in the popover; open it to toggle); the
-  // status reads "N of M shown" with NO verified count.
+  // status reads the honest "N of M recipes".
   await openFilters(page);
   await page.getByTestId('photos-only').check();
   await expect(page.getByTestId('recipe-item')).toHaveCount(3);
-  const status = page.getByTestId('recipes-status');
-  await expect(status).toContainText('3 of 4 shown');
-  await expect(status).not.toContainText('verified');
+  await expect(page.getByTestId('recipes-status')).toContainText('3 of 4 recipes');
 
   // Reset-surface v2 (D4): the reset control shows in the count block, in sight,
   // WITHOUT the Filters popover — close it and the reset is still there.
@@ -159,7 +156,7 @@ test('Meal facet narrows to matching recipes and updates the count (wiring)', as
   await openFilters(page);
   await page.locator('input[data-dimension=category][data-value=dinner]').check();
   await expect(page.getByTestId('recipe-item')).toHaveCount(2); // Greek Salad + Minestrone
-  await expect(page.getByTestId('recipes-status')).toContainText('2 of 4 shown');
+  await expect(page.getByTestId('recipes-status')).toContainText('2 of 4 recipes');
 });
 
 test('OR within a dimension; multi-select keeps the Filters popover open', async ({ page }) => {
@@ -182,7 +179,7 @@ test('AND across dimensions: cuisine greek + meal lunch → one recipe', async (
   await page.locator('input[data-dimension=cuisine][data-value=greek]').check();
   await page.locator('input[data-dimension=category][data-value=lunch]').check();
   await expect(page.getByTestId('recipe-item')).toHaveCount(1); // Greek Vegan Lunch Bowl
-  await expect(page.getByTestId('recipes-status')).toContainText('1 of 4 shown');
+  await expect(page.getByTestId('recipes-status')).toContainText('1 of 4 recipes');
 });
 
 test('facet selections persist across reload', async ({ page }) => {
@@ -400,7 +397,7 @@ test('search: an ingredient-only term (feta) surfaces the recipe; status is hone
   // "feta" appears only in Greek Salad's ingredients, not its title.
   await expect(page.getByTestId('recipe-item')).toHaveCount(1);
   await expect(page.getByText('Greek Salad')).toBeVisible();
-  await expect(page.getByTestId('recipes-status')).toContainText('1 of 4 shown');
+  await expect(page.getByTestId('recipes-status')).toContainText('1 of 4 recipes');
 });
 
 test('search: a term in two recipes’ ingredients (tomato) returns both', async ({ page }) => {
@@ -412,7 +409,7 @@ test('search: a term in two recipes’ ingredients (tomato) returns both', async
   await expect(page.getByTestId('recipe-item')).toHaveCount(2);
   await expect(page.getByText('Greek Salad')).toBeVisible();
   await expect(page.getByText('Italian Minestrone')).toBeVisible();
-  await expect(page.getByTestId('recipes-status')).toContainText('2 of 4 shown');
+  await expect(page.getByTestId('recipes-status')).toContainText('2 of 4 recipes');
 });
 
 test('search: a one-edit typo (pancaks) still finds Pancakes (fuzzy)', async ({ page }) => {
@@ -424,7 +421,7 @@ test('search: a one-edit typo (pancaks) still finds Pancakes (fuzzy)', async ({ 
   await expect(page.getByText('American Pancakes')).toBeVisible();
 });
 
-test('search: reset clears the query — back to 4 and the starter status string', async ({
+test('search: reset clears the query — back to 4 and the plain count', async ({
   page,
 }) => {
   await routeMixedFeed(page);
@@ -439,8 +436,7 @@ test('search: reset clears the query — back to 4 and the starter status string
   await page.getByTestId('reset-filters').click();
   await expect(page.getByTestId('recipe-item')).toHaveCount(4);
   await expect(page.getByTestId('recipe-search')).toHaveValue('');
-  await expect(page.getByTestId('recipes-status')).toContainText('starter pack recipes');
-  await expect(page.getByTestId('recipes-status')).not.toContainText('of 4 shown');
+  await expect(page.getByTestId('recipes-status')).toHaveText('4 recipes');
 });
 
 test('search composes with a facet: cuisine greek + query lemon → only the Lunch Bowl', async ({
@@ -456,7 +452,7 @@ test('search composes with a facet: cuisine greek + query lemon → only the Lun
   // Of the two Greek recipes, only the Lunch Bowl lists lemon.
   await expect(page.getByTestId('recipe-item')).toHaveCount(1);
   await expect(page.getByText('Greek Vegan Lunch Bowl')).toBeVisible();
-  await expect(page.getByTestId('recipes-status')).toContainText('1 of 4 shown');
+  await expect(page.getByTestId('recipes-status')).toContainText('1 of 4 recipes');
 });
 
 // D7 mobile: Browse shows at most TWO control rows before content (the source
@@ -487,7 +483,7 @@ test('Filters ▾ badge counts active filters; reset clears it', async ({ page }
   // photos (1) + one Meal facet (1) = 2 active filters.
   await expect(page.getByTestId('filters-count')).toHaveText('2');
   // The honest count lives OUTSIDE the disclosure.
-  await expect(page.getByTestId('recipes-status')).toContainText('shown');
+  await expect(page.getByTestId('recipes-status')).toContainText('of 4 recipes');
 
   // Reset lives in the count block, not the popover: close the popover, then a
   // single visible tap clears the facets and the badge.

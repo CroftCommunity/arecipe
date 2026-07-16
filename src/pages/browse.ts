@@ -141,7 +141,6 @@ const main = (): void => {
     author?: string;
     authorDid?: string; // search: the previewed cook's DID (for the follow control)
     authorsByDid?: Record<string, string>;
-    fetchedCount?: number; // search: total records fetched (may exceed shown)
     statusSuffix?: string; // starter: " — X unavailable" / " · showing saved copies"
   };
   let current: Current | null = null;
@@ -205,15 +204,11 @@ const main = (): void => {
   const renderCurrent = (): void => {
     if (current === null) return;
     const { kept, shown, effective, diet } = computeShown();
-    const verified = shown.filter((e) => e.verified).length;
-    // When a filter is active the honest count is "N of M shown"; with no filter
-    // the original per-path string is preserved byte-identical.
+    // A plain count: "N recipes"; with a filter active, the honest "X of N recipes".
     toolbar.setStatus(
       isFiltered(effective, diet)
-        ? `${shown.length} of ${kept.length} shown`
-        : current.kind === 'search'
-          ? `${current.fetchedCount ?? current.entries.length} recipes cached (${verified} verified)`
-          : `${kept.length} starter pack recipes (${verified} verified)${current.statusSuffix ?? ''}`,
+        ? `${shown.length} of ${kept.length} recipes`
+        : `${kept.length} ${kept.length === 1 ? 'recipe' : 'recipes'}${current.statusSuffix ?? ''}`,
     );
     toolbar.setResetVisible(hasBrowseFilters(effective));
     // Filters ▾ badge = active browse filters (photos + facets); the text query
@@ -500,13 +495,8 @@ const main = (): void => {
     }
   };
 
-  const showEntries = (
-    entries: CachedRecipe[],
-    author: string,
-    authorDid?: string,
-    fetchedCount?: number,
-  ): void => {
-    current = { entries, kind: 'search', author, authorDid, fetchedCount };
+  const showEntries = (entries: CachedRecipe[], author: string, authorDid?: string): void => {
+    current = { entries, kind: 'search', author, authorDid };
     // Enter preview mode: name the cook + reflect follow state.
     previewAuthor = { handle: author, did: authorDid ?? '' };
     previewBar.hidden = false;
@@ -528,7 +518,7 @@ const main = (): void => {
       const entries = await Promise.all(records.map((r) => cache.put(r)));
       saveLastFind({ handle: identity.handle, did: identity.did, uris: entries.map((e) => e.uri) });
       if (gen !== generation) return; // superseded
-      showEntries(entries, identity.handle, identity.did, records.length);
+      showEntries(entries, identity.handle, identity.did);
     })().catch((err: unknown) => {
       const message = err instanceof Error ? err.message : String(err);
       log.error('recipes', 'find failed', { error: message });

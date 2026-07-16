@@ -60,7 +60,7 @@ test('one action: handle in, verified recipe cards out (wiring)', async ({ page 
   await page.getByTestId('add-cook').click();
   await page.getByTestId('add-cook-input').fill('somechef.example.com');
   await page.getByTestId('add-cook-submit').click();
-  await expect(page.getByTestId('recipes-status')).toHaveText('3 recipes cached (3 verified)', {
+  await expect(page.getByTestId('recipes-status')).toHaveText('3 recipes', {
     timeout: 15_000,
   });
   await expect(page.getByTestId('recipe-item').first()).toContainText(

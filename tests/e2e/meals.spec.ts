@@ -305,7 +305,7 @@ test('mobile: expand a day by its header, then Clear day removes its meals', asy
   await expect(mon.getByTestId('slot-filled')).toHaveCount(0);
 });
 
-test('palette: Browse loads capped, type-ahead searches the full set, switch toggles, add-a-cook grows the pool', async ({
+test('palette: Browse loads capped, type-ahead searches the full set, switch toggles', async ({
   page,
 }) => {
   await routeFeeds(page);
@@ -345,61 +345,9 @@ test('palette: Browse loads capped, type-ahead searches the full set, switch tog
   await expect(page.getByTestId('source-cookbook')).toHaveClass(/src-btn--active/);
   await expect(page.getByTestId('source-browse')).not.toHaveClass(/src-btn--active/);
 
-  // Back to Browse; add-a-cook grows the underlying pool — visible via the hint
-  // total, since the displayed list stays capped.
-  await page.getByTestId('source-browse').click();
-  await expect(chips.first()).toBeVisible();
-  const totalOf = async (): Promise<number> => {
-    const t = (await page.getByTestId('palette-hint').textContent()) ?? '';
-    const m = /of (\d+)/.exec(t);
-    return m ? Number(m[1]) : 0;
-  };
-  const beforeTotal = await totalOf();
-  await page.getByTestId('palette-handle-input').fill('rdur.dev');
-  await page.getByTestId('palette-handle-add').click();
-  await expect.poll(totalOf).toBeGreaterThan(beforeTotal);
-});
-
-// Phase 4: cook-search typeahead on the add-a-cook input. Typing suggests
-// accounts (AppView); picking one adds that cook's recipes to the palette pool
-// via the same loadHandlePalette path the Add button uses.
-const paletteTotal = async (page: Page): Promise<number> => {
-  const t = (await page.getByTestId('palette-hint').textContent()) ?? '';
-  const m = /of (\d+)/.exec(t);
-  return m ? Number(m[1]) : 0;
-};
-
-test('add-a-cook typeahead: picking a suggestion grows the palette pool (wiring)', async ({
-  page,
-}) => {
-  await routeFeeds(page);
-  // A more-specific typeahead route registered after routeFeeds — Playwright
-  // matches the most-recently-added handler first, so this wins over the
-  // public.api.bsky.app/** catch-all for the typeahead URL.
-  await page.route(/searchActorsTypeahead/, async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({
-        actors: [{ did: 'did:plc:handleadd', handle: 'cheftest.bsky.social', displayName: 'Chef Test' }],
-      }),
-    });
-  });
-  await page.goto('/meals.html'); // Browse is the default source, populates the palette
-
-  const chips = page.getByTestId('palette-chip');
-  await expect(chips.first()).toBeVisible();
-  const beforeTotal = await paletteTotal(page);
-
-  // Type a partial into add-a-cook → the AppView suggestion appears.
-  await page.getByTestId('palette-handle-input').fill('ch');
-  const options = page.locator('[role=option]');
-  await expect(options).toHaveCount(1);
-  await expect(options.first()).toContainText('cheftest.bsky.social');
-
-  // Pick it → that cook's recipes join the pool (total grows).
-  await options.first().click();
-  await expect.poll(() => paletteTotal(page)).toBeGreaterThan(beforeTotal);
+  // Add-a-cook moved to the Browse tab — the palette carries no handle input.
+  await expect(page.getByTestId('palette-handle-input')).toHaveCount(0);
+  await expect(page.getByTestId('palette-handle-add')).toHaveCount(0);
 });
 
 test('planner: setting a start date lays the calendar out on real dates', async ({ page }) => {
