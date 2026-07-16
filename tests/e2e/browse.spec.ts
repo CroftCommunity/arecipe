@@ -556,6 +556,13 @@ test('taste preference: the count IS the eligible pool; on-tab filters count aga
   await expect(page.getByTestId('recipe-item')).toHaveCount(2, { timeout: 15_000 });
   await expect(page.getByTestId('recipes-status')).toHaveText('2 recipes');
 
+  // The facet dropdowns offer only the eligible pool: no "greek" option that
+  // could only ever yield zero results.
+  await openFilters(page);
+  await expect(page.locator('input[data-dimension=cuisine][data-value=greek]')).toHaveCount(0);
+  await expect(page.locator('input[data-dimension=cuisine][data-value=italian]')).toHaveCount(1);
+  await page.getByTestId('filters-dd').locator('summary').click(); // close
+
   // The export panel counts the same shown set.
   await page.getByTestId('export-recipes').click();
   await expect(page.locator('.export-title')).toHaveText('Export 2 shown recipes');

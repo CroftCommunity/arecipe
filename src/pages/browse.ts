@@ -151,11 +151,27 @@ const main = (): void => {
   // cookFollow record; the signed-in pages mirror this store to/from the PDS.
   const cookFollows = createCookFollowsLocal();
 
-  // Selected facets that no longer exist in the current feed are kept in state
+  // A neutral state for the eligibility pass: no on-tab filters, so only the
+  // standing preferences (diet via matchesFilter, taste via matchesTaste) apply.
+  const NO_TAB_FILTERS: BrowseState = { view: 'tiles', photosOnly: false, facets: { cuisine: [], category: [] } };
+
+  // The user's eligible pool: hidden recipes removed, then the Settings-owned
+  // standing preferences (diet + taste) applied. Everything downstream — the
+  // baseline count, the facet dropdowns' available options, and the shown set —
+  // works from this pool, so a standing preference never surfaces as "eligible
+  // recipes not shown" or as a facet option that can only yield zero.
+  const eligibleEntries = (): CachedRecipe[] => {
+    const diet = dietPreference.load();
+    const taste = tastePreference.load();
+    return withoutHidden(current?.entries ?? []).filter(
+      (e) => matchesFilter(e.value, { state: NO_TAB_FILTERS, diet }) && matchesTaste(recipeFacets(e.value), taste),
+    );
+  };
+
+  // Selected facets that no longer exist in the eligible pool are kept in state
   // (so they re-apply when the user returns) but treated as inert here.
   const effectiveState = (): BrowseState => {
-    const available =
-      current === null ? { cuisine: [], category: [] } : availableFacets(withoutHidden(current.entries));
+    const available = availableFacets(eligibleEntries());
     return {
       view: state.view,
       photosOnly: state.photosOnly,
@@ -173,24 +189,13 @@ const main = (): void => {
   const hasBrowseFilters = (s: BrowseState): boolean =>
     s.photosOnly || s.facets.cuisine.length > 0 || s.facets.category.length > 0 || query.trim() !== '';
 
-  // A neutral state for the eligibility pass: no on-tab filters, so only the
-  // standing preferences (diet via matchesFilter, taste via matchesTaste) apply.
-  const NO_TAB_FILTERS: BrowseState = { view: 'tiles', photosOnly: false, facets: { cuisine: [], category: [] } };
-
   // The result sets behind the current view. Two layers, counted differently:
-  //   eligible — hidden removed, then the Settings-owned standing preferences
-  //     (diet + taste) applied. This is the user's whole pool: the baseline "N"
-  //     in the status. A standing preference shrinks the pool itself — it must
-  //     never read as "eligible recipes not shown".
+  //   eligible — the standing-preference pool (see eligibleEntries): the
+  //     baseline "N" in the status.
   //   shown — eligible narrowed by the on-tab filters (photos, facets, text
   //     query): the "X" in "X of N", and what the export serializes.
   const computeShown = (): { eligible: CachedRecipe[]; shown: CachedRecipe[]; effective: BrowseState } => {
-    const kept = withoutHidden(current?.entries ?? []);
-    const diet = dietPreference.load();
-    const taste = tastePreference.load();
-    const eligible = kept.filter(
-      (e) => matchesFilter(e.value, { state: NO_TAB_FILTERS, diet }) && matchesTaste(recipeFacets(e.value), taste),
-    );
+    const eligible = eligibleEntries();
     const effective = effectiveState();
     const facetFiltered = eligible.filter((e) => matchesFilter(e.value, { state: effective, diet: [] }));
     // Text search runs AFTER the facet filter and BEFORE version collapse (D5):
@@ -244,12 +249,11 @@ const main = (): void => {
     });
   };
 
-  // Rebuild the facet dropdowns from the current feed's available facets. Called
-  // when `current` changes (feed vs search) — NOT on a facet checkbox change.
+  // Rebuild the facet dropdowns from the eligible pool's available facets.
+  // Called when `current` changes (feed vs search) — NOT on a facet checkbox
+  // change. (Reloading the page picks up Settings changes to diet/taste.)
   const rebuildToolbarFacets = (): void => {
-    const available =
-      current === null ? { cuisine: [], category: [] } : availableFacets(withoutHidden(current.entries));
-    toolbar.rebuildFacets(available, state.facets);
+    toolbar.rebuildFacets(availableFacets(eligibleEntries()), state.facets);
   };
 
   // Show the current list: rebuild the (feed-dependent) facet dropdowns, then

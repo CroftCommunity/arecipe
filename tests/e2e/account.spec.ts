@@ -72,6 +72,11 @@ test('diet preference persists and filters Browse to matching recipes (wiring)',
   await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
   await expect(page.getByTestId('recipe-item')).toHaveCount(3);
   await expect(page.getByTestId('recipes-status')).toHaveText('3 recipes');
+  // The facet dropdowns offer only the eligible pool: Pancakes (the sole
+  // American recipe) is out, so no dead "american" option remains.
+  await page.getByTestId('filters-dd').locator('summary').click();
+  await expect(page.locator('input[data-dimension=cuisine][data-value=american]')).toHaveCount(0);
+  await expect(page.locator('input[data-dimension=cuisine][data-value=greek]')).toHaveCount(1);
 });
 
 test('clearing the diet preference restores all recipes on Browse', async ({ page }) => {

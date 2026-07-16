@@ -123,6 +123,10 @@ test('taste preference: a "never" cuisine hides matching recipes in the cookbook
   // A standing preference redefines the eligible pool: the plain count is 2 —
   // never "2 of 4", which would read as eligible recipes withheld.
   await expect(page.getByTestId('recipes-status')).toHaveText('2 recipes');
+  // And the facet dropdowns offer only the eligible pool — no dead "greek" option.
+  await page.getByTestId('filters-dd').locator('summary').click();
+  await expect(page.locator('input[data-dimension=cuisine][data-value=greek]')).toHaveCount(0);
+  await expect(page.locator('input[data-dimension=cuisine][data-value=italian]')).toHaveCount(1);
 });
 
 test('cookbook cold-view has the shared toolbar driving the feed (Phase 8 wiring)', async ({
