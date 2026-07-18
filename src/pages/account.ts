@@ -1,6 +1,7 @@
 // Account page: DOMAIN settings (blockdoku split) — who you are, sign out.
 // App management lives on settings.html.
 
+import { renderAndroidAppSection } from '../account/android-app.js';
 import { renderDangerZone } from '../account/danger-zone.js';
 import { wipeLocalData, wipePdsArecipeData } from '../account/wipe.js';
 import { bootSession } from '../auth/boot.js';
@@ -284,6 +285,11 @@ const main = async (): Promise<void> => {
     return listPdsPlans(pds, signedInDid);
   };
   content.append(renderCalendarPublishSection(createCalendarClient(), listPublishedPlans));
+
+  // Apps (plan 2026-07-18-1 D7): the Android TWA shell download, with the
+  // other install/app matters. Device-agnostic render — the stable
+  // latest-release URL is harmless to open anywhere.
+  content.append(renderAndroidAppSection());
 
   // Danger zone (plan 2026-07-16-5): sign out + "Delete all arecipe data",
   // LAST on the page — both need a session. The challenge text is the resolved

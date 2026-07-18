@@ -69,6 +69,10 @@ The executable build plan lives at
 - [docs/OUTREACH.md](docs/OUTREACH.md) — SEO and socialization: the honest niche
   target, the LLM-retrieval angle, and the six-month beachhead criteria.
 
+- [docs/ANDROID-APP.md](docs/ANDROID-APP.md) — the Android app: a Trusted Web
+  Activity shell over the live site, released as a sideloadable APK on GitHub
+  Releases (keystore ceremony, `android-v*` tag → release workflow).
+
 - [docs/PREVIEWS.md](docs/PREVIEWS.md) — per-PR preview deploys (**live**): every
   pull request gets a live, read-only copy of the built app at
   `arecipe.app/pr-preview/pr-N/`. Plain-git deploy, no third-party actions.
