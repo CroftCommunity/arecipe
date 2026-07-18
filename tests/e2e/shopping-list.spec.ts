@@ -123,6 +123,17 @@ test('public plan view: the shopping list builds both views (roll-up, flag, ×2 
   // Download is offered as a markdown file.
   const download = page.getByTestId('shopping-download');
   await expect(download).toHaveAttribute('download', /shopping-.*\.md/);
+
+  // Detail toggle on Combined → adds recipe attribution to each ingredient.
+  const detail = page.getByTestId('shopping-detail-toggle');
+  await expect(detail).toHaveText('Show sources');
+  await detail.click();
+  await expect(combined).toContainText('flour — 6 cups (from Lasagna, Salad)');
+
+  // The SAME toggle, on By recipe, scales each recipe's amounts by its ×N.
+  await page.getByTestId('shopping-tab-byrecipe').click();
+  await expect(detail).toHaveText('Amounts ×N'); // label reflects the active tab
+  await expect(lasagna).toContainText('4 cups flour'); // 2 cups × the ×2 repeat
 });
 
 test('shopping panel fits a narrow phone without horizontal overflow', async ({ page }) => {

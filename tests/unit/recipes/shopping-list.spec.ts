@@ -17,6 +17,7 @@ import {
   renderCombinedMarkdown,
   renderShoppingListDocument,
   resolveShoppingList,
+  scaleIngredientLine,
   shoppingListFilename,
   type ParsedIngredient,
   type ScheduledRecipe,
@@ -222,7 +223,7 @@ describe('buildShoppingList — identity modulo normalization', () => {
     const list = buildShoppingList([
       recipe('Solo', ['2 cups flour', '1 tbsp olive oil', 'cucumber']),
     ]);
-    const texts = list.combined.lines.map(combinedLineText).sort();
+    const texts = list.combined.lines.map((l) => combinedLineText(l)).sort();
     expect(texts).toEqual(['cucumber ×1', 'flour — 2 cups', 'olive oil — 1 tbsp'].sort());
     expect(list.combined.asListed).toEqual([]);
   });
@@ -416,5 +417,66 @@ describe('shoppingListFilename', () => {
 
   it('falls back gracefully for an empty name', () => {
     expect(shoppingListFilename('', 'all')).toBe('shopping-plan-all.md');
+  });
+});
+
+// --- Detail toggle: per-recipe ×N scaling + combined source attribution ----
+
+describe('scaleIngredientLine — multiply a line by its recipe count', () => {
+  it('leaves a line unchanged at count 1', () => {
+    expect(scaleIngredientLine('2 cups flour', 1)).toBe('2 cups flour');
+  });
+  it('multiplies the leading quantity, preserving the rest verbatim', () => {
+    expect(scaleIngredientLine('2 cups flour', 2)).toBe('4 cups flour');
+    expect(scaleIngredientLine('½ cup sugar', 2)).toBe('1 cup sugar');
+    expect(scaleIngredientLine('2 large eggs', 3)).toBe('6 large eggs');
+  });
+  it('pluralizes the unit with the scaled amount', () => {
+    expect(scaleIngredientLine('1 cup flour', 2)).toBe('2 cups flour');
+  });
+  it('scales a range end-to-end', () => {
+    expect(scaleIngredientLine('1-2 cups broth', 2)).toBe('2–4 cups broth');
+  });
+  it('marks a bare (unquantified) line with an occurrence count', () => {
+    expect(scaleIngredientLine('cucumber', 3)).toBe('cucumber ×3');
+  });
+  it('leaves an unparseable line untouched (can’t scale what we can’t read)', () => {
+    expect(scaleIngredientLine('2 cups', 2)).toBe('2 cups');
+  });
+});
+
+describe('combined source attribution', () => {
+  it('records which recipes each combined line came from', () => {
+    const list = buildShoppingList([
+      recipe('Lasagna', ['2 cups flour']),
+      recipe('Salad', ['1 cup flour', 'cucumber']),
+    ]);
+    const flour = combinedFor(list, 'flour');
+    expect(flour?.recipes).toEqual(['Lasagna', 'Salad']);
+    expect(combinedFor(list, 'cucumber')?.recipes).toEqual(['Salad']);
+  });
+
+  it('combinedLineText appends the sources when asked', () => {
+    const list = buildShoppingList([recipe('Lasagna', ['2 cups flour']), recipe('Salad', ['1 cup flour'])]);
+    const flour = combinedFor(list, 'flour')!;
+    expect(combinedLineText(flour)).toBe('flour — 3 cups');
+    expect(combinedLineText(flour, { sources: true })).toBe('flour — 3 cups (from Lasagna, Salad)');
+  });
+
+  it('renderCombinedMarkdown attributes each line when sources are on', () => {
+    const list = buildShoppingList([recipe('Lasagna', ['2 cups flour']), recipe('Salad', ['1 cup flour'])]);
+    expect(renderCombinedMarkdown(list, { sources: true })).toContain('flour — 3 cups (from Lasagna, Salad)');
+    expect(renderCombinedMarkdown(list)).not.toContain('(from Lasagna');
+  });
+});
+
+describe('renderByRecipeMarkdown — multiply mode', () => {
+  it('scales each recipe’s lines by its ×N when multiply is on', () => {
+    const list = buildShoppingList([recipe('Lasagna', ['2 cups flour', 'cucumber'], 2)]);
+    const md = renderByRecipeMarkdown(list, { multiply: true });
+    expect(md).toContain('- 4 cups flour');
+    expect(md).toContain('- cucumber ×2');
+    // Default (per batch) is unchanged.
+    expect(renderByRecipeMarkdown(list)).toContain('- 2 cups flour');
   });
 });

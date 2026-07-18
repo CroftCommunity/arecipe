@@ -181,3 +181,25 @@ noted):
 - Visual check: 400px screenshots of both tabs — date-range defaults, flagged
   line, unavailable note, as-listed section, and roll-up all render soundly and
   fit the phone width.
+
+## Follow-up (2026-07-18, same PR) — detail toggle + placement
+
+Owner feedback after the first cut:
+
+- **Detail toggle** in the panel actions row (`shopping-detail-toggle`): one
+  control, two meanings by active tab. By-recipe → each line's amount is scaled
+  by the recipe's ×N (`scaleIngredientLine` — pluralizes the unit with the
+  scaled amount, marks a bare line with an occurrence count, leaves an
+  unparseable line verbatim); Combined → each aggregated line carries the
+  recipes it came from (`CombinedLine.recipes`, surfaced via
+  `combinedLineText(line, {sources})`). The toggle's label tracks the active tab
+  ("Amounts ×N" / "Show sources"); Copy + Download honor it
+  (`renderShoppingListDocument({…, detail})`). This resolves the earlier ×N
+  ambiguity by making it a user choice rather than a fixed reading.
+- **Action button** is now icon-only (🛒, `aria-label`/`title` "Shopping list").
+- **Placement:** in the planner it rides the publish row — Shopping list
+  left-aligned, Publish (+ reset toggle) right-aligned (`space-between`), the
+  panel dropping below; in the public view it sits opposite the plan title.
+- Tests: +8 unit (`scaleIngredientLine`, source attribution, multiply/sources
+  rendering) → 713 unit total; the public-view e2e now exercises the toggle in
+  both tabs (attribution + ×N scaling). Gate green.

@@ -220,9 +220,10 @@ export type ByRecipeSection = {
   lines: ByRecipeLine[];
 };
 
-/** One aggregated line in the Combined view: a normalized name and one quantity
- * "part" per family (cross-family parts are listed, never converted). */
-export type CombinedLine = { name: string; parts: string[] };
+/** One aggregated line in the Combined view: a normalized name, one quantity
+ * "part" per family (cross-family parts are listed, never converted), and the
+ * recipes it was drawn from (for the optional source-attribution mode). */
+export type CombinedLine = { name: string; parts: string[]; recipes: string[] };
 
 /** An unparseable line preserved verbatim, attributed to its source recipes. */
 export type AsListedLine = { raw: string; recipes: string[] };
@@ -302,12 +303,40 @@ const renderMeasured = (total: FamilyTotal): string => {
 };
 
 /** The full one-line text for a combined line: "name ×N" when the only part is a
- * bare occurrence count, else "name — a + b". */
-export const combinedLineText = (line: CombinedLine): string => {
-  if (line.parts.length === 1 && line.parts[0]!.startsWith('×')) {
-    return `${line.name} ${line.parts[0]}`;
+ * bare occurrence count, else "name — a + b". With `sources`, appends the
+ * recipes the line was drawn from ("… (from A, B)"). */
+export const combinedLineText = (line: CombinedLine, opts: { sources?: boolean } = {}): string => {
+  const base =
+    line.parts.length === 1 && line.parts[0]!.startsWith('×')
+      ? `${line.name} ${line.parts[0]}`
+      : `${line.name} — ${line.parts.join(' + ')}`;
+  return opts.sources === true && line.recipes.length > 0
+    ? `${base} (from ${line.recipes.join(', ')})`
+    : base;
+};
+
+/** Multiply one ingredient line by a recipe's occurrence count for the
+ * By-recipe "×N amounts" mode: scale the leading quantity in place (keeping the
+ * rest verbatim), mark a bare line with an occurrence count, and leave an
+ * unparseable line untouched (we won't invent a number we couldn't read). */
+export const scaleIngredientLine = (raw: string, count: number): string => {
+  if (count <= 1) return raw;
+  const parsed = parseIngredient(raw);
+  if (parsed.unparsed === true) return raw;
+  if (parsed.qty === undefined) return `${raw} ×${count}`;
+  const trimmed = raw.trim();
+  const m = LEADING_QTY.exec(trimmed);
+  if (m === null) return raw;
+  const scaledMax = parsed.qty.max * count;
+  const scaled = formatQty(parsed.qty.min * count, scaledMax);
+  if (parsed.unit === undefined) {
+    // No unit: swap only the leading number, keep the rest verbatim.
+    return `${scaled}${trimmed.slice(m[0].length)}`;
   }
-  return `${line.name} — ${line.parts.join(' + ')}`;
+  // With a unit, re-render "<qty> <unit> <name>" so the unit pluralizes with the
+  // scaled amount ("1 cup" → "2 cups"); the name keeps the recipe's own wording.
+  const nameRaw = trimmed.slice(m[0].length).trim().split(/\s+/).slice(1).join(' ');
+  return `${scaled} ${unitLabel(parsed.unit, scaledMax)}${nameRaw !== '' ? ` ${nameRaw}` : ''}`;
 };
 
 /** Turn a range of scheduled recipes into the two-view shopping list. Pure and
@@ -321,6 +350,13 @@ export const buildShoppingList = (recipes: ScheduledRecipe[]): ShoppingList => {
   const measured = new Map<string, Map<UnitFamily, FamilyTotal>>();
   const counts = new Map<string, { min: number; max: number }>();
   const asListedByRaw = new Map<string, Set<string>>();
+  // name → ordered-unique recipe names it was drawn from (source attribution).
+  const sourcesByName = new Map<string, string[]>();
+  const noteSource = (name: string, recipeName: string): void => {
+    const cur = sourcesByName.get(name) ?? [];
+    if (!cur.includes(recipeName)) cur.push(recipeName);
+    sourcesByName.set(name, cur);
+  };
 
   const bumpMeasured = (name: string, family: UnitFamily, unit: CanonicalUnit, min: number, max: number): void => {
     let byFamily = measured.get(name);
@@ -359,6 +395,7 @@ export const buildShoppingList = (recipes: ScheduledRecipe[]): ShoppingList => {
         continue;
       }
       lines.push({ raw, flagged: false });
+      noteSource(parsed.name, r.name);
 
       // ×N: a recipe scheduled `count` times multiplies its quantities.
       const n = r.count;
@@ -391,7 +428,7 @@ export const buildShoppingList = (recipes: ScheduledRecipe[]): ShoppingList => {
         parts.push(renderMeasured(byFamily.get(family)!));
       }
     }
-    lines.push({ name, parts });
+    lines.push({ name, parts, recipes: sourcesByName.get(name) ?? [] });
   }
 
   const asListed: AsListedLine[] = [...asListedByRaw.entries()]
@@ -523,13 +560,14 @@ const sectionHeading = (section: ByRecipeSection): string =>
   section.count > 1 ? `${section.name} ×${section.count}` : section.name;
 
 /** The Combined view as markdown (aggregated lines, "as listed", unavailable).
- * Copyable on its own (the "Combined" tab's Copy payload). */
-export const renderCombinedMarkdown = (list: ShoppingList): string => {
+ * Copyable on its own (the "Combined" tab's Copy payload). With `sources`, each
+ * line carries the recipes it came from. */
+export const renderCombinedMarkdown = (list: ShoppingList, opts: { sources?: boolean } = {}): string => {
   const out: string[] = ['## Combined', ''];
   if (list.combined.lines.length === 0) {
     out.push('_Nothing to combine._');
   } else {
-    for (const line of list.combined.lines) out.push(`- ${combinedLineText(line)}`);
+    for (const line of list.combined.lines) out.push(`- ${combinedLineText(line, opts)}`);
   }
   if (list.combined.asListed.length > 0) {
     out.push('', '### As listed', '');
@@ -545,8 +583,9 @@ export const renderCombinedMarkdown = (list: ShoppingList): string => {
 };
 
 /** The By-recipe view as markdown (one section per recipe, verbatim lines,
- * flagged stragglers). Copyable on its own (the "By recipe" tab's Copy payload). */
-export const renderByRecipeMarkdown = (list: ShoppingList): string => {
+ * flagged stragglers). Copyable on its own (the "By recipe" tab's Copy payload).
+ * With `multiply`, each line's amount is scaled by the recipe's ×N. */
+export const renderByRecipeMarkdown = (list: ShoppingList, opts: { multiply?: boolean } = {}): string => {
   const out: string[] = ['## By recipe'];
   const anyFlagged = list.byRecipe.some((s) => s.unavailable || s.lines.some((l) => l.flagged));
   if (anyFlagged) out.push('', `> ${FLAG} couldn’t be combined — check this line yourself.`);
@@ -560,24 +599,29 @@ export const renderByRecipeMarkdown = (list: ShoppingList): string => {
       out.push('_No ingredients listed._');
       continue;
     }
-    for (const line of section.lines) out.push(`- ${line.raw}${line.flagged ? ` ${FLAG}` : ''}`);
+    for (const line of section.lines) {
+      const text = opts.multiply === true ? scaleIngredientLine(line.raw, section.count) : line.raw;
+      out.push(`- ${text}${line.flagged ? ` ${FLAG}` : ''}`);
+    }
   }
   return out.join('\n');
 };
 
-/** The full downloadable document: title + range, Combined then By recipe. */
+/** The full downloadable document: title + range, Combined then By recipe. With
+ * `detail`, Combined lines carry their source recipes and By-recipe amounts are
+ * scaled by ×N (matching the panel's detail toggle). */
 export const renderShoppingListDocument = (
   list: ShoppingList,
-  opts: { planName: string; rangeLabel: string },
+  opts: { planName: string; rangeLabel: string; detail?: boolean },
 ): string =>
   [
     `# Shopping list — ${opts.planName}`,
     '',
     opts.rangeLabel,
     '',
-    renderCombinedMarkdown(list),
+    renderCombinedMarkdown(list, { sources: opts.detail }),
     '',
-    renderByRecipeMarkdown(list),
+    renderByRecipeMarkdown(list, { multiply: opts.detail }),
     '',
   ].join('\n');
 

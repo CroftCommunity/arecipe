@@ -2388,6 +2388,25 @@ table.ref.pairs td.eq {
 .shopping {
   margin-top: var(--s-4);
 }
+/* Icon-only trigger (🛒): square-ish, emoji carries the meaning. */
+.shopping-open {
+  font-size: 1.15rem;
+  line-height: 1;
+  padding: var(--s-2) var(--s-3);
+}
+/* The detail toggle reads as "on" when pressed (enamel fill, like the tabs). */
+.shopping-detail.is-active {
+  background: var(--enamel);
+  color: var(--card);
+}
+/* Shared (public) view: title left, 🛒 right, on one row. */
+.shared-plan-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
 .shopping-panel {
   display: flex;
   flex-direction: column;
@@ -2695,6 +2714,15 @@ table.ref.pairs td.eq {
 /* Publish row: the Publish button + the icon-only "Reset on publish" toggle on
    one line, right-aligned under the calendar preview (mirrors .week-actions). */
 .plan-publish-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+/* Publish + its reset toggle stay grouped on the right; Shopping list leads on
+   the left (the row's first child). */
+.plan-publish-right {
   display: flex;
   align-items: center;
   justify-content: flex-end;
