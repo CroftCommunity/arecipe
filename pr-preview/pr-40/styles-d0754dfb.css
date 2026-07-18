@@ -1696,6 +1696,43 @@ a.card {
   vertical-align: -1px;
 }
 
+/* ---- agents page (agents.html — generated from agents.md) ---- */
+/* JS-less static page like calendar-setup: give the content a readable
+   measure and keep phone widths overflow-free (mobile-fit guard) — code
+   blocks scroll inside their own box, long tokens/URLs wrap. */
+.agents-page {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: var(--s-4) var(--s-4) var(--s-7);
+  overflow-wrap: break-word;
+}
+
+.agents-page h1,
+.agents-page h2,
+.agents-page h3 {
+  font-family: var(--display);
+  font-weight: 600;
+}
+
+.agents-page pre {
+  background: var(--card);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-l);
+  padding: var(--s-3);
+  overflow-x: auto;
+}
+
+.agents-page code {
+  font-family: var(--mono);
+  font-size: 0.9em;
+}
+
+.agents-page blockquote {
+  margin: 0 0 var(--s-4);
+  padding-left: var(--s-3);
+  border-left: 3px solid var(--line);
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
@@ -2933,4 +2970,68 @@ details.calendar-publish > summary {
 .follow-cook--following {
   background: var(--enamel-soft);
   color: var(--enamel);
+}
+
+/* --- Recipe import (recipe-import): share-only panel on Alchemy ------------ */
+/* Mounted only when Alchemy is opened from the phone's share sheet (Web Share
+   Target). A card holding a status line and, for a bare link that can't be read
+   cross-origin, a paste fallback. Mobile-first: everything is full-width and
+   wraps, so nothing overflows a phone. */
+.import-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  margin: 0 0 var(--s-3);
+  padding: var(--s-4);
+  background: var(--card);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-l);
+  max-width: 36rem;
+}
+.import-panel .section-title {
+  margin: 0;
+}
+.import-paste-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.import-paste-block[hidden] {
+  display: none;
+}
+.import-paste-area {
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  padding: var(--s-2) var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--card);
+  color: inherit;
+  resize: vertical;
+}
+/* Provenance + etiquette lines in the editor for an imported draft. */
+.import-provenance,
+.import-etiquette {
+  margin: var(--s-2) 0;
+}
+
+/* --- User guide (user-guide.html) ----------------------------------------- */
+/* Cook-facing help. Each entry is a card; numbered steps read as a walkthrough. */
+.guide-entry {
+  margin: var(--s-4) 0 0;
+  padding: var(--s-4);
+  background: var(--card);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-l);
+}
+.guide-entry .section-title {
+  margin: 0 0 var(--s-2);
+}
+.guide-steps {
+  margin: var(--s-2) 0 0;
+  padding-left: 1.4em;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
 }
