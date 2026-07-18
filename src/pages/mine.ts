@@ -10,6 +10,7 @@ import { log } from '../log.js';
 import { mountShell } from '../nav.js';
 import { acquireFromPaste, acquireFromUrl } from '../import/acquire.js';
 import { renderImportPanel } from '../import/panel.js';
+import { interpretShare } from '../import/share-target.js';
 import { mapImportedToFields } from '../import/to-fields.js';
 import { createDraftStore, type DraftStatus } from '../recipes/drafts-local.js';
 import { listPdsDrafts } from '../recipes/drafts-sync.js';
@@ -92,6 +93,26 @@ const main = async (): Promise<void> => {
   // Import from link (recipe-import): paste a recipe URL → prefilled LOCAL draft
   // that opens in the editor for review. Nothing publishes without the normal
   // editor flow. Sits by "New" as a sibling authoring entry.
+  //
+  // Web Share Target: the manifest registers mine.html as a GET share target, so
+  // a share from the phone browser lands here as ?title=&text=&url=. When those
+  // are present, open the panel and import straight away (shared text imports
+  // with no fetch; a bare link prefills and falls back to paste).
+  const shareParams = new URLSearchParams(window.location.search);
+  const shared = interpretShare({
+    title: shareParams.get('title') ?? undefined,
+    text: shareParams.get('text') ?? undefined,
+    url: shareParams.get('url') ?? undefined,
+  });
+  const hasShare = shared.url !== '' || shared.pasteText !== undefined;
+  if (hasShare) {
+    // Strip the share query so a reload doesn't re-trigger the import.
+    try {
+      window.history.replaceState(null, '', './mine.html');
+    } catch {
+      /* replaceState can throw in exotic embeddings — the import still runs */
+    }
+  }
   const importPanel = renderImportPanel({
     acquireFromUrl: (url) => acquireFromUrl(url),
     acquireFromPaste: (pasted, sourceUrl) => acquireFromPaste(pasted, sourceUrl),
@@ -99,6 +120,7 @@ const main = async (): Promise<void> => {
       const draft = await drafts.save(mapImportedToFields(result.recipe, result.sourceUrl), undefined, 'draft');
       window.location.href = `./editor.html?draft=${encodeURIComponent(draft.id)}`;
     },
+    ...(hasShare ? { autoStart: shared } : {}),
   });
   draftsHeader.after(importPanel);
 

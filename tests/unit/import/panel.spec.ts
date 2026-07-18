@@ -117,6 +117,38 @@ describe('renderImportPanel', () => {
     expect(testid(panel, 'import-paste-block').hidden).toBe(false);
   });
 
+  it('autoStart with shared text opens the panel and imports without a fetch', async () => {
+    const onImported = vi.fn();
+    const acquireFromUrl = vi.fn(() => Promise.resolve<AcquireResult>({ kind: 'no-recipe', sourceUrl: '' }));
+    const res: AcquireResult = { kind: 'imported', recipe: recipe(), sourceUrl: 'u', missing: 'none' };
+    const panel = renderImportPanel({
+      acquireFromUrl,
+      acquireFromPaste: () => res,
+      onImported,
+      autoStart: { url: 'https://x/r', pasteText: '1 cup flour\n1 cup milk\n1 tsp salt' },
+    });
+    await tick();
+    expect(testid(panel, 'import-body').hidden).toBe(false);
+    expect(onImported).toHaveBeenCalledWith(res);
+    expect(acquireFromUrl).not.toHaveBeenCalled(); // no network for a text share
+  });
+
+  it('autoStart with a bare link opens the panel and attempts the fetch', async () => {
+    const acquireFromUrl = vi.fn(() =>
+      Promise.resolve<AcquireResult>({ kind: 'could-not-fetch', sourceUrl: 'https://x/r' }),
+    );
+    const panel = renderImportPanel({
+      acquireFromUrl,
+      acquireFromPaste: () => ({ kind: 'no-recipe', sourceUrl: '' }),
+      onImported: () => {},
+      autoStart: { url: 'https://x/r' },
+    });
+    await tick();
+    expect(testid(panel, 'import-body').hidden).toBe(false);
+    expect(acquireFromUrl).toHaveBeenCalledWith('https://x/r');
+    expect(testid(panel, 'import-paste-block').hidden).toBe(false); // CORS → paste revealed
+  });
+
   it('guards an empty URL without calling acquire', async () => {
     const acquireFromUrl = vi.fn(() => Promise.resolve<AcquireResult>({ kind: 'no-recipe', sourceUrl: '' }));
     const panel = renderImportPanel({

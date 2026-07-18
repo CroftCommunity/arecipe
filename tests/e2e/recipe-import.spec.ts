@@ -134,6 +134,44 @@ test('a partial import flags the missing side and leaves it blank (no fabricatio
   await expect(page.getByTestId('editor-instructions')).toHaveValue('');
 });
 
+test('Web Share Target: shared recipe text auto-imports with no fetch (CORS sidestepped)', async ({
+  page,
+}) => {
+  // A share arrives as ?title=&text=&url= (GET target). Shared TEXT goes straight
+  // through the heuristic — no network — so route nothing.
+  const text = [
+    'Grandma’s Cornbread',
+    '',
+    '1 cup cornmeal',
+    '1 cup flour',
+    '1 tablespoon sugar',
+    '',
+    '1. Mix the dry ingredients.',
+    '2. Bake at 400°F.',
+  ].join('\n');
+  const q = new URLSearchParams({ title: 'Grandma’s Cornbread', text, url: RECIPE_URL });
+  await page.goto(`/mine.html?${q.toString()}`);
+  await expect(page).toHaveURL(/editor\.html\?draft=/, { timeout: 15_000 });
+  await expect(page.getByTestId('editor-ingredients')).toHaveValue(/cornmeal/);
+  await expect(page.getByTestId('editor-instructions')).toHaveValue(/Mix the dry ingredients/);
+  await expect(page.getByTestId('editor-provenance')).toContainText('recipes.test');
+});
+
+test('Web Share Target: a bare shared link opens the panel prefilled and falls back to paste', async ({
+  page,
+}) => {
+  await routeFail(page); // the shared link's site blocks cross-origin reads
+  const q = new URLSearchParams({ title: 'A Recipe', url: RECIPE_URL });
+  await page.goto(`/mine.html?${q.toString()}`);
+  // Panel opened itself, prefilled the URL, attempted the fetch, and revealed paste.
+  await expect(page.getByTestId('import-body')).toBeVisible();
+  await expect(page.getByTestId('import-url')).toHaveValue(RECIPE_URL);
+  await expect(page.getByTestId('import-paste-block')).toBeVisible();
+  await expect(page.getByTestId('import-status')).toContainText(/doesn’t allow direct reading/);
+  // The share query is stripped so a reload doesn't re-trigger.
+  await expect(page).toHaveURL(/\/mine\.html$/);
+});
+
 test('the import panel and paste area fit a phone width (≤390px)', async ({ page }) => {
   await routeFail(page);
   await page.setViewportSize({ width: 390, height: 780 });
