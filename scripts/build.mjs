@@ -171,6 +171,12 @@ copyFileSync('CNAME', 'dist/CNAME'); // custom domain survives every deploy
 // per-PR preview model — docs/PREVIEWS.md — makes it required.)
 writeFileSync('dist/.nojekyll', '');
 copyFileSync('client-metadata.json', 'dist/client-metadata.json'); // hosted OAuth client id (8c)
+// Digital Asset Links for the Android TWA (plan 2026-07-18-1): Android
+// verifies the app↔site pairing by fetching /.well-known/assetlinks.json
+// from the live origin, so the committed root file must land there. The
+// fingerprint inside is gate-checked against android/expected-cert-sha256.txt.
+mkdirSync('dist/.well-known', { recursive: true });
+copyFileSync('assetlinks.json', 'dist/.well-known/assetlinks.json');
 cpSync('assets', 'dist/assets', { recursive: true });
 
 // Version + per-page sizes.
