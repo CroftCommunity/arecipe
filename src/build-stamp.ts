@@ -45,7 +45,15 @@ export const mountBuildStamp = async (parent: HTMLElement): Promise<void> => {
   ghIcon.append(path);
   colophon.append(document.createTextNode('© 2026 Chase Pettet · '), ghIcon, document.createTextNode(' source'));
 
-  footer.append(stamp, colophon);
+  // Site-wide pointer to the agent guide (agents-page run): agents.html is
+  // the human-readable mirror of /agents.md, generated at build time.
+  const agentsLink = document.createElement('a');
+  agentsLink.className = 'colophon';
+  agentsLink.dataset['testid'] = 'agents-link';
+  agentsLink.href = './agents.html';
+  agentsLink.textContent = 'For AI agents';
+
+  footer.append(stamp, colophon, agentsLink);
   parent.append(footer);
   try {
     const res = await fetch('./build-info.json');
