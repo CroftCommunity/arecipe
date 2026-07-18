@@ -134,10 +134,22 @@ offered as good manners for any agent that works with recipes.
   downstream, with steps reduced to a functional sequence. Do the same:
   write the method in your own words, and take no headnotes, stories, or
   personal narrative.
-- **Take no photographs.** A photo belongs to whoever made it. arecipe's own
-  imports attach [Wikimedia Commons](https://commons.wikimedia.org/) images
-  with the license and artist credit stored on the record — never
-  recipe-site photos.
+- **Take no photographs from recipe sites.** A photo belongs to whoever made
+  it. arecipe's own imports never take a recipe site's photos; when a dish
+  needs an image, they source one from
+  [Wikimedia Commons](https://commons.wikimedia.org/) instead.
+- **Source images from Wikimedia Commons — and pick them for accuracy.**
+  Commons is the freely-licensed media repository of the Wikimedia projects,
+  and its whole purpose — media anyone can reuse, with the terms stated on
+  every file page — is exactly aligned with sharing recipes openly. Search
+  Commons for the dish by name, open the file page, and keep what it tells
+  you: the artist, the license, and the source travel with the image (arecipe
+  stores them in a `credit` field on the record and shows them as an overlay
+  in the app), and whatever the stated license asks — usually attribution —
+  do it. Then check the picture actually depicts the dish: regional and
+  method variants are the classic trap (a New England clam chowder is
+  cream-white; the red one is Manhattan). An accurate, freely licensed image
+  beats a prettier one that isn't either.
 - **Attribute.** Carry the recipe's name, its author or source, and a link
   back. arecipe's records carry an `attribution` field for exactly this.
 - **Be a polite client.** Honor `robots.txt`, identify yourself with an
