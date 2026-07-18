@@ -35,6 +35,18 @@ const main = async (): Promise<void> => {
   const content = el('section', 'panel');
   content.append(el('h2', 'page-title', 'Settings'));
 
+  // The guide is the page most people actually come here looking for — offer
+  // it before the settings sections (the About link at the bottom stays).
+  const guideTop = el('p');
+  const guideTopLink = el('a', 'friend-link', 'New here? Read the user guide') as HTMLAnchorElement;
+  guideTopLink.href = './user-guide.html';
+  guideTopLink.dataset['testid'] = 'settings-user-guide-top';
+  guideTop.append(
+    guideTopLink,
+    document.createTextNode(' — what each page is for, with screenshots.'),
+  );
+  content.append(guideTop);
+
   const build = section('This build', 'build-facts');
   try {
     const res = await fetch('./build-info.json');

@@ -49,6 +49,26 @@ test('the user guide keeps the share-to-import walkthrough', async ({ page }) =>
   await expect(share).toContainText(/Publish/i);
 });
 
+test('Settings offers the user guide right at the top, before any section', async ({ page }) => {
+  await page.goto('/settings.html');
+  const top = page.getByTestId('settings-user-guide-top');
+  await expect(top).toBeVisible();
+  await expect(top).toHaveAttribute('href', './user-guide.html');
+  // "At the top" means before the first settings section in document order.
+  const isAbove = await page.evaluate(() => {
+    const link = document.querySelector('[data-testid=settings-user-guide-top]');
+    const firstSection = document.querySelector('[data-testid=build-facts]');
+    if (link === null || firstSection === null) return false;
+    return (
+      (link.compareDocumentPosition(firstSection) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0
+    );
+  });
+  expect(isAbove, 'guide link precedes the first settings section').toBe(true);
+  await top.click();
+  await expect(page).toHaveURL(/user-guide\.html/);
+  await expect(page.getByTestId('guide-toc')).toBeVisible();
+});
+
 test('Settings links to the user guide', async ({ page }) => {
   await page.goto('/settings.html');
   const link = page.getByTestId('settings-user-guide');
