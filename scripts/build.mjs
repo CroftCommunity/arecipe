@@ -16,6 +16,7 @@ import {
 } from 'node:fs';
 import { gzipSync } from 'node:zlib';
 import { buildSync } from 'esbuild';
+import { displayVersion } from './version.mjs';
 
 const PAGES = [
   'browse',
@@ -180,10 +181,11 @@ copyFileSync('assetlinks.json', 'dist/.well-known/assetlinks.json');
 cpSync('assets', 'dist/assets', { recursive: true });
 
 // Version + per-page sizes.
+// Shared derivation (scripts/version.mjs): the Android TWA build stamps its
+// versionName with the same function, so app and site report one version.
 const sha = execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim();
 const now = new Date();
-const date = now.toISOString().slice(0, 10).replaceAll('-', '.');
-const version = `${date}-${sha}`;
+const version = displayVersion(now, sha);
 const pages = Object.fromEntries(
   PAGES.map((p) => {
     const bytes = readFileSync(`dist/${bundleOf[p]}`);
