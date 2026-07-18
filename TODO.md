@@ -64,3 +64,29 @@ loose ideas a later session can pick up.
       Answers the "you have to know someone's exact username" friction without
       indexing 38M accounts client-side. _Shipped — see
       `plans/2026-07-10-2-plan-cook-search-typeahead.md`._
+
+- [ ] **User-guide page(s) for recipe import + Web Share Target.** The UI is
+      stable enough now to document accurately (that's the payoff of a stable
+      surface — the docs won't rot). Write a cook-facing guide (a `help`/`guide`
+      surface, or a section wherever end-user docs land) covering the Alchemy
+      "Import from link" flow. Be **honest about the CORS reality** rather than
+      overpromising — the facts to encode, all verified in this run:
+      - **Import from link** (Alchemy → "Import from link"): paste a recipe URL →
+        it tries to read the page directly; most sites block cross-origin reads
+        (measured: 7 of 8 popular recipe sites send no permissive CORS header),
+        so it usually falls back to a **paste** box — paste the page source **or**
+        the visible recipe text. Either way you get a prefilled **local draft**
+        that opens in the editor; **nothing publishes** until you hit Publish.
+      - **Parse coverage:** schema.org/Recipe JSON-LD (the near-universal case)
+        and a plain-text heuristic; a partial import leaves the missing side blank
+        (never fabricated); provenance (source link) is attached and shown.
+      - **Share to arecipe** (Web Share Target, **installed PWA on
+        Android/Chromium only — iOS Safari doesn't support it**): share a recipe
+        into arecipe from the phone browser. Sharing **selected recipe text**
+        imports with **no fetch at all** (the one path that fully sidesteps CORS)
+        — the tip worth leading with; sharing a **bare link** only hands over the
+        URL, so it prefills and falls back to paste.
+      - The single "own words" etiquette line shown near Publish for imported
+        drafts is the natural place to point cooks at attribution norms.
+      Source of truth for accuracy: `plans/2026-07-18-1-plan-recipe-import.md`.
+      _Noted 2026-07-18 during the recipe-import run._
