@@ -1,6 +1,12 @@
 # Android app packaging — Trusted Web Activity → GitHub Releases
 
-**Status:** 🚧 In progress 2026-07-18.
+**Status:** ✅ **Implemented 2026-07-18.** TDD-first (red → green per phase).
+Gate green: lint · typecheck (both tsconfigs) · 621 unit (12 new) · build ·
+193 hermetic e2e (2 new). The Bubblewrap generate step was executed
+headlessly in-run against the committed config (project generated,
+identity + stamped versions verified in the gradle output); the SDK build,
+secrets, and on-device verification are the owner's first-release
+checklist in `RUN-ANDROID-TWA-SUMMARY.md`.
 
 ## Mission
 
