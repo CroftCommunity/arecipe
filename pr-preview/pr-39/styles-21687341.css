@@ -1696,6 +1696,43 @@ a.card {
   vertical-align: -1px;
 }
 
+/* ---- agents page (agents.html — generated from agents.md) ---- */
+/* JS-less static page like calendar-setup: give the content a readable
+   measure and keep phone widths overflow-free (mobile-fit guard) — code
+   blocks scroll inside their own box, long tokens/URLs wrap. */
+.agents-page {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: var(--s-4) var(--s-4) var(--s-7);
+  overflow-wrap: break-word;
+}
+
+.agents-page h1,
+.agents-page h2,
+.agents-page h3 {
+  font-family: var(--display);
+  font-weight: 600;
+}
+
+.agents-page pre {
+  background: var(--card);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-l);
+  padding: var(--s-3);
+  overflow-x: auto;
+}
+
+.agents-page code {
+  font-family: var(--mono);
+  font-size: 0.9em;
+}
+
+.agents-page blockquote {
+  margin: 0 0 var(--s-4);
+  padding-left: var(--s-3);
+  border-left: 3px solid var(--line);
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
