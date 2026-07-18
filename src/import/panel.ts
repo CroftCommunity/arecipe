@@ -1,9 +1,13 @@
-// The Alchemy "Import from link" panel (import Phase 3, D1). House inline-panel
-// idiom (mirrors src/account/danger-zone.ts): a pure DOM builder whose deps are
-// injected, so the whole flow is unit-testable without a page or session. The
-// panel keeps Alchemy uncluttered behind a toggle, attempts a direct fetch, and
-// — when that fails, as it usually will for a static PWA — expands a paste flow
-// with copy that states the serverless tradeoff plainly rather than hiding it.
+// The recipe-import surface (recipe-import). SHARE-ONLY: there is no manual
+// "Import from link" button — import is initiated entirely from the phone's
+// share sheet (Web Share Target), so this panel is mounted only when Alchemy is
+// opened from a share, and it acts on the shared payload immediately.
+//
+// Honest split: shared TEXT (a selection / article body) runs the ladder with
+// NO fetch — the path that truly sidesteps CORS. A bare shared LINK is attempted
+// once and, when the site blocks cross-origin reads (the common case), falls
+// back to a paste box with copy that says so plainly. Pure DOM builder; deps
+// injected for testability.
 
 import { IMPORT_COPY, type AcquireResult } from './acquire.js';
 import { log } from '../log.js';
@@ -13,12 +17,11 @@ type ImportedResult = Extract<AcquireResult, { kind: 'imported' }>;
 export type ImportPanelDeps = {
   acquireFromUrl: (url: string) => Promise<AcquireResult>;
   acquireFromPaste: (pasted: string, sourceUrl: string) => AcquireResult;
-  /** Hand a successful import off to the draft store + editor (Phase 4). */
+  /** Hand a successful import off to the draft store + editor. */
   onImported: (result: ImportedResult) => Promise<void> | void;
-  /** Web Share Target: when the page opened from a share, open the panel and run
-   *  the import immediately — pasteText (shared content) goes straight through
-   *  the ladder; a bare url is attempted (and falls back to paste). */
-  autoStart?: { url: string; pasteText?: string };
+  /** The shared payload that opened this panel: a provenance url (possibly
+   *  empty) and, when the share carried content, the text to import. */
+  shared: { url: string; pasteText?: string };
 };
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -29,41 +32,14 @@ const el = (tag: string, className?: string, text?: string): HTMLElement => {
 };
 
 export const renderImportPanel = (deps: ImportPanelDeps): HTMLElement => {
+  const sourceUrl = deps.shared.url;
+
   const section = el('section', 'import-panel');
   section.dataset['testid'] = 'import-panel';
+  section.append(el('h3', 'section-title', 'Import shared recipe'));
 
-  // Toggle: keeps the affordance one tap away without crowding the drafts list.
-  const toggle = el('button', 'button', 'Import from link') as HTMLButtonElement;
-  toggle.type = 'button';
-  toggle.dataset['testid'] = 'import-open';
-  toggle.setAttribute('aria-expanded', 'false');
-  section.append(toggle);
-
-  const body = el('div', 'import-body');
-  body.dataset['testid'] = 'import-body';
-  body.hidden = true;
-  section.append(body);
-
-  toggle.addEventListener('click', () => {
-    body.hidden = !body.hidden;
-    toggle.setAttribute('aria-expanded', String(!body.hidden));
-  });
-
-  // --- URL row ---------------------------------------------------------------
-  const urlRow = el('div', 'import-url-row');
-  const url = document.createElement('input');
-  url.type = 'url';
-  url.className = 'import-url-input';
-  url.placeholder = 'https://… a recipe link';
-  url.dataset['testid'] = 'import-url';
-  url.autocomplete = 'off';
-  const runBtn = el('button', 'button button--primary', 'Import') as HTMLButtonElement;
-  runBtn.type = 'button';
-  runBtn.dataset['testid'] = 'import-run';
-  urlRow.append(url, runBtn);
-  body.append(urlRow);
-
-  // --- Paste fallback (hidden until a fetch fails or nothing is found) --------
+  // Paste fallback — hidden until a bare link can't be read (or shared text
+  // needs correcting). This is the only text entry the panel offers.
   const pasteBlock = el('div', 'import-paste-block');
   pasteBlock.dataset['testid'] = 'import-paste-block';
   pasteBlock.hidden = true;
@@ -76,11 +52,11 @@ export const renderImportPanel = (deps: ImportPanelDeps): HTMLElement => {
   pasteRun.type = 'button';
   pasteRun.dataset['testid'] = 'import-paste-run';
   pasteBlock.append(paste, pasteRun);
-  body.append(pasteBlock);
+  section.append(pasteBlock);
 
   const status = el('p', 'status');
   status.dataset['testid'] = 'import-status';
-  body.append(status);
+  section.append(status);
 
   const revealPaste = (): void => {
     pasteBlock.hidden = false;
@@ -114,50 +90,43 @@ export const renderImportPanel = (deps: ImportPanelDeps): HTMLElement => {
     }
   };
 
-  const runUrl = async (): Promise<void> => {
-    const value = url.value.trim();
-    if (value === '') {
-      status.textContent = 'Enter a recipe link to import.';
-      return;
-    }
-    status.textContent = 'Fetching…';
-    runBtn.disabled = true;
-    try {
-      handle(await deps.acquireFromUrl(value));
-    } catch (err) {
-      log.warn('import', 'url import failed', { error: String(err) });
-      status.textContent = `Import failed: ${String(err)}`;
-    } finally {
-      runBtn.disabled = false;
-    }
-  };
-
   const runPaste = (): void => {
     const pasted = paste.value.trim();
     if (pasted === '') {
       status.textContent = 'Paste the page or recipe text first.';
       return;
     }
-    handle(deps.acquireFromPaste(pasted, url.value.trim()));
+    handle(deps.acquireFromPaste(pasted, sourceUrl));
   };
 
-  runBtn.addEventListener('click', () => void runUrl());
-  pasteRun.addEventListener('click', () => runPaste());
-
-  // Web Share Target: opened from a share — expand and import straight away.
-  if (deps.autoStart !== undefined) {
-    const { url: sharedUrl, pasteText } = deps.autoStart;
-    body.hidden = false;
-    toggle.setAttribute('aria-expanded', 'true');
-    if (sharedUrl !== '') url.value = sharedUrl;
+  const runShared = async (): Promise<void> => {
+    const pasteText = deps.shared.pasteText;
     if (pasteText !== undefined && pasteText !== '') {
+      // Shared content → straight through the ladder, no network.
       revealPaste();
       paste.value = pasteText;
-      runPaste(); // shared content → straight through the ladder, no fetch
-    } else if (sharedUrl !== '') {
-      void runUrl(); // bare link → attempt fetch, fall back to paste
+      runPaste();
+      return;
     }
-  }
+    if (sourceUrl !== '') {
+      // Bare shared link → attempt the fetch; CORS failure expands paste below.
+      status.textContent = 'Reading the shared recipe…';
+      try {
+        handle(await deps.acquireFromUrl(sourceUrl));
+      } catch (err) {
+        log.warn('import', 'shared url import failed', { error: String(err) });
+        status.textContent = IMPORT_COPY.couldNotFetch;
+        revealPaste();
+      }
+      return;
+    }
+    // Nothing usable in the share — offer the paste box.
+    revealPaste();
+    status.textContent = 'Paste the recipe text to import.';
+  };
+
+  pasteRun.addEventListener('click', () => runPaste());
+  void runShared();
 
   return section;
 };

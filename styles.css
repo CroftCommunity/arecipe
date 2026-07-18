@@ -2866,45 +2866,24 @@ details.calendar-publish > summary {
   color: var(--enamel);
 }
 
-/* --- Import from link (recipe-import): inline panel on Alchemy ------------- */
-/* House inline-panel idiom (cf. .export-panel). Toggle reveals a URL row; a
-   fetch failure expands the paste fallback below it. Mobile-first: everything
-   is full-width and wraps, so nothing overflows a phone. */
+/* --- Recipe import (recipe-import): share-only panel on Alchemy ------------ */
+/* Mounted only when Alchemy is opened from the phone's share sheet (Web Share
+   Target). A card holding a status line and, for a bare link that can't be read
+   cross-origin, a paste fallback. Mobile-first: everything is full-width and
+   wraps, so nothing overflows a phone. */
 .import-panel {
-  margin: 0 0 var(--s-3);
-}
-.import-body {
   display: flex;
   flex-direction: column;
   gap: var(--s-3);
-  margin: var(--s-2) 0 0;
+  margin: 0 0 var(--s-3);
   padding: var(--s-4);
   background: var(--card);
   border: var(--stroke) solid var(--line);
   border-radius: var(--r-l);
   max-width: 36rem;
 }
-.import-body[hidden] {
-  display: none;
-}
-.import-url-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--s-2);
-}
-.import-url-input {
-  flex: 1 1 14rem;
-  min-width: 0;
-  font: inherit;
-  padding: var(--s-2) var(--s-3);
-  border: var(--stroke) solid var(--line);
-  border-radius: var(--r-m);
-  background: var(--card);
-  color: inherit;
-}
-.import-url-input::placeholder {
-  color: var(--ink);
-  opacity: 0.45;
+.import-panel .section-title {
+  margin: 0;
 }
 .import-paste-block {
   display: flex;

@@ -90,39 +90,36 @@ const main = async (): Promise<void> => {
   content.append(draftsSection);
   const drafts = createDraftStore();
 
-  // Import from link (recipe-import): paste a recipe URL → prefilled LOCAL draft
-  // that opens in the editor for review. Nothing publishes without the normal
-  // editor flow. Sits by "New" as a sibling authoring entry.
-  //
-  // Web Share Target: the manifest registers mine.html as a GET share target, so
-  // a share from the phone browser lands here as ?title=&text=&url=. When those
-  // are present, open the panel and import straight away (shared text imports
-  // with no fetch; a bare link prefills and falls back to paste).
+  // Recipe import is SHARE-ONLY (recipe-import): there is no manual import button
+  // on Alchemy. The manifest registers mine.html as a GET Web Share Target, so a
+  // share from the phone browser lands here as ?title=&text=&url=. Only then do
+  // we mount the import panel and act on the share — shared text imports with no
+  // fetch (sidesteps CORS); a bare link is attempted and falls back to paste.
+  // Nothing publishes without the normal editor flow.
   const shareParams = new URLSearchParams(window.location.search);
   const shared = interpretShare({
     title: shareParams.get('title') ?? undefined,
     text: shareParams.get('text') ?? undefined,
     url: shareParams.get('url') ?? undefined,
   });
-  const hasShare = shared.url !== '' || shared.pasteText !== undefined;
-  if (hasShare) {
+  if (shared.url !== '' || shared.pasteText !== undefined) {
     // Strip the share query so a reload doesn't re-trigger the import.
     try {
       window.history.replaceState(null, '', './mine.html');
     } catch {
       /* replaceState can throw in exotic embeddings — the import still runs */
     }
+    const importPanel = renderImportPanel({
+      acquireFromUrl: (url) => acquireFromUrl(url),
+      acquireFromPaste: (pasted, sourceUrl) => acquireFromPaste(pasted, sourceUrl),
+      onImported: async (result) => {
+        const draft = await drafts.save(mapImportedToFields(result.recipe, result.sourceUrl), undefined, 'draft');
+        window.location.href = `./editor.html?draft=${encodeURIComponent(draft.id)}`;
+      },
+      shared,
+    });
+    draftsHeader.after(importPanel);
   }
-  const importPanel = renderImportPanel({
-    acquireFromUrl: (url) => acquireFromUrl(url),
-    acquireFromPaste: (pasted, sourceUrl) => acquireFromPaste(pasted, sourceUrl),
-    onImported: async (result) => {
-      const draft = await drafts.save(mapImportedToFields(result.recipe, result.sourceUrl), undefined, 'draft');
-      window.location.href = `./editor.html?draft=${encodeURIComponent(draft.id)}`;
-    },
-    ...(hasShare ? { autoStart: shared } : {}),
-  });
-  draftsHeader.after(importPanel);
 
   const renderDrafts = async (): Promise<void> => {
     const all = await drafts.list();

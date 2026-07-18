@@ -1,7 +1,16 @@
 # Recipe import from a link (Alchemy) — layered acquisition + parse ladder
 
-**Status:** DONE (2026-07-18). All 5 phases landed TDD (red→green); full gate green
-(lint · typecheck · 648 unit · build · 197 e2e). Findings F1–F7 below drove the design.
+**Status:** DONE (2026-07-18). All 5 phases landed TDD (red→green); full gate green.
+Findings F1–F7 below drove the design.
+
+> **Design change (2026-07-18, owner call): import is SHARE-ONLY.** The manual "Import from
+> link" button/URL field on Alchemy was **removed**; the only way to import is the mobile Web
+> Share Target (share a recipe from the phone browser). The panel is mounted only when Alchemy is
+> opened from a share and acts on the payload immediately (shared text → ladder, no fetch; bare
+> link → attempt fetch, fall back to paste). Implications accepted: desktop browsers have no
+> import path, and discoverability is via the OS share sheet only (no on-page affordance). The
+> acquire/ladder/mapping/lexicon/editor-provenance machinery is unchanged — only the entry point
+> narrowed.
 
 ## Run summary (red → green per phase)
 
