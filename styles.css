@@ -3035,3 +3035,40 @@ details.calendar-publish > summary {
   flex-direction: column;
   gap: var(--s-2);
 }
+/* Topic index: compact inline chips so fifteen topics don't cost a screen. */
+.guide-toc ul {
+  list-style: none;
+  margin: var(--s-3) 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+.guide-toc a {
+  display: inline-block;
+  padding: 2px 10px;
+  border: var(--stroke) solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  text-decoration: none;
+}
+/* Screenshots: fluid (mobile-fit guards 320px), capped so desktop keeps prose
+ * primary; captions read as quiet annotations. */
+.guide-shot {
+  margin: var(--s-3) 0;
+}
+.guide-shot img {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-l);
+}
+.guide-shot figcaption {
+  max-width: 420px;
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  opacity: 0.75;
+  margin-top: var(--s-1);
+}
