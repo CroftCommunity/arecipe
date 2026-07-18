@@ -64,6 +64,17 @@ page DESCRIBES what the protocol makes public and what the sources say.
 verbatim into the run summary; merging the PR is publishing — the owner reads
 before merge.
 
+**Amendment (2026-07-18, post-merge of #41, owner note):** Part B gained a
+"Source images from Wikimedia Commons — and pick them for accuracy" practice
+(and the llms.txt reading-order line mentions it). It states the alignment of
+the Commons project with open recipe sharing and the working practice the
+import pipeline already follows — Commons search by dish name, read the file
+page, carry artist/license/source with the image (the record's `credit`
+field + the app's credit overlay), honor what the stated license asks, and
+check the image depicts the actual dish (regional/method variants — the New
+England-vs-Manhattan chowder trap from the import corpus). Technical voice
+only; no legal claims added; all content guards re-run green.
+
 ## llms.txt status honesty (for the record, not the page)
 
 llms.txt is a community convention (proposed by Jeremy Howard, Answer.AI,

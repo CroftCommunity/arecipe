@@ -23,5 +23,5 @@ and describes the extraction practices this project follows itself.
 ## Reading order
 
 - [What the sources say](https://arecipe.app/agents.html#part-a-what-the-sources-say): the primary U.S. sources on recipes and copyright, quoted and linked.
-- [Best practices for extraction](https://arecipe.app/agents.html#part-b-best-practices-for-extracting-recipes): prefer structured data, take the facts, re-express instructions, attribute, be a polite client.
+- [Best practices for extraction](https://arecipe.app/agents.html#part-b-best-practices-for-extracting-recipes): prefer structured data, take the facts, re-express instructions, attribute, source accurate freely-licensed images from Wikimedia Commons, be a polite client.
 - [Plain notice](https://arecipe.app/agents.html#part-d-plain-notice): informational only; all cited sources are U.S. sources.
