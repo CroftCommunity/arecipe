@@ -68,24 +68,25 @@ loose ideas a later session can pick up.
 - [ ] **User-guide page(s) for recipe import + Web Share Target.** The UI is
       stable enough now to document accurately (that's the payoff of a stable
       surface — the docs won't rot). Write a cook-facing guide (a `help`/`guide`
-      surface, or a section wherever end-user docs land) covering the Alchemy
-      "Import from link" flow. Be **honest about the CORS reality** rather than
-      overpromising — the facts to encode, all verified in this run:
-      - **Import from link** (Alchemy → "Import from link"): paste a recipe URL →
-        it tries to read the page directly; most sites block cross-origin reads
-        (measured: 7 of 8 popular recipe sites send no permissive CORS header),
-        so it usually falls back to a **paste** box — paste the page source **or**
-        the visible recipe text. Either way you get a prefilled **local draft**
-        that opens in the editor; **nothing publishes** until you hit Publish.
+      surface, or a section wherever end-user docs land) covering recipe import.
+      **Import is SHARE-ONLY** (the manual "Import from link" button was removed
+      2026-07-18) — so the guide's job is largely teaching the share gesture and
+      being **honest about the CORS reality** rather than overpromising. Facts to
+      encode, all verified in this run:
+      - **Share to arecipe** (Web Share Target, **installed PWA on
+        Android/Chromium only — iOS Safari doesn't support it; desktop has no
+        import path**): share a recipe into arecipe from the phone browser.
+        Sharing **selected recipe text** imports with **no fetch at all** (the one
+        path that fully sidesteps CORS) — the tip worth leading with. Sharing a
+        **bare link** only hands over the URL, and most sites block cross-origin
+        reads (measured: 7 of 8 popular recipe sites send no permissive CORS
+        header), so that path usually falls back to a **paste** box — paste the
+        page source or the visible recipe text.
+      - Either way you get a prefilled **local draft** that opens in the editor;
+        **nothing publishes** until you hit Publish.
       - **Parse coverage:** schema.org/Recipe JSON-LD (the near-universal case)
         and a plain-text heuristic; a partial import leaves the missing side blank
         (never fabricated); provenance (source link) is attached and shown.
-      - **Share to arecipe** (Web Share Target, **installed PWA on
-        Android/Chromium only — iOS Safari doesn't support it**): share a recipe
-        into arecipe from the phone browser. Sharing **selected recipe text**
-        imports with **no fetch at all** (the one path that fully sidesteps CORS)
-        — the tip worth leading with; sharing a **bare link** only hands over the
-        URL, so it prefills and falls back to paste.
       - The single "own words" etiquette line shown near Publish for imported
         drafts is the natural place to point cooks at attribution norms.
       Source of truth for accuracy: `plans/2026-07-18-1-plan-recipe-import.md`.
