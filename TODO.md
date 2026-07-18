@@ -65,14 +65,16 @@ loose ideas a later session can pick up.
       indexing 38M accounts client-side. _Shipped — see
       `plans/2026-07-10-2-plan-cook-search-typeahead.md`._
 
-- [ ] **User-guide page(s) for recipe import + Web Share Target.** The UI is
-      stable enough now to document accurately (that's the payoff of a stable
-      surface — the docs won't rot). Write a cook-facing guide (a `help`/`guide`
-      surface, or a section wherever end-user docs land) covering recipe import.
-      **Import is SHARE-ONLY** (the manual "Import from link" button was removed
+- [~] **User-guide page for recipe import + Web Share Target.** _Started
+      2026-07-18: `user-guide.html` (`src/pages/user-guide.ts` +
+      `user-guide-view.ts`), linked from Settings → About; first entry is the
+      share-to-import walkthrough. Remaining: add further topics as entries in
+      `GUIDE_ENTRIES`._ The UI is stable enough now to document accurately (that's
+      the payoff of a stable surface — the docs won't rot). Import is
+      **SHARE-ONLY** (the manual "Import from link" button was removed
       2026-07-18) — so the guide's job is largely teaching the share gesture and
       being **honest about the CORS reality** rather than overpromising. Facts to
-      encode, all verified in this run:
+      encode (in the share entry, all verified in this run):
       - **Share to arecipe** (Web Share Target, **installed PWA on
         Android/Chromium only — iOS Safari doesn't support it; desktop has no
         import path**): share a recipe into arecipe from the phone browser.
