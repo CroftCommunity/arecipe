@@ -1,0 +1,420 @@
+// Shopping-list core (plans/2026-07-18-1-plan-shopping-list.md).
+// Phase 1: the ingredient PARSER is fixture-table-driven — tests/fixtures/
+// shopping/ingredient-lines.json is the grammar contract. Every D3 form
+// (integers, decimals, ASCII + unicode fractions, mixed, ranges, unit
+// synonyms/plurals, name-only, unparseable) has a row; the table is extended
+// before the grammar ever is.
+import { readFileSync } from 'node:fs';
+import { describe, expect, it } from 'vitest';
+import {
+  buildShoppingList,
+  collectScheduledRefs,
+  combinedLineText,
+  expandedWeekCount,
+  parseIngredient,
+  planDateBounds,
+  renderByRecipeMarkdown,
+  renderCombinedMarkdown,
+  renderShoppingListDocument,
+  resolveShoppingList,
+  shoppingListFilename,
+  type ParsedIngredient,
+  type ScheduledRecipe,
+  type ShoppingPlan,
+} from '../../../src/recipes/shopping-list.js';
+
+type FixtureQty = null | number | { min: number; max: number };
+type FixtureCase = {
+  raw: string;
+  qty: FixtureQty;
+  unit: string | null;
+  name: string;
+  unparsed?: boolean;
+};
+
+const table = JSON.parse(
+  readFileSync(new URL('../../fixtures/shopping/ingredient-lines.json', import.meta.url), 'utf8'),
+) as { cases: FixtureCase[] };
+
+/** The parser's structured qty flattened to the fixture's comparable shape. */
+const qtyToFixture = (parsed: ParsedIngredient): FixtureQty => {
+  if (parsed.qty === undefined) return null;
+  const { min, max, range } = parsed.qty;
+  return range ? { min, max } : min;
+};
+
+describe('parseIngredient — fixture table (the grammar contract)', () => {
+  for (const c of table.cases) {
+    it(`parses ${JSON.stringify(c.raw)}`, () => {
+      const parsed = parseIngredient(c.raw);
+
+      // Quantity: null / single number / range, within float tolerance.
+      const q = qtyToFixture(parsed);
+      if (c.qty === null) {
+        expect(q).toBeNull();
+      } else if (typeof c.qty === 'number') {
+        expect(typeof q).toBe('number');
+        expect(q as number).toBeCloseTo(c.qty, 9);
+      } else {
+        const range = q as { min: number; max: number };
+        expect(range).not.toBeNull();
+        expect(range.min).toBeCloseTo(c.qty.min, 9);
+        expect(range.max).toBeCloseTo(c.qty.max, 9);
+      }
+
+      expect(parsed.unit ?? null).toBe(c.unit);
+      expect(parsed.name).toBe(c.name);
+      expect(parsed.unparsed === true).toBe(c.unparsed === true);
+      // The raw is always preserved verbatim.
+      expect(parsed.raw).toBe(c.raw);
+    });
+  }
+
+  it('covers every D3 form (fixture table is non-trivial)', () => {
+    expect(table.cases.length).toBeGreaterThanOrEqual(40);
+  });
+});
+
+// --- Phase 2: aggregation + flags -----------------------------------------
+
+const recipe = (name: string, ingredients: string[] | undefined, count = 1): ScheduledRecipe => ({
+  uri: `at://did:plc:x/exchange.recipe.recipe/${name.toLowerCase().replace(/\s+/g, '-')}`,
+  name,
+  count,
+  ingredients,
+});
+
+/** The combined line for a normalized name (or undefined). */
+const combinedFor = (list: ReturnType<typeof buildShoppingList>, name: string) =>
+  list.combined.lines.find((l) => l.name === name);
+
+describe('buildShoppingList — combined aggregation', () => {
+  it('sums the same ingredient across recipes in a compatible unit', () => {
+    const list = buildShoppingList([
+      recipe('A', ['2 cups flour']),
+      recipe('B', ['1 cup flour']),
+    ]);
+    const flour = combinedFor(list, 'flour');
+    expect(flour?.parts).toEqual(['3 cups']);
+    expect(combinedLineText(flour!)).toBe('flour — 3 cups');
+  });
+
+  it('renders a sum in the smallest unit present so integers stay integers', () => {
+    const list = buildShoppingList([recipe('A', ['1 cup butter', '2 tbsp butter'])]);
+    // 1 cup (48 tsp) + 2 tbsp (6 tsp) = 54 tsp = 18 tbsp (smallest present).
+    expect(combinedFor(list, 'butter')?.parts).toEqual(['18 tbsp']);
+  });
+
+  it('multiplies a recipe scheduled ×N', () => {
+    const list = buildShoppingList([recipe('A', ['1 cup flour'], 2)]);
+    expect(combinedLineText(combinedFor(list, 'flour')!)).toBe('flour — 2 cups');
+  });
+
+  it('sums ranges end-to-end and keeps them ranges', () => {
+    const list = buildShoppingList([
+      recipe('A', ['1-2 cups broth']),
+      recipe('B', ['2 cups broth']),
+    ]);
+    expect(combinedLineText(combinedFor(list, 'broth')!)).toBe('broth — 3–4 cups');
+  });
+
+  it('multiplies a range by the schedule count', () => {
+    const list = buildShoppingList([recipe('A', ['1-2 cups broth'], 2)]);
+    expect(combinedLineText(combinedFor(list, 'broth')!)).toBe('broth — 2–4 cups');
+  });
+
+  it('never converts across families — lists them separately under one heading', () => {
+    const list = buildShoppingList([recipe('A', ['2 cups flour', '100 g flour'])]);
+    const flour = combinedFor(list, 'flour');
+    expect(flour?.parts).toEqual(['2 cups', '100 g']);
+    expect(combinedLineText(flour!)).toBe('flour — 2 cups + 100 g');
+  });
+
+  it('keeps imperial and metric volume as separate families (no fuzzy conversion)', () => {
+    const list = buildShoppingList([recipe('A', ['1 cup milk', '200 ml milk'])]);
+    const milk = combinedFor(list, 'milk');
+    expect(milk?.parts).toEqual(['1 cup', '200 ml']);
+  });
+
+  it('aggregates bare unquantified lines as an occurrence count (×N)', () => {
+    const list = buildShoppingList([
+      recipe('A', ['cucumber']),
+      recipe('B', ['cucumber']),
+      recipe('C', ['cucumber']),
+    ]);
+    expect(combinedLineText(combinedFor(list, 'cucumber')!)).toBe('cucumber ×3');
+  });
+
+  it('counts a bare line by the schedule count too', () => {
+    const list = buildShoppingList([recipe('A', ['cucumber'], 3)]);
+    expect(combinedLineText(combinedFor(list, 'cucumber')!)).toBe('cucumber ×3');
+  });
+
+  it('sums explicit unit-less counts', () => {
+    const list = buildShoppingList([recipe('A', ['2 eggs']), recipe('B', ['3 eggs'])]);
+    expect(combinedLineText(combinedFor(list, 'egg')!)).toBe('egg ×5');
+  });
+
+  it('renders a measured family and a bare occurrence under one heading', () => {
+    const list = buildShoppingList([recipe('A', ['2 cups flour', 'flour'])]);
+    expect(combinedLineText(combinedFor(list, 'flour')!)).toBe('flour — 2 cups + ×1');
+  });
+
+  it('renders fractional sums with vulgar fractions', () => {
+    const list = buildShoppingList([recipe('A', ['½ cup sugar', '¼ cup sugar'])]);
+    // 24 tsp + 12 tsp = 36 tsp = 0.75 cup.
+    expect(combinedLineText(combinedFor(list, 'sugar')!)).toBe('sugar — ¾ cup');
+  });
+});
+
+describe('buildShoppingList — unparsed → as listed (attributed)', () => {
+  it('routes an unparseable line to "as listed" with recipe attribution', () => {
+    const list = buildShoppingList([recipe('Soup', ['2 cups', 'flour'])]);
+    expect(list.combined.asListed).toEqual([{ raw: '2 cups', recipes: ['Soup'] }]);
+    // The parseable line still aggregates.
+    expect(combinedFor(list, 'flour')).toBeDefined();
+  });
+
+  it('attributes the same unparseable line to every recipe it came from', () => {
+    // "..." is genuinely nameless (no letters survive) → unparsed in both.
+    const list = buildShoppingList([recipe('A', ['...']), recipe('B', ['...'])]);
+    expect(list.combined.asListed).toEqual([{ raw: '...', recipes: ['A', 'B'] }]);
+  });
+});
+
+describe('buildShoppingList — per-recipe flags', () => {
+  it('flags exactly the lines that did not roll up (unparsed)', () => {
+    const list = buildShoppingList([recipe('Soup', ['2 cups', 'flour', 'cucumber'])]);
+    const section = list.byRecipe.find((s) => s.name === 'Soup');
+    expect(section?.lines).toEqual([
+      { raw: '2 cups', flagged: true },
+      { raw: 'flour', flagged: false },
+      { raw: 'cucumber', flagged: false },
+    ]);
+  });
+
+  it('shows each recipe once with its ×N count and verbatim lines', () => {
+    const list = buildShoppingList([recipe('Chili', ['2 cups beans'], 2)]);
+    const section = list.byRecipe.find((s) => s.name === 'Chili');
+    expect(section?.count).toBe(2);
+    expect(section?.unavailable).toBe(false);
+    expect(section?.lines).toEqual([{ raw: '2 cups beans', flagged: false }]);
+  });
+});
+
+describe('buildShoppingList — unavailable recipes degrade, never drop', () => {
+  it('surfaces an unresolvable recipe in BOTH views, flagged', () => {
+    const list = buildShoppingList([
+      recipe('Ghost', undefined),
+      recipe('Real', ['1 cup flour']),
+    ]);
+    const ghost = list.byRecipe.find((s) => s.name === 'Ghost');
+    expect(ghost?.unavailable).toBe(true);
+    expect(ghost?.lines).toEqual([]);
+    expect(list.combined.unavailable).toContain('Ghost');
+    // The rest of the list is intact.
+    expect(combinedFor(list, 'flour')).toBeDefined();
+  });
+});
+
+describe('buildShoppingList — identity modulo normalization', () => {
+  it('aggregating one recipe scheduled once reproduces its lines', () => {
+    const list = buildShoppingList([
+      recipe('Solo', ['2 cups flour', '1 tbsp olive oil', 'cucumber']),
+    ]);
+    const texts = list.combined.lines.map(combinedLineText).sort();
+    expect(texts).toEqual(['cucumber ×1', 'flour — 2 cups', 'olive oil — 1 tbsp'].sort());
+    expect(list.combined.asListed).toEqual([]);
+  });
+});
+
+// --- Phase 3: range + resolution ------------------------------------------
+
+const meal = (uri: string, name: string) => ({ recipe: { uri, cid: `bafy${name}`, name } });
+const emptyDay = () => ({ meals: [] as ReturnType<typeof meal>[] });
+/** A day with the given meals, padded to a full 7-day week. */
+const week = (repeat: number, days: ReturnType<typeof emptyDay>[]) => ({
+  repeat,
+  days: [...days, ...Array.from({ length: 7 - days.length }, emptyDay)],
+});
+
+const LASAGNA = 'at://did:plc:cook/exchange.recipe.recipe/lasagna';
+const TACOS = 'at://did:plc:cook/exchange.recipe.recipe/tacos';
+
+describe('collectScheduledRefs — range selection over expanded weeks', () => {
+  it('collects every scheduled meal with occurrence counts (all)', () => {
+    const plan: ShoppingPlan = {
+      name: 'P',
+      weeks: [week(1, [{ meals: [meal(LASAGNA, 'Lasagna')] }, { meals: [meal(TACOS, 'Tacos')] }])],
+    };
+    const refs = collectScheduledRefs(plan, { kind: 'all' });
+    expect(refs.map((r) => [r.name, r.count])).toEqual([
+      ['Lasagna', 1],
+      ['Tacos', 1],
+    ]);
+  });
+
+  it('honors a week repeat (×N) when counting occurrences', () => {
+    const plan: ShoppingPlan = {
+      name: 'P',
+      weeks: [week(2, [{ meals: [meal(LASAGNA, 'Lasagna')] }])],
+    };
+    const refs = collectScheduledRefs(plan, { kind: 'all' });
+    expect(refs).toEqual([{ uri: LASAGNA, cid: 'bafyLasagna', name: 'Lasagna', count: 2 }]);
+  });
+
+  it('filters by expanded-week index for undated plans', () => {
+    const plan: ShoppingPlan = {
+      name: 'P',
+      weeks: [
+        week(1, [{ meals: [meal(LASAGNA, 'Lasagna')] }]),
+        week(1, [{ meals: [meal(TACOS, 'Tacos')] }]),
+      ],
+    };
+    const refs = collectScheduledRefs(plan, { kind: 'weeks', from: 2, to: 2 });
+    expect(refs.map((r) => r.name)).toEqual(['Tacos']);
+  });
+
+  it('selects a single occurrence of a repeated week by index', () => {
+    const plan: ShoppingPlan = {
+      name: 'P',
+      weeks: [week(2, [{ meals: [meal(LASAGNA, 'Lasagna')] }])],
+    };
+    // Two expanded rows; pick just the first → count 1, not 2.
+    const refs = collectScheduledRefs(plan, { kind: 'weeks', from: 1, to: 1 });
+    expect(refs[0]?.count).toBe(1);
+  });
+
+  it('filters by real dates for dated plans', () => {
+    const plan: ShoppingPlan = {
+      name: 'P',
+      startDate: '2026-07-13', // Monday
+      weeks: [
+        week(1, [{ meals: [meal(LASAGNA, 'Lasagna')] }]), // Jul 13
+        week(1, [{ meals: [meal(TACOS, 'Tacos')] }]), // Jul 20
+      ],
+    };
+    const refs = collectScheduledRefs(plan, { kind: 'dates', from: '2026-07-20', to: '2026-07-26' });
+    expect(refs.map((r) => r.name)).toEqual(['Tacos']);
+  });
+
+  it('reports the expanded week count and dated bounds', () => {
+    const plan: ShoppingPlan = {
+      name: 'P',
+      startDate: '2026-07-13',
+      weeks: [week(2, [{ meals: [meal(LASAGNA, 'Lasagna')] }]), week(1, [emptyDay()])],
+    };
+    expect(expandedWeekCount(plan)).toBe(3); // 2 + 1
+    expect(planDateBounds(plan)).toEqual({ from: '2026-07-13', to: '2026-08-02' }); // 3 weeks - 1 day
+  });
+
+  it('has no dated bounds for an undated plan', () => {
+    const plan: ShoppingPlan = { name: 'P', weeks: [week(1, [emptyDay()])] };
+    expect(planDateBounds(plan)).toBeNull();
+  });
+});
+
+describe('resolveShoppingList — resolution with an injected fetcher', () => {
+  const plan: ShoppingPlan = {
+    name: 'Dinner',
+    weeks: [
+      week(1, [
+        { meals: [meal(LASAGNA, 'Lasagna')] },
+        { meals: [meal(TACOS, 'Tacos')] },
+      ]),
+    ],
+  };
+
+  it('resolves each unique recipe and builds both views', async () => {
+    const list = await resolveShoppingList(plan, { kind: 'all' }, async (ref) =>
+      ref.uri === LASAGNA ? ['2 cups flour'] : ['1 cup flour'],
+    );
+    expect(list.byRecipe.map((s) => s.name)).toEqual(['Lasagna', 'Tacos']);
+    expect(combinedLineText(list.combined.lines.find((l) => l.name === 'flour')!)).toBe('flour — 3 cups');
+  });
+
+  it('degrades an unresolvable recipe (null) to a named, flagged entry', async () => {
+    const list = await resolveShoppingList(plan, { kind: 'all' }, async (ref) =>
+      ref.uri === LASAGNA ? null : ['1 cup flour'],
+    );
+    const lasagna = list.byRecipe.find((s) => s.name === 'Lasagna');
+    expect(lasagna?.unavailable).toBe(true);
+    expect(list.combined.unavailable).toContain('Lasagna');
+    // Tacos still resolves — one failure never blanks the rest.
+    expect(list.combined.lines.find((l) => l.name === 'flour')).toBeDefined();
+  });
+
+  it('degrades a throwing fetch the same way (never rejects)', async () => {
+    const list = await resolveShoppingList(plan, { kind: 'all' }, async (ref) => {
+      if (ref.uri === LASAGNA) throw new Error('network down');
+      return ['1 cup flour'];
+    });
+    expect(list.byRecipe.find((s) => s.name === 'Lasagna')?.unavailable).toBe(true);
+    expect(list.combined.lines.find((l) => l.name === 'flour')).toBeDefined();
+  });
+});
+
+// --- Phase 4: markdown renderers ------------------------------------------
+
+const sampleList = () =>
+  buildShoppingList([
+    recipe('Lasagna', ['2 cups flour', 'cucumber', '2 cups'], 2),
+    recipe('Salad', ['1 cup flour', 'cucumber'], 1),
+    recipe('Ghost', undefined),
+  ]);
+
+describe('renderCombinedMarkdown', () => {
+  it('lists aggregated lines, an as-listed section, and unavailable recipes', () => {
+    const md = renderCombinedMarkdown(sampleList());
+    expect(md).toContain('## Combined');
+    // Lasagna ×2: 2 cups flour → 4 cups; + Salad 1 cup = 5 cups.
+    expect(md).toContain('- flour — 5 cups');
+    // cucumber: Lasagna ×2 (2) + Salad (1) = ×3.
+    expect(md).toContain('- cucumber ×3');
+    expect(md).toContain('### As listed');
+    expect(md).toContain('2 cups');
+    expect(md).toContain('Lasagna');
+    expect(md).toContain('### Unavailable');
+    expect(md).toContain('Ghost');
+  });
+});
+
+describe('renderByRecipeMarkdown', () => {
+  it('renders one section per recipe with ×N, verbatim lines, and flags', () => {
+    const md = renderByRecipeMarkdown(sampleList());
+    expect(md).toContain('## By recipe');
+    expect(md).toContain('### Lasagna ×2');
+    expect(md).toContain('- 2 cups flour');
+    // The unparseable "2 cups" line is flagged with the marker.
+    expect(md).toMatch(/- 2 cups ⚑/);
+    // A single-occurrence recipe carries no ×N.
+    expect(md).toContain('### Salad\n');
+    // Unavailable recipe degrades to a note, never dropped.
+    expect(md).toContain('### Ghost');
+    expect(md).toContain('ingredients unavailable');
+  });
+});
+
+describe('renderShoppingListDocument', () => {
+  it('is one document, Combined before By recipe, headed by name + range', () => {
+    const md = renderShoppingListDocument(sampleList(), {
+      planName: 'Week of Jul 13',
+      rangeLabel: 'Jul 13 – Jul 26',
+    });
+    expect(md).toContain('# Shopping list — Week of Jul 13');
+    expect(md).toContain('Jul 13 – Jul 26');
+    expect(md.indexOf('## Combined')).toBeLessThan(md.indexOf('## By recipe'));
+  });
+});
+
+describe('shoppingListFilename', () => {
+  it('slugifies the plan name and range into a .md filename', () => {
+    expect(shoppingListFilename('Week of Jul 13', 'Jul 13 – Jul 26')).toBe(
+      'shopping-week-of-jul-13-jul-13-jul-26.md',
+    );
+  });
+
+  it('falls back gracefully for an empty name', () => {
+    expect(shoppingListFilename('', 'all')).toBe('shopping-plan-all.md');
+  });
+});
