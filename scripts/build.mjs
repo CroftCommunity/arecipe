@@ -16,6 +16,7 @@ import {
 } from 'node:fs';
 import { gzipSync } from 'node:zlib';
 import { buildSync } from 'esbuild';
+import { htmlShell, mdToHtml } from './md-to-html.mjs';
 
 const PAGES = [
   'browse',
@@ -163,6 +164,25 @@ writeFileSync('dist/friends.html', injectCsp(readFileSync('friends.html', 'utf8'
   );
   writeFileSync('dist/calendar-setup.html', injectCsp(html));
 }
+// Agent-facing endpoints (agents-page run): llms.txt (discovery index) and
+// agents.md (canonical guide) ship verbatim; agents.html is GENERATED from
+// agents.md here — same chrome treatment as calendar-setup.html (hashed CSS +
+// SRI + CSP), so the mirror can never drift from the canonical Markdown.
+copyFileSync('llms.txt', 'dist/llms.txt');
+copyFileSync('agents.md', 'dist/agents.md');
+writeFileSync(
+  'dist/agents.html',
+  injectCsp(
+    htmlShell({
+      title: 'arecipe — a guide for AI agents',
+      body: mdToHtml(readFileSync('agents.md', 'utf8')),
+      stylesheets: [
+        { href: './assets/fonts/fonts.css', integrity: fontsSri },
+        { href: `./${cssName}`, integrity: stylesSri },
+      ],
+    }),
+  ),
+);
 copyFileSync('CNAME', 'dist/CNAME'); // custom domain survives every deploy
 // The site is served from a branch (gh-pages), where GitHub Pages runs Jekyll
 // by default — which would reprocess this pre-built SPA and drop any
@@ -215,6 +235,7 @@ const precache = [
   ...Object.keys(HTML).map((f) => `./${f}`),
   './friends.html', // legacy redirect stub (offline-resolvable)
   './calendar-setup.html', // calendar-publish setup guide (offline-resolvable)
+  './agents.html', // agent guide mirror (offline-resolvable, footer-linked)
   './manifest.webmanifest',
   './assets/fonts/fonts.css',
   ...readdirSync('assets/fonts')

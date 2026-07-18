@@ -73,6 +73,13 @@ The executable build plan lives at
   pull request gets a live, read-only copy of the built app at
   `arecipe.app/pr-preview/pr-N/`. Plain-git deploy, no third-party actions.
 
+- [agents.md](agents.md) — the agent guide, published at
+  [arecipe.app/agents.md](https://arecipe.app/agents.md) (HTML mirror generated
+  at build time; discovered via `/llms.txt`): how AI agents should extract,
+  attribute, and share recipes, what the primary US sources say about recipe
+  copyright (cited, never concluded), and how to read arecipe's public atproto
+  records instead of scraping HTML.
+
 ## Source artifacts
 
 `docs/sources/` holds the upstream research and specification the docs above are
