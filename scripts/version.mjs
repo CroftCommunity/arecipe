@@ -18,6 +18,19 @@ const VERSION_CODE_MAX = 2100000000;
  * anything that is not a plain positive integer in range — a broken git
  * call must never ship versionCode NaN/0.
  */
+/**
+ * Return a copy of a twa-manifest.json object with the derived versions
+ * stamped in. Bubblewrap's on-disk field for versionName is `appVersion`
+ * (verified against @bubblewrap/core@1.24.1 TwaManifestJson). Non-mutating:
+ * the committed manifest is never rewritten — the Android build stamps a
+ * copy in its scratch dir.
+ */
+export const stampTwaVersions = (manifest, versionCode, versionName) => ({
+  ...manifest,
+  appVersionCode: versionCode,
+  appVersion: versionName,
+});
+
 export const versionCodeFrom = (revListCountOutput) => {
   const trimmed = String(revListCountOutput).trim();
   if (!/^\d+$/.test(trimmed)) {

@@ -16,3 +16,8 @@ __pycache__/
 
 # Throwaway Playwright config pointing at the pre-installed Chromium (env-specific).
 playwright.local.ts
+
+# Android TWA build (plan 2026-07-18-1): the generated project is disposable
+# scratch, and the release keystore must NEVER be committed (D5).
+/.android-build/
+android.keystore
