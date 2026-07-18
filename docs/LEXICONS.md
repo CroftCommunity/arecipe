@@ -72,6 +72,7 @@ them. Verified open-world-safe via a live createRecord → getRecord → delete 
 | `versionLabel` | `string` | Distinguishes one version within a `dishKey` group — a source/style ("Sally's", "King Arthur") **or** a method label ("Microwave" / "Oven"). Method variants are modeled as sibling version records, not a separate field. |
 | `primaryVersion` | `boolean` (optional) | Marks the default version to show for a `dishKey` group. |
 | `funFacts` | `array<{ text: string; source?: string }>` | Pooled "Did you know?" facts for the dish, denormalized onto each version record so any single record renders the full set. Replaces the single `funFact` string used in the import JSON. |
+| `sourceUrl` | `string` (uri) | Provenance of a recipe imported from a link (recipe-import). Set when a draft was prefilled from a page's schema.org/Recipe JSON-LD or pasted text; the editor shows it as a small provenance line and a single "own words" etiquette note near publish. Additive optional field — readers tolerate its absence; hand-authored recipes omit it. Accessor: `sourceUrlOf` (`src/recipes/model.ts`); written by `buildRecipeRecord` (`src/recipes/write.ts`). |
 
 Types + defensive accessors for these fields are locked in **`src/recipes/model.ts`**
 (`FunFact`, `DishKey`, `RecipeExt`; `extensionsOf`/`funFactsOf`/`dishKeyOf`/`versionLabelOf`/
@@ -125,5 +126,5 @@ ever revived, register the new NSID here first.
 - `discovery/alpha/ECOSYSTEM.md` — related-projects register (broader atproto ecosystem).
 - `plans/2026-07-09-1-plan-recipe-model-extensions.md` — the open-world extension-field work.
 
-_Last updated: 2026-07-16 (cookFollow — reconciling mirror + `publishedRkey`
-marker; live round-trip harness `cook-follows-live.spec.ts`)._
+_Last updated: 2026-07-18 (recipe-import — `sourceUrl` open-world provenance
+field on `exchange.recipe.recipe`; accessor `sourceUrlOf`)._

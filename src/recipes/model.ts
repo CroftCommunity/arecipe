@@ -54,6 +54,11 @@ export const dishKeyOf = (value: Record<string, unknown>): DishKey | undefined =
 export const versionLabelOf = (value: Record<string, unknown>): string | undefined =>
   trimmedString(value['versionLabel']);
 
+/** Provenance URL of a link-imported recipe (recipe-import). Open-world
+ *  extension field, read defensively: undefined when absent/blank/mistyped. */
+export const sourceUrlOf = (value: Record<string, unknown>): string | undefined =>
+  trimmedString(value['sourceUrl']);
+
 /** Whether this record is the default version to show for its dishKey group.
  *  Strict: only the literal boolean `true` counts. */
 export const isPrimaryVersion = (value: Record<string, unknown>): boolean =>

@@ -13,6 +13,7 @@ import {
   groupByDishKey,
   isPrimaryVersion,
   siblingsOf,
+  sourceUrlOf,
   versionLabelOf,
 } from '../../../src/recipes/model.js';
 
@@ -62,6 +63,20 @@ describe('dishKeyOf / versionLabelOf', () => {
     expect(dishKeyOf({ ...bare(), dishKey: 123 })).toBeUndefined();
     expect(dishKeyOf(bare())).toBeUndefined();
     expect(versionLabelOf(bare())).toBeUndefined();
+  });
+});
+
+describe('sourceUrlOf', () => {
+  it('returns the trimmed provenance URL when present (imported recipe)', () => {
+    expect(sourceUrlOf({ ...bare(), sourceUrl: ' https://example.com/r ' })).toBe(
+      'https://example.com/r',
+    );
+  });
+
+  it('returns undefined for absent/blank/mistyped (hand-authored recipe)', () => {
+    expect(sourceUrlOf(bare())).toBeUndefined();
+    expect(sourceUrlOf({ ...bare(), sourceUrl: '   ' })).toBeUndefined();
+    expect(sourceUrlOf({ ...bare(), sourceUrl: 42 })).toBeUndefined();
   });
 });
 

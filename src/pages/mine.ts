@@ -8,6 +8,9 @@ import { referenceIconLink } from '../icons.js';
 import { resolveDidDoc } from '../identity/did.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
+import { acquireFromPaste, acquireFromUrl } from '../import/acquire.js';
+import { renderImportPanel } from '../import/panel.js';
+import { mapImportedToFields } from '../import/to-fields.js';
 import { createDraftStore, type DraftStatus } from '../recipes/drafts-local.js';
 import { listPdsDrafts } from '../recipes/drafts-sync.js';
 import { retryOnce } from '../retry.js';
@@ -85,6 +88,20 @@ const main = async (): Promise<void> => {
   draftsSection.append(draftsList);
   content.append(draftsSection);
   const drafts = createDraftStore();
+
+  // Import from link (recipe-import): paste a recipe URL → prefilled LOCAL draft
+  // that opens in the editor for review. Nothing publishes without the normal
+  // editor flow. Sits by "New" as a sibling authoring entry.
+  const importPanel = renderImportPanel({
+    acquireFromUrl: (url) => acquireFromUrl(url),
+    acquireFromPaste: (pasted, sourceUrl) => acquireFromPaste(pasted, sourceUrl),
+    onImported: async (result) => {
+      const draft = await drafts.save(mapImportedToFields(result.recipe, result.sourceUrl), undefined, 'draft');
+      window.location.href = `./editor.html?draft=${encodeURIComponent(draft.id)}`;
+    },
+  });
+  draftsHeader.after(importPanel);
+
   const renderDrafts = async (): Promise<void> => {
     const all = await drafts.list();
     const shown = statusFilter === 'all' ? all : all.filter((d) => d.status === statusFilter);
