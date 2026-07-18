@@ -17,6 +17,10 @@ export type EditorFields = {
   prepMinutes?: number;
   totalMinutes?: number;
   recipeYield?: string;
+  /** Provenance for a link-imported draft (recipe-import). Open-world extension
+   *  field on exchange.recipe.recipe; the editor shows it as a small line and
+   *  it rides to the PDS on publish. Absent for hand-authored recipes. */
+  sourceUrl?: string;
 };
 
 export type RecipeRecordOut = {
@@ -30,8 +34,19 @@ export type RecipeRecordOut = {
   recipeYield?: string;
   /** exchange.recipe.recipe#imagesEmbed (Phase 7). */
   embed?: Record<string, unknown>;
+  /** arecipe open-world extension: provenance of a link-imported recipe. */
+  sourceUrl?: string;
   createdAt: string;
   updatedAt: string;
+};
+
+/** ISO-8601 duration (PT1H15M) → minutes; 0 for absent/unparseable. Shared by
+ *  recordToFields (edit mode) and the recipe importer (schema.org durations). */
+export const isoDurationToMinutes = (iso: string | undefined): number => {
+  if (iso === undefined) return 0;
+  const match = /^PT(?:(\d+)H)?(?:(\d+)M)?(?:\d+S)?$/.exec(iso);
+  if (match === null) return 0;
+  return Number(match[1] ?? 0) * 60 + Number(match[2] ?? 0);
 };
 
 /** Minutes → ISO-8601 duration; 0/undefined mean "not set". */
@@ -74,6 +89,8 @@ export const buildRecipeRecord = (fields: EditorFields): RecipeRecordOut => {
   if (totalTime !== null) record.totalTime = totalTime;
   const recipeYield = fields.recipeYield?.trim() ?? '';
   if (recipeYield !== '') record.recipeYield = recipeYield;
+  const sourceUrl = fields.sourceUrl?.trim() ?? '';
+  if (sourceUrl !== '') record.sourceUrl = sourceUrl; // open-world provenance
   return record;
 };
 
@@ -86,22 +103,21 @@ export const recordToFields = (value: {
   prepTime?: string;
   totalTime?: string;
   recipeYield?: string;
+  sourceUrl?: string;
 }): EditorFields => {
-  const isoToMinutes = (iso: string | undefined): number => {
-    if (iso === undefined) return 0;
-    const match = /^PT(?:(\d+)H)?(?:(\d+)M)?(?:\d+S)?$/.exec(iso);
-    if (match === null) return 0;
-    return Number(match[1] ?? 0) * 60 + Number(match[2] ?? 0);
-  };
-  return {
+  const fields: EditorFields = {
     name: value.name ?? '',
     text: value.text ?? '',
     ingredients: (value.ingredients ?? []).join('\n'),
     instructions: (value.instructions ?? []).join('\n'),
-    prepMinutes: isoToMinutes(value.prepTime),
-    totalMinutes: isoToMinutes(value.totalTime),
+    prepMinutes: isoDurationToMinutes(value.prepTime),
+    totalMinutes: isoDurationToMinutes(value.totalTime),
     recipeYield: value.recipeYield ?? '',
   };
+  if (typeof value.sourceUrl === 'string' && value.sourceUrl.trim() !== '') {
+    fields.sourceUrl = value.sourceUrl.trim();
+  }
+  return fields;
 };
 
 /** Update an existing record in place (same rkey): the CID changes, the

@@ -2865,3 +2865,68 @@ details.calendar-publish > summary {
   background: var(--enamel-soft);
   color: var(--enamel);
 }
+
+/* --- Import from link (recipe-import): inline panel on Alchemy ------------- */
+/* House inline-panel idiom (cf. .export-panel). Toggle reveals a URL row; a
+   fetch failure expands the paste fallback below it. Mobile-first: everything
+   is full-width and wraps, so nothing overflows a phone. */
+.import-panel {
+  margin: 0 0 var(--s-3);
+}
+.import-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  margin: var(--s-2) 0 0;
+  padding: var(--s-4);
+  background: var(--card);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-l);
+  max-width: 36rem;
+}
+.import-body[hidden] {
+  display: none;
+}
+.import-url-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+.import-url-input {
+  flex: 1 1 14rem;
+  min-width: 0;
+  font: inherit;
+  padding: var(--s-2) var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--card);
+  color: inherit;
+}
+.import-url-input::placeholder {
+  color: var(--ink);
+  opacity: 0.45;
+}
+.import-paste-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.import-paste-block[hidden] {
+  display: none;
+}
+.import-paste-area {
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  padding: var(--s-2) var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--card);
+  color: inherit;
+  resize: vertical;
+}
+/* Provenance + etiquette lines in the editor for an imported draft. */
+.import-provenance,
+.import-etiquette {
+  margin: var(--s-2) 0;
+}

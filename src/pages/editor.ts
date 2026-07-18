@@ -25,6 +25,7 @@ import {
   updateRecipe,
   type EditorFields,
 } from '../recipes/write.js';
+import { renderEtiquetteLine, renderProvenanceLine } from '../import/provenance.js';
 import { registerServiceWorker } from '../sw-register.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -187,6 +188,27 @@ const main = async (): Promise<void> => {
   void registerServiceWorker();
 
   void requestPersistence();
+
+  // Provenance (recipe-import, D5): a link-imported draft carries a sourceUrl.
+  // Show a small "Imported from <host>" line up top and a single gentle
+  // "own words" etiquette note near the publish controls — only when present.
+  let importedSourceUrl: string | undefined;
+  const applyProvenance = (): void => {
+    if (importedSourceUrl === undefined || importedSourceUrl === '') return;
+    if (content.querySelector('[data-testid="editor-provenance"]') === null) {
+      header.after(renderProvenanceLine(importedSourceUrl));
+    }
+    if (content.querySelector('[data-testid="editor-etiquette"]') === null) {
+      actions.before(renderEtiquetteLine());
+    }
+  };
+  /** Current editor fields, carrying the imported provenance through save/publish. */
+  const currentFields = (): EditorFields => {
+    const f = readFields(fields);
+    if (importedSourceUrl !== undefined && importedSourceUrl !== '') f.sourceUrl = importedSourceUrl;
+    return f;
+  };
+
   const drafts = createDraftStore();
   const params = new URLSearchParams(window.location.search);
   let draftId = params.get('draft') ?? undefined;
@@ -195,6 +217,8 @@ const main = async (): Promise<void> => {
     if (existing !== undefined) {
       fillFields(fields, existing.fields);
       statusSelect.value = existing.status;
+      importedSourceUrl = existing.fields.sourceUrl;
+      applyProvenance();
     } else status.textContent = 'draft not found — starting fresh';
   }
 
@@ -209,7 +233,10 @@ const main = async (): Promise<void> => {
       const [, did, rkey] = match as unknown as [string, string, string];
       const { pds } = await resolveDidDoc(did);
       const record = await createRecordReader()({ pds, did, rkey });
-      fillFields(fields, recordToFields(record.value));
+      const editFields = recordToFields(record.value);
+      fillFields(fields, editFields);
+      importedSourceUrl = editFields.sourceUrl;
+      applyProvenance();
       editContext = { rkey, createdAt: (record.value['createdAt'] as string) ?? new Date().toISOString() };
       content.querySelector('.page-title')!.textContent = 'Edit recipe';
       log.debug('recipes', 'edit mode', { uri: editUri });
@@ -222,7 +249,7 @@ const main = async (): Promise<void> => {
 
   saveButton.addEventListener('click', () => {
     void drafts
-      .save(readFields(fields), draftId, statusSelect.value as DraftStatus)
+      .save(currentFields(), draftId, statusSelect.value as DraftStatus)
       .then(async (draft) => {
         draftId = draft.id;
         status.textContent = `draft saved ${draft.savedAt}`;
@@ -264,7 +291,7 @@ const main = async (): Promise<void> => {
     const boundAgent = agent;
     publishButton.addEventListener('click', () => {
       void (async () => {
-        const record = buildRecipeRecord(readFields(fields)); // fail-loud validation
+        const record = buildRecipeRecord(currentFields()); // fail-loud validation
         const file = photoInput.files?.[0];
         if (file !== undefined) {
           status.textContent = 'processing photo…';
