@@ -46,9 +46,20 @@ panel pastes are inline in their specs.
 Shown once in the editor for any draft carrying `sourceUrl`, sitting just above the Save/Publish
 row. Provenance line: "Imported from &lt;host&gt;" (links to the source), shown at the top.
 
-### Deferred (unchanged from below)
+### Fast-follow LANDED — Web Share Target (2026-07-18)
+Registered arecipe as a GET share target (`manifest.webmanifest` → `share_target`, action
+`mine.html`, params title/text/url). `src/import/share-target.ts` (`interpretShare`) splits the
+payload honestly: shared **text** (a selection / article body / snippet) imports via the
+heuristic with **no fetch** — the one path that truly sidesteps CORS; a bare **link** only yields
+a URL to prefill (the page content still can't be read cross-origin) and falls back to paste.
+`mine.ts` reads the share params, opens the panel via the new `autoStart` dep, and strips the
+query so a reload doesn't re-import. Tests: `share-target.spec.ts` (6), `manifest-share-target.spec.ts`
+(2), panel autostart (2), e2e (2 — text share auto-imports; link share prefills → paste).
+Platform note: Web Share Target is Android/Chromium (installed PWA); iOS Safari doesn't support it.
+
+### Deferred
 recipeCuisine/recipeCategory/suitableForDiet import (no editor field — F2), microdata, image
-import, Web Share Target, bulk import, rating/dedupe.
+import, bulk import, rating/dedupe.
 
 ---
 

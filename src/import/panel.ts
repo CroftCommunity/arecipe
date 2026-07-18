@@ -15,6 +15,10 @@ export type ImportPanelDeps = {
   acquireFromPaste: (pasted: string, sourceUrl: string) => AcquireResult;
   /** Hand a successful import off to the draft store + editor (Phase 4). */
   onImported: (result: ImportedResult) => Promise<void> | void;
+  /** Web Share Target: when the page opened from a share, open the panel and run
+   *  the import immediately — pasteText (shared content) goes straight through
+   *  the ladder; a bare url is attempted (and falls back to paste). */
+  autoStart?: { url: string; pasteText?: string };
 };
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -139,6 +143,21 @@ export const renderImportPanel = (deps: ImportPanelDeps): HTMLElement => {
 
   runBtn.addEventListener('click', () => void runUrl());
   pasteRun.addEventListener('click', () => runPaste());
+
+  // Web Share Target: opened from a share — expand and import straight away.
+  if (deps.autoStart !== undefined) {
+    const { url: sharedUrl, pasteText } = deps.autoStart;
+    body.hidden = false;
+    toggle.setAttribute('aria-expanded', 'true');
+    if (sharedUrl !== '') url.value = sharedUrl;
+    if (pasteText !== undefined && pasteText !== '') {
+      revealPaste();
+      paste.value = pasteText;
+      runPaste(); // shared content → straight through the ladder, no fetch
+    } else if (sharedUrl !== '') {
+      void runUrl(); // bare link → attempt fetch, fall back to paste
+    }
+  }
 
   return section;
 };
