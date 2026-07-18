@@ -30,6 +30,7 @@ const PAGES = [
   'dish',
   'editor',
   'signin',
+  'user-guide',
 ];
 const HTML = {
   'index.html': 'browse',
@@ -43,6 +44,7 @@ const HTML = {
   'dish.html': 'dish',
   'editor.html': 'editor',
   'signin.html': 'signin',
+  'user-guide.html': 'user-guide',
 };
 
 rmSync('dist', { recursive: true, force: true }); // no stale artifacts

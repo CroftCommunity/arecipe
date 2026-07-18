@@ -255,6 +255,15 @@ const main = async (): Promise<void> => {
         'coordination.',
     ),
   );
+  const guidePara = el('p');
+  const guideLink = el('a', 'friend-link', 'User guide') as HTMLAnchorElement;
+  guideLink.href = './user-guide.html';
+  guideLink.dataset['testid'] = 'settings-user-guide';
+  guidePara.append(
+    guideLink,
+    document.createTextNode(' — how to import recipes by sharing, and more.'),
+  );
+  about.append(guidePara);
 
   content.append(build, updates, starter, social, hiddenSection, integrity, about);
   mountShell(app, content);

@@ -57,6 +57,7 @@ const PAGES: { name: string; path: string; ready: string }[] = [
   { name: 'signin', path: '/signin.html', ready: 'form' },
   { name: 'editor', path: '/editor.html', ready: '[data-testid=editor-name]' },
   { name: 'alchemy', path: '/mine.html', ready: '[data-testid=new-recipe]' },
+  { name: 'user-guide', path: '/user-guide.html', ready: '[data-testid=user-guide-title]' },
 ];
 
 for (const width of WIDTHS) {
