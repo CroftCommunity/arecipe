@@ -1,0 +1,83 @@
+{
+  "_comment": "Parser contract for src/recipes/shopping-list.ts parseIngredient(). Extending the grammar means extending THIS table first (Phase 1 of plans/2026-07-18-1-plan-shopping-list.md). qty: null (none) | number (single) | {min,max} (range). unit: canonical key | null. name: normalized (lowercase, collapsed, plural-folded). unparsed: true when no usable name survives.",
+  "cases": [
+    { "raw": "2 cups flour", "qty": 2, "unit": "cup", "name": "flour" },
+    { "raw": "1 tbsp olive oil", "qty": 1, "unit": "tbsp", "name": "olive oil" },
+    { "raw": "1 tablespoon olive oil", "qty": 1, "unit": "tbsp", "name": "olive oil" },
+    { "raw": "3 teaspoons vanilla", "qty": 3, "unit": "tsp", "name": "vanilla" },
+    { "raw": "1 tsp baking soda", "qty": 1, "unit": "tsp", "name": "baking soda" },
+
+    { "raw": "1/2 cup sugar", "qty": 0.5, "unit": "cup", "name": "sugar" },
+    { "raw": "½ cup sugar", "qty": 0.5, "unit": "cup", "name": "sugar" },
+    { "raw": "¼ tsp salt", "qty": 0.25, "unit": "tsp", "name": "salt" },
+    { "raw": "¾ cup rice", "qty": 0.75, "unit": "cup", "name": "rice" },
+    { "raw": "⅓ cup oil", "qty": 0.3333333333333333, "unit": "cup", "name": "oil" },
+    { "raw": "⅔ cup water", "qty": 0.6666666666666666, "unit": "cup", "name": "water" },
+    { "raw": "⅛ tsp nutmeg", "qty": 0.125, "unit": "tsp", "name": "nutmeg" },
+
+    { "raw": "1 ½ cups milk", "qty": 1.5, "unit": "cup", "name": "milk" },
+    { "raw": "1 1/2 cups milk", "qty": 1.5, "unit": "cup", "name": "milk" },
+    { "raw": "1½ cups milk", "qty": 1.5, "unit": "cup", "name": "milk" },
+    { "raw": "2 ¾ cups flour", "qty": 2.75, "unit": "cup", "name": "flour" },
+
+    { "raw": "1.5 cups flour", "qty": 1.5, "unit": "cup", "name": "flour" },
+    { "raw": "0.5 tsp salt", "qty": 0.5, "unit": "tsp", "name": "salt" },
+
+    { "raw": "1-2 cups broth", "qty": { "min": 1, "max": 2 }, "unit": "cup", "name": "broth" },
+    { "raw": "1 - 2 cups broth", "qty": { "min": 1, "max": 2 }, "unit": "cup", "name": "broth" },
+    { "raw": "1–2 cups broth", "qty": { "min": 1, "max": 2 }, "unit": "cup", "name": "broth" },
+    { "raw": "1.5-2 cups broth", "qty": { "min": 1.5, "max": 2 }, "unit": "cup", "name": "broth" },
+
+    { "raw": "2 lbs chicken", "qty": 2, "unit": "lb", "name": "chicken" },
+    { "raw": "1 pound beef", "qty": 1, "unit": "lb", "name": "beef" },
+    { "raw": "8 oz cream cheese", "qty": 8, "unit": "oz", "name": "cream cheese" },
+    { "raw": "12 ounces pasta", "qty": 12, "unit": "oz", "name": "pasta" },
+    { "raw": "100 g flour", "qty": 100, "unit": "g", "name": "flour" },
+    { "raw": "250 grams flour", "qty": 250, "unit": "g", "name": "flour" },
+    { "raw": "1 kg potatoes", "qty": 1, "unit": "kg", "name": "potato" },
+    { "raw": "500 ml milk", "qty": 500, "unit": "ml", "name": "milk" },
+    { "raw": "1 l water", "qty": 1, "unit": "l", "name": "water" },
+    { "raw": "1 liter water", "qty": 1, "unit": "l", "name": "water" },
+    { "raw": "1 litre water", "qty": 1, "unit": "l", "name": "water" },
+
+    { "raw": "2 pinches salt", "qty": 2, "unit": "pinch", "name": "salt" },
+    { "raw": "1 pinch cayenne", "qty": 1, "unit": "pinch", "name": "cayenne" },
+
+    { "raw": "2 tbsp. butter", "qty": 2, "unit": "tbsp", "name": "butter" },
+    { "raw": "3 cups, chopped tomatoes", "qty": 3, "unit": "cup", "name": "chopped tomato" },
+    { "raw": "1 cup blueberries", "qty": 1, "unit": "cup", "name": "blueberry" },
+
+    { "raw": "2 cloves garlic", "qty": 2, "unit": null, "name": "cloves garlic" },
+    { "raw": "2 large eggs", "qty": 2, "unit": null, "name": "large egg" },
+    { "raw": "3 ripe bananas", "qty": 3, "unit": null, "name": "ripe banana" },
+
+    { "raw": "cucumber", "qty": null, "unit": null, "name": "cucumber" },
+    { "raw": "tomato", "qty": null, "unit": null, "name": "tomato" },
+    { "raw": "tomatoes", "qty": null, "unit": null, "name": "tomato" },
+    { "raw": "feta", "qty": null, "unit": null, "name": "feta" },
+    { "raw": "flour", "qty": null, "unit": null, "name": "flour" },
+    { "raw": "milk", "qty": null, "unit": null, "name": "milk" },
+    { "raw": "egg", "qty": null, "unit": null, "name": "egg" },
+    { "raw": "eggs", "qty": null, "unit": null, "name": "egg" },
+    { "raw": "beans", "qty": null, "unit": null, "name": "bean" },
+    { "raw": "chickpeas", "qty": null, "unit": null, "name": "chickpea" },
+    { "raw": "greens", "qty": null, "unit": null, "name": "greens" },
+    { "raw": "lemon", "qty": null, "unit": null, "name": "lemon" },
+    { "raw": "molasses", "qty": null, "unit": null, "name": "molasses" },
+    { "raw": "hummus", "qty": null, "unit": null, "name": "hummus" },
+
+    { "raw": "Salt", "qty": null, "unit": null, "name": "salt" },
+    { "raw": "  Olive Oil  ", "qty": null, "unit": null, "name": "olive oil" },
+    { "raw": "ground cinnamon", "qty": null, "unit": null, "name": "ground cinnamon" },
+    { "raw": "cinnamon", "qty": null, "unit": null, "name": "cinnamon" },
+    { "raw": "kosher salt", "qty": null, "unit": null, "name": "kosher salt" },
+    { "raw": "salt to taste", "qty": null, "unit": null, "name": "salt to taste" },
+
+    { "raw": "2 cups", "qty": 2, "unit": "cup", "name": "", "unparsed": true },
+    { "raw": "½", "qty": 0.5, "unit": null, "name": "", "unparsed": true },
+    { "raw": "3", "qty": 3, "unit": null, "name": "", "unparsed": true },
+    { "raw": "", "qty": null, "unit": null, "name": "", "unparsed": true },
+    { "raw": "   ", "qty": null, "unit": null, "name": "", "unparsed": true },
+    { "raw": "...", "qty": null, "unit": null, "name": "", "unparsed": true }
+  ]
+}

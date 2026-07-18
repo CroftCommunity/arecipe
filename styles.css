@@ -2383,6 +2383,103 @@ table.ref.pairs td.eq {
 .shared-plan-head {
   margin-bottom: var(--s-3);
 }
+
+/* --- Shopping list: the action + inline export panel ---------------------- */
+.shopping {
+  margin-top: var(--s-4);
+}
+/* Icon-only trigger (🛒): square-ish, emoji carries the meaning. */
+.shopping-open {
+  font-size: 1.15rem;
+  line-height: 1;
+  padding: var(--s-2) var(--s-3);
+}
+/* The detail toggle reads as "on" when pressed (enamel fill, like the tabs). */
+.shopping-detail.is-active {
+  background: var(--enamel);
+  color: var(--card);
+}
+/* Shared (public) view: title left, 🛒 right, on one row. */
+.shared-plan-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+.shopping-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding: var(--s-4);
+  margin-top: var(--s-3);
+  background: var(--card);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-l);
+  max-width: 34rem;
+}
+.shopping-panel[hidden] {
+  display: none;
+}
+.shopping-range {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2) var(--s-3);
+  align-items: center;
+}
+.shopping-range-label {
+  font-size: var(--t-caption);
+}
+.shopping-range-input,
+.shopping-range-select {
+  font: inherit;
+  font-size: var(--t-caption);
+  padding: var(--s-1) var(--s-2);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-s);
+  background: var(--card);
+  color: inherit;
+}
+.shopping-tabs {
+  display: flex;
+  gap: var(--s-2);
+}
+.shopping-tab--active {
+  background: var(--enamel);
+  color: var(--card);
+  font-weight: 700;
+}
+.shopping-content {
+  max-height: 24rem;
+  overflow-y: auto;
+}
+.shopping-list-ul {
+  margin: var(--s-1) 0 var(--s-2);
+  padding-left: var(--s-4);
+}
+.shopping-subhead,
+.shopping-recipe-name {
+  font-family: var(--display);
+  font-weight: 600;
+  margin: var(--s-2) 0 var(--s-1);
+}
+.shopping-legend {
+  font-size: var(--t-caption);
+  color: var(--rust);
+  margin: 0 0 var(--s-2);
+}
+.shopping-flagged {
+  color: var(--rust);
+}
+.shopping-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+}
+.shopping-download-slot:empty {
+  display: none;
+}
 .cal-body {
   display: grid;
   gap: var(--s-3);
@@ -2617,6 +2714,15 @@ table.ref.pairs td.eq {
 /* Publish row: the Publish button + the icon-only "Reset on publish" toggle on
    one line, right-aligned under the calendar preview (mirrors .week-actions). */
 .plan-publish-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+/* Publish + its reset toggle stay grouped on the right; Shopping list leads on
+   the left (the row's first child). */
+.plan-publish-right {
   display: flex;
   align-items: center;
   justify-content: flex-end;

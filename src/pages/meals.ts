@@ -52,6 +52,23 @@ import {
   paginatePalette,
   type PaletteItem,
 } from '../recipes/meal-plan-palette.js';
+import { createRecipeCache } from '../recipes/cache.js';
+import { createRecordReader } from '../recipes/read.js';
+import {
+  combinedLineText,
+  expandedWeekCount,
+  planDateBounds,
+  renderByRecipeMarkdown,
+  renderCombinedMarkdown,
+  renderShoppingListDocument,
+  resolveShoppingList,
+  scaleIngredientLine,
+  shoppingListFilename,
+  type IngredientFetcher,
+  type ShoppingList,
+  type ShoppingPlan,
+  type ShoppingRange,
+} from '../recipes/shopping-list.js';
 import { registerServiceWorker } from '../sw-register.js';
 
 export type PaletteProvider = () => Promise<PaletteItem[]>;
@@ -179,6 +196,334 @@ const buildCalendarRows = (plan: LocalPlan, opts: { linkRecipes: boolean }): HTM
   return rows;
 };
 
+type ParsedAtUri = { did: string; rkey: string };
+const parseAtUri = (uri: string): ParsedAtUri | null => {
+  const m = /^at:\/\/([^/]+)\/[^/]+\/([^/]+)$/.exec(uri);
+  return m === null ? null : { did: m[1]!, rkey: m[2]! };
+};
+
+/** The default ingredient resolver: cache-first (IndexedDB), then a cold
+ * single-record read of the recipe by its at-uri (the same path recipe.ts
+ * uses). Returns the recipe's `ingredients` lines, or null when unresolvable so
+ * the list degrades to a named, flagged entry rather than blanking. */
+const defaultIngredientFetcher: IngredientFetcher = async ({ uri }) => {
+  const asLines = (value: unknown): string[] | null => {
+    const ing = (value as { ingredients?: unknown }).ingredients;
+    return Array.isArray(ing) ? ing.filter((x): x is string => typeof x === 'string') : null;
+  };
+  const cache = createRecipeCache();
+  const cached = await cache.get(uri);
+  if (cached !== undefined) return asLines(cached.value);
+  const parsed = parseAtUri(uri);
+  if (parsed === null) return null;
+  const { pds } = await resolveDidDoc(parsed.did);
+  const record = await createRecordReader()({ pds, did: parsed.did, rkey: parsed.rkey });
+  await cache.put(record);
+  return asLines(record.value);
+};
+
+/** A human label for the chosen range, used in the document header + filename. */
+const shoppingRangeLabel = (plan: ShoppingPlan, range: ShoppingRange): string => {
+  if (range.kind === 'dates') {
+    const from = formatShortDate(range.from);
+    const to = formatShortDate(range.to);
+    if (from !== null && to !== null) return from === to ? from : `${from} – ${to}`;
+  }
+  if (range.kind === 'weeks') {
+    return range.from === range.to ? `Week ${range.from}` : `Weeks ${range.from}–${range.to}`;
+  }
+  return weekRangeLabel(plan.startDate, plan.weeks.length);
+};
+
+/** Build the "Shopping list" action + inline export panel for a plan. Auth-free
+ * — used by BOTH the signed-in planner and the public shared view. `getPlan`
+ * reads the LIVE plan (the planner reassigns it on reset-on-publish), so the
+ * list always reflects the current canvas. The ingredient resolver is injected
+ * (default: cache-first single-recipe read); range selection defaults to "all
+ * scheduled" and adapts to dated (date pickers) vs undated (week selector). */
+const buildShoppingListSection = (
+  getPlan: () => ShoppingPlan,
+  fetchIngredients: IngredientFetcher = defaultIngredientFetcher,
+): { button: HTMLButtonElement; panel: HTMLElement } => {
+  // Icon-only action (🛒) — the accessible name lives on aria-label/title.
+  const openBtn = el('button', 'button shopping-open', '🛒') as HTMLButtonElement;
+  openBtn.type = 'button';
+  openBtn.setAttribute('aria-label', 'Shopping list');
+  openBtn.title = 'Shopping list';
+  openBtn.dataset['testid'] = 'shopping-list-open';
+  const panel = el('div', 'shopping-panel');
+  panel.dataset['testid'] = 'shopping-list-panel';
+  panel.hidden = true;
+
+  let activeTab: 'byrecipe' | 'combined' = 'byrecipe';
+  // Detail toggle (one shared flag, two meanings): By-recipe → amounts scaled by
+  // ×N; Combined → each line carries the recipes it came from.
+  let detail = false;
+  let list: ShoppingList | null = null;
+  let downloadUrl: string | null = null;
+  const revoke = (): void => {
+    if (downloadUrl !== null) URL.revokeObjectURL(downloadUrl);
+    downloadUrl = null;
+  };
+
+  // --- range controls (rebuilt each open; a plan can gain/lose its date) ---
+  const rangeRow = el('div', 'shopping-range');
+  let currentRange: () => ShoppingRange = () => ({ kind: 'all' });
+  const buildRangeControls = (): void => {
+    rangeRow.replaceChildren();
+    const plan = getPlan();
+    const bounds = planDateBounds(plan);
+    if (bounds !== null) {
+      const from = el('input', 'shopping-range-input') as HTMLInputElement;
+      const to = el('input', 'shopping-range-input') as HTMLInputElement;
+      from.type = to.type = 'date';
+      from.value = bounds.from;
+      to.value = bounds.to;
+      from.dataset['testid'] = 'shopping-from';
+      to.dataset['testid'] = 'shopping-to';
+      const fromL = el('label', 'shopping-range-label', 'From ');
+      const toL = el('label', 'shopping-range-label', 'To ');
+      fromL.append(from);
+      toL.append(to);
+      from.addEventListener('change', () => void regenerate());
+      to.addEventListener('change', () => void regenerate());
+      rangeRow.append(fromL, toL);
+      currentRange = () =>
+        from.value !== '' && to.value !== ''
+          ? { kind: 'dates', from: from.value, to: to.value }
+          : { kind: 'all' };
+    } else {
+      const total = Math.max(1, expandedWeekCount(plan));
+      const mkSelect = (testid: string, value: number): HTMLSelectElement => {
+        const sel = el('select', 'shopping-range-select') as HTMLSelectElement;
+        sel.dataset['testid'] = testid;
+        for (let n = 1; n <= total; n += 1) {
+          const opt = document.createElement('option');
+          opt.value = String(n);
+          opt.textContent = String(n);
+          sel.append(opt);
+        }
+        sel.value = String(value);
+        sel.addEventListener('change', () => void regenerate());
+        return sel;
+      };
+      const fromSel = mkSelect('shopping-week-from', 1);
+      const toSel = mkSelect('shopping-week-to', total);
+      const label = el('label', 'shopping-range-label', 'Weeks ');
+      label.append(fromSel, document.createTextNode(' to '), toSel);
+      rangeRow.append(label);
+      currentRange = () => {
+        const lo = Number(fromSel.value);
+        const hi = Number(toSel.value);
+        return { kind: 'weeks', from: Math.min(lo, hi), to: Math.max(lo, hi) };
+      };
+    }
+  };
+
+  // --- tabs + content ---
+  const tabsRow = el('div', 'shopping-tabs');
+  const byRecipeTab = el('button', 'button shopping-tab', 'By recipe') as HTMLButtonElement;
+  const combinedTab = el('button', 'button shopping-tab', 'Combined') as HTMLButtonElement;
+  byRecipeTab.type = combinedTab.type = 'button';
+  byRecipeTab.dataset['testid'] = 'shopping-tab-byrecipe';
+  combinedTab.dataset['testid'] = 'shopping-tab-combined';
+  tabsRow.append(byRecipeTab, combinedTab);
+  const contentEl = el('div', 'shopping-content');
+  contentEl.dataset['testid'] = 'shopping-content';
+
+  const actionsRow = el('div', 'shopping-actions');
+  // Detail toggle: one control, two meanings depending on the active tab.
+  const detailBtn = el('button', 'button shopping-detail', '') as HTMLButtonElement;
+  detailBtn.type = 'button';
+  detailBtn.dataset['testid'] = 'shopping-detail-toggle';
+  const copyBtn = el('button', 'button shopping-copy', 'Copy') as HTMLButtonElement;
+  copyBtn.type = 'button';
+  copyBtn.dataset['testid'] = 'shopping-copy';
+  const downloadSlot = el('span', 'shopping-download-slot');
+  const closeBtn = el('button', 'button shopping-close', 'Close') as HTMLButtonElement;
+  closeBtn.type = 'button';
+  closeBtn.dataset['testid'] = 'shopping-close';
+  actionsRow.append(detailBtn, copyBtn, downloadSlot, closeBtn);
+
+  panel.append(rangeRow, tabsRow, contentEl, actionsRow);
+
+  const activeMarkdown = (): string =>
+    list === null
+      ? ''
+      : activeTab === 'combined'
+        ? renderCombinedMarkdown(list, { sources: detail })
+        : renderByRecipeMarkdown(list, { multiply: detail });
+
+  // The toggle's label reflects what it does in the CURRENT tab (By-recipe →
+  // scale amounts by ×N; Combined → show which recipes each ingredient is from).
+  const renderDetailToggle = (): void => {
+    detailBtn.textContent = activeTab === 'combined' ? 'Show sources' : 'Amounts ×N';
+    detailBtn.setAttribute('aria-pressed', String(detail));
+    detailBtn.classList.toggle('is-active', detail);
+  };
+
+  const renderContent = (): void => {
+    byRecipeTab.classList.toggle('shopping-tab--active', activeTab === 'byrecipe');
+    combinedTab.classList.toggle('shopping-tab--active', activeTab === 'combined');
+    renderDetailToggle();
+    contentEl.replaceChildren();
+    if (list === null) {
+      contentEl.append(el('p', 'status', 'building…'));
+      return;
+    }
+    contentEl.append(
+      activeTab === 'combined'
+        ? renderCombinedDom(list, { sources: detail })
+        : renderByRecipeDom(list, { multiply: detail }),
+    );
+  };
+
+  const updateDownload = (): void => {
+    revoke();
+    if (list === null) return;
+    const plan = getPlan();
+    const range = currentRange();
+    const label = shoppingRangeLabel(plan, range);
+    const doc = renderShoppingListDocument(list, {
+      planName: planTitle(plan as LocalPlan),
+      rangeLabel: label,
+      detail,
+    });
+    const blob = new Blob([doc], { type: 'text/markdown' });
+    downloadUrl = URL.createObjectURL(blob);
+    const link = el('a', 'button button--primary shopping-download', 'Download .md') as HTMLAnchorElement;
+    link.href = downloadUrl;
+    link.download = shoppingListFilename(planTitle(plan as LocalPlan), label);
+    link.dataset['testid'] = 'shopping-download';
+    downloadSlot.replaceChildren(link);
+  };
+
+  const regenerate = async (): Promise<void> => {
+    list = null;
+    renderContent();
+    try {
+      list = await resolveShoppingList(getPlan(), currentRange(), fetchIngredients);
+    } catch (err) {
+      log.warn('meal-plan', 'shopping list build failed', { error: String(err) });
+      contentEl.replaceChildren(el('p', 'status', `couldn’t build the list: ${String(err)}`));
+      return;
+    }
+    renderContent();
+    updateDownload();
+  };
+
+  byRecipeTab.addEventListener('click', () => {
+    activeTab = 'byrecipe';
+    renderContent();
+  });
+  combinedTab.addEventListener('click', () => {
+    activeTab = 'combined';
+    renderContent();
+  });
+  detailBtn.addEventListener('click', () => {
+    detail = !detail;
+    renderContent();
+    updateDownload();
+  });
+  copyBtn.addEventListener('click', () => {
+    const done = navigator.clipboard?.writeText(activeMarkdown());
+    if (done === undefined) return;
+    void done.then(
+      () => {
+        copyBtn.textContent = 'Copied';
+        window.setTimeout(() => (copyBtn.textContent = 'Copy'), 1200);
+      },
+      () => undefined,
+    );
+  });
+  closeBtn.addEventListener('click', () => {
+    panel.hidden = true;
+    revoke();
+  });
+  openBtn.addEventListener('click', () => {
+    if (!panel.hidden) {
+      panel.hidden = true;
+      revoke();
+      return;
+    }
+    panel.hidden = false;
+    buildRangeControls();
+    void regenerate();
+  });
+
+  return { button: openBtn, panel };
+};
+
+/** The Combined tab as DOM (aggregated lines, "as listed", unavailable). With
+ * `sources`, each aggregated line carries the recipes it was drawn from. */
+const renderCombinedDom = (list: ShoppingList, opts: { sources?: boolean } = {}): HTMLElement => {
+  const wrap = el('div', 'shopping-combined');
+  wrap.dataset['testid'] = 'shopping-combined';
+  if (list.combined.lines.length === 0) {
+    wrap.append(el('p', 'status', 'Nothing to combine.'));
+  } else {
+    const ul = el('ul', 'shopping-list-ul');
+    for (const line of list.combined.lines) {
+      const li = el('li', 'shopping-combined-line', combinedLineText(line, opts));
+      li.dataset['testid'] = 'shopping-combined-line';
+      ul.append(li);
+    }
+    wrap.append(ul);
+  }
+  if (list.combined.asListed.length > 0) {
+    wrap.append(el('h4', 'shopping-subhead', 'As listed'));
+    const ul = el('ul', 'shopping-list-ul');
+    for (const item of list.combined.asListed) {
+      ul.append(el('li', 'shopping-aslisted', `${item.raw} (from ${item.recipes.join(', ')})`));
+    }
+    wrap.append(ul);
+  }
+  if (list.combined.unavailable.length > 0) {
+    wrap.append(el('h4', 'shopping-subhead', 'Unavailable'));
+    const ul = el('ul', 'shopping-list-ul');
+    for (const name of list.combined.unavailable) {
+      const li = el('li', 'shopping-unavailable', `${name} — ingredients unavailable`);
+      li.dataset['testid'] = 'shopping-unavailable';
+      ul.append(li);
+    }
+    wrap.append(ul);
+  }
+  return wrap;
+};
+
+/** The By-recipe tab as DOM (one section per recipe, verbatim lines, flags).
+ * With `multiply`, each line's amount is scaled by the recipe's ×N (a bare line
+ * gets an occurrence count; an unparseable line stays verbatim). */
+const renderByRecipeDom = (list: ShoppingList, opts: { multiply?: boolean } = {}): HTMLElement => {
+  const wrap = el('div', 'shopping-byrecipe');
+  wrap.dataset['testid'] = 'shopping-byrecipe';
+  const anyFlagged = list.byRecipe.some((s) => s.unavailable || s.lines.some((l) => l.flagged));
+  if (anyFlagged) {
+    wrap.append(el('p', 'shopping-legend', '⚑ couldn’t be combined — check this line yourself.'));
+  }
+  for (const s of list.byRecipe) {
+    const sec = el('div', 'shopping-recipe-section');
+    sec.dataset['testid'] = 'shopping-recipe-section';
+    sec.append(el('h4', 'shopping-recipe-name', s.count > 1 ? `${s.name} ×${s.count}` : s.name));
+    if (s.unavailable) {
+      const p = el('p', 'shopping-flagged', 'ingredients unavailable');
+      p.dataset['testid'] = 'shopping-recipe-unavailable';
+      sec.append(p);
+    } else {
+      const ul = el('ul', 'shopping-list-ul');
+      for (const line of s.lines) {
+        const text = opts.multiply === true ? scaleIngredientLine(line.raw, s.count) : line.raw;
+        const li = el('li', line.flagged ? 'shopping-line shopping-flagged' : 'shopping-line', line.flagged ? `${text} ⚑` : text);
+        if (line.flagged) li.dataset['testid'] = 'shopping-flagged';
+        ul.append(li);
+      }
+      sec.append(ul);
+    }
+    wrap.append(sec);
+  }
+  return wrap;
+};
+
 /** Read-only shared view: `meals.html?mealplan=<rkey>&user=<did|handle>`. Any
  *  visitor (including anon) can open a published plan — resolve the owner to a
  *  PDS, read the plan by rkey, and render a calendar where each meal links to
@@ -217,7 +562,12 @@ const showSharedPlan = async (
     }
     const plan = await getPdsPlan(pds, did, rkey);
     const head = el('div', 'shared-plan-head');
-    head.append(el('h3', 'palette-title', planTitle(plan)));
+    const titleRow = el('div', 'shared-plan-title-row');
+    titleRow.append(el('h3', 'palette-title', planTitle(plan)));
+    // Shopping list is auth-free — offer it on the public plan view too.
+    const shopping = buildShoppingListSection(() => plan);
+    titleRow.append(shopping.button);
+    head.append(titleRow, shopping.panel);
     const calendar = el('section', 'calendar');
     for (const row of buildCalendarRows(plan, { linkRecipes: true })) calendar.append(row);
     body.replaceChildren(head, calendar);
@@ -785,6 +1135,10 @@ export const main = async (
   const calBody = el('div', 'cal-body');
   calendar.append(calBody);
   content.append(calendar);
+  // Shopping list for the working plan — reads the LIVE plan (getter), so it
+  // reflects the current canvas even after a reset-on-publish reassigns it. The
+  // button rides the publish row (left, opposite Publish); its panel drops below.
+  const shoppingList = buildShoppingListSection(() => plan);
 
   // Publish: the plan already syncs on every change; publishing surfaces a
   // shareable, date-aligned link anyone (incl. anon) can open — the same link
@@ -811,10 +1165,14 @@ export const main = async (
   resetOnPublish.checked = true;
   resetOnPublish.dataset['testid'] = 'reset-on-publish';
   resetOnPublishLabel.append(resetOnPublish, resetIcon());
-  publishRow.append(publishBtn);
+  // The row splits: Shopping list on the LEFT, Publish (+ reset toggle) on the
+  // RIGHT (space-between). The shopping panel drops below the row.
+  const publishRight = el('div', 'plan-publish-right');
+  publishRight.append(publishBtn);
   // Reset-on-publish is about starting the NEXT plan; a staged edit returns to
   // the published list instead, so the toggle is omitted in edit mode.
-  if (!editing) publishRow.append(resetOnPublishLabel);
+  if (!editing) publishRight.append(resetOnPublishLabel);
+  publishRow.append(shoppingList.button, publishRight);
   const shareSlot = el('div', 'plan-share-slot');
   const renderShareLink = (link: string): HTMLElement => {
     const box = el('div', 'share-link');
@@ -897,7 +1255,7 @@ export const main = async (
         publishBtn.disabled = false;
       });
   });
-  shareSection.append(publishRow, shareSlot);
+  shareSection.append(publishRow, shoppingList.panel, shareSlot);
   content.append(shareSection);
 
   const persist = (): void => {
