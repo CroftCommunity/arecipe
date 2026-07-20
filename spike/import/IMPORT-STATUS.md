@@ -90,14 +90,32 @@ from `import/The_Master_Pot_Collection.pdf`).
   order of magnitude). `dishkeys.json` now maps 202 refs / 176 keys / 21 multi-version groups —
   7 of the 25 joined existing dishes (chicken-tikka-masala, chili-con-carne, carnitas,
   mac-and-cheese ×4, butter-chicken, beef-barbacoa, traditional-louisiana-red-beans-and-rice).
-  Live account total after publish: **258 records**. Images: no Commons picks yet — the 25 dishes
-  render on the no-meal standin; picker round pending (fetch-images → build-picker → user picks →
-  attach-corpus-images).
-- **QUEUED next: North America Top 100** — `import/north_america_top_100.md` (Canada 20 · Mexico
-  15 · US regional 25 · weeknight/industrial 20 · desserts 20; single-method, per-recipe source
-  URL). Needs the same treatment: batch JSON + dishKey review (expect many version-group joins:
-  mac-and-cheese, pot-roast, apple-pie, chocolate-chip-cookies, swedish-meatballs, carnitas,
-  chicken-tortilla-soup, banana-bread…) + publish + image round.
+  Live account total after publish: **258 records**. Images: picker round DONE 2026-07-10
+  (fetch-images → build-picker at `import/picker-master-pot/` → user picks → merged into
+  `image-choices-corpus.json` → attach-corpus-images): **24/25 dishes picked, 48/50 records
+  have a Commons image embed, 0 failed**. Remaining: **White Chicken Chili** (user skipped —
+  both siblings render on the no-meal standin until a pick lands). Note: the Steak Fajita Mix
+  pick is Commons' *chicken* fajitas photo (user-approved; 🚩 re-fetch with "beef fajitas" if
+  it ever bothers anyone).
+- **North America Top 100 PUBLISHED 2026-07-10.** Source `import/north_america_top_100.md`
+  (Canada 20 · Mexico 15 · US regional 25 · weeknight 20 · desserts 20) → five corpus files
+  `na100-{canada-20,mexico-15,us-regional-25,weeknight-20,desserts-20}.json` (labels Canadian /
+  Mexican / Regional US / Weeknight / Sweets). **Dup review (user-requested):** 24 entries
+  overlapped live dishes; each was compared against the live record(s) — **13 dropped as thinner
+  restatements** (listed per-file in `_meta.droppedAsRedundant`: al pastor, guacamole, fried
+  chicken, meatloaf, chili, clam chowder, rotisserie tortilla soup, apple pie, NY cheesecake,
+  choc-chip cookies, blueberry muffins, banana bread, quiche lorraine), **11 kept as genuine
+  versions** (grilled elote, confit carnitas, baked mac, oven-braise pot roast, fried buffalo
+  wings, Tijuana caesar, smoked pulled pork, ricotta baked ziti, herb-roast turkey, homemade
+  IKEA meatballs, carrot-pineapple cake). Seven entries renamed to avoid live-name collisions
+  (record name = idempotency key), each mapped to the existing dishKey. **87 records published,
+  0 failed; dishkeys 289 refs / 252 keys / 29 multi-version groups.** Images: picker round DONE
+  2026-07-10 (`import/picker-na100/`, served via `python3 -m http.server 8642 --directory import`):
+  **80/87 picked and attached, 0 failed**. 7 left on the standin (user skipped — no good Commons
+  candidates): Figgy Duff, Enchilada Casserole, Taco Potato Casserole, Cheeseburger Ramen
+  Casserole, Elvis Moon Pie, Lemon Ricotta Cookies, Peanut Butter No-Bake Cookies. Live account
+  after attach: **346 records, 39 without an image embed** (the 7 above + 2 White Chicken Chili
+  siblings + the pre-existing task-#22 dishes + the photo-less recipebox family records + seed).
 
 ## State — recipebox home recipes (handwritten scans, `import/recipebox.zip`)
 

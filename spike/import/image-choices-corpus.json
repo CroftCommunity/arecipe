@@ -1,884 +1,1612 @@
 {
-  "Classic Grilled Cheese": {
-    "file": "classic-grilled-cheese-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Grilled_cheese_sandwich.jpg",
-    "license": "CC BY 2.0",
-    "artist": "Maggie Hoffman",
-    "attributionRequired": true
-  },
-  "3-Ingredient Mac and Cheese": {
-    "file": "3-ingredient-mac-and-cheese-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Original_Mac_n_Cheese_.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "Texasfoodgawker",
-    "attributionRequired": true
-  },
-  "Simple Spaghetti Aglio e Olio": {
-    "file": "simple-spaghetti-aglio-e-olio-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Spaghetti_aglio_e_olio_KB.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "Bairuilong",
-    "attributionRequired": true
-  },
-  "Easy Ground Beef Tacos": {
-    "file": "easy-ground-beef-tacos-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:001_Tacos_de_carnitas,_carne_asada_y_al_pastor.jpg",
-    "license": "CC BY-SA 2.0",
-    "artist": "Larry Miller",
-    "attributionRequired": true
-  },
-  "Creamy Tomato Soup": {
-    "file": "creamy-tomato-soup-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Creamy_Tomato_Soup_(140491229).jpeg",
-    "license": "CC BY 3.0",
-    "artist": "J Doll",
-    "attributionRequired": true
-  },
-  "15-Minute Fish Tacos with Slaw": {
-    "file": "15-minute-fish-tacos-with-slaw-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:001_Tacos_de_carnitas,_carne_asada_y_al_pastor.jpg",
-    "license": "CC BY-SA 2.0",
-    "artist": "Larry Miller",
-    "attributionRequired": true
-  },
-  "Garlic Butter Shrimp": {
-    "file": "garlic-butter-shrimp-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Shrimp_Mornay_with_garlic_butter_fettuccine_(18282836993).jpg",
-    "license": "CC BY 2.0",
-    "artist": "jeffreyw",
-    "attributionRequired": true
-  },
-  "Quick Chicken Enchilada Skillet": {
-    "file": "quick-chicken-enchilada-skillet-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Festival_de_la_Enchilada_59.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "Lameirasb",
-    "attributionRequired": true
-  },
-  "Sheet Pan Baked Salmon & Asparagus": {
-    "file": "sheet-pan-baked-salmon-asparagus-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Herb_baked_salmon.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "Shark2025",
-    "attributionRequired": true
-  },
-  "Easy Vegetable Fried Rice": {
-    "file": "easy-vegetable-fried-rice-2.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Vegetable_Fried_Rice.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "Gaurav Dhwaj Khadka",
-    "attributionRequired": true
-  },
-  "Simple Caesar Salad with Grilled Chicken": {
-    "file": "simple-caesar-salad-with-grilled-chicken-2.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Caesar_Salad_from_Tony_Roma_Restaurant-_March_2024_02.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "Banej",
-    "attributionRequired": true
-  },
-  "Chewy Chocolate Chip Cookies": {
-    "file": "chewy-chocolate-chip-cookies-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Choc-Chip-Cookie.jpg",
-    "license": "Public domain",
-    "artist": "Evan-Amos",
-    "attributionRequired": false
-  },
-  "My Favorite Banana Bread": {
-    "file": "my-favorite-banana-bread-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Banana_bread_slices.jpg",
-    "license": "CC BY 4.0",
-    "artist": "Shisma",
-    "attributionRequired": true
-  },
-  "Quick & Easy Banana Muffins": {
-    "file": "quick-easy-banana-muffins-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Mega_muffin_-_cooking_in_progress_IMG_3658_(13455558954).jpg",
-    "license": "CC BY 2.0",
-    "artist": "N i c o l a from Fiumicino (Rome), Italy",
-    "attributionRequired": true
-  },
-  "Seriously Fudgy Homemade Brownies": {
-    "file": "seriously-fudgy-homemade-brownies-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Brownie_IMG_001.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "Phadke09",
-    "attributionRequired": true
-  },
-  "Classic Apple Crisp": {
-    "file": "classic-apple-crisp-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Fresh_baked_apple_crisp_01.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "Infrogmation of New Orleans",
-    "attributionRequired": true
-  },
-  "Fluffy Homemade Pancakes": {
-    "file": "fluffy-homemade-pancakes-2.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Pancakes_with_strawberries.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "Diana Jurca",
-    "attributionRequired": true
-  },
-  "No-Bake Rice Krispies Treats": {
-    "file": "no-bake-rice-krispies-treats-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:RKTsquares.jpg",
-    "license": "CC BY-SA 3.0",
-    "artist": "ImGz",
-    "attributionRequired": true
-  },
-  "Chocolate Mug Cake": {
-    "file": "chocolate-mug-cake-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Tassenkuchen_.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "Mimschka",
-    "attributionRequired": true
-  },
-  "Rice Krispie Treats": {
-    "file": "rice-krispie-treats-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:RKTsquares.jpg",
-    "license": "CC BY-SA 3.0",
-    "artist": "ImGz",
-    "attributionRequired": true
-  },
-  "Chocolate Chip Cookies": {
-    "file": "chocolate-chip-cookies-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Choc-Chip-Cookie.jpg",
-    "license": "Public domain",
-    "artist": "Evan-Amos",
-    "attributionRequired": false
-  },
-  "Two-Ingredient Chocolate Fudge": {
-    "file": "two-ingredient-chocolate-fudge-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Belgian_Chocolate_Fudge_Cake_-_Caff%C3%A8_Nero_2025-09-05.jpg",
-    "license": "CC0",
-    "artist": "Andy Li",
-    "attributionRequired": false
-  },
-  "Apple Crisp": {
-    "file": "apple-crisp-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Fresh_baked_apple_crisp_01.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "Infrogmation of New Orleans",
-    "attributionRequired": true
-  },
-  "Avocado Chocolate Mousse": {
-    "file": "avocado-chocolate-mousse-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Avocado_chocolate_mousse_(48839488586).jpg",
-    "license": "CC BY 2.0",
-    "artist": "Ella Olsson from Stockholm, Sweden",
-    "attributionRequired": true
-  },
-  "Classic Crème Brûlée": {
-    "file": "classic-cr-me-br-l-e-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Cr%C3%A8me_br%C3%BBl%C3%A9e_w._whipped_cream.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "Lindsey40186",
-    "attributionRequired": true
-  },
-  "No-Bake Cheesecake Jars": {
-    "file": "no-bake-cheesecake-jars-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Lyon_7e_-_Rue_de_Bonald_-_Restaurant_Kuro_Goma,_cheese_cake_au_matcha.jpg",
-    "license": "CC0",
-    "artist": "Romainbehar",
-    "attributionRequired": false
-  },
-  "Bread Pudding": {
-    "file": "bread-pudding-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Banana_foster_bread_pudding_01.jpg",
-    "license": "CC BY-SA 2.0",
-    "artist": "star5112",
-    "attributionRequired": true
-  },
-  "Blended Chia Seed Pudding": {
-    "file": "blended-chia-seed-pudding-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Chiasamen_02_(fcm).jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "Frank C. Müller",
-    "attributionRequired": true
-  },
-  "Three-Ingredient Peanut Butter Cookies": {
-    "file": "three-ingredient-peanut-butter-cookies-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Peanut_butter_cookies,_September_2009.jpg",
-    "license": "CC BY 2.0",
-    "artist": "Janet Hudson",
-    "attributionRequired": true
-  },
-  "Vanilla Panna Cotta": {
-    "file": "vanilla-panna-cotta-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Vanilla_Panna_Cotta_with_caramel_and_caviar.jpg",
-    "license": "CC BY 2.0",
-    "artist": "Arnold Gatilao",
-    "attributionRequired": true
-  },
-  "Chocolate Covered Strawberries": {
-    "file": "chocolate-covered-strawberries-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Chocolate_covered_strawberries_(13498474903).jpg",
-    "license": "CC BY-SA 2.0",
-    "artist": "James Petts from London, England",
-    "attributionRequired": true
-  },
-  "Tangy Lemon Curd": {
-    "file": "tangy-lemon-curd-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Lemon_curd-2.jpg",
-    "license": "CC BY 2.0",
-    "artist": "jules",
-    "attributionRequired": true
-  },
-  "No-Bake Key Lime Pie": {
-    "file": "no-bake-key-lime-pie-2.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Key_lime_pie_(8156981503).jpg",
-    "license": "CC BY 2.0",
-    "artist": "Luca Nebuloni from Milan, Italy",
-    "attributionRequired": true
-  },
-  "Molten Chocolate Lava Cake": {
-    "file": "molten-chocolate-lava-cake-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Vegan_Flourless_Swiss_Chocolate_Molten_Lava_Cake_(4865230792).jpg",
-    "license": "CC BY 2.0",
-    "artist": "Vegan Feast Catering",
-    "attributionRequired": true
-  },
-  "Classic Chocolate Truffles": {
-    "file": "classic-chocolate-truffles-2.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Chocolate_truffle_-_Godiva_01.jpg",
-    "license": "CC BY-SA 3.0",
-    "artist": "M0tty",
-    "attributionRequired": true
-  },
-  "Fruit Sorbet": {
-    "file": "fruit-sorbet-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Pineapple_Passion_Fruit_Sorbet_(4622788873).jpg",
-    "license": "CC BY 2.0",
-    "artist": "Vegan Feast Catering",
-    "attributionRequired": true
-  },
-  "Peach Cobbler": {
-    "file": "peach-cobbler-2.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Peach_Cobbler_2.jpg",
-    "license": "CC0",
-    "artist": "Lisafern",
-    "attributionRequired": false
-  },
-  "Mixed Berry Galette": {
-    "file": "mixed-berry-galette-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Cross_section_of_classic_galette_-_Oui_Cr%C3%AAperie.jpg",
-    "license": "CC0",
-    "artist": "Andy Li",
-    "attributionRequired": false
-  },
-  "Rich Caramel Sauce": {
-    "file": "rich-caramel-sauce-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Bavarian_cream,_strawberries,_caramel_sauce,_spoon.jpg",
-    "license": "CC BY-SA 3.0",
-    "artist": "SKopp",
-    "attributionRequired": true
-  },
-  "Italian Affogato": {
-    "file": "italian-affogato-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Vinoteca,_Smithfield,_London_(4485849609).jpg",
-    "license": "CC BY-SA 2.0",
-    "artist": "Ewan Munro from London, UK",
-    "attributionRequired": true
-  },
-  "Neapolitan Pizza": {
-    "file": "neapolitan-pizza-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Punch_Neapolitan_Pizza_Margherita.jpg",
-    "license": "CC BY 2.0",
-    "artist": "Punch Pizza",
-    "attributionRequired": true
-  },
-  "Pad Thai": {
-    "file": "pad-thai-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Phat_Thai_kung_Chang_Khien_street_stall.jpg",
-    "license": "CC BY-SA 3.0",
-    "artist": "Takeaway",
-    "attributionRequired": true
-  },
-  "Tacos al Pastor": {
-    "file": "tacos-al-pastor-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:(El_Flaco)_Al_Pastor_Tacos.jpg",
-    "license": "CC BY 2.0",
-    "artist": "City Foodsters",
-    "attributionRequired": true
-  },
-  "Boeuf Bourguignon": {
-    "file": "boeuf-bourguignon-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:B%C5%93uf_bourguignon_06.JPG",
-    "license": "CC BY-SA 4.0",
-    "artist": "Arnaud 25",
-    "attributionRequired": true
-  },
-  "Feijoada": {
-    "file": "feijoada-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Feijoada_%C3%A0_brasileira_-02.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "Bradleyzm",
-    "attributionRequired": true
-  },
-  "Hyderabadi Biryani": {
-    "file": "hyderabadi-biryani-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Chicken_Hyderabadi_Biryani.JPG",
-    "license": "CC BY-SA 4.0",
-    "artist": "Dheerajk88",
-    "attributionRequired": true
-  },
-  "New England Clam Chowder": {
-    "file": "new-england-clam-chowder-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Manhattan_Clam_Chowder_1.jpg",
-    "license": "CC BY 2.0",
-    "artist": "Alexa",
-    "attributionRequired": true
-  },
-  "Classic Chocolate Chip Cookies": {
-    "file": "classic-chocolate-chip-cookies-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:6cookies.JPG",
-    "license": "GFDL 1.2",
-    "artist": "Jonathunder",
-    "attributionRequired": true
-  },
-  "Fudgy Cocoa Brownies": {
-    "file": "fudgy-cocoa-brownies-2.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Gluten_Free_Brownie_(11953977683).jpg",
-    "license": "CC BY 2.0",
-    "artist": "Benjamin Smith",
-    "attributionRequired": true
-  },
-  "Classic Moist Banana Bread": {
-    "file": "classic-moist-banana-bread-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Extra-moist_chocolate_chip_banana_bread.jpg",
-    "license": "CC BY 2.0",
-    "artist": "Ali",
-    "attributionRequired": true
-  },
-  "Lemon Blueberry Scones": {
-    "file": "lemon-blueberry-scones-2.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Classic_Tea_at_the_Disneyland_Hotel_-_28239307201.jpg",
-    "license": "CC BY 2.0",
-    "artist": "HarshLight",
-    "attributionRequired": true
-  },
-  "Classic New York Cheesecake": {
-    "file": "classic-new-york-cheesecake-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Plain_New_York-style_cheesecake.JPG",
-    "license": "CC BY-SA 4.0",
-    "artist": "Dllu",
-    "attributionRequired": true
-  },
-  "Double-Crust Apple Pie": {
-    "file": "double-crust-apple-pie-2.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Apple_pie_24.jpg",
-    "license": "CC BY 4.0",
-    "artist": "Shisma",
-    "attributionRequired": true
-  },
-  "Fluffy Bakery-Style Cinnamon Rolls": {
-    "file": "fluffy-bakery-style-cinnamon-rolls-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Rollo_de_canela_(Cinnamon_roll).jpg",
-    "license": "CC BY-SA 3.0",
-    "artist": "Horacio Cambeiro",
-    "attributionRequired": true
-  },
-  "Bakery-Style Blueberry Muffins": {
-    "file": "bakery-style-blueberry-muffins-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Blueberry_muffins,_whole_and_partial.jpg",
-    "license": "CC BY-SA 3.0",
-    "artist": "SKopp",
-    "attributionRequired": true
-  },
-  "Classic Multi-Layer Carrot Cake": {
-    "file": "classic-multi-layer-carrot-cake-2.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Carrot_cake_slice_and_latte_-_Saltmarsh_Farmhouse_%26_Cafe_2024-12-19.jpg",
-    "license": "CC0",
-    "artist": "Andy Li",
-    "attributionRequired": false
-  },
-  "Classic French Macarons": {
-    "file": "classic-french-macarons-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Des_macarons_de_chez_Bouillet_(mars_2023).jpg",
-    "license": "CC0",
-    "artist": "Benoît Prieur",
-    "attributionRequired": false
-  },
-  "Southern Fresh Peach Cobbler": {
-    "file": "southern-fresh-peach-cobbler-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Fresh_Peach_Cobbler.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "NumismaticLinguist",
-    "attributionRequired": true
-  },
-  "Vanilla Bean Bakery Cupcakes": {
-    "file": "vanilla-bean-bakery-cupcakes-2.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Starbucks_badminton_sea_blue_cupcake_(1).jpg",
-    "license": "CC0",
-    "artist": "Fumikas Sagisavas",
-    "attributionRequired": false
-  },
-  "Flaky Butter Croissants": {
-    "file": "flaky-butter-croissants-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Croissants_au_beurre_(18953292873).jpg",
-    "license": "CC0",
-    "artist": "Herry Wibisono",
-    "attributionRequired": false
-  },
-  "No-Knead Crusty Artisan Bread": {
-    "file": "no-knead-crusty-artisan-bread-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Home_made_sour_dough_bread.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "Tomascastelazo",
-    "attributionRequired": true
-  },
-  "Garlic Herb Rosemary Focaccia": {
-    "file": "garlic-herb-rosemary-focaccia-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Focaccia_1.jpg",
-    "license": "CC BY 2.0",
-    "artist": "Jennifer",
-    "attributionRequired": true
-  },
-  "Skillet Jalapeño Cheddar Cornbread": {
-    "file": "skillet-jalape-o-cheddar-cornbread-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Cornbread_2.jpg",
-    "license": "CC BY 4.0",
-    "artist": "EvanProdromou",
-    "attributionRequired": true
-  },
-  "Classic Quiche Lorraine": {
-    "file": "classic-quiche-lorraine-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Quiche_lorraine_04.jpg",
-    "license": "CC0",
-    "artist": "Arnaud 25",
-    "attributionRequired": false
-  },
-  "Savory Cheddar Chive Scones": {
-    "file": "savory-cheddar-chive-scones-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Cheddar_%26_chive_scone_with_butter_-_GAIL%27s_2024-08-18.jpg",
-    "license": "CC0",
-    "artist": "Andy Li",
-    "attributionRequired": false
-  },
-  "Flaky Homemade Chicken Pot Pie": {
-    "file": "flaky-homemade-chicken-pot-pie-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Chicken_Pot_Pie,_cut_open.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "MonicaVereanaWilliams",
-    "attributionRequired": true
-  },
-  "Spinach and Feta Puff Pastry Tarts": {
-    "file": "spinach-and-feta-puff-pastry-tarts-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Spanakopita.jpg",
-    "license": "CC BY-SA 2.0",
-    "artist": "Alpha",
-    "attributionRequired": true
-  },
-  "Golden Flaky British Sausage Rolls": {
-    "file": "golden-flaky-british-sausage-rolls-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Bacon_%26_maple_sausage_roll_-_Bread_%26_Milk,_Brighton_2024-12-24.jpg",
-    "license": "CC0",
-    "artist": "Andy Li",
-    "attributionRequired": false
-  },
-  "Classic Southern Cheese Straws": {
-    "file": "classic-southern-cheese-straws-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Cheese-straws-01.jpg",
-    "license": "CC BY 2.0",
-    "artist": "gkrew",
-    "attributionRequired": true
-  },
-  "Bacon, Leek, and Gruyère Tart": {
-    "file": "bacon-leek-and-gruy-re-tart-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Quiche_and_salad_at_Paris_Bakery.jpg",
-    "license": "CC BY 2.0",
-    "artist": "Ruth Hartnup",
-    "attributionRequired": true
-  },
-  "Fudgy Chocolate Lava Cakes": {
-    "file": "fudgy-chocolate-lava-cakes-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Chocolate_lava_cake.jpg",
-    "license": "CC BY 2.0",
-    "artist": "sanctumsolitude",
-    "attributionRequired": true
-  },
-  "Classic Southern Buttermilk Biscuits": {
-    "file": "classic-southern-buttermilk-biscuits-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Homemade_Southern_Buttermilk_Biscuit_with_Sorghum_Syrup.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "Georgiabrown24",
-    "attributionRequired": true
-  },
-  "Hearty Black Bean Quesadillas": {
-    "file": "hearty-black-bean-quesadillas-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:At_Long_Island_2023_267.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "Mike Peel",
-    "attributionRequired": true
-  },
-  "Classic Lentil & Vegetable Soup": {
-    "file": "classic-lentil-vegetable-soup-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Amy%27s_lentil_vegetable_soup.jpg",
-    "license": "CC0",
-    "artist": "Mx. Granger",
-    "attributionRequired": false
-  },
-  "Shakshuka (Eggs in Spicy Tomato Sauce)": {
-    "file": "shakshuka-eggs-in-spicy-tomato-sauce-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Shakshuka_by_Calliopejen1.jpg",
-    "license": "CC BY-SA 3.0",
-    "artist": "Calliopejen1",
-    "attributionRequired": true
-  },
-  "Vegetable Egg Fried Rice": {
-    "file": "vegetable-egg-fried-rice-2.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Homemade_fried_rice_at_home.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "Geoffreyrabbit",
-    "attributionRequired": true
-  },
-  "Classic Tuna Noodle Casserole": {
-    "file": "classic-tuna-noodle-casserole-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Tuna_Casserole2.jpg",
-    "license": "CC BY-SA 2.0",
-    "artist": "B.D.'s world",
-    "attributionRequired": true
-  },
-  "Smoked Sausage & Cabbage Skillet": {
-    "file": "smoked-sausage-cabbage-skillet-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Sausage_Trio,_Mash_and_Cabbage_with_Onion_Gravy.jpg",
-    "license": "CC BY-SA 2.0",
-    "artist": "Alpha",
-    "attributionRequired": true
-  },
-  "Creamy Potato Leek Soup": {
-    "file": "creamy-potato-leek-soup-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Cooked_soup_(8047799579).jpg",
-    "license": "CC BY 2.0",
-    "artist": "Leslie Seaton from Seattle, WA, USA",
-    "attributionRequired": true
-  },
-  "Chana Masala (Authentic Chickpea Curry)": {
-    "file": "chana-masala-authentic-chickpea-curry-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Chana_Masala_in_Paul%C3%ADnia,_2023-10-16.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "Parzeus",
-    "attributionRequired": true
-  },
-  "Slow Cooker Pulled Pork": {
-    "file": "slow-cooker-pulled-pork-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Pulled_pork_while_pulling.JPG",
-    "license": "CC BY-SA 3.0",
-    "artist": "Thogru",
-    "attributionRequired": true
-  },
-  "Pasta Fagioli (Italian Pasta & Bean Soup)": {
-    "file": "pasta-fagioli-italian-pasta-bean-soup-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Pasta_e_fagioli_-_minestra.jpg",
-    "license": "CC0",
-    "artist": "valtercirillo",
-    "attributionRequired": false
-  },
-  "Sheet Pan Chicken Drumsticks & Root Veggies": {
-    "file": "sheet-pan-chicken-drumsticks-root-veggies-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Roasted_chicken_and_Cooked_rice.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "Baoothersks",
-    "attributionRequired": true
-  },
-  "Garden Vegetable Frittata": {
-    "file": "garden-vegetable-frittata-2.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Frittata02.jpg",
-    "license": "GFDL 1.2",
-    "artist": "fir0002",
-    "attributionRequired": true
-  },
-  "Savory Cottage Pie (Beef & Lentil Hybrid)": {
-    "file": "savory-cottage-pie-beef-lentil-hybrid-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Shepherd%27s_pie_(22470901009).jpg",
-    "license": "CC BY 2.0",
-    "artist": "Abhinaba Basu",
-    "attributionRequired": true
-  },
-  "Quick Savory Peanut Noodles": {
-    "file": "quick-savory-peanut-noodles-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Noodles_with_Peanut_Butter_Sauce.jpg",
-    "license": "Public domain",
-    "artist": "USDA",
-    "attributionRequired": false
-  },
-  "Chili Cornbread Skillet Casserole": {
-    "file": "chili-cornbread-skillet-casserole-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:A_whole_tamale_pie.jpg",
-    "license": "CC BY 2.0",
-    "artist": "Serene Vannoy from Oakland, CA, USA",
-    "attributionRequired": true
-  },
-  "Three-Bean Sweet Potato Chili": {
-    "file": "three-bean-sweet-potato-chili-2.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Flickr_-_cyclonebill_-_Chili_con_carne_(2).jpg",
-    "license": "CC BY-SA 2.0",
-    "artist": "cyclonebill",
-    "attributionRequired": true
-  },
-  "Cheesy Family Baked Ziti": {
-    "file": "cheesy-family-baked-ziti-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Baked_Ziti_(cropped).jpg",
-    "license": "CC BY 2.0",
-    "artist": "Lili from NY, United States",
-    "attributionRequired": true
-  },
-  "Frugal Overripe Banana Bread": {
-    "file": "frugal-overripe-banana-bread-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Time_for_banana_bread_(9697790732).jpg",
-    "license": "CC BY 2.0",
-    "artist": "Sheila Sund from Salem, United States",
-    "attributionRequired": true
-  },
-  "Stovetop Creamy Cinnamon Rice Pudding": {
-    "file": "stovetop-creamy-cinnamon-rice-pudding-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Rice_pudding_cinnamon.jpg",
-    "license": "CC BY 2.0",
-    "artist": "Ross Berteig from Monrovia, California, USA",
-    "attributionRequired": true
-  },
-  "Classic Oatmeal Apple Crisp": {
-    "file": "classic-oatmeal-apple-crisp-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Apple-crisp.jpg",
-    "license": "CC BY-SA 3.0",
-    "artist": "Disposable12345",
-    "attributionRequired": true
-  },
-  "3-Ingredient Peanut Butter Cookies": {
-    "file": "3-ingredient-peanut-butter-cookies-2.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:2006-June-26-Peanut-Butter-Cookies-Uncooked.JPG",
-    "license": "CC BY-SA 2.5",
-    "artist": "Mark Fickett",
-    "attributionRequired": true
-  },
-  "Frugal Chewy Oatmeal Raisin Cookies": {
-    "file": "frugal-chewy-oatmeal-raisin-cookies-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Chewy_Vegan_Oatmeal_Raisin_Cookies_(5580608975).jpg",
-    "license": "CC BY-SA 2.0",
-    "artist": "Veganbaking.net from USA",
-    "attributionRequired": true
-  },
-  "Coq au Vin": {
-    "file": "coq-au-vin-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Coq_au_Vin_6of7_(8735164745).jpg",
-    "license": "CC BY 2.0",
-    "artist": "Breville USA",
-    "attributionRequired": true
-  },
-  "Mousse au Chocolat": {
-    "file": "mousse-au-chocolat-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Mousse_au_Chocolat_2010_005.JPG",
-    "license": "CC BY-SA 3.0",
-    "artist": "Bin im Garten",
-    "attributionRequired": true
-  },
-  "Soupe à l'Oignon": {
-    "file": "soupe-l-oignon-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Soupe_%C3%A0_l%27oignon_02.JPG",
-    "license": "CC BY-SA 4.0",
-    "artist": "Arnaud 25",
-    "attributionRequired": true
-  },
-  "Sole Meunière": {
-    "file": "sole-meuni-re-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Sole_meuniere_(4689490702).jpg",
-    "license": "CC BY 2.0",
-    "artist": "Jay Cross from Berkeley, California, US",
-    "attributionRequired": true
-  },
-  "Ratatouille": {
-    "file": "ratatouille-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Ratatouille.jpg",
-    "license": "CC BY 2.0",
-    "artist": "Marcus Guimarães",
-    "attributionRequired": true
-  },
-  "Gratin Dauphinois": {
-    "file": "gratin-dauphinois-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Gratin_dauphinois.jpg",
-    "license": "CC BY-SA 3.0",
-    "artist": "Ludovic Péron",
-    "attributionRequired": true
-  },
-  "Clafoutis aux Cerises": {
-    "file": "clafoutis-aux-cerises-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Clafoutis_cerises.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "Popo le Chien",
-    "attributionRequired": true
-  },
-  "Tarte Tatin": {
-    "file": "tarte-tatin-2.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Tarte_Tatin_a_la_Michalak.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "Shani Evenstein",
-    "attributionRequired": true
-  },
-  "Poulet Rôti": {
-    "file": "poulet-r-ti-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Max%27s_Roasted_Chicken_-_Evan_Swigart.jpg",
-    "license": "CC BY 2.0",
-    "artist": "Evan Swigart from Chicago, USA",
-    "attributionRequired": true
-  },
-  "Salade Niçoise": {
-    "file": "salade-ni-oise-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Salade_ni%C3%A7oise_(7545098258).jpg",
-    "license": "CC BY-SA 2.0",
-    "artist": "cyclonebill from Copenhagen, Denmark",
-    "attributionRequired": true
-  },
-  "Crêpes Suzette": {
-    "file": "cr-pes-suzette-2.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:CrepeSuzette_20220507_205653.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "Ka23 13",
-    "attributionRequired": true
-  },
-  "Soufflé au Fromage": {
-    "file": "souffl-au-fromage-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Souffl%C3%A9.JPG",
-    "license": "CC BY-SA 3.0",
-    "artist": "Pierre-alain dorange",
-    "attributionRequired": true
-  },
-  "Bouillabaisse": {
-    "file": "bouillabaisse-2.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Bouillabaisse_de_chez_Fonfon_dans_un_restaurant_du_Vieux-Port_(Marseille)_en_novembre_2022.JPG",
-    "license": "CC0",
-    "artist": "Benoît Prieur",
-    "attributionRequired": false
-  },
-  "Vichyssoise": {
-    "file": "vichyssoise-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Vichyssoise_in_Can_Pere_Joan_restaurant.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "Андрей Романенко",
-    "attributionRequired": true
-  },
-  "Hollandaise Sauce": {
-    "file": "hollandaise-sauce-2.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Hollandaise_sauce.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "Mark Miller",
-    "attributionRequired": true
-  },
-  "Cassoulet": {
-    "file": "cassoulet-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Bowl_of_cassoulet.JPG",
-    "license": "CC BY-SA 3.0",
-    "artist": "BrokenSphere",
-    "attributionRequired": true
-  },
-  "Pâté de Campagne": {
-    "file": "p-t-de-campagne-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:La_Tuili%C3%A8re_-_Montloup_-_Ferme_auberge_Au_pr%C3%A9_de_mon_arbre_-_Terrine_de_campagne.jpg",
-    "license": "CC0",
-    "artist": "Romainbehar",
-    "attributionRequired": false
-  },
-  "Navarin Printanier": {
-    "file": "navarin-printanier-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Navarin_dagneau_printanier_(cropped).jpg",
-    "license": "CC BY-SA 3.0",
-    "artist": "TonyHagale",
-    "attributionRequired": true
-  },
-  "Crème Brûlée": {
-    "file": "cr-me-br-l-e-2.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Cr%C3%A8me_br%C3%BBl%C3%A9e_at_restaurant_in_Zushi.jpg",
-    "license": "CC0",
-    "artist": "Syced",
-    "attributionRequired": false
-  },
-  "Potage Parmentier": {
-    "file": "potage-parmentier-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Vichyssoise_in_Can_Pere_Joan_restaurant.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "Андрей Романенко",
-    "attributionRequired": true
-  },
-  "Daube de Boeuf": {
-    "file": "daube-de-boeuf-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Daube_de_boeuf_au_vin_blanc.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "Victorsilberfeld",
-    "attributionRequired": true
-  },
-  "Sheet Pan Chicken and Veggies": {
-    "file": "sheet-pan-chicken-and-veggies-2.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Chicken_and_vegetables,_roasted_-_Massachusetts.jpg",
-    "license": "CC0",
-    "artist": "Daderot",
-    "attributionRequired": false
-  },
-  "Fluffy Perfect Scrambled Eggs": {
-    "file": "fluffy-perfect-scrambled-eggs-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Scrambed_eggs.jpg",
-    "license": "CC BY-SA 3.0",
-    "artist": "Takeaway",
-    "attributionRequired": true
-  },
-  "One-Pot Beef Chili": {
-    "file": "one-pot-beef-chili-2.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Chili_con_carne_with_beef,_beans,_chili_peppers,_garlic,_black_pepper,_and_a_soft-boiled_egg_-_Massachusetts.jpg",
-    "license": "CC0",
-    "artist": "Daderot",
-    "attributionRequired": false
-  },
-  "Simple Drop Sugar Cookies": {
-    "file": "simple-drop-sugar-cookies-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Grannie_Gilbert%27s_Sugar_Cookies.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "AceDragonfly",
-    "attributionRequired": true
-  },
-  "No-Yeast Cinnamon Rolls": {
-    "file": "no-yeast-cinnamon-rolls-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Rollo_de_canela_(Cinnamon_roll).jpg",
-    "license": "CC BY-SA 3.0",
-    "artist": "Horacio Cambeiro",
-    "attributionRequired": true
-  },
-  "Edomae Sushi": {
-    "file": "edomae-sushi-2.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Nigiri_Sushi_(25966163204).jpg",
-    "license": "CC BY 2.0",
-    "artist": "Tim Reckmann from Hamm, Deutschland",
-    "attributionRequired": true
-  },
-  "Soft Chewy Pretzels": {
-    "file": "soft-chewy-pretzels-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Pretzel_bows🥨.jpg",
-    "license": "CC0",
-    "artist": "Fumikas Sagisavas",
-    "attributionRequired": false
-  },
-  "Traditional Louisiana Red Beans and Rice": {
-    "file": "traditional-louisiana-red-beans-and-rice-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Red_Beans_and_Rice.jpg",
-    "license": "CC BY 2.0",
-    "artist": "Arnold Gatilao from Fremont, CA, USA",
-    "attributionRequired": true
-  },
-  "Old-Fashioned Vanilla Bread Pudding": {
-    "file": "old-fashioned-vanilla-bread-pudding-1.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Banana_foster_bread_pudding_01.jpg",
-    "license": "CC BY-SA 2.0",
-    "artist": "star5112",
-    "attributionRequired": true
-  },
-  "Crispy Air Fryer Chicken Thighs": {
-    "file": "crispy-air-fryer-chicken-thighs-commons.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Muslos_de_pollo.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "Juan Emilio Prades Bel",
-    "attributionRequired": true
-  },
-  "Reine de Saba": {
-    "file": "reine-de-saba-0.jpg",
-    "commons": "https://commons.wikimedia.org/wiki/File:Almond_chocolate_cake.jpg",
-    "license": "CC BY-SA 4.0",
-    "artist": "Rajeeb (Marajozkee)",
-    "attributionRequired": true
-  }
+ "Classic Grilled Cheese": {
+  "file": "classic-grilled-cheese-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Grilled_cheese_sandwich.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Maggie Hoffman",
+  "attributionRequired": true
+ },
+ "3-Ingredient Mac and Cheese": {
+  "file": "3-ingredient-mac-and-cheese-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Original_Mac_n_Cheese_.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Texasfoodgawker",
+  "attributionRequired": true
+ },
+ "Simple Spaghetti Aglio e Olio": {
+  "file": "simple-spaghetti-aglio-e-olio-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Spaghetti_aglio_e_olio_KB.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Bairuilong",
+  "attributionRequired": true
+ },
+ "Easy Ground Beef Tacos": {
+  "file": "easy-ground-beef-tacos-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:001_Tacos_de_carnitas,_carne_asada_y_al_pastor.jpg",
+  "license": "CC BY-SA 2.0",
+  "artist": "Larry Miller",
+  "attributionRequired": true
+ },
+ "Creamy Tomato Soup": {
+  "file": "creamy-tomato-soup-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Creamy_Tomato_Soup_(140491229).jpeg",
+  "license": "CC BY 3.0",
+  "artist": "J Doll",
+  "attributionRequired": true
+ },
+ "15-Minute Fish Tacos with Slaw": {
+  "file": "15-minute-fish-tacos-with-slaw-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:001_Tacos_de_carnitas,_carne_asada_y_al_pastor.jpg",
+  "license": "CC BY-SA 2.0",
+  "artist": "Larry Miller",
+  "attributionRequired": true
+ },
+ "Garlic Butter Shrimp": {
+  "file": "garlic-butter-shrimp-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Shrimp_Mornay_with_garlic_butter_fettuccine_(18282836993).jpg",
+  "license": "CC BY 2.0",
+  "artist": "jeffreyw",
+  "attributionRequired": true
+ },
+ "Quick Chicken Enchilada Skillet": {
+  "file": "quick-chicken-enchilada-skillet-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Festival_de_la_Enchilada_59.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Lameirasb",
+  "attributionRequired": true
+ },
+ "Sheet Pan Baked Salmon & Asparagus": {
+  "file": "sheet-pan-baked-salmon-asparagus-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Herb_baked_salmon.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Shark2025",
+  "attributionRequired": true
+ },
+ "Easy Vegetable Fried Rice": {
+  "file": "easy-vegetable-fried-rice-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Vegetable_Fried_Rice.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Gaurav Dhwaj Khadka",
+  "attributionRequired": true
+ },
+ "Simple Caesar Salad with Grilled Chicken": {
+  "file": "simple-caesar-salad-with-grilled-chicken-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Caesar_Salad_from_Tony_Roma_Restaurant-_March_2024_02.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Banej",
+  "attributionRequired": true
+ },
+ "Chewy Chocolate Chip Cookies": {
+  "file": "chewy-chocolate-chip-cookies-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Choc-Chip-Cookie.jpg",
+  "license": "Public domain",
+  "artist": "Evan-Amos",
+  "attributionRequired": false
+ },
+ "My Favorite Banana Bread": {
+  "file": "my-favorite-banana-bread-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Banana_bread_slices.jpg",
+  "license": "CC BY 4.0",
+  "artist": "Shisma",
+  "attributionRequired": true
+ },
+ "Quick & Easy Banana Muffins": {
+  "file": "quick-easy-banana-muffins-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Mega_muffin_-_cooking_in_progress_IMG_3658_(13455558954).jpg",
+  "license": "CC BY 2.0",
+  "artist": "N i c o l a from Fiumicino (Rome), Italy",
+  "attributionRequired": true
+ },
+ "Seriously Fudgy Homemade Brownies": {
+  "file": "seriously-fudgy-homemade-brownies-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Brownie_IMG_001.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Phadke09",
+  "attributionRequired": true
+ },
+ "Classic Apple Crisp": {
+  "file": "classic-apple-crisp-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Fresh_baked_apple_crisp_01.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Infrogmation of New Orleans",
+  "attributionRequired": true
+ },
+ "Fluffy Homemade Pancakes": {
+  "file": "fluffy-homemade-pancakes-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Pancakes_with_strawberries.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Diana Jurca",
+  "attributionRequired": true
+ },
+ "No-Bake Rice Krispies Treats": {
+  "file": "no-bake-rice-krispies-treats-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:RKTsquares.jpg",
+  "license": "CC BY-SA 3.0",
+  "artist": "ImGz",
+  "attributionRequired": true
+ },
+ "Chocolate Mug Cake": {
+  "file": "chocolate-mug-cake-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Tassenkuchen_.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Mimschka",
+  "attributionRequired": true
+ },
+ "Rice Krispie Treats": {
+  "file": "rice-krispie-treats-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:RKTsquares.jpg",
+  "license": "CC BY-SA 3.0",
+  "artist": "ImGz",
+  "attributionRequired": true
+ },
+ "Chocolate Chip Cookies": {
+  "file": "chocolate-chip-cookies-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Choc-Chip-Cookie.jpg",
+  "license": "Public domain",
+  "artist": "Evan-Amos",
+  "attributionRequired": false
+ },
+ "Two-Ingredient Chocolate Fudge": {
+  "file": "two-ingredient-chocolate-fudge-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Belgian_Chocolate_Fudge_Cake_-_Caff%C3%A8_Nero_2025-09-05.jpg",
+  "license": "CC0",
+  "artist": "Andy Li",
+  "attributionRequired": false
+ },
+ "Apple Crisp": {
+  "file": "apple-crisp-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Fresh_baked_apple_crisp_01.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Infrogmation of New Orleans",
+  "attributionRequired": true
+ },
+ "Avocado Chocolate Mousse": {
+  "file": "avocado-chocolate-mousse-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Avocado_chocolate_mousse_(48839488586).jpg",
+  "license": "CC BY 2.0",
+  "artist": "Ella Olsson from Stockholm, Sweden",
+  "attributionRequired": true
+ },
+ "Classic Crème Brûlée": {
+  "file": "classic-cr-me-br-l-e-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Cr%C3%A8me_br%C3%BBl%C3%A9e_w._whipped_cream.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Lindsey40186",
+  "attributionRequired": true
+ },
+ "No-Bake Cheesecake Jars": {
+  "file": "no-bake-cheesecake-jars-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Lyon_7e_-_Rue_de_Bonald_-_Restaurant_Kuro_Goma,_cheese_cake_au_matcha.jpg",
+  "license": "CC0",
+  "artist": "Romainbehar",
+  "attributionRequired": false
+ },
+ "Bread Pudding": {
+  "file": "bread-pudding-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Banana_foster_bread_pudding_01.jpg",
+  "license": "CC BY-SA 2.0",
+  "artist": "star5112",
+  "attributionRequired": true
+ },
+ "Blended Chia Seed Pudding": {
+  "file": "blended-chia-seed-pudding-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Chiasamen_02_(fcm).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Frank C. Müller",
+  "attributionRequired": true
+ },
+ "Three-Ingredient Peanut Butter Cookies": {
+  "file": "three-ingredient-peanut-butter-cookies-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Peanut_butter_cookies,_September_2009.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Janet Hudson",
+  "attributionRequired": true
+ },
+ "Vanilla Panna Cotta": {
+  "file": "vanilla-panna-cotta-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Vanilla_Panna_Cotta_with_caramel_and_caviar.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Arnold Gatilao",
+  "attributionRequired": true
+ },
+ "Chocolate Covered Strawberries": {
+  "file": "chocolate-covered-strawberries-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Chocolate_covered_strawberries_(13498474903).jpg",
+  "license": "CC BY-SA 2.0",
+  "artist": "James Petts from London, England",
+  "attributionRequired": true
+ },
+ "Tangy Lemon Curd": {
+  "file": "tangy-lemon-curd-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Lemon_curd-2.jpg",
+  "license": "CC BY 2.0",
+  "artist": "jules",
+  "attributionRequired": true
+ },
+ "No-Bake Key Lime Pie": {
+  "file": "no-bake-key-lime-pie-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Key_lime_pie_(8156981503).jpg",
+  "license": "CC BY 2.0",
+  "artist": "Luca Nebuloni from Milan, Italy",
+  "attributionRequired": true
+ },
+ "Molten Chocolate Lava Cake": {
+  "file": "molten-chocolate-lava-cake-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Vegan_Flourless_Swiss_Chocolate_Molten_Lava_Cake_(4865230792).jpg",
+  "license": "CC BY 2.0",
+  "artist": "Vegan Feast Catering",
+  "attributionRequired": true
+ },
+ "Classic Chocolate Truffles": {
+  "file": "classic-chocolate-truffles-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Chocolate_truffle_-_Godiva_01.jpg",
+  "license": "CC BY-SA 3.0",
+  "artist": "M0tty",
+  "attributionRequired": true
+ },
+ "Fruit Sorbet": {
+  "file": "fruit-sorbet-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Pineapple_Passion_Fruit_Sorbet_(4622788873).jpg",
+  "license": "CC BY 2.0",
+  "artist": "Vegan Feast Catering",
+  "attributionRequired": true
+ },
+ "Peach Cobbler": {
+  "file": "peach-cobbler-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Peach_Cobbler_2.jpg",
+  "license": "CC0",
+  "artist": "Lisafern",
+  "attributionRequired": false
+ },
+ "Mixed Berry Galette": {
+  "file": "mixed-berry-galette-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Cross_section_of_classic_galette_-_Oui_Cr%C3%AAperie.jpg",
+  "license": "CC0",
+  "artist": "Andy Li",
+  "attributionRequired": false
+ },
+ "Rich Caramel Sauce": {
+  "file": "rich-caramel-sauce-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Bavarian_cream,_strawberries,_caramel_sauce,_spoon.jpg",
+  "license": "CC BY-SA 3.0",
+  "artist": "SKopp",
+  "attributionRequired": true
+ },
+ "Italian Affogato": {
+  "file": "italian-affogato-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Vinoteca,_Smithfield,_London_(4485849609).jpg",
+  "license": "CC BY-SA 2.0",
+  "artist": "Ewan Munro from London, UK",
+  "attributionRequired": true
+ },
+ "Neapolitan Pizza": {
+  "file": "neapolitan-pizza-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Punch_Neapolitan_Pizza_Margherita.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Punch Pizza",
+  "attributionRequired": true
+ },
+ "Pad Thai": {
+  "file": "pad-thai-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Phat_Thai_kung_Chang_Khien_street_stall.jpg",
+  "license": "CC BY-SA 3.0",
+  "artist": "Takeaway",
+  "attributionRequired": true
+ },
+ "Tacos al Pastor": {
+  "file": "tacos-al-pastor-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:(El_Flaco)_Al_Pastor_Tacos.jpg",
+  "license": "CC BY 2.0",
+  "artist": "City Foodsters",
+  "attributionRequired": true
+ },
+ "Boeuf Bourguignon": {
+  "file": "boeuf-bourguignon-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:B%C5%93uf_bourguignon_06.JPG",
+  "license": "CC BY-SA 4.0",
+  "artist": "Arnaud 25",
+  "attributionRequired": true
+ },
+ "Feijoada": {
+  "file": "feijoada-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Feijoada_%C3%A0_brasileira_-02.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Bradleyzm",
+  "attributionRequired": true
+ },
+ "Hyderabadi Biryani": {
+  "file": "hyderabadi-biryani-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Chicken_Hyderabadi_Biryani.JPG",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dheerajk88",
+  "attributionRequired": true
+ },
+ "New England Clam Chowder": {
+  "file": "new-england-clam-chowder-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Manhattan_Clam_Chowder_1.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Alexa",
+  "attributionRequired": true
+ },
+ "Classic Chocolate Chip Cookies": {
+  "file": "classic-chocolate-chip-cookies-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:6cookies.JPG",
+  "license": "GFDL 1.2",
+  "artist": "Jonathunder",
+  "attributionRequired": true
+ },
+ "Fudgy Cocoa Brownies": {
+  "file": "fudgy-cocoa-brownies-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Gluten_Free_Brownie_(11953977683).jpg",
+  "license": "CC BY 2.0",
+  "artist": "Benjamin Smith",
+  "attributionRequired": true
+ },
+ "Classic Moist Banana Bread": {
+  "file": "classic-moist-banana-bread-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Extra-moist_chocolate_chip_banana_bread.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Ali",
+  "attributionRequired": true
+ },
+ "Lemon Blueberry Scones": {
+  "file": "lemon-blueberry-scones-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Classic_Tea_at_the_Disneyland_Hotel_-_28239307201.jpg",
+  "license": "CC BY 2.0",
+  "artist": "HarshLight",
+  "attributionRequired": true
+ },
+ "Classic New York Cheesecake": {
+  "file": "classic-new-york-cheesecake-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Plain_New_York-style_cheesecake.JPG",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dllu",
+  "attributionRequired": true
+ },
+ "Double-Crust Apple Pie": {
+  "file": "double-crust-apple-pie-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Apple_pie_24.jpg",
+  "license": "CC BY 4.0",
+  "artist": "Shisma",
+  "attributionRequired": true
+ },
+ "Fluffy Bakery-Style Cinnamon Rolls": {
+  "file": "fluffy-bakery-style-cinnamon-rolls-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Rollo_de_canela_(Cinnamon_roll).jpg",
+  "license": "CC BY-SA 3.0",
+  "artist": "Horacio Cambeiro",
+  "attributionRequired": true
+ },
+ "Bakery-Style Blueberry Muffins": {
+  "file": "bakery-style-blueberry-muffins-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Blueberry_muffins,_whole_and_partial.jpg",
+  "license": "CC BY-SA 3.0",
+  "artist": "SKopp",
+  "attributionRequired": true
+ },
+ "Classic Multi-Layer Carrot Cake": {
+  "file": "classic-multi-layer-carrot-cake-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Carrot_cake_slice_and_latte_-_Saltmarsh_Farmhouse_%26_Cafe_2024-12-19.jpg",
+  "license": "CC0",
+  "artist": "Andy Li",
+  "attributionRequired": false
+ },
+ "Classic French Macarons": {
+  "file": "classic-french-macarons-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Des_macarons_de_chez_Bouillet_(mars_2023).jpg",
+  "license": "CC0",
+  "artist": "Benoît Prieur",
+  "attributionRequired": false
+ },
+ "Southern Fresh Peach Cobbler": {
+  "file": "southern-fresh-peach-cobbler-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Fresh_Peach_Cobbler.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "NumismaticLinguist",
+  "attributionRequired": true
+ },
+ "Vanilla Bean Bakery Cupcakes": {
+  "file": "vanilla-bean-bakery-cupcakes-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Starbucks_badminton_sea_blue_cupcake_(1).jpg",
+  "license": "CC0",
+  "artist": "Fumikas Sagisavas",
+  "attributionRequired": false
+ },
+ "Flaky Butter Croissants": {
+  "file": "flaky-butter-croissants-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Croissants_au_beurre_(18953292873).jpg",
+  "license": "CC0",
+  "artist": "Herry Wibisono",
+  "attributionRequired": false
+ },
+ "No-Knead Crusty Artisan Bread": {
+  "file": "no-knead-crusty-artisan-bread-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Home_made_sour_dough_bread.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Tomascastelazo",
+  "attributionRequired": true
+ },
+ "Garlic Herb Rosemary Focaccia": {
+  "file": "garlic-herb-rosemary-focaccia-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Focaccia_1.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Jennifer",
+  "attributionRequired": true
+ },
+ "Skillet Jalapeño Cheddar Cornbread": {
+  "file": "skillet-jalape-o-cheddar-cornbread-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Cornbread_2.jpg",
+  "license": "CC BY 4.0",
+  "artist": "EvanProdromou",
+  "attributionRequired": true
+ },
+ "Classic Quiche Lorraine": {
+  "file": "classic-quiche-lorraine-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Quiche_lorraine_04.jpg",
+  "license": "CC0",
+  "artist": "Arnaud 25",
+  "attributionRequired": false
+ },
+ "Savory Cheddar Chive Scones": {
+  "file": "savory-cheddar-chive-scones-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Cheddar_%26_chive_scone_with_butter_-_GAIL%27s_2024-08-18.jpg",
+  "license": "CC0",
+  "artist": "Andy Li",
+  "attributionRequired": false
+ },
+ "Flaky Homemade Chicken Pot Pie": {
+  "file": "flaky-homemade-chicken-pot-pie-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Chicken_Pot_Pie,_cut_open.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "MonicaVereanaWilliams",
+  "attributionRequired": true
+ },
+ "Spinach and Feta Puff Pastry Tarts": {
+  "file": "spinach-and-feta-puff-pastry-tarts-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Spanakopita.jpg",
+  "license": "CC BY-SA 2.0",
+  "artist": "Alpha",
+  "attributionRequired": true
+ },
+ "Golden Flaky British Sausage Rolls": {
+  "file": "golden-flaky-british-sausage-rolls-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Bacon_%26_maple_sausage_roll_-_Bread_%26_Milk,_Brighton_2024-12-24.jpg",
+  "license": "CC0",
+  "artist": "Andy Li",
+  "attributionRequired": false
+ },
+ "Classic Southern Cheese Straws": {
+  "file": "classic-southern-cheese-straws-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Cheese-straws-01.jpg",
+  "license": "CC BY 2.0",
+  "artist": "gkrew",
+  "attributionRequired": true
+ },
+ "Bacon, Leek, and Gruyère Tart": {
+  "file": "bacon-leek-and-gruy-re-tart-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Quiche_and_salad_at_Paris_Bakery.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Ruth Hartnup",
+  "attributionRequired": true
+ },
+ "Fudgy Chocolate Lava Cakes": {
+  "file": "fudgy-chocolate-lava-cakes-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Chocolate_lava_cake.jpg",
+  "license": "CC BY 2.0",
+  "artist": "sanctumsolitude",
+  "attributionRequired": true
+ },
+ "Classic Southern Buttermilk Biscuits": {
+  "file": "classic-southern-buttermilk-biscuits-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Homemade_Southern_Buttermilk_Biscuit_with_Sorghum_Syrup.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Georgiabrown24",
+  "attributionRequired": true
+ },
+ "Hearty Black Bean Quesadillas": {
+  "file": "hearty-black-bean-quesadillas-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:At_Long_Island_2023_267.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Mike Peel",
+  "attributionRequired": true
+ },
+ "Classic Lentil & Vegetable Soup": {
+  "file": "classic-lentil-vegetable-soup-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Amy%27s_lentil_vegetable_soup.jpg",
+  "license": "CC0",
+  "artist": "Mx. Granger",
+  "attributionRequired": false
+ },
+ "Shakshuka (Eggs in Spicy Tomato Sauce)": {
+  "file": "shakshuka-eggs-in-spicy-tomato-sauce-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Shakshuka_by_Calliopejen1.jpg",
+  "license": "CC BY-SA 3.0",
+  "artist": "Calliopejen1",
+  "attributionRequired": true
+ },
+ "Vegetable Egg Fried Rice": {
+  "file": "vegetable-egg-fried-rice-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Homemade_fried_rice_at_home.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Geoffreyrabbit",
+  "attributionRequired": true
+ },
+ "Classic Tuna Noodle Casserole": {
+  "file": "classic-tuna-noodle-casserole-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Tuna_Casserole2.jpg",
+  "license": "CC BY-SA 2.0",
+  "artist": "B.D.'s world",
+  "attributionRequired": true
+ },
+ "Smoked Sausage & Cabbage Skillet": {
+  "file": "smoked-sausage-cabbage-skillet-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Sausage_Trio,_Mash_and_Cabbage_with_Onion_Gravy.jpg",
+  "license": "CC BY-SA 2.0",
+  "artist": "Alpha",
+  "attributionRequired": true
+ },
+ "Creamy Potato Leek Soup": {
+  "file": "creamy-potato-leek-soup-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Cooked_soup_(8047799579).jpg",
+  "license": "CC BY 2.0",
+  "artist": "Leslie Seaton from Seattle, WA, USA",
+  "attributionRequired": true
+ },
+ "Chana Masala (Authentic Chickpea Curry)": {
+  "file": "chana-masala-authentic-chickpea-curry-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Chana_Masala_in_Paul%C3%ADnia,_2023-10-16.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Parzeus",
+  "attributionRequired": true
+ },
+ "Slow Cooker Pulled Pork": {
+  "file": "slow-cooker-pulled-pork-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Pulled_pork_while_pulling.JPG",
+  "license": "CC BY-SA 3.0",
+  "artist": "Thogru",
+  "attributionRequired": true
+ },
+ "Pasta Fagioli (Italian Pasta & Bean Soup)": {
+  "file": "pasta-fagioli-italian-pasta-bean-soup-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Pasta_e_fagioli_-_minestra.jpg",
+  "license": "CC0",
+  "artist": "valtercirillo",
+  "attributionRequired": false
+ },
+ "Sheet Pan Chicken Drumsticks & Root Veggies": {
+  "file": "sheet-pan-chicken-drumsticks-root-veggies-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Roasted_chicken_and_Cooked_rice.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Baoothersks",
+  "attributionRequired": true
+ },
+ "Garden Vegetable Frittata": {
+  "file": "garden-vegetable-frittata-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Frittata02.jpg",
+  "license": "GFDL 1.2",
+  "artist": "fir0002",
+  "attributionRequired": true
+ },
+ "Savory Cottage Pie (Beef & Lentil Hybrid)": {
+  "file": "savory-cottage-pie-beef-lentil-hybrid-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Shepherd%27s_pie_(22470901009).jpg",
+  "license": "CC BY 2.0",
+  "artist": "Abhinaba Basu",
+  "attributionRequired": true
+ },
+ "Quick Savory Peanut Noodles": {
+  "file": "quick-savory-peanut-noodles-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Noodles_with_Peanut_Butter_Sauce.jpg",
+  "license": "Public domain",
+  "artist": "USDA",
+  "attributionRequired": false
+ },
+ "Chili Cornbread Skillet Casserole": {
+  "file": "chili-cornbread-skillet-casserole-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:A_whole_tamale_pie.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Serene Vannoy from Oakland, CA, USA",
+  "attributionRequired": true
+ },
+ "Three-Bean Sweet Potato Chili": {
+  "file": "three-bean-sweet-potato-chili-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Flickr_-_cyclonebill_-_Chili_con_carne_(2).jpg",
+  "license": "CC BY-SA 2.0",
+  "artist": "cyclonebill",
+  "attributionRequired": true
+ },
+ "Cheesy Family Baked Ziti": {
+  "file": "cheesy-family-baked-ziti-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Baked_Ziti_(cropped).jpg",
+  "license": "CC BY 2.0",
+  "artist": "Lili from NY, United States",
+  "attributionRequired": true
+ },
+ "Frugal Overripe Banana Bread": {
+  "file": "frugal-overripe-banana-bread-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Time_for_banana_bread_(9697790732).jpg",
+  "license": "CC BY 2.0",
+  "artist": "Sheila Sund from Salem, United States",
+  "attributionRequired": true
+ },
+ "Stovetop Creamy Cinnamon Rice Pudding": {
+  "file": "stovetop-creamy-cinnamon-rice-pudding-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Rice_pudding_cinnamon.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Ross Berteig from Monrovia, California, USA",
+  "attributionRequired": true
+ },
+ "Classic Oatmeal Apple Crisp": {
+  "file": "classic-oatmeal-apple-crisp-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Apple-crisp.jpg",
+  "license": "CC BY-SA 3.0",
+  "artist": "Disposable12345",
+  "attributionRequired": true
+ },
+ "3-Ingredient Peanut Butter Cookies": {
+  "file": "3-ingredient-peanut-butter-cookies-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:2006-June-26-Peanut-Butter-Cookies-Uncooked.JPG",
+  "license": "CC BY-SA 2.5",
+  "artist": "Mark Fickett",
+  "attributionRequired": true
+ },
+ "Frugal Chewy Oatmeal Raisin Cookies": {
+  "file": "frugal-chewy-oatmeal-raisin-cookies-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Chewy_Vegan_Oatmeal_Raisin_Cookies_(5580608975).jpg",
+  "license": "CC BY-SA 2.0",
+  "artist": "Veganbaking.net from USA",
+  "attributionRequired": true
+ },
+ "Coq au Vin": {
+  "file": "coq-au-vin-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Coq_au_Vin_6of7_(8735164745).jpg",
+  "license": "CC BY 2.0",
+  "artist": "Breville USA",
+  "attributionRequired": true
+ },
+ "Mousse au Chocolat": {
+  "file": "mousse-au-chocolat-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Mousse_au_Chocolat_2010_005.JPG",
+  "license": "CC BY-SA 3.0",
+  "artist": "Bin im Garten",
+  "attributionRequired": true
+ },
+ "Soupe à l'Oignon": {
+  "file": "soupe-l-oignon-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Soupe_%C3%A0_l%27oignon_02.JPG",
+  "license": "CC BY-SA 4.0",
+  "artist": "Arnaud 25",
+  "attributionRequired": true
+ },
+ "Sole Meunière": {
+  "file": "sole-meuni-re-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Sole_meuniere_(4689490702).jpg",
+  "license": "CC BY 2.0",
+  "artist": "Jay Cross from Berkeley, California, US",
+  "attributionRequired": true
+ },
+ "Ratatouille": {
+  "file": "ratatouille-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Ratatouille.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Marcus Guimarães",
+  "attributionRequired": true
+ },
+ "Gratin Dauphinois": {
+  "file": "gratin-dauphinois-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Gratin_dauphinois.jpg",
+  "license": "CC BY-SA 3.0",
+  "artist": "Ludovic Péron",
+  "attributionRequired": true
+ },
+ "Clafoutis aux Cerises": {
+  "file": "clafoutis-aux-cerises-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Clafoutis_cerises.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Popo le Chien",
+  "attributionRequired": true
+ },
+ "Tarte Tatin": {
+  "file": "tarte-tatin-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Tarte_Tatin_a_la_Michalak.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Shani Evenstein",
+  "attributionRequired": true
+ },
+ "Poulet Rôti": {
+  "file": "poulet-r-ti-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Max%27s_Roasted_Chicken_-_Evan_Swigart.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Evan Swigart from Chicago, USA",
+  "attributionRequired": true
+ },
+ "Salade Niçoise": {
+  "file": "salade-ni-oise-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Salade_ni%C3%A7oise_(7545098258).jpg",
+  "license": "CC BY-SA 2.0",
+  "artist": "cyclonebill from Copenhagen, Denmark",
+  "attributionRequired": true
+ },
+ "Crêpes Suzette": {
+  "file": "cr-pes-suzette-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:CrepeSuzette_20220507_205653.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Ka23 13",
+  "attributionRequired": true
+ },
+ "Soufflé au Fromage": {
+  "file": "souffl-au-fromage-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Souffl%C3%A9.JPG",
+  "license": "CC BY-SA 3.0",
+  "artist": "Pierre-alain dorange",
+  "attributionRequired": true
+ },
+ "Bouillabaisse": {
+  "file": "bouillabaisse-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Bouillabaisse_de_chez_Fonfon_dans_un_restaurant_du_Vieux-Port_(Marseille)_en_novembre_2022.JPG",
+  "license": "CC0",
+  "artist": "Benoît Prieur",
+  "attributionRequired": false
+ },
+ "Vichyssoise": {
+  "file": "vichyssoise-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Vichyssoise_in_Can_Pere_Joan_restaurant.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Андрей Романенко",
+  "attributionRequired": true
+ },
+ "Hollandaise Sauce": {
+  "file": "hollandaise-sauce-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Hollandaise_sauce.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Mark Miller",
+  "attributionRequired": true
+ },
+ "Cassoulet": {
+  "file": "cassoulet-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Bowl_of_cassoulet.JPG",
+  "license": "CC BY-SA 3.0",
+  "artist": "BrokenSphere",
+  "attributionRequired": true
+ },
+ "Pâté de Campagne": {
+  "file": "p-t-de-campagne-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:La_Tuili%C3%A8re_-_Montloup_-_Ferme_auberge_Au_pr%C3%A9_de_mon_arbre_-_Terrine_de_campagne.jpg",
+  "license": "CC0",
+  "artist": "Romainbehar",
+  "attributionRequired": false
+ },
+ "Navarin Printanier": {
+  "file": "navarin-printanier-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Navarin_dagneau_printanier_(cropped).jpg",
+  "license": "CC BY-SA 3.0",
+  "artist": "TonyHagale",
+  "attributionRequired": true
+ },
+ "Crème Brûlée": {
+  "file": "cr-me-br-l-e-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Cr%C3%A8me_br%C3%BBl%C3%A9e_at_restaurant_in_Zushi.jpg",
+  "license": "CC0",
+  "artist": "Syced",
+  "attributionRequired": false
+ },
+ "Potage Parmentier": {
+  "file": "potage-parmentier-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Vichyssoise_in_Can_Pere_Joan_restaurant.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Андрей Романенко",
+  "attributionRequired": true
+ },
+ "Daube de Boeuf": {
+  "file": "daube-de-boeuf-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Daube_de_boeuf_au_vin_blanc.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Victorsilberfeld",
+  "attributionRequired": true
+ },
+ "Sheet Pan Chicken and Veggies": {
+  "file": "sheet-pan-chicken-and-veggies-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Chicken_and_vegetables,_roasted_-_Massachusetts.jpg",
+  "license": "CC0",
+  "artist": "Daderot",
+  "attributionRequired": false
+ },
+ "Fluffy Perfect Scrambled Eggs": {
+  "file": "fluffy-perfect-scrambled-eggs-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Scrambed_eggs.jpg",
+  "license": "CC BY-SA 3.0",
+  "artist": "Takeaway",
+  "attributionRequired": true
+ },
+ "One-Pot Beef Chili": {
+  "file": "one-pot-beef-chili-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Chili_con_carne_with_beef,_beans,_chili_peppers,_garlic,_black_pepper,_and_a_soft-boiled_egg_-_Massachusetts.jpg",
+  "license": "CC0",
+  "artist": "Daderot",
+  "attributionRequired": false
+ },
+ "Simple Drop Sugar Cookies": {
+  "file": "simple-drop-sugar-cookies-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Grannie_Gilbert%27s_Sugar_Cookies.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "AceDragonfly",
+  "attributionRequired": true
+ },
+ "No-Yeast Cinnamon Rolls": {
+  "file": "no-yeast-cinnamon-rolls-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Rollo_de_canela_(Cinnamon_roll).jpg",
+  "license": "CC BY-SA 3.0",
+  "artist": "Horacio Cambeiro",
+  "attributionRequired": true
+ },
+ "Edomae Sushi": {
+  "file": "edomae-sushi-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Nigiri_Sushi_(25966163204).jpg",
+  "license": "CC BY 2.0",
+  "artist": "Tim Reckmann from Hamm, Deutschland",
+  "attributionRequired": true
+ },
+ "Soft Chewy Pretzels": {
+  "file": "soft-chewy-pretzels-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Pretzel_bows🥨.jpg",
+  "license": "CC0",
+  "artist": "Fumikas Sagisavas",
+  "attributionRequired": false
+ },
+ "Traditional Louisiana Red Beans and Rice": {
+  "file": "traditional-louisiana-red-beans-and-rice-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Red_Beans_and_Rice.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Arnold Gatilao from Fremont, CA, USA",
+  "attributionRequired": true
+ },
+ "Old-Fashioned Vanilla Bread Pudding": {
+  "file": "old-fashioned-vanilla-bread-pudding-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Banana_foster_bread_pudding_01.jpg",
+  "license": "CC BY-SA 2.0",
+  "artist": "star5112",
+  "attributionRequired": true
+ },
+ "Crispy Air Fryer Chicken Thighs": {
+  "file": "crispy-air-fryer-chicken-thighs-commons.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Muslos_de_pollo.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Juan Emilio Prades Bel",
+  "attributionRequired": true
+ },
+ "Reine de Saba": {
+  "file": "reine-de-saba-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Almond_chocolate_cake.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Rajeeb (Marajozkee)",
+  "attributionRequired": true
+ },
+ "Hawaiian Kalua Pork": {
+  "file": "hawaiian-kalua-pork-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Homemade_Kalua_Pig.jpg",
+  "license": "CC BY 4.0",
+  "artist": "Pacamah",
+  "attributionRequired": true
+ },
+ "Teriyaki Beef": {
+  "file": "teriyaki-beef-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Beef_teriyaki_cooking_dinner_grilled_food_peapods_peanuts.jpg",
+  "license": "Public domain",
+  "artist": "Jon Sullivan",
+  "attributionRequired": false
+ },
+ "Steak Fajita Mix": {
+  "file": "steak-fajita-mix-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Chicken_fajitas_-_La_Hacienda_-_Sarah_Stierch.jpg",
+  "license": "CC BY 4.0",
+  "artist": "Missvain",
+  "attributionRequired": true
+ },
+ "Italian Sausage and Peppers": {
+  "file": "italian-sausage-and-peppers-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Sausage_and_peppers.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Chuck Falzone",
+  "attributionRequired": true
+ },
+ "Roast Beef French Dip": {
+  "file": "roast-beef-french-dip-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:French_dip_sandwich_with_french_fries.jpg",
+  "license": "CC BY-SA 2.0",
+  "artist": "stu_spivack",
+  "attributionRequired": true
+ },
+ "Split Pea Soup with Ham": {
+  "file": "split-pea-soup-with-ham-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Mmm..._split_pea_soup_(8139761028).jpg",
+  "license": "CC BY 2.0",
+  "artist": "jeffreyw",
+  "attributionRequired": true
+ },
+ "Turkey Breast": {
+  "file": "turkey-breast-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Turkey_breast_-_December_2025_-_Sarah_Stierch.jpg",
+  "license": "CC0",
+  "artist": "Missvain",
+  "attributionRequired": false
+ },
+ "Classic Pot Roast with Roots": {
+  "file": "classic-pot-roast-with-roots-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:American_pot_roast_and_parsley_potatoes.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Mark Miller",
+  "attributionRequired": true
+ },
+ "Chicken Tikka Masala": {
+  "file": "chicken-tikka-masala-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Chicken_tikka_masala_at_Yeti_in_Glen_Ellen_2015_-_Sarah_Stierch.jpg",
+  "license": "CC BY 4.0",
+  "artist": "Missvain",
+  "attributionRequired": true
+ },
+ "Classic Beef Stew": {
+  "file": "classic-beef-stew-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Beef_stew_2.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "3steph14",
+  "attributionRequired": true
+ },
+ "Chili Con Carne": {
+  "file": "chili-con-carne-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Chili_con_carne_cuisson.jpg",
+  "license": "CC0",
+  "artist": "Aerith",
+  "attributionRequired": false
+ },
+ "Pork Carnitas": {
+  "file": "pork-carnitas-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Carnitas_sope_-_Los_Molcajetes_Bar_%26_Grill_(Montecito_Blvd.,_Santa_Rosa)_-_April_2023_-_Sarah_Stierch_01.jpg",
+  "license": "CC BY 4.0",
+  "artist": "Missvain",
+  "attributionRequired": true
+ },
+ "Chicken Tortilla Soup": {
+  "file": "chicken-tortilla-soup-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Tortilla_Soup.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Wikiwrimo",
+  "attributionRequired": true
+ },
+ "Vegetarian Black Bean & Quinoa Chili": {
+  "file": "vegetarian-black-bean-quinoa-chili-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Black_bean_chili_(3263369585).jpg",
+  "license": "CC BY 2.0",
+  "artist": "Karen and Brad Emerson",
+  "attributionRequired": true
+ },
+ "BBQ Baby Back Ribs": {
+  "file": "bbq-baby-back-ribs-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Baby_back_ribs_-_hickory_smoked.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Foodista",
+  "attributionRequired": true
+ },
+ "Creamy Macaroni and Cheese": {
+  "file": "creamy-macaroni-and-cheese-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Macaroni_and_cheese_(2)_(cropped).jpg",
+  "license": "CC BY-SA 2.0",
+  "artist": "Sumeet Jain from San Francisco, USA",
+  "attributionRequired": true
+ },
+ "Indian Butter Chicken": {
+  "file": "indian-butter-chicken-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Chicken_makhani.jpg",
+  "license": "CC BY-SA 2.0",
+  "artist": "stu_spivack",
+  "attributionRequired": true
+ },
+ "Corned Beef and Cabbage": {
+  "file": "corned-beef-and-cabbage-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Andronico%27s_Corned_Beef_and_Cabbage_(25868269625).jpg",
+  "license": "CC BY-SA 2.0",
+  "artist": "Willis Lam",
+  "attributionRequired": true
+ },
+ "Swedish Meatballs": {
+  "file": "swedish-meatballs-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:17-06-09-IKEA-K%C3%B6ttbullar-RalfR-IMG_20170609_182055_928a.jpg",
+  "license": "GFDL 1.2",
+  "artist": "Ralf Roletschek",
+  "attributionRequired": true
+ },
+ "Chipotle Barbacoa Beef": {
+  "file": "chipotle-barbacoa-beef-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Barbacoa_(en_Hidalgo).JPG",
+  "license": "CC BY-SA 3.0",
+  "artist": "Elton Rodriguez",
+  "attributionRequired": true
+ },
+ "Classic Beef Stroganoff": {
+  "file": "classic-beef-stroganoff-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Beef_stroganoff_with_pasta.jpg",
+  "license": "CC BY 2.0",
+  "artist": "benketaro",
+  "attributionRequired": true
+ },
+ "Spiced Apple Butter": {
+  "file": "spiced-apple-butter-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Nashville_House_Apple_Butter_-_April_2023_-_Sarah_Stierch.jpg",
+  "license": "CC BY 4.0",
+  "artist": "Missvain",
+  "attributionRequired": true
+ },
+ "Classic Chicken Noodle Soup": {
+  "file": "classic-chicken-noodle-soup-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Chicken_Noodle_Soup_US.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Nichijyou123",
+  "attributionRequired": true
+ },
+ "Louisiana Red Beans and Rice": {
+  "file": "louisiana-red-beans-and-rice-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Red_Beans_and_Rice.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Arnold Gatilao from Fremont, CA, USA",
+  "attributionRequired": true
+ },
+ "Poutine": {
+  "file": "poutine-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Poutine_from_Windsor,_ON.jpg",
+  "license": "CC0",
+  "artist": "Antonydstevens",
+  "attributionRequired": false
+ },
+ "Butter Tarts": {
+  "file": "butter-tarts-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Butter_Tart_Bar.jpg",
+  "license": "CC BY-SA 2.0",
+  "artist": "kim siciliano",
+  "attributionRequired": true
+ },
+ "Nanaimo Bars": {
+  "file": "nanaimo-bars-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Nanaimo_bar.JPG",
+  "license": "CC BY 2.5",
+  "artist": "Stephanie Spencer",
+  "attributionRequired": true
+ },
+ "Tourtière": {
+  "file": "tourti-re-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Tourtiere_Fin.jpg",
+  "license": "Public domain",
+  "artist": "Dominic Genest",
+  "attributionRequired": false
+ },
+ "Ginger Beef": {
+  "file": "ginger-beef-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Ginger_beef_stir_fry.jpg",
+  "license": "CC BY 2.0",
+  "artist": "jules",
+  "attributionRequired": true
+ },
+ "Halifax Donair": {
+  "file": "halifax-donair-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Alberta_donair.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Carlos \"Chester\" Nascimento",
+  "attributionRequired": true
+ },
+ "Saskatoon Berry Pie": {
+  "file": "saskatoon-berry-pie-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Saskatoonberry_pie.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Original: Elsie Hui Cropping: User:Mr. Granger",
+  "attributionRequired": true
+ },
+ "Pouding Chômeur": {
+  "file": "pouding-ch-meur-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Pouding_chomeur.jpg",
+  "license": "CC0",
+  "artist": "Geneviève Desroches",
+  "attributionRequired": false
+ },
+ "Garlic Fingers": {
+  "file": "garlic-fingers-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Garlic_Fingers_(16861215510).jpg",
+  "license": "CC BY-SA 2.0",
+  "artist": "Marie from Malang, East Java, Indonesia",
+  "attributionRequired": true
+ },
+ "Montreal Smoked Meat": {
+  "file": "montreal-smoked-meat-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Schwartz_smoked_meat_montreal.JPG",
+  "license": "CC BY-SA 4.0",
+  "artist": "chensiyuan",
+  "attributionRequired": true
+ },
+ "Beaver Tails": {
+  "file": "beaver-tails-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Three_BeaverTails_pastry_flavours.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "BeaverTails",
+  "attributionRequired": true
+ },
+ "Tarte au Sucre": {
+  "file": "tarte-au-sucre-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Sugar_Cream_Pie_in_Indiana_-_Stierch.jpg",
+  "license": "CC BY-SA 2.0",
+  "artist": "Sarah Stierch",
+  "attributionRequired": true
+ },
+ "Deep-Fried Cheese Curds": {
+  "file": "deep-fried-cheese-curds-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:CheeseCurds.jpg",
+  "license": "GFDL 1.2",
+  "artist": "Jonathunder",
+  "attributionRequired": true
+ },
+ "Peameal Bacon Sandwich": {
+  "file": "peameal-bacon-sandwich-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Peameal_bacon_sandwich.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Leventio",
+  "attributionRequired": true
+ },
+ "Jiggs Dinner": {
+  "file": "jiggs-dinner-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Jiggs_dinner.jpg",
+  "license": "CC BY-SA 2.0",
+  "artist": "celinecelines",
+  "attributionRequired": true
+ },
+ "Garlic Steak Fingers": {
+  "file": "garlic-steak-fingers-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Finger_steaks.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "LittleT889",
+  "attributionRequired": true
+ },
+ "Honey Dill Sauce": {
+  "file": "honey-dill-sauce-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Greetalia_Honey_Dill_Sauce.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Drewber83",
+  "attributionRequired": true
+ },
+ "Cedar-Plank Salmon": {
+  "file": "cedar-plank-salmon-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Cedar_Plank_Salmon_with_Balsamic_Ginger_Marinade_(28836223862).jpg",
+  "license": "CC BY 2.0",
+  "artist": "Sharon Chen from Austin, United States",
+  "attributionRequired": true
+ },
+ "Cretons": {
+  "file": "cretons-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Cretons_on_a_plate.JPG",
+  "license": "CC BY-SA 3.0",
+  "artist": "CoveyHill",
+  "attributionRequired": true
+ },
+ "Quesabirria": {
+  "file": "quesabirria-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Quesabirria_at_Taqueria_La_Hacienda,_Sonoma,_California_-_Sarah_Stierch.jpg",
+  "license": "CC BY 4.0",
+  "artist": "Missvain",
+  "attributionRequired": true
+ },
+ "Cochinita Pibil": {
+  "file": "cochinita-pibil-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Cochinita_pibil_2.jpg",
+  "license": "CC BY-SA 3.0",
+  "artist": "Popo le Chien",
+  "attributionRequired": true
+ },
+ "Chilaquiles": {
+  "file": "chilaquiles-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Chilaquiles_at_the_Grand_Cantina,_Windsor,_Ontario,_2025-09-01_05.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Chris Woodrich",
+  "attributionRequired": true
+ },
+ "Street Cart Elote": {
+  "file": "street-cart-elote-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Air_fried_corn-on-the-cob_(United_States).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "NeoBatfreak",
+  "attributionRequired": true
+ },
+ "Camarones al Mojo de Ajo": {
+  "file": "camarones-al-mojo-de-ajo-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Camarones_al_mojo.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "German matus",
+  "attributionRequired": true
+ },
+ "Sopa de Lima": {
+  "file": "sopa-de-lima-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Sopa_de_lima.jpg",
+  "license": "CC BY-SA 3.0",
+  "artist": "Aome7937",
+  "attributionRequired": true
+ },
+ "Michoacán Carnitas": {
+  "file": "michoac-n-carnitas-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Carnitas_taco_-_China_Poblano.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Jan Mark Holzer",
+  "attributionRequired": true
+ },
+ "Enchiladas Suizas": {
+  "file": "enchiladas-suizas-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:The_original_enchiladas_suizas_at_the_first_Sanborn%27s_restaurant_venue.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Jj saezdeo",
+  "attributionRequired": true
+ },
+ "Sopa Tarasca": {
+  "file": "sopa-tarasca-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Sopatarasca.png",
+  "license": "CC BY-SA 4.0",
+  "artist": "TexMexlover",
+  "attributionRequired": true
+ },
+ "Aguachile": {
+  "file": "aguachile-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Aguachiles.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Daisygarcia28",
+  "attributionRequired": true
+ },
+ "Queso Fundido": {
+  "file": "queso-fundido-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Queso_fundido_(38571605521).jpg",
+  "license": "CC BY 2.0",
+  "artist": "Dale Cruse from San Francisco, CA, USA",
+  "attributionRequired": true
+ },
+ "Tlayuda": {
+  "file": "tlayuda-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:TLAYUDA.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Gomez.erick",
+  "attributionRequired": true
+ },
+ "Carlota de Limón": {
+  "file": "carlota-de-lim-n-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Carlota_de_Lim%C3%B3n_2.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "PapiPijuan",
+  "attributionRequired": true
+ },
+ "Baked Macaroni and Cheese": {
+  "file": "baked-macaroni-and-cheese-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Baked_macaroni_and_cheese_1.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Martin",
+  "attributionRequired": true
+ },
+ "Central Texas Brisket": {
+  "file": "central-texas-brisket-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Smoked_Brisket_with_smoke_ring.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Johnsparks75",
+  "attributionRequired": true
+ },
+ "Philly Cheesesteak": {
+  "file": "philly-cheesesteak-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Cheesesteak_(19386149993).jpg",
+  "license": "CC BY 2.0",
+  "artist": "jeffreyw",
+  "attributionRequired": true
+ },
+ "Maine-Style Lobster Roll": {
+  "file": "maine-style-lobster-roll-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Lobster_Roll_at_the_Lobster_Claw,_Bar_Harbor.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Lee Coursey",
+  "attributionRequired": true
+ },
+ "Mission Burrito": {
+  "file": "mission-burrito-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Burrito.JPG",
+  "license": "CC0",
+  "artist": "samuelfernandezrivera",
+  "attributionRequired": false
+ },
+ "Chicago-Style Hot Dog": {
+  "file": "chicago-style-hot-dog-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Chicago-style_hot_dog_2.jpg",
+  "license": "CC BY 2.0",
+  "artist": "arnold inuyaki / Arnold Gatilao",
+  "attributionRequired": true
+ },
+ "Chicken-Fried Steak": {
+  "file": "chicken-fried-steak-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:CountryFriedSteak.jpg",
+  "license": "CC BY-SA 2.5",
+  "artist": "No machine-readable author provided. Bloodshedder~commonswiki assumed (based on copyright claims).",
+  "attributionRequired": true
+ },
+ "French Onion Soup": {
+  "file": "french-onion-soup-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:French_Onion_Soup,_Applebee%27s.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Jim G",
+  "attributionRequired": true
+ },
+ "Picnic Potato Salad": {
+  "file": "picnic-potato-salad-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Potato_salad-2.jpg",
+  "license": "CC BY 2.0",
+  "artist": "jules",
+  "attributionRequired": true
+ },
+ "Perfect Pot Roast": {
+  "file": "perfect-pot-roast-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Pot_roast_2.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Mark Miller",
+  "attributionRequired": true
+ },
+ "Frito Pie": {
+  "file": "frito-pie-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Frito_Pie_-_served_in_the_bag_(16847451034).jpg",
+  "license": "CC BY 2.0",
+  "artist": "Arnold Gatilao from Oakland, CA, USA",
+  "attributionRequired": true
+ },
+ "Buffalo Chicken Wings": {
+  "file": "buffalo-chicken-wings-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Homemade_buffalo_wings.jpg",
+  "license": "CC BY 2.0",
+  "artist": "stef yau",
+  "attributionRequired": true
+ },
+ "General Tso's Chicken": {
+  "file": "general-tso-s-chicken-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Flickr_preppybyday_4665999863--General_Tso%27s_Chicken.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Evan Joshua Swigart (TheCulinaryGeek) from Chicago, Illinois, USA; hometown of Ames, Iowa, USA",
+  "attributionRequired": true
+ },
+ "Loco Moco": {
+  "file": "loco-moco-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Loco_Moco.jpg",
+  "license": "CC BY-SA 2.0",
+  "artist": "christian razukas from Honolulu, Hawaii",
+  "attributionRequired": true
+ },
+ "Maryland Crab Cakes": {
+  "file": "maryland-crab-cakes-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Dungeness_crab_cake_at_Oso_-_Sarah_Stierch.jpg",
+  "license": "CC BY 4.0",
+  "artist": "Missvain",
+  "attributionRequired": true
+ },
+ "Original Tijuana Caesar Salad": {
+  "file": "original-tijuana-caesar-salad-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Caesar_Salad_-_Purezza_2023-11-22.jpg",
+  "license": "CC0",
+  "artist": "Andy Li",
+  "attributionRequired": false
+ },
+ "American Goulash": {
+  "file": "american-goulash-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Goulash_from_usa_salvaged.jpg",
+  "license": "CC BY-SA 3.0",
+  "artist": "Alborzagros, edit by Artoria2e5",
+  "attributionRequired": true
+ },
+ "Smoked Pulled Pork": {
+  "file": "smoked-pulled-pork-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Pulled_pork_while_pulling.JPG",
+  "license": "CC BY-SA 3.0",
+  "artist": "Thogru",
+  "attributionRequired": true
+ },
+ "Chicken Piccata": {
+  "file": "chicken-piccata-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Chicken_Piccata_-_52061775955.png",
+  "license": "CC BY-SA 2.0",
+  "artist": "MattCC716",
+  "attributionRequired": true
+ },
+ "Biscuits and Gravy": {
+  "file": "biscuits-and-gravy-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Biscuits_and_gravy.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Dan4th Nicholas",
+  "attributionRequired": true
+ },
+ "Twice Baked Potatoes": {
+  "file": "twice-baked-potatoes-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Twice_baked_potato.JPG",
+  "license": "CC BY-SA 3.0",
+  "artist": "Mark James Miller",
+  "attributionRequired": true
+ },
+ "Baked Ziti": {
+  "file": "baked-ziti-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Ziti_numero_18.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Marica Massaro",
+  "attributionRequired": true
+ },
+ "Chicken Spaghetti": {
+  "file": "chicken-spaghetti-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Mushroom_chicken_spaghetti.jpg",
+  "license": "CC BY 2.0",
+  "artist": "itsmiru",
+  "attributionRequired": true
+ },
+ "Herb-Roasted Turkey Breast": {
+  "file": "herb-roasted-turkey-breast-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Turkey_breast_-_December_2025_-_Sarah_Stierch.jpg",
+  "license": "CC0",
+  "artist": "Missvain",
+  "attributionRequired": false
+ },
+ "Sausage-Stuffed Mushrooms": {
+  "file": "sausage-stuffed-mushrooms-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Stuffed_portabella_mushrooms,_June_2009.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Stacy",
+  "attributionRequired": true
+ },
+ "Curried Chicken Schnitzel": {
+  "file": "curried-chicken-schnitzel-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Allg%C3%A4uer_Schnitzel_mit_Kr%C3%A4uterr%C3%B6sti.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Kritzolina",
+  "attributionRequired": true
+ },
+ "Lemon-Thyme Chicken Thighs": {
+  "file": "lemon-thyme-chicken-thighs-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Chicken_thighs_-_the_girl_and_the_fig_-_May_2023_-_Sarah_Stierch_01.jpg",
+  "license": "CC BY 4.0",
+  "artist": "Missvain",
+  "attributionRequired": true
+ },
+ "Crispy Sheet Pan Gnocchi": {
+  "file": "crispy-sheet-pan-gnocchi-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Gnocchi_di_ricotta_burro_e_salvia.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Paoletta S.",
+  "attributionRequired": true
+ },
+ "Easy Herby Meatballs": {
+  "file": "easy-herby-meatballs-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Lamb_Meatballs_and_Rice.jpg",
+  "license": "CC BY 4.0",
+  "artist": "روتانا",
+  "attributionRequired": true
+ },
+ "Crispy Skillet Ravioli": {
+  "file": "crispy-skillet-ravioli-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Toasted_Ravioli.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Timothy Boyd",
+  "attributionRequired": true
+ },
+ "Egg Roll Skillet": {
+  "file": "egg-roll-skillet-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Kuaichap,_Bangkok_(rolled_noodle_soup_with_intestines),_2018-05-31.jpg",
+  "license": "CC0",
+  "artist": "Bitterschoko",
+  "attributionRequired": false
+ },
+ "Garlic Chicken With Potatoes": {
+  "file": "garlic-chicken-with-potatoes-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Pollo_al_ajillo.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Juan Emilio Prades Bel",
+  "attributionRequired": true
+ },
+ "Ginger Peanut Chicken Pasta": {
+  "file": "ginger-peanut-chicken-pasta-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Hokkien_noodles_with_peanut_sauce_-_Massachusetts.jpg",
+  "license": "CC0",
+  "artist": "Daderot",
+  "attributionRequired": false
+ },
+ "IKEA-Style Swedish Meatballs": {
+  "file": "ikea-style-swedish-meatballs-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Swedish_meatballs_with_egg_noodles.jpg",
+  "license": "CC0",
+  "artist": "RandomKatze",
+  "attributionRequired": false
+ },
+ "Salisbury Steak": {
+  "file": "salisbury-steak-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Salisbury_steak_with_mushrooms_and_mashed_potatoes.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Robert Loescher",
+  "attributionRequired": true
+ },
+ "Szechuan Noodles With Spicy Beef": {
+  "file": "szechuan-noodles-with-spicy-beef-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Szechuan_beef_noodles_(5101153792).jpg",
+  "license": "CC BY 2.0",
+  "artist": "jeffreyw",
+  "attributionRequired": true
+ },
+ "Sticky Fingers Chicken Tenders": {
+  "file": "sticky-fingers-chicken-tenders-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Crispy_Chicken_Strips_-_FotoosVanRobin.jpg",
+  "license": "CC BY-SA 2.0",
+  "artist": "FotoosVanRobin from Netherlands",
+  "attributionRequired": true
+ },
+ "Bananas Foster": {
+  "file": "bananas-foster-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Brennan%27s_Bananas_Foster_-_2011.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Kimberly Vardeman",
+  "attributionRequired": true
+ },
+ "Carrot and Pineapple Cake": {
+  "file": "carrot-and-pineapple-cake-2.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Carrot_cake_slice_and_latte_-_Saltmarsh_Farmhouse_%26_Cafe_2024-12-19.jpg",
+  "license": "CC0",
+  "artist": "Andy Li",
+  "attributionRequired": false
+ },
+ "Frozen Custard": {
+  "file": "frozen-custard-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:FrozenCustard.jpg",
+  "license": "CC BY-SA 2.0",
+  "artist": "stu_spivack",
+  "attributionRequired": true
+ },
+ "Gooey Butter Cake": {
+  "file": "gooey-butter-cake-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Gooey_Butter_Cake_Photo.jpg",
+  "license": "Public domain",
+  "artist": "Topher0128",
+  "attributionRequired": false
+ },
+ "Philadelphia Sticky Buns": {
+  "file": "philadelphia-sticky-buns-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Sticky_Bun_and_Nuts_Loaf_2300px.jpg",
+  "license": "CC BY-SA 2.5",
+  "artist": "Photo by and (c)2006 Derek Ramsey (Ram-Man)",
+  "attributionRequired": true
+ },
+ "Malasadas": {
+  "file": "malasadas-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Leonard%27s_malasadas.jpg",
+  "license": "CC BY-SA 2.0",
+  "artist": "_e.t from Saratoga, USA",
+  "attributionRequired": true
+ },
+ "Homemade Cannoli": {
+  "file": "homemade-cannoli-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Cannoli_in_a_box.jpg",
+  "license": "CC BY-SA 2.0",
+  "artist": "Quinn Dombrowski from Berkeley, USA",
+  "attributionRequired": true
+ },
+ "Brownie Sundae": {
+  "file": "brownie-sundae-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:BROWNIE_SUNDAE.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Rishabhm9",
+  "attributionRequired": true
+ },
+ "Strawberry Shortcake": {
+  "file": "strawberry-shortcake-1.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Shortcake_slice_2.jpg",
+  "license": "CC BY 4.0",
+  "artist": "Shisma",
+  "attributionRequired": true
+ },
+ "Meatballs and Gravy": {
+  "file": "meatballs-and-gravy-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:Rista_wazwan.jpg",
+  "license": "Public domain",
+  "artist": "Oniongas",
+  "attributionRequired": false
+ },
+ "Brioche French Toast": {
+  "file": "brioche-french-toast-0.jpg",
+  "commons": "https://commons.wikimedia.org/wiki/File:French_toast_001.jpg",
+  "license": "CC0",
+  "artist": "Ocdp",
+  "attributionRequired": false
+ }
 }

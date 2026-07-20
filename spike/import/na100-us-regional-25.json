@@ -1,0 +1,860 @@
+{
+  "_meta": {
+    "batch": "na100-us-regional",
+    "source": "na100-us-regional-25.json",
+    "provenance": "Entries 36-60 (US regionalism) of the North America Top 100 compendium (import/north_america_top_100.md, 2026-07-10). Descriptions from the compendium; per-recipe reference URL from its URL line.",
+    "count": 21,
+    "notes": {
+      "renames": "Two entries renamed to avoid exact-name collisions with live records: New England Clam Chowder → Creamy New England Clam Chowder; Caesar Salad → Original Tijuana Caesar Salad. Both map to the existing dishKey to join the live dish as a version."
+    },
+    "droppedAsRedundant": {
+      "names": [
+        "Southern Fried Chicken",
+        "Glazed Meatloaf",
+        "Simple Perfect Chili",
+        "Creamy New England Clam Chowder"
+      ],
+      "reason": "2026-07-10 dup review: compared against the live version(s) of the same dish; these were thinner restatements, not distinct versions. Source text remains in import/north_america_top_100.md."
+    }
+  },
+  "recipes": [
+    {
+      "name": "Baked Macaroni and Cheese",
+      "dish": "mac-and-cheese",
+      "serves": "8",
+      "description": "A foundational comfort food that transitioned from a European luxury to an American staple via baked casseroles and the later advent of processed cheese.",
+      "ingredients": [
+        "1 lb elbow macaroni",
+        "2 cups sharp white cheddar",
+        "1 cup gruyere",
+        "3 cups whole milk",
+        "1/4 cup butter",
+        "1/4 cup all-purpose flour",
+        "1/2 cup breadcrumbs"
+      ],
+      "instructions": [
+        "Prepare a blonde roux with butter and flour; whisk in warm milk to form a béchamel.",
+        "Melt the grated cheeses into the sauce off the heat and fold in the boiled pasta.",
+        "Top with breadcrumbs and bake at 350°F until golden."
+      ],
+      "cuisine": "american",
+      "category": "dinner",
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "baked",
+        "casserole",
+        "cheese",
+        "bechamel",
+        "comfort-food"
+      ],
+      "reference": {
+        "url": "https://www.foodnetwork.com/recipes/photos/food-network-kitchen-s-best-recipes"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food Network",
+        "url": "https://www.foodnetwork.com/recipes/photos/food-network-kitchen-s-best-recipes",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Central Texas Brisket",
+      "dish": "central-texas-brisket",
+      "serves": "12",
+      "description": "A minimalist barbecue philosophy relying solely on smoke, time, and the quality of the beef, strictly eschewing sweet sauces and wet mops.",
+      "ingredients": [
+        "1 whole packer beef brisket (10-12 lbs)",
+        "1/2 cup coarse kosher salt",
+        "1/2 cup coarse black pepper",
+        "Post oak or pecan wood chunks"
+      ],
+      "instructions": [
+        "Trim the brisket aerodynamically to ensure even airflow.",
+        "Coat heavily in a 50/50 salt and pepper rub.",
+        "Smoke at 225°F-250°F for 10-14 hours until the internal temperature reaches 203°F and the meat is probe-tender."
+      ],
+      "cuisine": "american",
+      "category": "dinner",
+      "diet": [
+        "gluten-free"
+      ],
+      "keywords": [
+        "texas",
+        "bbq",
+        "smoked",
+        "brisket",
+        "salt-and-pepper"
+      ],
+      "cookTime": "PT12H",
+      "reference": {
+        "url": "https://www.tasteatlas.com/north-america"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/north-america",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Philly Cheesesteak",
+      "dish": "cheesesteak",
+      "serves": "2",
+      "description": "A Philadelphia invention born from working-class Italian immigrants, defined by shaved beef and melted cheese on a highly specific local hoagie roll.",
+      "ingredients": [
+        "1 lb ribeye steak",
+        "1/2 cup Cheez Whiz or sharp provolone",
+        "1 yellow onion",
+        "2 Amoroso-style rolls"
+      ],
+      "instructions": [
+        "Shave the ribeye paper-thin.",
+        "Griddle over high heat, chopping continuously with spatulas.",
+        "Caramelize the onions separately and mix into the chopped meat.",
+        "Drape with cheese until melted and encapsulate the mixture in the roll."
+      ],
+      "cuisine": "american",
+      "category": "lunch",
+      "diet": [],
+      "keywords": [
+        "philadelphia",
+        "sandwich",
+        "beef",
+        "griddle"
+      ],
+      "cookTime": "PT25M",
+      "reference": {
+        "url": "https://www.tasteatlas.com/north-america"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/north-america",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Maine-Style Lobster Roll",
+      "dish": "lobster-roll",
+      "serves": "4",
+      "description": "A New England delicacy that highlights the cold-water crustacean by using extreme restraint with binders and seasonings, allowing the sweet meat to dominate.",
+      "ingredients": [
+        "1 lb fresh knuckle and claw lobster meat",
+        "1/4 cup high-quality mayonnaise",
+        "1/2 cup finely diced celery",
+        "1 tbsp lemon juice",
+        "4 split-top hot dog buns",
+        "2 tbsp butter"
+      ],
+      "instructions": [
+        "Lightly dress the chilled lobster meat with a minimal amount of mayonnaise and celery.",
+        "Butter the exterior of the split-top buns and griddle until golden and crisp.",
+        "Stuff the buns generously with the cold salad."
+      ],
+      "cuisine": "american",
+      "category": "lunch",
+      "diet": [],
+      "keywords": [
+        "maine",
+        "new-england",
+        "lobster",
+        "sandwich",
+        "summer"
+      ],
+      "cookTime": "PT10M",
+      "reference": {
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-north-america"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-north-america",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Mission Burrito",
+      "dish": "mission-burrito",
+      "serves": "1",
+      "description": "A San Francisco innovation that super-sized the traditional Mexican burrito, utilizing a steamed flour tortilla to hold massive, disparate fillings in one structural unit.",
+      "ingredients": [
+        "1 large flour tortilla",
+        "1/2 lb carne asada",
+        "1/2 cup Spanish rice",
+        "1/2 cup pinto beans",
+        "1/4 cup pico de gallo",
+        "2 tbsp sour cream",
+        "1/4 cup shredded cheese"
+      ],
+      "instructions": [
+        "Steam the tortilla to maximize elasticity.",
+        "Layer the rice, beans, meat, and condiments heavily in the center.",
+        "Fold the sides tightly and roll under intense tension to create a dense, highly structural cylinder."
+      ],
+      "cuisine": "mexican-american",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "san-francisco",
+        "burrito",
+        "carne-asada",
+        "street-food"
+      ],
+      "reference": {
+        "url": "https://www.tasteatlas.com/north-america/street-food"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/north-america/street-food",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Chicago-Style Hot Dog",
+      "dish": "chicago-hot-dog",
+      "serves": "1",
+      "description": "A depression-era 'salad on a bun' built to provide a cheap, vegetable-heavy meal to workers, famous for its strict prohibition of ketchup.",
+      "ingredients": [
+        "1 all-beef frankfurter",
+        "1 poppy seed bun",
+        "1 tbsp yellow mustard",
+        "1 tbsp neon green sweet relish",
+        "1 tbsp chopped white onions",
+        "2 tomato slices",
+        "1 dill pickle spear",
+        "2 sport peppers",
+        "A dash of celery salt"
+      ],
+      "instructions": [
+        "Steam or water-simmer the frank and bun.",
+        "Apply the mustard, relish, and onions directly to the meat.",
+        "Nestle the tomatoes and pickle alongside the frank.",
+        "Top with sport peppers and a heavy dash of celery salt."
+      ],
+      "cuisine": "american",
+      "category": "lunch",
+      "diet": [],
+      "keywords": [
+        "chicago",
+        "hot-dog",
+        "no-ketchup",
+        "street-food"
+      ],
+      "cookTime": "PT10M",
+      "reference": {
+        "url": "https://www.tasteatlas.com/north-america"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/north-america",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Chicken-Fried Steak",
+      "dish": "chicken-fried-steak",
+      "serves": "4",
+      "description": "A Texan staple illustrating 19th-century German schnitzel techniques applied directly to tough, inexpensive cuts of American beef.",
+      "ingredients": [
+        "4 tenderized beef cutlets (cube steak)",
+        "1 cup flour",
+        "2 tbsp cornstarch",
+        "1 cup buttermilk",
+        "2 tsp heavy black pepper",
+        "2 cups whole milk"
+      ],
+      "instructions": [
+        "Double-dredge the cutlets in seasoned flour and buttermilk to create a thick crust.",
+        "Pan-fry in shallow oil until crisp.",
+        "Use the pan drippings and residual flour to make a roux, whisking in milk for a thick, peppery country gravy."
+      ],
+      "cuisine": "southern",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "texas",
+        "schnitzel",
+        "country-gravy",
+        "cube-steak"
+      ],
+      "cookTime": "PT30M",
+      "reference": {
+        "url": "https://www.foodnetwork.com/recipes/photos/food-network-kitchen-s-best-recipes"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food Network",
+        "url": "https://www.foodnetwork.com/recipes/photos/food-network-kitchen-s-best-recipes",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "French Onion Soup",
+      "dish": "french-onion-soup",
+      "serves": "4",
+      "description": "A classic bistro dish fully adopted into American casual dining, relying entirely on the slow, meticulous Maillard reaction of onions.",
+      "ingredients": [
+        "4 yellow onions",
+        "6 cups rich beef broth",
+        "3 tbsp butter",
+        "1 tsp fresh thyme",
+        "4 thick baguette slices",
+        "1 cup gruyere cheese"
+      ],
+      "instructions": [
+        "Slowly caramelize the onions in butter until deeply browned and sweet (30-40 minutes).",
+        "Deglaze the pan, add the broth, and simmer.",
+        "Ladle into crocks, top with toasted baguette and a thick layer of cheese, and broil until bubbling."
+      ],
+      "cuisine": "french",
+      "category": "soup",
+      "diet": [],
+      "keywords": [
+        "bistro",
+        "caramelized-onions",
+        "gruyere",
+        "broiled"
+      ],
+      "cookTime": "PT1H",
+      "reference": {
+        "url": "https://www.foodnetwork.com/recipes/photos/foodnetwork-top-50-most-saved-recipes"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food Network",
+        "url": "https://www.foodnetwork.com/recipes/photos/foodnetwork-top-50-most-saved-recipes",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Picnic Potato Salad",
+      "dish": "potato-salad",
+      "serves": "8",
+      "description": "An essential summer barbecue side dish, characterized by a heavy mayonnaise and mustard emulsion designed to coat starchy root vegetables.",
+      "ingredients": [
+        "2 lbs Russet or Yukon gold potatoes",
+        "1 cup mayonnaise",
+        "2 tbsp yellow mustard",
+        "1/2 cup diced celery",
+        "3 hard-boiled eggs",
+        "1 tsp sweet paprika"
+      ],
+      "instructions": [
+        "Boil the cubed potatoes in salted water until fork-tender.",
+        "Fold gently with the mayonnaise, mustard, finely diced celery, and chopped hard-boiled eggs.",
+        "Chill the mixture thoroughly and dust the top with paprika before serving."
+      ],
+      "cuisine": "american",
+      "category": "side",
+      "diet": [
+        "vegetarian",
+        "gluten-free"
+      ],
+      "keywords": [
+        "barbecue",
+        "summer",
+        "picnic",
+        "make-ahead"
+      ],
+      "cookTime": "PT20M",
+      "reference": {
+        "url": "https://www.foodnetwork.com/recipes"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food Network",
+        "url": "https://www.foodnetwork.com/recipes",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Perfect Pot Roast",
+      "dish": "pot-roast",
+      "serves": "6",
+      "description": "A slow-braised beef dish designed specifically to tenderize heavily exercised muscles, forming its own rich, root-vegetable gravy during the long cook.",
+      "ingredients": [
+        "1 beef chuck roast (3-4 lbs)",
+        "4 carrots",
+        "2 yellow onions",
+        "2 cups beef broth",
+        "1/2 cup dry red wine",
+        "1 sprig fresh rosemary"
+      ],
+      "instructions": [
+        "Hard-sear the seasoned roast in a Dutch oven to build flavor.",
+        "Remove, deglaze the pot with wine, and add the broth and vegetables.",
+        "Return the meat, cover tightly, and braise at 275°F for 3 to 4 hours until yielding."
+      ],
+      "cuisine": "american",
+      "category": "dinner",
+      "diet": [
+        "gluten-free"
+      ],
+      "keywords": [
+        "braised",
+        "dutch-oven",
+        "sunday-dinner",
+        "chuck-roast"
+      ],
+      "cookTime": "PT4H",
+      "reference": {
+        "url": "https://www.foodnetwork.com/recipes/packages/comfort-foods/easy-one-pot-meals/our-best-one-pot-meals"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food Network",
+        "url": "https://www.foodnetwork.com/recipes/packages/comfort-foods/easy-one-pot-meals/our-best-one-pot-meals",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Frito Pie",
+      "dish": "frito-pie",
+      "serves": "4",
+      "description": "A casual, high-calorie concession food born in the Southwest, often built efficiently directly inside the commercial corn chip bag.",
+      "ingredients": [
+        "4 cups Fritos corn chips",
+        "2 cups chili con carne",
+        "1 cup sharp cheddar cheese",
+        "1/2 cup diced white onions",
+        "1 fresh jalapeño"
+      ],
+      "instructions": [
+        "Place a heavy layer of corn chips in a bowl.",
+        "Ladle boiling hot chili directly over the chips to slightly soften them.",
+        "Immediately smother with grated cheese and sharp raw onions."
+      ],
+      "cuisine": "american",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "southwest",
+        "concession",
+        "chili",
+        "corn-chips"
+      ],
+      "cookTime": "PT10M",
+      "reference": {
+        "url": "https://www.tasteofhome.com/collection/regional-recipes-from-across-the-country/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Taste of Home",
+        "url": "https://www.tasteofhome.com/collection/regional-recipes-from-across-the-country/",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Buffalo Chicken Wings",
+      "dish": "buffalo-wings",
+      "serves": "4",
+      "description": "Invented in upstate New York, this bar staple relies on a temporary emulsion of hot sauce and butter to coat unbreaded, fried poultry.",
+      "ingredients": [
+        "2 lbs chicken wings",
+        "1/2 cup cayenne pepper sauce (Frank's RedHot)",
+        "1/3 cup unsalted butter",
+        "1/2 cup blue cheese dressing",
+        "4 celery sticks"
+      ],
+      "instructions": [
+        "Deep fry the unbreaded wings at 375°F until the skin is intensely crisp and the fat renders out.",
+        "Melt the butter and whisk it rapidly into the hot sauce.",
+        "Toss the hot wings in the emulsion immediately and serve with blue cheese."
+      ],
+      "cuisine": "american",
+      "category": "appetizer",
+      "diet": [
+        "gluten-free"
+      ],
+      "keywords": [
+        "buffalo",
+        "wings",
+        "bar-food",
+        "hot-sauce"
+      ],
+      "cookTime": "PT20M",
+      "reference": {
+        "url": "https://www.tasteofhome.com/collection/regional-recipes-from-across-the-country/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Taste of Home",
+        "url": "https://www.tasteofhome.com/collection/regional-recipes-from-across-the-country/",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "General Tso's Chicken",
+      "dish": "general-tsos-chicken",
+      "serves": "4",
+      "description": "The pinnacle of Chinese-American cuisine; a sweet, spicy, and heavily battered dish virtually unknown in China, adapted specifically for the American palate.",
+      "ingredients": [
+        "1.5 lbs chicken thighs",
+        "1/2 cup cornstarch",
+        "6 dried red chilies",
+        "3 tbsp soy sauce",
+        "2 tbsp hoisin sauce",
+        "2 tbsp sugar",
+        "2 tbsp rice vinegar"
+      ],
+      "instructions": [
+        "Coat the chicken in a thick cornstarch slurry and deep fry until crunchy.",
+        "Flash-fry the chilies in a wok and add the sweet soy-vinegar sauce to thicken.",
+        "Toss the fried chicken to coat it heavily."
+      ],
+      "cuisine": "chinese-american",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "takeout",
+        "sweet-and-spicy",
+        "fried",
+        "wok"
+      ],
+      "cookTime": "PT30M",
+      "reference": {
+        "url": "https://www.tasteofhome.com/collection/regional-recipes-from-across-the-country/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Taste of Home",
+        "url": "https://www.tasteofhome.com/collection/regional-recipes-from-across-the-country/",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Loco Moco",
+      "dish": "loco-moco",
+      "serves": "2",
+      "description": "A Hawaiian diner classic that layers disparate comfort elements into a massive, carbohydrate-heavy meal, reflecting the diverse cultural influences of the islands.",
+      "ingredients": [
+        "2 cups steamed white rice",
+        "1/2 lb hamburger patty",
+        "1 cup thick brown beef gravy",
+        "2 eggs"
+      ],
+      "instructions": [
+        "Form a large bed of steamed white rice.",
+        "Top with a heavily seared, seasoned hamburger patty.",
+        "Drench the meat and rice in thick brown gravy and crown the entire dish with a sunny-side-up egg."
+      ],
+      "cuisine": "hawaiian",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "hawaii",
+        "diner",
+        "rice",
+        "gravy",
+        "comfort-food"
+      ],
+      "cookTime": "PT20M",
+      "reference": {
+        "url": "https://www.tasteofhome.com/collection/regional-recipes-from-across-the-country/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Taste of Home",
+        "url": "https://www.tasteofhome.com/collection/regional-recipes-from-across-the-country/",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Maryland Crab Cakes",
+      "dish": "crab-cakes",
+      "serves": "4",
+      "description": "A Maryland specialty requiring the utmost delicacy during preparation to avoid breaking the expensive lump crab meat with heavy binders.",
+      "ingredients": [
+        "1 lb jumbo lump crab meat",
+        "2 tbsp mayonnaise",
+        "1 tsp Old Bay seasoning",
+        "1/2 cup breadcrumbs or crushed crackers",
+        "1 egg",
+        "2 tbsp butter"
+      ],
+      "instructions": [
+        "Gently fold the fragile crab meat with a minimal mixture of mayonnaise, egg, and Old Bay.",
+        "Form lightly into thick patties and chill to set the structure.",
+        "Pan-fry gently in butter until a crust forms."
+      ],
+      "cuisine": "american",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "maryland",
+        "crab",
+        "old-bay",
+        "chesapeake"
+      ],
+      "cookTime": "PT15M",
+      "reference": {
+        "url": "https://www.tasteofhome.com/collection/regional-recipes-from-across-the-country/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Taste of Home",
+        "url": "https://www.tasteofhome.com/collection/regional-recipes-from-across-the-country/",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Original Tijuana Caesar Salad",
+      "dish": "caesar-salad",
+      "serves": "4",
+      "description": "Invented by an Italian immigrant in Tijuana but popularized heavily stateside, notable for its umami-rich dressing of raw egg yolk, garlic, and anchovy.",
+      "ingredients": [
+        "2 romaine lettuce hearts",
+        "2 cloves garlic",
+        "4 anchovy fillets",
+        "2 raw egg yolks",
+        "2 tbsp lemon juice",
+        "1/2 cup olive oil",
+        "1/2 cup parmesan cheese",
+        "1 cup croutons"
+      ],
+      "instructions": [
+        "Mash the anchovies and garlic into a paste.",
+        "Whisk with the yolks and lemon juice, slowly drizzling in olive oil to form a thick emulsion.",
+        "Toss with crisp romaine and generous parmesan."
+      ],
+      "cuisine": "american",
+      "category": "salad",
+      "diet": [],
+      "keywords": [
+        "caesar",
+        "anchovy",
+        "tableside",
+        "romaine"
+      ],
+      "reference": {
+        "url": "https://www.foodnetwork.com/recipes/photos/food-network-kitchen-s-best-recipes"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food Network",
+        "url": "https://www.foodnetwork.com/recipes/photos/food-network-kitchen-s-best-recipes",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "American Goulash",
+      "dish": "american-goulash",
+      "serves": "6",
+      "description": "Completely distinct from the traditional Hungarian stew, this is a mid-western pasta dish (also called Slumgullion) heavily reliant on ground beef, elbows, and tomatoes.",
+      "ingredients": [
+        "1 lb ground beef",
+        "2 cups elbow macaroni",
+        "1 can tomato sauce",
+        "1 can diced tomatoes",
+        "1 onion",
+        "1 tbsp paprika",
+        "1 cup cheddar cheese"
+      ],
+      "instructions": [
+        "Brown the ground beef and onions in a large pot.",
+        "Add the tomatoes, sauce, and spices, simmering into a thick meat ragu.",
+        "Stir in the boiled macaroni and top with shredded cheese until melted."
+      ],
+      "cuisine": "american",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "midwest",
+        "slumgullion",
+        "one-pot",
+        "pasta"
+      ],
+      "cookTime": "PT40M",
+      "reference": {
+        "url": "https://www.foodnetwork.com/recipes/photos/foodnetwork-top-50-most-saved-recipes"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food Network",
+        "url": "https://www.foodnetwork.com/recipes/photos/foodnetwork-top-50-most-saved-recipes",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Smoked Pulled Pork",
+      "dish": "bbq-pulled-pork",
+      "serves": "8",
+      "description": "A Southern barbecue pillar where tough pork shoulder is smoked at low temperatures until the collagen breaks down entirely, allowing it to be easily shredded.",
+      "ingredients": [
+        "1 pork shoulder (Boston butt, 4-5 lbs)",
+        "1/4 cup brown sugar BBQ dry rub",
+        "1/2 cup apple cider vinegar",
+        "1 cup regional BBQ sauce"
+      ],
+      "instructions": [
+        "Coat the pork shoulder heavily in dry rub.",
+        "Smoke at 225°F for 8-10 hours until the internal temperature reaches 200°F.",
+        "Shred with forks, tossing with the rendered pan drippings and a vinegar-based sauce."
+      ],
+      "cuisine": "southern",
+      "category": "dinner",
+      "diet": [
+        "gluten-free"
+      ],
+      "keywords": [
+        "bbq",
+        "smoked",
+        "pork-shoulder",
+        "southern"
+      ],
+      "cookTime": "PT9H",
+      "reference": {
+        "url": "https://www.delish.com/delish-100-dinners/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Delish",
+        "url": "https://www.delish.com/delish-100-dinners/",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Chicken Piccata",
+      "dish": "chicken-piccata",
+      "serves": "4",
+      "description": "An Italian-American staple prized for its bright, acidic, and briny pan sauce built rapidly over floured, pan-fried chicken cutlets.",
+      "ingredients": [
+        "4 thin chicken breast cutlets",
+        "1/2 cup all-purpose flour",
+        "3 tbsp butter",
+        "1/4 cup lemon juice",
+        "1/2 cup dry white wine",
+        "2 tbsp capers",
+        "2 tbsp fresh parsley"
+      ],
+      "instructions": [
+        "Dredge the cutlets in flour and pan-fry in oil and butter until golden.",
+        "Remove the meat and deglaze the pan with wine and lemon.",
+        "Add the capers, swirl in cold butter to thicken, and pour over the chicken."
+      ],
+      "cuisine": "italian-american",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "piccata",
+        "lemon",
+        "capers",
+        "pan-sauce",
+        "weeknight"
+      ],
+      "cookTime": "PT25M",
+      "reference": {
+        "url": "https://www.foodnetwork.com/recipes/packages/fan-favorite-recipes"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food Network",
+        "url": "https://www.foodnetwork.com/recipes/packages/fan-favorite-recipes",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Biscuits and Gravy",
+      "dish": "biscuits-and-gravy",
+      "serves": "4",
+      "description": "The ultimate rural breakfast, utilizing fat rendered from breakfast sausage to create a highly peppery, thick cream gravy poured over baked goods.",
+      "ingredients": [
+        "4 baked biscuits",
+        "1/2 lb loose pork breakfast sausage",
+        "1/4 cup flour",
+        "2 cups whole milk",
+        "1 tsp heavy black pepper"
+      ],
+      "instructions": [
+        "Bake flaky buttermilk biscuits.",
+        "Brown the crumbled sausage in a skillet.",
+        "Sprinkle flour over the meat to absorb the rendered fat, whisk in the milk, and simmer until thick and peppery."
+      ],
+      "cuisine": "southern",
+      "category": "breakfast",
+      "diet": [],
+      "keywords": [
+        "breakfast",
+        "sausage-gravy",
+        "biscuits",
+        "rural"
+      ],
+      "cookTime": "PT30M",
+      "reference": {
+        "url": "https://www.foodnetwork.com/recipes/photos/food-network-kitchen-s-best-recipes"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food Network",
+        "url": "https://www.foodnetwork.com/recipes/photos/food-network-kitchen-s-best-recipes",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Twice Baked Potatoes",
+      "dish": "twice-baked-potatoes",
+      "serves": "4",
+      "description": "A steakhouse side dish that transforms a standard baked potato into an edible vessel for a whipped, highly enriched, dairy-heavy filling.",
+      "ingredients": [
+        "4 large russet potatoes",
+        "1/2 cup sour cream",
+        "1/4 cup butter",
+        "4 slices crispy bacon",
+        "1 cup cheddar cheese",
+        "2 green onions"
+      ],
+      "instructions": [
+        "Bake the potatoes until soft.",
+        "Halve them and scoop out the interior flesh.",
+        "Mash the flesh with sour cream, butter, cheese, and bacon.",
+        "Refill the skins and bake again until golden and puffed."
+      ],
+      "cuisine": "american",
+      "category": "side",
+      "diet": [
+        "gluten-free"
+      ],
+      "keywords": [
+        "steakhouse",
+        "potatoes",
+        "loaded",
+        "baked"
+      ],
+      "cookTime": "PT1H30M",
+      "reference": {
+        "url": "https://www.foodnetwork.com/recipes/photos/foodnetwork-top-50-most-saved-recipes"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food Network",
+        "url": "https://www.foodnetwork.com/recipes/photos/foodnetwork-top-50-most-saved-recipes",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    }
+  ]
+}

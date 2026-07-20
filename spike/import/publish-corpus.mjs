@@ -22,6 +22,11 @@ const FILES = [
   ['frugal-family-25', 'Frugal'],
   ['julia-child-25', 'Julia Child'],
   ['master-pot-25', 'Master Pot'],
+  ['na100-canada-20', 'Canadian'],
+  ['na100-mexico-15', 'Mexican'],
+  ['na100-us-regional-25', 'Regional US'],
+  ['na100-weeknight-20', 'Weeknight'],
+  ['na100-desserts-20', 'Sweets'],
 ];
 const DIET = { vegetarian: 'dietVegetarian', 'gluten-free': 'dietGlutenFree', vegan: 'dietVegan', 'dairy-free': 'dietDairyFree', 'low-carb': 'dietLowCarb', keto: 'dietKeto', paleo: 'dietPaleo' };
 const dietTokens = (arr) => (arr ?? []).map((d) => DIET[d]).filter(Boolean).map((t) => `exchange.recipe.defs#${t}`);

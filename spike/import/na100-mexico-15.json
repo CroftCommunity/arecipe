@@ -1,0 +1,542 @@
+{
+  "_meta": {
+    "batch": "na100-mexico",
+    "source": "na100-mexico-15.json",
+    "provenance": "Entries 21-35 (Mexico) of the North America Top 100 compendium (import/north_america_top_100.md, 2026-07-10). Descriptions from the compendium; per-recipe reference URL from its URL line.",
+    "count": 13,
+    "notes": {
+      "renames": "Four entries renamed from the compendium to avoid exact-name collisions with already-live records (record name is the publisher's idempotency key): Tacos al Pastor → Trompo Tacos al Pastor; Elote → Street Cart Elote; Carnitas → Michoacán Carnitas; Guacamole → Molcajete Guacamole. Each maps to the existing dishKey so it joins the live dish as a version."
+    },
+    "droppedAsRedundant": {
+      "names": [
+        "Trompo Tacos al Pastor",
+        "Molcajete Guacamole"
+      ],
+      "reason": "2026-07-10 dup review: compared against the live version(s) of the same dish; these were thinner restatements, not distinct versions. Source text remains in import/north_america_top_100.md."
+    }
+  },
+  "recipes": [
+    {
+      "name": "Quesabirria",
+      "dish": "quesabirria",
+      "serves": "6",
+      "description": "A modern fusion of traditional Mexican birria stew and quesadillas, born in Tijuana, known for its rich, fat-stained tortillas and accompanying dipping broth.",
+      "ingredients": [
+        "2 lbs beef or goat",
+        "4 dried guajillo chiles",
+        "1 tsp cumin",
+        "2 cups Oaxaca cheese",
+        "12 corn tortillas",
+        "4 cups rich meat consommé"
+      ],
+      "instructions": [
+        "Slow-braise the meat in a chile-infused broth until tender.",
+        "Dip the tortillas into the rendered surface fat of the broth and place on a hot plancha.",
+        "Add shredded cheese and meat, fold in half, and griddle until crisp.",
+        "Serve with the consommé for dipping."
+      ],
+      "cuisine": "mexican",
+      "category": "dinner",
+      "diet": [
+        "gluten-free"
+      ],
+      "keywords": [
+        "tijuana",
+        "birria",
+        "tacos",
+        "dipping-broth",
+        "street-food"
+      ],
+      "reference": {
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-mexico"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-mexico",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Cochinita Pibil",
+      "dish": "cochinita-pibil",
+      "serves": "8",
+      "description": "A pre-Columbian Yucatan specialty relying on the acidic tenderization of pork and earthy annatto seed, historically roasted in a pib (earth oven).",
+      "ingredients": [
+        "3 to 5 lbs pork shoulder",
+        "3.5 oz annatto paste (achiote)",
+        "1 cup bitter orange juice",
+        "6 cloves garlic",
+        "1 package banana leaves"
+      ],
+      "instructions": [
+        "Blend the achiote paste with bitter orange juice.",
+        "Marinate the pork, then wrap it entirely in layers of banana leaves to retain moisture.",
+        "Slow-roast until the meat shreds effortlessly.",
+        "Serve with pickled red onions."
+      ],
+      "cuisine": "mexican",
+      "category": "dinner",
+      "diet": [
+        "gluten-free"
+      ],
+      "keywords": [
+        "yucatan",
+        "pork",
+        "achiote",
+        "banana-leaves",
+        "slow-roasted"
+      ],
+      "reference": {
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-mexico"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-mexico",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Chilaquiles",
+      "dish": "chilaquiles",
+      "serves": "4",
+      "description": "An ingenious utilization of stale tortillas, transitioning them into a hearty, high-calorie breakfast staple drenched in vibrant salsas.",
+      "ingredients": [
+        "10 stale corn tortillas",
+        "2 cups salsa roja or salsa verde",
+        "1 sprig epazote",
+        "1/2 cup Mexican crema",
+        "1/2 cup queso fresco",
+        "4 eggs"
+      ],
+      "instructions": [
+        "Cut the tortillas into triangles and deep fry until crisp.",
+        "Simmer briefly in hot salsa until softened but retaining a slight bite.",
+        "Plate and garnish heavily with crema, crumbled cheese, and fried eggs."
+      ],
+      "cuisine": "mexican",
+      "category": "breakfast",
+      "diet": [
+        "vegetarian",
+        "gluten-free"
+      ],
+      "keywords": [
+        "breakfast",
+        "tortillas",
+        "salsa",
+        "crema"
+      ],
+      "reference": {
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-mexico"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-mexico",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Street Cart Elote",
+      "dish": "elote",
+      "serves": "4",
+      "description": "The quintessential Mexican street food, transforming roasted corn into a rich, acidic, and spicy vehicle for dairy and chili powder.",
+      "ingredients": [
+        "4 ears fresh corn on the cob",
+        "1/4 cup mayonnaise",
+        "1/4 cup crema",
+        "1/2 cup crumbled cotija cheese",
+        "1 tsp pequin chili powder",
+        "2 fresh limes"
+      ],
+      "instructions": [
+        "Grill the corn until heavily charred and tender.",
+        "Slather generously with a mixture of mayonnaise and crema.",
+        "Dredge the cob in crumbled cotija cheese and dust thoroughly with chili powder and lime juice."
+      ],
+      "cuisine": "mexican",
+      "category": "side",
+      "diet": [
+        "vegetarian",
+        "gluten-free"
+      ],
+      "keywords": [
+        "street-food",
+        "corn",
+        "cotija",
+        "grilled"
+      ],
+      "cookTime": "PT15M",
+      "reference": {
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-mexico"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-mexico",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Camarones al Mojo de Ajo",
+      "dish": "camarones-al-mojo-de-ajo",
+      "serves": "4",
+      "description": "A coastal dish focusing on the emulsification of massive amounts of garlic into butter and olive oil to gently poach fresh seafood.",
+      "ingredients": [
+        "1 lb large shrimp",
+        "1/2 cup unsalted butter",
+        "1/4 cup olive oil",
+        "12 peeled garlic cloves",
+        "2 limes for juice"
+      ],
+      "instructions": [
+        "Finely mince the garlic and simmer gently in a heavy emulsion of butter and olive oil until sweet and highly fragrant.",
+        "Add the shrimp, searing briefly on high heat until just opaque.",
+        "Finish with lime."
+      ],
+      "cuisine": "mexican",
+      "category": "dinner",
+      "diet": [
+        "gluten-free"
+      ],
+      "keywords": [
+        "shrimp",
+        "garlic",
+        "coastal",
+        "seafood"
+      ],
+      "cookTime": "PT20M",
+      "reference": {
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-mexico"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-mexico",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Sopa de Lima",
+      "dish": "sopa-de-lima",
+      "serves": "6",
+      "description": "A Yucatan soup where the specific bittersweet local lime is the primary aromatic driver, rather than serving as a mere afterthought or garnish.",
+      "ingredients": [
+        "6 cups chicken broth",
+        "2 shredded chicken breasts",
+        "3 Yucatan limes",
+        "2 habanero peppers",
+        "2 cups fried tortilla strips"
+      ],
+      "instructions": [
+        "Simmer robust chicken broth with roasted tomatoes and whole habanero peppers.",
+        "Finish the broth with a heavy dose of fresh Yucatan lime juice.",
+        "Serve immediately over crispy fried tortilla strips."
+      ],
+      "cuisine": "mexican",
+      "category": "soup",
+      "diet": [
+        "gluten-free"
+      ],
+      "keywords": [
+        "yucatan",
+        "lime",
+        "chicken-soup",
+        "habanero"
+      ],
+      "reference": {
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-mexico"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-mexico",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Michoacán Carnitas",
+      "dish": "carnitas",
+      "serves": "8",
+      "description": "A Michoacán specialty where pork is confited in its own rendered lard, yielding incredibly tender meat with shattered, crispy exterior edges.",
+      "ingredients": [
+        "3 lbs pork shoulder",
+        "2 cups pork lard",
+        "1/2 cup fresh orange juice",
+        "1/4 cup evaporated milk",
+        "1 head garlic",
+        "2 bay leaves"
+      ],
+      "instructions": [
+        "Submerge large chunks of pork completely in liquid lard.",
+        "Simmer for hours with the aromatics, citrus, and milk to aid caramelization.",
+        "Increase the heat at the very end to crisp the exterior of the meat."
+      ],
+      "cuisine": "mexican",
+      "category": "dinner",
+      "diet": [
+        "gluten-free"
+      ],
+      "keywords": [
+        "michoacan",
+        "pork",
+        "confit",
+        "lard",
+        "crispy"
+      ],
+      "reference": {
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-mexico"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-mexico",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Enchiladas Suizas",
+      "dish": "enchiladas-suizas",
+      "serves": "4",
+      "description": "A mid-century Mexico City invention representing 'Swiss' style due to its heavy dairy component, a departure from pre-Hispanic culinary norms.",
+      "ingredients": [
+        "2 cups shredded chicken",
+        "12 corn tortillas",
+        "1 lb fresh tomatillos",
+        "1 cup Mexican crema",
+        "2 cups Swiss or Chihuahua cheese"
+      ],
+      "instructions": [
+        "Lightly fry the tortillas to make them pliable, then roll with chicken.",
+        "Blend roasted tomatillos with crema to form a rich salsa verde.",
+        "Blanket the rolls in the sauce and cheese, then bake until bubbling."
+      ],
+      "cuisine": "mexican",
+      "category": "dinner",
+      "diet": [
+        "gluten-free"
+      ],
+      "keywords": [
+        "mexico-city",
+        "enchiladas",
+        "tomatillo",
+        "creamy"
+      ],
+      "reference": {
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-mexico"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-mexico",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Sopa Tarasca",
+      "dish": "sopa-tarasca",
+      "serves": "6",
+      "description": "A deeply flavored, pureed bean and tomato soup originating from Michoacán, utilizing dried chiles to create a robust, smoky backbone.",
+      "ingredients": [
+        "2 cups pinto beans",
+        "1 lb roasted tomatoes",
+        "2 dried ancho chiles",
+        "4 cups chicken broth",
+        "1 sprig epazote"
+      ],
+      "instructions": [
+        "Blend the cooked pinto beans, roasted tomatoes, and soaked ancho chiles into a completely smooth puree.",
+        "Simmer the puree with chicken broth and epazote.",
+        "Garnish with crema and crisp tortilla strips."
+      ],
+      "cuisine": "mexican",
+      "category": "soup",
+      "diet": [
+        "gluten-free"
+      ],
+      "keywords": [
+        "michoacan",
+        "bean-soup",
+        "ancho",
+        "pureed"
+      ],
+      "reference": {
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-mexico"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-mexico",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Aguachile",
+      "dish": "aguachile",
+      "serves": "4",
+      "description": "A Sinaloan seafood dish where raw shrimp is 'cooked' aggressively and rapidly in highly acidic, fiercely spicy lime juice, retaining a snappy texture.",
+      "ingredients": [
+        "1 lb raw shrimp",
+        "1 cup fresh lime juice",
+        "1/2 cucumber",
+        "1/2 red onion",
+        "2 serrano or chiltepin chiles",
+        "1/4 cup fresh cilantro"
+      ],
+      "instructions": [
+        "Butterfly the shrimp.",
+        "Blend the lime juice with cilantro and chiles to create a vibrant green liquid.",
+        "Submerge the shrimp in the fiery liquid for no more than 15 minutes.",
+        "Serve with sliced cucumber and onion."
+      ],
+      "cuisine": "mexican",
+      "category": "dinner",
+      "diet": [
+        "gluten-free"
+      ],
+      "keywords": [
+        "sinaloa",
+        "shrimp",
+        "ceviche-style",
+        "spicy",
+        "raw"
+      ],
+      "cookTime": "PT15M",
+      "reference": {
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-mexico"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-mexico",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Queso Fundido",
+      "dish": "queso-fundido",
+      "serves": "6",
+      "description": "A communal appetizer that relies heavily on the unique melting and stretching qualities of specific Northern Mexican cheeses, paired with spiced meats.",
+      "ingredients": [
+        "2 cups Oaxaca or Chihuahua cheese",
+        "1/2 lb fresh loose chorizo",
+        "2 roasted poblano strips (rajas)"
+      ],
+      "instructions": [
+        "Crumble and fry the chorizo until crispy.",
+        "Melt a thick layer of cheese in a shallow cast-iron skillet under a broiler until bubbling and slightly charred.",
+        "Top with the cooked chorizo and rajas, serving immediately with tortillas."
+      ],
+      "cuisine": "mexican",
+      "category": "appetizer",
+      "diet": [
+        "gluten-free"
+      ],
+      "keywords": [
+        "cheese",
+        "chorizo",
+        "communal",
+        "skillet"
+      ],
+      "cookTime": "PT20M",
+      "reference": {
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-mexico"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-mexico",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Tlayuda",
+      "dish": "tlayuda",
+      "serves": "2",
+      "description": "An Oaxacan icon featuring an oversized, leathery corn tortilla toasted over coals, acting as an edible platter for regional ingredients.",
+      "ingredients": [
+        "1 large Oaxacan corn tortilla",
+        "1 cup refried beans",
+        "2 tbsp asiento (unrefined pork lard)",
+        "1 cup Oaxaca cheese",
+        "1/2 lb tasajo (thin beef)"
+      ],
+      "instructions": [
+        "Smear the large tortilla with asiento and beans.",
+        "Toast directly over a charcoal grill until crisp.",
+        "Top with shredded Oaxaca cheese, shredded cabbage, and thin cuts of grilled beef (tasajo)."
+      ],
+      "cuisine": "mexican",
+      "category": "dinner",
+      "diet": [
+        "gluten-free"
+      ],
+      "keywords": [
+        "oaxaca",
+        "street-food",
+        "grilled",
+        "tortilla"
+      ],
+      "reference": {
+        "url": "https://www.tasteatlas.com/mexico"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/mexico",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Carlota de Limón",
+      "dish": "carlota-de-limon",
+      "serves": "8",
+      "description": "An immensely popular, highly accessible icebox cake that requires absolutely no baking and utilizes shelf-stable dairy introduced during industrialization.",
+      "ingredients": [
+        "1 pack Maria cookies",
+        "1 can evaporated milk",
+        "1 can sweetened condensed milk",
+        "1/2 cup fresh lime juice"
+      ],
+      "instructions": [
+        "Vigorously whisk or blend the milks with fresh lime juice until the acid causes the dairy to thicken rapidly.",
+        "Layer the cream alternately with Maria cookies in a glass dish.",
+        "Freeze until fully set."
+      ],
+      "cuisine": "mexican",
+      "category": "dessert",
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "icebox-cake",
+        "lime",
+        "no-bake",
+        "maria-cookies"
+      ],
+      "reference": {
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-mexico"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-mexico",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    }
+  ]
+}

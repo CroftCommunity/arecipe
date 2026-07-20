@@ -1,0 +1,822 @@
+{
+  "_meta": {
+    "batch": "na100-canada",
+    "source": "na100-canada-20.json",
+    "provenance": "Entries 1-20 (Canada) of the North America Top 100 compendium (import/north_america_top_100.md, 2026-07-10). Descriptions from the compendium; per-recipe reference URL from its URL line.",
+    "count": 20,
+    "notes": {
+      "enrichment": "serves estimated from ingredient quantities; diet via ingredient scan (conservative); cuisine curated; cookTime only where derivable from the instructions (frugal-family precedent: no prep/total when the source gives none)."
+    }
+  },
+  "recipes": [
+    {
+      "name": "Poutine",
+      "dish": "poutine",
+      "serves": "4",
+      "description": "Originating in 1950s Quebec, this dish relies on the dynamic thermal contrast between hot gravy and cold, squeaky cheese curds.",
+      "ingredients": [
+        "5 medium russet potatoes",
+        "2 cups fresh cheddar cheese curds",
+        "10.25 oz beef and chicken stock gravy",
+        "1 quart vegetable oil"
+      ],
+      "instructions": [
+        "Cut the potatoes into thick fries and deep fry in vegetable oil at 365°F until golden and crisp.",
+        "Plate the fries and scatter room-temperature curds generously over them.",
+        "Ladle hot, thin gravy over the top immediately before serving."
+      ],
+      "cuisine": "canadian",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "quebec",
+        "fries",
+        "cheese-curds",
+        "gravy",
+        "street-food"
+      ],
+      "cookTime": "PT30M",
+      "reference": {
+        "url": "https://en.wikipedia.org/wiki/Poutine"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Wikipedia",
+        "url": "https://en.wikipedia.org/wiki/Poutine",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Butter Tarts",
+      "dish": "butter-tarts",
+      "serves": "12 tarts",
+      "description": "A quintessential Canadian pastry with origins linked to Scottish border tarts. The filling is historically baked until just semi-set and viscous.",
+      "ingredients": [
+        "1.25 cups flour",
+        "1/2 cup butter",
+        "1.5 cups brown sugar",
+        "2 beaten eggs",
+        "1 tbsp vinegar",
+        "1 tsp vanilla",
+        "Optional raisins or walnuts"
+      ],
+      "instructions": [
+        "Mix a shortcrust pastry dough and press into individual muffin tins.",
+        "Whisk the brown sugar, melted butter, eggs, and vanilla; fold in the raisins.",
+        "Pour into the raw shells and bake at 350°F for 15-20 minutes until the edges set but the center remains soft."
+      ],
+      "cuisine": "canadian",
+      "category": "dessert",
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "ontario",
+        "pastry",
+        "tarts",
+        "brown-sugar"
+      ],
+      "cookTime": "PT20M",
+      "reference": {
+        "url": "https://www.beeretseq.com/the-ontario-butter-tart-considered/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Beer et seq",
+        "url": "https://www.beeretseq.com/the-ontario-butter-tart-considered/",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Nanaimo Bars",
+      "dish": "nanaimo-bars",
+      "serves": "16 bars",
+      "description": "A no-bake dessert originating in British Columbia. It requires three distinct layers and relies heavily on the binding properties of Bird's Custard powder.",
+      "ingredients": [
+        "1.75 cups graham crumbs",
+        "5 tbsp cocoa powder",
+        "1 cup sweetened coconut",
+        "1/2 cup almonds",
+        "1 cup plus 2 tsp butter",
+        "2 tbsp custard powder",
+        "3 tbsp heavy cream",
+        "2 cups powdered sugar",
+        "4 oz semi-sweet chocolate"
+      ],
+      "instructions": [
+        "Press a heated mixture of cocoa, graham crumbs, almonds, coconut, egg, and butter into an 8x8 pan.",
+        "Whip the butter, heavy cream, powdered sugar, and custard powder; spread evenly over the chilled crust.",
+        "Top with a thin layer of melted chocolate ganache and chill until completely firm."
+      ],
+      "cuisine": "canadian",
+      "category": "dessert",
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "british-columbia",
+        "no-bake",
+        "bars",
+        "custard",
+        "chocolate"
+      ],
+      "reference": {
+        "url": "https://www.potsandpins.com/posts/2015/08/20/nanaimo-bars/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Pots and Pins",
+        "url": "https://www.potsandpins.com/posts/2015/08/20/nanaimo-bars/",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Tourtière",
+      "dish": "tourtiere",
+      "serves": "8",
+      "description": "A French-Canadian double-crust meat pie historically served during the winter holidays, heavily seasoned with warm, aromatic spices.",
+      "ingredients": [
+        "2.5 lbs ground pork",
+        "1.5 cups water",
+        "1 cup minced onions",
+        "1/2 cup celery",
+        "1/2 cup rolled oats",
+        "Dried thyme",
+        "Sage",
+        "Ground cloves",
+        "Double pie crust"
+      ],
+      "instructions": [
+        "Simmer the ground meat and aromatics in a small amount of water until thoroughly cooked.",
+        "Thicken the residual liquid with breadcrumbs or rolled oats.",
+        "Pour the mixture into a pastry shell, cover with a top crust, vent for steam, and bake at 425°F for roughly 40 minutes."
+      ],
+      "cuisine": "french-canadian",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "quebec",
+        "meat-pie",
+        "holiday",
+        "pork"
+      ],
+      "cookTime": "PT40M",
+      "reference": {
+        "url": "https://simplebites.net/how-to-makeclassic-tourtiere-qubec-pork-pie/comment-page-1/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Simple Bites",
+        "url": "https://simplebites.net/how-to-makeclassic-tourtiere-qubec-pork-pie/comment-page-1/",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Ginger Beef",
+      "dish": "ginger-beef",
+      "serves": "4",
+      "description": "A localized Calgary invention blending Western Canadian beef agriculture with Chinese culinary techniques, featuring a sweet, sticky sauce.",
+      "ingredients": [
+        "1 lb flank steak",
+        "3/4 cup cornstarch",
+        "2 eggs",
+        "1/4 cup fresh minced ginger",
+        "5 cloves garlic",
+        "3 tbsp dark soy sauce",
+        "4 tbsp rice vinegar",
+        "1/2 cup sugar",
+        "Chili flakes",
+        "4-5 cups frying oil"
+      ],
+      "instructions": [
+        "Cut the beef into matchsticks and coat in a thick batter of egg and cornstarch.",
+        "Deep fry in intensely hot oil until crispy and shattered.",
+        "Sauté the ginger and garlic, add the soy-vinegar-sugar sauce, and toss with the fried beef until fully coated."
+      ],
+      "cuisine": "chinese-canadian",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "calgary",
+        "beef",
+        "crispy",
+        "sweet-and-sticky"
+      ],
+      "reference": {
+        "url": "https://www.food.com/recipe/alberta-ginger-beef-403488"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food.com",
+        "url": "https://www.food.com/recipe/alberta-ginger-beef-403488",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Halifax Donair",
+      "dish": "halifax-donair",
+      "serves": "6",
+      "description": "An adaptation of the Mediterranean gyro, invented in Nova Scotia, defined by an incredibly distinct sweet garlic sauce made from evaporated milk.",
+      "ingredients": [
+        "3 lbs ground beef",
+        "1 tsp cayenne pepper",
+        "1.5 tsp oregano",
+        "398 ml evaporated milk",
+        "175 ml white sugar",
+        "4-6 tsp white vinegar",
+        "2 tsp garlic powder",
+        "Pita bread",
+        "Tomatoes",
+        "Diced onions"
+      ],
+      "instructions": [
+        "Knead the spiced beef aggressively and repeatedly throw it down to compress the proteins.",
+        "Form a loaf and bake at 300°F.",
+        "Slice thin and pan-fry to crisp the edges.",
+        "Serve on a steamed pita topped with the sweet milk-and-garlic sauce and raw vegetables."
+      ],
+      "cuisine": "canadian",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "nova-scotia",
+        "street-food",
+        "beef",
+        "sweet-garlic-sauce"
+      ],
+      "reference": {
+        "url": "https://www.food.com/recipe/dash-riprocks-real-halifax-donair-90387"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food.com",
+        "url": "https://www.food.com/recipe/dash-riprocks-real-halifax-donair-90387",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Saskatoon Berry Pie",
+      "dish": "saskatoon-berry-pie",
+      "serves": "8",
+      "description": "A prairie staple utilizing the indigenous Saskatoon berry, which possesses a distinct sweet, almond-like flavor profile that distinguishes it from blueberries.",
+      "ingredients": [
+        "4-5 cups fresh or frozen Saskatoon berries",
+        "3/4 cup granulated sugar",
+        "3 tbsp flour or 2 tbsp cornstarch",
+        "2 tbsp fresh lemon juice",
+        "1 tsp almond extract",
+        "Double pie crust"
+      ],
+      "instructions": [
+        "Simmer the berries gently with water, lemon juice, and sugar.",
+        "Thicken the hot liquid with a slurry of flour or cornstarch.",
+        "Pour into a pastry-lined pie plate, dot with butter, and cover with a vented top crust.",
+        "Bake at 425°F for 15 minutes, then reduce to 350°F."
+      ],
+      "cuisine": "canadian",
+      "category": "dessert",
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "prairie",
+        "berries",
+        "pie",
+        "saskatchewan"
+      ],
+      "reference": {
+        "url": "https://www.food.com/recipe/saskatoon-pie-20665"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food.com",
+        "url": "https://www.food.com/recipe/saskatoon-pie-20665",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Pouding Chômeur",
+      "dish": "pouding-chomeur",
+      "serves": "8",
+      "description": "Translated to 'Unemployment Pudding,' this depression-era Quebecois dessert magically creates its own rich caramel sauce during the baking process.",
+      "ingredients": [
+        "1.5-2 cups flour",
+        "1 tsp baking powder",
+        "1/2 cup butter",
+        "1 cup granulated sugar",
+        "1 cup whole milk",
+        "3/4-1.5 cups pure maple syrup",
+        "1-1.5 cups brown sugar",
+        "1 cup heavy cream or boiling water"
+      ],
+      "instructions": [
+        "Spread a basic, dense white cake batter in a greased baking pan.",
+        "In a separate saucepan, boil the maple syrup, brown sugar, butter, and cream.",
+        "Pour the boiling hot syrup directly over the raw batter (do not mix) and bake at 325°F for 35 minutes."
+      ],
+      "cuisine": "french-canadian",
+      "category": "dessert",
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "quebec",
+        "maple-syrup",
+        "depression-era",
+        "pudding-cake"
+      ],
+      "cookTime": "PT35M",
+      "reference": {
+        "url": "https://www.food.com/recipe/pouding-chomeur-poor-mans-pudding-with-maple-syrup-sauce-218797"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food.com",
+        "url": "https://www.food.com/recipe/pouding-chomeur-poor-mans-pudding-with-maple-syrup-sauce-218797",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Garlic Fingers",
+      "dish": "garlic-fingers",
+      "serves": "4",
+      "description": "An Atlantic Canadian pizzeria staple, sliced into thin rectangular strips rather than traditional wedges, heavily featuring localized dairy.",
+      "ingredients": [
+        "2 cups fresh pizza dough (flour)",
+        "6 tbsp butter",
+        "1 cup fresh minced garlic",
+        "1/2 cup shredded mozzarella cheese",
+        "2 tbsp chopped parsley"
+      ],
+      "instructions": [
+        "Spread the pizza dough flat into a square pan.",
+        "Cover generously with a thick layer of garlic butter and a heavy blanket of mozzarella cheese.",
+        "Bake at 400°F until the cheese is bubbling and browned, then slice into finger-sized strips."
+      ],
+      "cuisine": "canadian",
+      "category": "appetizer",
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "atlantic-canada",
+        "pizzeria",
+        "garlic",
+        "cheese"
+      ],
+      "reference": {
+        "url": "https://www.food.com/recipe/garlic-fingers-52559"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food.com",
+        "url": "https://www.food.com/recipe/garlic-fingers-52559",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Figgy Duff",
+      "dish": "figgy-duff",
+      "serves": "8",
+      "description": "A traditional Newfoundland steamed pudding, historically boiled directly alongside a savory Jiggs Dinner to absorb ambient flavors.",
+      "ingredients": [
+        "2-3 cups stale breadcrumbs",
+        "1 cup raisins or 2 lbs dried figs",
+        "1/2 cup brown sugar",
+        "1/2 cup molasses",
+        "1/2 cup melted butter",
+        "1 tsp baking soda",
+        "1 tsp allspice",
+        "1 tsp ground ginger",
+        "1/2 cup flour"
+      ],
+      "instructions": [
+        "Mix the hydrated breadcrumbs with the spices, molasses, and melted butter.",
+        "Pack the dense mixture into a greased pudding mold or tightly tied cloth bag.",
+        "Steam in a pot of boiling water for 1.5 to 4 hours until the pudding is completely firm."
+      ],
+      "cuisine": "canadian",
+      "category": "dessert",
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "newfoundland",
+        "steamed-pudding",
+        "molasses",
+        "traditional"
+      ],
+      "cookTime": "PT3H",
+      "reference": {
+        "url": "https://www.food.com/recipe/newfoundland-figgy-duff-136410"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food.com",
+        "url": "https://www.food.com/recipe/newfoundland-figgy-duff-136410",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Montreal Smoked Meat",
+      "dish": "montreal-smoked-meat",
+      "serves": "8",
+      "description": "A kosher-style deli meat originating from Eastern European Jewish immigrants, characterized by heavy coriander and pepper curing.",
+      "ingredients": [
+        "1 whole beef brisket",
+        "2 tbsp curing salt",
+        "1/4 cup cracked black pepper",
+        "1/4 cup crushed coriander",
+        "4 cloves garlic",
+        "1 loaf rye bread",
+        "1/2 cup yellow mustard"
+      ],
+      "instructions": [
+        "Dry-cure a whole beef brisket for up to 10 days with heavy spices.",
+        "Hot smoke the meat, then steam it for several hours until the connective tissue breaks down.",
+        "Hand-slice against the grain and serve piled high on rye bread with yellow mustard."
+      ],
+      "cuisine": "canadian",
+      "category": "lunch",
+      "diet": [],
+      "keywords": [
+        "montreal",
+        "deli",
+        "brisket",
+        "smoked",
+        "cured"
+      ],
+      "reference": {
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-canada"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-canada",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Beaver Tails",
+      "dish": "beaver-tails",
+      "serves": "6",
+      "description": "A float-cooked, hand-stretched pastry modeled after the national animal, heavily associated with outdoor winter festivals and canal skating.",
+      "ingredients": [
+        "2 cups whole wheat flour",
+        "2 tsp active dry yeast",
+        "1/2 cup warm water",
+        "2 cups canola oil",
+        "2 tbsp ground cinnamon",
+        "1/2 cup granulated sugar",
+        "1/4 cup melted butter"
+      ],
+      "instructions": [
+        "Stretch the yeast dough by hand into a wide, flat oval.",
+        "Float-cook in hot canola oil until both sides are golden brown and puffed.",
+        "Brush immediately with melted butter and dredge heavily in cinnamon sugar."
+      ],
+      "cuisine": "canadian",
+      "category": "dessert",
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "ottawa",
+        "fried-dough",
+        "winter-festival",
+        "cinnamon-sugar"
+      ],
+      "reference": {
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-canada"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-canada",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Tarte au Sucre",
+      "dish": "tarte-au-sucre",
+      "serves": "8",
+      "description": "A ubiquitous Quebecois sugar pie born from the abundance of local maple and the historical scarcity of fresh fruit during the winter months.",
+      "ingredients": [
+        "1 cup brown sugar",
+        "1 cup pure maple syrup",
+        "1 cup heavy cream",
+        "1/4 cup unsalted butter",
+        "1 tsp vanilla extract",
+        "1 single unbaked pie crust"
+      ],
+      "instructions": [
+        "Whisk the sugars, heavy cream, melted butter, and vanilla into a homogeneous slurry.",
+        "Pour the liquid directly into an unbaked open pie crust.",
+        "Bake at 375°F until the center is just barely set and caramelized."
+      ],
+      "cuisine": "french-canadian",
+      "category": "dessert",
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "quebec",
+        "sugar-pie",
+        "maple"
+      ],
+      "reference": {
+        "url": "https://www.food.com/recipe/pudding-au-chomeur-172532"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food.com",
+        "url": "https://www.food.com/recipe/pudding-au-chomeur-172532",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Deep-Fried Cheese Curds",
+      "dish": "deep-fried-cheese-curds",
+      "serves": "4",
+      "description": "While deeply popular in the American Midwest, the Canadian iteration often utilizes extremely fresh, squeaky cheddar curds specific to local dairies.",
+      "ingredients": [
+        "2 cups fresh cheddar cheese curds",
+        "1 cup all-purpose flour",
+        "1 cup cold beer",
+        "1 tsp baking powder",
+        "4 cups vegetable frying oil"
+      ],
+      "instructions": [
+        "Whisk the flour, baking powder, and cold beer into a light, aerated batter.",
+        "Dip the fresh curds, ensuring full coverage to prevent blowouts.",
+        "Flash fry at 375°F until the exterior is golden."
+      ],
+      "cuisine": "canadian",
+      "category": "appetizer",
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "cheese-curds",
+        "beer-batter",
+        "fried",
+        "snack"
+      ],
+      "reference": {
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-canada"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-canada",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Peameal Bacon Sandwich",
+      "dish": "peameal-bacon-sandwich",
+      "serves": "1",
+      "description": "A Toronto specialty featuring wet-cured, unsmoked pork loin rolled in yellow cornmeal, offering a leaner alternative to traditional belly bacon.",
+      "ingredients": [
+        "4 thick peameal bacon slices",
+        "1 soft kaiser roll",
+        "1 tbsp yellow or grainy mustard",
+        "1 tbsp butter"
+      ],
+      "instructions": [
+        "Sear thick slices of peameal bacon on a hot griddle until the cornmeal crust browns and the meat is cooked through.",
+        "Serve on a lightly buttered, toasted soft kaiser roll generously spread with mustard."
+      ],
+      "cuisine": "canadian",
+      "category": "lunch",
+      "diet": [],
+      "keywords": [
+        "toronto",
+        "sandwich",
+        "bacon",
+        "st-lawrence-market"
+      ],
+      "cookTime": "PT10M",
+      "reference": {
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-canada"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-canada",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Jiggs Dinner",
+      "dish": "jiggs-dinner",
+      "serves": "6",
+      "description": "A traditional Newfoundland Sunday boiled dinner heavily reliant on preserved proteins and root vegetables, reflecting maritime survival diets.",
+      "ingredients": [
+        "2 lbs salt beef (naval beef)",
+        "1/2 head green cabbage",
+        "1 yellow turnip",
+        "4 carrots",
+        "4 potatoes",
+        "1 cup yellow split peas"
+      ],
+      "instructions": [
+        "Soak the salt beef overnight to remove excess salinity.",
+        "Boil the beef in fresh water, then sequentially add the root vegetables and cabbage based on individual cooking times.",
+        "Boil the split peas in a tied pudding bag in the same pot to create pease pudding."
+      ],
+      "cuisine": "canadian",
+      "category": "dinner",
+      "diet": [
+        "gluten-free"
+      ],
+      "keywords": [
+        "newfoundland",
+        "boiled-dinner",
+        "sunday-dinner",
+        "salt-beef"
+      ],
+      "reference": {
+        "url": "https://www.food.com/recipe/jiggs-dinner-15129"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food.com",
+        "url": "https://www.food.com/recipe/jiggs-dinner-15129",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Garlic Steak Fingers",
+      "dish": "garlic-steak-fingers",
+      "serves": "4",
+      "description": "A robust, protein-dense comfort food featuring deep-fried cuts of beef, highly popular in rural and prairie communities.",
+      "ingredients": [
+        "2 lbs beef round steak",
+        "1 cup all-purpose flour",
+        "1 tbsp garlic powder",
+        "1 tsp salt",
+        "1 tsp black pepper",
+        "1 cup frying oil"
+      ],
+      "instructions": [
+        "Cut the round steak into 2x6-inch strips.",
+        "Dredge the meat thoroughly in a flour mixture heavily seasoned with garlic powder and pepper.",
+        "Fry in hot oil until deeply browned and crisp."
+      ],
+      "cuisine": "canadian",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "prairie",
+        "beef",
+        "fried",
+        "comfort-food"
+      ],
+      "reference": {
+        "url": "https://www.food.com/recipe/garlic-steak-fingers-423433"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food.com",
+        "url": "https://www.food.com/recipe/garlic-steak-fingers-423433",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Honey Dill Sauce",
+      "dish": "honey-dill-sauce",
+      "serves": "about 3/4 cup",
+      "description": "A hyper-regional condiment completely unique to Winnipeg, Manitoba, almost exclusively consumed as a dip for breaded chicken fingers.",
+      "ingredients": [
+        "1/2 cup high-quality mayonnaise",
+        "1/4 cup liquid honey",
+        "1 tbsp fresh chopped dill",
+        "1 tsp lemon juice"
+      ],
+      "instructions": [
+        "Whisk the mayonnaise and honey together in a 2:1 ratio.",
+        "Fold in copious amounts of fresh dill and a small dash of lemon juice for acidity.",
+        "Chill the mixture to marry the flavors before serving."
+      ],
+      "cuisine": "canadian",
+      "category": "condiment",
+      "diet": [
+        "vegetarian",
+        "gluten-free"
+      ],
+      "keywords": [
+        "winnipeg",
+        "dip",
+        "honey",
+        "dill",
+        "no-cook"
+      ],
+      "reference": {
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-canada"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-canada",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Cedar-Plank Salmon",
+      "dish": "cedar-plank-salmon",
+      "serves": "4",
+      "description": "An ancient Indigenous cooking technique that imparts sweet, smoky wood flavors into fatty fish, primarily utilizing Western red cedar.",
+      "ingredients": [
+        "1 whole wild Pacific salmon fillet (2 lbs)",
+        "1/4 cup maple syrup",
+        "2 tbsp whole grain mustard",
+        "1 untreated cedar plank"
+      ],
+      "instructions": [
+        "Soak the cedar plank in water for a minimum of two hours.",
+        "Glaze the salmon heavily with a mixture of maple syrup and mustard.",
+        "Place the fish on the plank and roast over indirect grill heat until opaque and flaky."
+      ],
+      "cuisine": "canadian",
+      "category": "dinner",
+      "diet": [
+        "gluten-free"
+      ],
+      "keywords": [
+        "pacific-northwest",
+        "salmon",
+        "grilled",
+        "indigenous-technique",
+        "maple"
+      ],
+      "reference": {
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-canada"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-canada",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Cretons",
+      "dish": "cretons",
+      "serves": "8",
+      "description": "A cold, dense pork spread from Quebec, similar to French rillettes, historically consumed for breakfast to provide intense caloric energy for laborers.",
+      "ingredients": [
+        "1 lb ground pork",
+        "1 minced onion",
+        "2 cloves garlic",
+        "1/2 tsp ground allspice",
+        "1/4 tsp cloves",
+        "1/2 cup milk",
+        "1/4 cup pork lard"
+      ],
+      "instructions": [
+        "Simmer the ground pork slowly with the aromatics and milk until all the liquid evaporates and the meat breaks down into a spreadable paste.",
+        "Chill in a terrine until the fat cap sets.",
+        "Serve cold on toasted bread."
+      ],
+      "cuisine": "french-canadian",
+      "category": "breakfast",
+      "diet": [],
+      "keywords": [
+        "quebec",
+        "pork-spread",
+        "rillettes",
+        "breakfast"
+      ],
+      "reference": {
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-canada"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-canada",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    }
+  ]
+}

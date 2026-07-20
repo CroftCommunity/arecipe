@@ -1,0 +1,591 @@
+{
+  "_meta": {
+    "batch": "na100-desserts",
+    "source": "na100-desserts-20.json",
+    "provenance": "Entries 81-100 (confectionery/baking) of the North America Top 100 compendium (import/north_america_top_100.md, 2026-07-10). Descriptions from the compendium; per-recipe reference URL from its URL line.",
+    "count": 14,
+    "notes": {
+      "renames": "Quiche Lorraine → Brunch Quiche Lorraine to avoid an exact-name collision with the live record; maps to the existing dishKey to join it as a version."
+    },
+    "droppedAsRedundant": {
+      "names": [
+        "Classic Apple Pie",
+        "New York-Style Cheesecake",
+        "Toll House-Style Chocolate Chip Cookies",
+        "Blueberry Coffee Cake Muffins",
+        "Banana Bread with Pecans",
+        "Brunch Quiche Lorraine"
+      ],
+      "reason": "2026-07-10 dup review: compared against the live version(s) of the same dish; these were thinner restatements, not distinct versions. Source text remains in import/north_america_top_100.md."
+    }
+  },
+  "recipes": [
+    {
+      "name": "Bananas Foster",
+      "dish": "bananas-foster",
+      "serves": "4",
+      "description": "A theatrical New Orleans dessert created in the 1950s, famous for its table-side flambé, demonstrating the city's historical role as a major port for Caribbean rum and bananas.",
+      "ingredients": [
+        "4 ripe bananas",
+        "1/2 cup butter",
+        "1 cup dark brown sugar",
+        "1/2 tsp cinnamon",
+        "1/4 cup dark rum",
+        "4 scoops vanilla ice cream"
+      ],
+      "instructions": [
+        "Melt the butter and brown sugar into a rich caramel.",
+        "Add the sliced bananas and sauté.",
+        "Pour in the rum and ignite immediately to burn off the alcohol.",
+        "Serve hot over vanilla ice cream."
+      ],
+      "cuisine": "american",
+      "category": "dessert",
+      "diet": [
+        "vegetarian",
+        "gluten-free"
+      ],
+      "keywords": [
+        "new-orleans",
+        "flambe",
+        "bananas",
+        "rum",
+        "tableside"
+      ],
+      "cookTime": "PT15M",
+      "reference": {
+        "url": "https://www.tasteatlas.com/north-america"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/north-america",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Carrot and Pineapple Cake",
+      "dish": "multi-layer-carrot-cake",
+      "serves": "12",
+      "description": "A moist, heavily spiced cake where the water content of the vegetables and fruit successfully replaces some of the fat, popularized heavily in the 1970s.",
+      "ingredients": [
+        "2 cups grated carrots",
+        "1 cup crushed pineapple",
+        "2 cups flour",
+        "1 cup neutral oil",
+        "4 eggs",
+        "2 tsp cinnamon",
+        "8 oz cream cheese",
+        "2 cups powdered sugar"
+      ],
+      "instructions": [
+        "Whisk the oil, eggs, and sugar.",
+        "Fold in the flour, carrots, and drained pineapple.",
+        "Bake until set.",
+        "Whip the cream cheese and powdered sugar for the frosting."
+      ],
+      "cuisine": "american",
+      "category": "dessert",
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "carrot-cake",
+        "pineapple",
+        "cream-cheese-frosting",
+        "1970s"
+      ],
+      "reference": {
+        "url": "https://www.foodnetwork.com/recipes/packages/fan-favorite-recipes"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food Network",
+        "url": "https://www.foodnetwork.com/recipes/packages/fan-favorite-recipes",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Frozen Custard",
+      "dish": "frozen-custard",
+      "serves": "6",
+      "description": "A Midwestern specialty (prominently Wisconsin) that differs from standard ice cream via the mandatory inclusion of egg yolks, creating a denser, smoother mouthfeel.",
+      "ingredients": [
+        "2 cups whole milk",
+        "2 cups heavy cream",
+        "6 egg yolks",
+        "3/4 cup granulated sugar",
+        "1 tbsp vanilla extract"
+      ],
+      "instructions": [
+        "Temper the hot milk and cream mixture into the whisked egg yolks and sugar.",
+        "Cook gently until the custard coats the back of a spoon.",
+        "Chill, then process in an ice cream machine."
+      ],
+      "cuisine": "american",
+      "category": "dessert",
+      "diet": [
+        "vegetarian",
+        "gluten-free"
+      ],
+      "keywords": [
+        "wisconsin",
+        "custard",
+        "frozen",
+        "egg-yolks"
+      ],
+      "reference": {
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-north-america"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/best-rated-dishes-in-north-america",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Gooey Butter Cake",
+      "dish": "gooey-butter-cake",
+      "serves": "12",
+      "description": "A St. Louis bakery accident turned regional icon, featuring a dense, brownie-like base topped with a collapsed, ultra-sweet cream cheese layer.",
+      "ingredients": [
+        "1 box yellow cake mix",
+        "1/2 cup butter",
+        "3 eggs",
+        "8 oz cream cheese",
+        "4 cups powdered sugar",
+        "1 tsp vanilla"
+      ],
+      "instructions": [
+        "Mix the cake mix with the butter and an egg; press firmly into a pan.",
+        "Beat the cream cheese, powdered sugar, and remaining eggs; pour over the base.",
+        "Bake until the edges are brown."
+      ],
+      "cuisine": "american",
+      "category": "dessert",
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "st-louis",
+        "gooey",
+        "cake-mix",
+        "cream-cheese"
+      ],
+      "reference": {
+        "url": "https://www.tasteatlas.com/north-america"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/north-america",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Philadelphia Sticky Buns",
+      "dish": "sticky-buns",
+      "serves": "12 buns",
+      "description": "Distinct from standard cinnamon rolls, these are baked in a pan heavily coated with caramel and nuts, which becomes a thick glaze when the pan is inverted.",
+      "ingredients": [
+        "1 batch yeast dough",
+        "1 cup brown sugar",
+        "1/2 cup butter",
+        "1/4 cup honey or corn syrup",
+        "1 cup pecans",
+        "1 tbsp cinnamon"
+      ],
+      "instructions": [
+        "Coat a baking pan with a thick layer of butter, brown sugar, and pecans.",
+        "Place rolled, cinnamon-filled dough slices on top.",
+        "Bake, then invert immediately onto a tray."
+      ],
+      "cuisine": "american",
+      "category": "breakfast",
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "philadelphia",
+        "sticky-buns",
+        "caramel",
+        "pecans",
+        "yeast"
+      ],
+      "reference": {
+        "url": "https://www.tasteatlas.com/north-america"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/north-america",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Malasadas",
+      "dish": "malasadas",
+      "serves": "24 malasadas",
+      "description": "A Portuguese fried dough brought to Hawaii by plantation workers. Lacking a central hole, they result in a pillowy, rich, yeast-aerated interior.",
+      "ingredients": [
+        "4 cups enriched yeast dough (milk, butter, eggs)",
+        "4 cups frying oil",
+        "1 cup granulated sugar"
+      ],
+      "instructions": [
+        "Allow the enriched dough to rise until doubled.",
+        "Pinch off golf-ball-sized pieces and deep fry until golden brown.",
+        "Roll immediately in granulated sugar while still hot."
+      ],
+      "cuisine": "hawaiian",
+      "category": "dessert",
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "hawaii",
+        "portuguese",
+        "fried-dough",
+        "yeast"
+      ],
+      "reference": {
+        "url": "https://www.tasteatlas.com/north-america"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "TasteAtlas",
+        "url": "https://www.tasteatlas.com/north-america",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Elvis Moon Pie",
+      "dish": "elvis-moon-pie",
+      "serves": "4",
+      "description": "A decadent, modern homage to the King of Rock 'n' Roll, incorporating his legendary flavor palate into a coated sandwich cookie.",
+      "ingredients": [
+        "8 graham crackers",
+        "1/2 cup marshmallow fluff",
+        "1/2 cup peanut butter",
+        "1 sliced banana",
+        "1 cup melting chocolate"
+      ],
+      "instructions": [
+        "Spread the peanut butter and marshmallow fluff on the graham crackers.",
+        "Sandwich with banana slices.",
+        "Dip the entire assembly in melted chocolate and chill to set."
+      ],
+      "cuisine": "american",
+      "category": "dessert",
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "elvis",
+        "peanut-butter",
+        "banana",
+        "no-bake"
+      ],
+      "reference": {
+        "url": "https://www.foodnetwork.com/shows/the-best-thing-i-ever-made/recipes"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food Network",
+        "url": "https://www.foodnetwork.com/shows/the-best-thing-i-ever-made/recipes",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Homemade Cannoli",
+      "dish": "cannoli",
+      "serves": "12 cannoli",
+      "description": "An Italian-American pastry where the shell's distinctive blistering is achieved by incorporating wine or vinegar into the dough before frying.",
+      "ingredients": [
+        "2 cups pastry dough (flour, butter, Marsala wine)",
+        "15 oz ricotta cheese",
+        "1 cup powdered sugar",
+        "1/2 cup chocolate chips",
+        "4 cups frying oil"
+      ],
+      "instructions": [
+        "Roll the dough thin, wrap around metal tubes, and deep fry.",
+        "Whip the drained ricotta with powdered sugar and fold in the chips.",
+        "Pipe into the cooled shells just before serving to avoid sogginess."
+      ],
+      "cuisine": "italian-american",
+      "category": "dessert",
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "cannoli",
+        "ricotta",
+        "fried-pastry",
+        "marsala"
+      ],
+      "reference": {
+        "url": "https://www.foodnetwork.com/shows/the-best-thing-i-ever-made/recipes"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food Network",
+        "url": "https://www.foodnetwork.com/shows/the-best-thing-i-ever-made/recipes",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Lemon Ricotta Cookies",
+      "dish": "lemon-ricotta-cookies",
+      "serves": "24 cookies",
+      "description": "A remarkably soft, cake-like cookie where the dairy provides intense moisture and a slight tang to offset the heavy sugar content.",
+      "ingredients": [
+        "2 cups flour",
+        "15 oz whole milk ricotta cheese",
+        "1/2 cup butter",
+        "1.5 cups sugar",
+        "2 eggs",
+        "1 tbsp lemon zest",
+        "3 tbsp lemon juice",
+        "1.5 cups powdered sugar"
+      ],
+      "instructions": [
+        "Cream the butter, sugar, and ricotta.",
+        "Add the eggs and lemon zest, then fold in the flour.",
+        "Bake until pale but set.",
+        "Whisk the lemon juice and powdered sugar to glaze the cooled cookies."
+      ],
+      "cuisine": "italian-american",
+      "category": "dessert",
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "cookies",
+        "lemon",
+        "ricotta",
+        "glazed",
+        "soft"
+      ],
+      "reference": {
+        "url": "https://www.foodnetwork.com/recipes/packages/fan-favorite-recipes"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food Network",
+        "url": "https://www.foodnetwork.com/recipes/packages/fan-favorite-recipes",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Brownie Sundae",
+      "dish": "brownie-sundae",
+      "serves": "4",
+      "description": "A diner and chain-restaurant mammoth that relies entirely on the extreme thermal contrast between a hot, fudgy cake and freezing dairy.",
+      "ingredients": [
+        "1 fudge brownie (flour, cocoa, butter, sugar, eggs)",
+        "1 scoop vanilla ice cream",
+        "2 tbsp chocolate syrup",
+        "1 maraschino cherry"
+      ],
+      "instructions": [
+        "Bake a dense fudge brownie.",
+        "While still piping hot, place a square in a bowl and top with a large scoop of vanilla ice cream.",
+        "Drench in syrup and garnish with a cherry."
+      ],
+      "cuisine": "american",
+      "category": "dessert",
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "diner",
+        "brownie",
+        "sundae",
+        "hot-and-cold"
+      ],
+      "reference": {
+        "url": "https://www.tasteofhome.com/collection/regional-recipes-from-across-the-country/"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Taste of Home",
+        "url": "https://www.tasteofhome.com/collection/regional-recipes-from-across-the-country/",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Peanut Butter No-Bake Cookies",
+      "dish": "peanut-butter-no-bake-cookies",
+      "serves": "24 cookies",
+      "description": "A stove-top confection heavily reliant on the rapid crystallization of boiled sugar and the structural stability of oats, requiring zero oven time.",
+      "ingredients": [
+        "2 cups sugar",
+        "1/2 cup milk",
+        "1/2 cup butter",
+        "1/4 cup cocoa powder",
+        "1/2 cup creamy peanut butter",
+        "3 cups quick oats",
+        "1 tsp vanilla"
+      ],
+      "instructions": [
+        "Boil the sugar, milk, butter, and cocoa for exactly one minute.",
+        "Remove from heat and vigorously stir in the peanut butter and oats.",
+        "Drop onto wax paper and cool until set."
+      ],
+      "cuisine": "american",
+      "category": "dessert",
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "no-bake",
+        "peanut-butter",
+        "oats",
+        "stovetop"
+      ],
+      "cookTime": "PT10M",
+      "reference": {
+        "url": "https://www.foodnetwork.com/recipes/packages/fan-favorite-recipes"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food Network",
+        "url": "https://www.foodnetwork.com/recipes/packages/fan-favorite-recipes",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Strawberry Shortcake",
+      "dish": "strawberry-shortcake",
+      "serves": "6",
+      "description": "An iconic summer dessert highlighting macerated fruit; the 'short' refers to a crumbly, biscuit-like dough high in fat, rather than sponge cake.",
+      "ingredients": [
+        "4 cups fresh strawberries",
+        "1/4 cup granulated sugar",
+        "2 cups flour",
+        "1 tbsp baking powder",
+        "1 cup heavy cream",
+        "1/2 cup butter"
+      ],
+      "instructions": [
+        "Toss the sliced strawberries in sugar to extract the juices (macerate).",
+        "Bake tall, flaky biscuits.",
+        "Split the biscuits, heap with berries and juice, and top with whipped cream."
+      ],
+      "cuisine": "american",
+      "category": "dessert",
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "strawberries",
+        "shortcake",
+        "summer",
+        "biscuits"
+      ],
+      "reference": {
+        "url": "https://www.foodnetwork.com/recipes/photos/food-network-kitchen-s-best-recipes"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food Network",
+        "url": "https://www.foodnetwork.com/recipes/photos/food-network-kitchen-s-best-recipes",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Meatballs and Gravy",
+      "dish": "meatballs-and-gravy",
+      "serves": "4",
+      "description": "A rapid-prep meal that mimics complex pan sauces by relying on pre-made frozen proteins and simplified gravies, a staple of modern busy households.",
+      "ingredients": [
+        "1 lb frozen pre-cooked meatballs",
+        "2 cups beef broth",
+        "1/4 cup flour",
+        "1/4 cup butter",
+        "2 cups cooked white rice or egg noodles"
+      ],
+      "instructions": [
+        "Make a roux with the butter and flour, whisking in the beef broth to create a quick brown gravy.",
+        "Add the frozen meatballs and simmer until heated through.",
+        "Serve over rice."
+      ],
+      "cuisine": "american",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "meatballs",
+        "gravy",
+        "shortcut",
+        "weeknight"
+      ],
+      "cookTime": "PT20M",
+      "reference": {
+        "url": "https://www.food.com/ideas/top-weeknight-dinners-6968"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food.com",
+        "url": "https://www.food.com/ideas/top-weeknight-dinners-6968",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Brioche French Toast",
+      "dish": "french-toast",
+      "serves": "4",
+      "description": "A strategic utilization of stale, enriched breads (like challah or brioche) soaked in a sweet custard and caramelized in a skillet, turning waste into luxury.",
+      "ingredients": [
+        "4 thick-sliced brioche or challah",
+        "2 eggs",
+        "1/2 cup whole milk",
+        "1 tsp cinnamon",
+        "1 tsp vanilla",
+        "1 tbsp sugar",
+        "2 tbsp butter"
+      ],
+      "instructions": [
+        "Whisk the eggs, milk, cinnamon, and sugar.",
+        "Briefly submerge the bread to absorb the custard (avoid over-soaking).",
+        "Griddle in hot butter until the exterior caramelizes and browns."
+      ],
+      "cuisine": "american",
+      "category": "breakfast",
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "french-toast",
+        "brioche",
+        "custard",
+        "brunch"
+      ],
+      "cookTime": "PT15M",
+      "reference": {
+        "url": "https://www.foodnetwork.com/recipes/photos/foodnetwork-top-50-most-saved-recipes"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food Network",
+        "url": "https://www.foodnetwork.com/recipes/photos/foodnetwork-top-50-most-saved-recipes",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    }
+  ]
+}

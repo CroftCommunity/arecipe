@@ -1,0 +1,756 @@
+{
+  "_meta": {
+    "batch": "na100-weeknight",
+    "source": "na100-weeknight-20.json",
+    "provenance": "Entries 61-80 (industrialization/weeknight) of the North America Top 100 compendium (import/north_america_top_100.md, 2026-07-10). Descriptions from the compendium; per-recipe reference URL from its URL line.",
+    "count": 19,
+    "droppedAsRedundant": {
+      "names": [
+        "Rotisserie Chicken Tortilla Soup"
+      ],
+      "reason": "2026-07-10 dup review: compared against the live version(s) of the same dish; these were thinner restatements, not distinct versions. Source text remains in import/north_america_top_100.md."
+    }
+  },
+  "recipes": [
+    {
+      "name": "Baked Ziti",
+      "dish": "cheesy-family-baked-ziti",
+      "serves": "8",
+      "description": "An Italian-American casserole favored for its structural stability and ability to feed large crowds easily, functioning as a less laborious alternative to lasagna.",
+      "ingredients": [
+        "1 lb ziti pasta",
+        "15 oz ricotta cheese",
+        "3 cups marinara sauce",
+        "2 cups mozzarella",
+        "1/2 cup parmesan",
+        "1 egg"
+      ],
+      "instructions": [
+        "Mix the ricotta with an egg and grated parmesan to stabilize it.",
+        "Toss the par-boiled ziti with marinara.",
+        "Layer the pasta, ricotta dollops, and mozzarella in a baking dish.",
+        "Bake at 375°F until the edges are bubbling."
+      ],
+      "cuisine": "italian-american",
+      "category": "dinner",
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "casserole",
+        "pasta",
+        "crowd-pleaser",
+        "baked"
+      ],
+      "cookTime": "PT45M",
+      "reference": {
+        "url": "https://www.thekitchn.com/features/2022-kitchn100"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "The Kitchn",
+        "url": "https://www.thekitchn.com/features/2022-kitchn100",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Enchilada Casserole",
+      "dish": "enchilada-casserole",
+      "serves": "6",
+      "description": "A deconstructed Mexican-American dish that layers ingredients to save the intensive labor of softening and rolling individual tortillas.",
+      "ingredients": [
+        "1 lb ground beef",
+        "12 corn tortillas",
+        "2 cans red enchilada sauce",
+        "3 cups shredded cheddar cheese",
+        "1/2 cup black olives"
+      ],
+      "instructions": [
+        "Brown the beef.",
+        "In a baking dish, layer flat corn tortillas, meat, sauce, and cheese repeatedly.",
+        "Bake at 375°F for 30 minutes until the cheese is deeply melted and the tortillas have absorbed the sauce."
+      ],
+      "cuisine": "mexican-american",
+      "category": "dinner",
+      "diet": [
+        "gluten-free"
+      ],
+      "keywords": [
+        "casserole",
+        "enchiladas",
+        "layered",
+        "weeknight"
+      ],
+      "cookTime": "PT30M",
+      "reference": {
+        "url": "https://www.mrfood.com/Editors-Picks/Best-Recipes"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Mr. Food",
+        "url": "https://www.mrfood.com/Editors-Picks/Best-Recipes",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Taco Potato Casserole",
+      "dish": "taco-potato-casserole",
+      "serves": "6",
+      "description": "A modern culinary mash-up utilizing frozen convenience foods (hash browns) fused with commercial Mexican-American flavor profiles (taco seasoning).",
+      "ingredients": [
+        "1 bag frozen hash browns",
+        "1 lb ground beef",
+        "1 can tomatoes with green chiles",
+        "1 packet commercial taco seasoning",
+        "2 cups cheese"
+      ],
+      "instructions": [
+        "Brown the beef and mix with the taco seasoning and canned tomatoes.",
+        "Layer the frozen hash browns in a dish and top with the meat mixture.",
+        "Cover with copious cheese and bake until hot throughout."
+      ],
+      "cuisine": "american",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "casserole",
+        "taco",
+        "hash-browns",
+        "convenience"
+      ],
+      "reference": {
+        "url": "https://www.foodnetwork.com/recipes/photos/foodnetwork-top-50-most-saved-recipes"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food Network",
+        "url": "https://www.foodnetwork.com/recipes/photos/foodnetwork-top-50-most-saved-recipes",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Chicken Spaghetti",
+      "dish": "chicken-spaghetti",
+      "serves": "6",
+      "description": "A Southern potluck classic specifically formulated using condensed soups to create a creamy, heat-stable sauce that aggressively clings to the pasta.",
+      "ingredients": [
+        "1 lb spaghetti",
+        "2 cups cooked chicken meat",
+        "1 bell pepper",
+        "2 cups cheddar cheese",
+        "1 can cream of mushroom soup"
+      ],
+      "instructions": [
+        "Cook the spaghetti in chicken broth for extra flavor.",
+        "Mix the pasta, chopped chicken, diced peppers, condensed soup, and cheese.",
+        "Bake in a casserole dish until the sauce thickens and bubbles."
+      ],
+      "cuisine": "southern",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "potluck",
+        "casserole",
+        "condensed-soup",
+        "pasta"
+      ],
+      "reference": {
+        "url": "https://www.foodnetwork.com/recipes/photos/foodnetwork-top-50-most-saved-recipes"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food Network",
+        "url": "https://www.foodnetwork.com/recipes/photos/foodnetwork-top-50-most-saved-recipes",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Herb-Roasted Turkey Breast",
+      "dish": "turkey-breast",
+      "serves": "6",
+      "description": "A scaled-down holiday meal suitable for a smaller dinner party, focusing entirely on white meat roasted in aromatic wine to avoid the hassle of a whole bird.",
+      "ingredients": [
+        "1 bone-in turkey breast (4 lbs)",
+        "1/4 cup butter",
+        "3 cloves garlic",
+        "1 tbsp fresh thyme",
+        "1 tbsp rosemary",
+        "1 cup dry white wine"
+      ],
+      "instructions": [
+        "Loosen the turkey skin and pack with an herb-garlic butter paste.",
+        "Pour the wine into the bottom of the roasting pan.",
+        "Roast at 325°F until the internal temperature reaches a safe 165°F."
+      ],
+      "cuisine": "american",
+      "category": "dinner",
+      "diet": [
+        "gluten-free"
+      ],
+      "keywords": [
+        "holiday",
+        "turkey",
+        "herb-butter",
+        "roasted"
+      ],
+      "reference": {
+        "url": "https://www.foodnetwork.com/recipes/photos/foodnetwork-top-50-most-saved-recipes"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food Network",
+        "url": "https://www.foodnetwork.com/recipes/photos/foodnetwork-top-50-most-saved-recipes",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Sausage-Stuffed Mushrooms",
+      "dish": "sausage-stuffed-mushrooms",
+      "serves": "6",
+      "description": "A highly reliable, high-yield appetizer where the mushroom cap acts primarily as an edible, earthy vessel for rich, savory fillings.",
+      "ingredients": [
+        "1 lb cremini mushrooms",
+        "1/2 lb sweet Italian sausage",
+        "1/2 cup mascarpone cheese",
+        "1/4 cup parmesan",
+        "2 tbsp fresh parsley"
+      ],
+      "instructions": [
+        "Remove the mushroom stems.",
+        "Brown the sausage and mix with the mascarpone and parmesan off the heat.",
+        "Stuff the mushroom caps generously and bake at 400°F until the mushrooms are tender."
+      ],
+      "cuisine": "italian-american",
+      "category": "appetizer",
+      "diet": [
+        "gluten-free"
+      ],
+      "keywords": [
+        "appetizer",
+        "mushrooms",
+        "sausage",
+        "party"
+      ],
+      "reference": {
+        "url": "https://www.foodnetwork.com/recipes/photos/foodnetwork-top-50-most-saved-recipes"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food Network",
+        "url": "https://www.foodnetwork.com/recipes/photos/foodnetwork-top-50-most-saved-recipes",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Curried Chicken Schnitzel",
+      "dish": "curried-chicken-schnitzel",
+      "serves": "4",
+      "description": "A contemporary fusion dish utilizing rapid European pan-frying techniques married with global spice profiles to create a fast weeknight dinner.",
+      "ingredients": [
+        "4 thin chicken cutlets",
+        "1 cup panko breadcrumbs",
+        "2 tbsp curry powder",
+        "1/2 cup plain yogurt",
+        "1/4 cup mango chutney"
+      ],
+      "instructions": [
+        "Coat the chicken in yogurt to tenderize, then dredge in panko mixed with curry powder.",
+        "Pan-fry in hot oil until crispy.",
+        "Serve alongside a rapid slaw dressed in mango chutney."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "fusion",
+        "schnitzel",
+        "curry",
+        "weeknight"
+      ],
+      "cookTime": "PT25M",
+      "reference": {
+        "url": "https://www.thekitchn.com/features/2022-kitchn100"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "The Kitchn",
+        "url": "https://www.thekitchn.com/features/2022-kitchn100",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Lemon-Thyme Chicken Thighs",
+      "dish": "lemon-thyme-chicken-thighs",
+      "serves": "4",
+      "description": "A technique-driven recipe emphasizing starting skin-on poultry in a cold pan to slowly render subcutaneous fat, ensuring maximum crispness without burning.",
+      "ingredients": [
+        "4 bone-in, skin-on chicken thighs",
+        "1 tbsp fresh thyme",
+        "1 sliced lemon",
+        "1 tsp salt",
+        "1 tsp black pepper"
+      ],
+      "instructions": [
+        "Place the salted chicken skin-side down in a cold cast-iron skillet.",
+        "Turn on medium heat and let the fat render slowly until the skin is intensely crisp (about 15 minutes).",
+        "Flip to finish cooking the meat."
+      ],
+      "cuisine": "american",
+      "category": "dinner",
+      "diet": [
+        "gluten-free"
+      ],
+      "keywords": [
+        "cold-pan",
+        "crispy-skin",
+        "cast-iron",
+        "technique"
+      ],
+      "cookTime": "PT25M",
+      "reference": {
+        "url": "https://www.thekitchn.com/features/2022-kitchn100"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "The Kitchn",
+        "url": "https://www.thekitchn.com/features/2022-kitchn100",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Crispy Sheet Pan Gnocchi",
+      "dish": "sheet-pan-gnocchi",
+      "serves": "4",
+      "description": "An innovative weeknight hack that bypasses the traditional boiling of packaged gnocchi, opting instead to roast it for a crispy, toasted exterior.",
+      "ingredients": [
+        "1 lb shelf-stable packaged gnocchi",
+        "1 pint cherry tomatoes",
+        "2 bell peppers",
+        "3 tbsp olive oil",
+        "8 oz fresh burrata"
+      ],
+      "instructions": [
+        "Toss the dry gnocchi and chopped vegetables in olive oil.",
+        "Spread on a baking sheet and roast at 400°F until the gnocchi puffs and crisps.",
+        "Top with torn fresh burrata immediately upon exiting the oven."
+      ],
+      "cuisine": "italian-american",
+      "category": "dinner",
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "sheet-pan",
+        "gnocchi",
+        "weeknight",
+        "burrata"
+      ],
+      "cookTime": "PT30M",
+      "reference": {
+        "url": "https://www.thekitchn.com/features/2022-kitchn100"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "The Kitchn",
+        "url": "https://www.thekitchn.com/features/2022-kitchn100",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Easy Herby Meatballs",
+      "dish": "herby-meatballs",
+      "serves": "4",
+      "description": "A streamlined approach to meatball prep that uses a blender to pulverize the aromatics, completely eliminating tedious knife work.",
+      "ingredients": [
+        "1 lb ground beef",
+        "1/2 cup fresh herbs (parsley, basil)",
+        "1/2 onion",
+        "2 cloves garlic",
+        "1 egg",
+        "1/2 cup breadcrumbs"
+      ],
+      "instructions": [
+        "Puree the onions, garlic, and herbs in a blender.",
+        "Fold the wet puree into the ground meat with the breadcrumbs and egg.",
+        "Roll into balls and bake until cooked through."
+      ],
+      "cuisine": "american",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "meatballs",
+        "blender",
+        "weeknight",
+        "herbs"
+      ],
+      "cookTime": "PT30M",
+      "reference": {
+        "url": "https://www.thekitchn.com/features/2022-kitchn100"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "The Kitchn",
+        "url": "https://www.thekitchn.com/features/2022-kitchn100",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Crispy Skillet Ravioli",
+      "dish": "skillet-ravioli",
+      "serves": "2",
+      "description": "A potsticker-style treatment of fresh Italian pasta, saving the effort of boiling a large pot of water and resulting in a superior, dual-texture bite.",
+      "ingredients": [
+        "9 oz fresh refrigerated ravioli",
+        "2 tbsp olive oil",
+        "1/4 cup water",
+        "1/4 cup grated parmesan cheese"
+      ],
+      "instructions": [
+        "Sear the raw ravioli in a hot, oiled skillet until deeply browned on one side.",
+        "Add a splash of water and cover immediately to steam the pasta through.",
+        "Top with parmesan."
+      ],
+      "cuisine": "italian-american",
+      "category": "dinner",
+      "diet": [
+        "vegetarian"
+      ],
+      "keywords": [
+        "ravioli",
+        "potsticker-style",
+        "skillet",
+        "quick"
+      ],
+      "cookTime": "PT15M",
+      "reference": {
+        "url": "https://www.thekitchn.com/features/2022-kitchn100"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "The Kitchn",
+        "url": "https://www.thekitchn.com/features/2022-kitchn100",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Egg Roll Skillet",
+      "dish": "egg-roll-skillet",
+      "serves": "4",
+      "description": "Often dubbed 'egg roll in a bowl,' this dish utilizes pre-bagged coleslaw to rapidly recreate the flavors of takeout without the labor of deep-frying wrappers.",
+      "ingredients": [
+        "1 lb ground pork",
+        "14 oz bagged coleslaw mix",
+        "3 tbsp soy sauce",
+        "1 tbsp sesame oil",
+        "1 tbsp fresh ginger",
+        "2 minced garlic cloves"
+      ],
+      "instructions": [
+        "Brown the ground pork with the ginger and garlic.",
+        "Add the coleslaw mix, tossing until wilted.",
+        "Deglaze the pan with soy sauce and a drizzle of sesame oil.",
+        "Serve immediately."
+      ],
+      "cuisine": "chinese-american",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "egg-roll-in-a-bowl",
+        "low-carb",
+        "skillet",
+        "quick"
+      ],
+      "cookTime": "PT20M",
+      "reference": {
+        "url": "https://www.thekitchn.com/features/2022-kitchn100"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "The Kitchn",
+        "url": "https://www.thekitchn.com/features/2022-kitchn100",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Garlic Chicken With Potatoes",
+      "dish": "garlic-chicken-with-potatoes",
+      "serves": "4",
+      "description": "A farmhouse classic that utilizes the mellow, sweet nature of slow-roasted whole garlic cloves to flavor a simple, one-pan protein.",
+      "ingredients": [
+        "4 small chicken breast halves (12 oz)",
+        "4 potatoes",
+        "40 cloves of garlic (unpeeled)",
+        "1 tbsp olive oil",
+        "1/2 cup white wine or chicken broth"
+      ],
+      "instructions": [
+        "Toss the chicken, potatoes, and whole garlic cloves in oil.",
+        "Roast or braise with a splash of wine until the chicken is tender and the garlic is soft enough to squeeze out of the skins."
+      ],
+      "cuisine": "french",
+      "category": "dinner",
+      "diet": [
+        "gluten-free"
+      ],
+      "keywords": [
+        "forty-cloves",
+        "one-pan",
+        "farmhouse",
+        "roasted-garlic"
+      ],
+      "reference": {
+        "url": "https://www.food.com/recipe/french-farmhouse-garlic-chicken-28518"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food.com",
+        "url": "https://www.food.com/recipe/french-farmhouse-garlic-chicken-28518",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Ginger Peanut Chicken Pasta",
+      "dish": "ginger-peanut-chicken-pasta",
+      "serves": "4",
+      "description": "A Western adaptation of Asian peanut noodles, balancing rich, heavy fat from the peanut butter with sharp, acidic ginger.",
+      "ingredients": [
+        "1 lb pasta",
+        "2 sliced chicken breasts",
+        "1/2 cup peanut butter",
+        "1/4 cup soy sauce",
+        "2 tbsp fresh ginger",
+        "1 cup coconut milk"
+      ],
+      "instructions": [
+        "Cook the pasta and sauté the chicken.",
+        "Whisk the peanut butter, coconut milk, soy, and ginger into a sauce.",
+        "Toss the hot pasta and chicken in the sauce until thoroughly coated."
+      ],
+      "cuisine": null,
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "peanut-noodles",
+        "ginger",
+        "weeknight",
+        "pasta"
+      ],
+      "cookTime": "PT25M",
+      "reference": {
+        "url": "https://www.food.com/ideas/top-weeknight-dinners-6968"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food.com",
+        "url": "https://www.food.com/ideas/top-weeknight-dinners-6968",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "IKEA-Style Swedish Meatballs",
+      "dish": "swedish-meatballs",
+      "serves": "4",
+      "description": "A homemade replica of the famous commercial furniture-store staple, reliant on warm baking spices and a rich, flour-thickened cream gravy.",
+      "ingredients": [
+        "1/2 lb ground beef",
+        "1/2 lb ground pork",
+        "1/4 tsp allspice",
+        "1/4 tsp nutmeg",
+        "2 cups beef broth",
+        "1/2 cup heavy cream",
+        "2 tbsp all-purpose flour"
+      ],
+      "instructions": [
+        "Form the meatballs and pan-fry.",
+        "Whisk the flour into the pan drippings, gradually adding the beef broth and heavy cream.",
+        "Simmer the meatballs in the gravy until the sauce is thick."
+      ],
+      "cuisine": "swedish",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "meatballs",
+        "cream-gravy",
+        "allspice",
+        "homemade-replica"
+      ],
+      "cookTime": "PT35M",
+      "reference": {
+        "url": "https://www.food.com/ideas/top-weeknight-dinners-6968"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food.com",
+        "url": "https://www.food.com/ideas/top-weeknight-dinners-6968",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Salisbury Steak",
+      "dish": "salisbury-steak",
+      "serves": "4",
+      "description": "A nostalgic mid-century dish elevating the standard hamburger patty with a savory, umami-rich mushroom and onion gravy, heavily popularized by frozen TV dinners.",
+      "ingredients": [
+        "1 lb ground beef",
+        "1/2 cup breadcrumbs",
+        "1 onion",
+        "1 cup cremini mushrooms",
+        "1.5 cups beef broth",
+        "2 tbsp ketchup"
+      ],
+      "instructions": [
+        "Form the beef into oval patties and sear.",
+        "Remove the patties, then sauté the sliced onions and mushrooms until dark.",
+        "Build a gravy with the broth and return the patties to simmer."
+      ],
+      "cuisine": "american",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "mid-century",
+        "mushroom-gravy",
+        "tv-dinner",
+        "comfort-food"
+      ],
+      "cookTime": "PT35M",
+      "reference": {
+        "url": "https://www.food.com/ideas/top-weeknight-dinners-6968"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food.com",
+        "url": "https://www.food.com/ideas/top-weeknight-dinners-6968",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Szechuan Noodles With Spicy Beef",
+      "dish": "szechuan-noodles-spicy-beef",
+      "serves": "4",
+      "description": "A rapid stir-fry that relies on chili oil and soy sauce to deeply flavor ground beef, creating a fast, intensely spicy weeknight meal.",
+      "ingredients": [
+        "1 lb Asian noodles",
+        "1 lb ground beef",
+        "3 tbsp soy sauce",
+        "2 tbsp hot chili oil",
+        "4 green onions",
+        "3 cloves garlic"
+      ],
+      "instructions": [
+        "Boil the noodles.",
+        "Intensely brown the ground beef with the garlic until crispy.",
+        "Toss the meat and noodles together with a heavy dressing of soy and chili oil."
+      ],
+      "cuisine": "chinese-american",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "stir-fry",
+        "spicy",
+        "noodles",
+        "quick"
+      ],
+      "cookTime": "PT20M",
+      "reference": {
+        "url": "https://www.food.com/ideas/top-weeknight-dinners-6968"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food.com",
+        "url": "https://www.food.com/ideas/top-weeknight-dinners-6968",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Cheeseburger Ramen Casserole",
+      "dish": "cheeseburger-ramen-casserole",
+      "serves": "4",
+      "description": "An extreme budget dish transforming instant noodles (discarding the sodium packets) into a hearty, cohesive, and extremely cheap family meal.",
+      "ingredients": [
+        "2 packs instant ramen noodles",
+        "1 lb ground beef",
+        "2 cups tomato sauce",
+        "2 cups cheddar cheese"
+      ],
+      "instructions": [
+        "Brown the beef and stir in the tomato sauce.",
+        "Boil the ramen briefly.",
+        "Mix the noodles, meat sauce, and cheese in a dish, baking until the cheese is thoroughly melted."
+      ],
+      "cuisine": "american",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "budget",
+        "ramen",
+        "casserole",
+        "family-meal"
+      ],
+      "reference": {
+        "url": "https://www.mrfood.com/Editors-Picks/Best-Recipes"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Mr. Food",
+        "url": "https://www.mrfood.com/Editors-Picks/Best-Recipes",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    },
+    {
+      "name": "Sticky Fingers Chicken Tenders",
+      "dish": "sticky-fingers-chicken-tenders",
+      "serves": "4",
+      "description": "A quick application of a sweet, tangy, and slightly spicy glaze to high-quality, pre-breaded chicken, simulating restaurant-style appetizers at home.",
+      "ingredients": [
+        "12-16 oz frozen breaded chicken tenders",
+        "1/3 cup brown sugar",
+        "2 tsp hot sauce",
+        "1/3 cup Worcestershire sauce",
+        "2 tsp apple cider vinegar"
+      ],
+      "instructions": [
+        "Bake the chicken tenders until crisp.",
+        "Whisk the sugar, hot sauce, vinegar, and Worcestershire.",
+        "Toss the hot chicken in the sauce and bake 5 more minutes to set the glaze into the crust."
+      ],
+      "cuisine": "american",
+      "category": "dinner",
+      "diet": [],
+      "keywords": [
+        "glazed",
+        "chicken-tenders",
+        "shortcut",
+        "sweet-and-tangy"
+      ],
+      "cookTime": "PT30M",
+      "reference": {
+        "url": "https://www.food.com/recipe/sticky-fingers-291711"
+      },
+      "attribution": {
+        "type": "website",
+        "name": "Food.com",
+        "url": "https://www.food.com/recipe/sticky-fingers-291711",
+        "notes": "From the North America Top 100 compendium; method adapted from the referenced source."
+      },
+      "altOf": null
+    }
+  ]
+}
