@@ -41,8 +41,10 @@
         </p>
         <ul>
           <li>Use a <strong>dedicated repository</strong> that holds nothing else.</li>
-          <li><strong>Disable Actions</strong> on that repository (Settings →
-            Actions → “Disable actions”), so a leaked token can't run workflows.</li>
+          <li>Scope the token to <strong>Contents only</strong> (see step 2). A
+            Contents token can't create or change GitHub Actions workflows, so a
+            leak can't run code — even though Actions must stay enabled for Pages
+            to publish (see step 1).</li>
           <li>Give the token the <strong>shortest expiry</strong> you can live with.</li>
           <li>Revoke it the moment you're done experimenting.</li>
         </ul>
@@ -53,11 +55,19 @@
         <ol>
           <li>Create a new repository (private is fine) — e.g.
             <code>your-name/meals-calendar</code>.</li>
-          <li>Open <strong>Settings → Pages</strong> and set the source to your
-            default branch (root). GitHub Pages serves <code>.ics</code> files as
+          <li>Open <strong>Settings → Pages</strong> and set the source to
+            <em>Deploy from a branch</em> → your default branch,
+            <code>/ (root)</code>. GitHub Pages serves <code>.ics</code> files as
             <code>text/calendar</code>, which is what calendar apps require.</li>
-          <li>Open <strong>Settings → Actions → General</strong> and choose
-            <em>Disable actions</em>.</li>
+          <li>Add an empty file named <code>.nojekyll</code> at the repository
+            root (<strong>Add file → Create new file</strong>). It tells Pages to
+            publish your files as-is instead of running a Jekyll build over them.</li>
+          <li>Leave <strong>Actions enabled</strong> (Settings → Actions →
+            General → <em>Allow …</em>). This is required: Pages rebuilds the
+            published site by running its built-in deployment on every push, so
+            with Actions disabled your <code>.ics</code> still commits but the
+            public site never updates. Your token has only Contents access, so it
+            still can't define or alter workflows.</li>
         </ol>
       </section>
 
@@ -109,6 +119,39 @@
           — Google's can take several hours — so updates are not instant. This is
           a subscription that refreshes eventually, not a live feed.
         </p>
+        <p class="status">
+          Two subscribe gotchas. Google shows
+          <em>“Unable to add calendar. Check the URL”</em> when that URL is
+          <strong>already subscribed</strong> — check your calendar list before
+          re-adding. And to force a fresh pull after a change, remove the calendar
+          and re-add it with a throwaway query string, e.g.
+          <code>…/meals.ics?v=2</code>: Pages serves the same file, but the new
+          URL makes the calendar app fetch fresh instead of using its cache.
+        </p>
+      </section>
+
+      <section class="settings-section">
+        <h3 class="section-title">Troubleshooting — the file updates but my calendar doesn't</h3>
+        <p>
+          The usual cause is a <strong>frozen GitHub Pages build</strong>.
+          Publishing writes <code>meals.ics</code> to your repository, but the
+          public URL is served by Pages, which only refreshes when its deployment
+          runs on each push.
+        </p>
+        <ol>
+          <li>Open <strong>Settings → Pages</strong> and check
+            <em>“Last deployed”</em>. If it's older than your last publish, the
+            served file is stale.</li>
+          <li>Open the <strong>Actions</strong> tab. If Actions is disabled, or
+            the <code>pages-build-deployment</code> run is missing or red, that's
+            the break — enable Actions and confirm a <code>.nojekyll</code> file
+            exists at the repo root (step 1), then <strong>Publish now</strong>
+            again.</li>
+          <li>A Pages rebuild takes a minute or two after each publish; after
+            that, your calendar app still refreshes on its own schedule (hours
+            for Google). To confirm the file itself is current, open the URL
+            directly in a browser and check the events are there.</li>
+        </ol>
       </section>
 
       <section class="settings-section">

@@ -180,6 +180,9 @@ describe('renderUserGuide', () => {
     expect(body.toLowerCase()).toContain('public');
     const links = Array.from(box.querySelectorAll('a')).map((a) => a.getAttribute('href'));
     expect(links).toContain('./calendar-setup.html');
+    // Honest expectation: the subscribable calendar refreshes on the calendar
+    // app's own slow schedule, not instantly.
+    expect(body.toLowerCase()).toMatch(/refresh|hours|not instant/);
   });
 
   it('shopping list: both views, and the no-guessing aggregation posture', () => {

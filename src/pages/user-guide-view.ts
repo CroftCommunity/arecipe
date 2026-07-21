@@ -518,9 +518,14 @@ const mealPublishEntry: GuideEntry = {
       p(
         'For the ambitious: published plans can also feed a subscribable ',
         'calendar — your meal plan appearing in Google Calendar and friends. ',
-        'It takes some one-time setup; the ',
+        'It takes some one-time GitHub setup, and two honesties are worth ',
+        'knowing up front. The calendar refreshes on your calendar app’s own ',
+        'schedule — Google’s can take hours — so it catches up rather than ',
+        'updating live. And the GitHub repository it writes to must keep ',
+        'Actions enabled, or the file updates while the published calendar ',
+        'quietly freezes. The ',
         link('./calendar-setup.html', 'calendar setup page'),
-        ' walks through it.',
+        ' walks through all of it.',
       ),
     );
   },
