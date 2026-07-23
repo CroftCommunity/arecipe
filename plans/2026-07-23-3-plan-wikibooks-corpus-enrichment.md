@@ -1,8 +1,9 @@
 # Wikibooks corpus enrichment: metadata crosswalks + Commons images (RUN-WIKIBOOKS-ENRICH / D15)
 
-**Status:** ✅ Pass 1+2+3 complete 2026-07-23 — **ready for execution at Phase 2**
-(no BLOCKING items). Phase 1 (category capture) implemented + green; D14 dishKey
-stamp shipped. 16 phases; live Commons/PDS confirmed available here.
+**Status:** ✅ Phases 1–10B shipped 2026-07-23 on branch `claude/wbsync-enrich`
+(isolated worktree). Only **Phase 6A/6B (arecipe nutrition UI)** remains, plus the
+live ops steps (`wbsync images` full run + `--publish`) and a rebase onto
+origin/main before PR. Tool suite 152 pass / 1 skip.
 
 ## Outcome Summary
 
@@ -16,14 +17,19 @@ stamp shipped. 16 phases; live Commons/PDS confirmed available here.
 | 5 nutrition | ✅ | 95/3695 (energy sparse); kcal + kJ→kcal |
 | 5B cookingMethod | ✅ | 1392/3695; inferred, precision-first |
 | 5C Docs (metadata) | ✅ | MAPPING.md rows + README dishKey/enrichment |
-| 6A/6B Nutrition UI (app) | ☐ | pending |
-| 7 RateLimiter + uploadBlob | ☐ | pending |
-| 8/8B/9 Image pipeline | ☐ | pending (Commons+PDS egress confirmed) |
-| 10A/10B Orchestration + docs | ☐ | pending |
+| 7 RateLimiter + uploadBlob | ✅ | `427df63`; throttle + raw-body uploadBlob |
+| 8/8B Commons client + manifest | ✅ | `427df63`; license gate, ≤1MB ladder, resumable |
+| 9 Attach embed at publish | ✅ | `d000e6f`; `wbsync images` cmd + embed on --publish |
+| 10A Orchestration/summary/O4 | ✅ | this commit; enrichment counts, O4→arecipe.bsky.social |
+| 10B Docs | ✅ | this commit; MAPPING/README/STAND-INS/LEXICONS |
+| 6A/6B Nutrition UI (app) | ☐ | pending — the only remaining phase (app gate) |
 
-Metadata spine (Phases 1–5C) shipped in one commit on branch
-`claude/wikibooks-enrichment` (cluster-commit cadence). Tool suite: 137 pass /
-1 skip. D14 dishKey stamp is part of the same branch.
+**Execution note (2026-07-23):** the shared main checkout was being churned by a
+concurrent agent (a11y/PR#70), which trampled uncommitted work via `git checkout`/
+`clean`. Recovered into an **isolated worktree** `arecipe-wt-wbsync` on branch
+`claude/wbsync-enrich`; all tool-side work (Phases 1–10B) recreated + committed
+there. Branch is based on `6d773ff` and needs a **rebase onto origin/main** before
+any PR. Tool suite: 152 pass / 1 skip.
 
 ## Problem Statement
 

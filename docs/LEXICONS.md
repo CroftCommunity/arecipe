@@ -95,8 +95,17 @@ Notes:
 - Provenance (top level): `sourcePermalink`, `sourceRevId`, `sourceHistoryUrl`,
   `retrievedAt`, `license` `{id, token, attribution}` (O2 = CC BY-SA 4.0).
 - A `wikibooks` object for **fields with no lexicon home** — `pageid`,
-  `difficulty`, `servings`, `servingsHint`, `image` (filename only, unresolved),
-  `origin`, `energy`, `note`, `parseFlags[]`.
+  `difficulty`, `servings`, `servingsHint`, `image` (source filename; also
+  resolved to `embed`, D15), `origin`, `energy`, `note`, `parseFlags[]`.
+- **D14/D15 additions.** The corpus stamps `dishKey` (above) from an approved,
+  reviewed map (`spike/wikibooks-dishkeys/`, distinct from the hand-authored
+  `spike/import/dishkeys.json`). It fills the **controlled** recipe.exchange
+  fields `suitableForDiet[]` (defs `diet*` refs), `recipeCategory`/`recipeCuisine`
+  (bare-lowercase `category*`/`cuisine*` tokens), `keywords[]`, `nutrition`, and
+  `cookingMethod` from crosswalks. Images ride in `embed` → `#imagesEmbed` with a
+  per-image open-world `credit {artist, license, source}` (rendered by
+  `src/recipes/view.ts`). Note `dietDairyFree` is used by the app but is **not** a
+  defs token (open-world); the corpus does not currently emit it.
 
 **The gap** (not papered over): `difficulty`/`servings` have no home in
 `exchange.recipe.recipe`; they wait on RUN-RECIPE-META-STRIP. `recipeCategory`/

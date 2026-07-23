@@ -34,8 +34,9 @@ attribution}`.
 
 ## Open-world `wikibooks` object — fields with NO lexicon home
 
-`pageid`, `difficulty`, `servings`, `servingsHint`, `image` (filename only —
-images out of scope), `origin`, `energy`, `note`, `parseFlags[]`.
+`pageid`, `difficulty`, `servings`, `servingsHint`, `image` (source filename —
+now also resolved to an `embed`, see below), `origin`, `energy`, `note`,
+`parseFlags[]`.
 
 **The gap:** `difficulty` and `servings` in particular have no home in
 `exchange.recipe.recipe`. RUN-RECIPE-META-STRIP is expected to decide where
@@ -43,9 +44,20 @@ servings/difficulty ultimately live; until then they are carried, losslessly, in
 `wikibooks.*` so no source signal is dropped. **`recipeCategory`/`recipeCuisine`
 are now controlled tokens** (D15 crosswalks in `src/transform/enrich-*.ts`);
 values that don't map to a token are omitted from the token field and preserved
-as `keywords` rather than published as mis-facetable free text. `raw image` is
-still filename-only here — the Commons image pipeline (D15 Phases 7–9) resolves it
-to an `embed`; see the enrichment plan.
+as `keywords` rather than published as mis-facetable free text.
+
+## Images → `embed` (D15 Phases 7–9)
+
+`wbsync images` resolves the infobox filename to a **web-optimized Wikimedia
+Commons rendition** (server-scaled via `iiurlwidth`, largest ≤ 1 MB — the tool
+has no image encoder, so nothing is re-encoded locally), gated by a **free-culture
+license allowlist** (accept CC-BY / CC-BY-SA / CC0 / Public Domain; skip
+NC / ND / unknown, with a reason). Results land in a resumable
+`images/manifest.json`. On `--publish`, each cached rendition is uploaded via
+`com.atproto.repo.uploadBlob` and attached as `embed` → `#imagesEmbed` with
+`alt` (recipe name), `aspectRatio`, and an open-world `credit {artist, license,
+source}` that arecipe's view renders as an attribution overlay. Both Commons
+fetches and PDS writes are throttled through a shared `RateLimiter`.
 
 ## rkey
 

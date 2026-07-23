@@ -45,7 +45,7 @@ A parser improvement re-runs against `raw/` with **zero** wiki traffic
 | `WIKIBOOKS_CONTACT` | everything | Contact embedded in the User-Agent. No default. |
 | `WIKIBOOKS_API_BASE` | — | Action API endpoint (default en.wikibooks). |
 | `WIKIBOOKS_LICENSE_ID` / `_TOKEN` / `_ATTRIBUTION` | publish | Licence on every record (O2). Defaults to CC BY-SA 4.0. |
-| `WIKIBOOKS_PUBLISH_HANDLE` / `_SERVICE` / `_APP_PASSWORD` | publish | Publish account (O4: `cookbook.arecipe.app`). Absent → publish refused. |
+| `WIKIBOOKS_PUBLISH_HANDLE` / `_SERVICE` / `_APP_PASSWORD` | publish | Publish account (O4: `arecipe.bsky.social`). Absent → publish refused. |
 | `WIKIBOOKS_DISHKEY_MAP` | — | Path to the approved `{approved:{rkey→dishKey}}` map (D14). Stamps `dishKey` so versions of one dish group in arecipe. Built offline in `spike/wikibooks-dishkeys/`; absent → no dishKeys. |
 | `WIKIBOOKS_LIVE=1` | — | Enables the single live smoke test (D12), skipped by default. |
 
@@ -59,12 +59,23 @@ unmapped values fall through to `keywords`), `keywords[]`, `nutrition.calories`
 (from infobox energy), and `cookingMethod` (inferred, precision-first). All are
 pure, deterministic, and omitted when the source doesn't support them.
 
+### Images (D15)
+
+`wbsync images` resolves each infobox photo to a web-optimized Wikimedia Commons
+rendition (server-scaled, ≤ 1 MB — no local encoder), gated by a free-culture
+license allowlist (CC-BY / CC-BY-SA / CC0 / PD; NC/ND/unknown skipped with a
+reason), into a resumable `images/manifest.json`. On `--publish` the cached
+renditions are uploaded (`uploadBlob`) and attached as `embed` with per-image
+`credit`. Commons + PDS traffic is throttled by a shared `RateLimiter`
+(concurrency 1, ≥1 s spacing, 429/Retry-After + 5xx backoff).
+
 ## Commands (D13)
 
 ```
 wbsync discover                  # enumerate category + revision sweep, write the delta plan
 wbsync fetch                     # fetch new and changed pages only
 wbsync transform [--reparse]     # network-free; --reparse walks the local-change axis alone
+wbsync images                    # resolve infobox photos -> web-optimized Commons renditions + manifest (no PDS writes)
 wbsync plan                      # ledger diff -> plan.json, no writes
 wbsync publish --publish         # apply the plan (refused unless a plan exists this run)
 wbsync run [--publish]           # all of the above; DRY by default

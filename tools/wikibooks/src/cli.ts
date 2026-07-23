@@ -54,7 +54,7 @@ const buildDeps = async (runId: string, wantPublish: boolean): Promise<BaseDeps>
     if (cfg.publish === undefined) {
       throw new Error(
         'publish requested but WIKIBOOKS_PUBLISH_HANDLE / _SERVICE / _APP_PASSWORD are not all set. ' +
-          'O4 target is cookbook.arecipe.app; configure the service + app password to publish.',
+          'O4 target is arecipe.bsky.social; configure the service + app password to publish.',
       );
     }
     pds = await HttpPdsClient.connect(cfg.publish.service, cfg.publish.handle, cfg.publish.appPassword);
