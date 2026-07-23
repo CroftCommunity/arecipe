@@ -68,6 +68,33 @@ const startTimer = async (page: Page, minutes: number, label: string): Promise<v
   await page.getByTestId('timer-label').fill(label);
   await page.getByTestId('timer-minutes').fill(String(minutes));
   await page.getByTestId('timer-start').click();
+  await expect(page.getByTestId('timer-item')).toHaveCount(1);
+  // The save is fire-and-forget; navigating before IndexedDB commits the write
+  // would drop the timer (a CI race). Block until it is durably persisted.
+  await page.waitForFunction(
+    () =>
+      new Promise<boolean>((resolve) => {
+        const req = indexedDB.open('arecipe-timers', 1);
+        req.onsuccess = () => {
+          const db = req.result;
+          try {
+            const all = db.transaction('timers', 'readonly').objectStore('timers').getAll();
+            all.onsuccess = () => {
+              db.close();
+              resolve((all.result as unknown[]).length > 0);
+            };
+            all.onerror = () => {
+              db.close();
+              resolve(false);
+            };
+          } catch {
+            db.close();
+            resolve(false);
+          }
+        };
+        req.onerror = () => resolve(false);
+      }),
+  );
 };
 
 test('a running timer survives navigating away and back, with correct remaining', async ({ page }) => {
