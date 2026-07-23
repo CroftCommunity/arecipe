@@ -113,7 +113,8 @@ const main = async (): Promise<void> => {
       acquireFromUrl: (url) => acquireFromUrl(url),
       acquireFromPaste: (pasted, sourceUrl) => acquireFromPaste(pasted, sourceUrl),
       onImported: async (result) => {
-        const draft = await drafts.save(mapImportedToFields(result.recipe, result.sourceUrl), undefined, 'draft');
+        const fields = mapImportedToFields(result.recipe, result.sourceUrl, shared.title);
+        const draft = await drafts.save(fields, undefined, 'draft');
         window.location.href = `./editor.html?draft=${encodeURIComponent(draft.id)}`;
       },
       shared,

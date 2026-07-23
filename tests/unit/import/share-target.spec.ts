@@ -43,4 +43,15 @@ describe('interpretShare', () => {
     expect(s.url).toBe('https://x/r');
     expect(s.pasteText).toBeUndefined();
   });
+
+  it('carries the shared page title through as a name signal', () => {
+    const s = interpretShare({ title: 'Best Banana Bread', url: 'https://x/r' });
+    expect(s.title).toBe('Best Banana Bread');
+  });
+
+  it('drops a blank title, or a title that merely duplicates the url', () => {
+    expect(interpretShare({ title: '   ', url: 'https://x/r' }).title).toBeUndefined();
+    expect(interpretShare({ title: 'https://x/r', url: 'https://x/r' }).title).toBeUndefined();
+    expect(interpretShare({ url: 'https://x/r' }).title).toBeUndefined();
+  });
 });

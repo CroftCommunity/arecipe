@@ -7,9 +7,16 @@
 import type { ImportedRecipe } from './recipe-jsonld.js';
 import { isoDurationToMinutes, type EditorFields } from '../recipes/write.js';
 
-export const mapImportedToFields = (recipe: ImportedRecipe, sourceUrl: string): EditorFields => {
+export const mapImportedToFields = (
+  recipe: ImportedRecipe,
+  sourceUrl: string,
+  /** A shared page title, used ONLY when extraction found no name — a share's
+   *  OS title is a strong name signal, but never overrides structured data. */
+  fallbackName?: string,
+): EditorFields => {
+  const name = recipe.name ?? '';
   const fields: EditorFields = {
-    name: recipe.name ?? '',
+    name: name !== '' ? name : (fallbackName ?? '').trim(),
     text: recipe.text ?? '',
     ingredients: recipe.ingredients.join('\n'),
     instructions: recipe.instructions.join('\n'),

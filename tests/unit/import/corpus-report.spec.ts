@@ -192,18 +192,34 @@ describe('EXP-IMPORT-EXTRACTION corpus · Arm 1 conversion', () => {
     }
   });
 
-  it('Arm 1 recovers the microdata / RDFa / h-recipe rows the deployed ladder misses', () => {
+  it('Arm 1 (DOM extractors) is a precision layer over the hardened text path — never worse, and strictly better where the text fallback leaks a nested scope', () => {
     const structured = rows.filter((r) => /microdata|rdfa|hrecipe|non-english/.test(r.entry.id));
     for (const r of structured) {
-      expect(r.oldUsable, `deployed should MISS ${r.entry.id}`).toBe(false);
-      expect(r.newUsable, `Arm 1 should RECOVER ${r.entry.id}`).toBe(true);
+      // Structured extraction is always usable and never costs MORE editing than
+      // the text fallback (fewer/equal trivial edits = equal-or-higher fidelity).
+      expect(r.newUsable, `Arm 1 should be usable on ${r.entry.id}`).toBe(true);
+      expect(r.newScore.trivialEdits, `Arm 1 must not be worse than text on ${r.entry.id}`)
+        .toBeLessThanOrEqual(r.oldScore.trivialEdits);
     }
+    // The nested-scope row is the clean usable-flip: the text fallback leaks the
+    // embedded review; the microdata scope-exclusion keeps it out.
+    const nested = rows.find((r) => r.entry.id === 'microdata-nested')!;
+    expect(nested.oldUsable).toBe(false);
+    expect(nested.newUsable).toBe(true);
   });
 
-  it('the aggregate usable-draft rate rises from deployed to Arm 1', () => {
+  it('the hardened text path converts the informal-share residual, and Arm 1 is at least as good overall', () => {
+    // The share-accuracy win: informal messy text (a chat paste) now parses.
+    const msg = rows.find((r) => r.entry.id === 'paste-message')!;
+    expect(msg.newUsable).toBe(true);
+
     const oldAgg = aggregate(scorable.map((r) => r.oldScore));
     const newAgg = aggregate(scorable.map((r) => r.newScore));
-    expect(newAgg.usableDraftRate).toBeGreaterThan(oldAgg.usableDraftRate);
+    expect(newAgg.usableDraftRate).toBeGreaterThanOrEqual(oldAgg.usableDraftRate);
+    // Higher fidelity overall: Arm 1's total trivial-edit cost is no worse.
+    const sumEdits = (rs: Row[], pick: (r: Row) => SourceScore): number =>
+      rs.reduce((s, r) => s + Math.min(pick(r).trivialEdits, 99), 0);
+    expect(sumEdits(scorable, (r) => r.newScore)).toBeLessThanOrEqual(sumEdits(scorable, (r) => r.oldScore));
 
     if (process.env.EMIT_REPORT === '1') emitReport(rows, oldAgg, newAgg);
   });

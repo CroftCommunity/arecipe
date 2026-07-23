@@ -79,7 +79,7 @@ test('a shared bare link that blocks CORS falls back to paste; pasted source imp
   await share(page, { title: 'A Recipe', url: RECIPE_URL });
   // Panel mounted itself, attempted the fetch, and revealed paste with honest copy.
   await expect(page.getByTestId('import-paste-block')).toBeVisible();
-  await expect(page.getByTestId('import-status')).toContainText(/doesn’t allow direct reading/);
+  await expect(page.getByTestId('import-status')).toContainText(/can’t be read directly/);
   // The share query is stripped so a reload doesn't re-trigger.
   await expect(page).toHaveURL(/\/mine\.html$/);
 

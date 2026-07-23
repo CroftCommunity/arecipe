@@ -51,6 +51,41 @@ converted; nothing regressed. Measured by
 All four decode entities, strip stray tags, and clamp to the lexicon maxima via
 the same `src/import/sanitize.ts` path the JSON-LD rung uses.
 
+## Share-accuracy pass (the main use case: a direct share carries TEXT)
+
+A share delivers visible text (a selection / article body / OS-OCR'd photo text),
+**not** the page's JSON-LD/microdata — so for the share path the **text heuristic
+is the whole accuracy story**, and the structured rungs above only help a
+page-source paste. This pass hardened the text heuristic for real shared text and
+threaded the OS-provided title:
+
+- **`src/import/recipe-text.ts`** — strips site chrome ("Jump to Recipe",
+  "Print", star-rating lines, `Course:`/`Cuisine:` chips), reads prose metadata
+  (`Serves 4`, `Prep Time: 15 minutes`, `Total Time: 1 hour 30 minutes` → ISO),
+  keeps ingredient sub-headings (`For the sauce:` → `— For the sauce`), accepts
+  informal unlabeled steps **after a valid ingredient block** (gated so pure prose
+  still yields nothing), and trims trailing junk (Nutrition / Comments / "you
+  might also like"). The conservative core (≥3-ingredient confidence gate, no
+  fabrication) is unchanged — `text-heuristic.spec.ts` (6) still green.
+- **`src/import/share-target.ts` + `src/import/to-fields.ts`** — the shared page
+  **title** is carried through as a name signal and fills the recipe name when
+  extraction found none (never overrides a structured-data name). A blank title,
+  or one that merely repeats the URL, is dropped.
+- **`src/import/acquire.ts`** — the "can't read this link" copy now steers the
+  user to the accurate action: *select the recipe text on the page and share that,
+  or paste it below.*
+
+**Measured effect** (`corpus-report.spec.ts`): the informal chat-paste row
+(`paste-message`) that failed both ladders before now **converts** — the real
+share-residual win. And because the hardened text path now also reads the visible
+text of microdata/RDFa/h-recipe pages, the structured-DOM extractors are re-cast
+as a **precision** layer (correct yield, and excluding an embedded review the text
+path would otherwise leak — the `microdata-nested` row is the clean usable-flip)
+rather than a usable/not-usable coverage flip.
+
+Tests: `text-heuristic-share.spec.ts` (5), `share-target.spec.ts` (+2),
+`to-fields.spec.ts` (+3), plus the reframed `corpus-report.spec.ts` (3).
+
 ## Ladder wiring
 
 `src/import/acquire.ts` `runLadder` gains one rung between JSON-LD and text:

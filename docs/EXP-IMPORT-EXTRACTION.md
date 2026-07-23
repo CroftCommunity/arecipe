@@ -30,6 +30,16 @@ follow-up run file `RUN-IMPORT-HARDENING.md`).
   **safety core is built and green regardless** (verbatim gate, 12 tests), so a
   future field run starts with the provenance guarantee already in place.
 
+**Follow-up (share-accuracy pass, 2026-07-23).** Since the main use case is
+arecipe as a share target and a share carries **text, not page HTML**, the text
+heuristic — not the structured rungs — is what decides share accuracy. It was
+hardened for real shared text (strip site chrome, read prose yield/times, keep
+ingredient sub-headings, accept informal unlabeled steps, trim trailing junk) and
+the OS-provided share **title** is now used as the recipe name. Measured effect:
+the informal chat-paste residual now converts, and the structured-DOM extractors
+are re-cast as a **precision** layer over the (now much stronger) text path rather
+than a coverage flip. Details in `RUN-IMPORT-HARDENING.md`.
+
 CORS is browser-enforced, so — per this repo's own house rule in
 `docs/GITHUB-CORS-PROBE.md` — the definitive CORS evidence is either a real-browser
 test or the **advertised document headers**; the latter is dispositive for the

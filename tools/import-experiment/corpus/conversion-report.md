@@ -3,8 +3,8 @@
 Do not edit by hand. Regenerate with `EMIT_REPORT=1 npx vitest run tests/unit/import/corpus-report.spec.ts`.
 
 - Corpus rows: **20** (17 scorable + 3 ceiling rows).
-- Usable-draft rate — **deployed ladder: 59%** → **Arm 1 ladder: 94%** (scorable rows only).
-- Rows Arm 1 converts that the deployed ladder does not: **6** (microdata, microdata-nested, rdfa, hrecipe, hrecipe-v1, non-english-microdata).
+- Usable-draft rate — **deployed ladder: 94%** → **Arm 1 ladder: 100%** (scorable rows only).
+- Rows Arm 1 converts that the deployed ladder does not: **1** (microdata-nested).
 
 ## Per-row outcome
 
@@ -19,14 +19,14 @@ Do not edit by hand. Regenerate with `EMIT_REPORT=1 npx vitest run tests/unit/im
 | jsonld-legacy-ingr | blog | json-ld legacy ingredients | ✅ usable | ✅ usable | · |
 | jsonld-entities | blog | json-ld (entities+tags) | ✅ usable | ✅ usable | · |
 | jsonld-multi-script | big-site | json-ld (multi-script) | ✅ usable | ✅ usable | · |
-| microdata | microdata-era | microdata | ❌ not usable | ✅ usable | **＋converted** |
+| microdata | microdata-era | microdata | ✅ usable | ✅ usable | · |
 | microdata-nested | microdata-era | microdata (nested scope) | ❌ not usable | ✅ usable | **＋converted** |
-| rdfa | rdfa-era | rdfa | ❌ not usable | ✅ usable | **＋converted** |
-| hrecipe | hrecipe-era | h-recipe (v2) | ❌ not usable | ✅ usable | **＋converted** |
-| hrecipe-v1 | hrecipe-era | hrecipe (v1) | ❌ not usable | ✅ usable | **＋converted** |
-| non-english-microdata | non-english | microdata (fr) | ❌ not usable | ✅ usable | **＋converted** |
+| rdfa | rdfa-era | rdfa | ✅ usable | ✅ usable | · |
+| hrecipe | hrecipe-era | h-recipe (v2) | ✅ usable | ✅ usable | · |
+| hrecipe-v1 | hrecipe-era | hrecipe (v1) | ✅ usable | ✅ usable | · |
+| non-english-microdata | non-english | microdata (fr) | ✅ usable | ✅ usable | · |
 | paste-cookbook | paste | plain text (cookbook) | ✅ usable | ✅ usable | · |
-| paste-message | paste | plain text (message) | ❌ not usable | ❌ not usable | · |
+| paste-message | paste | plain text (message) | ✅ usable | ✅ usable | · |
 | prose-blog | prose | prose (no structure) | — (ceiling) | — (ceiling) | · |
 | consent-wall | ceiling | consent wall | — (ceiling) | — (ceiling) | · |
 | js-rendered | ceiling | JS-rendered (empty HTML) | — (ceiling) | — (ceiling) | · |
@@ -44,12 +44,12 @@ Do not edit by hand. Regenerate with `EMIT_REPORT=1 npx vitest run tests/unit/im
 | json-ld legacy ingredients | 1 | 0 |
 | json-ld (entities+tags) | 1 | 0 |
 | json-ld (multi-script) | 1 | 0 |
-| microdata | 1 | 1 |
+| microdata | 1 | 0 |
 | microdata (nested scope) | 1 | 1 |
-| rdfa | 1 | 1 |
-| h-recipe (v2) | 1 | 1 |
-| hrecipe (v1) | 1 | 1 |
-| microdata (fr) | 1 | 1 |
+| rdfa | 1 | 0 |
+| h-recipe (v2) | 1 | 0 |
+| hrecipe (v1) | 1 | 0 |
+| microdata (fr) | 1 | 0 |
 | plain text (cookbook) | 1 | 0 |
 | plain text (message) | 1 | 0 |
 | prose (no structure) | 1 | 0 |
@@ -62,5 +62,5 @@ Do not edit by hand. Regenerate with `EMIT_REPORT=1 npx vitest run tests/unit/im
 | --- | --- | --- | --- | --- |
 | name | 88% | 88% | 94% | 94% |
 | ingredients | 94% | 94% | 100% | 100% |
-| instructions | 59% | 59% | 94% | 94% |
-| recipeYield | 88% | 88% | 100% | 100% |
+| instructions | 93% | 94% | 100% | 100% |
+| recipeYield | 94% | 94% | 100% | 100% |

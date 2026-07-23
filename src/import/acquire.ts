@@ -40,7 +40,7 @@ export type AcquireResult =
 /** Honest, user-facing copy for each outcome. The panel renders these verbatim. */
 export const IMPORT_COPY = {
   couldNotFetch:
-    "This site doesn’t allow direct reading from the browser — paste the page or the recipe text below instead.",
+    "This site can’t be read directly from the browser. On the recipe page, select the recipe text and share that — or paste it below.",
   noRecipe:
     "Couldn’t find a recipe on that page. Paste the page source or the visible recipe text to try again.",
   partialIngredients:
