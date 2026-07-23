@@ -7,6 +7,15 @@
 // skeleton in this env).
 import { expect, test, type Page, type Route } from '@playwright/test';
 
+// These tests exercise revalidation logic, not the service worker, and they mock
+// the snapshot files with page.route. A registered SW serves those files from
+// its own precache, and Playwright's page.route does NOT intercept requests made
+// by a service worker — so with the SW controlling the page the mocks are
+// bypassed non-deterministically (a cook's shard 404s from the real skeleton and
+// its tile drops). Block the SW here so the snapshot-file mocks are authoritative;
+// the SW precache path has its own coverage in snapshot-sw.spec.ts.
+test.use({ serviceWorkers: 'block' });
+
 // All four STARTER_AUTHORS (src/recipes/starter.ts), each on its own fake PDS.
 const COOKS = [
   { did: 'did:plc:spfl4xaktvvchr2cqp2r2xvp', handle: 'arecipe.bsky.social', pds: 'https://pds0.test', rev: 'r0', rkey: 'k0', title: 'Snap 0' },
@@ -66,7 +75,18 @@ test('one changed cook triggers exactly one refetch and updates in place', async
   const reqs: string[] = [];
   page.on('request', (r) => reqs.push(r.url()));
   await routeSnapshot(page);
-  await page.route('**/xrpc/com.atproto.sync.getLatestCommit**', (r) => {
+  // Hold revalidation until the snapshot has painted. This mirrors production
+  // ordering — the precached snapshot renders first, THEN network revalidation
+  // runs — and makes the test deterministic: with the mocked getLatestCommit
+  // answering instantly, an un-gated response can beat the snapshot baseline
+  // into place, and a cook whose baseline rev has not loaded yet looks
+  // "changed", so every cook refetches instead of only the one that moved.
+  let releaseReval!: () => void;
+  const revalReady = new Promise<void>((resolve) => {
+    releaseReval = resolve;
+  });
+  await page.route('**/xrpc/com.atproto.sync.getLatestCommit**', async (r) => {
+    await revalReady;
     const did = didFromCommit(r.request().url());
     return json(r, { rev: did === CHANGED.did ? 'MOVED' : revOf(did), cid: 'c' });
   });
@@ -74,13 +94,32 @@ test('one changed cook triggers exactly one refetch and updates in place', async
   // first, so the changed cook's fresh records win over the empty default.
   await page.route('**/xrpc/com.atproto.repo.listRecords**', (r) => json(r, { records: [] }));
   await page.route(`${CHANGED.pds}/xrpc/com.atproto.repo.listRecords**`, (r) => json(r, { records: [recipe(CHANGED.did, CHANGED.rkey, 'FRESH 1')] }));
-  await page.route('https://plc.directory/**', (r) => json(r, { id: CHANGED.did, alsoKnownAs: [`at://${CHANGED.handle}`], service: [{ id: '#atproto_pds', type: 'AtprotoPersonalDataServer', serviceEndpoint: CHANGED.pds }] }));
+  // Resolve each DID to its OWN pds — a catch-all that always returned the
+  // changed cook's doc would point every re-resolving cook at pds1.test, whose
+  // listRecords serves FRESH 1, spraying it across multiple tiles.
+  await page.route('https://plc.directory/**', (r) => {
+    const did = decodeURIComponent(new URL(r.request().url()).pathname.split('/').pop() ?? '');
+    const cook = COOKS.find((c) => c.did === did) ?? CHANGED;
+    return json(r, { id: cook.did, alsoKnownAs: [`at://${cook.handle}`], service: [{ id: '#atproto_pds', type: 'AtprotoPersonalDataServer', serviceEndpoint: cook.pds }] });
+  });
+
+  // Assert on the recipe tile that carries the name, not raw text nodes: a live
+  // tile and a snapshot tile render a different number of matching descendants,
+  // so getByText('…') is not single-match-stable. One tile per cook is the
+  // behaviour we mean.
+  const tileWith = (label: string) => page.getByTestId('recipe-item').filter({ hasText: label });
 
   await page.goto('/');
-  await expect(page.getByText('Snap 1')).toBeVisible({ timeout: 15_000 });
-  await expect(page.getByText('FRESH 1')).toBeVisible({ timeout: 10_000 }); // live wins in place
-  await expect(page.getByText('Snap 1')).toHaveCount(0);
-  expect(reqs.filter((u) => u.includes('listRecords')).length).toBe(1); // only the changed cook
+  // Snapshot paints all four cooks first (revalidation is held).
+  await expect(page.getByTestId('recipe-item')).toHaveCount(4, { timeout: 15_000 });
+  await expect(tileWith('Snap 1')).toHaveCount(1);
+  // Let revalidation run: only the changed cook (rev moved) refetches, in place.
+  releaseReval();
+  await expect(tileWith('FRESH 1')).toHaveCount(1, { timeout: 10_000 }); // live wins in place
+  await expect(tileWith('Snap 1')).toHaveCount(0);
+  await expect
+    .poll(() => reqs.filter((u) => u.includes('listRecords')).length, { timeout: 10_000 })
+    .toBe(1); // only the changed cook
 });
 
 test('a deactivated cook (400) disappears from the live view', async ({ page }) => {
