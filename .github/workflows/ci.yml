@@ -57,6 +57,11 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # Build-time snapshot (RUN-BUNDLE-PRECACHE): capture the seed cooks' repos
+      # into .snapshot-staging/ so the build stamps + ships them. This is the one
+      # networked step (reads plc.directory + each PDS); it never fails the
+      # deploy — build.mjs emits a valid empty skeleton if staging is absent.
+      - run: node scripts/snapshot.mjs || echo "snapshot generation failed — deploying with an empty skeleton"
       - run: npm run build
       # Publish dist/ to the gh-pages root, preserving pr-preview/.
       - run: bash scripts/pages-deploy.sh root dist "deploy ${{ github.sha }} to Pages"
