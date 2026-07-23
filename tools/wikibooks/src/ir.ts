@@ -50,6 +50,9 @@ export type RecipeIR = {
   ingredients: IngredientLine[];
   procedure: Step[];
   sections: ProseBlock[];
+  /** `[[Category:…]]` names captured from the source (D15). Feeds the diet /
+   *  category / keyword crosswalks. Empty when the page has no categories. */
+  categories: string[];
   parseFlags: ParseFlag[];
   publishable: boolean;
   skipReason?: string;

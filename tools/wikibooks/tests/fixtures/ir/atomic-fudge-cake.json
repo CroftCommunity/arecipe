@@ -1,4 +1,21 @@
 {
+  "categories": [
+    "Recipes for cake",
+    "Recipes using dark chocolate",
+    "Baking recipes",
+    "Recipes with metric units",
+    "Recipes with images",
+    "Recipes using egg",
+    "Recipes for dessert",
+    "Recipes using baking powder",
+    "Recipes using baking soda",
+    "Recipes using white sugar",
+    "Recipes using powdered sugar",
+    "Recipes using cocoa powder",
+    "Recipes using whipping cream",
+    "Recipes using wheat flour",
+    "Recipes using cow milk"
+  ],
   "ingredients": [
     {
       "display": "2 cups (470 ml) white sugar",

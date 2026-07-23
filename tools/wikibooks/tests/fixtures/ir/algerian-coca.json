@@ -1,4 +1,25 @@
 {
+  "categories": [
+    "Baked recipes",
+    "Algerian recipes",
+    "Vegetarian recipes",
+    "Recipes for pastries",
+    "Snacks recipes",
+    "Recipes with metric units",
+    "Recipes using all-purpose flour",
+    "Recipes using salt",
+    "Recipes using sugar",
+    "Recipes using yeast",
+    "Recipes using olive oil",
+    "Recipes using onion",
+    "Recipes using tomato",
+    "Recipes using bell pepper",
+    "Recipes using garlic",
+    "Recipes using paprika",
+    "Recipes using cumin",
+    "Recipes using olive",
+    "Recipes using pepper"
+  ],
   "ingredients": [
     {
       "display": "500 g (4 cups) all-purpose flour",

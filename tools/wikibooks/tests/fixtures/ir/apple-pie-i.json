@@ -1,4 +1,23 @@
 {
+  "categories": [
+    "Recipes for dessert",
+    "Recipes for apple pie",
+    "Recipes using apple",
+    "Baking recipes",
+    "Recipes with metric units",
+    "Recipes with images",
+    "Recipes using butter",
+    "Recipes using white sugar",
+    "Recipes using ground cinnamon",
+    "Recipes using lemon juice",
+    "Recipes using cornstarch",
+    "Recipes using pie dough",
+    "Recipes using all-purpose flour",
+    "Recipes using lard",
+    "Recipes using margarine",
+    "Recipes for pie dough",
+    "Recipes using cow milk"
+  ],
   "ingredients": [
     {
       "display": "8 oz (225 g) plain flour",

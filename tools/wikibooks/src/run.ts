@@ -15,7 +15,7 @@ import { transform } from './transform/transform.ts';
 import { irSha256, type RecipeIR } from './ir.ts';
 import { sha256 } from './util/hash.ts';
 import type { Clock } from './util/clock.ts';
-import { buildRecord, type RawMeta } from './publish/record.ts';
+import { buildRecord, deterministicRkey, type RawMeta } from './publish/record.ts';
 import {
   buildPlan, writePlanFiles, applyPlan, assertPlanExists,
   type Plan, type PlanItem, type PdsClient,
@@ -34,6 +34,9 @@ export type RunContext = {
   runId: string;
   clock: Clock;
   pds?: PdsClient;
+  /** Approved rkey→dishKey map (D14). Absent → no dishKeys stamped. The map is
+   *  operator-supplied data (reviewed offline); wbsync never derives it. */
+  dishKeyMap?: Record<string, string>;
 };
 
 export type RunSummary = {
@@ -155,7 +158,8 @@ export const stagePlan = (ctx: RunContext, discovery: DiscoveryResult | undefine
     if (row.status !== 'active') return; // skipped/half-recipes never publish
     const ir = transform(raw.wikitext, raw.title);
     if (!ir.publishable) return;
-    const { rkey, record } = buildRecord(ir, metaFromRaw(raw), ctx.cfg);
+    const dishKey = ctx.dishKeyMap?.[deterministicRkey(pageid)];
+    const { rkey, record } = buildRecord(ir, metaFromRaw(raw), ctx.cfg, { dishKey });
     const alreadyPublished = row.published_at !== null && row.record_rkey !== null;
     items.push({ action: alreadyPublished ? 'update' : 'create', pageid, rkey, collection: COLLECTION, value: record });
   };

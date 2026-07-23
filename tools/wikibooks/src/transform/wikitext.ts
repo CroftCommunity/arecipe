@@ -87,6 +87,24 @@ const pipeTrick = (target: string): string =>
     .replace(/,.*$/, '') // text after a comma removed
     .trim();
 
+/** All `[[Category:Name]]` links in the wikitext, in first-seen order, deduped.
+ *  The sortkey (`|…`) is dropped; the prefix match is case-insensitive. These are
+ *  captured for the enrichment crosswalks (D15) even though renderLink strips
+ *  them from the rendered body. */
+export const extractCategories = (wikitext: string): string[] => {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  const re = /\[\[\s*category\s*:\s*([^\]|]+?)\s*(?:\|[^\]]*)?\]\]/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(wikitext)) !== null) {
+    const name = (m[1] ?? '').replace(/_/g, ' ').trim();
+    if (name === '' || seen.has(name)) continue;
+    seen.add(name);
+    out.push(name);
+  }
+  return out;
+};
+
 const renderLink = (inner: string, refs: string[], files: string[]): string => {
   const parts = inner.split('|');
   const target = (parts[0] ?? '').trim();

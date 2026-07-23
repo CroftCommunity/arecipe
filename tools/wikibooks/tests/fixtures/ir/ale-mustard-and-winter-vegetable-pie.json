@@ -1,4 +1,22 @@
 {
+  "categories": [
+    "Vegan recipes",
+    "Recipes for pot pie",
+    "Recipes with metric units",
+    "Baked recipes",
+    "Recipes using potato",
+    "Recipes using parsnip",
+    "Recipes using turnip",
+    "Recipes using olive oil",
+    "Recipes using margarine",
+    "Recipes using garlic",
+    "Recipes using carrot",
+    "Recipes using leek",
+    "Recipes using mushroom",
+    "Recipes using prepared mustard",
+    "Recipes using beer",
+    "Recipes using wheat flour"
+  ],
   "ingredients": [
     {
       "display": "1 potato, chopped",

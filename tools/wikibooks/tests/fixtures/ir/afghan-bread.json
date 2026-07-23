@@ -1,4 +1,17 @@
 {
+  "categories": [
+    "Afghan recipes",
+    "Pashtun recipes",
+    "Recipes for flatbread",
+    "Vegetarian recipes",
+    "Recipes with images",
+    "Recipes with metric units",
+    "Baking recipes",
+    "Recipes using sugar",
+    "Recipes using egg yolk",
+    "Recipes using all-purpose flour",
+    "Recipes using corn oil"
+  ],
   "ingredients": [],
   "lead": "Afghan bread or Nan-i-Afghani is the national bread of Afghanistan. It is a flatbread and can be oval or rectangular. It is baked in a tandoor, the primary cooking equipment of the sub-continent region. The Afghan tandoor sits above ground and is round and made of bricks, which are heated to cook the bread. Afghan bread, also known as \"nan breads\", are shaped, then stuck onto the sides of the oven to bake. Often black cumin seeds or caraway seeds are sprinkled on Afghan bread for decoration as much as taste, and lines are made in the dough lengthwise to add texture to the bread. Afghan bread is similar to pita or Lebanese bread.",
   "parseFlags": [

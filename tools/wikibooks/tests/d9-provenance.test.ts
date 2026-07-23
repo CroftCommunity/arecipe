@@ -68,8 +68,10 @@ test('maps IR onto the consumed exchange.recipe.recipe shape', () => {
   assert.ok(record.text.length > 0, 'description required + non-empty');
   assert.deepEqual(record.ingredients, ['chicken']);
   assert.deepEqual(record.instructions, ['Simmer.']);
-  assert.equal(record.recipeCuisine, 'Peruvian');
-  assert.equal(record.recipeCategory, 'Chicken recipes');
+  // D15: category/cuisine are now controlled tokens, not free text. "Chicken
+  // recipes" is an ingredient category (no meal-type token) → recipeCategory unset;
+  // "Peruvian" maps to the cuisine token (asserted in d15-cuisine).
+  assert.equal('recipeCategory' in record, false);
   assert.equal(record.totalTime, 'PT45M');
   // Fields with no lexicon home ride in the open-world `wikibooks` object.
   assert.equal(record.wikibooks.difficulty, 3);

@@ -9,6 +9,12 @@
 // ignores. See tools/wikibooks/MAPPING.md for the gap report.
 import type { Config, LicenseConfig } from '../config.ts';
 import type { RecipeIR, Step } from '../ir.ts';
+import { dietRefs } from '../transform/enrich-diet.ts';
+import { categoryToken } from '../transform/enrich-category.ts';
+import { cuisineToken } from '../transform/enrich-cuisine.ts';
+import { keywordsFor } from '../transform/enrich-keywords.ts';
+import { nutritionFor } from '../transform/enrich-nutrition.ts';
+import { cookingMethodFor } from '../transform/enrich-cookingmethod.ts';
 
 export type RawMeta = {
   pageid: number;
@@ -37,6 +43,15 @@ export type RecipeRecord = {
   recipeYield?: string;
   recipeCategory?: string;
   recipeCuisine?: string;
+  /** Controlled diet tokens as full defs refs (e.g.
+   *  "exchange.recipe.defs#dietVegan"). D15 — from dietary categories. */
+  suitableForDiet?: string[];
+  /** Free-text discovery keywords (≤64 chars each). D15. */
+  keywords?: string[];
+  /** Nutritional info (D15). Only `calories` is derivable from Wikibooks. */
+  nutrition?: { calories?: number; fatContent?: number; proteinContent?: number; carbohydrateContent?: number };
+  /** Single cooking-method token, bare lowercase (D15). */
+  cookingMethod?: string;
   prepTime?: string;
   totalTime?: string;
   // ---- open-world provenance (D9) ----
@@ -46,6 +61,11 @@ export type RecipeRecord = {
   sourceHistoryUrl: string;
   retrievedAt: string;
   license: { id: string; token: string; attribution: string };
+  // ---- arecipe open-world extension: dishKey groups "versions of one dish"
+  //      (see arecipe src/recipes/model.ts). Absent = standalone recipe. Set
+  //      only from an operator-supplied, human-reviewed map (D14) — wbsync does
+  //      not derive it. ----
+  dishKey?: string;
   // ---- open-world meta with no lexicon home ----
   wikibooks: {
     pageid: number;
@@ -96,6 +116,7 @@ export const buildRecord = (
   ir: RecipeIR,
   meta: RawMeta,
   cfg: Pick<Config, 'license'>,
+  opts: { dishKey?: string } = {},
 ): { rkey: string; record: RecipeRecord } => {
   const license: LicenseConfig | undefined = cfg.license;
   if (license === undefined) throw new MissingLicenseError();
@@ -140,8 +161,19 @@ export const buildRecord = (
 
   if (ir.summary.yield !== undefined) record.recipeYield = ir.summary.yield;
   else if (ir.summary.servings !== undefined) record.recipeYield = ir.summary.servings;
-  if (ir.summary.category !== undefined) record.recipeCategory = ir.summary.category;
-  if (ir.summary.cuisine !== undefined) record.recipeCuisine = ir.summary.cuisine;
+  const catToken = categoryToken(ir);
+  if (catToken !== undefined) record.recipeCategory = catToken;
+  const cuiToken = cuisineToken(ir);
+  if (cuiToken !== undefined) record.recipeCuisine = cuiToken;
+
+  const keywords = keywordsFor(ir, [catToken, cuiToken].filter((t): t is string => t !== undefined));
+  if (keywords.length > 0) record.keywords = keywords;
+
+  const nutrition = nutritionFor(ir.summary.energy);
+  if (nutrition !== undefined) record.nutrition = nutrition;
+
+  const method = cookingMethodFor(ir);
+  if (method !== undefined) record.cookingMethod = method;
   const total = minutesToIso(ir.summary.timeMinutesHint);
   if (total !== undefined) record.totalTime = total;
 
@@ -152,6 +184,12 @@ export const buildRecord = (
   if (ir.summary.origin !== undefined) record.wikibooks.origin = ir.summary.origin;
   if (ir.summary.energy !== undefined) record.wikibooks.energy = ir.summary.energy;
   if (ir.summary.note !== undefined) record.wikibooks.note = ir.summary.note;
+
+  const dishKey = opts.dishKey?.trim();
+  if (dishKey !== undefined && dishKey !== '') record.dishKey = dishKey;
+
+  const diet = dietRefs(ir.categories);
+  if (diet.length > 0) record.suitableForDiet = diet;
 
   return { rkey: deterministicRkey(meta.pageid), record };
 };

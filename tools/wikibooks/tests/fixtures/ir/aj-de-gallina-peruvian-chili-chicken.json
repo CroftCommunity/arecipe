@@ -1,4 +1,18 @@
 {
+  "categories": [
+    "Featured recipes",
+    "Peruvian recipes",
+    "Recipes using chicken",
+    "Recipes using rice",
+    "Recipes with metric units",
+    "Boiled recipes",
+    "Recipes with images",
+    "Recipes using parmesan",
+    "Recipes using evaporated milk",
+    "Recipes using dehydrated broth",
+    "Recipes using bread",
+    "Recipes using garlic"
+  ],
   "ingredients": [
     {
       "display": "1300 g (4 lb) chicken",

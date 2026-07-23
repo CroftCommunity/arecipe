@@ -1,4 +1,14 @@
 {
+  "categories": [
+    "Italian recipes",
+    "Recipes for pasta sauce",
+    "Recipes using tomato",
+    "Recipes for marinara sauce",
+    "Recipes using butter",
+    "Recipes using basil",
+    "Recipes using yellow bell pepper",
+    "Recipes using chile flake"
+  ],
   "ingredients": [
     {
       "display": "Extra-virgin olive oil (preferably Italian, if not Italian then Tunisian, French, and Greek are advisable)",
