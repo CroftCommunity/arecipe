@@ -1,9 +1,11 @@
 # Wikibooks corpus enrichment: metadata crosswalks + Commons images (RUN-WIKIBOOKS-ENRICH / D15)
 
-**Status:** ✅ Phases 1–10B shipped 2026-07-23 on branch `claude/wbsync-enrich`
-(isolated worktree). Only **Phase 6A/6B (arecipe nutrition UI)** remains, plus the
-live ops steps (`wbsync images` full run + `--publish`) and a rebase onto
-origin/main before PR. Tool suite 152 pass / 1 skip.
+**Status:** ✅ **All build phases (1–10B) shipped** 2026-07-23 on branch
+`claude/wbsync-enrich` (isolated worktree). Remaining: live ops (`wbsync images`
+full run — in progress; `--publish`) and a rebase onto origin/main before PR.
+Tool suite 152 pass / 1 skip; app unit suite green for the touched files
+(nutrition 7/7, view 68/68; 7 pre-existing cook-follow failures on this base are
+unrelated). Pre-existing failure to resolve via the origin/main rebase.
 
 ## Outcome Summary
 
@@ -22,7 +24,7 @@ origin/main before PR. Tool suite 152 pass / 1 skip.
 | 9 Attach embed at publish | ✅ | `d000e6f`; `wbsync images` cmd + embed on --publish |
 | 10A Orchestration/summary/O4 | ✅ | this commit; enrichment counts, O4→arecipe.bsky.social |
 | 10B Docs | ✅ | this commit; MAPPING/README/STAND-INS/LEXICONS |
-| 6A/6B Nutrition UI (app) | ☐ | pending — the only remaining phase (app gate) |
+| 6A/6B Nutrition UI (app) | ✅ | `nutritionOf` + recipe-view Nutrition section; nutrition 7/7, view.spec 68/68 |
 
 **Execution note (2026-07-23):** the shared main checkout was being churned by a
 concurrent agent (a11y/PR#70), which trampled uncommitted work via `git checkout`/

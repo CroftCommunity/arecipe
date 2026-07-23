@@ -11,7 +11,7 @@ import type { ScreenWakeLock, WakeLockState } from '../ui/wake-lock.js';
 import type { CachedRecipe } from './cache.js';
 import { recipeMetaOf, type Difficulty, type RecipeMeta } from './meta.js';
 import { dishKeyOf, funFactsOf, versionLabelOf, type FunFact } from './model.js';
-import { firstImageCid, firstImageCredit, formatDuration, formatPublishedDate, thumbUrl } from './present.js';
+import { firstImageCid, firstImageCredit, formatDuration, formatPublishedDate, nutritionOf, thumbUrl } from './present.js';
 import { initStepState, stepReducer, stepStatusAt, type StepState } from './step-state.js';
 import { tileMediaVariant } from './tile-variant.js';
 
@@ -769,6 +769,28 @@ export const renderMetaStrip = (
   return dl;
 };
 
+/** Compact nutrition section (D15). Hidden when the record carries no nutrition.
+ *  Calories in kcal; macronutrients in grams. Read defensively via nutritionOf. */
+export const renderNutrition = (value: Record<string, unknown>): HTMLElement | null => {
+  const n = nutritionOf(value);
+  if (n === null) return null;
+  const section = el('section', 'nutrition');
+  section.dataset['testid'] = 'nutrition';
+  section.append(el('h3', undefined, 'Nutrition'));
+  const dl = el('dl', 'nutrition-list');
+  const add = (label: string, display: string): void => {
+    const row = el('div', 'nutrition-row');
+    row.append(el('dt', undefined, label), el('dd', undefined, display));
+    dl.append(row);
+  };
+  if (n.calories !== undefined) add('Calories', `${n.calories} kcal`);
+  if (n.fatContent !== undefined) add('Fat', `${n.fatContent} g`);
+  if (n.proteinContent !== undefined) add('Protein', `${n.proteinContent} g`);
+  if (n.carbohydrateContent !== undefined) add('Carbs', `${n.carbohydrateContent} g`);
+  section.append(dl);
+  return section;
+};
+
 /** Render one recipe in full: banner, title, chips, ingredients-first detail. */
 export const renderRecipeDetail = (
   entry: CachedRecipe,
@@ -797,6 +819,8 @@ export const renderRecipeDetail = (
     article.append(banner);
     if (strip !== null) article.append(strip);
   }
+  const nutrition = renderNutrition(entry.value);
+  if (nutrition !== null) article.append(nutrition);
   if (options.onFocus !== undefined) {
     const onFocus = options.onFocus;
     const actions = el('div', 'detail-actions');
