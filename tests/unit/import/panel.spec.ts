@@ -124,3 +124,37 @@ describe('renderImportPanel (share-only)', () => {
     expect(testid(panel, 'import-status').textContent).toBe(IMPORT_COPY.noRecipe);
   });
 });
+
+// The Acquire hub reuses the panel with two opt-in affordances (manual visit, not
+// just a share). Default behavior above is unchanged.
+describe('renderImportPanel · hub affordances (opt-in)', () => {
+  it('reveals the paste box from the start when revealPasteInitially is set', () => {
+    const panel = renderImportPanel({
+      ...noAcquire,
+      onImported: () => {},
+      shared: { url: '' },
+      revealPasteInitially: true,
+    });
+    expect(testid(panel, 'import-paste-block').hidden).toBe(false);
+  });
+
+  it('renders a manual URL entry that runs acquireFromUrl when manualUrl is set', async () => {
+    const onImported = vi.fn();
+    const res: AcquireResult = { kind: 'imported', recipe: recipe(), sourceUrl: 'https://x/r', missing: 'none' };
+    const acquireFromUrl = vi.fn(() => Promise.resolve(res));
+    const panel = renderImportPanel({
+      acquireFromUrl,
+      acquireFromPaste: noAcquire.acquireFromPaste,
+      onImported,
+      shared: { url: '' },
+      manualUrl: true,
+    });
+    const url = testid(panel, 'import-url') as HTMLInputElement;
+    expect(url).not.toBeNull();
+    url.value = 'https://x/r';
+    testid(panel, 'import-run').click();
+    await tick();
+    expect(acquireFromUrl).toHaveBeenCalledWith('https://x/r');
+    expect(onImported).toHaveBeenCalledWith(res);
+  });
+});

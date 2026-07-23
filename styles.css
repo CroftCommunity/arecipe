@@ -3076,6 +3076,39 @@ details.calendar-publish > summary {
   color: inherit;
   resize: vertical;
 }
+/* Acquire hub (import.html): the 0→1 entries around the import engine. */
+.acquire-hub {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+.acquire-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+.acquire-option {
+  flex: 1 1 12rem;
+  text-align: center;
+}
+/* "From a link" row — wraps under its button on a phone (no horizontal overflow). */
+.import-url-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+.import-url {
+  flex: 1 1 12rem;
+  min-width: 0;
+  box-sizing: border-box;
+  font: inherit;
+  padding: var(--s-2) var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--card);
+  color: inherit;
+}
+
 /* Provenance + etiquette lines in the editor for an imported draft. */
 .import-provenance,
 .import-etiquette {

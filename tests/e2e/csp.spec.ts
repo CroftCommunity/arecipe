@@ -31,7 +31,7 @@ const CONNECT_ORIGINS = [
 const SHELLS = [
   'index.html', 'mine.html', 'cookbook.html', 'settings.html',
   'account.html', 'recipe.html', 'editor.html', 'signin.html',
-  'user-guide.html',
+  'user-guide.html', 'import.html',
 ];
 
 // Install the violation collector before any page script runs.

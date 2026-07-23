@@ -32,6 +32,7 @@ const PAGES = [
   'editor',
   'signin',
   'user-guide',
+  'import',
 ];
 const HTML = {
   'index.html': 'browse',
@@ -47,6 +48,7 @@ const HTML = {
   'editor.html': 'editor',
   'signin.html': 'signin',
   'user-guide.html': 'user-guide',
+  'import.html': 'import',
 };
 
 rmSync('dist', { recursive: true, force: true }); // no stale artifacts

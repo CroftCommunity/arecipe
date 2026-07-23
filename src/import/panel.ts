@@ -22,6 +22,11 @@ export type ImportPanelDeps = {
   /** The shared payload that opened this panel: a provenance url (possibly
    *  empty) and, when the share carried content, the text to import. */
   shared: { url: string; pasteText?: string };
+  /** Acquire-hub affordances (opt-in; the default share-only panel sets neither).
+   *  `manualUrl` adds a "From a link" URL entry; `revealPasteInitially` shows the
+   *  paste box from mount so a manual visit has an obvious way in. */
+  manualUrl?: boolean;
+  revealPasteInitially?: boolean;
 };
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -37,6 +42,38 @@ export const renderImportPanel = (deps: ImportPanelDeps): HTMLElement => {
   const section = el('section', 'import-panel');
   section.dataset['testid'] = 'import-panel';
   section.append(el('h3', 'section-title', 'Import shared recipe'));
+
+  // Manual "From a link" entry (hub only). Best-effort: most sites block
+  // cross-origin reads, so this honestly falls back to paste like a shared link.
+  if (deps.manualUrl === true) {
+    const urlRow = el('div', 'import-url-row');
+    const urlInput = document.createElement('input');
+    urlInput.type = 'url';
+    urlInput.className = 'import-url';
+    urlInput.placeholder = 'https://…';
+    urlInput.dataset['testid'] = 'import-url';
+    const urlRun = el('button', 'button', 'Import from link') as HTMLButtonElement;
+    urlRun.type = 'button';
+    urlRun.dataset['testid'] = 'import-run';
+    urlRow.append(urlInput, urlRun);
+    section.append(urlRow);
+    urlRun.addEventListener('click', () => {
+      const u = urlInput.value.trim();
+      if (u === '') {
+        status.textContent = 'Enter a recipe link first.';
+        return;
+      }
+      status.textContent = 'Reading the recipe…';
+      void deps
+        .acquireFromUrl(u)
+        .then(handle)
+        .catch((err: unknown) => {
+          log.warn('import', 'manual url import failed', { error: String(err) });
+          status.textContent = IMPORT_COPY.couldNotFetch;
+          revealPaste();
+        });
+    });
+  }
 
   // Paste fallback — hidden until a bare link can't be read (or shared text
   // needs correcting). This is the only text entry the panel offers.
@@ -126,6 +163,7 @@ export const renderImportPanel = (deps: ImportPanelDeps): HTMLElement => {
   };
 
   pasteRun.addEventListener('click', () => runPaste());
+  if (deps.revealPasteInitially === true) revealPaste();
   void runShared();
 
   return section;
