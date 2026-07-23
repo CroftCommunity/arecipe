@@ -16,6 +16,8 @@ import { createRecipeCache, type CachedRecipe } from '../recipes/cache.js';
 import { createExclusions } from '../recipes/exclusions.js';
 import { dishKeyOf, isPrimaryVersion, siblingsOf } from '../recipes/model.js';
 import { createRecipeReader, createRecordReader } from '../recipes/read.js';
+import { describePlanned } from '../recipes/planned-index.js';
+import { createPlannedIndexCache } from '../recipes/planned-index-local.js';
 import { isStale, strongRefOf } from '../recipes/refs.js';
 import { retryOnce } from '../retry.js';
 import { renderFocusView, renderRecipeDetail, renderVersionBar } from '../recipes/view.js';
@@ -557,6 +559,23 @@ const paintVersion = (
     log.warn('exclusions', 'detail-footer-control-slot missing — appending hide control to host');
   }
   controlHost.append(hideControl);
+
+  // RUN-LAST-PLANNED (D5): the viewer's OWN planning history for this recipe,
+  // read from the local planned-index cache. Reads the cache only — never fetches
+  // plan records, never touches the PDS, never imports auth. Absent from the
+  // index (or no cache) → nothing renders. It shows the VIEWER's history, so on a
+  // shared recipe.html?u= link a visitor sees their own or nothing, never the
+  // owner's.
+  void createPlannedIndexCache()
+    .read()
+    .then((index) => {
+      const entry = index?.get(uri);
+      if (entry === undefined || entry.count <= 0) return;
+      const line = el('p', 'status last-planned', describePlanned(entry, new Date()));
+      line.dataset['testid'] = 'last-planned';
+      controlHost.append(line);
+    })
+    .catch((err: unknown) => log.debug('recipes', 'planned-index read failed', { error: String(err) }));
 
   // Edit affordance: when the signed-in viewer IS the recipe's author, offer an
   // Edit link (→ editor.html?edit=) beside Hide. The recipe page is where you

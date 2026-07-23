@@ -34,7 +34,14 @@ import { readFeedMeta, relativeFreshness, writeFeedMeta, type FeedMeta } from '.
 import { createRecipeCache, type CachedRecipe } from '../recipes/cache.js';
 import { availableFacets, createBrowsePrefs, matchesFilter, recipeFacets, type BrowseState } from './browse-state.js';
 import { createSearchMemo, queryEntries } from '../recipes/search.js';
-import { sortEntries } from '../recipes/sort.js';
+import {
+  isPlannedSort,
+  partitionByPlanned,
+  PLANNED_SORT_MODES,
+  sortEntries,
+} from '../recipes/sort.js';
+import { createPlannedIndexCache } from '../recipes/planned-index-local.js';
+import type { PlannedEntry } from '../recipes/planned-index.js';
 import { createTastePreference, matchesTaste } from '../recipes/taste-preference.js';
 import { renderToolbar } from '../recipes/toolbar.js';
 import { renderRecipeDetailsList, renderRecipeList } from '../recipes/view.js';
@@ -147,6 +154,7 @@ const renderFeedView = (
   initialAuthorsByDid: Record<string, string>,
   view: FeedViewScope,
   initialFetchedAt?: string | null,
+  plannedIndex: Map<string, PlannedEntry> | null = null,
 ): FeedViewController => {
   // Cookbook opens on Details (the reading-oriented view); Browse keeps its
   // tiles-first default. Persisted per-consumer, so a choice here is sticky.
@@ -264,9 +272,12 @@ const renderFeedView = (
     const matched = queryEntries(searchMemo(indexBase()), query, facetFiltered);
     // Order the shown set (same rule as Browse): an explicit field sort always
     // applies; the daily-mix default yields to search relevance when a query is
-    // active, and is the day-seeded shuffle otherwise.
-    const shown =
-      state.sort === 'default' && query.trim() !== ''
+    // active, and is the day-seeded shuffle otherwise. A planned-history sort
+    // (D6) is grouped at render time below, so it leaves `matched` as-is here.
+    const planned = isPlannedSort(state.sort) && plannedIndex !== null;
+    const shown = planned
+      ? matched
+      : state.sort === 'default' && query.trim() !== ''
         ? matched
         : sortEntries(matched, state.sort, { daySeed: new Date().toISOString().slice(0, 10) });
     // Filtered: the honest "X of N recipes" — "X/N" at phone widths, where the
@@ -296,8 +307,29 @@ const renderFeedView = (
       return;
     }
     const render = state.view === 'details' ? renderRecipeDetailsList : renderRecipeList;
+    const authors = { ...likedAuthorsByDid, ...authorsByDid };
+    // Planned-history sort (D6): the planned recipes list in order; never-planned
+    // (or future-only) recipes are quarantined into a labelled tail group below a
+    // divider — NEVER interleaved.
+    if (planned && plannedIndex !== null) {
+      const { planned: inRotation, neverPlanned } = partitionByPlanned(shown, state.sort, plannedIndex);
+      const nodes: Node[] = [];
+      if (inRotation.length > 0) nodes.push(render(inRotation, { authorsByDid: authors }));
+      if (neverPlanned.length > 0) {
+        const group = el('section', 'never-planned-group');
+        group.dataset['testid'] = 'never-planned-group';
+        group.append(
+          el('hr', 'never-planned-divider'),
+          el('p', 'never-planned-label', 'Never planned'),
+          render(neverPlanned, { authorsByDid: authors }),
+        );
+        nodes.push(group);
+      }
+      feedContainer.replaceChildren(...nodes);
+      return;
+    }
     // Feed/member handles win on conflict (they're the page's primary source).
-    feedContainer.replaceChildren(render(shown, { authorsByDid: { ...likedAuthorsByDid, ...authorsByDid } }));
+    feedContainer.replaceChildren(render(shown, { authorsByDid: authors }));
   };
   const showCurrent = (): void => {
     toolbar.rebuildFacets(availableFacets(eligibleEntries()), state.facets);
@@ -306,6 +338,9 @@ const renderFeedView = (
 
   const toolbar = renderToolbar({
     showDietLink: false,
+    // The planned-history sorts are offered only when a planned-index cache
+    // exists (D4/D6) — no cache, no option, unchanged behavior.
+    ...(plannedIndex !== null ? { extraSortModes: PLANNED_SORT_MODES } : {}),
     callbacks: {
       onViewChange: (view) => {
         if (state.view === view) return;
@@ -489,6 +524,14 @@ const showFeed = async (
   const isOwn = opts.isOwn === true;
   let controller: FeedViewController | null = null;
 
+  // RUN-LAST-PLANNED (D4): read the viewer's planned-index cache once (reader
+  // only — never fetches plan records, never imports auth). Present → the
+  // planned-history sorts are offered and the never-planned tail group renders;
+  // absent → the page behaves exactly as before.
+  const plannedIndex = await createPlannedIndexCache()
+    .read()
+    .catch(() => null);
+
   // 1) Cache-first paint: if we've resolved this cookbook before, render the
   //    persisted authors' recipes — plus, on the shared view, the recipes
   //    behind the persisted liked uris (liked recipes live on OTHER authors'
@@ -510,7 +553,7 @@ const showFeed = async (
             // Cached liked bodies; the handles arrive with the revalidate.
             liked: { entries: cachedAll.filter((e) => likedUris.has(e.uri)), authorsByDid: {} },
           };
-      controller = renderFeedView(container, feedContainer, header, cachedEntries, authorsByDid, view, meta.fetchedAt);
+      controller = renderFeedView(container, feedContainer, header, cachedEntries, authorsByDid, view, meta.fetchedAt, plannedIndex ?? null);
     } catch (err) {
       log.warn('cookbook', 'cache-first paint failed', { error: String(err) });
     }
@@ -565,7 +608,7 @@ const showFeed = async (
     if (controller !== null) controller.update(loaded.entries, loaded.authorsByDid, now, loaded.liked);
     else {
       const view: FeedViewScope = isOwn ? { subject: you, isOwn } : { subject: you, isOwn, liked: loaded.liked };
-      renderFeedView(container, feedContainer, header, loaded.entries, loaded.authorsByDid, view, now);
+      renderFeedView(container, feedContainer, header, loaded.entries, loaded.authorsByDid, view, now, plannedIndex ?? null);
     }
   } catch (err) {
     // Revalidate failed. If we already painted from cache, keep that stale view

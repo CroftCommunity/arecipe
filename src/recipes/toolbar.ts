@@ -88,10 +88,14 @@ export type ToolbarController = {
 export const renderToolbar = (opts: {
   /** Browse shows the "preference ↗" diet link inside Filters; Cookbook does not. */
   showDietLink?: boolean;
+  /** Extra sort modes appended after the base set (RUN-LAST-PLANNED D6 — the
+   *  planned-history pair, offered only when a planned-index cache exists). */
+  extraSortModes?: readonly SortMode[];
   callbacks: ToolbarCallbacks;
 }): ToolbarController => {
   const { callbacks } = opts;
   const showDietLink = opts.showDietLink ?? false;
+  const sortModes: readonly SortMode[] = [...SORT_MODES, ...(opts.extraSortModes ?? [])];
 
   const toolbar = el('div', 'browse-toolbar');
 
@@ -170,7 +174,7 @@ export const renderToolbar = (opts: {
   sortSummary.append(sortIcon(), document.createTextNode(' ▾'));
   const sortPanel = el('div', 'facet-dd-panel sort-panel');
   const sortRadios = new Map<SortMode, HTMLInputElement>();
-  for (const mode of SORT_MODES) {
+  for (const mode of sortModes) {
     const option = el('label', 'facet-dd-option');
     const radio = document.createElement('input');
     radio.type = 'radio';

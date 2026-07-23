@@ -2,8 +2,15 @@
 // orderings behind the toolbar Sort control. No DOM, no clock — the day is
 // injected as a seed so the shuffle is deterministic under test.
 import { describe, expect, it } from 'vitest';
-import { SORT_LABELS, SORT_MODES, sortEntries, type SortMode } from '../../../src/recipes/sort.js';
+import {
+  partitionByPlanned,
+  SORT_LABELS,
+  SORT_MODES,
+  sortEntries,
+  type SortMode,
+} from '../../../src/recipes/sort.js';
 import type { CachedRecipe } from '../../../src/recipes/cache.js';
+import type { PlannedEntry } from '../../../src/recipes/planned-index.js';
 
 const cached = (
   over: { name?: string; cuisine?: string; category?: string; createdAt?: string; uri?: string } = {},
@@ -118,5 +125,32 @@ describe('sortEntries — purity', () => {
 
   it('accepts an empty feed', () => {
     expect(sortEntries([], 'name' as SortMode)).toEqual([]);
+  });
+});
+
+// RUN-LAST-PLANNED D6: the planned-history sorts partition a "never-planned"
+// tail group out of the ordered planned list rather than interleaving it.
+describe('partitionByPlanned', () => {
+  const idx = new Map<string, PlannedEntry>([
+    ['at://old', { count: 2, lastPlanned: '2026-06-01', nextPlanned: null }],
+    ['at://recent', { count: 5, lastPlanned: '2026-07-20', nextPlanned: null }],
+    ['at://future', { count: 1, lastPlanned: null, nextPlanned: '2026-08-01' }],
+  ]);
+  const entries = [
+    cached({ uri: 'at://old' }),
+    cached({ uri: 'at://recent' }),
+    cached({ uri: 'at://future' }),
+    cached({ uri: 'at://never' }),
+  ];
+
+  it('Longest since planned orders oldest-planned first; never/future go to the tail', () => {
+    const { planned, neverPlanned } = partitionByPlanned(entries, 'planned-longest', idx);
+    expect(planned.map((e) => e.uri)).toEqual(['at://old', 'at://recent']);
+    expect(neverPlanned.map((e) => e.uri).sort()).toEqual(['at://future', 'at://never']);
+  });
+
+  it('Recently planned orders newest-planned first', () => {
+    const { planned } = partitionByPlanned(entries, 'planned-recent', idx);
+    expect(planned.map((e) => e.uri)).toEqual(['at://recent', 'at://old']);
   });
 });
