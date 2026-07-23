@@ -19,6 +19,7 @@
   --rust-deep: #94431f;
   --rust-soft: #b4552d14;
   --delft: #2b5f8a;
+  --delft-deep: #1f4869;
   --delft-soft: #2b5f8a14;
   --card: #ffffff;
   --line: #d9e2de;
@@ -70,6 +71,7 @@
   --rust-deep: #e98f68;
   --rust-soft: #e07a4f24;
   --delft: #6fb1d8;
+  --delft-deep: #8fc4e2;
   --delft-soft: #6fb1d824;
   --card: #182622;
   --line: #2b3b36;
@@ -1213,21 +1215,23 @@ a {
   gap: var(--s-2);
   flex-wrap: wrap;
 }
-/* "Published" link in the Meals title row: delft accent to set it apart from
-   the enamel actions AND from the rust Publish commit below; no underline
-   (it's a button, not body copy). --delft is theme-tuned, so it reads in
+/* "Menu ↗" link in the Meals title row: a filled delft (blue) chip — white
+   text on a blue fill — to set it apart from the enamel actions AND from the
+   rust Publish commit below; no underline (it's a button, not body copy). The
+   ↗ signals it opens another page. --delft is theme-tuned, so it reads in
    light and dark. */
 .meals-plans {
   text-decoration: none;
-  color: var(--delft);
+  background: var(--delft);
+  color: var(--card);
   border-color: var(--delft);
 }
 .meals-plans:hover {
-  background: var(--delft-soft);
+  background: var(--delft-deep);
+  border-color: var(--delft-deep);
 }
-/* Controls row below the title: "Recipes per day" on the left, the Reset
-   control right-aligned on the same line (wraps if the inline confirm won't
-   fit at 320px). */
+/* Controls row below the title: the "Recipes per day" cap. (The Reset control
+   now rides the week-actions row, right-aligned opposite Add/Repeat.) */
 .meals-controls {
   display: flex;
   align-items: center;
@@ -2327,15 +2331,26 @@ table.ref.pairs td.eq {
   flex-wrap: wrap;
   gap: var(--s-2);
 }
-/* Week actions: "⧉ Repeat" then "+ Add" on one row, right-aligned
-   under the week grids; wraps (still right-aligned) if a viewport is too narrow. */
+/* Week actions: "+ Add" then "⧉ Repeat" left-aligned under the week grids, with
+   the plan Reset right-aligned on the same row (space-between). Wraps if a
+   viewport is too narrow. */
 .week-actions {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
   gap: var(--s-2);
   margin-top: var(--s-3);
 }
+/* Add + Repeat grouped on the left, keeping their own gap when the row wraps. */
+.week-actions-left {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+/* Reset keeps its shared, normal-sized glyph (~18px) in this row rather than
+   being scaled up — the ≥44px hit area (tap-first) stays, and align-items above
+   centres it on the buttons' line. */
 .calendar {
   margin-top: var(--s-5);
 }

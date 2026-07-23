@@ -923,8 +923,9 @@ export const main = async (
   let you: { did: string; pds: string } | null = null;
 
   const content = el('section', 'panel');
-  // Title row: "Meals" on the left, "Published" (+ the calendar chip) at the
-  // right. The per-day cap and the Reset control live on their own line below.
+  // Title row: "Meals" on the left, "Menu" (+ the calendar chip) at the
+  // right. The per-day cap lives on its own line below; the Reset control rides
+  // the week-actions row (right-aligned, opposite Add/Repeat).
   const header = el('div', 'meals-header');
   header.append(el('h2', 'section-title', 'Meals'));
   const headerActions = el('div', 'meals-actions');
@@ -946,7 +947,7 @@ export const main = async (
     rerender();
   });
   perDayLabel.append(perDaySelect);
-  const plansLink = el('a', 'button meals-plans', 'Published') as HTMLAnchorElement;
+  const plansLink = el('a', 'button meals-plans', 'Menu ↗') as HTMLAnchorElement;
   plansLink.href = './meals.html?plans';
   plansLink.dataset['testid'] = 'my-plans';
   const resetControl = el('div', 'meals-reset');
@@ -999,10 +1000,10 @@ export const main = async (
 
   headerActions.append(calChip, plansLink);
   header.append(headerActions);
-  // Controls row (below the title): the "Recipes per day" cap on the left, the
-  // Reset control right-aligned when present.
+  // Controls row (below the title): the "Recipes per day" cap. The Reset
+  // control now rides the week-actions row below (see renderBuilder).
   const controlsRow = el('div', 'meals-controls');
-  controlsRow.append(perDayLabel, resetControl);
+  controlsRow.append(perDayLabel);
   content.append(header, controlsRow);
 
   // Edit-mode banner: the canvas holds a STAGED copy of a published plan.
@@ -1586,7 +1587,12 @@ export const main = async (
       rerender();
     });
 
-    actions.append(repeatBtn, addBtn);
+    // Add + Repeat lead the row, left-aligned (Add first); the plan Reset rides
+    // the same row's right-aligned spot (edit mode has no Reset — see below).
+    const leftActions = el('div', 'week-actions-left');
+    leftActions.append(addBtn, repeatBtn);
+    actions.append(leftActions);
+    if (!editing) actions.append(resetControl);
     builder.append(actions);
   };
 
