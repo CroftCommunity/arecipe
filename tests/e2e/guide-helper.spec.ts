@@ -19,6 +19,19 @@ test('typing a question shows ranked results with breadcrumbs and deep links', a
   await expect(top).toContainText('Shopping lists');
 });
 
+test('clearing the question box resets the page back to no results', async ({ page }) => {
+  await page.goto('/user-guide.html');
+  const input = page.getByTestId('guide-helper-input');
+  await input.fill('how do I make a shopping list from my plan');
+  await page.getByTestId('guide-helper-submit').click();
+  await expect(page.getByTestId('guide-result').first()).toBeVisible();
+
+  // Emptying the box (native clear control, or deleting the text) drops the
+  // results — the helper is back to its default state.
+  await input.fill('');
+  await expect(page.getByTestId('guide-result')).toHaveCount(0);
+});
+
 test('clicking a result lands on the section, scrolled into view and highlighted', async ({
   page,
 }) => {
