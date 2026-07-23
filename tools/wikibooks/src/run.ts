@@ -62,6 +62,7 @@ export type RunSummary = {
   wallMs: number;
   repoRev: string | null;
   planCounts: { create: number; update: number; delete: number };
+  enrichment: EnrichmentCounts;
   published: boolean;
 };
 
@@ -195,6 +196,29 @@ export const stagePlan = (ctx: RunContext, discovery: DiscoveryResult | undefine
   return buildPlan(items, { runId: ctx.runId });
 };
 
+export type EnrichmentCounts = {
+  diet: number; recipeCategory: number; recipeCuisine: number;
+  keywords: number; nutrition: number; cookingMethod: number; dishKey: number; embed: number;
+};
+
+/** How many planned (create/update) records carry each enriched field (D15). */
+export const enrichmentCounts = (items: PlanItem[]): EnrichmentCounts => {
+  const c: EnrichmentCounts = { diet: 0, recipeCategory: 0, recipeCuisine: 0, keywords: 0, nutrition: 0, cookingMethod: 0, dishKey: 0, embed: 0 };
+  for (const it of items) {
+    if (it.action === 'delete') continue;
+    const v = it.value;
+    if (v.suitableForDiet !== undefined && v.suitableForDiet.length > 0) c.diet++;
+    if (v.recipeCategory !== undefined) c.recipeCategory++;
+    if (v.recipeCuisine !== undefined) c.recipeCuisine++;
+    if (v.keywords !== undefined && v.keywords.length > 0) c.keywords++;
+    if (v.nutrition !== undefined) c.nutrition++;
+    if (v.cookingMethod !== undefined) c.cookingMethod++;
+    if (v.dishKey !== undefined) c.dishKey++;
+    if (v.embed !== undefined) c.embed++;
+  }
+  return c;
+};
+
 /** Publishable pages that carry an infobox image → image-stage targets (D15). */
 export const imageTargets = (ctx: RunContext): ImageTarget[] => {
   const out: ImageTarget[] = [];
@@ -325,7 +349,7 @@ export const executeRun = async (ctx: RunContext, opts: ExecuteOptions): Promise
       O1: 'tools/wikibooks/ inside arecipe (isolated, zero runtime deps)',
       O2: `${ctx.cfg.license?.id ?? 'UNSET — BLOCKS PUBLISH'} (${ctx.cfg.license?.attribution ?? ''})`,
       O3: '(c) fork-on-edit — record shape carries provenance forward',
-      O4: ctx.cfg.publish?.handle ?? 'cookbook.arecipe.app (service/app-password unset → publish blocked)',
+      O4: ctx.cfg.publish?.handle ?? 'arecipe.bsky.social (service/app-password unset → publish blocked)',
     },
     corpusSize: allRows.length,
     publishable: allRows.filter((r) => r.status === 'active').length,
@@ -337,6 +361,7 @@ export const executeRun = async (ctx: RunContext, opts: ExecuteOptions): Promise
     wallMs: ctx.clock.now() - start,
     repoRev,
     planCounts: plan.counts,
+    enrichment: enrichmentCounts(plan.items),
     published,
   };
   if (discovery !== undefined) {
@@ -384,6 +409,11 @@ export const renderSummary = (s: RunSummary): string => {
   }
   L.push('');
   L.push(`Plan: +${s.planCounts.create} create · ~${s.planCounts.update} update · -${s.planCounts.delete} retract`);
+  const e = s.enrichment;
+  L.push(
+    `Enrichment (of planned): diet ${e.diet} · category ${e.recipeCategory} · cuisine ${e.recipeCuisine} · ` +
+      `keywords ${e.keywords} · nutrition ${e.nutrition} · cookingMethod ${e.cookingMethod} · dishKey ${e.dishKey} · images ${e.embed}`,
+  );
   L.push(`Wiki requests ${s.wikiRequests} · PDS writes ${s.pdsWrites} · wall ${s.wallMs}ms`);
   L.push(`Repo rev: ${s.repoRev ?? '(dry run — nothing published)'}`);
   return L.join('\n') + '\n';

@@ -98,6 +98,17 @@ would make it real**.
 - **`{{convert}}` and other content templates** are stripped from display text
   (and flagged `template-stripped` / `template-in-value`); no quantity or unit
   parsing is done (explicitly out of scope for this run).
+- **D15 crosswalks** (`src/transform/enrich-*.ts`) are curated, precision-first
+  approximations: diet/category/cuisine map only recognizable source terms to
+  controlled tokens; unmapped values are omitted from the token field and kept as
+  `keywords`. `cookingMethod` is inferred from title/category keywords (lossy;
+  omitted when ambiguous). `nutrition` is calories-only (fat/protein/carb absent
+  upstream).
+- **D15 images** are resolved LIVE from Wikimedia Commons (not faked). The
+  ≤ 1 MB cap picks a server-scaled rendition (no local re-encode); the
+  free-culture license allowlist (CC-BY/BY-SA/CC0/PD) is a policy stand-in for a
+  full rights review; `Artist` HTML is stripped and the "no machine-readable
+  author" boilerplate is dropped. Per-image `credit` is an open-world field.
 
 ---
 
