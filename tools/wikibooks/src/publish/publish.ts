@@ -35,6 +35,9 @@ export type PdsClient = {
   ): Promise<{ cid: string; uri: string }>;
   deleteRecord(repo: string, collection: string, rkey: string): Promise<void>;
   currentRev(repo: string): Promise<string>;
+  /** Upload raw image bytes, returning the blob ref (D15 images). Optional so
+   *  existing fakes need not implement it. */
+  uploadBlob?(bytes: Uint8Array, mimeType: string): Promise<import('./record.ts').BlobRef>;
 };
 
 export const buildPlan = (items: PlanItem[], opts: { runId: string }): Plan => {
