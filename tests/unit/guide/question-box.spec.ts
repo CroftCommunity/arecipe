@@ -22,7 +22,11 @@ const mount = () => {
     input.value = q;
     form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
   };
-  return { container, input, form, ask };
+  const type = (q: string): void => {
+    input.value = q;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+  return { container, input, form, ask, type };
 };
 
 describe('mountGuideHelper — asking a question', () => {
@@ -67,6 +71,25 @@ describe('mountGuideHelper — asking a question', () => {
     const { container, ask } = mount();
     expect(() => ask('   ')).not.toThrow();
     expect(container.querySelectorAll('[data-testid="guide-result"]').length).toBe(0);
+    expect(container.querySelector('[data-testid="guide-helper-nomatch"]')).toBeNull();
+  });
+
+  it('clearing the question box resets the page back to no results', () => {
+    const { container, ask, type } = mount();
+    ask('how do I make a shopping list from my plan');
+    expect(container.querySelectorAll('[data-testid="guide-result"]').length).toBeGreaterThan(0);
+    // Emptying the input (typing it out, or the search field's native clear)
+    // returns the helper to its default, resultless state.
+    type('');
+    expect(container.querySelectorAll('[data-testid="guide-result"]').length).toBe(0);
+    expect(container.querySelector('[data-testid="guide-helper-nomatch"]')).toBeNull();
+  });
+
+  it('clearing the no-match state resets it too', () => {
+    const { container, ask, type } = mount();
+    ask('what is the current price of bitcoin');
+    expect(container.querySelector('[data-testid="guide-helper-nomatch"]')).not.toBeNull();
+    type('');
     expect(container.querySelector('[data-testid="guide-helper-nomatch"]')).toBeNull();
   });
 });
