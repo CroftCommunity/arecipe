@@ -1,6 +1,7 @@
-// Editor provenance surfaces for a link-imported draft (import Phase 4, D5).
-// Pure DOM builders so the copy is unit-tested; editor.ts renders them only when
-// the draft carries a sourceUrl. The etiquette line is deliberately gentle and
+// Editor provenance surfaces for a record that carries a sourceUrl. Pure DOM
+// builders so the copy is unit-tested; editor.ts renders them only when the
+// record being edited has a sourceUrl (open-world provenance — e.g. a
+// corpus-published recipe). The etiquette line is deliberately gentle and
 // singular — a nudge toward original wording, not a scold or a gate.
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -10,7 +11,7 @@ const el = (tag: string, className?: string, text?: string): HTMLElement => {
   return node;
 };
 
-/** The gentle "own words" nudge shown near publish for an imported draft. */
+/** The gentle "own words" nudge shown near publish for a sourced recipe. */
 export const ETIQUETTE_COPY =
   'Imported as a starting point — before publishing, consider writing the instructions in your own words.';
 
@@ -34,7 +35,7 @@ export const renderProvenanceLine = (sourceUrl: string): HTMLElement => {
   return line;
 };
 
-/** The single etiquette nudge for an imported draft. */
+/** The single etiquette nudge for a sourced recipe. */
 export const renderEtiquetteLine = (): HTMLElement => {
   const line = el('p', 'status import-etiquette', ETIQUETTE_COPY);
   line.dataset['testid'] = 'editor-etiquette';

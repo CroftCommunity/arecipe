@@ -25,7 +25,7 @@ import {
   updateRecipe,
   type EditorFields,
 } from '../recipes/write.js';
-import { renderEtiquetteLine, renderProvenanceLine } from '../import/provenance.js';
+import { renderEtiquetteLine, renderProvenanceLine } from '../recipes/provenance.js';
 import { registerServiceWorker } from '../sw-register.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -189,9 +189,10 @@ const main = async (): Promise<void> => {
 
   void requestPersistence();
 
-  // Provenance (recipe-import, D5): a link-imported draft carries a sourceUrl.
-  // Show a small "Imported from <host>" line up top and a single gentle
-  // "own words" etiquette note near the publish controls — only when present.
+  // Provenance: a record being edited may carry a sourceUrl (open-world field —
+  // e.g. a corpus-published recipe). Show a small "Imported from <host>" line up
+  // top and a single gentle "own words" etiquette note near the publish controls
+  // — only when present.
   let importedSourceUrl: string | undefined;
   const applyProvenance = (): void => {
     if (importedSourceUrl === undefined || importedSourceUrl === '') return;

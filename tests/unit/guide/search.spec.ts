@@ -4,7 +4,7 @@
 // The deep link is the product: retrieval must put the answering section at the
 // top for a real question, refuse to answer when nothing fits (D4), and never
 // return a result without a valid in-index anchor (D3/D5). Quality is MEASURED
-// against the committed 25-question fixture, not asserted at a wished-for level.
+// against the committed 24-question fixture, not asserted at a wished-for level.
 import { describe, expect, it } from 'vitest';
 import { buildGuideIndex } from '../../../src/guide/model.js';
 import {
@@ -17,14 +17,14 @@ import { FIXTURE_QUESTIONS } from './questions.fixture.js';
 
 // Measured baselines (Phase 2). The test records the actual numbers to the run
 // summary; these are the floor the ranker must not regress below.
-const BASELINE_TOP1 = 22; // of 25 (measured, Phase 2)
-const BASELINE_TOP3 = 25; // of 25 (measured, Phase 2)
+const BASELINE_TOP1 = 21; // of 24 (re-measured after the import guide entry was removed)
+const BASELINE_TOP3 = 24; // of 24 (re-measured after the import guide entry was removed)
 
 const sections = buildGuideIndex(renderUserGuide());
 const anchors = new Set(sections.map((s) => s.anchor));
 const search = createGuideSearch(sections);
 
-describe('retrieval quality against the 25-question fixture (test 6)', () => {
+describe('retrieval quality against the 24-question fixture (test 6)', () => {
   it('ranks the correct section at #1 and within top-3 at the recorded rates', () => {
     let top1 = 0;
     let top3 = 0;
@@ -36,7 +36,8 @@ describe('retrieval quality against the 25-question fixture (test 6)', () => {
       else misses.push(`${q} → wanted ${anchor}, got ${results[0]?.section.anchor ?? '(none)'}`);
     }
     // Surfaced so the measured numbers land in the run log/summary.
-    console.log(`[guide-helper] top-1 ${top1}/25, top-3 ${top3}/25`, misses);
+    const n = FIXTURE_QUESTIONS.length;
+    console.log(`[guide-helper] top-1 ${top1}/${n}, top-3 ${top3}/${n}`, misses);
     expect(top1).toBeGreaterThanOrEqual(BASELINE_TOP1);
     expect(top3).toBeGreaterThanOrEqual(BASELINE_TOP3);
   });

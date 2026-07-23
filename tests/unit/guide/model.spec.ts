@@ -80,7 +80,7 @@ describe('buildGuideIndex — the real guide', () => {
 
   it('emits one section per guide entry, with the entry testids as anchors', () => {
     // The real guide is a flat list; every anchor is a guide-entry testid.
-    expect(sections.length).toBeGreaterThanOrEqual(15);
+    expect(sections.length).toBeGreaterThanOrEqual(14);
     expect(sections.every((s) => s.anchor.startsWith('guide-entry-'))).toBe(true);
     expect(sections.map((s) => s.anchor)).toContain('guide-entry-bluesky');
     expect(sections.map((s) => s.anchor)).toContain('guide-entry-shopping');

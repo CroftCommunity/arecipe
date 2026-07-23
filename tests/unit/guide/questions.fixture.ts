@@ -38,7 +38,6 @@ export const FIXTURE_QUESTIONS: FixtureQuestion[] = [
   { q: 'how do I turn off the did you know fun facts', anchor: 'guide-entry-funfacts' },
   { q: 'how do I hide a recipe I never want to see again', anchor: 'guide-entry-hide' },
   { q: 'how do I leave a comment on a recipe', anchor: 'guide-entry-comments' },
-  { q: 'how do I import a recipe from a website', anchor: 'guide-entry-share' },
   { q: 'how do I plan my meals for the week', anchor: 'guide-entry-meals' },
   { q: 'how do I publish my meal plan as a link', anchor: 'guide-entry-meal-publish' },
   { q: 'how do I make a shopping list from my plan', anchor: 'guide-entry-shopping' },

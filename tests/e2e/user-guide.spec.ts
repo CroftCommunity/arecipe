@@ -38,17 +38,6 @@ test('every screenshot in the guide actually loads from assets/guide', async ({ 
   }
 });
 
-test('the user guide keeps the share-to-import walkthrough', async ({ page }) => {
-  await page.goto('/user-guide.html');
-  const share = page.getByTestId('guide-entry-share');
-  await share.scrollIntoViewIfNeeded();
-  await expect(share).toBeVisible();
-  await expect(share.locator('h3')).toContainText(/shar(e|ing)/i);
-  // Honest constraints are present, not buried.
-  await expect(share).toContainText(/Android/i);
-  await expect(share).toContainText(/Publish/i);
-});
-
 test('Settings offers the user guide right at the top, before any section', async ({ page }) => {
   await page.goto('/settings.html');
   const top = page.getByTestId('settings-user-guide-top');
@@ -76,5 +65,5 @@ test('Settings links to the user guide', async ({ page }) => {
   await expect(link).toHaveAttribute('href', './user-guide.html');
   await link.click();
   await expect(page).toHaveURL(/user-guide\.html/);
-  await expect(page.getByTestId('guide-entry-share')).toBeVisible();
+  await expect(page.getByTestId('guide-entry-bluesky')).toBeVisible();
 });
