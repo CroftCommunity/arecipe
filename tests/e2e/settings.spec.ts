@@ -2,6 +2,27 @@
 // page's Taste section — its suite lives in account.spec.ts.
 import { expect, test } from '@playwright/test';
 
+test('settings: Cookbook → Show export toggles the pref off by default and persists', async ({
+  page,
+}) => {
+  await page.goto('/settings.html');
+  const section = page.getByTestId('cookbook-settings');
+  await expect(section).toBeVisible();
+  await expect(section).toContainText('Show export');
+  const box = section.getByTestId('cookbook-show-export').locator('input[type=checkbox]');
+  // Hidden by default: the box starts unchecked and no pref is stored.
+  await expect(box).not.toBeChecked();
+  expect(await page.evaluate(() => window.localStorage.getItem('cookbook-show-export'))).toBeNull();
+  // Turning it on persists the opt-in.
+  await box.check();
+  expect(await page.evaluate(() => window.localStorage.getItem('cookbook-show-export'))).toBe('1');
+  // …and survives a reload.
+  await page.reload();
+  await expect(
+    page.getByTestId('cookbook-settings').getByTestId('cookbook-show-export').locator('input'),
+  ).toBeChecked();
+});
+
 test('settings: Hidden recipes is collapsed by default with a count, expandable', async ({
   page,
 }) => {

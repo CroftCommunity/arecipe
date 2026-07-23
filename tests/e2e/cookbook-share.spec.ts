@@ -67,6 +67,18 @@ const routeCookbookFixtures = async (page: Page): Promise<void> => {
   }
 };
 
+// The export/share affordance is HIDDEN by default (Settings → Cookbook →
+// "Show export"). Opt in before load so this wiring spec can assert the button.
+const enableExport = async (page: Page): Promise<void> => {
+  await page.addInitScript(() => {
+    try {
+      window.localStorage.setItem('cookbook-show-export', '1');
+    } catch {
+      /* private mode — the button then stays hidden and the test would flag it */
+    }
+  });
+};
+
 const forceClipboardFallback = async (page: Page): Promise<void> => {
   await page.addInitScript(() => {
     try {
@@ -83,6 +95,7 @@ test('the cookbook cold-view shows a Share button that copies the canonical cook
   context,
 }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  await enableExport(page);
   await forceClipboardFallback(page);
   await routeCookbookFixtures(page);
   await page.goto(`/cookbook.html?did=${encodeURIComponent(VIEWED.did)}`);
@@ -106,4 +119,13 @@ test('the cookbook cold-view shows a Share button that copies the canonical cook
   expect(clip).toBe(expected);
 
   await expect(share).toContainText(/copied/i);
+});
+
+test('the export button is hidden by default (no opt-in)', async ({ page }) => {
+  // Fresh visitor, pref unset: the feed loads but the export/share button beside
+  // the "Cookbook" title is absent until enabled in Settings → Cookbook.
+  await routeCookbookFixtures(page);
+  await page.goto(`/cookbook.html?did=${encodeURIComponent(VIEWED.did)}`);
+  await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId('share-cookbook')).toHaveCount(0);
 });
