@@ -1,0 +1,205 @@
+{
+  "ingredients": [
+    {
+      "display": "1 cup (240 g / 8.5 oz) butter",
+      "optional": false,
+      "raw": "1 [[Cookbook:Cup|cup]] (240 [[Cookbook:Gram|g]] / 8.5 [[Cookbook:Ounce|oz]]) [[Cookbook:Butter|butter]]",
+      "refs": [
+        "Cup",
+        "Gram",
+        "Ounce",
+        "Butter"
+      ]
+    },
+    {
+      "display": "1 cup (240 ml / 8.1 oz) milk",
+      "optional": false,
+      "raw": "1 cup (240 ml / 8.1 oz) [[Cookbook:Milk|milk]]",
+      "refs": [
+        "Milk"
+      ]
+    },
+    {
+      "display": "1 teaspoon vanilla extract",
+      "optional": false,
+      "raw": "1 [[Cookbook:Teaspoon|teaspoon]] [[Cookbook:Vanilla Extract|vanilla extract]]",
+      "refs": [
+        "Teaspoon",
+        "Vanilla Extract"
+      ]
+    },
+    {
+      "display": "2 cups (450 g / 16 oz) white granulated sugar",
+      "optional": false,
+      "raw": "2 cups (450 g / 16 oz) white granulated [[Cookbook:Sugar|sugar]]",
+      "refs": [
+        "Sugar"
+      ]
+    },
+    {
+      "display": "3 cups (400 g / 14 oz) all-purpose flour",
+      "optional": false,
+      "raw": "3 cups (400 g / 14 oz) [[Cookbook:All-purpose flour|all-purpose flour]]",
+      "refs": [
+        "All-purpose flour"
+      ]
+    },
+    {
+      "display": "3 teaspoons baking powder",
+      "optional": false,
+      "raw": "3 teaspoons [[Cookbook:Baking Powder|baking powder]]",
+      "refs": [
+        "Baking Powder"
+      ]
+    },
+    {
+      "display": "3 pinches of salt",
+      "optional": false,
+      "raw": "3 [[Cookbook:Pinch|pinches]] of [[Cookbook:Salt|salt]]",
+      "refs": [
+        "Pinch",
+        "Salt"
+      ]
+    },
+    {
+      "display": "4 eggs",
+      "optional": false,
+      "raw": "4 [[Cookbook:Egg|egg]]s",
+      "refs": [
+        "Egg"
+      ]
+    }
+  ],
+  "lead": "This is a traditional American recipe for a 1-2-3-4 cake, a simple form of yellow cake. The name comes from the volumetric ratio of butter to sugar, flour, and eggs.",
+  "parseFlags": [
+    {
+      "code": "image-unresolved",
+      "detail": "1-2-3-4 cake slice with chocolate sour cream icing.JPG"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "</gallery>"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "<gallery mode=\"nolines\" widths=\"180\" heights=\"180\">"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "File:1-2-3-4 Cake after beating in eggs.JPG|After beating in the eggs, it looks like this"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "File:1-2-3-4 Cake cooking implements.JPG|Cooking implements: beaters, large bowl, cup measurement and large cake tin. Scales optional."
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "File:1-2-3-4 Cake ingredients.JPG|The ingredients. (Salt not shown here)"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "File:1-2-3-4 Cake mixture.JPG|Repeat 5 and 6 until done. By now the mixture will be very smooth."
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "File:1-2-3-4 cake.JPG|Finally, it's done! Notice how brown the top is, due to the high sugar content"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "File:Beating flour into cake mixture.JPG|5. Mix a little bit of flour in it."
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "File:Beating milk into cake mixture.JPG|6. Then a little bit of milk."
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "File:Cake mixture in tin.JPG|7. Pour the mixture into a greased and floured cake tin, then pop it in the oven"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "File:Checking if cake is done.JPG|8. Checking if the cake is \"done\": put a sharp knife or skewer into the centre of the cake"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "File:Cracking an egg.JPG|3. Crack the eggs in, and beat them in too"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "File:Creaming butter - step 1.JPG|2. Cream the butter and sugar together."
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "File:Dirty knife from cake.JPG|If the knife is dirty - the mixture is still wet - put it back in! (This was after about 15 minutes, it takes a lot longer)"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "File:Flour and milk.JPG|4. Now get your flour and milk"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "File:Oven.jpg|1. Preheat your oven."
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "File:Oven.jpg|An oven, of course!"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "You will need these things:"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "كعكة-1-2-3-4"
+    },
+    {
+      "code": "template-stripped",
+      "detail": "DEFAULTSORT:Chocolate Cake, 1-2-3-4"
+    }
+  ],
+  "procedure": [
+    {
+      "refs": [],
+      "text": "Preheat oven to 175 °C (350 °F)"
+    },
+    {
+      "refs": [
+        "Creaming"
+      ],
+      "text": "Cream the butter and sugar together until fluffy."
+    },
+    {
+      "refs": [],
+      "text": "Beat in the vanilla and eggs, one at a time, ensuring the batter is well mixed after each egg."
+    },
+    {
+      "refs": [],
+      "text": "Gradually sift in the dry ingredients, alternating with small additions of the milk."
+    },
+    {
+      "refs": [
+        "Cake Pan"
+      ],
+      "text": "Transfer to a greased and floured baking pan."
+    },
+    {
+      "refs": [],
+      "text": "Bake at 175 °C (350 °F), until a skewer inserted shows no moist crumbs."
+    }
+  ],
+  "publishable": true,
+  "sections": [],
+  "summary": {
+    "category": "Cake recipes",
+    "difficulty": 2,
+    "image": "1-2-3-4 cake slice with chocolate sour cream icing.JPG",
+    "servings": "8–10",
+    "servingsHint": {
+      "max": 10,
+      "min": 8
+    },
+    "time": "Prep: 20 minutes<br/>Baking: 60 minutes",
+    "timeMinutesHint": 20
+  },
+  "title": "1-2-3-4 Cake"
+}

@@ -1,0 +1,49 @@
+{{Recipe summary
+| Category = Sauce recipes
+| Difficulty = 3
+}}
+
+{{Recipe}}
+
+This is a more rustic and less "Italian-American" recipe than [[Cookbook:American Marinara Sauce I|the other one]].
+
+== Ingredients ==
+
+* Extra-virgin [[Cookbook:Olive Oil|olive oil]] (preferably Italian, if not Italian then Tunisian, French, and Greek are advisable)
+* 2 [[Cookbook:Tablespoon|tablespoons]] [[Cookbook:Almond Oil|almond oil]]
+* ½ head of [[Cookbook:Garlic|garlic]] (or less), [[Cookbook:Mincing|minced]]
+* 2 tablespoons dried [[Cookbook:Oregano|oregano]]
+* 2 tablespoons dried [[Cookbook:Thyme|thyme]]
+* 2 tablespoons dried [[Cookbook:Red pepper flakes|red chile flakes]]
+* 1 [[Cookbook:Cup|cup]] (240 [[Cookbook:Gram|g]]) fresh [[Cookbook:Basil|basil]], finely torn or roughly chopped and reserved
+* 2 medium to large [[Cookbook:Onion|onions]] (preferably red or yellow), [[Cookbook:Dice|diced]]
+* 1 yellow [[Cookbook:Bell Pepper|bell pepper]], cut into strips
+* 1 large can plus 1 small can whole [[Cookbook:Tomato|tomatoes]], crushed by hand with juices
+* 1 large can crushed tomatoes
+* ½ cup (120 [[Cookbook:Milliliter|ml]]), plus more as needed, white table [[Cookbook:Wine|wine]]
+* [[Cookbook:Salt|Salt]] to taste
+* Ground [[Cookbook:Black Pepper|black pepper]] to taste
+* Freshly-grated [[Cookbook:Parmesan Cheese|Parmigiano-Reggiano]] to taste
+
+== Procedure ==
+
+# Heat the olive oil and almond oil in an oversized pan. Add onion, garlic, and bell pepper, and [[Cookbook:Sweat|sweat]].
+# [[Cookbook:Deglazing|Deglaze]] pan with white wine, then add tomatoes.
+# Grind dried herbs and red pepper flakes with a [[Cookbook:Mortar and Pestle|mortar and pestle]]. Add this mixture and the unreserved fresh basil to the pan.
+# [[Cookbook:Simmering|Simmer]] for an hour (or more if necessary), stirring occasionally.
+# Add wine until desired consistency is achieved. Add salt and pepper to taste.
+# Add [[Cookbook:Al Dente|al dente]] [[Cookbook:Pasta|pasta]] to pan with sauce and combine using [[Cookbook:Tongs|tongs]].
+# Plate and garnish with fresh basil and Parmigiano-Reggiano.
+
+== Notes, tips, and variations ==
+
+* To save time, make the sauce the night before you plan to serve it. Chill overnight, and reheat it over low heat while you cook the pasta. The overnight rest period also allows for flavor development and sweetness.
+
+[[Category:Italian recipes]]
+[[Category:Recipes for pasta sauce]]
+[[Category:Recipes using tomato]]
+[[Category:Recipes for marinara sauce]]
+[[Category:Recipes using butter]]
+[[Category:Recipes using basil]]
+[[Category:Recipes using yellow bell pepper]]
+[[Category:Recipes using chile flake]]

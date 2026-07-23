@@ -1,0 +1,591 @@
+[
+  {
+    "slug": "1-2-3-4-cake",
+    "pageid": 4696,
+    "title": "Cookbook:1-2-3-4 Cake",
+    "revid": 4608393,
+    "features": {
+      "hasInfobox": true,
+      "manyParams": false,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": true,
+      "subList": false,
+      "table": false,
+      "threeLink": true,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 10
+    }
+  },
+  {
+    "slug": "20-ingredient-brownies",
+    "pageid": 451698,
+    "title": "Cookbook:20-Ingredient Brownies",
+    "revid": 4655390,
+    "features": {
+      "hasInfobox": false,
+      "manyParams": false,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": true,
+      "subList": false,
+      "table": false,
+      "threeLink": true,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 21
+    }
+  },
+  {
+    "slug": "8-desserts-in-1-pan",
+    "pageid": 470841,
+    "title": "Cookbook:8 Desserts in 1 Pan",
+    "revid": 4629561,
+    "features": {
+      "hasInfobox": true,
+      "manyParams": false,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": false,
+      "subList": false,
+      "table": false,
+      "threeLink": true,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 44
+    }
+  },
+  {
+    "slug": "a-nice-cup-of-tea",
+    "pageid": 23815,
+    "title": "Cookbook:A Nice Cup of Tea",
+    "revid": 4630233,
+    "features": {
+      "hasInfobox": true,
+      "manyParams": true,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": true,
+      "subList": false,
+      "table": false,
+      "threeLink": true,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 5
+    }
+  },
+  {
+    "slug": "abula-nigerian-three-stews",
+    "pageid": 456852,
+    "title": "Cookbook:Abula (Nigerian Three Stews)",
+    "revid": 4638738,
+    "features": {
+      "hasInfobox": true,
+      "manyParams": true,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": false,
+      "subList": false,
+      "table": false,
+      "threeLink": false,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 25
+    }
+  },
+  {
+    "slug": "acid-drops",
+    "pageid": 166795,
+    "title": "Cookbook:Acid Drops",
+    "revid": 4523664,
+    "features": {
+      "hasInfobox": false,
+      "manyParams": false,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": true,
+      "subList": false,
+      "table": false,
+      "threeLink": true,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 8
+    }
+  },
+  {
+    "slug": "afghan-bread",
+    "pageid": 96869,
+    "title": "Cookbook:Afghan Bread",
+    "revid": 4504813,
+    "features": {
+      "hasInfobox": true,
+      "manyParams": false,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": true,
+      "subList": false,
+      "table": true,
+      "threeLink": false,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 3
+    }
+  },
+  {
+    "slug": "african-cabbage-stew",
+    "pageid": 457367,
+    "title": "Cookbook:African Cabbage Stew",
+    "revid": 4518569,
+    "features": {
+      "hasInfobox": true,
+      "manyParams": false,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": false,
+      "subList": false,
+      "table": false,
+      "threeLink": true,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 18
+    }
+  },
+  {
+    "slug": "african-salad-ii",
+    "pageid": 462333,
+    "title": "Cookbook:African Salad II",
+    "revid": 4629555,
+    "features": {
+      "hasInfobox": true,
+      "manyParams": false,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": false,
+      "subList": false,
+      "table": false,
+      "threeLink": true,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 20
+    }
+  },
+  {
+    "slug": "aj-de-gallina-peruvian-chili-chicken",
+    "pageid": 213798,
+    "title": "Cookbook:Ají de Gallina (Peruvian Chili Chicken)",
+    "revid": 4603622,
+    "features": {
+      "hasInfobox": true,
+      "manyParams": false,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": true,
+      "subList": false,
+      "table": false,
+      "threeLink": false,
+      "nonLatinTitle": true,
+      "stub": false,
+      "ingredientLinks": 18
+    }
+  },
+  {
+    "slug": "akarange-rwandan-tomato-sauce",
+    "pageid": 457471,
+    "title": "Cookbook:Akarange (Rwandan Tomato Sauce)",
+    "revid": 4518844,
+    "features": {
+      "hasInfobox": true,
+      "manyParams": false,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": false,
+      "subList": false,
+      "table": false,
+      "threeLink": false,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 19
+    }
+  },
+  {
+    "slug": "albanian-fried-meatballs",
+    "pageid": 15295,
+    "title": "Cookbook:Albanian Fried Meatballs",
+    "revid": 4531769,
+    "features": {
+      "hasInfobox": true,
+      "manyParams": false,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": true,
+      "subList": false,
+      "table": false,
+      "threeLink": true,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 15
+    }
+  },
+  {
+    "slug": "ale-mustard-and-winter-vegetable-pie",
+    "pageid": 3442,
+    "title": "Cookbook:Ale, Mustard and Winter Vegetable Pie",
+    "revid": 4630204,
+    "features": {
+      "hasInfobox": true,
+      "manyParams": false,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": true,
+      "subList": false,
+      "table": false,
+      "threeLink": true,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 21
+    }
+  },
+  {
+    "slug": "algerian-coca",
+    "pageid": 473348,
+    "title": "Cookbook:Algerian Coca",
+    "revid": 4587171,
+    "features": {
+      "hasInfobox": true,
+      "manyParams": true,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": true,
+      "subList": false,
+      "table": false,
+      "threeLink": true,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 29
+    }
+  },
+  {
+    "slug": "algerian-couscous-with-meat-and-vegetables",
+    "pageid": 473350,
+    "title": "Cookbook:Algerian Couscous with Meat and Vegetables",
+    "revid": 4513961,
+    "features": {
+      "hasInfobox": true,
+      "manyParams": false,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": true,
+      "subList": false,
+      "table": false,
+      "threeLink": true,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 25
+    }
+  },
+  {
+    "slug": "alicha-wot-mild-ethiopian-stew",
+    "pageid": 457200,
+    "title": "Cookbook:Alicha Wot (Mild Ethiopian Stew)",
+    "revid": 4525932,
+    "features": {
+      "hasInfobox": true,
+      "manyParams": false,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": false,
+      "subList": false,
+      "table": false,
+      "threeLink": true,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 25
+    }
+  },
+  {
+    "slug": "almond-milk-i",
+    "pageid": 447507,
+    "title": "Cookbook:Almond Milk I",
+    "revid": 4512315,
+    "features": {
+      "hasInfobox": true,
+      "manyParams": false,
+      "nestedTemplateInParam": true,
+      "hasIngredients": true,
+      "unusualHeading": false,
+      "subList": false,
+      "table": false,
+      "threeLink": false,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 5
+    }
+  },
+  {
+    "slug": "alsatian-fish-stew-matelote-de-poissons-d-alsace",
+    "pageid": 168622,
+    "title": "Cookbook:Alsatian Fish Stew (Matelote de poissons d'Alsace)",
+    "revid": 4630345,
+    "features": {
+      "hasInfobox": true,
+      "manyParams": false,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": false,
+      "subList": false,
+      "table": false,
+      "threeLink": true,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 25
+    }
+  },
+  {
+    "slug": "american-marinara-sauce-ii",
+    "pageid": 454170,
+    "title": "Cookbook:American Marinara Sauce II",
+    "revid": 4518811,
+    "features": {
+      "hasInfobox": true,
+      "manyParams": false,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": false,
+      "subList": false,
+      "table": false,
+      "threeLink": true,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 19
+    }
+  },
+  {
+    "slug": "americanized-eggplant-parmesan",
+    "pageid": 483949,
+    "title": "Cookbook:Americanized Eggplant Parmesan",
+    "revid": 4640469,
+    "features": {
+      "hasInfobox": true,
+      "manyParams": false,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": false,
+      "subList": false,
+      "table": false,
+      "threeLink": false,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 19
+    }
+  },
+  {
+    "slug": "apple-pie-i",
+    "pageid": 11468,
+    "title": "Cookbook:Apple Pie I",
+    "revid": 4595344,
+    "features": {
+      "hasInfobox": true,
+      "manyParams": false,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": true,
+      "subList": false,
+      "table": false,
+      "threeLink": true,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 23
+    }
+  },
+  {
+    "slug": "apple-pie-ii",
+    "pageid": 114866,
+    "title": "Cookbook:Apple Pie II",
+    "revid": 4517302,
+    "features": {
+      "hasInfobox": true,
+      "manyParams": false,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": true,
+      "subList": false,
+      "table": false,
+      "threeLink": true,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 24
+    }
+  },
+  {
+    "slug": "arroz-con-gandules-puerto-rican-rice-and-pigeon-peas",
+    "pageid": 129807,
+    "title": "Cookbook:Arroz con Gandules (Puerto Rican Rice and Pigeon Peas)",
+    "revid": 4515438,
+    "features": {
+      "hasInfobox": true,
+      "manyParams": false,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": true,
+      "subList": false,
+      "table": false,
+      "threeLink": true,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 24
+    }
+  },
+  {
+    "slug": "arroz-con-maiz-rice-with-corn",
+    "pageid": 308166,
+    "title": "Cookbook:Arroz con Maiz (Rice with Corn)",
+    "revid": 4599105,
+    "features": {
+      "hasInfobox": true,
+      "manyParams": false,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": true,
+      "subList": false,
+      "table": false,
+      "threeLink": false,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 24
+    }
+  },
+  {
+    "slug": "arroz-negro-valencian-squid-rice",
+    "pageid": 190095,
+    "title": "Cookbook:Arroz Negro (Valencian Squid Rice)",
+    "revid": 4630308,
+    "features": {
+      "hasInfobox": false,
+      "manyParams": false,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": true,
+      "subList": true,
+      "table": false,
+      "threeLink": true,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 22
+    }
+  },
+  {
+    "slug": "artichoke-dip-with-parmesan",
+    "pageid": 14051,
+    "title": "Cookbook:Artichoke Dip with Parmesan",
+    "revid": 4630216,
+    "features": {
+      "hasInfobox": true,
+      "manyParams": false,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": true,
+      "subList": true,
+      "table": false,
+      "threeLink": true,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 17
+    }
+  },
+  {
+    "slug": "asaro",
+    "pageid": 483816,
+    "title": "Cookbook:Asaro",
+    "revid": 4640471,
+    "features": {
+      "hasInfobox": true,
+      "manyParams": true,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": false,
+      "subList": false,
+      "table": false,
+      "threeLink": true,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 22
+    }
+  },
+  {
+    "slug": "asparagus-frittata",
+    "pageid": 119935,
+    "title": "Cookbook:Asparagus Frittata",
+    "revid": 4522469,
+    "features": {
+      "hasInfobox": true,
+      "manyParams": false,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": true,
+      "subList": false,
+      "table": false,
+      "threeLink": true,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 21
+    }
+  },
+  {
+    "slug": "atkilt-wat-ethiopian-cabbage-and-potato-stew",
+    "pageid": 457299,
+    "title": "Cookbook:Atkilt Wat (Ethiopian Cabbage and Potato Stew)",
+    "revid": 4518570,
+    "features": {
+      "hasInfobox": true,
+      "manyParams": false,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": false,
+      "subList": false,
+      "table": false,
+      "threeLink": false,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 20
+    }
+  },
+  {
+    "slug": "atomic-fudge-cake",
+    "pageid": 71811,
+    "title": "Cookbook:Atomic Fudge Cake",
+    "revid": 4523318,
+    "features": {
+      "hasInfobox": true,
+      "manyParams": false,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": true,
+      "subList": false,
+      "table": false,
+      "threeLink": true,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 20
+    }
+  },
+  {
+    "slug": "awaze-tibs-spicy-ethiopian-meat-stir-fry",
+    "pageid": 457301,
+    "title": "Cookbook:Awaze Tibs (Spicy Ethiopian Meat Stir-Fry)",
+    "revid": 4506320,
+    "features": {
+      "hasInfobox": true,
+      "manyParams": false,
+      "nestedTemplateInParam": false,
+      "hasIngredients": true,
+      "unusualHeading": false,
+      "subList": false,
+      "table": false,
+      "threeLink": true,
+      "nonLatinTitle": false,
+      "stub": false,
+      "ingredientLinks": 19
+    }
+  }
+]

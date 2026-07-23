@@ -1,0 +1,92 @@
+{
+  "ingredients": [
+    {
+      "display": "32 fl oz (1 L) hot water",
+      "optional": false,
+      "raw": "32 fl oz (1 L) hot [[Cookbook:Water|water]]",
+      "refs": [
+        "Water"
+      ]
+    },
+    {
+      "display": "3–5 measures of loose tea leaves or 3–5 tea bags",
+      "optional": false,
+      "raw": "3–5 measures of loose [[Cookbook:Tea|tea]] leaves or 3–5 tea bags",
+      "refs": [
+        "Tea"
+      ]
+    },
+    {
+      "display": "Sweetener, such as sugar or honey, to taste",
+      "optional": false,
+      "raw": "[[Cookbook:Sweeteners|Sweetener]], such as [[Cookbook:Sugar|sugar]] or [[Cookbook:Honey|honey]], to taste",
+      "refs": [
+        "Sweeteners",
+        "Sugar",
+        "Honey"
+      ]
+    },
+    {
+      "display": "Milk or lemon juice to taste",
+      "optional": false,
+      "raw": "[[Cookbook:Milk|Milk]] or [[Cookbook:Lemon|lemon juice]] to taste",
+      "refs": [
+        "Milk",
+        "Lemon"
+      ]
+    }
+  ],
+  "lead": "A nice cup of tea is the usual answer in Britain and Ireland to any everyday problem. Nothing is so bad that a nice cup of tea with a friend or family member can't make it better.",
+  "parseFlags": [
+    {
+      "code": "image-unresolved",
+      "detail": "Nice Cup of Tea.jpg"
+    },
+    {
+      "code": "template-stripped",
+      "detail": "nutritionsummary"
+    }
+  ],
+  "procedure": [
+    {
+      "refs": [],
+      "text": "Pour freshly-drawn water into a tea kettle, and heat it to your desired temperature. An electric kettle is fast and convenient."
+    },
+    {
+      "refs": [],
+      "text": "Pour some hot tap water into your teapot and let stand for about several seconds to a minute to pre-warm it. Alternately, you can swish some of the hotter boiling water from your kettle around in the teapot for a few seconds. Pour out this water before adding the tea to the teapot."
+    },
+    {
+      "refs": [],
+      "text": "If using loose tea, place it into an infuser, then into the teapot. If using teabags, place them into the teapot."
+    },
+    {
+      "refs": [],
+      "text": "When the water reaches the preferred temperature, pour it from the tea kettle into the teapot. As you pour, try to avoid pouring directly onto the tea (especially important for green and white teas) to avoid scalding the leaves."
+    },
+    {
+      "refs": [],
+      "text": "Allow the tea to infuse quietly (i.e. do not stir the teapot or \"dunk the teabag\"). Agitating the tea releases more of the bitter compounds and degrades the taste. Watch the time to avoid over-infusion, and remove the infuser or tea bag when the time is up."
+    },
+    {
+      "refs": [],
+      "text": "Pour tea into your cup(s). Add sweetener and milk or lemon to taste."
+    }
+  ],
+  "publishable": true,
+  "sections": [
+    {
+      "heading": "Notes, tips, and variations",
+      "text": "* You can also prepare a single cup of tea at once by placing a single measure of tea directly into the serving cup.\n* Commonly one-half to one tea measure (or rounded teaspoon if you do not have a tea measure) is added per desired cup of tea. Some people add an extra measure \"for the pot\" (e.g., if 4 cups of tea are desired, 5 measures of tea would be used. It really is a matter of personal preference.)\n* Remember that the tannins in tea stain, so it is advisable to pour the tea over a non-staining surface, wipe up any spills quickly, and not leave tea standing in a teapot for long periods of time.\n* Never combine milk and lemon in the same cup of tea or the milk will curdle into lumps.\n* If you are using an infuser, be sure it is closed tightly so the tea does not spill into the pot. Rinse the tea-filled infuser briefly under cool tap water to wash away tiny flakes that would otherwise drift into the teapot.\n* If using a filter basket infuser, do not overfill the basket (refer to the instructions that came with your basket). The brief rinse is usually not necessary unless the basket's mesh is quite porous.\n* Simply dropping loose tea into the teapot is also an option, though you may want to strain the tea as you pour it into the cups.\n* See the page on tea for additional considerations."
+    }
+  ],
+  "summary": {
+    "category": "Beverage recipes",
+    "difficulty": 1,
+    "image": "Nice Cup of Tea.jpg",
+    "time": "15 minutes",
+    "timeMinutesHint": 15,
+    "yield": "1 pot of tea"
+  },
+  "title": "A Nice Cup of Tea"
+}

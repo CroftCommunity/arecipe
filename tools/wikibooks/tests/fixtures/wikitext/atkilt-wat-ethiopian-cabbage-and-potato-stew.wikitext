@@ -1,0 +1,57 @@
+{{recipe summary
+| category = Ethiopian recipes
+| difficulty = 2
+}}
+{{Recipe}}
+__NOTOC__
+'''Atkilt wat''' is a flavorful and comforting dish that is a staple in Ethiopian cuisine. This hearty [[Cookbook:Stew|stew]] is made with a combination of cabbage, potatoes, carrots, and aromatic spices, creating a delicious and satisfying meal. 
+== Ingredients ==
+* 2 [[Cookbook:Carrot|carrots]], peeled and [[Cookbook:Slicing|sliced]]
+* 2 [[Cookbook:Tablespoon|tablespoons]] [[Cookbook:vegetable oil|vegetable oil]]
+* 1 [[Cookbook:Onion|onion]], finely [[Cookbook:Chopping|chopped]]
+* 3 cloves of [[Cookbook:Garlic|garlic]], [[Cookbook:Mince|minced]]
+* 1 tablespoon grated [[Cookbook:Ginger|ginger]]
+* 1 [[Cookbook:Teaspoon|teaspoon]] [[Cookbook:turmeric|turmeric]]
+* 1 teaspoon [[Cookbook:paprika|paprika]]
+* ½ teaspoon [[Cookbook:cumin|cumin]]
+* ½ teaspoon [[Cookbook:coriander|coriander]]
+* ¼ teaspoon [[Cookbook:cayenne pepper|cayenne pepper]], or to taste
+* 1 medium [[Cookbook:Cabbage|cabbage]], finely shredded
+* 2 large [[Cookbook:Potato |potatoes]], peeled and [[Cookbook:Cube|cubed]]
+* [[Cookbook:Salt|Salt]], to taste
+* Fresh [[Cookbook:cilantro|cilantro]], chopped, for [[Cookbook:Garnish|garnish]]
+
+== Equipment ==
+* Large [[Cookbook:Pots and Pans|pot]]
+* Wooden spoon or [[Cookbook:Spatula|spatula]]
+* [[Cookbook:Cutting Board|Cutting board]]
+* Chef's [[Cookbook:Knife|knife]]
+
+== Procedure ==
+# In a large pot, heat the vegetable oil over medium heat.
+# Add the chopped onion and [[Cookbook:Sautéing|sauté]] until it becomes soft and translucent.
+# Stir in the minced garlic and grated ginger, and cook for another minute until fragrant.
+# Add the turmeric, paprika, cumin, coriander, and cayenne pepper to the pot. Mix well to coat the onions and spices.
+# Add the cubed potatoes and sliced carrots to the pot. Stir to coat the vegetables with the spices.
+# Pour in a small amount of water (about ¼ cup) and cover the pot. Cook for about 5 minutes to soften the potatoes and carrots.
+# Add the finely shredded cabbage to the pot. Mix everything together and cover the pot. Cook for another 15–20 minutes, or until the cabbage is tender, stirring occasionally.
+# Taste and season with salt according to your preference.
+# Remove the pot from the heat and let the stew rest for a few minutes. [[Cookbook:Garnish|Garnish]] with freshly chopped cilantro before serving.
+== Notes, tips, and variations ==
+* Adjust the spiciness of the stew by adding more or less cayenne pepper according to your taste preferences.
+* Feel free to add other vegetables like bell peppers or green beans for additional flavor and variety.
+* To save time, you can prepare the vegetables in advance by shredding the cabbage and cubing the potatoes and carrots.
+* Make sure to cook the cabbage until it is tender but still retains some texture for a satisfying bite.
+* For a vegan version, omit the vegetable oil and use a cooking spray or water for sautéing the onions and spices.
+* Add other spices or herbs like cardamom, cinnamon, or thyme for additional flavor variations.
+* Atkilt wat is a good source of dietary fiber from the cabbage.
+[[Category:Ethiopian recipes]]
+[[Category:Recipes for stew]]
+[[Category:Recipes using cabbage]]
+[[Category:Recipes using carrot]]
+[[Category:Recipes using cilantro]]
+[[Category:Recipes using coriander]]
+[[Category:Recipes using cayenne]]
+[[Category:Recipes using fresh ginger]]
+[[Category:Recipes using cumin]]
+[[Category:Recipes using vegetable oil]]

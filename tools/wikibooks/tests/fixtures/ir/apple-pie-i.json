@@ -1,0 +1,284 @@
+{
+  "ingredients": [
+    {
+      "display": "8 oz (225 g) plain flour",
+      "optional": false,
+      "raw": "8 [[Cookbook:Ounce|oz]] (225 [[Cookbook:Gram|g]]) plain [[Cookbook:Flour|flour]]",
+      "refs": [
+        "Ounce",
+        "Gram",
+        "Flour"
+      ]
+    },
+    {
+      "display": "4 oz (110 g) margarine",
+      "optional": false,
+      "raw": "4 oz (110 g) [[Cookbook:Margarine|margarine]]",
+      "refs": [
+        "Margarine"
+      ]
+    },
+    {
+      "display": "2 oz (55 g) lard",
+      "optional": false,
+      "raw": "2 oz (55 g) [[Cookbook:Lard|lard]]",
+      "refs": [
+        "Lard"
+      ]
+    },
+    {
+      "display": "1 pinch salt",
+      "optional": false,
+      "raw": "1 [[Cookbook:Pinch|pinch]] [[Cookbook:Salt|salt]]",
+      "refs": [
+        "Pinch",
+        "Salt"
+      ]
+    },
+    {
+      "display": "2 tbsp cold water",
+      "optional": false,
+      "raw": "2 [[Cookbook:Tablespoon|tbsp]] cold [[Cookbook:Water|water]]",
+      "refs": [
+        "Tablespoon",
+        "Water"
+      ]
+    },
+    {
+      "display": "1 lb (500 g) apples, sliced",
+      "optional": false,
+      "raw": "1 [[Cookbook:Pound|lb]] (500 g) [[Cookbook:Apple|apples]], sliced",
+      "refs": [
+        "Pound",
+        "Apple"
+      ]
+    },
+    {
+      "display": "2 tbsp lemon juice",
+      "optional": false,
+      "raw": "2 tbsp [[cookbook:Lemon Juice|lemon juice]]",
+      "refs": [
+        "Lemon Juice"
+      ]
+    },
+    {
+      "display": "1 oz (28 g) salted butter",
+      "optional": false,
+      "raw": "1 oz (28 g) salted [[cookbook:butter|butter]]",
+      "refs": [
+        "butter"
+      ]
+    },
+    {
+      "display": "2&frac12; cup sugar, and additional for sprinkling",
+      "optional": false,
+      "raw": "2&frac12; [[Cookbook:Cup|cup]] [[cookbook:sugar|sugar]], and additional for sprinkling",
+      "refs": [
+        "Cup",
+        "sugar"
+      ]
+    },
+    {
+      "display": "&frac14; cup flour",
+      "optional": false,
+      "raw": "&frac14; cup [[cookbook:flour|flour]]",
+      "refs": [
+        "flour"
+      ]
+    },
+    {
+      "display": "2&frac12; tbsp cornstarch",
+      "optional": false,
+      "raw": "2&frac12; tbsp [[Cookbook:Cornstarch|cornstarch]]",
+      "refs": [
+        "Cornstarch"
+      ]
+    },
+    {
+      "display": "Cinnamon",
+      "optional": false,
+      "raw": "[[Cookbook:Cinnamon|Cinnamon]]",
+      "refs": [
+        "Cinnamon"
+      ]
+    },
+    {
+      "display": "Nutmeg",
+      "optional": false,
+      "raw": "[[Cookbook:Nutmeg|Nutmeg]]",
+      "refs": [
+        "Nutmeg"
+      ]
+    },
+    {
+      "display": "1 oz (28 g) milk",
+      "optional": false,
+      "raw": "1 oz (28 g) [[Cookbook:Milk|milk]]",
+      "refs": [
+        "Milk"
+      ]
+    },
+    {
+      "display": "Cinnamon",
+      "optional": false,
+      "raw": "[[cookbook:cinnamon|Cinnamon]]",
+      "refs": [
+        "cinnamon"
+      ]
+    },
+    {
+      "display": "Sugar",
+      "optional": false,
+      "raw": "[[cookbook:sugar|Sugar]]",
+      "refs": [
+        "sugar"
+      ]
+    }
+  ],
+  "parseFlags": [
+    {
+      "code": "image-unresolved",
+      "detail": "Apple pie.jpg"
+    },
+    {
+      "code": "ingredients-prose",
+      "detail": "Crust"
+    },
+    {
+      "code": "ingredients-prose",
+      "detail": "Filling"
+    },
+    {
+      "code": "ingredients-prose",
+      "detail": "Topping"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "Crust"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "Filling"
+    },
+    {
+      "code": "template-stripped",
+      "detail": "PAGENAME"
+    },
+    {
+      "code": "template-stripped",
+      "detail": "wikipedia"
+    }
+  ],
+  "procedure": [
+    {
+      "refs": [],
+      "text": "Rub flour, margarine, lard, and salt together until the mixture has the consistency of fine breadcrumbs."
+    },
+    {
+      "refs": [],
+      "text": "Add 2 tablespoons water to make a soft but firm dough."
+    },
+    {
+      "refs": [],
+      "text": "Roll pastry on floured surface to the size you want your pie. Make two crusts."
+    },
+    {
+      "refs": [
+        "Pie and Tart Pans"
+      ],
+      "text": "Place one crust in pie pan."
+    },
+    {
+      "refs": [
+        "Inch"
+      ],
+      "text": "Peel and slice apples into ⅛ to ¼-inch (about 5 mm) thick segments."
+    },
+    {
+      "refs": [],
+      "text": "Add lemon juice to apples."
+    },
+    {
+      "refs": [],
+      "text": "Mix apples by hand with ½ cup sugar and a few dashes of cinnamon."
+    },
+    {
+      "refs": [],
+      "text": "Transfer segments, minus their acquired juices, to pie pan. Omitting the expressed juice will help prevent the pie from boiling over in the oven."
+    },
+    {
+      "refs": [],
+      "text": "Mix the rest of the sugar, cinnamon, nutmeg, flour, and cornstarch in a separate bowl."
+    },
+    {
+      "refs": [],
+      "text": "Pour this over the apples in pie pan."
+    },
+    {
+      "refs": [],
+      "text": "Dot with butter."
+    },
+    {
+      "refs": [],
+      "text": "Cover with the other crust."
+    },
+    {
+      "refs": [],
+      "text": "Firm down edges with fork or finger."
+    },
+    {
+      "refs": [],
+      "text": "Cut heart or diamond-shaped vents into top crust."
+    },
+    {
+      "refs": [
+        "Brush"
+      ],
+      "text": "Brush the pastry top with milk and sprinkle additional sugar and cinnamon over the top."
+    },
+    {
+      "refs": [
+        "Bake"
+      ],
+      "text": "Bake at 350 °F (180 °C) until golden brown (about 60 minutes.)"
+    },
+    {
+      "refs": [],
+      "text": "Take the pie out of the oven and let it cool slightly on the counter. Do not try to eat it right out of the oven, as it will be very hot and this can cause burns!"
+    },
+    {
+      "refs": [
+        "Custard"
+      ],
+      "text": "Serve warm with ice cream or custard."
+    }
+  ],
+  "publishable": true,
+  "sections": [
+    {
+      "heading": "Notes, tips, and variations",
+      "text": "*Use a variety of apples to get more complex flavors and textures.\n*Use 2–3 Granny Smith apples, in combination with the other apples.\n*Replace the lard with shortening for a vegan dessert.\n*Do not precook apples, as this will deprive the pie of a substantial amount of flavor and turns the apples into mush!"
+    },
+    {
+      "heading": "Warnings",
+      "text": "*Filling will be <big>EXTREMELY</big> hot immediately after the pie is taken from the oven, so let it cool slightly before you eat it!"
+    },
+    {
+      "heading": "See also",
+      "text": "*Apple Pie II\n*Apple pie"
+    }
+  ],
+  "summary": {
+    "category": "Recipes for dessert",
+    "difficulty": 3,
+    "image": "Apple pie.jpg",
+    "servings": "6–8",
+    "servingsHint": {
+      "max": 8,
+      "min": 6
+    },
+    "time": "prep: 45 minutes<br/>baking: ~60 minutes",
+    "timeMinutesHint": 45
+  },
+  "title": "Apple Pie I"
+}

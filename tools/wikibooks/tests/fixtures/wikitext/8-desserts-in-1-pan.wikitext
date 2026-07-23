@@ -1,0 +1,164 @@
+__NOTOC__
+{{recipe summary
+| Servings = 20
+| Time = 2 hours
+| Difficulty = 4
+}}
+{{recipe}}
+
+This one-pan recipe merges eight desserts together on a single baking sheet. The original recipe by Buzzfeed Tasty<ref name="tasty">{{Cite web |last=Zhou |first=Alvin |date=2023-05-04 |title=8 Desserts In 1 Pan Recipe by Tasty |url=https://tasty.co/recipe/8-desserts-in-1-pan |access-date=2024-12-07 |website=tasty.co |language=en}}</ref> went viral on YouTube in 2018, with the video amassing over 50 million views.<ref name="youtube">{{Citation |last=Tasty |title=8 Desserts in 1 Sheet Tray |date=2018-01-08 |url=https://www.youtube.com/watch?v=_yDm51-lR2I |access-date=2024-12-07}}</ref> This recipe takes inspiration from the original, combining multiple recipes for cakes, pies, and cookies into one.
+
+== Ingredients ==
+=== Cookie dough<ref name="bgfcookies">{{Cite web |title=Easy chocolate chip cookies recipe (with video) {{!}} Good Food |url=https://www.bbcgoodfood.com/recipes/chocolate-chunk-cookies |access-date=2024-12-07 |website=www.bbcgoodfood.com |language=en}}</ref><ref group="note">The ingredients combined for the original chocolate chip cookie recipe totalled approximately 3 cups (700 g). For the main recipe, these ingredients are scaled up by 25% to 3¾ cups (870 g) to match. Since the dough is meant to be molded rather than drop, extra flour may be needed.</ref> ===
+* 1¼ sticks (150 [[Cookbook:Gram|g]]) [[Cookbook:butter|butter]], softened
+* ½ [[Cookbook:cup|cup]] (90 g) light [[Cookbook:Brown Sugar|brown sugar]]
+* ½ cup (90 g) golden [[Cookbook:White Sugar|superfine sugar]]
+* 1 US large / UK standard [[Cookbook:egg|egg]]
+* 1 [[Cookbook:teaspoon|teaspoon]] [[Cookbook:vanilla|vanilla]] extract
+* 2 cups (240 g) [[Cookbook:all-purpose flour|all-purpose flour]], more if needed
+* ½ teaspoon [[Cookbook:baking soda|baking soda]]
+* ¼ teaspoon [[Cookbook:salt|salt]]
+* 1½ cups (180 g) [[Cookbook:Chocolate#Forms|chocolate chips]]
+* 1 small bag (approximately ⅓ cup / 40 g) M&Ms <ref name="barrylewis">{{Cite web |date=2018-09-10 |title=8 desserts 1 pan |url=https://barrylewis.net/recipe/8-desserts-1-pan/ |access-date=2024-12-07 |website=Barry Lewis |language=en-GB}}</ref>
+
+=== S'mores<ref name="tasty" /> ===
+* 115 g chocolate
+* 1 cup (60 g) mini [[Cookbook:marshmallow|marshmallow]]s
+
+=== Brownie batter<ref name="tasty" /><ref name="barrylewis" /> ===
+* 1 package (15 oz / 425 g) [[Cookbook:Cake Mix|brownie mix]]
+* 1 egg
+* 3 [[Cookbook:tablespoon|tablespoon]]s (40 [[Cookbook:Milliliter|ml]]) [[Cookbook:vegetable oil|vegetable oil]]<ref name="tescobrowniemix">https://www.tesco.com/groceries/en-GB/products/253175998 - retrieved 2024-12-06</ref>
+* 2½ tablespoons (37.5 ml) [[Cookbook: Water|water]]
+
+=== Apple pie filling<ref name="bgfapplepie">{{Cite web |title=Homemade apple pie recipe {{!}} Good Food |url=https://www.bbcgoodfood.com/recipes/ultimate-apple-pie |access-date=2024-12-07 |website=www.bbcgoodfood.com |language=en}}</ref><ref group="note">The ingredients combined for the original apple pie filling totalled approximately 6 cups (1 kg). For the main recipe, these ingredients are downsized to 30% of original size (2 cups / 300 g).</ref> ===
+* 1 ea. (approximately 260 g)<ref name="hoolebramley">{{Cite web |title=Bramley Apple |url=https://hoolefoodmarket.co.uk/fruit/bramley-apple |access-date=2024-12-07 |website=Hoole Food Market Chester Food & Flowers Delivery Service |language=en-GB}}</ref> Bramley or green cooking [[Cookbook:apple|apple]]
+* 4 tablespoons golden superfine sugar
+* ½ teaspoon ground [[Cookbook:cinnamon|cinnamon]]
+* 1 tablespoon all-purpose flour
+
+=== Pumpkin pie filling<ref name="barrylewis" /> ===
+* 1 egg
+* ¼ cup (55 g) superfine [[Cookbook: Sugar|sugar]]
+* ¼ cup (45 g) light brown [[Cookbook: Sugar|sugar]]
+* 1 cup (250 g) [[Cookbook:pumpkin|pumpkin]] purée
+* ⅓ cup (80 ml) heavy [[Cookbook:cream|cream]]
+* 1 teaspoon vanilla extract
+* 1 heaped teaspoon [[Cookbook:mixed spice|mixed spice]]
+
+=== Banana bread batter<ref name="barrylewis" /> ===
+* ½ stick (60 g) butter, softened
+* ⅓ cup (70 g) sugar
+* 1 egg
+* ½ cup (70 g) [[Cookbook:Self-rising Flour|self-rising flour]]
+* 1 teaspoon [[Cookbook:baking powder|baking powder]]
+* 1 [[Cookbook:banana|banana]], mashed
+
+=== Cheesecake filling<ref name="barrylewis" /> ===
+* 125 g [[Cookbook:Mascarpone Cheese|mascarpone]]
+* 1¼ cup (300 g) [[Cookbook:Cream Cheese|cream cheese]]
+* 1 egg
+* 1 egg yolk
+* 4 tablespoons all-purpose flour
+* ½ cup (110 g) superfine [[Cookbook: Sugar|sugar]]
+
+=== Assembly ===
+* 8 [[Cookbook:graham cracker|graham cracker]]s
+* 2 sheets [[Cookbook:Dough#Short|shortcrust pastry]]
+== Equipment ==
+* 7 [[Cookbook:Mixing Bowl|mixing bowls]]
+* Wooden spoon or electric [[Cookbook:Mixer|mixer]]
+* [[Cookbook:Spatula|Spatula]]
+* [[Cookbook:Cutting Board|Chopping board]]
+* Apple corer
+* [[Cookbook:Knife|Knife]]
+* [[Cookbook:Baking Sheet|Baking sheet]]
+* [[Cookbook:Paper Towel|Paper towels]]
+* [[Cookbook:Whisk|Whisk]]
+* 13×18-inch (33×46 cm) baking sheet with short walls<ref name="tasty" />
+* [[Cookbook:Parchment Paper|Baking paper]]
+* Pencil
+* Ruler
+
+== Procedure ==
+=== Cookie dough ===
+# Combine the butter and sugar in a mixing bowl and [[Cookbook:Creaming|cream]] until fluffy and very light.<ref name="bgfcookies" />
+# Add the egg and vanilla, and [[Cookbook:Beat|beat]] in.<ref name="bgfcookies" />
+# [[Cookbook:Fold|Fold]] in the flour, salt and baking soda.<ref name="bgfcookies" /> This should form a soft [[Cookbook:Dough|dough]] that is not sticky to the touch.
+# Mix in the chocolate chips, folding well to distribute.
+# Divide the dough equally into two bowls.
+# In one bowl, mix in the M&Ms.<ref name="barrylewis" />
+# Set aside both the doughs.
+
+=== Brownie batter ===
+# Combine the brownie mix with egg, oil and water.<ref name="tescobrowniemix" /> This should form a very thick batter that is only slightly softer than cookie dough.<ref name="barrylewis" /> Set aside.
+
+=== Apple pie filling ===
+# Line a baking sheet with paper towels.
+# Core and roughly [[Cookbook:Chop|chop]] the apple and transfer to the prepared baking sheet and fold the towel in half. Set aside for 1 hour.<ref name="bgfapplepie" />
+# Combine the sugar, cinnamon and flour in a bowl.<ref name="bgfapplepie" />
+# Add the apple, and mix using your hands to coat.<ref name="bgfapplepie" /> Set aside.
+
+=== Pumpkin pie filling ===
+# Combine the egg and sugar in a mixing bowl by whisking until smooth.<ref name="barrylewis" />
+# Mix in other ingredients until smooth.<ref name="barrylewis" /> Set aside.
+
+=== Banana bread batter ===
+# [[Cookbook:Creaming|Cream]] the butter and sugar until soft and fluffy.<ref name="barrylewis" />
+# Combine in other ingredients until smooth.<ref name="barrylewis" /> Set aside.
+
+=== Cheesecake filling ===
+# Combine all ingredients until smooth.<ref name="barrylewis" /> Set aside.
+
+=== Assembly ===
+[[File:8-desserts-1-pan-layout.png|thumb|Pan layout]]
+# Preheat the oven to 150°C (302°F).<ref name="tasty" /><ref name="barrylewis" />
+# Cut baking paper into a rectangle the size of your baking pan. Use a pencil and ruler to divide the paper into 8 equal sections—halved length-wise and quartered width-wise, as in the layout diagram. Annotate the sections as described in the diagram.
+# Grease the baking pan and line with the annotated paper.<ref name="tasty" />
+# Shape both cookie doughs into rectangles measuring 4½×6½ inches (11.5×16.5 cm). Align the doughs with their respective sections.<ref name="tasty" />
+# Break the graham crackers into smaller rectangles. Place them, on edge, along the borders of the s'mores section, pressing them against the cookie doughs for support. You are essentially making walls to hold in the s'mores section.<ref name="tasty" />
+# Place two graham crackers on the bottom of the s'mores section to create the base. Distribute the chocolate on top, then sprinkle with the marshmallows.<ref name="tasty" />
+# Spread brownie batter over its respective section.<ref name="tasty" /> It should be stiff enough to hold its shape. Using your wet hands or a spatula, gently press the right wall of batter to correctly align it with the right wall of the M&Ms cookie dough.
+# If necessary, press the pastry dough sheets together so that they are big enough to cover both the pumpkin pie and apple pie sections of the pan. Press the dough over the right side of pan so that it covers these two sections and goes up three of the walls. Trim away any overhang as necessary.<ref name="tasty" />
+# Use a long strip of dough, stood on edge, to create a wall between the pie section and the rest of the pan. Press to seal it with the existing dough. In a similar fashion, use another strip of pastry to create a wall between the pumpkin and apple sections so the fillings don't combine. Press to seal.<ref name="tasty" />
+# Spread the apple pie and pumpkin pie fillings in their respective sections.<ref name="tasty" />
+# Create graham cracker walls around the cheesecake section, and line the bottom with graham crackers. Spread the cheesecake filling over top.<ref name="tasty" />
+# Spread the banana bread batter in the last remaining section.<ref name="tasty" />
+# [[Cookbook:Baking|Bake]] for an hour in the preheated oven. Transfer to a wire rack and leave to cool completely.<ref name="tasty" /><ref name="barrylewis" />
+# Slice into 32 squares (4 along the longer sides, 8 along the smaller sides).<ref name="tasty" />
+
+== Notes, tips and variations ==
+* If the cookie dough is too sticky to handle, knead in additional flour, 1 tablespoon at a time.
+* You can decorate the cheesecake section with some [[Cookbook:Raspberry|raspberries]].<ref name="tasty" />
+* Slices can have up to 4 flavors depending on how you cut it.<ref name="tasty" />
+=== Other notes ===
+{{reflist|group=note}}
+
+== References ==
+{{reflist}}
+
+[[Category:Recipes using graham cracker]]
+[[Category:Recipes using short dough]]
+[[Category:Recipes using butter]]
+[[Category:Recipes using light brown sugar]]
+[[Category:Recipes using superfine sugar]]
+[[Category:Recipes using egg]]
+[[Category:Recipes using vanilla]]
+[[Category:Recipes using all-purpose flour]]
+[[Category:Recipes using baking soda]]
+[[Category:Recipes using chocolate]]
+[[Category:Recipes using marshmallow]]
+[[Category:Recipes using cake mix]]
+[[Category:Recipes using vegetable oil]]
+[[Category:Recipes using apple]]
+[[Category:Recipes using ground cinnamon]]
+[[Category:Recipes using pumpkin]]
+[[Category:Recipes using heavy cream]]
+[[Category:Recipes using self-raising flour]]
+[[Category:Recipes using baking powder]]
+[[Category:Recipes using banana]]
+[[Category:Recipes using mascarpone]]
+[[Category:Recipes using cream cheese]]
+[[Category:Recipes using egg yolk]]
+[[Category:Baking recipes]]
+[[Category:Recipes for dessert]]

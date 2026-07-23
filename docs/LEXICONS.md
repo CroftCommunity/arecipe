@@ -85,6 +85,25 @@ Notes:
   `dish`/`altOf` fields; these are normalized into `dishKey` + `funFacts[]` at publish time.
 - `spike/import/dishkeys.json` is a **data file, not an NSID** — the reviewed dishKey mapping.
 
+### wikibooks-cookbook-sync open-world fields (RUN-WIKIBOOKS-CORPUS)
+
+`tools/wikibooks/` publishes imported en.wikibooks Cookbook recipes as
+`exchange.recipe.recipe` records **without extending the lexicon**. It reuses the
+`sourceUrl` provenance field (above) and adds these **open-world** fields
+(recipe.exchange ignores unknown fields):
+
+- Provenance (top level): `sourcePermalink`, `sourceRevId`, `sourceHistoryUrl`,
+  `retrievedAt`, `license` `{id, token, attribution}` (O2 = CC BY-SA 4.0).
+- A `wikibooks` object for **fields with no lexicon home** — `pageid`,
+  `difficulty`, `servings`, `servingsHint`, `image` (filename only, unresolved),
+  `origin`, `energy`, `note`, `parseFlags[]`.
+
+**The gap** (not papered over): `difficulty`/`servings` have no home in
+`exchange.recipe.recipe`; they wait on RUN-RECIPE-META-STRIP. `recipeCategory`/
+`recipeCuisine` are carried as free text, not `exchange.recipe.defs` tokens. Full
+mapping + rationale: `tools/wikibooks/MAPPING.md`. rkey is deterministic
+`wb-<pageid>` (not a TID) so the six-month rerun is idempotent.
+
 ---
 
 ## `app.arecipe.*` — created (arecipe's own namespace)

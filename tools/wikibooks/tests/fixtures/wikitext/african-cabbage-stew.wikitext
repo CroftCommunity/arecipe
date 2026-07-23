@@ -1,0 +1,52 @@
+{{Recipe summary
+| Category = Stew recipes
+| Difficulty = 2
+}}
+
+{{Recipe}}
+
+This is a delicious and nutritious [[Cookbook:Stew|stew]]. It is very easy to prepare and does not require any special skills, although preparing it can take a lot of time.
+
+== Ingredients ==
+
+* 2 [[Cookbook:Tablespoon|tablespoons]] avocado [[Cookbook:Oil|oil]]
+* 2 medium-size [[Cookbook:Onion|onions]], neatly [[Cookbook:Chopping|chopped]]
+* 4 medium-size [[Cookbook:Garlic|garlic]], [[Cookbook:Mince|minced]]
+* 3 medium-size stalks [[Cookbook:Celery|celery]], minced
+* 1 medium-size [[Cookbook:Cabbage|cabbage]], neatly cut
+* 2 medium-size [[Cookbook:Potato|potatoes]], neatly cut
+* 3 medium-size [[Cookbook:Carrot|carrots]], neatly chopped
+* 2 [[Cookbook:Teaspoon|teaspoons]] dried [[Cookbook:Italian Seasoning|Italian seasoning]]
+* 2 teaspoons [[Cookbook:Onion Powder|onion powder]]
+* 2 teaspoons [[Cookbook:Garlic Powder|garlic powder]]
+* 3 tablespoons chicken [[Cookbook:Dehydrated Broth|bouillon cube]]
+* 1 teaspoon smoked [[Cookbook:Paprika|paprika]]
+* 1–2 [[Cookbook:Cup|cups]] water
+
+== Procedure ==
+
+# Heat the avocado oil in a large [[Cookbook:Saucepan|saucepan]] over a medium heat. Add the neatly chopped onions and cook until tender for about 2 minutes.
+# Stir in the garlic and celery and cook until fragrant.
+# Add the cabbage, potatoes, carrots, Italian seasonings, onion powder, garlic powder, bouillon cubes, smoked paprika, and water. Cover the saucepan and bring to a [[Cookbook:Boiling|boil]].
+# Reduce the heat and let [[Cookbook:Simmering|simmer]] for about 20 minutes.
+# Check the seasonings and adjust where necessary.
+# Remove and serve warm with any complimentary dish of your choice.
+
+== Notes, tips, and variations ==
+
+* For this recipe, you can purchase any type of cabbage, but the red cabbage is preferred because it adds a nice colour to the dish and pairs well with other vegetables.
+* Make sure that the cabbage is fresh and free from any brown leaves or holes.
+* Leftovers can be stored in an airtight container in the refrigerator for up to 3 days. If you would prefer to reheat, simply put the leftover in a saucepan over low heat and cook until warmed through. You can also reheat the leftover in the microwave.
+* You can decide to add other ingredients that suites your taste to this recipe, such as cooked beans if you want some extra proteins.
+* For a variety of ingredients you can use any type of vegetables while cooking such as kale leaves, [[Cookbook:Mushroom|mushrooms]] and spinach to boost the nutrients in the meal.
+* If you are a spice lover you might want to include some [[Cookbook:Curry Powder|curry powder]], chilli pepper, [[Cookbook:Cumin|cumin]], fresh herbs like [[Cookbook:Rosemary|rosemary]] or [[Cookbook:Thyme|thyme]], and [[Cookbook:Cayenne Pepper|cayenne pepper]].
+* If you would like your vegetables to be more tender, you may decide to cook them for a longer period of time but don't overcook bit so that the vegetables will not lose their nutrients.
+* You can boil some potatoes and mash them into the stew, which will help to thicken the stew.
+
+[[Category:Recipes for stew]]
+[[Category:African recipes]]
+[[Category:Recipes using cabbage]]
+[[Category:Recipes using carrot]]
+[[Category:Recipes using celery]]
+[[Category:Recipes using dehydrated broth]]
+[[Category:Recipes using garlic]]

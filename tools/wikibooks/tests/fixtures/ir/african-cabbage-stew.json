@@ -1,0 +1,158 @@
+{
+  "ingredients": [
+    {
+      "display": "2 tablespoons avocado oil",
+      "optional": false,
+      "raw": "2 [[Cookbook:Tablespoon|tablespoons]] avocado [[Cookbook:Oil|oil]]",
+      "refs": [
+        "Tablespoon",
+        "Oil"
+      ]
+    },
+    {
+      "display": "2 medium-size onions, neatly chopped",
+      "optional": false,
+      "raw": "2 medium-size [[Cookbook:Onion|onions]], neatly [[Cookbook:Chopping|chopped]]",
+      "refs": [
+        "Onion",
+        "Chopping"
+      ]
+    },
+    {
+      "display": "4 medium-size garlic, minced",
+      "optional": false,
+      "raw": "4 medium-size [[Cookbook:Garlic|garlic]], [[Cookbook:Mince|minced]]",
+      "refs": [
+        "Garlic",
+        "Mince"
+      ]
+    },
+    {
+      "display": "3 medium-size stalks celery, minced",
+      "optional": false,
+      "raw": "3 medium-size stalks [[Cookbook:Celery|celery]], minced",
+      "refs": [
+        "Celery"
+      ]
+    },
+    {
+      "display": "1 medium-size cabbage, neatly cut",
+      "optional": false,
+      "raw": "1 medium-size [[Cookbook:Cabbage|cabbage]], neatly cut",
+      "refs": [
+        "Cabbage"
+      ]
+    },
+    {
+      "display": "2 medium-size potatoes, neatly cut",
+      "optional": false,
+      "raw": "2 medium-size [[Cookbook:Potato|potatoes]], neatly cut",
+      "refs": [
+        "Potato"
+      ]
+    },
+    {
+      "display": "3 medium-size carrots, neatly chopped",
+      "optional": false,
+      "raw": "3 medium-size [[Cookbook:Carrot|carrots]], neatly chopped",
+      "refs": [
+        "Carrot"
+      ]
+    },
+    {
+      "display": "2 teaspoons dried Italian seasoning",
+      "optional": false,
+      "raw": "2 [[Cookbook:Teaspoon|teaspoons]] dried [[Cookbook:Italian Seasoning|Italian seasoning]]",
+      "refs": [
+        "Teaspoon",
+        "Italian Seasoning"
+      ]
+    },
+    {
+      "display": "2 teaspoons onion powder",
+      "optional": false,
+      "raw": "2 teaspoons [[Cookbook:Onion Powder|onion powder]]",
+      "refs": [
+        "Onion Powder"
+      ]
+    },
+    {
+      "display": "2 teaspoons garlic powder",
+      "optional": false,
+      "raw": "2 teaspoons [[Cookbook:Garlic Powder|garlic powder]]",
+      "refs": [
+        "Garlic Powder"
+      ]
+    },
+    {
+      "display": "3 tablespoons chicken bouillon cube",
+      "optional": false,
+      "raw": "3 tablespoons chicken [[Cookbook:Dehydrated Broth|bouillon cube]]",
+      "refs": [
+        "Dehydrated Broth"
+      ]
+    },
+    {
+      "display": "1 teaspoon smoked paprika",
+      "optional": false,
+      "raw": "1 teaspoon smoked [[Cookbook:Paprika|paprika]]",
+      "refs": [
+        "Paprika"
+      ]
+    },
+    {
+      "display": "1–2 cups water",
+      "optional": false,
+      "raw": "1–2 [[Cookbook:Cup|cups]] water",
+      "refs": [
+        "Cup"
+      ]
+    }
+  ],
+  "lead": "This is a delicious and nutritious stew. It is very easy to prepare and does not require any special skills, although preparing it can take a lot of time.",
+  "parseFlags": [],
+  "procedure": [
+    {
+      "refs": [
+        "Saucepan"
+      ],
+      "text": "Heat the avocado oil in a large saucepan over a medium heat. Add the neatly chopped onions and cook until tender for about 2 minutes."
+    },
+    {
+      "refs": [],
+      "text": "Stir in the garlic and celery and cook until fragrant."
+    },
+    {
+      "refs": [
+        "Boiling"
+      ],
+      "text": "Add the cabbage, potatoes, carrots, Italian seasonings, onion powder, garlic powder, bouillon cubes, smoked paprika, and water. Cover the saucepan and bring to a boil."
+    },
+    {
+      "refs": [
+        "Simmering"
+      ],
+      "text": "Reduce the heat and let simmer for about 20 minutes."
+    },
+    {
+      "refs": [],
+      "text": "Check the seasonings and adjust where necessary."
+    },
+    {
+      "refs": [],
+      "text": "Remove and serve warm with any complimentary dish of your choice."
+    }
+  ],
+  "publishable": true,
+  "sections": [
+    {
+      "heading": "Notes, tips, and variations",
+      "text": "* For this recipe, you can purchase any type of cabbage, but the red cabbage is preferred because it adds a nice colour to the dish and pairs well with other vegetables.\n* Make sure that the cabbage is fresh and free from any brown leaves or holes.\n* Leftovers can be stored in an airtight container in the refrigerator for up to 3 days. If you would prefer to reheat, simply put the leftover in a saucepan over low heat and cook until warmed through. You can also reheat the leftover in the microwave.\n* You can decide to add other ingredients that suites your taste to this recipe, such as cooked beans if you want some extra proteins.\n* For a variety of ingredients you can use any type of vegetables while cooking such as kale leaves, mushrooms and spinach to boost the nutrients in the meal.\n* If you are a spice lover you might want to include some curry powder, chilli pepper, cumin, fresh herbs like rosemary or thyme, and cayenne pepper.\n* If you would like your vegetables to be more tender, you may decide to cook them for a longer period of time but don't overcook bit so that the vegetables will not lose their nutrients.\n* You can boil some potatoes and mash them into the stew, which will help to thicken the stew."
+    }
+  ],
+  "summary": {
+    "category": "Stew recipes",
+    "difficulty": 2
+  },
+  "title": "African Cabbage Stew"
+}

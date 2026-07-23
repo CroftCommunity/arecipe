@@ -1,0 +1,61 @@
+{
+  "ingredients": [],
+  "lead": "Afghan bread or Nan-i-Afghani is the national bread of Afghanistan. It is a flatbread and can be oval or rectangular. It is baked in a tandoor, the primary cooking equipment of the sub-continent region. The Afghan tandoor sits above ground and is round and made of bricks, which are heated to cook the bread. Afghan bread, also known as \"nan breads\", are shaped, then stuck onto the sides of the oven to bake. Often black cumin seeds or caraway seeds are sprinkled on Afghan bread for decoration as much as taste, and lines are made in the dough lengthwise to add texture to the bread. Afghan bread is similar to pita or Lebanese bread.",
+  "parseFlags": [
+    {
+      "code": "image-unresolved",
+      "detail": "Afghan bread.jpg"
+    },
+    {
+      "code": "table",
+      "detail": "Ingredients (Ingredients)"
+    },
+    {
+      "code": "template-stripped",
+      "detail": "PAGENAME"
+    }
+  ],
+  "procedure": [
+    {
+      "refs": [],
+      "text": "Mix ½ cup water, yeast, and sugar. Let it sit for 10 minutes until foamy."
+    },
+    {
+      "refs": [
+        "Dough"
+      ],
+      "text": "Place flour in a mixing bowl and sprinkle in the salt. Make a well, then add oil and yeast mixture. Stir in add small amounts of the remaining water until it forms a soft dough that can be moulded. Knead for 5 mins. Cover with paper and let rise for 1½ hours."
+    },
+    {
+      "refs": [],
+      "text": "Mix together the egg yolk and 1 tablespoon of water to make egg wash. Set aside."
+    },
+    {
+      "refs": [
+        "Centimetre (cm)"
+      ],
+      "text": "Divide dough into eight parts and roll each into a ball. Roll each bread into an oval shape 20 cm long and 5 cm thick."
+    },
+    {
+      "refs": [
+        "Brush"
+      ],
+      "text": "Make lines in top of dough. Brush on egg wash, and sprinkle with black cumin seeds."
+    },
+    {
+      "refs": [],
+      "text": "Bake in a preheated 350°F (175°C) oven for 25 mins. Total cooking time is around 2½ hours."
+    }
+  ],
+  "publishable": false,
+  "sections": [],
+  "skipReason": "no ingredient lines",
+  "summary": {
+    "category": "Flatbread recipes",
+    "difficulty": 3,
+    "image": "Afghan bread.jpg",
+    "servings": "8 pieces",
+    "time": "2½ hours"
+  },
+  "title": "Afghan Bread"
+}

@@ -1,0 +1,35 @@
+__NOTOC__
+{{Recipe summary|category=Beverage recipes|
+| yield = 4 cups ({{convert|1|l|USqt|abbr=on|disp=s}})|time=10 minutes plus overnight soaking|difficulty=1
+}}
+{{Recipe}}
+{{nutritionsummary|1 glass (250 ml)|4|34|29|3.2 g|0.4 g|0 mg|12 mg|0.1 g|0.3 g|0.1 g|1.2 g|3%|1%|2%|5%}}
+
+Almonds are soaked and ground to make '''almond milk''', a plant-based beverage that can be used as a nondairy milk substitute.
+
+== Ingredients ==
+
+* 1 [[Cookbook:Cup|cup]] ({{convert|100|g|oz|abbr=on|disp=s}}) [[Cookbook:Almond|almonds]]
+* 4 cups ({{convert|1|l|USqt|abbr=on|disp=s}}) water
+* [[Cookbook:Date|Dates]] (optional)
+* Salt (optional)
+
+== Special equipment ==
+
+* [[Cookbook:Blender|Blender]]
+* [[Cookbook:Cheesecloth|Cheesecloth]]
+* [[Cookbook:Sieve|Sieve]]
+
+== Procedure ==
+
+# Soak the almonds in the water overnight. They should swell and become supple.
+# Grind the soaked almonds and water in a blender. Blend in a pinch of salt and a few dates if desired.
+# Strain the almond mixture through a fine filter to remove the almond solids. Folded cheesecloth or a nut milk bag work well.
+# Use the almond milk immediately or chill.
+
+== Notes, tips, and variations ==
+
+* Almond meal, which is made from the leftover chaff, can be used in smoothies and other recipes that call for almonds or almond flour.
+
+[[Category:Recipes using almond]]
+[[Category:Recipes for plant milk]]

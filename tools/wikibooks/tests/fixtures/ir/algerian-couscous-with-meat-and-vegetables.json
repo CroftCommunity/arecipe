@@ -1,0 +1,298 @@
+{
+  "ingredients": [
+    {
+      "display": "500 g (about 2½ cups) fine or medium couscous",
+      "optional": false,
+      "raw": "500 [[Cookbook:Gram|g]] (about 2½ [[Cookbook:Cup|cups]]) fine or medium [[Cookbook:Couscous|couscous]]",
+      "refs": [
+        "Gram",
+        "Cup",
+        "Couscous"
+      ]
+    },
+    {
+      "display": "2 tablespoons olive oil",
+      "optional": false,
+      "raw": "2 [[Cookbook:Tablespoon|tablespoons]] [[Cookbook:Olive Oil|olive oil]]",
+      "refs": [
+        "Tablespoon",
+        "Olive Oil"
+      ]
+    },
+    {
+      "display": "500 ml (2 cups) warm water",
+      "optional": false,
+      "raw": "500 [[Cookbook:Milliliter|ml]] (2 cups) warm water",
+      "refs": [
+        "Milliliter"
+      ]
+    },
+    {
+      "display": "250 ml (1 cup) water mixed with 1 teaspoon salt",
+      "optional": false,
+      "raw": "250 ml (1 cup) water mixed with 1 [[Cookbook:Teaspoon|teaspoon]] [[Cookbook:Salt|salt]]",
+      "refs": [
+        "Teaspoon",
+        "Salt"
+      ]
+    },
+    {
+      "display": "500 g (1 lb) lamb, chicken, or beef, cut into chunks",
+      "optional": false,
+      "raw": "500 g (1 [[Cookbook:Pound|lb]]) [[Cookbook:Lamb and Mutton|lamb]], [[Cookbook:Chicken|chicken]], or [[Cookbook:Beef|beef]], cut into chunks",
+      "refs": [
+        "Pound",
+        "Lamb and Mutton",
+        "Chicken",
+        "Beef"
+      ]
+    },
+    {
+      "display": "2 large onions, finely chopped",
+      "optional": false,
+      "raw": "2 large [[Cookbook:Onion|onions]], finely [[Cookbook:Chopping|chopped]]",
+      "refs": [
+        "Onion",
+        "Chopping"
+      ]
+    },
+    {
+      "display": "3 cloves garlic, minced",
+      "optional": false,
+      "raw": "3 cloves [[Cookbook:Garlic|garlic]], [[Cookbook:Mince|minced]]",
+      "refs": [
+        "Garlic",
+        "Mince"
+      ]
+    },
+    {
+      "display": "2 tablespoons tomato paste",
+      "optional": false,
+      "raw": "2 tablespoons [[Cookbook:Tomato Paste|tomato paste]]",
+      "refs": [
+        "Tomato Paste"
+      ]
+    },
+    {
+      "display": "2 tablespoons olive oil",
+      "optional": false,
+      "raw": "2 tablespoons olive oil",
+      "refs": []
+    },
+    {
+      "display": "1 teaspoon ground cumin",
+      "optional": false,
+      "raw": "1 teaspoon ground [[Cookbook:Cumin|cumin]]",
+      "refs": [
+        "Cumin"
+      ]
+    },
+    {
+      "display": "1 teaspoon ground coriander",
+      "optional": false,
+      "raw": "1 teaspoon ground [[Cookbook:Coriander|coriander]]",
+      "refs": [
+        "Coriander"
+      ]
+    },
+    {
+      "display": "1 teaspoon paprika",
+      "optional": false,
+      "raw": "1 teaspoon [[Cookbook:Paprika|paprika]]",
+      "refs": [
+        "Paprika"
+      ]
+    },
+    {
+      "display": "½ teaspoon ground turmeric",
+      "optional": false,
+      "raw": "½ teaspoon ground [[Cookbook:Turmeric|turmeric]]",
+      "refs": [
+        "Turmeric"
+      ]
+    },
+    {
+      "display": "½ teaspoon cinnamon (optional, for a hint of sweetness)",
+      "optional": false,
+      "raw": "½ teaspoon [[Cookbook:Cinnamon|cinnamon]] (optional, for a hint of sweetness)",
+      "refs": [
+        "Cinnamon"
+      ]
+    },
+    {
+      "display": "1.5 liters (6 cups) water or broth",
+      "optional": false,
+      "raw": "1.5 liters (6 cups) water or [[Cookbook:Broth and Stock|broth]]",
+      "refs": [
+        "Broth and Stock"
+      ]
+    },
+    {
+      "display": "Salt and pepper to taste",
+      "optional": false,
+      "raw": "Salt and [[Cookbook:Pepper|pepper]] to taste",
+      "refs": [
+        "Pepper"
+      ]
+    },
+    {
+      "display": "2 carrots, peeled and cut into chunks",
+      "optional": false,
+      "raw": "2 [[Cookbook:Carrot|carrots]], peeled and cut into chunks",
+      "refs": [
+        "Carrot"
+      ]
+    },
+    {
+      "display": "2 zucchini, cut into chunks",
+      "optional": false,
+      "raw": "2 [[Cookbook:Zucchini|zucchini]], cut into chunks",
+      "refs": [
+        "Zucchini"
+      ]
+    },
+    {
+      "display": "2 potatoes, peeled and cut into chunks",
+      "optional": false,
+      "raw": "2 [[Cookbook:Potato|potatoes]], peeled and cut into chunks",
+      "refs": [
+        "Potato"
+      ]
+    },
+    {
+      "display": "1 turnip, peeled and cut into chunks",
+      "optional": false,
+      "raw": "1 [[Cookbook:Turnip|turnip]], peeled and cut into chunks",
+      "refs": [
+        "Turnip"
+      ]
+    },
+    {
+      "display": "1 cup pumpkin or other hard squash, cut into chunks",
+      "optional": false,
+      "raw": "1 cup [[Cookbook:Pumpkin|pumpkin]] or other hard [[Cookbook:Squash|squash]], cut into chunks",
+      "refs": [
+        "Pumpkin",
+        "Squash"
+      ]
+    },
+    {
+      "display": "1 cup cooked chickpeas (canned or pre-cooked)",
+      "optional": false,
+      "raw": "1 cup cooked [[Cookbook:Chickpea|chickpeas]] (canned or pre-cooked)",
+      "refs": [
+        "Chickpea"
+      ]
+    },
+    {
+      "display": "1 green bell pepper, cut into chunks",
+      "optional": false,
+      "raw": "1 green [[Cookbook:Bell Pepper|bell pepper]], cut into chunks",
+      "refs": [
+        "Bell Pepper"
+      ]
+    }
+  ],
+  "lead": "Algerian couscous (Arabic: كسكس, Berber: ⵙⴽⵙⵓ) is a traditional Algerian dish that holds a central place in Algerian cuisine. It is a staple food in Algeria, often served during family gatherings, religious celebrations and special occasions. Algerian couscous is characterized by its light, fluffy texture, aromatic spices and a rich stew of meat, vegetables and legumes.",
+  "parseFlags": [
+    {
+      "code": "image-unresolved",
+      "detail": "Couscous (Algérie, lieu exact non précisé).jpg"
+    },
+    {
+      "code": "ingredients-prose",
+      "detail": "Couscous"
+    },
+    {
+      "code": "ingredients-prose",
+      "detail": "Stew"
+    }
+  ],
+  "procedure": [
+    {
+      "refs": [],
+      "text": "To hydrate the couscous, mix the couscous with olive oil and a little salt in a large bowl. Rub the grains between your hands to coat them evenly with oil. Gradually add the warm water while stirring to moisten the couscous. Let it sit for 10 minutes to absorb the water."
+    },
+    {
+      "refs": [
+        "Steamer",
+        "Steaming",
+        "Simmering",
+        "Colander"
+      ],
+      "text": "Transfer the couscous to a couscoussier (a traditional steamer) or a fine-mesh steamer basket. Steam over simmering water for 20 minutes, fluffing the couscous with a fork every 10 minutes to prevent clumping. If you don’t have a steamer, you can use a colander placed over a pot of boiling water, covered with a lid."
+    },
+    {
+      "refs": [],
+      "text": "After the first steam, transfer the couscous back to a large bowl."
+    },
+    {
+      "refs": [],
+      "text": "Gradually sprinkle the salted water over the couscous while using your hands or a fork to break up any clumps. This step ensures the couscous is evenly seasoned and moist."
+    },
+    {
+      "refs": [],
+      "text": "Let the couscous cool for 10–15 minutes. This allows the grains to absorb the salted water and prepares them for the second steam."
+    },
+    {
+      "refs": [],
+      "text": "In a large pot, heat the olive oil over medium heat. Add the meat and brown it on all sides. Remove and set aside."
+    },
+    {
+      "refs": [
+        "Sautéing"
+      ],
+      "text": "In the same pot, add the chopped onions and garlic. Sauté until softened and golden."
+    },
+    {
+      "refs": [],
+      "text": "Stir in the tomato paste, cumin, coriander, paprika, turmeric, and cinnamon (if using). Cook for 2–3 minutes to release the flavors."
+    },
+    {
+      "refs": [
+        "Boiling"
+      ],
+      "text": "Return the meat to the pot and add the water or broth. Season with salt and pepper. Bring to a boil, then reduce the heat to low, cover and simmer for about 1 hour or until the meat is tender."
+    },
+    {
+      "refs": [],
+      "text": "Return the couscous to the steamer. Steam for another 20 minutes, fluffing with a fork every 10 minutes. This second steam ensures the couscous is light, fluffy and fully cooked."
+    },
+    {
+      "refs": [],
+      "text": "After the meat has simmered for 30 minutes, add the carrots, turnip and potatoes. Continue simmering for another 15 minutes."
+    },
+    {
+      "refs": [],
+      "text": "Add the zucchini, pumpkin and chickpeas. Cook until all the vegetables are tender but not mushy (about 15–20 minutes)."
+    },
+    {
+      "refs": [],
+      "text": "Once the couscous is steamed for the second time, transfer it to a large serving dish. Drizzle a ladle of broth from the stew over the couscous, and fluff it with a fork to separate the grains."
+    },
+    {
+      "refs": [],
+      "text": "Place the couscous on a large platter, arrange the meat and vegetables on top, and pour some of the broth over everything."
+    }
+  ],
+  "publishable": true,
+  "sections": [
+    {
+      "heading": "Notes, tips, and variations",
+      "text": "* This is the most basic and common Algerian couscous recipe, and there are multiple recipes and variations available all across Algeria."
+    }
+  ],
+  "summary": {
+    "category": "Couscous recipes",
+    "difficulty": 4,
+    "image": "Couscous (Algérie, lieu exact non précisé).jpg",
+    "servings": "6–8",
+    "servingsHint": {
+      "max": 8,
+      "min": 6
+    },
+    "time": "3 hours (including simmering and double steaming)",
+    "timeMinutesHint": 180
+  },
+  "title": "Algerian Couscous with Meat and Vegetables"
+}

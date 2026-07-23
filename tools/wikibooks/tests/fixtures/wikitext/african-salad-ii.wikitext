@@ -1,0 +1,61 @@
+{{Recipe summary
+| Category = Salad recipes
+| Difficulty = 3
+}}
+
+{{Recipe}}
+
+== Ingredients ==
+When preparing Abacha, the more ingredients used, the tastier and more "complete" the dish will be:
+
+* 3 handfuls abacha (shredded dried [[Cookbook:Cassava|cassava]])
+* 2 cups [[Cookbook:Ugba|ugba]] (ukpaka)
+* 30 cl red [[Cookbook:Palm Oil|palm oil]]
+* 2 tablespoons powdered edible [[Cookbook:Potash|potash]] (food tenderizer)
+* 2 teaspoons ground [[Cookbook:Calabash Nutmeg|Ehu]] seeds (Calabash Nutmeg)
+* [[Cookbook:Habanero|Habanero]] pepper, to taste
+* 4 tablespoons [[Cookbook:Ground Crayfish|ground crayfish]]
+* 2 [[Cookbook:Bouillon Cube|stock cubes]] (preferably Knorr brand), crushed
+* 2 [[Cookbook:Onion|onions]], diced
+* [[Cookbook:Ogiri|Ogiri]] (castor seed paste)
+* Other meat and vegetables for the Abacha
+* [[Cookbook:Fish|Fish]]([[Cookbook:Mackerel|mackerel]]/[[Cookbook:Dryfish|dryfish]]/[[Cookbook:Stockfish|stockfish]])
+* [[Cookbook:Ponmo|Ponmo]]/kanda (cow skin)
+* 3 fresh [[Cookbook:Utazi|utazi]] leaves
+* [[Cookbook:Salt|Salt]], to taste
+* Garden eggs (white [[Cookbook:Eggplant|eggplant]])
+* Garden egg leaves
+
+== Procedure ==
+# Soak the shredded abacha in cold water for 10 minutes until it softens. Pour [[Cookbook:Boiling|boiling]] water over it and drain.
+# Rinse the ugba with warm water.
+# Dissolve the potash in water and [[Cookbook:Sieve|sieve]] out any residual solids.
+# Stir the potash water with the palm oil in a pot until it forms a yellowish paste. Place on the heat, and stir in the ground ehu, pepper, crayfish, and seasoning.
+# Stir in the crushed stock cubes, diced onions, and ugba. Take off the heat.
+# Mix in the ogiri, then add meat and fish if using.
+# Mix in the abacha, allowing the ingredients to blend.
+# Add sliced utazi and salt to taste.
+# [[Cookbook:Garnish|Garnish]] with chopped garden egg leaves and sliced onions.
+
+== Notes, tips, and variations ==
+* Abacha is made by boiling and grating/shredding [[Cookbook:Cassava|cassava]] tubers.
+* Ukpaka or ugba is shredded oil bean seeds. It is optional, and if not added it won't affect the end result.
+* Red palm oil must be used when preparing abacha.
+* If garden egg leaves are not available, baby [[Cookbook:Spinach|spinach]] leaves are a good alternative.
+* At least one type of fish must be used in preparing abacha. You can use stockfish, dryfish (e.g. catfish, mangala), fried mackerel, and/or smoked fish.
+* Crayfish much be added.
+* Pepper must be used—you can either add habanero pepper (recommended) or dry cayenne pepper. Habanero pepper is atarodo, atarugu or ose oyibo. Black pepper is not a good fit for abacha.
+* Add ogiri for the classic traditional taste, but if not available you should add stock cubes.
+* Edible potash (akanwu, kaun, keun) is what makes palm oil curdle and it is a must. If you do not have it or you do not want to eat edible potash, baking soda (bicarbonate of soda) has similar properties.
+* Be careful when adding salt, since the dish contains lots of ingredients that already have salt (stockfish, stock cubes, crayfish, etc).
+
+[[Category:Igbo recipes]]
+[[Category:Recipes for salad]]
+[[Category:Recipes using calabash nutmeg]]
+[[Category:Recipes using cassava]]
+[[Category:Recipes using ground crayfish]]
+[[Category:Recipes using dehydrated broth]]
+[[Category:Recipes using fish]]
+[[Category:Recipes using garden egg]]
+[[Category:Recipes using habanero]]
+[[Category:Recipes using mackerel]]

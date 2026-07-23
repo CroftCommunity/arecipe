@@ -1,0 +1,71 @@
+__NOTOC__{{recipesummary|category=Recipes for dessert|servings=15|time=1 hour 30 minutes|difficulty=3}}
+{{Recipe|Brownies, 20-ingredient}}{{Nutritionsummary|1 square (200 g)|15|1006|647|71.5 g|42.9 g|108 mg|543 mg|76.9 g|1.3 g|66.2 g|12.9 g|4%|3%|16%|7%}}
+'''20-ingredient brownies''' is a [[Cookbook:Dessert|dessert]] containing 20 ingredients. It is adapted from recipe from the YouTube channel Tasty.<ref>https://google.miraheze.org/wiki/YouTube_Wiki:20-Ingredient_vs._10-Ingredient_vs._2-Ingredient_Brownie_%E2%80%A2_Tasty</ref>
+== Ingredients ==
+
+=== Brownie ===
+* 1½ [[Cookbook:Cup|cups]] (275 [[Cookbook:Gram|g]] / 10 [[Cookbook:Ounce|oz]]) [[Cookbook:Brown Sugar|brown sugar]]
+* 1 cup (200 g / 7 oz) white [[Cookbook:Granulated Sugar|granulated sugar]]
+* 3 sticks (375 g / 13 oz) [[Cookbook:Butter|butter]], melted
+* 4 [[Cookbook:Each|ea]]. (200 g) [[Cookbook:Egg|eggs]]
+* 2 [[Cookbook:Teaspoon|teaspoons]] [[Cookbook:Salt|salt]]
+* 1 [[Cookbook:Tablespoon|tablespoon]] [[Cookbook:Vanilla|vanilla]] extract
+* 8 oz (227 g) dark [[Cookbook:Chocolate|chocolate]]
+* 1½ cups (200 g / 7 oz) all-purpose flour
+* ½ cup (60 g / 2 oz) dutch processed cocoa powder
+* 8 oz (227 g) semisweet [[Cookbook:Chocolate|chocolate]], [[Cookbook:Chopping|chopped]]
+
+=== Topping ===
+* 16 [[Cookbook:Ounce|oz]] (450 g) [[Cookbook:Cream Cheese|cream cheese]]
+* 1 cup (300 g / 10.5 oz) [[Cookbook:Mascarpone Cheese|mascarpone cheese]]
+* ½ cup (110 g / 4 oz) white granulated [[Cookbook:Sugar|sugar]]
+* 1 teaspoon vanilla extract
+* 1 [[Cookbook:Each|ea]]. (50 g) [[Cookbook:Egg|egg]]
+* 2 tablespoons [[Cookbook:Milk|milk]]
+
+=== Frosting ===
+* 11 oz (310 g) chocolate
+* 11 oz (330 [[Cookbook:Milliliter|ml]] / 1⅓ cups) heavy [[Cookbook:Cream|cream]], heated
+* 1 teaspoon [[Cookbook: Salt|salt]]
+* Flaky salt to garnish
+
+== Procedure ==
+
+=== Brownie ===
+#Preheat the [[Cookbook:Oven|oven]] to [[Cookbook:Oven Temperatures|180°C (356°F)]]. Line a 33 x 23 [[Cookbook:Centimetre (cm)|cm]] (13 x 9-[[Cookbook:Inch|inch]]) baking pan with [[Cookbook:Parchment Paper|parchment]].
+#Melt dark chocolate in [[Cookbook:Microwave|microwave]] using 30-second bursts. Leave it to cool.
+#[[Cookbook:Beat|Beat]] the butter and sugars in a large bowl until combined.
+#Beat in the eggs, salt and vanilla, then beat in the melted chocolate.
+#[[Cookbook:Folding|Fold]] in the flour and cocoa, then the chopped chocolate.
+#Pour the mixture into the lined baking pan.
+#[[Cookbook:Baking|Bake]] for 25 minutes.
+
+=== Topping ===
+#Meanwhile, make the topping by beating the cheeses in a medium-sized bowl until soft.
+#Beat in the sugar and vanilla, then beat in the egg and milk.
+#Take the brownie out of the oven after the 25 minutes of baking.
+#Pour the mixture over the brownie and bake for a further 30 minutes.
+#Take the brownie out of the oven and leave it to cool.
+
+=== Frosting ===
+#Make the [[Cookbook:Ganache|ganache]] by mixing together the chocolate, hot cream and salt in a bowl until melted.
+#Pour the ganache over the brownie and chill in the fridge for at least a few hours until set.
+#Sprinkle the brownie with a light sprinkle of salt.
+#Trim the brownie and cut into 15 squares.
+== References ==
+{{reflist}}
+
+{{DEFAULTSORT:Brownies, 20-ingredient}}
+[[Category:Recipes for brownies]]
+[[Category:Recipes using dark chocolate]]
+[[Category:Recipes using butter]]
+[[Category:Recipes using egg]]
+[[Category:Recipes for dessert]]
+[[Category:Recipes for bars]]
+[[Category:Recipes using brown sugar]]
+[[Category:Recipes using granulated sugar]]
+[[Category:Recipes using cream cheese]]
+[[Category:Recipes using mascarpone]]
+[[Category:Recipes using cocoa powder]]
+[[Category:Recipes using all-purpose flour]]
+[[Category:Recipes using cow milk]]

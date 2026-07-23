@@ -1,0 +1,292 @@
+{
+  "ingredients": [
+    {
+      "display": "2 medium yellow onions, cut into large chunks",
+      "optional": false,
+      "raw": "2 medium yellow [[Cookbook:Onion|onions]], cut into large chunks",
+      "refs": [
+        "Onion"
+      ]
+    },
+    {
+      "display": "3–4 Italian frying peppers (also known as cubanelle peppers)",
+      "optional": false,
+      "raw": "3–4 Italian frying peppers (also known as [[Cookbook:Cubanelle Pepper|cubanelle peppers]])",
+      "refs": [
+        "Cubanelle Pepper"
+      ]
+    },
+    {
+      "display": "16–20 cloves garlic, peeled",
+      "optional": false,
+      "raw": "16–20 cloves [[Cookbook:Garlic|garlic]], peeled",
+      "refs": [
+        "Garlic"
+      ]
+    },
+    {
+      "display": "1 large bunch cilantro macho or common cilantro, washed (with roots if possible but just the leaves and stems are fine)",
+      "optional": false,
+      "raw": "1 large bunch [[Cookbook:Cilantro|cilantro]] macho or common cilantro, washed (with roots if possible but just the leaves and stems are fine)",
+      "refs": [
+        "Cilantro"
+      ]
+    },
+    {
+      "display": "10–12 ají dulce chile peppers, seeded (e.g. ají cachucha, quechucha, ajicito, or ají gustoso)",
+      "optional": false,
+      "raw": "10–12 ají dulce [[Cookbook:Chiles|chile peppers]], seeded (e.g. ''ají cachucha'', ''quechucha'', ''ajicito'', or ''ají gustoso'')",
+      "refs": [
+        "Chiles"
+      ]
+    },
+    {
+      "display": "10 leaves of culantro (recao), or another handful of cilantro",
+      "optional": false,
+      "raw": "10 leaves of [[Cookbook:Culantro|culantro]] (recao), or another handful of cilantro",
+      "refs": [
+        "Culantro"
+      ]
+    },
+    {
+      "display": "3–4 ripe plum tomatoes, seeded, cored and cut into chunks or roasted then skin and seeds removed",
+      "optional": false,
+      "raw": "3–4 ripe plum [[Cookbook:Tomato|tomatoes]], seeded, cored and cut into chunks or roasted then skin and seeds removed",
+      "refs": [
+        "Tomato"
+      ]
+    },
+    {
+      "display": "1 large red bell pepper, cored, seeded and cut into large chunks or roasted first then seeds and some skin removed",
+      "optional": false,
+      "raw": "1 large red [[Cookbook:Bell Pepper|bell pepper]], cored, seeded and cut into large chunks or roasted first then seeds and some skin removed",
+      "refs": [
+        "Bell Pepper"
+      ]
+    },
+    {
+      "display": "½ cup extra-virgin olive oil",
+      "optional": false,
+      "raw": "½ [[Cookbook:Cup|cup]] extra-virgin [[Cookbook:Olive Oil|olive oil]]",
+      "refs": [
+        "Cup",
+        "Olive Oil"
+      ]
+    },
+    {
+      "display": "1 tablespoon achiote (annatto) seeds",
+      "optional": false,
+      "raw": "1 [[Cookbook:Tablespoon|tablespoon]] achiote ([[Cookbook:Annatto|annatto]]) seeds",
+      "refs": [
+        "Tablespoon",
+        "Annatto"
+      ]
+    },
+    {
+      "display": "3 cups sofrito (recipe above)",
+      "optional": false,
+      "raw": "3 cups sofrito (recipe above)",
+      "refs": []
+    },
+    {
+      "display": "½ cup coarsely-chopped alcaparrado (manzanilla olives, pimiento, and capers)",
+      "optional": false,
+      "raw": "½ cup coarsely-[[Cookbook:Chopping|chopped]] [[Cookbook:Alcaparrado|alcaparrado]] (manzanilla [[Cookbook:Olive|olives]], pimiento, and [[Cookbook:Caper|capers]])",
+      "refs": [
+        "Chopping",
+        "Alcaparrado",
+        "Olive",
+        "Caper"
+      ]
+    },
+    {
+      "display": "3 tablespoons of salt",
+      "optional": false,
+      "raw": "3 tablespoons of salt",
+      "refs": []
+    },
+    {
+      "display": "1 tablespoon fresh cracked black pepper",
+      "optional": false,
+      "raw": "1 tablespoon fresh cracked black [[Cookbook:Pepper|pepper]]",
+      "refs": [
+        "Pepper"
+      ]
+    },
+    {
+      "display": "1 tablespoon cumin seeds or ground cumin or more to taste",
+      "optional": false,
+      "raw": "1 tablespoon [[Cookbook:Cumin|cumin]] seeds or ground cumin or more to taste",
+      "refs": [
+        "Cumin"
+      ]
+    },
+    {
+      "display": "2 teaspoons coriander seeds or ground coriander or more to taste",
+      "optional": false,
+      "raw": "2 teaspoons [[Cookbook:Coriander|coriander]] seeds or ground coriander or more to taste",
+      "refs": [
+        "Coriander"
+      ]
+    },
+    {
+      "display": "5 tablespoons (⅓ cup) chopped Mexican mint (optional)",
+      "optional": true,
+      "raw": "5 tablespoons (⅓ cup) chopped [[Cookbook:Mexican Mint|Mexican mint]] (optional)",
+      "refs": [
+        "Mexican Mint"
+      ]
+    },
+    {
+      "display": "2 green plantains or 3 green bananas grated",
+      "optional": false,
+      "raw": "2 green plantains or 3 green bananas grated",
+      "refs": []
+    },
+    {
+      "display": "1–2 whole pieces of smoked ham hock or smoked turkey, depending how big just for flavor",
+      "optional": false,
+      "raw": "1–2 whole pieces of smoked ham hock or smoked turkey, depending how big just for flavor",
+      "refs": []
+    },
+    {
+      "display": "1½ pounds Puerto Rican salami (salchichón), ham, or chorizo, diced",
+      "optional": false,
+      "raw": "1½ [[Cookbook:Pound|pounds]] Puerto Rican [[Cookbook:Salami|salami]] (salchichón), [[Cookbook:Ham|ham]], or chorizo, [[Cookbook:Dice|diced]]",
+      "refs": [
+        "Pound",
+        "Salami",
+        "Ham",
+        "Dice"
+      ]
+    },
+    {
+      "display": "6 cups medium grain rice (do not rinse)",
+      "optional": false,
+      "raw": "6 cups medium grain [[Cookbook:Rice|rice]] (do not rinse)",
+      "refs": [
+        "Rice"
+      ]
+    },
+    {
+      "display": "1 bag (13 ounces) of frozen pigeon peas or 1 can (15 ounces) of pigeon peas",
+      "optional": false,
+      "raw": "1 bag (13 [[Cookbook:Ounce|ounces]]) of frozen [[Cookbook:Pigeon Pea|pigeon peas]] or 1 can (15 ounces) of pigeon peas",
+      "refs": [
+        "Ounce",
+        "Pigeon Pea"
+      ]
+    },
+    {
+      "display": "About 7 cups beef, chicken, turkey, or vegetable broth",
+      "optional": false,
+      "raw": "About 7 cups beef, chicken, turkey, or vegetable [[Cookbook:Broth|broth]]",
+      "refs": [
+        "Broth"
+      ]
+    },
+    {
+      "display": "6 bay leaves or avocado leaves",
+      "optional": false,
+      "raw": "6 [[Cookbook:Bay Leaf|bay leaves]] or avocado leaves",
+      "refs": [
+        "Bay Leaf"
+      ]
+    },
+    {
+      "display": "1 banana leaf or plantain leaf (optional)",
+      "optional": true,
+      "raw": "1 [[Cookbook:Banana|banana]] leaf or [[Cookbook:Plantain|plantain]] leaf (optional)",
+      "refs": [
+        "Banana",
+        "Plantain"
+      ]
+    }
+  ],
+  "lead": "Arroz con gandules is a Puerto Rican dish of rice, pigeon peas, smoked meat, and sofrito.",
+  "parseFlags": [
+    {
+      "code": "ingredients-prose",
+      "detail": "Rice"
+    },
+    {
+      "code": "ingredients-prose",
+      "detail": "Sofrito"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "Rice"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "Sofrito"
+    }
+  ],
+  "procedure": [
+    {
+      "refs": [
+        "Blender"
+      ],
+      "text": "Add chopped onions to blender, and blend until liquefied."
+    },
+    {
+      "refs": [],
+      "text": "With the motor running, add the remaining sofrito ingredients one at a time and process until smooth."
+    },
+    {
+      "refs": [],
+      "text": "Remove and reserve 3 cups of sofrito for rice."
+    },
+    {
+      "refs": [
+        "Skillet",
+        "Dutch Oven"
+      ],
+      "text": "Heat the oil and annatto seeds in a small skillet over medium heat just until the seeds give off a lively, steady sizzle. Don't overheat the mixture or the seeds will turn black and the oil green. Once they're sizzling, pull the pan from the heat and let stand until the sizzling stops. Strain as much of the oil as you can into a heavy 5-quart pot or Dutch oven and let it stand for at least 5 minutes."
+    },
+    {
+      "refs": [
+        "Spice Grinder",
+        "Coffee Grinder",
+        "Mortar and Pestle"
+      ],
+      "text": "Lightly toast the cumin and coriander seeds in a small skillet over low heat for a few minutes before grinding them releases flavor and aroma. Keep an eye on them, they turn dark fast. Grind in a little spice grinder, coffee mill, or mortar and pestle."
+    },
+    {
+      "refs": [],
+      "text": "If using frozen pigeon peas, boil them for 10 minutes before using. If using from a can, drain the liquid and rinse the peas."
+    },
+    {
+      "refs": [],
+      "text": "Re-heat oil over high heat until rippling. Stir in ham hock and salami and brown. Add sofrito, alcaparrado, grated plantain, and salt. Cook until sofrito stops boiling and sizzles, about 5 minutes."
+    },
+    {
+      "refs": [],
+      "text": "Add cumin, coriander, orégano brujo, bay leaves or avocado leaves, and black pepper. Cook, stirring in the sofrito for an additional 30–45 seconds until the aroma release from spices."
+    },
+    {
+      "refs": [],
+      "text": "Stir in the rice and peas until everything is mixed together and rice is coated with oil all over. Stir in enough broth or water to cover the rice by the width of two fingers. Top with banana leaf (or pan lid), folding it up as necessary to fit over rice or can cut what ever sticks out pot."
+    },
+    {
+      "refs": [],
+      "text": "Bring to a boil, then boil without stirring until the level of liquid meets the rice. Remove the banana leaf, give the rice a big stir, and put leaf back on top."
+    },
+    {
+      "refs": [],
+      "text": "Reduce the heat to low, cover the pot with lid, and cook until the water has been absorbed and the rice is tender (about 20 minutes)."
+    }
+  ],
+  "publishable": true,
+  "sections": [
+    {
+      "heading": "Notes, tips, and variations",
+      "text": "* The remaining sofrito will keep in the refrigerator for up to 3 days or freeze in ice trays and it will last a month. Tomatoes can be roasted and passed threw a strainer, removing seeds and skin as an option. Red peppers are usually roasted on an open flame before blending into sofrito.\n* Homemade broth is best, but you can use store-bought or water."
+    }
+  ],
+  "summary": {
+    "category": "Rice recipes",
+    "difficulty": 3
+  },
+  "title": "Arroz con Gandules (Puerto Rican Rice and Pigeon Peas)"
+}
