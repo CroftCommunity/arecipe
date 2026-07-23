@@ -129,6 +129,48 @@ export const shareIcon = (): SVGSVGElement => {
   return svg;
 };
 
+// ---- Sort glyph ---------------------------------------------------------------
+// TWO ARROWS, one down one up, mark the toolbar Sort control — the widely-read
+// "sort" symbol. Same posture as the other glyphs: currentColor stroke, no
+// fill, geometry pinned in exported constants (Lucide "arrow-up-down"). Four
+// stroked paths: an arrowhead + stem per arrow.
+
+/** Committed glyph geometry — pinned by tests/unit/icons.spec.ts. */
+export const SORT_ICON_VIEWBOX = '0 0 24 24';
+/** Right column: the down-pointing arrowhead. */
+export const SORT_ICON_DOWN_ARROW_PATH = 'm21 16-4 4-4-4';
+/** Right column: the stem the down arrow falls along. */
+export const SORT_ICON_DOWN_STEM_PATH = 'M17 20V4';
+/** Left column: the up-pointing arrowhead. */
+export const SORT_ICON_UP_ARROW_PATH = 'm3 8 4-4 4 4';
+/** Left column: the stem the up arrow rises along. */
+export const SORT_ICON_UP_STEM_PATH = 'M7 4v16';
+
+/** An inline sort glyph: two opposing arrows, currentColor stroke, no fill,
+ *  aria-hidden (the accessible name lives on the control). */
+export const sortIcon = (): SVGSVGElement => {
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('viewBox', SORT_ICON_VIEWBOX);
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.setAttribute('stroke-linejoin', 'round');
+  svg.setAttribute('aria-hidden', 'true');
+
+  for (const d of [
+    SORT_ICON_DOWN_ARROW_PATH,
+    SORT_ICON_DOWN_STEM_PATH,
+    SORT_ICON_UP_ARROW_PATH,
+    SORT_ICON_UP_STEM_PATH,
+  ]) {
+    const path = document.createElementNS(SVG_NS, 'path');
+    path.setAttribute('d', d);
+    svg.append(path);
+  }
+  return svg;
+};
+
 /** A quick link to the Reference page wrapping the open-book glyph. Icon-only,
  *  so the label is the accessible name (`aria-label` + `title`). Shared
  *  `.reference-link` class + testid style/locate every site alike. */

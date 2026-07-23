@@ -49,6 +49,14 @@ const openFilters = async (page: Page): Promise<void> => {
   if (!open) await dd.locator('summary').click();
 };
 
+// The Sort control is the icon-only disclosure next to Filters; open it before
+// picking a mode (a pick closes it again).
+const openSort = async (page: Page): Promise<void> => {
+  const dd = page.getByTestId('sort-dd');
+  const open = await dd.evaluate((node) => (node as HTMLDetailsElement).open);
+  if (!open) await dd.locator('summary').click();
+};
+
 test('photos-only hides the image-less recipe and updates the count (wiring)', async ({ page }) => {
   await routeMixedFeed(page);
   await page.goto('/');
@@ -595,4 +603,36 @@ test('taste preference: the count IS the eligible pool; on-tab filters count aga
   // out of the pool).
   await expect(page.getByTestId('recipe-item')).toHaveCount(1);
   await expect(page.getByTestId('recipes-status')).toHaveText('1 of 2 recipes');
+});
+
+// Sort wiring: the toolbar Sort menu reorders the shown feed. Deterministic
+// (independent of the daily-mix default) — assert the field sorts, whose order
+// the mixed fixture makes unambiguous:
+//   feed order : Greek Salad, American Pancakes, Italian Minestrone, Greek Vegan Lunch Bowl
+//   name A→Z   : American Pancakes first
+//   date newest: Greek Vegan Lunch Bowl (2026-07-04) first
+const firstTitle = (page: Page) => page.getByTestId('recipe-item').first().locator('.card-title');
+
+test('Sort reorders the feed by name and by date (wiring)', async ({ page }) => {
+  await routeMixedFeed(page);
+  await page.goto('/');
+  await expect(page.getByTestId('recipe-item').first()).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId('recipe-item')).toHaveCount(4);
+
+  // Name A→Z.
+  await openSort(page);
+  await page.locator('[data-testid="sort-dd"] input[data-sort="name"]').check();
+  await expect(firstTitle(page)).toHaveText('American Pancakes');
+  // The summary reflects a non-default order (the active marker).
+  await expect(page.getByTestId('sort-dd').locator('summary')).toHaveClass(/facet-dd-summary--active/);
+
+  // Date, newest first.
+  await openSort(page);
+  await page.locator('[data-testid="sort-dd"] input[data-sort="date"]').check();
+  await expect(firstTitle(page)).toHaveText('Greek Vegan Lunch Bowl');
+
+  // Back to the daily mix: the active marker clears.
+  await openSort(page);
+  await page.locator('[data-testid="sort-dd"] input[data-sort="default"]').check();
+  await expect(page.getByTestId('sort-dd').locator('summary')).not.toHaveClass(/facet-dd-summary--active/);
 });

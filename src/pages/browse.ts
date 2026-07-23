@@ -18,6 +18,7 @@ import { mergeCookAuthors } from '../social/default-feed.js';
 import { createRecipeReader } from '../recipes/read.js';
 import { createDietPreference } from '../recipes/diet-preference.js';
 import { createSearchMemo, queryEntries } from '../recipes/search.js';
+import { sortEntries } from '../recipes/sort.js';
 import { availableFacets, createBrowsePrefs, matchesFilter, recipeFacets, type BrowseState } from './browse-state.js';
 import { createTastePreference, matchesTaste } from '../recipes/taste-preference.js';
 import { windowPage } from '../recipes/paginate.js';
@@ -153,7 +154,11 @@ const main = (): void => {
 
   // A neutral state for the eligibility pass: no on-tab filters, so only the
   // standing preferences (diet via matchesFilter, taste via matchesTaste) apply.
-  const NO_TAB_FILTERS: BrowseState = { view: 'tiles', photosOnly: false, facets: { cuisine: [], category: [] } };
+  const NO_TAB_FILTERS: BrowseState = { view: 'tiles', photosOnly: false, sort: 'default', facets: { cuisine: [], category: [] } };
+
+  // The daily-mix seed: today's calendar day (UTC). Read per render so the
+  // default order rolls over at midnight without a reload. Field sorts ignore it.
+  const todaySeed = (): string => new Date().toISOString().slice(0, 10);
 
   // The user's eligible pool: hidden recipes removed, then the Settings-owned
   // standing preferences (diet + taste) applied. Everything downstream — the
@@ -178,6 +183,7 @@ const main = (): void => {
     return {
       view: state.view,
       photosOnly: state.photosOnly,
+      sort: state.sort,
       facets: {
         cuisine: state.facets.cuisine.filter((c) => available.cuisine.includes(c)),
         category: state.facets.category.filter((c) => available.category.includes(c)),
@@ -206,7 +212,15 @@ const main = (): void => {
     // is the identity (facet order preserved). The index is over the whole feed
     // (stable identity) — queryEntries intersects with the candidates.
     const searcher = searchMemo(current?.entries ?? []);
-    const shown = queryEntries(searcher, query, facetFiltered);
+    const matched = queryEntries(searcher, query, facetFiltered);
+    // Order the shown set. An explicit field sort (name/date/cuisine/meal)
+    // always applies; the daily-mix default yields to text-search relevance
+    // when a query is active (a shuffle of search hits is worse than by-score),
+    // and is the day-seeded shuffle otherwise.
+    const shown =
+      state.sort === 'default' && query.trim() !== ''
+        ? matched
+        : sortEntries(matched, state.sort, { daySeed: todaySeed() });
     return { eligible, shown, effective };
   };
 
@@ -306,6 +320,13 @@ const main = (): void => {
         log.debug('browse', 'query changed', { length: q.trim().length });
         renderCurrent();
       },
+      onSortChange: (sort) => {
+        state = { ...state, sort };
+        browsePrefs.save(state);
+        browseOffset = 0; // reordered → back to page 1
+        log.debug('browse', 'sort changed', { sort });
+        renderCurrent();
+      },
       onReset: () => {
         state = { ...state, photosOnly: false, facets: { cuisine: [], category: [] } };
         browsePrefs.save(state);
@@ -322,6 +343,7 @@ const main = (): void => {
   // Initialize the controls from prefs.
   toolbar.setPhotos(state.photosOnly);
   toolbar.reflectView(state.view);
+  toolbar.setSort(state.sort);
 
   // Export: turn the currently-shown recipes into a downloadable file. The
   // button sits beside "Find recipes"; it opens an inline panel (no native

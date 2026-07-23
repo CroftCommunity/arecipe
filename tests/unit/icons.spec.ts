@@ -18,11 +18,17 @@ import {
   SHARE_ICON_STEM_PATH,
   SHARE_ICON_TRAY_PATH,
   SHARE_ICON_VIEWBOX,
+  SORT_ICON_DOWN_ARROW_PATH,
+  SORT_ICON_DOWN_STEM_PATH,
+  SORT_ICON_UP_ARROW_PATH,
+  SORT_ICON_UP_STEM_PATH,
+  SORT_ICON_VIEWBOX,
   referenceIcon,
   referenceIconLink,
   resetIcon,
   resetIconButton,
   shareIcon,
+  sortIcon,
 } from '../../src/icons.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -150,6 +156,34 @@ describe('shareIcon', () => {
 
   it('returns a fresh node each call (no shared singleton to accidentally re-parent)', () => {
     expect(shareIcon()).not.toBe(shareIcon());
+  });
+});
+
+// --- Sort glyph: the two-arrow mark for the toolbar Sort control. ------------
+describe('sortIcon', () => {
+  it('is an inline SVG: aria-hidden, currentColor stroke, no fill', () => {
+    const svg = sortIcon();
+    expect(svg).toBeInstanceOf(SVGElement);
+    expect(svg.namespaceURI).toBe(SVG_NS);
+    expect(svg.getAttribute('aria-hidden')).toBe('true');
+    expect(svg.getAttribute('stroke')).toBe('currentColor');
+    expect(svg.getAttribute('fill')).toBe('none');
+    expect(svg.getAttribute('viewBox')).toBe(SORT_ICON_VIEWBOX);
+  });
+
+  it('pins the up/down two-arrow geometry to the committed constants', () => {
+    const svg = sortIcon();
+    const paths = svg.querySelectorAll('path');
+    expect(paths.length).toBe(4);
+    // A change here must be a deliberate edit of the committed glyph, not drift.
+    expect(paths[0]!.getAttribute('d')).toBe(SORT_ICON_DOWN_ARROW_PATH);
+    expect(paths[1]!.getAttribute('d')).toBe(SORT_ICON_DOWN_STEM_PATH);
+    expect(paths[2]!.getAttribute('d')).toBe(SORT_ICON_UP_ARROW_PATH);
+    expect(paths[3]!.getAttribute('d')).toBe(SORT_ICON_UP_STEM_PATH);
+  });
+
+  it('returns a fresh node each call (no shared singleton to accidentally re-parent)', () => {
+    expect(sortIcon()).not.toBe(sortIcon());
   });
 });
 

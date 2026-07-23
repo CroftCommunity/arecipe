@@ -11,6 +11,7 @@ import { log } from '../log.js';
 import type { CachedRecipe } from '../recipes/cache.js';
 import type { DietMode } from '../recipes/diet-preference.js';
 import { firstImageCid } from '../recipes/present.js';
+import { SORT_MODES, type SortMode } from '../recipes/sort.js';
 
 type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
@@ -28,6 +29,8 @@ export type RecipeFacets = {
 export type BrowseState = {
   view: ViewMode;
   photosOnly: boolean;
+  /** Feed ordering. `default` is the day-seeded daily mix (see recipes/sort). */
+  sort: SortMode;
   facets: { cuisine: string[]; category: string[] };
 };
 
@@ -127,12 +130,14 @@ export const availableFacets = (
 const keysFor = (prefix: string) => ({
   VIEW_KEY: `${prefix}-view-mode`,
   PHOTOS_KEY: `${prefix}-photos-only`,
+  SORT_KEY: `${prefix}-sort`,
   FACETS_KEY: `${prefix}-facets`,
 });
 
 const defaultState = (view: ViewMode = 'tiles'): BrowseState => ({
   view,
   photosOnly: false,
+  sort: 'default',
   facets: { cuisine: [], category: [] },
 });
 
@@ -148,7 +153,7 @@ export const createBrowsePrefs = (
   opts: { storage?: StorageLike; prefix?: string; defaultView?: ViewMode } = {},
 ): BrowsePrefs => {
   const storage = opts.storage ?? window.localStorage;
-  const { VIEW_KEY, PHOTOS_KEY, FACETS_KEY } = keysFor(opts.prefix ?? 'browse');
+  const { VIEW_KEY, PHOTOS_KEY, SORT_KEY, FACETS_KEY } = keysFor(opts.prefix ?? 'browse');
   const fallbackView = opts.defaultView ?? 'tiles';
   const readItem = (key: string): string | null => {
     try {
@@ -165,6 +170,8 @@ export const createBrowsePrefs = (
       if (view === 'tiles' || view === 'details') state.view = view;
       const photos = readItem(PHOTOS_KEY);
       if (photos !== null) state.photosOnly = photos === 'true';
+      const sort = readItem(SORT_KEY);
+      if (sort !== null && (SORT_MODES as readonly string[]).includes(sort)) state.sort = sort as SortMode;
       const facetsRaw = readItem(FACETS_KEY);
       if (facetsRaw !== null) {
         try {
@@ -181,6 +188,7 @@ export const createBrowsePrefs = (
       try {
         storage.setItem(VIEW_KEY, state.view);
         storage.setItem(PHOTOS_KEY, String(state.photosOnly));
+        storage.setItem(SORT_KEY, state.sort);
         if (state.facets.cuisine.length === 0 && state.facets.category.length === 0) {
           storage.removeItem(FACETS_KEY);
         } else {

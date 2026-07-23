@@ -167,6 +167,7 @@ describe('createSearchMemo — identity memoization', () => {
 const baseState = (over: Partial<BrowseState> = {}): BrowseState => ({
   view: 'tiles',
   photosOnly: false,
+  sort: 'default',
   facets: { cuisine: [], category: [] },
   ...over,
 });

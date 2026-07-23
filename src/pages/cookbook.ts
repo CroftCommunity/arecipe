@@ -33,6 +33,7 @@ import { readFeedMeta, relativeFreshness, writeFeedMeta, type FeedMeta } from '.
 import { createRecipeCache, type CachedRecipe } from '../recipes/cache.js';
 import { availableFacets, createBrowsePrefs, matchesFilter, recipeFacets, type BrowseState } from './browse-state.js';
 import { createSearchMemo, queryEntries } from '../recipes/search.js';
+import { sortEntries } from '../recipes/sort.js';
 import { createTastePreference, matchesTaste } from '../recipes/taste-preference.js';
 import { renderToolbar } from '../recipes/toolbar.js';
 import { renderRecipeDetailsList, renderRecipeList } from '../recipes/view.js';
@@ -222,6 +223,7 @@ const renderFeedView = (
     return {
       view: state.view,
       photosOnly: state.photosOnly,
+      sort: state.sort,
       facets: {
         cuisine: state.facets.cuisine.filter((c) => available.cuisine.includes(c)),
         category: state.facets.category.filter((c) => available.category.includes(c)),
@@ -255,7 +257,14 @@ const renderFeedView = (
     const effective = effectiveState();
     const facetFiltered = eligible.filter((e) => matchesFilter(e.value, { state: effective, diet: [] }));
     // Text search after the facet filter, before render (D5).
-    const shown = queryEntries(searchMemo(indexBase()), query, facetFiltered);
+    const matched = queryEntries(searchMemo(indexBase()), query, facetFiltered);
+    // Order the shown set (same rule as Browse): an explicit field sort always
+    // applies; the daily-mix default yields to search relevance when a query is
+    // active, and is the day-seeded shuffle otherwise.
+    const shown =
+      state.sort === 'default' && query.trim() !== ''
+        ? matched
+        : sortEntries(matched, state.sort, { daySeed: new Date().toISOString().slice(0, 10) });
     // Filtered: the honest "X of N recipes" — "X/N" at phone widths, where the
     // long form pushes the reset + count off the controls row.
     toolbar.setStatus(
@@ -318,6 +327,11 @@ const renderFeedView = (
         query = q;
         renderCurrent();
       },
+      onSortChange: (sort) => {
+        state = { ...state, sort };
+        prefs.save(state);
+        renderCurrent();
+      },
       onReset: () => {
         state = { ...state, photosOnly: false, facets: { cuisine: [], category: [] } };
         prefs.save(state);
@@ -331,6 +345,7 @@ const renderFeedView = (
   });
   toolbar.setPhotos(state.photosOnly);
   toolbar.reflectView(state.view);
+  toolbar.setSort(state.sort);
   container.insertBefore(toolbar.element, feedContainer);
 
   // Source control — on every cookbook view, subject-relative: your own reads

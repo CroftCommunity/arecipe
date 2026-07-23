@@ -63,9 +63,11 @@ test('one action: handle in, verified recipe cards out (wiring)', async ({ page 
   await expect(page.getByTestId('recipes-status')).toHaveText('3 recipes', {
     timeout: 15_000,
   });
-  await expect(page.getByTestId('recipe-item').first()).toContainText(
-    'White Chocolate Strawberry Sourdough Sweet Bread',
-  );
+  // The feed renders in the daily-mix default order (position is day-seeded), so
+  // assert the card is present rather than first.
+  await expect(
+    page.getByTestId('recipe-item').filter({ hasText: 'White Chocolate Strawberry Sourdough Sweet Bread' }),
+  ).toHaveCount(1);
   await expect(page.getByTestId('recipe-item')).toHaveCount(3);
 });
 
@@ -79,7 +81,9 @@ test('a card opens its own page; native back returns to the results (5d wiring)'
   await page.getByTestId('add-cook-submit').click();
   await expect(page.getByTestId('recipe-item')).toHaveCount(3);
 
-  await page.getByTestId('recipe-item').first().click();
+  // Click the specific card (feed order is the day-seeded daily mix, so don't
+  // rely on which one is first).
+  await page.getByTestId('recipe-item').filter({ hasText: 'White Chocolate Strawberry Sourdough' }).click();
   await expect(page).toHaveURL(/recipe\.html\?u=/);
   await expect(page.locator('h2')).toContainText('White Chocolate Strawberry Sourdough');
   await expect(page.getByTestId('recipe-ingredients').locator('li').first()).toBeVisible();
