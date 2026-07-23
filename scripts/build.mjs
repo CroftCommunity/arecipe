@@ -8,6 +8,7 @@ import { createHash } from 'node:crypto';
 import {
   copyFileSync,
   cpSync,
+  existsSync,
   mkdirSync,
   readFileSync,
   readdirSync,
@@ -17,6 +18,14 @@ import {
 import { gzipSync } from 'node:zlib';
 import { buildSync } from 'esbuild';
 import { htmlShell, mdToHtml } from './md-to-html.mjs';
+
+// Gzipped ceiling for the snapshot index.json (RUN-BUNDLE-PRECACHE, D1). Set
+// from D6 measurement: the seed index.json gzips to well under a KB; the corpus
+// (titles + rkeys only, thousands of records) is the design's growth case. 96 KB
+// gzipped leaves generous headroom for the corpus tenant while still failing the
+// build long before the file could defeat its own instant-first-paint purpose.
+// Override per build with SNAPSHOT_INDEX_GZIP_CEILING (used by the gate test).
+const SNAPSHOT_INDEX_GZIP_CEILING = 96 * 1024;
 
 const PAGES = [
   'browse',
@@ -52,6 +61,15 @@ const HTML = {
 rmSync('dist', { recursive: true, force: true }); // no stale artifacts
 mkdirSync('dist', { recursive: true });
 
+// Version string (buildId). Computed up front because the snapshot path
+// (assets/snapshot/<buildId>/) is immutable + versioned, and the page bundles
+// bake it in via __SNAPSHOT_BUILD__ so the boot path knows the exact, precached
+// index.json URL with zero runtime lookup.
+const sha = execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim();
+const now = new Date();
+const date = now.toISOString().slice(0, 10).replaceAll('-', '.');
+const version = `${date}-${sha}`;
+
 // Page bundles with content hashes.
 const result = buildSync({
   entryPoints: PAGES.map((p) => `src/pages/${p}.ts`),
@@ -66,6 +84,7 @@ const result = buildSync({
   entryNames: '[name]-[hash]',
   outdir: 'dist',
   metafile: true,
+  define: { __SNAPSHOT_BUILD__: JSON.stringify(version) },
 });
 const bundleOf = {};
 for (const [outPath, meta] of Object.entries(result.metafile.outputs)) {
@@ -197,11 +216,57 @@ writeFileSync('dist/.nojekyll', '');
 copyFileSync('client-metadata.json', 'dist/client-metadata.json'); // hosted OAuth client id (8c)
 cpSync('assets', 'dist/assets', { recursive: true });
 
+// --- Build-time snapshot (RUN-BUNDLE-PRECACHE, D1) --------------------------
+// scripts/snapshot.mjs (run in CI before this build) captures each seed cook's
+// repo torn-shard-safely into `.snapshot-staging/`. Here we STAMP it with the
+// build id and place it at the immutable versioned path dist/assets/snapshot/
+// <buildId>/, enforce the gzipped index.json ceiling, and return the file list
+// for precache. If staging is absent (local build with no network step), we emit
+// a valid empty skeleton so the build never breaks and the app degrades to live
+// loading. build.mjs itself stays hermetic — no network here.
+const emitSnapshot = () => {
+  const staging = '.snapshot-staging';
+  const outDir = `dist/assets/snapshot/${version}`;
+  mkdirSync(`${outDir}/cooks`, { recursive: true });
+  const files = [`./assets/snapshot/${version}/index.json`, `./assets/snapshot/${version}/manifest.json`];
+
+  const have = existsSync(staging);
+  const index = have
+    ? JSON.parse(readFileSync(`${staging}/index.json`, 'utf8'))
+    : { cooks: [] };
+  const manifest = have
+    ? JSON.parse(readFileSync(`${staging}/manifest.json`, 'utf8'))
+    : { capturedAt: now.toISOString(), cooks: [], omitted: [] };
+  index.buildId = version;
+  manifest.buildId = version;
+
+  if (have && existsSync(`${staging}/cooks`)) {
+    for (const f of readdirSync(`${staging}/cooks`)) {
+      cpSync(`${staging}/cooks/${f}`, `${outDir}/cooks/${f}`);
+      files.push(`./assets/snapshot/${version}/cooks/${f}`);
+    }
+  }
+  const indexBytes = Buffer.from(JSON.stringify(index));
+  writeFileSync(`${outDir}/index.json`, indexBytes);
+  writeFileSync(`${outDir}/manifest.json`, JSON.stringify(manifest));
+
+  // Size gate: gzipped index.json must stay under the declared ceiling. The
+  // number is set from D6 measurement (see RUN-BUNDLE-PRECACHE-SUMMARY.md); the
+  // env override exists so the gate itself is testable.
+  const CEILING = Number(process.env.SNAPSHOT_INDEX_GZIP_CEILING ?? SNAPSHOT_INDEX_GZIP_CEILING);
+  const gz = gzipSync(indexBytes).length;
+  if (gz > CEILING) {
+    throw new Error(
+      `snapshot index.json is ${gz} B gzipped, over the ${CEILING} B ceiling — ` +
+        `trim the index (titles + rkeys only) or raise SNAPSHOT_INDEX_GZIP_CEILING deliberately`,
+    );
+  }
+  console.log(`snapshot: ${index.cooks.length} cook(s), index.json ${indexBytes.length}B raw / ${gz}B gz (ceiling ${CEILING}B)`);
+  return files;
+};
+const snapshotFiles = emitSnapshot();
+
 // Version + per-page sizes.
-const sha = execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim();
-const now = new Date();
-const date = now.toISOString().slice(0, 10).replaceAll('-', '.');
-const version = `${date}-${sha}`;
 const pages = Object.fromEntries(
   PAGES.map((p) => {
     const bytes = readFileSync(`dist/${bundleOf[p]}`);
@@ -250,6 +315,10 @@ const precache = [
   './assets/logo-dark.png',
   './assets/no-meal-light.png',
   './assets/no-meal-dark.png',
+  // Build-time snapshot (D5): precached at install so first paint reads it from
+  // the Cache API with zero network. Versioned + immutable — an old build's
+  // snapshot vanishes with its version-named cache on activate.
+  ...snapshotFiles,
 ];
 buildSync({
   entryPoints: ['src/sw.ts'],
