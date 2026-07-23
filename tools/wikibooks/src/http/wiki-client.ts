@@ -164,6 +164,41 @@ export class WikiClient {
     return out;
   }
 
+  /** Fetch content by title (for the live smoke test's named pages, D12). */
+  async fetchContentByTitles(titles: string[]): Promise<PageContent[]> {
+    const params = {
+      action: 'query',
+      titles: titles.join('|'),
+      prop: 'revisions',
+      rvprop: 'ids|timestamp|content',
+      rvslots: 'main',
+    };
+    const requestUrl = this.transport.buildUrl(params);
+    const res = (await this.transport.get(params)) as {
+      query?: {
+        pages?: {
+          pageid: number;
+          title: string;
+          revisions?: { revid: number; timestamp: string; slots?: { main?: { content?: string } } }[];
+        }[];
+      };
+    };
+    const out: PageContent[] = [];
+    for (const pg of res.query?.pages ?? []) {
+      const rev = pg.revisions?.[0];
+      if (rev === undefined) continue;
+      out.push({
+        pageid: pg.pageid,
+        title: pg.title,
+        revid: rev.revid,
+        timestamp: rev.timestamp,
+        wikitext: rev.slots?.main?.content ?? '',
+        requestUrl,
+      });
+    }
+    return out;
+  }
+
   /** prop=info to resolve a vanished page: still exists → decategorised; missing → deleted. */
   async pageInfo(pageid: number): Promise<PageInfo> {
     const res = (await this.transport.get({

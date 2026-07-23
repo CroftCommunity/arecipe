@@ -99,6 +99,33 @@ export class Ledger {
     stmt.run(...COLS.map((c) => normalize(row[c])));
   }
 
+  /** Read-merge-write: apply a partial update to a row, creating it (with the
+   *  given defaults for required fields) if absent. Preserves untouched columns
+   *  such as first_seen and the published_* fields. */
+  patch(pageid: number, partial: Partial<RecipeRow> & { title: string; revid: number }): RecipeRow {
+    const existing = this.get(pageid);
+    const base: RecipeRow = existing ?? {
+      pageid,
+      title: partial.title,
+      revid: partial.revid,
+      rev_timestamp: null,
+      raw_sha256: null,
+      ir_sha256: null,
+      transform_version: null,
+      status: 'active',
+      skip_reason: null,
+      record_rkey: null,
+      record_cid: null,
+      published_at: null,
+      published_repo_rev: null,
+      first_seen: null,
+      last_seen: null,
+    };
+    const merged: RecipeRow = { ...base, ...partial, pageid };
+    this.upsert(merged);
+    return merged;
+  }
+
   get(pageid: number): RecipeRow | undefined {
     const raw = this.db.prepare('SELECT * FROM recipes WHERE pageid = ?').get(pageid);
     return raw === undefined ? undefined : toRow(raw as Record<string, unknown>);
