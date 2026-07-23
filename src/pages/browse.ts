@@ -37,7 +37,14 @@ import {
   type ExportRecipe,
 } from '../recipes/export.js';
 import { renderToolbar } from '../recipes/toolbar.js';
-import { renderRecipeDetailsList, renderRecipeList, type RenderOptions } from '../recipes/view.js';
+import {
+  renderInSeasonStrip,
+  renderRecipeDetailsList,
+  renderRecipeList,
+  type RenderOptions,
+} from '../recipes/view.js';
+import { createSeasonalityPrefs } from '../seasonality/prefs.js';
+import { currentMonth, inSeasonProduce, inSeasonUriSet } from '../seasonality/season.js';
 import { registerServiceWorker } from '../sw-register.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -124,6 +131,7 @@ const main = async (): Promise<void> => {
   const browsePrefs = createBrowsePrefs(); // prefix 'browse' (default) — keys unchanged
   const dietPreference = createDietPreference();
   const tastePreference = createTastePreference();
+  const seasonalityPrefs = createSeasonalityPrefs();
   let state: BrowseState = browsePrefs.load();
 
   // Transient text-search query (D7): NOT persisted — navigating away drops it.
@@ -295,6 +303,16 @@ const main = async (): Promise<void> => {
     // badge linking to the compare grid); single recipes are untouched.
     const { representatives, counts } = collapseVersions(shown);
     options.versionCounts = counts;
+    // Seasonality (Feature B): boost only. The main feed order is untouched —
+    // the boost surfaces as an "In season now" strip above it plus a quiet badge
+    // on matching cards. With the setting off, this whole block is skipped and
+    // Browse is byte-identical to the pre-feature baseline.
+    let seasonStrip: HTMLElement | null = null;
+    if (seasonalityPrefs.enabled()) {
+      const ctx = { month: currentMonth(), region: seasonalityPrefs.region() };
+      options.inSeasonUris = inSeasonUriSet(representatives, ctx);
+      seasonStrip = renderInSeasonStrip(inSeasonProduce(representatives, ctx));
+    }
     // Window the collapsed cards to one page; the arrows step through the rest.
     const page = windowPage(representatives, { offset: browseOffset, size: BROWSE_PAGE_SIZE });
     browseOffset = page.total === 0 ? 0 : page.start - 1; // sync to the clamped window
@@ -304,7 +322,9 @@ const main = async (): Promise<void> => {
     pagerPrev.disabled = !page.hasPrev;
     pagerNext.disabled = !page.hasNext;
     const render = state.view === 'details' ? renderRecipeDetailsList : renderRecipeList;
-    listContainer.replaceChildren(render(page.items, options));
+    const rendered = render(page.items, options);
+    if (seasonStrip !== null) listContainer.replaceChildren(seasonStrip, rendered);
+    else listContainer.replaceChildren(rendered);
     log.debug('browse', 'render', {
       kind: current.kind,
       view: state.view,

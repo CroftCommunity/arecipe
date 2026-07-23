@@ -77,6 +77,15 @@ const DESTINATIONS = [
     // reached via the open-book quick links on recipe/editor/Alchemy instead.
     desktopOnly: true,
   },
+  {
+    label: 'Timers',
+    href: './timers.html',
+    testid: 'tab-timers',
+    match: /\/timers\.html$/,
+    // Like Reference: a desktop tab, off the mobile thumb row. On a phone the
+    // timers page is reached from the Reference page link and the focus strip.
+    desktopOnly: true,
+  },
 ] as const;
 
 export const renderTabs = (pathname: string): HTMLElement => {

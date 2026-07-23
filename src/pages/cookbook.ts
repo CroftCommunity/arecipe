@@ -44,7 +44,14 @@ import { createPlannedIndexCache } from '../recipes/planned-index-local.js';
 import type { PlannedEntry } from '../recipes/planned-index.js';
 import { createTastePreference, matchesTaste } from '../recipes/taste-preference.js';
 import { renderToolbar } from '../recipes/toolbar.js';
-import { renderRecipeDetailsList, renderRecipeList } from '../recipes/view.js';
+import {
+  renderInSeasonStrip,
+  renderRecipeDetailsList,
+  renderRecipeList,
+  type RenderOptions,
+} from '../recipes/view.js';
+import { createSeasonalityPrefs } from '../seasonality/prefs.js';
+import { currentMonth, inSeasonProduce, inSeasonUriSet } from '../seasonality/season.js';
 import { renderShareButton, shareOrigin } from '../share/button.js';
 import { buildCookbookShareUrl } from '../share/urls.js';
 import { registerServiceWorker } from '../sw-register.js';
@@ -160,6 +167,7 @@ const renderFeedView = (
   // tiles-first default. Persisted per-consumer, so a choice here is sticky.
   const prefs = createBrowsePrefs({ prefix: 'cookbook', defaultView: 'details' });
   const tastePreference = createTastePreference();
+  const seasonalityPrefs = createSeasonalityPrefs();
   let state = prefs.load();
 
   // Transient text-search query (D7): not persisted. The MiniSearch index is
@@ -329,7 +337,18 @@ const renderFeedView = (
       return;
     }
     // Feed/member handles win on conflict (they're the page's primary source).
-    feedContainer.replaceChildren(render(shown, { authorsByDid: authors }));
+    const options: RenderOptions = { authorsByDid: authors };
+    // Seasonality (Feature B): boost only — an additive "In season now" strip
+    // and a quiet badge; the feed order is untouched. Skipped when off.
+    let seasonStrip: HTMLElement | null = null;
+    if (seasonalityPrefs.enabled()) {
+      const ctx = { month: currentMonth(), region: seasonalityPrefs.region() };
+      options.inSeasonUris = inSeasonUriSet(shown, ctx);
+      seasonStrip = renderInSeasonStrip(inSeasonProduce(shown, ctx));
+    }
+    const rendered = render(shown, options);
+    if (seasonStrip !== null) feedContainer.replaceChildren(seasonStrip, rendered);
+    else feedContainer.replaceChildren(rendered);
   };
   const showCurrent = (): void => {
     toolbar.rebuildFacets(availableFacets(eligibleEntries()), state.facets);

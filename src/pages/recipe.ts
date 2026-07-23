@@ -38,6 +38,7 @@ import { createSocialPrefs } from '../social/prefs.js';
 import { renderShareButton, shareOrigin } from '../share/button.js';
 import { buildRecipeShareUrl } from '../share/urls.js';
 import { registerServiceWorker } from '../sw-register.js';
+import { mountTimerStrip } from '../timers/timer-strip.js';
 import { createScreenWakeLock } from '../ui/wake-lock.js';
 import type { Agent } from '@atproto/api';
 
@@ -431,16 +432,21 @@ const makeAgentLoader = (): AgentLoader => {
  * doesn't sleep mid-recipe; exiting by any route releases it. */
 const mountFocus = (entry: CachedRecipe): void => {
   const wakeLock = createScreenWakeLock();
+  // Running-timers strip in the focus top bar (A-D6): read-only, silent when
+  // idle. Its tick is stopped on every exit route alongside the wake lock.
+  const timerStripHost = el('div', 'focus-timer-strip-host');
+  const timerStrip = mountTimerStrip(timerStripHost);
   const onKey = (e: KeyboardEvent): void => {
     if (e.key === 'Escape') closeFocus();
   };
   function closeFocus(): void {
     overlay.remove();
     document.removeEventListener('keydown', onKey);
+    timerStrip.stop();
     void wakeLock.release();
     if (document.fullscreenElement !== null) void document.exitFullscreen().catch(() => undefined);
   }
-  const overlay = renderFocusView(entry, { onExit: closeFocus, wakeLock });
+  const overlay = renderFocusView(entry, { onExit: closeFocus, wakeLock, timerStripHost });
   document.body.append(overlay);
   document.addEventListener('keydown', onKey);
   // On by default and visible (D2): acquire as we enter. acquire() never throws —

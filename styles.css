@@ -3138,3 +3138,219 @@ details.calendar-publish > summary {
   opacity: 0.75;
   margin-top: var(--s-1);
 }
+
+/* ── Timers (Feature A) ─────────────────────────────────────────────────────
+   Standalone timers page + the compact focus-mode strip. Mobile-first: the add
+   form wraps and stays tap-sized; the strip is a single quiet row. */
+.timers {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0 var(--s-4);
+}
+.timers h1 {
+  font-family: var(--display);
+  color: var(--enamel);
+  margin: var(--s-5) 0 var(--s-2);
+}
+.timers-intro {
+  margin: 0 0 var(--s-4);
+  opacity: 0.75;
+}
+.timer-add {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  align-items: center;
+  margin-bottom: var(--s-4);
+}
+.timer-label-input {
+  flex: 1 1 12rem;
+  min-width: 0;
+  font: inherit;
+  padding: var(--s-2) var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--card);
+  color: var(--ink);
+}
+.timer-num {
+  width: 5rem;
+  font: inherit;
+  padding: var(--s-2) var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--card);
+  color: var(--ink);
+}
+.timer-notify-section {
+  margin-bottom: var(--s-4);
+  padding: var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--card);
+}
+.timer-notify-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  cursor: pointer;
+}
+.timer-notify-note {
+  margin: var(--s-2) 0 0;
+  font-size: var(--t-caption);
+  opacity: 0.7;
+}
+.timer-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.timer-empty {
+  opacity: 0.6;
+}
+.timer-item {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--card);
+}
+.timer-item-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.timer-remaining {
+  font-family: var(--mono);
+  font-size: 1.5rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--enamel);
+}
+.timer-item--done {
+  border-color: var(--enamel);
+}
+.timer-item--done .timer-remaining {
+  color: var(--enamel);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 1rem;
+}
+.timer-item-controls {
+  display: flex;
+  gap: var(--s-2);
+  flex: 0 0 auto;
+}
+
+/* Focus-mode strip: label · time chips, one quiet row inside .focus-top. It is
+   only in the DOM while a timer runs, so it never steals space when idle. */
+.timer-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
+.timer-strip-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--s-1);
+  padding: var(--s-1) var(--s-2);
+  border-radius: var(--r-s);
+  background: var(--card);
+  border: var(--stroke) solid var(--line);
+}
+.timer-strip-label {
+  max-width: 8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.timer-strip-time {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--enamel);
+  font-weight: 700;
+}
+
+/* Reference-page jump to timers. */
+.ref-timers-link {
+  display: inline-block;
+  margin-top: var(--s-3);
+  color: var(--enamel);
+  font-weight: 700;
+  text-decoration: none;
+}
+.ref-timers-link:hover {
+  text-decoration: underline;
+}
+
+/* ── Seasonality (Feature B) ────────────────────────────────────────────────
+   Boost-only surfaces: a quiet "In season" badge on cards and an additive
+   "In season now" strip above the feed. Never any negative/out-of-season copy. */
+.in-season-badge {
+  display: inline-block;
+  align-self: flex-start;
+  margin-top: var(--s-1);
+  padding: 0 var(--s-2);
+  border-radius: var(--r-s);
+  font-size: var(--t-caption);
+  font-weight: 700;
+  color: var(--card);
+  background: var(--enamel);
+  line-height: 1.6;
+}
+.in-season-strip {
+  margin: 0 0 var(--s-4);
+  padding: var(--s-3);
+  border: var(--stroke) solid var(--enamel);
+  border-radius: var(--r-m);
+  background: var(--card);
+}
+.in-season-strip-label {
+  display: block;
+  font-weight: 700;
+  color: var(--enamel);
+  margin-bottom: var(--s-2);
+}
+.in-season-strip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+.in-season-chip {
+  display: inline-block;
+  padding: var(--s-1) var(--s-3);
+  border-radius: var(--r-l);
+  border: var(--stroke) solid var(--line);
+  background: var(--bg, transparent);
+  color: var(--ink);
+  text-decoration: none;
+  font-size: var(--t-caption);
+}
+.in-season-chip:hover {
+  border-color: var(--enamel);
+}
+.seasonality-region-row {
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+.seasonality-region-select {
+  font: inherit;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  padding: var(--s-1) var(--s-2);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--card);
+  color: var(--ink);
+}

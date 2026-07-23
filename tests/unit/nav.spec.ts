@@ -78,7 +78,7 @@ describe('renderTabs', () => {
     );
   });
 
-  it('orders the tabs Browse · Cookbook · Alchemy · Meals · Reference (confirmed Q1)', () => {
+  it('orders the tabs Browse · Cookbook · Alchemy · Meals · Reference · Timers (confirmed Q1)', () => {
     const tabs = renderTabs('/index.html');
     const order = [...tabs.querySelectorAll('a.tab')].map((a) => a.getAttribute('data-testid'));
     expect(order).toEqual([
@@ -87,14 +87,21 @@ describe('renderTabs', () => {
       'tab-mine',
       'tab-meals',
       'tab-reference',
+      // Timers joins as a desktop tab (Feature A), off the mobile thumb row.
+      'tab-timers',
     ]);
   });
 
-  it('marks Reference desktop-only (hidden from the mobile bottom bar via CSS)', () => {
+  it('marks Reference and Timers desktop-only (hidden from the mobile bottom bar via CSS)', () => {
     const tabs = renderTabs('/index.html');
-    expect(
-      tabs.querySelector('[data-testid=tab-reference]')?.classList.contains('tab--desktop-only'),
-    ).toBe(true);
+    expect(tabs.querySelector('[data-testid=tab-timers]')?.getAttribute('href')).toBe(
+      './timers.html',
+    );
+    for (const id of ['tab-reference', 'tab-timers']) {
+      expect(
+        tabs.querySelector(`[data-testid=${id}]`)?.classList.contains('tab--desktop-only'),
+      ).toBe(true);
+    }
     // The four primary destinations stay in the mobile bottom bar.
     for (const id of ['tab-browse', 'tab-cookbook', 'tab-mine', 'tab-meals']) {
       expect(

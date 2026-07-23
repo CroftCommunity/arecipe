@@ -250,6 +250,11 @@ export const renderReference = (): HTMLElement => {
     el('h1', undefined, 'Kitchen References'),
     el('p', undefined, 'Handy conversions and charts to read while you cook.'),
   );
+  // A jump to the kitchen timers — a reference you reach for mid-cook.
+  const timersLink = el('a', 'ref-timers-link', '⏱ Kitchen timers') as HTMLAnchorElement;
+  timersLink.href = './timers.html';
+  timersLink.dataset['testid'] = 'timers-link';
+  header.append(timersLink);
   root.append(header);
 
   for (const section of REFERENCE_SECTIONS) root.append(renderSection(section));
