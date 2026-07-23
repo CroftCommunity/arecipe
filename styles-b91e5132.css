@@ -3138,3 +3138,101 @@ details.calendar-publish > summary {
   opacity: 0.75;
   margin-top: var(--s-1);
 }
+
+/* Question box: ask a question, get ranked deep links. Sits above the topic
+ * index — you meet "type a question" before "scan the list". */
+.guide-helper {
+  margin: var(--s-4) 0 0;
+  padding: var(--s-4);
+  background: var(--card);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-l);
+}
+.guide-helper-label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: var(--s-2);
+}
+.guide-helper-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+.guide-helper-input {
+  font: inherit;
+  flex: 1 1 12rem;
+  min-width: 0; /* let it shrink below content width (mobile-fit at 320px) */
+  padding: var(--s-2) var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--card);
+  color: inherit;
+}
+.guide-helper-results {
+  margin-top: var(--s-3);
+}
+.guide-result-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+/* Each result is a link — the deep link is the product (D3). */
+.guide-result {
+  display: block;
+  padding: var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--card);
+  text-decoration: none;
+  color: inherit;
+}
+.guide-result:hover {
+  background: var(--enamel-soft);
+  border-color: var(--enamel);
+}
+.guide-result-crumb {
+  display: block;
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  opacity: 0.7;
+}
+.guide-result-title {
+  display: block;
+  font-weight: 700;
+  color: var(--enamel);
+}
+.guide-result-excerpt {
+  display: block;
+  font-size: 0.95rem;
+  opacity: 0.85;
+  margin-top: var(--s-1);
+}
+.guide-helper-nomatch {
+  font-size: 0.95rem;
+}
+.guide-helper-nomatch p {
+  margin: 0 0 var(--s-1);
+}
+/* Landing highlight: a deep link scrolls the target in and flashes it, so the
+ * user can SEE they landed in the right section, then it settles to a quiet
+ * ring. Respects reduced-motion (the flash is decorative). */
+.guide-target {
+  animation: guide-target-flash 2s ease-out 1;
+  box-shadow: 0 0 0 var(--stroke) var(--yolk);
+  border-color: var(--yolk);
+}
+@keyframes guide-target-flash {
+  0% {
+    background: var(--yolk-soft);
+    box-shadow: 0 0 0 3px var(--yolk);
+  }
+  100% {
+    background: var(--card);
+    box-shadow: 0 0 0 var(--stroke) var(--yolk);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .guide-target {
+    animation: none;
+  }
+}
