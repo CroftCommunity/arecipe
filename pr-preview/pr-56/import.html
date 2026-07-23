@@ -2,11 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-FZCh04/evgapIEHhqDZ2QN+jSctIo/PmzHFZCcGVwlA='; style-src 'self'; img-src 'self' data: blob: https:; font-src 'self'; connect-src 'self' https://bsky.social https://public.api.bsky.app https://plc.directory https:; manifest-src 'self'; worker-src 'self'; base-uri 'none'; object-src 'none'; form-action 'self'" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-FZCh04/evgapIEHhqDZ2QN+jSctIo/PmzHFZCcGVwlA=' 'wasm-unsafe-eval'; style-src 'self'; img-src 'self' data: blob: https:; font-src 'self'; connect-src 'self' https://bsky.social https://public.api.bsky.app https://plc.directory https:; manifest-src 'self'; worker-src 'self' blob:; base-uri 'none'; object-src 'none'; form-action 'self'" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#175e54" />
     <link rel="icon" type="image/png" href="./assets/logo-light.png" />
-    <title>arecipe — settings</title>
+    <title>arecipe — import a recipe</title>
     <script>
       // Pre-paint theme resolution (no flash): src/theme.ts owns it after load.
       (function () {
@@ -27,6 +27,6 @@
   </head>
   <body>
     <div id="app"></div>
-    <script type="module" src="./settings-MRGXWAZ2.js" integrity="sha384-2iV7f4X17lA4fqs78lZr7vJkMLxevsdtaYSNeM3N6Cx3fdXWX6kW7fLTnUSz7dcu" crossorigin="anonymous"></script>
+    <script type="module" src="./import-QAA35MB5.js" integrity="sha384-UPJAOlf0oZ+cJ7WqH7NjWITNpUchgJMUY4B741CowTRc4wLlNwdaamkteIWIraq+" crossorigin="anonymous"></script>
   </body>
 </html>
