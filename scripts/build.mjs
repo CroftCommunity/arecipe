@@ -16,6 +16,7 @@ import {
 } from 'node:fs';
 import { gzipSync } from 'node:zlib';
 import { buildSync } from 'esbuild';
+import { generateGuideIndex } from './build-guide-index.mjs';
 import { htmlShell, mdToHtml } from './md-to-html.mjs';
 
 const PAGES = [
@@ -187,6 +188,15 @@ writeFileSync(
     }),
   ),
 );
+// Guide helper (RUN-GUIDE-HELPER): the section index, GENERATED from the guide
+// by rendering it under happy-dom and walking the same code the browser uses.
+// generateGuideIndex enforces the D2 anchor-validity gate — an emitted anchor
+// absent from the rendered guide throws here and fails the build. The JSON is a
+// deterministic, machine-readable help index; the app itself rebuilds the same
+// index from the live guide DOM at runtime (no fetch, drift-proof).
+const { serialized: guideIndexJson } = await generateGuideIndex();
+writeFileSync('dist/guide-index.json', guideIndexJson);
+
 copyFileSync('CNAME', 'dist/CNAME'); // custom domain survives every deploy
 // The site is served from a branch (gh-pages), where GitHub Pages runs Jekyll
 // by default — which would reprocess this pre-built SPA and drop any
