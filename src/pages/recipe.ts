@@ -36,6 +36,7 @@ import { createSocialPrefs } from '../social/prefs.js';
 import { renderShareButton, shareOrigin } from '../share/button.js';
 import { buildRecipeShareUrl } from '../share/urls.js';
 import { registerServiceWorker } from '../sw-register.js';
+import { createScreenWakeLock } from '../ui/wake-lock.js';
 import type { Agent } from '@atproto/api';
 
 /** Memoized loader for the deferred auth client — comments + interactions
@@ -423,19 +424,26 @@ const makeAgentLoader = (): AgentLoader => {
 
 /** ⛶ Focus mode: full-screen, distraction-free cook view of one version. Uses
  * the Fullscreen API when available (we're inside the button's click gesture),
- * with a full-viewport overlay as the fallback; Esc or Exit closes it. */
+ * with a full-viewport overlay as the fallback; Esc or Exit closes it. Holds a
+ * screen wake lock for the duration (silent where unsupported) so the phone
+ * doesn't sleep mid-recipe; exiting by any route releases it. */
 const mountFocus = (entry: CachedRecipe): void => {
+  const wakeLock = createScreenWakeLock();
   const onKey = (e: KeyboardEvent): void => {
     if (e.key === 'Escape') closeFocus();
   };
   function closeFocus(): void {
     overlay.remove();
     document.removeEventListener('keydown', onKey);
+    void wakeLock.release();
     if (document.fullscreenElement !== null) void document.exitFullscreen().catch(() => undefined);
   }
-  const overlay = renderFocusView(entry, { onExit: closeFocus });
+  const overlay = renderFocusView(entry, { onExit: closeFocus, wakeLock });
   document.body.append(overlay);
   document.addEventListener('keydown', onKey);
+  // On by default and visible (D2): acquire as we enter. acquire() never throws —
+  // unsupported/denied resolve false and the wake status simply stays empty.
+  void wakeLock.acquire();
   // The overlay IS the focus view; the Fullscreen API is a desktop enhancement.
   // Skip it on touch/coarse-pointer devices (iOS Safari has no element
   // fullscreen and can be hostile) and guard against a synchronous throw so a

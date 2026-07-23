@@ -1973,6 +1973,12 @@ a.card {
   inset: 0;
   z-index: 1000;
   overflow: auto;
+  /* A real cook type scale (D4), tunable in one place: the current step renders
+     one notch larger than this base. */
+  --cook-size: clamp(1.15rem, 1rem + 0.9vw, 1.6rem);
+  /* Coarse-pointer overlay behaves like fullscreen without asking (D5): keep
+     pull-to-refresh from firing mid-recipe. */
+  overscroll-behavior: contain;
   /* Opaque app surface. Was `var(--paper)` — an undefined token with no
      fallback, so the overlay rendered transparent and the page bled through
      (read as "broken" on mobile). --tile is the themed app background. */
@@ -1992,16 +1998,38 @@ a.card {
   margin: 0 auto 1rem;
 }
 .focus-top .focus-title { margin: 0; }
+.focus-top-heading { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
+/* Wake status (D2): a quiet reassurance while the lock is held; empty (so it
+   collapses) when idle/denied/unsupported — no nag. */
+.focus-wake-state {
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+.focus-wake-state:empty { display: none; }
 .focus-cols {
   max-width: 900px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1fr 1.5fr;
   gap: 2rem;
-  font-size: 1.05rem;
-  line-height: 1.7;
+  font-size: var(--cook-size);
+  line-height: 1.65;
 }
 @media (max-width: 640px) { .focus-cols { grid-template-columns: 1fr; } }
+/* Step-at-a-time instructions (D3): the full list stays; earlier steps recede,
+   the current step gains prominence and renders one notch larger. */
+.focus-instructions .focus-step { transition: opacity 0.15s ease; }
+.focus-instructions .step-done { opacity: 0.45; }
+.focus-instructions .step-current {
+  font-size: calc(var(--cook-size) * 1.15);
+  font-weight: 600;
+}
+.focus-step-controls {
+  display: flex;
+  gap: var(--s-3);
+  margin-top: 1rem;
+}
+.focus-step-controls .button { flex: 1; }
 /* Version-flip bar (above the banner on multi-version recipes): a ‹ N of M ›
    pill on the left, a "▦ View All" link on the right, on one row. Was unstyled
    (the code renders .version-bar; the old .recipe-controls rule was dead), so
