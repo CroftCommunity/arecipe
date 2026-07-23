@@ -1,14 +1,14 @@
 // @vitest-environment happy-dom
-// Phase 4: the editor's provenance surfaces for a link-imported draft (D5). A
+// The editor's provenance surfaces for a record that carries a sourceUrl. A
 // small "Imported from <link>" line shows the source; near publish, ONE gentle
 // etiquette line encourages writing instructions in your own words. Both render
-// ONLY when the draft carries a sourceUrl — hand-authored recipes show neither.
+// ONLY when the record carries a sourceUrl — hand-authored recipes show neither.
 import { describe, expect, it } from 'vitest';
 import {
   ETIQUETTE_COPY,
   renderEtiquetteLine,
   renderProvenanceLine,
-} from '../../../src/import/provenance.js';
+} from '../../../src/recipes/provenance.js';
 
 describe('renderProvenanceLine', () => {
   it('links to the source URL and shows its host', () => {

@@ -39,19 +39,14 @@ const main = async (): Promise<void> => {
   // Authoring entry + local drafts are for everyone — drafting needs no
   // account; publishing (in the editor) does. "New" rides the Recipe Drafts
   // heading line (the drafts list is what it feeds), short because the
-  // heading already says "Recipe".
-  // "Import" opens the Acquire hub (pull a recipe in from a source); "New" is the
-  // from-scratch builder. Both feed the same drafts list / editor.
-  const importRecipe = el('a', 'button', 'Import') as HTMLAnchorElement;
-  importRecipe.href = './import.html';
-  importRecipe.dataset['testid'] = 'import-recipe';
+  // heading already says "Recipe". It is the from-scratch builder → editor.
   const newRecipe = el('a', 'button button--primary', 'New') as HTMLAnchorElement;
   newRecipe.href = './editor.html';
   newRecipe.dataset['testid'] = 'new-recipe';
 
   const draftsSection = el('section');
   const draftsHeader = el('div', 'drafts-header');
-  draftsHeader.append(el('h3', 'section-title', 'Recipe Drafts'), importRecipe, newRecipe);
+  draftsHeader.append(el('h3', 'section-title', 'Recipe Drafts'), newRecipe);
   draftsSection.append(draftsHeader);
 
   // Status filter (Phase 11c): narrow the drafts list by draft status. Drafts
@@ -91,8 +86,6 @@ const main = async (): Promise<void> => {
   content.append(draftsSection);
   const drafts = createDraftStore();
 
-  // Recipe import moved to the Acquire hub (import.html), reached via the Import
-  // button above and registered as the Web Share Target. Alchemy just links there.
   const renderDrafts = async (): Promise<void> => {
     const all = await drafts.list();
     const shown = statusFilter === 'all' ? all : all.filter((d) => d.status === statusFilter);

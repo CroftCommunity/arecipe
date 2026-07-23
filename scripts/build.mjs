@@ -44,7 +44,6 @@ const PAGES = [
   'editor',
   'signin',
   'user-guide',
-  'import',
   'changelog',
 ];
 const HTML = {
@@ -62,7 +61,6 @@ const HTML = {
   'editor.html': 'editor',
   'signin.html': 'signin',
   'user-guide.html': 'user-guide',
-  'import.html': 'import',
   'changelog.html': 'changelog',
 };
 
@@ -118,20 +116,14 @@ writeFileSync(`dist/${cssName}`, cssBytes);
 // built output contains no eval/new Function/WebAssembly (D1).
 const INLINE_SCRIPT = /<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi;
 
-// `opts.wasm` relaxes the policy for the ONE page that runs in-app OCR
-// (import.html): Tesseract.js compiles WebAssembly (needs 'wasm-unsafe-eval') in
-// a worker it may spawn from a blob (needs worker-src blob:). Every other page
-// keeps the strict no-eval/no-wasm policy. Documented in docs/SECURITY.md.
-const cspFor = (html, opts = {}) => {
+// Every page keeps the same strict no-eval/no-wasm policy: script-src is 'self'
+// plus the sha256 of each inline script, nothing else. Documented in
+// docs/SECURITY.md.
+const cspFor = (html) => {
   const hashes = [...html.matchAll(INLINE_SCRIPT)].map(
     (m) => `'sha256-${createHash('sha256').update(m[1], 'utf8').digest('base64')}'`,
   );
   const scriptSrc = ["'self'", ...hashes];
-  const workerSrc = ["'self'"];
-  if (opts.wasm) {
-    scriptSrc.push("'wasm-unsafe-eval'");
-    workerSrc.push('blob:');
-  }
   return [
     "default-src 'none'",
     `script-src ${scriptSrc.join(' ')}`,
@@ -140,17 +132,17 @@ const cspFor = (html, opts = {}) => {
     "font-src 'self'",
     "connect-src 'self' https://bsky.social https://public.api.bsky.app https://plc.directory https:",
     "manifest-src 'self'",
-    `worker-src ${workerSrc.join(' ')}`,
+    "worker-src 'self'",
     "base-uri 'none'",
     "object-src 'none'",
     "form-action 'self'",
   ].join('; ');
 };
 
-const injectCsp = (html, opts = {}) =>
+const injectCsp = (html) =>
   html.replace(
     /(<meta charset="utf-8" \/>)/i,
-    `$1\n    <meta http-equiv="Content-Security-Policy" content="${cspFor(html, opts)}" />`,
+    `$1\n    <meta http-equiv="Content-Security-Policy" content="${cspFor(html)}" />`,
   );
 
 // --- Subresource Integrity (Phase 3) ---------------------------------------
@@ -181,7 +173,7 @@ for (const [file, page] of Object.entries(HTML)) {
     `<link rel="stylesheet" href="./assets/fonts/fonts.css" />`,
     `<link rel="stylesheet" href="./assets/fonts/fonts.css" integrity="${fontsSri}" crossorigin="anonymous" />`,
   );
-  html = injectCsp(html, { wasm: file === 'import.html' });
+  html = injectCsp(html);
   writeFileSync(`dist/${file}`, html);
 }
 copyFileSync('manifest.webmanifest', 'dist/manifest.webmanifest');
