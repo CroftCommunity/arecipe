@@ -1,0 +1,171 @@
+<!doctype html>
+<!-- Setup guide for the advanced "publish a subscribable calendar" feature.
+     Static, no JS bundle (like friends.html): the build injects the hashed
+     stylesheet + SRI + CSP and precaches it. Linked from the account page when
+     the feature is enabled. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob: https:; font-src 'self'; connect-src 'self' https://bsky.social https://public.api.bsky.app https://plc.directory https:; manifest-src 'self'; worker-src 'self'; base-uri 'none'; object-src 'none'; form-action 'self'" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>arecipe — calendar publishing setup</title>
+    <link rel="stylesheet" href="./assets/fonts/fonts.css" integrity="sha384-O/RnLw0FpiMUt7G6MKD5XXxzarPRbMqv+pZOAEM0BK2lpHrEemOGHgTXpKYCZNJj" crossorigin="anonymous" />
+    <link rel="stylesheet" href="./styles-ec541936.css" integrity="sha384-8SVb74TP86ZNMog9ya/6E91vRwPXN2FX7Xo8J8o6fiDWHrF9I56z3NIFs4Ie5dhk" crossorigin="anonymous" />
+  </head>
+  <body>
+    <main class="panel calendar-setup">
+      <p><a class="friend-link" href="./account.html">‹ Back to account</a></p>
+      <h2 class="page-title">Publish a subscribable calendar</h2>
+
+      <section class="settings-section">
+        <p class="status">
+          This publishes your <em>published</em> meal plans as a single calendar
+          file (<code>.ics</code>) to a GitHub repository you own, served by
+          GitHub Pages as <code>text/calendar</code>. A calendar app (e.g. Google
+          Calendar) can then <strong>subscribe</strong> to its URL and refresh it
+          as you republish. It is optional and <strong>device-local</strong>:
+          your token and settings stay in this browser and are never shared or
+          synced to your account.
+        </p>
+      </section>
+
+      <section class="settings-section">
+        <h3 class="section-title">Before you start — the tradeoff</h3>
+        <p>
+          Publishing needs a GitHub token that can write to your repository, and
+          that token lives in your browser. By default arecipe keeps it in the
+          service worker's memory so page scripts can't read it, and re-asks for
+          it after a period of inactivity. If you tick
+          <em>“Remember on this device”</em>, the token is stored in this
+          browser instead — more convenient, but readable by any script running
+          on this origin. Reduce the blast radius:
+        </p>
+        <ul>
+          <li>Use a <strong>dedicated repository</strong> that holds nothing else.</li>
+          <li>Scope the token to <strong>Contents only</strong> (see step 2). A
+            Contents token can't create or change GitHub Actions workflows, so a
+            leak can't run code — even though Actions must stay enabled for Pages
+            to publish (see step 1).</li>
+          <li>Give the token the <strong>shortest expiry</strong> you can live with.</li>
+          <li>Revoke it the moment you're done experimenting.</li>
+        </ul>
+      </section>
+
+      <section class="settings-section">
+        <h3 class="section-title">1 · Create the repository + enable Pages</h3>
+        <ol>
+          <li>Create a new repository (private is fine) — e.g.
+            <code>your-name/meals-calendar</code>.</li>
+          <li>Open <strong>Settings → Pages</strong> and set the source to
+            <em>Deploy from a branch</em> → your default branch,
+            <code>/ (root)</code>. GitHub Pages serves <code>.ics</code> files as
+            <code>text/calendar</code>, which is what calendar apps require.</li>
+          <li>Add an empty file named <code>.nojekyll</code> at the repository
+            root (<strong>Add file → Create new file</strong>). It tells Pages to
+            publish your files as-is instead of running a Jekyll build over them.</li>
+          <li>Leave <strong>Actions enabled</strong> (Settings → Actions →
+            General → <em>Allow …</em>). This is required: Pages rebuilds the
+            published site by running its built-in deployment on every push, so
+            with Actions disabled your <code>.ics</code> still commits but the
+            public site never updates. Your token has only Contents access, so it
+            still can't define or alter workflows.</li>
+        </ol>
+      </section>
+
+      <section class="settings-section">
+        <h3 class="section-title">2 · Create a fine-grained token</h3>
+        <ol>
+          <li>Go to
+            <a class="friend-link" href="https://github.com/settings/personal-access-tokens/new"
+               target="_blank" rel="noopener noreferrer">fine-grained personal access tokens</a>.</li>
+          <li><strong>Repository access:</strong> “Only select repositories” →
+            just the calendar repo above.</li>
+          <li><strong>Permissions:</strong> Repository permissions →
+            <strong>Contents: Read and write</strong>. (Metadata: Read-only is
+            added automatically.)</li>
+          <li>Set a <strong>short expiration</strong> and generate the token.
+            Copy it once — GitHub won't show it again.</li>
+        </ol>
+      </section>
+
+      <section class="settings-section">
+        <h3 class="section-title">3 · Connect it in arecipe</h3>
+        <ol>
+          <li>On the <a class="friend-link" href="./account.html">account page</a>,
+            open <em>“Publish a subscribable calendar (advanced)”</em> and tick
+            <strong>Enable on this device</strong>.</li>
+          <li>Enter the repository (<code>owner/repo</code>) and, if you like, a
+            file path (default <code>meals.ics</code>).</li>
+          <li>Paste the token and <strong>Save token</strong>. Decide whether to
+            tick <em>“Remember on this device”</em> (see the tradeoff above).</li>
+          <li>Press <strong>Publish now</strong> to write the first calendar file.</li>
+        </ol>
+        <p class="status">
+          After this, publishing a meal plan (or deleting a published one) updates
+          the calendar automatically; the Meals page shows a small status chip
+          with a manual <em>Resync</em>.
+        </p>
+      </section>
+
+      <section class="settings-section">
+        <h3 class="section-title">4 · Subscribe in your calendar app</h3>
+        <p>
+          Your file lives at your Pages URL, e.g.
+          <code>https://your-name.github.io/meals-calendar/meals.ics</code> (or
+          your custom domain). In Google Calendar: <strong>Other calendars → “+”
+          → From URL</strong>, paste that URL.
+        </p>
+        <p class="status">
+          Note: calendar apps poll subscribed URLs on <em>their own</em> schedule
+          — Google's can take several hours — so updates are not instant. This is
+          a subscription that refreshes eventually, not a live feed.
+        </p>
+        <p class="status">
+          Two subscribe gotchas. Google shows
+          <em>“Unable to add calendar. Check the URL”</em> when that URL is
+          <strong>already subscribed</strong> — check your calendar list before
+          re-adding. And to force a fresh pull after a change, remove the calendar
+          and re-add it with a throwaway query string, e.g.
+          <code>…/meals.ics?v=2</code>: Pages serves the same file, but the new
+          URL makes the calendar app fetch fresh instead of using its cache.
+        </p>
+      </section>
+
+      <section class="settings-section">
+        <h3 class="section-title">Troubleshooting — the file updates but my calendar doesn't</h3>
+        <p>
+          The usual cause is a <strong>frozen GitHub Pages build</strong>.
+          Publishing writes <code>meals.ics</code> to your repository, but the
+          public URL is served by Pages, which only refreshes when its deployment
+          runs on each push.
+        </p>
+        <ol>
+          <li>Open <strong>Settings → Pages</strong> and check
+            <em>“Last deployed”</em>. If it's older than your last publish, the
+            served file is stale.</li>
+          <li>Open the <strong>Actions</strong> tab. If Actions is disabled, or
+            the <code>pages-build-deployment</code> run is missing or red, that's
+            the break — enable Actions and confirm a <code>.nojekyll</code> file
+            exists at the repo root (step 1), then <strong>Publish now</strong>
+            again.</li>
+          <li>A Pages rebuild takes a minute or two after each publish; after
+            that, your calendar app still refreshes on its own schedule (hours
+            for Google). To confirm the file itself is current, open the URL
+            directly in a browser and check the events are there.</li>
+        </ol>
+      </section>
+
+      <section class="settings-section">
+        <h3 class="section-title">Revoking</h3>
+        <p>
+          Remove the token any time from
+          <a class="friend-link" href="https://github.com/settings/tokens"
+             target="_blank" rel="noopener noreferrer">your GitHub token settings</a>,
+          and press <strong>Clear token</strong> on the account page. If you ever
+          suspect the token leaked, revoke it immediately — that is the whole
+          point of the short expiry and dedicated repo.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>
