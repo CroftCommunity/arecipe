@@ -11,6 +11,7 @@
 //
 import MiniSearch from 'minisearch';
 import type { CachedRecipe } from './cache.js';
+import { recipeMetaOf } from './meta.js';
 import { dishKeyOf, funFactsOf, versionLabelOf } from './model.js';
 import { recipeFacets } from '../pages/browse-state.js';
 
@@ -23,7 +24,13 @@ const joinLines = (v: unknown): string =>
   Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string').join('\n') : '';
 
 /** The indexed document for one recipe. Keyed by `uri` (unique per record). The
- *  boosts (D2) live in the search options, not here; this is just the text. */
+ *  boosts (D2) live in the search options, not here; this is just the text.
+ *
+ *  RUN-RECIPE-META-STRIP D4: the meta strip's sort/filter hints ride along as
+ *  STORED (not text-indexed) fields — `servesHint` / `timeHintMinutes` /
+ *  `difficulty` — so a later run can sort by time or filter by difficulty
+ *  without re-parsing. They are absent from FIELDS, so ranking is unchanged. No
+ *  filter UI is added in this run. */
 type SearchDoc = {
   uri: string;
   name: string;
@@ -31,6 +38,9 @@ type SearchDoc = {
   text: string;
   instructions: string;
   aux: string;
+  servesHint?: number;
+  timeHintMinutes?: number;
+  difficulty?: number;
 };
 
 /** Fold the record's extension text — version label, fun-fact texts, and the
@@ -47,14 +57,22 @@ const auxOf = (value: Record<string, unknown>): string => {
   return parts.filter((p) => p !== '').join('\n');
 };
 
-const toDoc = (entry: CachedRecipe): SearchDoc => ({
-  uri: entry.uri,
-  name: str(entry.value['name']),
-  ingredients: joinLines(entry.value['ingredients']),
-  text: str(entry.value['text']),
-  instructions: joinLines(entry.value['instructions']),
-  aux: auxOf(entry.value),
-});
+/** Build the indexed document for one recipe (exported for D4 coverage — the
+ *  stored meta hints must be present on the doc shape). */
+export const searchDocOf = (entry: CachedRecipe): SearchDoc => {
+  const meta = recipeMetaOf(entry.value);
+  return {
+    uri: entry.uri,
+    name: str(entry.value['name']),
+    ingredients: joinLines(entry.value['ingredients']),
+    text: str(entry.value['text']),
+    instructions: joinLines(entry.value['instructions']),
+    aux: auxOf(entry.value),
+    servesHint: meta.serves?.hint?.min,
+    timeHintMinutes: meta.time?.hintMinutes,
+    difficulty: meta.difficulty?.value,
+  };
+};
 
 const FIELDS = ['name', 'ingredients', 'text', 'instructions', 'aux'] as const;
 
@@ -75,13 +93,16 @@ export const createRecipeSearch = (entries: readonly CachedRecipe[]): RecipeSear
   const mini = new MiniSearch<SearchDoc>({
     idField: 'uri',
     fields: [...FIELDS],
+    // Meta hints are STORED, not indexed — present for a future sort/filter run,
+    // absent from FIELDS so they never affect ranking (D4).
+    storeFields: ['servesHint', 'timeHintMinutes', 'difficulty'],
   });
   const byUri = new Map<string, CachedRecipe>();
   const docs: SearchDoc[] = [];
   for (const entry of entries) {
     // Last write wins on a duplicate uri (feeds shouldn't carry them, but never
     // let MiniSearch's unique-id invariant throw on a wild repo).
-    if (!byUri.has(entry.uri)) docs.push(toDoc(entry));
+    if (!byUri.has(entry.uri)) docs.push(searchDocOf(entry));
     byUri.set(entry.uri, entry);
   }
   mini.addAll(docs);

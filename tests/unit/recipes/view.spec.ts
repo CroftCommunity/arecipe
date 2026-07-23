@@ -9,12 +9,14 @@ import {
   renderFacetDropdown,
   renderFocusView,
   renderFunFacts,
+  renderMetaStrip,
   renderRecipeDetail,
   renderRecipeDetailsList,
   renderRecipeList,
   renderVersionBar,
 } from '../../../src/recipes/view.js';
 import type { CachedRecipe } from '../../../src/recipes/cache.js';
+import type { RecipeMeta } from '../../../src/recipes/meta.js';
 
 // cwd-relative: happy-dom's URL global is not a node file: URL.
 const fixture = JSON.parse(
@@ -518,5 +520,84 @@ describe('renderFunFacts (Did you know? cycler)', () => {
     next?.click(); // wrap
     expect(textOf()).toBe('one');
     expect(countOf()).toBe('1 / 3');
+  });
+});
+
+// RUN-RECIPE-META-STRIP D2 — the three-row meta strip under the recipe image.
+describe('renderMetaStrip', () => {
+  const SERVES: RecipeMeta = { serves: { display: '4', hint: { min: 4 } } };
+  const TIME: RecipeMeta = { time: { display: '30 minutes', hintMinutes: 30 } };
+  const DIFF: RecipeMeta = { difficulty: { value: 3, label: 'Average' } };
+  const ALL: RecipeMeta = { ...SERVES, ...TIME, ...DIFF };
+
+  const rowLabels = (el: HTMLElement | null): string[] =>
+    [...(el?.querySelectorAll('.meta-row dt') ?? [])].map((dt) => dt.textContent ?? '');
+
+  it('returns null when all three fields are absent (no empty container)', () => {
+    expect(renderMetaStrip({})).toBeNull();
+  });
+
+  // The 8th combination (all absent) is the null case above; the other 7 render.
+  const present = [
+    { name: 'serves only', meta: SERVES, rows: ['Serves'] },
+    { name: 'time only', meta: TIME, rows: ['Time'] },
+    { name: 'difficulty only', meta: DIFF, rows: ['Difficulty'] },
+    { name: 'serves + time', meta: { ...SERVES, ...TIME }, rows: ['Serves', 'Time'] },
+    { name: 'serves + difficulty', meta: { ...SERVES, ...DIFF }, rows: ['Serves', 'Difficulty'] },
+    { name: 'time + difficulty', meta: { ...TIME, ...DIFF }, rows: ['Time', 'Difficulty'] },
+    { name: 'all three', meta: ALL, rows: ['Serves', 'Time', 'Difficulty'] },
+  ] as const;
+
+  for (const { name, meta, rows } of present) {
+    it(`renders the right rows for ${name}, in stable order`, () => {
+      const el = renderMetaStrip(meta);
+      expect(el).not.toBeNull();
+      expect(el?.tagName).toBe('DL');
+      expect(el?.classList.contains('meta-strip')).toBe(true);
+      // Order is always serves → time → difficulty regardless of which subset.
+      expect(rowLabels(el)).toEqual(rows);
+    });
+  }
+
+  it('emits a <dl> of .meta-row > <dt>/<dd>; values carry the display text', () => {
+    const el = renderMetaStrip(ALL)!;
+    const dds = [...el.querySelectorAll('.meta-row dd')].map((dd) => dd.textContent);
+    expect(dds[0]).toBe('4');
+    expect(dds[1]).toBe('30 minutes');
+    expect(dds[2]).toBe('Average'); // dots are empty spans → dd text is the label alone
+  });
+
+  it('difficulty dots are decoration (aria-hidden); the label is the accessible value', () => {
+    const el = renderMetaStrip(DIFF)!;
+    const dots = el.querySelector('.dots');
+    expect(dots?.getAttribute('aria-hidden')).toBe('true');
+    // Value 3 → 3 filled + 2 empty = 5 dots total, on-count matches the value.
+    expect(dots?.querySelectorAll('.dot').length).toBe(5);
+    expect(dots?.querySelectorAll('.dot--on').length).toBe(3);
+    expect(dots?.querySelectorAll('.dot--off').length).toBe(2);
+    // The accessible name of the difficulty row is the label text, not the dots.
+    const dd = el.querySelector('.meta-row dd');
+    expect(dd?.textContent).toBe('Average');
+    expect(dd?.querySelector('.difficulty-label')?.textContent).toBe('Average');
+  });
+
+  it('O2 — the focus flag suppresses difficulty (keeps serves + time)', () => {
+    expect(rowLabels(renderMetaStrip(ALL, { focus: true }))).toEqual(['Serves', 'Time']);
+    // …and without the flag difficulty stays (the flag is tested in both positions).
+    expect(rowLabels(renderMetaStrip(ALL, { focus: false }))).toEqual(['Serves', 'Time', 'Difficulty']);
+  });
+
+  it('O2 — a difficulty-only strip returns null under the focus flag', () => {
+    expect(renderMetaStrip(DIFF, { focus: true })).toBeNull();
+  });
+
+  it('the standalone flag (no-image) marks the strip so CSS can round all corners', () => {
+    expect(renderMetaStrip(ALL, { standalone: true })?.classList.contains('meta-strip--standalone')).toBe(true);
+    expect(renderMetaStrip(ALL)?.classList.contains('meta-strip--standalone')).toBe(false);
+  });
+
+  it('snapshot: the generated markup for each presence combination is stable', () => {
+    const markup = present.map(({ name, meta }) => `— ${name} —\n${renderMetaStrip(meta)?.outerHTML ?? 'null'}`);
+    expect(markup.join('\n\n')).toMatchSnapshot();
   });
 });
