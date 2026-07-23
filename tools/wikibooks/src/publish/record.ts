@@ -32,6 +32,18 @@ export type BlobRef = {
   size: number;
 };
 
+/** One embedded image. `credit` is an open-world field (absent from the lexicon)
+ *  that arecipe's view renders as an attribution overlay. */
+export type EmbedImage = {
+  image: BlobRef;
+  alt: string;
+  aspectRatio?: { width: number; height: number };
+  credit?: { artist?: string; license: string; source: string };
+};
+
+/** The record's `embed` value (D15 images), max 4 images. */
+export type ImagesEmbed = { $type: 'exchange.recipe.recipe#imagesEmbed'; images: EmbedImage[] };
+
 export type AttributionWebsite = {
   $type: 'exchange.recipe.defs#attributionWebsite';
   name: string;
@@ -60,6 +72,8 @@ export type RecipeRecord = {
   nutrition?: { calories?: number; fatContent?: number; proteinContent?: number; carbohydrateContent?: number };
   /** Single cooking-method token, bare lowercase (D15). */
   cookingMethod?: string;
+  /** Embedded image(s) with per-image credit (D15). */
+  embed?: ImagesEmbed;
   prepTime?: string;
   totalTime?: string;
   // ---- open-world provenance (D9) ----

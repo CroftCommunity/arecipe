@@ -16,7 +16,9 @@ import { WikiClient } from './http/wiki-client.ts';
 import { openLedger, type Ledger } from './ledger/ledger.ts';
 import { HttpPdsClient } from './publish/http-pds.ts';
 import { assertBlastRadius } from './discover.ts';
-import { stageDiscover, stageFetch, stageTransform, stagePlan, executeRun, renderSummary, type RunContext } from './run.ts';
+import { stageDiscover, stageFetch, stageTransform, stagePlan, executeRun, renderSummary, imageTargets, type RunContext } from './run.ts';
+import { CommonsClient } from './images/commons-client.ts';
+import { stageImages } from './images/stage.ts';
 import { rawPageIds } from './fetch.ts';
 import { writePlanFiles } from './publish/publish.ts';
 import { canonicalJsonPretty } from './util/canonical-json.ts';
@@ -67,6 +69,7 @@ const buildDeps = async (runId: string, wantPublish: boolean): Promise<BaseDeps>
     stateDir: join(home, 'state'),
     rawDir: join(home, 'raw'),
     runDir: join(home, 'runs', runId),
+    imagesDir: join(home, 'images'),
     runId, clock: realClock, pds, dishKeyMap,
   };
   return { ctx, ledger };
@@ -138,6 +141,22 @@ export const main = async (argv: string[]): Promise<number> => {
         writePlanFiles(ctx.runDir, plan);
         process.stdout.write(
           `transform${reparse ? ' --reparse' : ''}: ${transformed} transformed, ${changed.length} changed (network off)\n`,
+        );
+        ledger.close();
+        return 0;
+      }
+      case 'images': {
+        // D15 — resolve infobox images to web-optimized Commons renditions and
+        // cache a resumable manifest. No PDS writes (embeds attach on publish).
+        const { ctx, ledger } = await buildDeps(runId, false);
+        const commons = new CommonsClient({ clock: realClock, contact: ctx.cfg.contact });
+        const targets = imageTargets(ctx);
+        const out = await stageImages(
+          { commons, imagesDir: ctx.imagesDir ?? '', log: (m) => process.stderr.write(`${m}\n`) },
+          targets,
+        );
+        process.stdout.write(
+          `images: ${out.resolved} resolved · ${out.skipped} skipped (license/size/missing) · ${out.alreadyDone} already done · ${targets.length} with an infobox image\n`,
         );
         ledger.close();
         return 0;

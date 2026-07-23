@@ -23,7 +23,7 @@ const EXT: Record<string, string> = { 'image/jpeg': 'jpg', 'image/png': 'png', '
 
 const manifestPath = (dir: string): string => join(dir, 'manifest.json');
 
-const loadManifest = (dir: string): Manifest =>
+export const loadManifest = (dir: string): Manifest =>
   existsSync(manifestPath(dir)) ? (JSON.parse(readFileSync(manifestPath(dir), 'utf8')) as Manifest) : {};
 
 const saveManifest = (dir: string, m: Manifest): void => {
