@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-FZCh04/evgapIEHhqDZ2QN+jSctIo/PmzHFZCcGVwlA='; style-src 'self'; img-src 'self' data: blob: https:; font-src 'self'; connect-src 'self' https://bsky.social https://public.api.bsky.app https://plc.directory https:; manifest-src 'self'; worker-src 'self'; base-uri 'none'; object-src 'none'; form-action 'self'" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#175e54" />
+    <link rel="icon" type="image/png" href="./assets/logo-light.png" />
+    <title>arecipe — dish versions</title>
+    <script>
+      // Pre-paint theme resolution (no flash): src/theme.ts owns it after load.
+      (function () {
+        try {
+          var m = localStorage.getItem('theme');
+          var dark =
+            m === 'dark' ||
+            (m !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+          document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        } catch (e) {
+          document.documentElement.dataset.theme = 'light';
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="./assets/fonts/fonts.css" integrity="sha384-O/RnLw0FpiMUt7G6MKD5XXxzarPRbMqv+pZOAEM0BK2lpHrEemOGHgTXpKYCZNJj" crossorigin="anonymous" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./styles-bfc81a09.css" integrity="sha384-Mmh3fqwdbov3G9q90qM6/t1zN8ZZLJql4LWHmIa6AtZS60jHx7Z+HfDC0tbZSFuB" crossorigin="anonymous" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="./dish-HJENNH4U.js" integrity="sha384-aoDDzIIP/6vBbOt/4SPhfAGtSZMlBi3/FVliKm4SJE1SXOd22FaVkv3OQYFlBuNa" crossorigin="anonymous"></script>
+  </body>
+</html>
