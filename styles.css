@@ -255,7 +255,9 @@ a {
   padding: var(--s-2) var(--s-3);
   cursor: pointer;
   color: var(--ink);
-  opacity: 0.62;
+  /* 0.68, not lower: dimmed --ink over --tile must clear WCAG AA 4.5:1
+     (5.05:1 light / 7.23:1 dark). tests/e2e/a11y.spec.ts guards this. */
+  opacity: 0.68;
   border-bottom: 3px solid transparent;
   margin-bottom: -2px;
 }
@@ -1841,7 +1843,8 @@ a.card {
   margin-top: var(--s-7);
   font-family: var(--mono);
   font-size: var(--t-caption);
-  opacity: 0.55;
+  /* 0.68: dimmed --ink over --tile clears AA 4.5:1 (a11y.spec.ts). */
+  opacity: 0.68;
   text-align: center;
   display: grid;
   gap: var(--s-1);
@@ -2338,7 +2341,8 @@ table.ref.pairs td.eq {
 .ref-foot {
   text-align: center;
   font-size: var(--t-stamp);
-  opacity: 0.55;
+  /* 0.68: dimmed --ink over --tile clears AA 4.5:1 (a11y.spec.ts). */
+  opacity: 0.68;
   margin-top: var(--s-6);
 }
 
@@ -3465,7 +3469,8 @@ details.calendar-publish > summary {
   gap: var(--s-2);
 }
 .timer-empty {
-  opacity: 0.6;
+  /* 0.68: dimmed --ink over --tile clears AA 4.5:1 (a11y.spec.ts). */
+  opacity: 0.68;
 }
 .timer-item {
   display: flex;
