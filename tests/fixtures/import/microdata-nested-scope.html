@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head><title>Lemon Bars</title></head>
+  <body>
+    <article itemscope itemtype="https://schema.org/Recipe">
+      <h1 itemprop="name">Lemon Bars</h1>
+      <ul>
+        <li itemprop="recipeIngredient">2 lemons</li>
+        <li itemprop="recipeIngredient">1 cup sugar</li>
+      </ul>
+      <ol>
+        <li itemprop="recipeInstructions">Zest and juice the lemons.</li>
+        <li itemprop="recipeInstructions">Bake the crust, add the filling, chill.</li>
+      </ol>
+      <!-- A nested scope with its own name/text that must NOT leak into the recipe. -->
+      <div itemprop="review" itemscope itemtype="https://schema.org/Review">
+        <span itemprop="name">Jane the Reviewer</span>
+        <span itemprop="recipeIngredient">a pinch of sabotage</span>
+        <p itemprop="reviewBody">Loved it — five stars.</p>
+      </div>
+    </article>
+  </body>
+</html>

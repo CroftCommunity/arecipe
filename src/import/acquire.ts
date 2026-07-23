@@ -10,6 +10,7 @@
 // pasted-text heuristic. The source URL is retained as provenance in EVERY path.
 
 import { extractRecipeFromJsonLd, type ImportedRecipe } from './recipe-jsonld.js';
+import { extractRecipeFromDom } from './recipe-dom.js';
 import { parseRecipeText } from './recipe-text.js';
 import { domHtmlParse, type HtmlParse } from './sanitize.js';
 
@@ -58,12 +59,16 @@ const runLadder = (source: string, parse: HtmlParse): ImportedRecipe | null => {
   const doc = parse(source);
   const viaJsonLd = extractRecipeFromJsonLd(doc, parse);
   if (useful(viaJsonLd)) return viaJsonLd;
-  // No usable JSON-LD Recipe — try the visible text (pasted plain text, or the
-  // stripped body of a fetched page).
+  // No usable JSON-LD Recipe — try the other structured formats a page can carry
+  // (microdata, RDFa, h-recipe) before falling back to the visible-text heuristic.
+  const viaDom = extractRecipeFromDom(doc, parse);
+  if (useful(viaDom)) return viaDom;
+  // Last rung: the visible text (pasted plain text, or the stripped body of a
+  // fetched page).
   const visible = doc.body?.textContent ?? source;
   const viaText = parseRecipeText(visible, parse);
   if (useful(viaText)) return viaText;
-  return viaJsonLd ?? null; // name-only at best → classified as no-recipe below
+  return viaJsonLd ?? viaDom ?? null; // name-only at best → classified as no-recipe below
 };
 
 const classify = (recipe: ImportedRecipe | null, sourceUrl: string): AcquireResult => {

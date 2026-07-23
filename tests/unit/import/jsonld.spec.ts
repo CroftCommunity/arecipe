@@ -148,6 +148,30 @@ describe('extractRecipeFromJsonLd', () => {
     expect(r?.instructions[0]).toHaveLength(1000);
   });
 
+  it('reads the legacy `yield` key when recipeYield is absent', () => {
+    const html =
+      '<!doctype html><script type="application/ld+json">' +
+      JSON.stringify({ '@type': 'Recipe', name: 'Y', yield: '12 cookies', recipeIngredient: ['a'], recipeInstructions: 'Do.' }) +
+      '</script>';
+    const r = extractRecipeFromJsonLd(new DOMParser().parseFromString(html, 'text/html'));
+    expect(r?.recipeYield).toBe('12 cookies');
+  });
+
+  it('reads a QuantitativeValue recipeYield object', () => {
+    const html =
+      '<!doctype html><script type="application/ld+json">' +
+      JSON.stringify({
+        '@type': 'Recipe',
+        name: 'Y',
+        recipeYield: { '@type': 'QuantitativeValue', value: 6, unitText: 'servings' },
+        recipeIngredient: ['a'],
+        recipeInstructions: 'Do.',
+      }) +
+      '</script>';
+    const r = extractRecipeFromJsonLd(new DOMParser().parseFromString(html, 'text/html'));
+    expect(r?.recipeYield).toBe('6 servings');
+  });
+
   it('normalizes a numeric or array recipeYield to a string', () => {
     const html =
       '<!doctype html><script type="application/ld+json">' +
