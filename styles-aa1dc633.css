@@ -833,6 +833,29 @@ a {
   accent-color: var(--enamel);
 }
 
+/* Sort control: the facet-dd popover reused as an icon-only "symbol button" on
+   the controls row, between Filters ▾ and the count. The summary is the sort
+   glyph + caret; a non-default order tints it (the .--active marker) so a chosen
+   sort reads without opening. The panel is a single-select radio list, anchored
+   to the right edge so it opens inward (the control sits near the row's end). */
+.sort-dd-summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+.sort-dd-summary svg {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+.facet-dd-summary--active {
+  border-color: var(--enamel);
+  color: var(--enamel);
+}
+.sort-panel {
+  right: 0;
+  left: auto;
+}
+
 /* Toggle pill: same vocabulary as .chip, but interactive. */
 .browse-toggle {
   display: inline-flex;
