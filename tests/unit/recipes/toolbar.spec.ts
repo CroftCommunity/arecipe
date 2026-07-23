@@ -14,6 +14,7 @@ const noopCallbacks = (over: Partial<ToolbarCallbacks> = {}): ToolbarCallbacks =
   onFacetChange: () => {},
   onReset: () => {},
   onQueryChange: () => {},
+  onSortChange: () => {},
   ...over,
 });
 
@@ -249,5 +250,71 @@ describe('renderToolbar — source control on the search row', () => {
     const count = controls.querySelector('.browse-count')!;
     expect((tiles.compareDocumentPosition(filters) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0).toBe(true);
     expect((filters.compareDocumentPosition(count) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0).toBe(true);
+  });
+});
+
+// The Sort control (owner ask 2026-07-23): an icon-only disclosure squeezed onto
+// the controls row, between Filters ▾ and the count. A radio list of the five
+// modes (Daily mix default + name/date/cuisine/meal); picking one fires
+// onSortChange and closes the popover.
+const sortDisclosure = (root: HTMLElement): HTMLDetailsElement =>
+  root.querySelector<HTMLDetailsElement>('[data-testid="sort-dd"]')!;
+const sortRadio = (root: HTMLElement, mode: string): HTMLInputElement =>
+  root.querySelector<HTMLInputElement>(`[data-testid="sort-dd"] input[data-sort="${mode}"]`)!;
+
+describe('renderToolbar — Sort control', () => {
+  it('mounts a sort disclosure on the controls row, after Filters ▾ and before the count', () => {
+    const toolbar = renderToolbar({ callbacks: noopCallbacks() });
+    const controls = toolbar.element.querySelector('.toolbar-row--controls')!;
+    const sort = sortDisclosure(toolbar.element);
+    expect(sort).not.toBeNull();
+    expect(controls.contains(sort)).toBe(true);
+    const filters = controls.querySelector('[data-testid="filters-dd"]')!;
+    const count = controls.querySelector('.browse-count')!;
+    expect((filters.compareDocumentPosition(sort) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0).toBe(true);
+    expect((sort.compareDocumentPosition(count) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0).toBe(true);
+  });
+
+  it('is a symbol button: the summary carries an accessible name and an inline icon', () => {
+    const toolbar = renderToolbar({ callbacks: noopCallbacks() });
+    const summary = sortDisclosure(toolbar.element).querySelector('summary')!;
+    expect(summary.getAttribute('aria-label')).toBe('Sort recipes');
+    expect(summary.getAttribute('title')).toBe('Sort recipes');
+    expect(summary.querySelector('svg')).not.toBeNull();
+  });
+
+  it('offers the five modes as a single-select radio group, Daily mix default checked', () => {
+    const toolbar = renderToolbar({ callbacks: noopCallbacks() });
+    const dd = sortDisclosure(toolbar.element);
+    const radios = dd.querySelectorAll<HTMLInputElement>('input[type="radio"][data-sort]');
+    expect([...radios].map((r) => r.dataset['sort'])).toEqual(['default', 'name', 'date', 'cuisine', 'meal']);
+    // All share one radio group name (single-select).
+    expect(new Set([...radios].map((r) => r.name)).size).toBe(1);
+    // The default is reflected as checked out of the box.
+    expect(sortRadio(toolbar.element, 'default').checked).toBe(true);
+  });
+
+  it('fires onSortChange with the picked mode and closes the popover', () => {
+    const picks: string[] = [];
+    const toolbar = renderToolbar({ callbacks: noopCallbacks({ onSortChange: (m) => picks.push(m) }) });
+    const dd = sortDisclosure(toolbar.element);
+    dd.open = true;
+    const date = sortRadio(toolbar.element, 'date');
+    date.checked = true;
+    date.dispatchEvent(new Event('change', { bubbles: true }));
+    expect(picks).toEqual(['date']);
+    expect(dd.open).toBe(false);
+  });
+
+  it('setSort reflects the active mode onto the radios (init / persistence)', () => {
+    const toolbar = renderToolbar({ callbacks: noopCallbacks() });
+    toolbar.setSort('cuisine');
+    expect(sortRadio(toolbar.element, 'cuisine').checked).toBe(true);
+    expect(sortRadio(toolbar.element, 'default').checked).toBe(false);
+    // The summary reflects a non-default sort with an "active" marker class.
+    const summary = sortDisclosure(toolbar.element).querySelector('summary')!;
+    expect(summary.classList.contains('facet-dd-summary--active')).toBe(true);
+    toolbar.setSort('default');
+    expect(summary.classList.contains('facet-dd-summary--active')).toBe(false);
   });
 });

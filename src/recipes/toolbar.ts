@@ -19,7 +19,8 @@
 // page owns the feed/list and drives it through the returned controller.
 
 import type { BrowseState, ViewMode } from '../pages/browse-state.js';
-import { resetIconButton } from '../icons.js';
+import { resetIconButton, sortIcon } from '../icons.js';
+import { SORT_LABELS, SORT_MODES, type SortMode } from './sort.js';
 import { renderFacetGroup } from './view.js';
 
 /** Facet selection/availability: arrays of values per dimension (distinct from
@@ -38,6 +39,8 @@ export type ToolbarCallbacks = {
   onPhotosToggle: (photosOnly: boolean) => void;
   onFacetChange: (dimension: 'cuisine' | 'category', value: string, checked: boolean) => void;
   onReset: () => void;
+  /** Feed ordering changed (a Sort menu pick). */
+  onSortChange: (mode: SortMode) => void;
   /** Text-search query changed (debounced). The raw input value is passed; the
    *  page trims it (empty/whitespace = identity, per D4). */
   onQueryChange: (query: string) => void;
@@ -75,6 +78,8 @@ export type ToolbarController = {
   setResetVisible: (visible: boolean) => void;
   /** Set the active-filter count on the Filters ▾ badge (hidden at zero). */
   setFilterCount: (count: number) => void;
+  /** Reflect the active sort mode onto the Sort menu (init / persistence). */
+  setSort: (mode: SortMode) => void;
   /** Reflect a query value into the search box (init / reset). Display-only — it
    *  does NOT fire onQueryChange (the caller already owns the state change). */
   setSearch: (query: string) => void;
@@ -150,6 +155,37 @@ export const renderToolbar = (opts: {
 
   filtersDd.append(filtersSummary, filtersPanel);
 
+  // The Sort control (owner ask 2026-07-23): an icon-only disclosure squeezed
+  // between Filters ▾ and the count. The same facet-dd popover idiom, but the
+  // panel is a single-select radio list (one active order, unlike the
+  // multi-select facets). The summary is a "symbol button" — a sort glyph +
+  // caret, the accessible name on aria-label/title — and gains an "active"
+  // marker when the order is anything but the daily-mix default, so a chosen
+  // sort reads at a glance without opening (mirrors the Filters count badge).
+  const sortDd = el('details', 'facet-dd sort-dd') as HTMLDetailsElement;
+  sortDd.dataset['testid'] = 'sort-dd';
+  const sortSummary = el('summary', 'facet-dd-summary sort-dd-summary');
+  sortSummary.setAttribute('aria-label', 'Sort recipes');
+  sortSummary.title = 'Sort recipes';
+  sortSummary.append(sortIcon(), document.createTextNode(' ▾'));
+  const sortPanel = el('div', 'facet-dd-panel sort-panel');
+  const sortRadios = new Map<SortMode, HTMLInputElement>();
+  for (const mode of SORT_MODES) {
+    const option = el('label', 'facet-dd-option');
+    const radio = document.createElement('input');
+    radio.type = 'radio';
+    radio.name = 'sort-mode';
+    radio.dataset['sort'] = mode;
+    radio.checked = mode === 'default';
+    sortRadios.set(mode, radio);
+    option.append(radio, document.createTextNode(SORT_LABELS[mode]));
+    sortPanel.append(option);
+  }
+  sortDd.append(sortSummary, sortPanel);
+  const reflectSortSummary = (mode: SortMode): void => {
+    sortSummary.classList.toggle('facet-dd-summary--active', mode !== 'default');
+  };
+
   // Honest count OUTSIDE the disclosure, right-aligned — with the reset control
   // (reset-surface v2, D4). Reset is the shared icon button (src/icons.ts), sits
   // BEFORE the count so it reads "reset · N of M shown", and shows only when a
@@ -174,7 +210,7 @@ export const renderToolbar = (opts: {
   };
   compactMq.addEventListener('change', applyStatus);
 
-  rowControls.append(viewSegmented, filtersDd, countBlock);
+  rowControls.append(viewSegmented, filtersDd, sortDd, countBlock);
 
   toolbar.append(rowSearch, rowControls);
 
@@ -202,9 +238,23 @@ export const renderToolbar = (opts: {
     callbacks.onFacetChange(dimension, value, target.checked);
   });
 
-  // Close the Filters popover when clicking outside it (scoped to this bar).
+  // Sort pick (event-delegated): reflect it, close the popover (single-select —
+  // the choice is made), and report it. The page updates state + re-renders.
+  sortPanel.addEventListener('change', (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement) || target.type !== 'radio') return;
+    const mode = target.dataset['sort'];
+    if (mode === undefined) return;
+    reflectSortSummary(mode as SortMode);
+    sortDd.removeAttribute('open');
+    callbacks.onSortChange(mode as SortMode);
+  });
+
+  // Close either popover when clicking outside it (scoped to this bar).
   document.addEventListener('click', (event) => {
-    if (filtersDd.open && !filtersDd.contains(event.target as Node)) filtersDd.removeAttribute('open');
+    const node = event.target as Node;
+    if (filtersDd.open && !filtersDd.contains(node)) filtersDd.removeAttribute('open');
+    if (sortDd.open && !sortDd.contains(node)) sortDd.removeAttribute('open');
   });
 
   return {
@@ -252,6 +302,10 @@ export const renderToolbar = (opts: {
       filtersBadge.textContent = String(count);
       filtersBadge.hidden = count <= 0;
       filtersBadge.setAttribute('aria-label', `${count} active filter${count === 1 ? '' : 's'}`);
+    },
+    setSort: (mode) => {
+      for (const [m, radio] of sortRadios) radio.checked = m === mode;
+      reflectSortSummary(mode);
     },
     setSearch: (q) => {
       // Cancel any pending debounced fire so a programmatic clear can't echo back.

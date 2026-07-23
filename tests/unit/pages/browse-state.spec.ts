@@ -53,6 +53,7 @@ const cached = (
 const baseState = (over: Partial<BrowseState> = {}): BrowseState => ({
   view: 'tiles',
   photosOnly: false,
+  sort: 'default',
   facets: { cuisine: [], category: [] },
   ...over,
 });
@@ -183,15 +184,23 @@ describe('createBrowsePrefs', () => {
     expect(createBrowsePrefs({ storage: memoryStorage() }).load()).toEqual(baseState());
   });
 
-  it('round-trips view mode, photos-only, and facets', () => {
+  it('round-trips view mode, photos-only, sort, and facets', () => {
     const storage = memoryStorage();
     const state = baseState({
       view: 'details',
       photosOnly: true,
+      sort: 'date',
       facets: { cuisine: ['greek'], category: ['dinner'] },
     });
     createBrowsePrefs({ storage }).save(state);
     expect(createBrowsePrefs({ storage }).load()).toEqual(state);
+  });
+
+  it('defaults sort to the daily mix and ignores an unknown stored value', () => {
+    const storage = memoryStorage();
+    expect(createBrowsePrefs({ storage }).load().sort).toBe('default');
+    storage.setItem('browse-sort', 'not-a-mode');
+    expect(createBrowsePrefs({ storage }).load().sort).toBe('default');
   });
 
   it('degrades to defaults when storage throws (private mode)', () => {
