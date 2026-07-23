@@ -564,6 +564,101 @@ const shoppingEntry: GuideEntry = {
   },
 };
 
+/** Layer B (RUN-GUIDE-HELPER): hand-written alternate phrasings per section —
+ *  three to six questions a real person would actually type — folded into the
+ *  guide-helper index (rendered onto each entry as `data-phrasings`, read by
+ *  src/guide/model.ts). Authored here, beside the prose, so they can't drift
+ *  from the section they describe. On a bounded help corpus this routinely beats
+ *  semantic search; keep them phrased as questions, not keyword lists. */
+export const GUIDE_PHRASINGS: Record<string, string[]> = {
+  'guide-entry-bluesky': [
+    'why does arecipe use bluesky',
+    'where is my recipe data stored',
+    'does arecipe have a server of its own',
+    'who can read the recipes I publish',
+    'do I have to give arecipe my login',
+  ],
+  'guide-entry-browse': [
+    'what is the browse feed',
+    'how do I find recipes without an account',
+    'how do I search recipes',
+    'how do I export what the feed is showing',
+  ],
+  'guide-entry-add-cook': [
+    'how do I add a new cook',
+    'how do I look up a cook by their handle',
+    'where do my follows get saved',
+    'how do I unfollow a cook',
+  ],
+  'guide-entry-filters': [
+    'how do I filter recipes by cuisine',
+    'how do I set my dietary preferences',
+    'how do I hide meals I do not eat',
+    'how do I show only recipes with photos',
+  ],
+  'guide-entry-cookbook': [
+    'what is my cookbook',
+    'how do I collect a recipe I like',
+    'how do I give someone my whole recipe collection',
+    'where do the recipes I published live',
+  ],
+  'guide-entry-open-recipe': [
+    'how do I copy a recipe’s ingredients',
+    'what does the altered stamp on a recipe mean',
+    'how do I know a shared recipe is authentic',
+    'how do I send a recipe to a friend',
+  ],
+  'guide-entry-focus': [
+    'how do I get a bigger view while cooking',
+    'how do I strip a recipe down to just the steps',
+    'how do I leave focus mode',
+  ],
+  'guide-entry-reference': [
+    'where are the cooking conversion charts',
+    'how many teaspoons are in a tablespoon',
+    'where is the meat roasting chart',
+    'how do I swap one ingredient for another',
+  ],
+  'guide-entry-funfacts': [
+    'what are the did you know boxes',
+    'how do I disable recipe trivia',
+    'where do the fun facts come from',
+  ],
+  'guide-entry-hide': [
+    'how do I stop a recipe from showing up',
+    'how do I get a hidden recipe back',
+    'does hiding a recipe delete the author’s copy',
+  ],
+  'guide-entry-comments': [
+    'how do I reply to a comment',
+    'why can I not see every comment on a recipe',
+    'how do I turn comments off',
+  ],
+  'guide-entry-share': [
+    'how do I save a recipe I found online',
+    'how do I send a web recipe into arecipe',
+    'why does share not work on my iphone',
+    'how do I import from a site that blocks apps',
+  ],
+  'guide-entry-meals': [
+    'how do I build a weekly menu',
+    'how do I place a recipe onto a day',
+    'how do I repeat a week of meals',
+    'how do I add another week to my plan',
+  ],
+  'guide-entry-meal-publish': [
+    'how do I share my meal plan with my family',
+    'how do I subscribe to my plan as a calendar',
+    'how do I edit a plan I already published',
+    'how do I see my meals in google calendar',
+  ],
+  'guide-entry-shopping': [
+    'how do I get a grocery list from my meals',
+    'how do I combine ingredients into one list',
+    'how do I make a shopping list for a whole week',
+  ],
+};
+
 /** Ordered guide entries: the Bluesky explainer leads, then Browse-to-Meals in
  *  the order a new cook meets them. Append future topics here. */
 export const GUIDE_ENTRIES: GuideEntry[] = [
@@ -598,6 +693,13 @@ export const renderUserGuide = (): HTMLElement => {
     ),
   );
 
+  // The question box mounts here (src/pages/user-guide.ts, after render): ask a
+  // question, land on the exact section. Empty in the DOM builder so the copy
+  // stays unit-testable and the index is built from the rendered sections below.
+  const helperSlot = el('div', 'guide-helper-slot');
+  helperSlot.dataset['testid'] = 'guide-helper-slot';
+  content.append(helperSlot);
+
   const toc = el('nav', 'guide-toc');
   toc.dataset['testid'] = 'guide-toc';
   toc.setAttribute('aria-label', 'Guide topics');
@@ -614,6 +716,9 @@ export const renderUserGuide = (): HTMLElement => {
     const box = el('section', 'guide-entry');
     box.dataset['testid'] = entry.testid;
     box.id = entry.testid;
+    // Layer B phrasings ride along as data for the guide-helper index (invisible
+    // in the rendered guide; read by src/guide/model.ts as `data-phrasings`).
+    box.dataset['phrasings'] = JSON.stringify(GUIDE_PHRASINGS[entry.testid] ?? []);
     box.append(el('h3', 'section-title', entry.title));
     entry.build(box);
     content.append(box);
