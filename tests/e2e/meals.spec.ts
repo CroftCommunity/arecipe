@@ -207,6 +207,25 @@ test('calendar: shows an empty state until something is planned', async ({ page 
   await expect(page.getByTestId('calendar-empty')).toBeVisible();
 });
 
+// Week-actions layout: "+ Add" then "⧉ Repeat" left-aligned in the row, with
+// the plan Reset moved down into the same row's right-aligned spot (it used to
+// live in the top controls row beside "Recipes per day").
+test('week-actions: Add then Repeat on the left, Reset on the right of the same row', async ({
+  page,
+}) => {
+  await seedPalette(page);
+  await page.goto('/meals.html');
+
+  // Add + Repeat sit together on the left, Add first.
+  const leftBtns = page.locator('.week-actions-left button');
+  await expect(leftBtns.nth(0)).toHaveAttribute('data-testid', 'add-week');
+  await expect(leftBtns.nth(1)).toHaveAttribute('data-testid', 'repeat-weeks');
+
+  // Reset moved down into the week-actions row (no longer in the controls row).
+  await expect(page.locator('.week-actions [data-testid="reset-plan"]')).toBeVisible();
+  await expect(page.locator('.meals-controls [data-testid="reset-plan"]')).toHaveCount(0);
+});
+
 test('drag (desktop): drag a palette chip onto a day places it; drag a filled slot moves it', async ({
   page,
 }) => {
@@ -435,9 +454,14 @@ test('shared view: a link without a user param explains what is missing', async 
   await expect(page.getByTestId('shared-plan')).toContainText('needs a “user”', { timeout: 15_000 });
 });
 
-test('the planner header links to the "Published" plans subpage', async ({ page }) => {
+test('the planner header links to the "Menu" plans subpage', async ({ page }) => {
   await page.goto('/meals.html');
-  await expect(page.getByTestId('my-plans')).toHaveAttribute('href', /meals\.html\?plans$/);
+  const menu = page.getByTestId('my-plans');
+  await expect(menu).toHaveAttribute('href', /meals\.html\?plans$/);
+  // Renamed "Published" → "Menu", with a little arrow signalling it opens
+  // another page.
+  await expect(menu).toContainText('Menu');
+  await expect(menu).toContainText('↗');
 });
 
 test('published-plans subpage: signed out, it invites sign-in and offers a back link', async ({
