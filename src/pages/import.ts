@@ -14,7 +14,7 @@ import { createDraftStore } from '../recipes/drafts-local.js';
 import { requestPersistence } from '../storage-persist.js';
 import { registerServiceWorker } from '../sw-register.js';
 
-const main = async (): Promise<void> => {
+const main = (): void => {
   const app = document.getElementById('app');
   if (app === null) throw new Error('shell mount point #app missing');
 
@@ -43,10 +43,10 @@ const main = async (): Promise<void> => {
   }
 
   // "Scan a photo" (OCR) is gated by the Settings toggle (default on; a cook on a
-  // weak device can disable it). When enabled we load the engine seam; when
-  // disabled — or when no engine is available yet — the card shows the on-device
-  // (OS OCR + share) guidance instead.
-  const ocrEngine = createOcrPrefs().isEnabled() ? await loadOcrEngine() : undefined;
+  // weak device can disable it). When enabled we hand the hub the lazy loader so
+  // the heavy engine downloads only on first tap; when disabled the card shows the
+  // on-device (OS OCR + share) guidance instead.
+  const ocrEnabled = createOcrPrefs().isEnabled();
 
   const hub = renderAcquireHub({
     acquireFromPaste: (pasted, sourceUrl) => acquireFromPaste(pasted, sourceUrl),
@@ -56,7 +56,7 @@ const main = async (): Promise<void> => {
       window.location.href = `./editor.html?draft=${encodeURIComponent(draft.id)}`;
     },
     shared,
-    ocrEngine,
+    loadOcrEngine: ocrEnabled ? loadOcrEngine : undefined,
   });
   content.append(hub);
 
@@ -65,4 +65,4 @@ const main = async (): Promise<void> => {
   void registerServiceWorker();
 };
 
-void main();
+main();

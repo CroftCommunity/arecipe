@@ -71,24 +71,26 @@ out; `import.ts` gates the engine on it via the `loadOcrEngine` seam
 Tests: `ocr-prefs.spec` (4), settings e2e (toggle), panel/hub/recipe-import specs
 updated for no-fetch.
 
-**NEXT — wire the real in-app engine (Tesseract.js) in `loadOcrEngine`. The
-architecture, toggle, and gating are all in place; this is the remaining
-sign-off-gated, hard-to-reverse part (the experiment brief says "no CSP change,
-no dependency"):**
-- Add `tesseract.js` (1.7 MB JS wrapper) as a dep; a small
-  `src/import/ocr-tesseract.ts` adapter implements `OcrEngine`, **lazy-loaded via
-  dynamic import** so it code-splits onto the hub only.
-- **Self-host the assets** (strict CSP forbids the default CDN): one WASM core
-  variant (~3–4 MB) + the worker + `eng.traineddata` (~4 MB "fast" / ~11 MB
-  standard) committed under `assets/` and pointed at via `corePath`/`workerPath`/
-  `langPath`. Real weight for a lean PWA (bundles today are 3–40 KB) — a size call
-  for the owner.
-- **CSP relaxation on `import.html` only**: `script-src` needs `wasm-unsafe-eval`
-  and a worker (`worker-src 'self' blob:`); note it in `docs/SECURITY.md`.
-- Verify real OCR in a browser (headless Chromium OCR is heavy/slow) as a
-  follow-up check.
-- Local-AI structuring (desktop-only, verbatim-gated — Arm 2 infra already built)
-  remains an optional later gap-filler; degrade honestly on mobile.
+**Real Tesseract engine wired + VERIFIED (DONE, 2026-07-23).**
+- `src/import/ocr-engine.ts` `loadOcrEngine` loads the **self-hosted, pre-built**
+  Tesseract ESM bundle at runtime (a computed specifier, so esbuild leaves it
+  external — bundling the npm *source* mangled the worker handshake). `tesseract.js`
+  is a devDependency only, used to source the committed assets.
+- **Self-hosted assets** under `assets/ocr/` (~5.8 MB): the ESM bundle (63 KB),
+  `worker.min.js` (111 KB), the SIMD-LSTM core `.wasm.js` (3.9 MB, embeds the
+  WASM — the raw `.wasm` is not needed), and the **fast** `eng.traineddata.gz`
+  (2 MB). `corePath` is pinned to the one shipped variant so Tesseract can't
+  feature-detect a variant we don't ship.
+- **Lazy on first tap** (not page load) so nothing heavy downloads until "Scan a
+  photo" is used, and only when the Settings toggle leaves OCR enabled.
+- **CSP relaxation scoped to `import.html`** (`script-src` + `'wasm-unsafe-eval'`,
+  `worker-src 'self' blob:`) via `cspFor(html, { wasm })`; every other page stays
+  strict. Guarded by `csp.spec.ts`; documented in `docs/SECURITY.md`.
+- **Verified end-to-end** by `tests/e2e/ocr-import.spec.ts`: a canvas-rendered
+  image is recognized ("2 cups flour") into the paste box under the real CSP,
+  hermetically (no network). ~3 s.
+- Follow-ups (optional): a standard/handwriting model as an upgrade; local-AI
+  structuring (desktop-only, verbatim-gated) as a gap-filler.
 
 ## Tests
 

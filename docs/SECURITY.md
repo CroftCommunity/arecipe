@@ -118,8 +118,9 @@ preventing XSS. Four controls, each with its current implementation status
   explicit allowlists per directive; `script-src 'self'` plus the exact
   `sha256` hashes of our three inline scripts (theme pre-paint, the index
   landing block, the `friends.html` redirect stub); no `'unsafe-inline'` and no
-  `'unsafe-eval'` (the built bundle contains no `eval`/`new Function`/
-  `WebAssembly`). Because GitHub Pages cannot set response headers or mint
+  `'unsafe-eval'` (the built bundle contains no `eval`/`new Function`, and no
+  `WebAssembly` except on `import.html`, whose scoped OCR relaxation is described
+  below). Because GitHub Pages cannot set response headers or mint
   per-request nonces, the policy is computed at build time and injected
   immediately after `<meta charset>` in every document, before any inline script
   — a `<meta>` CSP does not govern inline scripts that precede it. **Status:
@@ -129,6 +130,19 @@ preventing XSS. Four controls, each with its current implementation status
   after `<meta charset>` so charset stays first while the policy still precedes
   every inline script. Gated by `tests/e2e/csp.spec.ts`, which loads all 9
   documents under the enforcing policy and asserts zero `securitypolicyviolation`.
+- **One scoped CSP relaxation: `import.html` (in-app OCR).** The Acquire hub
+  offers an optional "Scan a photo" that runs Tesseract.js **entirely on device**
+  (self-hosted worker + WASM core + `eng.traineddata` under `assets/ocr/`, no CDN,
+  no network beyond same-origin asset fetches). WebAssembly compilation requires
+  `'wasm-unsafe-eval'` in `script-src`, and the worker may spawn from a blob
+  (`worker-src 'self' blob:`). This relaxation is applied to **`import.html` only**
+  (`scripts/build.mjs` `cspFor(html, { wasm: true })`); every other document keeps
+  the strict `script-src 'self'` + hashes with no `unsafe-*`. The relaxation is
+  bounded and test-guarded: `tests/e2e/csp.spec.ts` asserts `import.html` may add
+  `'wasm-unsafe-eval'` but still forbids `'unsafe-inline'`, plain `'unsafe-eval'`,
+  hosts, schemes, and wildcards — and asserts every *other* page forbids
+  `wasm-unsafe-eval` too. The feature is user-disablable (Settings → Import →
+  "Scan a photo (OCR)") and loads the engine only on first use.
 - **Subresource Integrity (SRI).** `integrity=` on the entry ES module and both
   stylesheets, computed from the same bytes the build hashes. Scope is bounded:
   code-split `import()` chunks carry no HTML tag, so HTML `integrity` is not

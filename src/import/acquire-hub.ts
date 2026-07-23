@@ -20,10 +20,12 @@ export type AcquireHubDeps = Pick<
 > & {
   /** Where "Build from scratch" points (a blank draft in the editor). */
   editorHref?: string;
-  /** In-app OCR engine. When present, "Scan a photo" opens a camera/file picker
-   *  and drops the recognized text into the paste box for review. When absent,
-   *  the card shows the on-device (OS OCR + share) guidance instead. */
-  ocrEngine?: OcrEngine;
+  /** Lazy loader for the in-app OCR engine. Present ⇒ "Scan a photo" loads the
+   *  engine ON FIRST TAP (nothing heavy downloads on page load), then opens a
+   *  camera/file picker and drops the recognized text into the paste box for
+   *  review. Absent (or resolves undefined) ⇒ the card shows the on-device
+   *  (OS OCR + share) guidance instead. Gated by the Settings toggle upstream. */
+  loadOcrEngine?: () => Promise<OcrEngine | undefined>;
 };
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -73,12 +75,34 @@ export const renderAcquireHub = (deps: AcquireHubDeps): HTMLElement => {
   fileInput.hidden = true;
   fileInput.dataset['testid'] = 'acquire-photo-input';
 
-  const engine = deps.ocrEngine;
-  if (engine !== undefined) {
-    photo.addEventListener('click', () => fileInput.click());
+  const loader = deps.loadOcrEngine;
+  if (loader !== undefined) {
+    // Load the engine on first tap (not on page load), then reuse it.
+    let engine: OcrEngine | undefined;
+    let loading = false;
+    photo.addEventListener('click', () => {
+      void (async () => {
+        if (engine !== undefined) {
+          fileInput.click();
+          return;
+        }
+        if (loading) return;
+        loading = true;
+        photoNote.hidden = false;
+        photoNote.textContent = 'Starting the scanner…';
+        engine = await loader();
+        loading = false;
+        if (engine !== undefined) {
+          photoNote.hidden = true;
+          fileInput.click();
+        } else {
+          photoNote.textContent = OCR_GUIDANCE; // couldn't load → the on-device route
+        }
+      })();
+    });
     fileInput.addEventListener('change', () => {
       const file = fileInput.files?.[0];
-      if (file === undefined || file === null) return;
+      if (file === undefined || file === null || engine === undefined) return;
       void runPhotoOcr(file, engine, panel, photoNote);
     });
   } else {
@@ -94,7 +118,7 @@ export const renderAcquireHub = (deps: AcquireHubDeps): HTMLElement => {
 
   options.append(photo, scratch);
   hub.append(options, photoNote);
-  if (engine !== undefined) hub.append(fileInput); // the picker only exists with an engine
+  if (loader !== undefined) hub.append(fileInput); // the picker only exists with an engine
   hub.append(panel);
   return hub;
 };

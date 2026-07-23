@@ -3,6 +3,7 @@
 // this contract; here a mock stands in.
 import { describe, expect, it, vi } from 'vitest';
 import { recognizeImage, OCR_GUIDANCE, type OcrEngine } from '../../../src/import/ocr.js';
+import { makeOcrEngine } from '../../../src/import/ocr-engine.js';
 
 describe('recognizeImage', () => {
   it('passes the image to the engine and returns the recognized text', async () => {
@@ -20,5 +21,15 @@ describe('recognizeImage', () => {
 
   it('exposes on-device OCR guidance copy for the no-engine path', () => {
     expect(OCR_GUIDANCE).toMatch(/select text/i);
+  });
+});
+
+describe('makeOcrEngine (Tesseract worker adapter)', () => {
+  it('unwraps the Tesseract recognize result to plain text', async () => {
+    const worker = { recognize: vi.fn(async () => ({ data: { text: '2 cups flour\nMix.' } })) };
+    const engine = makeOcrEngine(worker);
+    const img = new Blob(['bytes'], { type: 'image/png' });
+    expect(await engine.recognize(img)).toBe('2 cups flour\nMix.');
+    expect(worker.recognize).toHaveBeenCalledWith(img);
   });
 });

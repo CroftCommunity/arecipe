@@ -93,29 +93,39 @@ writeFileSync(`dist/${cssName}`, cssBytes);
 // built output contains no eval/new Function/WebAssembly (D1).
 const INLINE_SCRIPT = /<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi;
 
-const cspFor = (html) => {
+// `opts.wasm` relaxes the policy for the ONE page that runs in-app OCR
+// (import.html): Tesseract.js compiles WebAssembly (needs 'wasm-unsafe-eval') in
+// a worker it may spawn from a blob (needs worker-src blob:). Every other page
+// keeps the strict no-eval/no-wasm policy. Documented in docs/SECURITY.md.
+const cspFor = (html, opts = {}) => {
   const hashes = [...html.matchAll(INLINE_SCRIPT)].map(
     (m) => `'sha256-${createHash('sha256').update(m[1], 'utf8').digest('base64')}'`,
   );
+  const scriptSrc = ["'self'", ...hashes];
+  const workerSrc = ["'self'"];
+  if (opts.wasm) {
+    scriptSrc.push("'wasm-unsafe-eval'");
+    workerSrc.push('blob:');
+  }
   return [
     "default-src 'none'",
-    `script-src ${["'self'", ...hashes].join(' ')}`,
+    `script-src ${scriptSrc.join(' ')}`,
     "style-src 'self'",
     "img-src 'self' data: blob: https:",
     "font-src 'self'",
     "connect-src 'self' https://bsky.social https://public.api.bsky.app https://plc.directory https:",
     "manifest-src 'self'",
-    "worker-src 'self'",
+    `worker-src ${workerSrc.join(' ')}`,
     "base-uri 'none'",
     "object-src 'none'",
     "form-action 'self'",
   ].join('; ');
 };
 
-const injectCsp = (html) =>
+const injectCsp = (html, opts = {}) =>
   html.replace(
     /(<meta charset="utf-8" \/>)/i,
-    `$1\n    <meta http-equiv="Content-Security-Policy" content="${cspFor(html)}" />`,
+    `$1\n    <meta http-equiv="Content-Security-Policy" content="${cspFor(html, opts)}" />`,
   );
 
 // --- Subresource Integrity (Phase 3) ---------------------------------------
@@ -146,7 +156,7 @@ for (const [file, page] of Object.entries(HTML)) {
     `<link rel="stylesheet" href="./assets/fonts/fonts.css" />`,
     `<link rel="stylesheet" href="./assets/fonts/fonts.css" integrity="${fontsSri}" crossorigin="anonymous" />`,
   );
-  html = injectCsp(html);
+  html = injectCsp(html, { wasm: file === 'import.html' });
   writeFileSync(`dist/${file}`, html);
 }
 copyFileSync('manifest.webmanifest', 'dist/manifest.webmanifest');
