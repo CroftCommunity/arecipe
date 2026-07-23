@@ -16,6 +16,20 @@ const APP_ORIGIN = 'https://arecipe.app';
 /** UID namespace so events are globally unique + stable across regenerations. */
 const UID_DOMAIN = 'arecipe.app';
 
+/** How many days of PAST occurrences the bounded feed carries (D9). The right
+ * value hinges on EXP-ICS-WINDOW — an unresolved question about how subscribers
+ * treat events that drop out of a feed — so it lives here as a named constant. */
+export const FEED_WINDOW_PAST_DAYS = 90;
+
+/** Is an occurrence within the bounded feed window: from 90 days before `now`
+ * through all future dates (D9)? Pure — `now` is injected. An occurrence exactly
+ * 90 days before now is included; 91 is excluded; the future is unbounded. */
+export const withinFeedWindow = (isoDate: string, now: Date): boolean => {
+  const nowIso = now.toISOString().slice(0, 10);
+  const cutoff = addDays(nowIso, -FEED_WINDOW_PAST_DAYS);
+  return cutoff === null || isoDate >= cutoff;
+};
+
 export type CalendarEvent = {
   /** Stable, unique per (plan, date) — subscribers UPDATE rather than duplicate. */
   uid: string;
@@ -121,8 +135,13 @@ export const buildMealPlanIcs = (
   const stamp = toIcalStamp(opts.dtstamp);
   const calName = opts.calName ?? 'arecipe meals';
 
+  // Bound the feed (D9): drop occurrences older than the past window, keeping
+  // all future dates. `now` is the generation instant — the injected dtstamp —
+  // so this stays clock-free.
+  const now = new Date(opts.dtstamp);
   const events = plans
     .flatMap(planEvents)
+    .filter((ev) => withinFeedWindow(ev.date, now))
     .sort((a, b) => (a.date === b.date ? (a.uid < b.uid ? -1 : 1) : a.date < b.date ? -1 : 1));
 
   const lines: string[] = [

@@ -39,6 +39,9 @@ import {
 } from '../recipes/meal-plan-local.js';
 import { findStagedEdit, latestPlan, stagePlanForEdit, workingPlans } from '../recipes/meal-plan-edit.js';
 import { getPdsPlan, listPdsPlans, removePlanFromPds, syncPlanToPds } from '../recipes/meal-plan-sync.js';
+import { buildPlannedIndex, fingerprintOf } from '../recipes/planned-index.js';
+import { createPlannedIndexCache } from '../recipes/planned-index-local.js';
+import { partitionPlans } from '../recipes/planned-archive.js';
 import {
   addMonths,
   defaultMonth,
@@ -626,6 +629,16 @@ const showPublishedPlans = async (app: HTMLElement): Promise<void> => {
   try {
     const { pds } = await resolveDidDoc(did);
     const plans = await listPdsPlans(pds, did);
+    // RUN-LAST-PLANNED: the Meals page loads plan records here, so it is a
+    // legitimate writer of the derived index (D3). Rebuild it over the full
+    // published history (computed, never a stored counter).
+    void createPlannedIndexCache()
+      .write(buildPlannedIndex(plans, new Date()), fingerprintOf(plans))
+      .catch((err: unknown) => log.debug('meal-plan', 'planned-index rebuild skipped', { error: String(err) }));
+    // RUN-LAST-PLANNED (D7): ranges whose derived dates have entirely passed
+    // leave the active list and live on the Archive page — a VIEW, never a
+    // deletion (the records are untouched).
+    const { active: activePlans, archived: archivedPlans } = partitionPlans(plans, new Date());
     // Deleting a published plan (a date range) must also update the subscribable
     // calendar in place (no-op unless enabled on this device); regenerate from
     // the remaining set.
@@ -809,8 +822,18 @@ const showPublishedPlans = async (app: HTMLElement): Promise<void> => {
         listEl.append(row);
       }
     };
-    render(plans);
-    log.debug('shell', 'mounted', { page: 'meals', view: 'published-plans' });
+    // Archive link (D7): always present so the surface is discoverable; it
+    // carries the archived count when there is one.
+    const archiveLink = el(
+      'a',
+      'friend-link plans-archive-link',
+      archivedPlans.length > 0 ? `Archive (${archivedPlans.length}) ↗` : 'Archive ↗',
+    ) as HTMLAnchorElement;
+    archiveLink.href = './archive.html';
+    archiveLink.dataset['testid'] = 'plans-archive-link';
+    header.append(archiveLink);
+    render(activePlans);
+    log.debug('shell', 'mounted', { page: 'meals', view: 'published-plans', archived: archivedPlans.length });
   } catch (err) {
     body.replaceChildren(el('p', 'status', `couldn’t load your plans: ${String(err)}`));
   }
@@ -1213,6 +1236,7 @@ export const main = async (
     shareSlot.replaceChildren(el('p', 'status', 'publishing…'));
     void syncPlanToPds(agent, plan)
       .then(async () => {
+        void rebuildPlannedIndex(); // published record is durable — refresh the index
         // Staged edit republished: the write above replaced the ORIGINAL record
         // (rkey = editOf), so drop the staged copy, refresh the subscribable
         // calendar in place, and return to the published list — the row keeps
@@ -1259,6 +1283,34 @@ export const main = async (
   shareSection.append(publishRow, shoppingList.panel, shareSlot);
   content.append(shareSection);
 
+  // RUN-LAST-PLANNED (D3): the Meals page is the ONE writer of the derived
+  // planned-index cache — the only page that already loads plan records. It
+  // rebuilds after any plan mutation and after sync. The index is COMPUTED from
+  // the records (never a stored counter); the durable PDS set is the user's full
+  // history, unioned with any local-only (not-yet-synced) working plan.
+  const plannedIndexCache = createPlannedIndexCache();
+  const gatherPlans = async (): Promise<LocalPlan[]> => {
+    const local = store.list();
+    const a = syncAgent;
+    if (a?.did === undefined) return local; // signed-out: the local set is the whole history
+    try {
+      const pds = you?.pds ?? (await resolveDidDoc(a.did)).pds;
+      const byId = new Map(local.map((p) => [p.id, p]));
+      for (const p of await listPdsPlans(pds, a.did)) byId.set(p.id, p); // durable wins
+      return [...byId.values()];
+    } catch {
+      return local;
+    }
+  };
+  const rebuildPlannedIndex = async (): Promise<void> => {
+    try {
+      const plans = await gatherPlans();
+      await plannedIndexCache.write(buildPlannedIndex(plans, new Date()), fingerprintOf(plans));
+    } catch (err) {
+      log.debug('meal-plan', 'planned-index rebuild skipped', { error: String(err) });
+    }
+  };
+
   const persist = (): void => {
     recoveryNotice.hidden = true; // the canvas is being worked on — the resume offer is moot
     plan = store.save(
@@ -1276,10 +1328,16 @@ export const main = async (
     // A staged edit (editOf) is the exception — it stays local until "Publish
     // update" replaces the published record deliberately.
     if (syncAgent !== null && plan.editOf === undefined) {
-      void syncPlanToPds(syncAgent, plan).catch((err: unknown) => {
-        log.warn('meal-plan', 'PDS sync failed', { error: String(err) });
-      });
+      void syncPlanToPds(syncAgent, plan)
+        .then(() => rebuildPlannedIndex()) // durable now — rebuild over full history
+        .catch((err: unknown) => {
+          log.warn('meal-plan', 'PDS sync failed', { error: String(err) });
+        });
+    } else if (syncAgent === null) {
+      // Signed-out (no sync): the local set is the whole history — rebuild now.
+      void rebuildPlannedIndex();
     }
+    // A staged edit (editOf) rebuilds on its eventual "Publish update", not here.
   };
 
   // D7: default a fresh plan's anchor to the next Monday so it is dated
@@ -1684,6 +1742,7 @@ export const main = async (
         syncAgent = agent;
         const { pds } = await resolveDidDoc(agent.did);
         const remote = await listPdsPlans(pds, agent.did);
+        void rebuildPlannedIndex(); // signed-in: refresh the index over the durable history
         // Only a fresh, still-untouched canvas gets the offer (checked NOW, not
         // at load: the user may have started placing while the list loaded).
         const untouched =
@@ -1699,6 +1758,11 @@ export const main = async (
       }
     })();
   }
+
+  // Initial rebuild so a reader (Browse / Cookbook / recipe page) has a fresh
+  // index without waiting for the next mutation. Signed-out uses the local set;
+  // the signed-in boot above rebuilds again over the durable history.
+  void rebuildPlannedIndex();
 
   void mountBuildStamp(app);
   log.debug('shell', 'mounted', { page: 'meals', signedIn: signedInHint });

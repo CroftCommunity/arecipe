@@ -18,7 +18,14 @@ import { mergeCookAuthors } from '../social/default-feed.js';
 import { createRecipeReader } from '../recipes/read.js';
 import { createDietPreference } from '../recipes/diet-preference.js';
 import { createSearchMemo, queryEntries } from '../recipes/search.js';
-import { sortEntries } from '../recipes/sort.js';
+import {
+  isPlannedSort,
+  partitionByPlanned,
+  PLANNED_SORT_MODES,
+  sortEntries,
+} from '../recipes/sort.js';
+import { createPlannedIndexCache } from '../recipes/planned-index-local.js';
+import type { PlannedEntry } from '../recipes/planned-index.js';
 import { availableFacets, createBrowsePrefs, matchesFilter, recipeFacets, type BrowseState } from './browse-state.js';
 import { createTastePreference, matchesTaste } from '../recipes/taste-preference.js';
 import { windowPage } from '../recipes/paginate.js';
@@ -40,7 +47,7 @@ const el = (tag: string, className?: string, text?: string): HTMLElement => {
   return node;
 };
 
-const main = (): void => {
+const main = async (): Promise<void> => {
   const app = document.getElementById('app');
   if (app === null) throw new Error('shell mount point #app missing');
 
@@ -152,6 +159,15 @@ const main = (): void => {
   // cookFollow record; the signed-in pages mirror this store to/from the PDS.
   const cookFollows = createCookFollowsLocal();
 
+  // RUN-LAST-PLANNED (D4): read the viewer's planned-index cache — reader only,
+  // no plan-record fetch, no auth (Browse ships zero auth code, and this keeps
+  // it that way). Present → the planned-history sorts are offered and the
+  // never-planned tail group renders; absent → Browse is unchanged.
+  const plannedIndex: Map<string, PlannedEntry> | null =
+    (await createPlannedIndexCache()
+      .read()
+      .catch(() => null)) ?? null;
+
   // A neutral state for the eligibility pass: no on-tab filters, so only the
   // standing preferences (diet via matchesFilter, taste via matchesTaste) apply.
   const NO_TAB_FILTERS: BrowseState = { view: 'tiles', photosOnly: false, sort: 'default', facets: { cuisine: [], category: [] } };
@@ -217,8 +233,11 @@ const main = (): void => {
     // always applies; the daily-mix default yields to text-search relevance
     // when a query is active (a shuffle of search hits is worse than by-score),
     // and is the day-seeded shuffle otherwise.
+    // A planned-history sort (D6) is grouped at render time, so leave `matched`
+    // unordered here; renderCurrent partitions it.
     const shown =
-      state.sort === 'default' && query.trim() !== ''
+      (isPlannedSort(state.sort) && plannedIndex !== null) ||
+      (state.sort === 'default' && query.trim() !== '')
         ? matched
         : sortEntries(matched, state.sort, { daySeed: todaySeed() });
     return { eligible, shown, effective };
@@ -242,6 +261,33 @@ const main = (): void => {
     toolbar.setFilterCount(
       (effective.photosOnly ? 1 : 0) + effective.facets.cuisine.length + effective.facets.category.length,
     );
+    // Planned-history sort (D6): render the planned recipes in order, then the
+    // never-planned (or future-only) recipes in a labelled tail group below a
+    // divider — never interleaved. This view skips version-collapse/paging (the
+    // grouping is the point); the pager is hidden.
+    if (isPlannedSort(state.sort) && plannedIndex !== null) {
+      const { planned, neverPlanned } = partitionByPlanned(shown, state.sort, plannedIndex);
+      const groupOptions: RenderOptions = {};
+      if (current.author !== undefined) groupOptions.author = current.author;
+      if (current.authorsByDid !== undefined) groupOptions.authorsByDid = current.authorsByDid;
+      pager.hidden = true;
+      pagerHint.textContent = '';
+      const renderList = state.view === 'details' ? renderRecipeDetailsList : renderRecipeList;
+      const nodes: Node[] = [];
+      if (planned.length > 0) nodes.push(renderList(planned, groupOptions));
+      if (neverPlanned.length > 0) {
+        const group = el('section', 'never-planned-group');
+        group.dataset['testid'] = 'never-planned-group';
+        group.append(
+          el('hr', 'never-planned-divider'),
+          el('p', 'never-planned-label', 'Never planned'),
+          renderList(neverPlanned, groupOptions),
+        );
+        nodes.push(group);
+      }
+      listContainer.replaceChildren(...nodes);
+      return;
+    }
     const options: RenderOptions = {};
     if (current.author !== undefined) options.author = current.author;
     if (current.authorsByDid !== undefined) options.authorsByDid = current.authorsByDid;
@@ -295,6 +341,8 @@ const main = (): void => {
   // state updates + re-render through these callbacks.
   const toolbar = renderToolbar({
     showDietLink: true,
+    // Planned-history sorts offered only when a planned-index cache exists (D6).
+    ...(plannedIndex !== null ? { extraSortModes: PLANNED_SORT_MODES } : {}),
     callbacks: {
       onViewChange: setView,
       onPhotosToggle: (photosOnly) => {
@@ -629,4 +677,4 @@ const main = (): void => {
   void registerServiceWorker();
 };
 
-main();
+void main();

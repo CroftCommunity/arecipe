@@ -95,6 +95,7 @@ Notes:
 | `app.arecipe.mealPlan` | live | Weekly meal planner: plan-level `mealsPerDay` cap (1–6) + `#week` (1–12 `repeat`, exactly 7 `#slot` days) → `#slot` (a `meals` list of `#meal`) → `#meal` (required recipe `strongRef` + optional `note`, plus open-world cached display `name` + `category`); the meal-type label is derived from each recipe's own `category`, not stored on the plan; calendar is a derived view, not stored. **Multi-meal (2026-07-13):** `#slot` moved from a single `recipe`/`note` to a `meals[]` list; the legacy `recipe`/`note` fields are retained on `#slot`, tolerated on read, and migrated to a one-entry `meals` list, so pre-multi-meal records open unchanged. Caveat: a meal's `recipe` strongRef cannot declare its target is a recipe (same open-world caveat as consumed strongRefs) — the app treats it as a recipe ref by construction. Round-trip confirmed live 2026-07-10 (`LIVE=1 meals-live.spec.ts`). | `src/recipes/meal-plan-sync.ts` (`MEAL_PLAN_COLLECTION`, `syncPlanToPds`/`listPdsPlans`); model `src/recipes/meal-plan.ts` |
 | `app.arecipe.cookFollow` | live | Cook follows — one public record per followed cook, curating whose recipes fill your Browse feed and Cookbook. arecipe's analog of `app.bsky.graph.follow` (in the spirit of the starter pack being curated from the arecipe Bluesky account). Required: `subject` (followed cook's DID), `createdAt`. Follow = createRecord, unfollow = deleteRecord (rkey resolved by subject), list = public `listRecords` on your own PDS — the same read path `resolveCookbook` uses for `app.bsky.graph.follow`. Device-local tier (`cook-follows-local.ts`) is the universal read model; signed-in pages mirror these records down into it (reconciling: the mirror prunes follows unfollowed on another device, keyed by a device-local `publishedRkey` marker) and offer to publish local-only follows. The cook-follows run recorded an assumption that this novel `app.arecipe.*` collection round-trips on a live PDS like `mealPlan`; the live round-trip **harness** `tests/e2e/cook-follows-live.spec.ts` (`@live`, `npm run test:live`) discharges it — signed-in follow → public `listRecords` shows one record → unfollow → none. Fixture: `tests/fixtures/lexicons/app.arecipe.cookFollow.json`. | `src/social/cook-follows-pds.ts` (`COOK_FOLLOW_COLLECTION`); local `src/social/cook-follows-local.ts` |
 | `app.arecipe.mute.recipe` | planned | User-scoped recipe mutes/exclusions. Current impl is a client-side (localStorage) forerunner. | forerunner `src/recipes/exclusions.ts` (spec Layer 8 / plan Phase 10) |
+| `app.arecipe.plannedRollup` | reserved | Frozen aggregate of planning history over a CLOSED (immutable) window — a materialized rollup, **not** a live counter. SPECIFIED, NOT BUILT (RUN-LAST-PLANNED D10): reserved so a future discard of retained plan records can be done correctly. See the reserved-record section below. | none yet — live answer derives from `src/recipes/planned-index.ts` |
 | `app.arecipe.starterpack` | planned | Curated starter-pack record. Current impl is a forerunner over the seed account. | forerunner `src/recipes/starter.ts` |
 | `app.arecipe.friend` | dropped | Was a friend-graph record; **removed** in favor of `app.bsky.graph.follow`-based discovery. | replaced (see `src/social/cookbook.ts`, `src/pages/recipe.ts`) |
 | `app.arecipe.probe` | ops | Throwaway collection used only by the OAuth-seam spike; never real user data. | `spike/d1-oauth/d5-seam.mjs` |
@@ -103,6 +104,29 @@ Notes:
 record** as a fallback (tier 2) for holding the extension fields if the PDS had rejected
 open-world fields. The D1 probe passed, so **no overlay NSID was minted.** If that fallback is
 ever revived, register the new NSID here first.
+
+### `app.arecipe.plannedRollup` — reserved (frozen planning rollup, SPECIFIED not BUILT)
+
+RUN-LAST-PLANNED (D10) never discards anything, so no rollup is needed yet. The shape is
+written here so a **later** discard of retained plan records can never be done wrongly. It is
+**not** implemented — no code writes or reads it.
+
+```
+app.arecipe.plannedRollup
+  periodStart, periodEnd     (a CLOSED window that can no longer change)
+  entries: [{ recipeUri, count, lastPlanned }]
+```
+
+Two load-bearing notes govern any future use:
+
+- **It is a materialized aggregate over a closed window, not a live counter.** A rollup may
+  only be written for a period whose plan records are immutable, and is never mutated
+  afterward. (This preserves the run's one rule — *nothing counts, everything derives*: the
+  rollup is a frozen derivation of an unchangeable past, not a stored count that increments.)
+- **Aggregate stats cannot substitute for the per-recipe map.** The recipe page needs
+  `recipeUri -> {count, lastPlanned}`; a global total (or "most common") cannot rehydrate it.
+  The live answer, once a discard exists, would be the rollup **merged with** on-demand
+  derivation (`buildPlannedIndex`) over the still-retained window — never the rollup alone.
 
 ---
 
@@ -126,5 +150,6 @@ ever revived, register the new NSID here first.
 - `discovery/alpha/ECOSYSTEM.md` — related-projects register (broader atproto ecosystem).
 - `plans/2026-07-09-1-plan-recipe-model-extensions.md` — the open-world extension-field work.
 
-_Last updated: 2026-07-18 (recipe-import — `sourceUrl` open-world provenance
-field on `exchange.recipe.recipe`; accessor `sourceUrlOf`)._
+_Last updated: 2026-07-23 (RUN-LAST-PLANNED — reserved `app.arecipe.plannedRollup`
+frozen planning rollup, SPECIFIED not BUILT; derived planned-index in
+`src/recipes/planned-index.ts`)._
