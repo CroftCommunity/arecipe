@@ -1584,6 +1584,53 @@ a.card {
   place-items: center;
 }
 
+/* ---- pictureless tile: inline chip (single column only) ----
+   RUN-EMPTY-TILE-CHIP. On single-column (mobile) layouts a pictureless tile
+   drops its 3:2 media band for an inline chip: the same placeholder glyph in a
+   small rounded square beside the title. The variant is chosen in JS
+   (tileMediaVariant, gated on SINGLE_COLUMN_MEDIA), so this DOM exists only at
+   single-column widths — no media query is needed here to hide it elsewhere.
+   Reuses existing tokens only: --enamel-soft (the placeholder tint), --r-m (a
+   smaller sibling of the card's --r-l radius), and the --s-* padding scale. */
+.tile-chip-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3);
+}
+
+.tile-chip {
+  flex: 0 0 auto;
+  /* ≥44px touch-target floor (reset-icon work); glyph ~26px inside a 46px box. */
+  width: 2.875rem;
+  height: 2.875rem;
+  min-width: 44px;
+  min-height: 44px;
+  display: grid;
+  place-items: center;
+  background: var(--enamel-soft);
+  border-radius: var(--r-m);
+  overflow: hidden;
+}
+
+.tile-chip .placeholder-mark {
+  height: 1.625rem;
+  width: auto;
+  opacity: 0.45;
+}
+
+/* The chip-row title carries the block padding the media-band title had, and
+   clamps to 3 lines — full text stays in the DOM (assistive tech reads it), the
+   clamp is purely visual. Font family/weight/size are unchanged (.card-title). */
+.card--chip .card-title {
+  padding: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .placeholder-mark {
   height: 4rem;
   width: auto;
