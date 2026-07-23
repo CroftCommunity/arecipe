@@ -16,3 +16,7 @@ __pycache__/
 
 # Throwaway Playwright config pointing at the pre-installed Chromium (env-specific).
 playwright.local.ts
+
+# Build-time snapshot staging (RUN-BUNDLE-PRECACHE). Produced by
+# scripts/snapshot.mjs in CI, consumed + stamped by build.mjs. Not committed.
+.snapshot-staging/

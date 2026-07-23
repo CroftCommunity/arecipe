@@ -9,9 +9,11 @@ import { referenceIconLink } from '../icons.js';
 import { recipeFacets } from '../pages/browse-state.js';
 import type { ScreenWakeLock, WakeLockState } from '../ui/wake-lock.js';
 import type { CachedRecipe } from './cache.js';
+import { recipeMetaOf, type Difficulty, type RecipeMeta } from './meta.js';
 import { dishKeyOf, funFactsOf, versionLabelOf, type FunFact } from './model.js';
 import { firstImageCid, firstImageCredit, formatDuration, formatPublishedDate, thumbUrl } from './present.js';
 import { initStepState, stepReducer, stepStatusAt, type StepState } from './step-state.js';
+import { tileMediaVariant } from './tile-variant.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
   const node = document.createElement(tag);
@@ -146,18 +148,50 @@ const attributionEl = (value: RecipeValue): HTMLElement | null => {
   return credit;
 };
 
-const placeholderEl = (): HTMLElement => {
-  const placeholder = el('div', 'card-photo card-photo--empty');
-  // Themed "no meal image" standin (butterfly-spatula), a light/dark pair like
-  // the wordmark logo — CSS shows the variant that suits the current theme.
-  for (const variant of ['light', 'dark'] as const) {
+/** The themed "no meal image" standin (butterfly-spatula) as a light/dark pair
+ *  like the wordmark logo — CSS shows the variant that suits the current theme.
+ *  Both the empty media band and the single-column chip consume this ONE source,
+ *  so the placeholder artwork can never diverge between them. Always decorative
+ *  (empty alt): the accessible name is the recipe title. */
+const placeholderMarks = (): HTMLImageElement[] =>
+  (['light', 'dark'] as const).map((variant) => {
     const mark = document.createElement('img');
     mark.className = `placeholder-mark logo--${variant}`;
     mark.src = `./assets/no-meal-${variant}.png`;
     mark.alt = '';
-    placeholder.append(mark);
-  }
+    return mark;
+  });
+
+const placeholderEl = (): HTMLElement => {
+  const placeholder = el('div', 'card-photo card-photo--empty');
+  placeholder.append(...placeholderMarks());
   return placeholder;
+};
+
+// Single-column gate for the chip variant. D0 found the tile grid is intrinsic
+// (`repeat(auto-fill, minmax(15rem, 1fr))`) with NO media query controlling its
+// column count — so there is no existing breakpoint to reuse. This query is
+// derived from that track: two 15rem columns + the grid gap + the #app padding
+// need ~33rem of viewport, so at ≤32rem the grid is always single-column. Kept
+// safely below the 2-column threshold: the chip therefore appears only when the
+// grid is genuinely single-column, never inside a multi-column row. Consumed via
+// matchMedia at render time; callers may override with `RenderOptions.columns`.
+export const SINGLE_COLUMN_MEDIA = '(max-width: 32rem)';
+
+const tileColumns = (options: RenderOptions): number => {
+  if (options.columns !== undefined) return options.columns;
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return 2;
+  return window.matchMedia(SINGLE_COLUMN_MEDIA).matches ? 1 : 2;
+};
+
+/** The inline chip that replaces the media band for a pictureless tile at
+ *  single-column widths: the shared placeholder glyph in a small rounded square.
+ *  Decorative (aria-hidden) — the tile link's accessible name stays the title. */
+const tileChipEl = (): HTMLElement => {
+  const chip = el('span', 'tile-chip');
+  chip.setAttribute('aria-hidden', 'true');
+  chip.append(...placeholderMarks());
+  return chip;
 };
 
 const photoWrapEl = (entry: CachedRecipe): HTMLElement => {
@@ -256,6 +290,13 @@ export type RenderOptions = {
   versionCounts?: Record<string, number>;
   /** Gate for the fun-fact cycler (Settings "Include fun facts"). Default: show. */
   showFunFacts?: boolean;
+  /** Seasonality (Feature B): uris that have ≥1 in-season ingredient get a
+   *  quiet "In season" badge. Boost-only — never removes or reorders a card. */
+  inSeasonUris?: ReadonlySet<string>;
+  /** Resolved grid column count. When omitted, derived from `SINGLE_COLUMN_MEDIA`
+   *  via matchMedia at render time. Drives the pictureless-tile chip variant
+   *  (chip at 1 column, media band otherwise); tests pass it explicitly. */
+  columns?: number;
 };
 
 const recipePageHref = (entry: CachedRecipe, options: RenderOptions): string => {
@@ -281,20 +322,59 @@ const renderCard = (entry: CachedRecipe, options: RenderOptions): HTMLElement =>
   } else {
     card.href = recipePageHref(entry, options);
   }
-  const photoWrap = photoWrapEl(entry);
-  const cardCredit = imageCreditOverlay(value, { withLink: false, testid: 'card-credit' });
-  if (cardCredit !== null) photoWrap.append(cardCredit);
-  card.append(photoWrap);
-  card.append(el('span', 'card-title', value.name ?? '(untitled)'));
+  const hasImage = firstImageCid(entry.value) !== null && did !== '';
+  const variant = tileMediaVariant({ hasImage, columns: tileColumns(options) });
+  const title = el('span', 'card-title', value.name ?? '(untitled)');
+  if (variant === 'chip') {
+    // Single-column, pictureless: an inline chip row (glyph + title), no media
+    // band. The title clamps visually (CSS) but keeps its full text in the DOM.
+    card.classList.add('card--chip');
+    const row = el('div', 'tile-chip-row');
+    row.append(tileChipEl(), title);
+    card.append(row);
+  } else {
+    // Photo tiles and the multi-column empty band are unchanged.
+    const photoWrap = photoWrapEl(entry);
+    const cardCredit = imageCreditOverlay(value, { withLink: false, testid: 'card-credit' });
+    if (cardCredit !== null) photoWrap.append(cardCredit);
+    card.append(photoWrap);
+    card.append(title);
+  }
   if (versionCount > 1) {
     const badge = el('span', 'version-badge', `${versionCount} versions`);
     badge.dataset['testid'] = 'version-badge';
+    card.append(badge);
+  }
+  if (options.inSeasonUris?.has(entry.uri) === true) {
+    const badge = el('span', 'in-season-badge', 'In season');
+    badge.dataset['testid'] = 'in-season-badge';
     card.append(badge);
   }
   const chips = chipsEl(value);
   if (chips !== null) card.append(chips);
   if (!entry.verified) card.append(alteredWarningEl());
   return card;
+};
+
+/** Seasonality (Feature B): the optional "In season now" strip — a compact,
+ *  additive row naming the produce that is in season right now among the shown
+ *  recipes. It surfaces what's good (B0), never duplicating or reordering the
+ *  cards below. Returns null when nothing is in season (so it takes no space). */
+export const renderInSeasonStrip = (produceNames: string[]): HTMLElement | null => {
+  const cap = 12;
+  const picks = produceNames.slice(0, cap);
+  if (picks.length === 0) return null;
+  const strip = el('section', 'in-season-strip');
+  strip.dataset['testid'] = 'in-season-strip';
+  strip.append(el('span', 'in-season-strip-label', 'In season now'));
+  const row = el('div', 'in-season-strip-row');
+  for (const name of picks) {
+    const chip = el('span', 'in-season-chip', name);
+    chip.dataset['testid'] = 'in-season-chip';
+    row.append(chip);
+  }
+  strip.append(row);
+  return strip;
 };
 
 /** Render cached recipes as a grid of link cards (each opens its own page). */
@@ -431,7 +511,7 @@ const focusInstructionsEl = (lines: string[]): HTMLElement => {
  *  screen wake lock's lifecycle, and removing it on exit. */
 export const renderFocusView = (
   entry: CachedRecipe,
-  opts: { onExit: () => void; wakeLock?: ScreenWakeLock },
+  opts: { onExit: () => void; wakeLock?: ScreenWakeLock; timerStripHost?: HTMLElement },
 ): HTMLElement => {
   const value = entry.value as RecipeValue;
   const overlay = el('div', 'focus-view');
@@ -443,6 +523,9 @@ export const renderFocusView = (
   heading.append(el('h2', 'focus-title', value.name ?? '(untitled)'));
   heading.append(wakeStateEl(opts.wakeLock));
   top.append(heading);
+  // Compact running-timers strip (A-D6). The caller mounts into this host; it
+  // renders nothing while no timer runs, so it takes no space from the step.
+  if (opts.timerStripHost !== undefined) top.append(opts.timerStripHost);
   const exit = el('button', 'button focus-exit', '✕ Exit focus') as HTMLButtonElement;
   exit.type = 'button';
   exit.dataset['testid'] = 'focus-exit';
@@ -452,9 +535,19 @@ export const renderFocusView = (
   // No image? Mark the photo area empty so it renders as a small top strip
   // rather than a full-height banner of blank placeholder (which ate ~75% of a
   // phone screen). CSS (.focus-view .focus-photo-empty) does the shrinking.
+  const hasImage = firstImageCid(entry.value) !== null;
   const photo = photoWrapEl(entry);
-  if (firstImageCid(entry.value) === null) photo.classList.add('focus-photo-empty');
-  overlay.append(photo);
+  if (!hasImage) photo.classList.add('focus-photo-empty');
+  // Focus is a during-cook surface: keep serves + time, suppress difficulty (O2).
+  const strip = renderMetaStrip(recipeMetaOf(entry.value), { focus: true, standalone: !hasImage });
+  if (strip !== null && hasImage) {
+    const hero = el('div', 'recipe-hero');
+    hero.append(photo, strip);
+    overlay.append(hero);
+  } else {
+    overlay.append(photo);
+    if (strip !== null) overlay.append(strip);
+  }
   const cols = el('div', 'focus-cols');
   const ingredients = el('section');
   ingredients.append(el('h3', undefined, 'Ingredients'));
@@ -494,7 +587,9 @@ export const renderDishCompare = (
     const label = versionLabelOf(entry.value);
     if (label !== undefined) {
       const badge = el('span', 'version-label', label);
-      card.insertBefore(badge, card.querySelector('.card-title'));
+      // `.before()` (not card.insertBefore) so this is nesting-safe: in the
+      // single-column chip variant the title lives inside .tile-chip-row.
+      card.querySelector('.card-title')?.before(badge);
     }
     grid.append(card);
   }
@@ -625,6 +720,55 @@ export const renderFacetGroup = (opts: {
   return group;
 };
 
+/** The difficulty `<dd>`: five dots (aria-hidden decoration, `value` filled) plus
+ *  the text label — the accessible value a screen reader announces. */
+const difficultyDd = (d: Difficulty): HTMLElement => {
+  const dd = el('dd', 'difficulty-value');
+  const dots = el('span', 'dots');
+  dots.setAttribute('aria-hidden', 'true');
+  for (let i = 1; i <= 5; i += 1) {
+    dots.append(el('span', `dot ${i <= d.value ? 'dot--on' : 'dot--off'}`));
+  }
+  dd.append(dots, el('span', 'difficulty-label', d.label));
+  return dd;
+};
+
+const metaRow = (label: string, dd: HTMLElement): HTMLElement => {
+  const row = el('div', 'meta-row');
+  row.append(el('dt', undefined, label), dd);
+  return row;
+};
+
+/**
+ * RUN-RECIPE-META-STRIP D2 — the three-row meta strip that hangs off the bottom
+ * of the recipe image (Serves · Time · Difficulty, most-consequential first). A
+ * description list, because that is what it is. Returns null when nothing renders
+ * (callers leave the image alone — no empty container). Dots are decoration
+ * (`aria-hidden`); the difficulty label is the accessible value.
+ *
+ * - `focus`: suppress the difficulty row (O2 — a pre-cook field, hidden on the
+ *   during-cook surface). A difficulty-only strip then returns null.
+ * - `standalone`: mark the strip so CSS rounds ALL corners — the no-image case,
+ *   where it stands on its own rather than attached under an image.
+ */
+export const renderMetaStrip = (
+  meta: RecipeMeta,
+  opts: { focus?: boolean; standalone?: boolean } = {},
+): HTMLElement | null => {
+  const rows: HTMLElement[] = [];
+  if (meta.serves !== undefined) rows.push(metaRow('Serves', el('dd', undefined, meta.serves.display)));
+  if (meta.time !== undefined) rows.push(metaRow('Time', el('dd', undefined, meta.time.display)));
+  if (opts.focus !== true && meta.difficulty !== undefined) {
+    rows.push(metaRow('Difficulty', difficultyDd(meta.difficulty)));
+  }
+  if (rows.length === 0) return null;
+  const dl = el('dl', 'meta-strip');
+  if (opts.standalone === true) dl.classList.add('meta-strip--standalone');
+  dl.dataset['testid'] = 'meta-strip';
+  for (const row of rows) dl.append(row);
+  return dl;
+};
+
 /** Render one recipe in full: banner, title, chips, ingredients-first detail. */
 export const renderRecipeDetail = (
   entry: CachedRecipe,
@@ -638,7 +782,21 @@ export const renderRecipeDetail = (
   banner.classList.add('photo-wrap--banner');
   const photoCredit = imageCreditOverlay(value, { withLink: true, testid: 'photo-credit' });
   if (photoCredit !== null) banner.append(photoCredit);
-  article.append(banner);
+  // The meta strip (Serves · Time · Difficulty) hangs off the bottom of the
+  // image and reads as one object with it. With a real image the two live in a
+  // clipped .recipe-hero so the join squares off and the outer corners round;
+  // with no image the strip stands alone (all corners rounded) so it never looks
+  // like an orphaned fragment.
+  const hasImage = firstImageCid(entry.value) !== null;
+  const strip = renderMetaStrip(recipeMetaOf(entry.value), { standalone: !hasImage });
+  if (strip !== null && hasImage) {
+    const hero = el('div', 'recipe-hero');
+    hero.append(banner, strip);
+    article.append(hero);
+  } else {
+    article.append(banner);
+    if (strip !== null) article.append(strip);
+  }
   if (options.onFocus !== undefined) {
     const onFocus = options.onFocus;
     const actions = el('div', 'detail-actions');
@@ -658,8 +816,8 @@ export const renderRecipeDetail = (
   const titleRow = el('div', 'recipe-title-row');
   titleRow.append(el('h2', 'recipe-title', value.name ?? '(untitled)'));
   article.append(titleRow);
-  const chips = chipsEl(value);
-  if (chips !== null) article.append(chips);
+  // Time now lives in the meta strip under the image (not a separate chip here);
+  // chipsEl stays for the card surfaces, which are out of scope for this run.
   if (!entry.verified) article.append(alteredWarningEl());
   if (value.text !== undefined && value.text !== '') {
     article.append(el('p', 'lede', value.text));

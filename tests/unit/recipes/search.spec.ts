@@ -4,7 +4,7 @@
 // fuzzy tolerance, and empty-query identity. No DOM — the page wiring is guarded
 // by e2e. Fixtures are built before the features that consume them.
 import { describe, expect, it } from 'vitest';
-import { createRecipeSearch, createSearchMemo, queryEntries } from '../../../src/recipes/search.js';
+import { createRecipeSearch, createSearchMemo, queryEntries, searchDocOf } from '../../../src/recipes/search.js';
 import { collapseVersions } from '../../../src/recipes/model.js';
 import { matchesFilter, type BrowseState } from '../../../src/pages/browse-state.js';
 import type { CachedRecipe } from '../../../src/recipes/cache.js';
@@ -226,5 +226,31 @@ describe('queryEntries — composition with facets', () => {
     const feed = [a, b];
     const searcher = createRecipeSearch(feed);
     expect(queryEntries(searcher, '   ', feed)).toEqual([a, b]);
+  });
+});
+
+// RUN-RECIPE-META-STRIP D4 — the meta hints ride in the indexed document shape
+// (for a future sort/filter run) without changing search behaviour today.
+describe('searchDocOf (D4 meta hints)', () => {
+  const cachedWith = (value: Record<string, unknown>): CachedRecipe => ({
+    uri: 'at://did:plc:x/exchange.recipe.recipe/meta',
+    cid: 'cid-meta',
+    value: { name: 'x', text: '', ingredients: [], instructions: [], ...value },
+    verified: true,
+    cachedAt: '2026-07-23T00:00:00Z',
+  });
+
+  it('carries servesHint / timeHintMinutes / difficulty from the record', () => {
+    const doc = searchDocOf(cachedWith({ recipeYield: '4', totalTime: 'PT30M', difficulty: 3 }));
+    expect(doc.servesHint).toBe(4);
+    expect(doc.timeHintMinutes).toBe(30);
+    expect(doc.difficulty).toBe(3);
+  });
+
+  it('leaves hints undefined when the source values are absent or unhintable', () => {
+    const doc = searchDocOf(cachedWith({ recipeYield: '4 burgers' }));
+    expect(doc.servesHint).toBeUndefined(); // "4 burgers" is yield text, not a count
+    expect(doc.timeHintMinutes).toBeUndefined();
+    expect(doc.difficulty).toBeUndefined();
   });
 });

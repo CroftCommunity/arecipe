@@ -14,7 +14,11 @@ import { createStarterPrefs, STARTER_AUTHORS } from '../recipes/starter.js';
 import { createCookbookPrefs } from '../social/cookbook-prefs.js';
 import { createSocialPrefs } from '../social/prefs.js';
 import { createOcrPrefs, type OcrModel } from '../import/ocr-prefs.js';
+import { createSeasonalityPrefs } from '../seasonality/prefs.js';
+import { REGIONS, type RegionId } from '../seasonality/produce.js';
 import { registerServiceWorker } from '../sw-register.js';
+
+const isRegionId = (v: string): v is RegionId => REGIONS.some((r) => r.id === v);
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
   const node = document.createElement(tag);
@@ -249,6 +253,52 @@ const main = async (): Promise<void> => {
   modelRow.append(el('span', undefined, 'OCR model'), modelSelect);
   importSettings.append(modelRow);
 
+  // Seasonality (Feature B): a boost-only "what's good right now" signal. On by
+  // default; off is byte-identical to the pre-feature build. The region is
+  // explicit and never inferred — no geolocation.
+  const seasonality = section('Seasonality', 'seasonality-settings');
+  seasonality.append(
+    el(
+      'p',
+      'status',
+      'Highlights recipes with ingredients in season now — a gentle boost, never a warning. Turn off for identical behaviour to before.',
+    ),
+  );
+  const seasonalityPrefs = createSeasonalityPrefs();
+  const seasonEnabledRow = el('label', 'starter-row');
+  seasonEnabledRow.dataset['testid'] = 'seasonality-enabled';
+  const seasonEnabledBox = document.createElement('input');
+  seasonEnabledBox.type = 'checkbox';
+  seasonEnabledBox.checked = seasonalityPrefs.enabled();
+  const regionRow = el('label', 'starter-row seasonality-region-row');
+  regionRow.dataset['testid'] = 'seasonality-region';
+  const regionSelect = document.createElement('select');
+  regionSelect.className = 'seasonality-region-select';
+  for (const region of REGIONS) {
+    const opt = document.createElement('option');
+    opt.value = region.id;
+    opt.textContent = region.label;
+    regionSelect.append(opt);
+  }
+  regionSelect.value = seasonalityPrefs.region();
+  const syncRegionEnabled = (): void => {
+    regionSelect.disabled = !seasonEnabledBox.checked;
+  };
+  seasonEnabledBox.addEventListener('change', () => {
+    seasonalityPrefs.setEnabled(seasonEnabledBox.checked);
+    syncRegionEnabled();
+    log.debug('seasonality', 'enabled toggled', { on: seasonEnabledBox.checked });
+  });
+  regionSelect.addEventListener('change', () => {
+    const value = regionSelect.value;
+    if (isRegionId(value)) seasonalityPrefs.setRegion(value);
+    log.debug('seasonality', 'region set', { region: regionSelect.value });
+  });
+  seasonEnabledRow.append(seasonEnabledBox, el('span', undefined, 'Highlight in-season recipes'));
+  regionRow.append(el('span', undefined, 'Region'), regionSelect);
+  syncRegionEnabled();
+  seasonality.append(seasonEnabledRow, regionRow);
+
   // Collapsed by default (it can hold many baseline entries): a <details> whose
   // summary carries the live count; the list is revealed only when expanded.
   const hiddenSection = el('details', 'settings-section hidden-recipes') as HTMLDetailsElement;
@@ -346,7 +396,18 @@ const main = async (): Promise<void> => {
   );
   about.append(guidePara);
 
-  content.append(build, updates, starter, social, cookbook, importSettings, hiddenSection, integrity, about);
+  content.append(
+    build,
+    updates,
+    starter,
+    social,
+    cookbook,
+    importSettings,
+    seasonality,
+    hiddenSection,
+    integrity,
+    about,
+  );
   mountShell(app, content);
   void mountBuildStamp(app);
   log.debug('shell', 'mounted', { page: 'settings' });

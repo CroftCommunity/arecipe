@@ -1073,6 +1073,101 @@ a {
   border-radius: var(--r-l);
 }
 
+/* ---- RUN-RECIPE-META-STRIP — the Serves/Time/Difficulty strip ----
+   A three-row infobox (Wikibooks-style) hanging off the bottom of the recipe
+   image. Most-consequential first: serves changes what you buy, time whether
+   you cook it tonight, difficulty you check last. */
+
+/* Image + strip read as ONE object: the hero clips to the banner radius, so the
+   image's bottom corners square where the strip meets it and the strip carries
+   the outer radius on its own bottom corners — no gap between them. */
+.recipe-hero {
+  border-radius: var(--r-l);
+  overflow: hidden;
+  margin-bottom: var(--s-4);
+}
+.recipe-hero .photo-wrap--banner .card-photo,
+.recipe-hero .photo-wrap--banner .photo-credit {
+  border-radius: 0;
+}
+
+.meta-strip {
+  margin: 0;
+  background: var(--tile);
+  border: var(--stroke) solid var(--line);
+  border-top: none; /* the image sits above; the hero clips the corners */
+}
+/* No image → the strip stands alone at the top of the body: its own top edge,
+   all four corners rounded, so it never reads as an orphaned fragment. */
+.meta-strip--standalone {
+  border-top: var(--stroke) solid var(--line);
+  border-radius: var(--r-l);
+  margin-bottom: var(--s-4);
+}
+
+/* Rows: a fixed label measure so the three values align on a common left edge;
+   separated by a hairline, not whitespace, so the strip stays compact on a
+   phone (height budget ≤ 25% of the 16rem image). */
+.meta-row {
+  display: grid;
+  grid-template-columns: 5rem 1fr;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-1) var(--s-3);
+}
+.meta-row + .meta-row {
+  border-top: var(--stroke) solid var(--line);
+}
+
+/* Labels are the utility register: smaller, letter-spaced, lower emphasis. */
+.meta-row dt {
+  font-family: var(--mono);
+  font-size: var(--t-stamp);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  line-height: 1;
+}
+/* Values carry the weight. */
+.meta-row dd {
+  margin: 0;
+  font-size: var(--t-caption);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ink);
+}
+
+/* Difficulty is the one expressive element: dots in --rust (≈4.5:1 on --tile,
+   non-text-contrast safe — never --yolk, which fails at ~2:1). */
+.difficulty-value {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.dots {
+  display: inline-flex;
+  gap: 0.2rem;
+}
+.dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: var(--r-pill);
+  border: var(--stroke) solid var(--rust);
+  box-sizing: border-box;
+}
+.dot--on {
+  background: var(--rust);
+}
+/* Empty dots: outlined in the same stroke at reduced opacity — never filled with
+   a lighter tint that would drop below the contrast threshold. */
+.dot--off {
+  background: transparent;
+  opacity: 0.4;
+}
+.difficulty-label {
+  font-weight: 700;
+}
+
 /* ---- recipe detail page ---- */
 
 .recipe-detail {
@@ -1487,6 +1582,53 @@ a.card {
 .card-photo--empty {
   display: grid;
   place-items: center;
+}
+
+/* ---- pictureless tile: inline chip (single column only) ----
+   RUN-EMPTY-TILE-CHIP. On single-column (mobile) layouts a pictureless tile
+   drops its 3:2 media band for an inline chip: the same placeholder glyph in a
+   small rounded square beside the title. The variant is chosen in JS
+   (tileMediaVariant, gated on SINGLE_COLUMN_MEDIA), so this DOM exists only at
+   single-column widths — no media query is needed here to hide it elsewhere.
+   Reuses existing tokens only: --enamel-soft (the placeholder tint), --r-m (a
+   smaller sibling of the card's --r-l radius), and the --s-* padding scale. */
+.tile-chip-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3);
+}
+
+.tile-chip {
+  flex: 0 0 auto;
+  /* ≥44px touch-target floor (reset-icon work); glyph ~26px inside a 46px box. */
+  width: 2.875rem;
+  height: 2.875rem;
+  min-width: 44px;
+  min-height: 44px;
+  display: grid;
+  place-items: center;
+  background: var(--enamel-soft);
+  border-radius: var(--r-m);
+  overflow: hidden;
+}
+
+.tile-chip .placeholder-mark {
+  height: 1.625rem;
+  width: auto;
+  opacity: 0.45;
+}
+
+/* The chip-row title carries the block padding the media-band title had, and
+   clamps to 3 lines — full text stays in the DOM (assistive tech reads it), the
+   clamp is purely visual. Font family/weight/size are unchanged (.card-title). */
+.card--chip .card-title {
+  padding: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .placeholder-mark {
@@ -3153,4 +3295,318 @@ details.calendar-publish > summary {
   font-size: var(--t-caption);
   opacity: 0.75;
   margin-top: var(--s-1);
+}
+
+/* Question box: ask a question, get ranked deep links. Sits above the topic
+ * index — you meet "type a question" before "scan the list". */
+.guide-helper {
+  margin: var(--s-4) 0 0;
+  padding: var(--s-4);
+  background: var(--card);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-l);
+}
+.guide-helper-label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: var(--s-2);
+}
+.guide-helper-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+.guide-helper-input {
+  font: inherit;
+  flex: 1 1 12rem;
+  min-width: 0; /* let it shrink below content width (mobile-fit at 320px) */
+  padding: var(--s-2) var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--card);
+  color: inherit;
+}
+.guide-helper-results {
+  margin-top: var(--s-3);
+}
+.guide-result-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+/* Each result is a link — the deep link is the product (D3). */
+.guide-result {
+  display: block;
+  padding: var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--card);
+  text-decoration: none;
+  color: inherit;
+}
+.guide-result:hover {
+  background: var(--enamel-soft);
+  border-color: var(--enamel);
+}
+.guide-result-crumb {
+  display: block;
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  opacity: 0.7;
+}
+.guide-result-title {
+  display: block;
+  font-weight: 700;
+  color: var(--enamel);
+}
+.guide-result-excerpt {
+  display: block;
+  font-size: 0.95rem;
+  opacity: 0.85;
+  margin-top: var(--s-1);
+}
+.guide-helper-nomatch {
+  font-size: 0.95rem;
+}
+.guide-helper-nomatch p {
+  margin: 0 0 var(--s-1);
+}
+/* Landing highlight: a deep link scrolls the target in and flashes it, so the
+ * user can SEE they landed in the right section, then it settles to a quiet
+ * ring. Respects reduced-motion (the flash is decorative). */
+.guide-target {
+  animation: guide-target-flash 2s ease-out 1;
+  box-shadow: 0 0 0 var(--stroke) var(--yolk);
+  border-color: var(--yolk);
+}
+@keyframes guide-target-flash {
+  0% {
+    background: var(--yolk-soft);
+    box-shadow: 0 0 0 3px var(--yolk);
+  }
+  100% {
+    background: var(--card);
+    box-shadow: 0 0 0 var(--stroke) var(--yolk);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .guide-target {
+    animation: none;
+  }
+}
+
+/* ── Timers (Feature A) ─────────────────────────────────────────────────────
+   Standalone timers page + the compact focus-mode strip. Mobile-first: the add
+   form wraps and stays tap-sized; the strip is a single quiet row. */
+.timers {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0 var(--s-4);
+}
+.timers h1 {
+  font-family: var(--display);
+  color: var(--enamel);
+  margin: var(--s-5) 0 var(--s-2);
+}
+.timers-intro {
+  margin: 0 0 var(--s-4);
+  opacity: 0.75;
+}
+.timer-add {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  align-items: center;
+  margin-bottom: var(--s-4);
+}
+.timer-label-input {
+  flex: 1 1 12rem;
+  min-width: 0;
+  font: inherit;
+  padding: var(--s-2) var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--card);
+  color: var(--ink);
+}
+.timer-num {
+  width: 5rem;
+  font: inherit;
+  padding: var(--s-2) var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--card);
+  color: var(--ink);
+}
+.timer-notify-section {
+  margin-bottom: var(--s-4);
+  padding: var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--card);
+}
+.timer-notify-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  cursor: pointer;
+}
+.timer-notify-note {
+  margin: var(--s-2) 0 0;
+  font-size: var(--t-caption);
+  opacity: 0.7;
+}
+.timer-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.timer-empty {
+  opacity: 0.6;
+}
+.timer-item {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--card);
+}
+.timer-item-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.timer-remaining {
+  font-family: var(--mono);
+  font-size: 1.5rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--enamel);
+}
+.timer-item--done {
+  border-color: var(--enamel);
+}
+.timer-item--done .timer-remaining {
+  color: var(--enamel);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 1rem;
+}
+.timer-item-controls {
+  display: flex;
+  gap: var(--s-2);
+  flex: 0 0 auto;
+}
+
+/* Focus-mode strip: label · time chips, one quiet row inside .focus-top. It is
+   only in the DOM while a timer runs, so it never steals space when idle. */
+.timer-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
+.timer-strip-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--s-1);
+  padding: var(--s-1) var(--s-2);
+  border-radius: var(--r-s);
+  background: var(--card);
+  border: var(--stroke) solid var(--line);
+}
+.timer-strip-label {
+  max-width: 8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.timer-strip-time {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--enamel);
+  font-weight: 700;
+}
+
+/* Reference-page jump to timers. */
+.ref-timers-link {
+  display: inline-block;
+  margin-top: var(--s-3);
+  color: var(--enamel);
+  font-weight: 700;
+  text-decoration: none;
+}
+.ref-timers-link:hover {
+  text-decoration: underline;
+}
+
+/* ── Seasonality (Feature B) ────────────────────────────────────────────────
+   Boost-only surfaces: a quiet "In season" badge on cards and an additive
+   "In season now" strip above the feed. Never any negative/out-of-season copy. */
+.in-season-badge {
+  display: inline-block;
+  align-self: flex-start;
+  margin-top: var(--s-1);
+  padding: 0 var(--s-2);
+  border-radius: var(--r-s);
+  font-size: var(--t-caption);
+  font-weight: 700;
+  color: var(--card);
+  background: var(--enamel);
+  line-height: 1.6;
+}
+.in-season-strip {
+  margin: 0 0 var(--s-4);
+  padding: var(--s-3);
+  border: var(--stroke) solid var(--enamel);
+  border-radius: var(--r-m);
+  background: var(--card);
+}
+.in-season-strip-label {
+  display: block;
+  font-weight: 700;
+  color: var(--enamel);
+  margin-bottom: var(--s-2);
+}
+.in-season-strip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+.in-season-chip {
+  display: inline-block;
+  padding: var(--s-1) var(--s-3);
+  border-radius: var(--r-l);
+  border: var(--stroke) solid var(--line);
+  background: var(--bg, transparent);
+  color: var(--ink);
+  text-decoration: none;
+  font-size: var(--t-caption);
+}
+.in-season-chip:hover {
+  border-color: var(--enamel);
+}
+.seasonality-region-row {
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+.seasonality-region-select {
+  font: inherit;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  padding: var(--s-1) var(--s-2);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--card);
+  color: var(--ink);
 }

@@ -9,12 +9,14 @@ import {
   renderFacetDropdown,
   renderFocusView,
   renderFunFacts,
+  renderMetaStrip,
   renderRecipeDetail,
   renderRecipeDetailsList,
   renderRecipeList,
   renderVersionBar,
 } from '../../../src/recipes/view.js';
 import type { CachedRecipe } from '../../../src/recipes/cache.js';
+import type { RecipeMeta } from '../../../src/recipes/meta.js';
 
 // cwd-relative: happy-dom's URL global is not a node file: URL.
 const fixture = JSON.parse(
@@ -518,5 +520,192 @@ describe('renderFunFacts (Did you know? cycler)', () => {
     next?.click(); // wrap
     expect(textOf()).toBe('one');
     expect(countOf()).toBe('1 / 3');
+  });
+});
+
+// RUN-RECIPE-META-STRIP D2 — the three-row meta strip under the recipe image.
+describe('renderMetaStrip', () => {
+  const SERVES: RecipeMeta = { serves: { display: '4', hint: { min: 4 } } };
+  const TIME: RecipeMeta = { time: { display: '30 minutes', hintMinutes: 30 } };
+  const DIFF: RecipeMeta = { difficulty: { value: 3, label: 'Average' } };
+  const ALL: RecipeMeta = { ...SERVES, ...TIME, ...DIFF };
+
+  const rowLabels = (el: HTMLElement | null): string[] =>
+    [...(el?.querySelectorAll('.meta-row dt') ?? [])].map((dt) => dt.textContent ?? '');
+
+  it('returns null when all three fields are absent (no empty container)', () => {
+    expect(renderMetaStrip({})).toBeNull();
+  });
+
+  // The 8th combination (all absent) is the null case above; the other 7 render.
+  const present = [
+    { name: 'serves only', meta: SERVES, rows: ['Serves'] },
+    { name: 'time only', meta: TIME, rows: ['Time'] },
+    { name: 'difficulty only', meta: DIFF, rows: ['Difficulty'] },
+    { name: 'serves + time', meta: { ...SERVES, ...TIME }, rows: ['Serves', 'Time'] },
+    { name: 'serves + difficulty', meta: { ...SERVES, ...DIFF }, rows: ['Serves', 'Difficulty'] },
+    { name: 'time + difficulty', meta: { ...TIME, ...DIFF }, rows: ['Time', 'Difficulty'] },
+    { name: 'all three', meta: ALL, rows: ['Serves', 'Time', 'Difficulty'] },
+  ] as const;
+
+  for (const { name, meta, rows } of present) {
+    it(`renders the right rows for ${name}, in stable order`, () => {
+      const el = renderMetaStrip(meta);
+      expect(el).not.toBeNull();
+      expect(el?.tagName).toBe('DL');
+      expect(el?.classList.contains('meta-strip')).toBe(true);
+      // Order is always serves → time → difficulty regardless of which subset.
+      expect(rowLabels(el)).toEqual(rows);
+    });
+  }
+
+  it('emits a <dl> of .meta-row > <dt>/<dd>; values carry the display text', () => {
+    const el = renderMetaStrip(ALL)!;
+    const dds = [...el.querySelectorAll('.meta-row dd')].map((dd) => dd.textContent);
+    expect(dds[0]).toBe('4');
+    expect(dds[1]).toBe('30 minutes');
+    expect(dds[2]).toBe('Average'); // dots are empty spans → dd text is the label alone
+  });
+
+  it('difficulty dots are decoration (aria-hidden); the label is the accessible value', () => {
+    const el = renderMetaStrip(DIFF)!;
+    const dots = el.querySelector('.dots');
+    expect(dots?.getAttribute('aria-hidden')).toBe('true');
+    // Value 3 → 3 filled + 2 empty = 5 dots total, on-count matches the value.
+    expect(dots?.querySelectorAll('.dot').length).toBe(5);
+    expect(dots?.querySelectorAll('.dot--on').length).toBe(3);
+    expect(dots?.querySelectorAll('.dot--off').length).toBe(2);
+    // The accessible name of the difficulty row is the label text, not the dots.
+    const dd = el.querySelector('.meta-row dd');
+    expect(dd?.textContent).toBe('Average');
+    expect(dd?.querySelector('.difficulty-label')?.textContent).toBe('Average');
+  });
+
+  it('O2 — the focus flag suppresses difficulty (keeps serves + time)', () => {
+    expect(rowLabels(renderMetaStrip(ALL, { focus: true }))).toEqual(['Serves', 'Time']);
+    // …and without the flag difficulty stays (the flag is tested in both positions).
+    expect(rowLabels(renderMetaStrip(ALL, { focus: false }))).toEqual(['Serves', 'Time', 'Difficulty']);
+  });
+
+  it('O2 — a difficulty-only strip returns null under the focus flag', () => {
+    expect(renderMetaStrip(DIFF, { focus: true })).toBeNull();
+  });
+
+  it('the standalone flag (no-image) marks the strip so CSS can round all corners', () => {
+    expect(renderMetaStrip(ALL, { standalone: true })?.classList.contains('meta-strip--standalone')).toBe(true);
+    expect(renderMetaStrip(ALL)?.classList.contains('meta-strip--standalone')).toBe(false);
+  });
+
+  it('snapshot: the generated markup for each presence combination is stable', () => {
+    const markup = present.map(({ name, meta }) => `— ${name} —\n${renderMetaStrip(meta)?.outerHTML ?? 'null'}`);
+    expect(markup.join('\n\n')).toMatchSnapshot();
+  });
+});
+
+// ---- RUN-EMPTY-TILE-CHIP: pictureless tiles become an inline chip at
+// single-column widths (no media band), keeping the media zone at multi-column.
+describe('renderRecipeList — pictureless tile chip variant (single column)', () => {
+  const bareEntry = (name?: string): CachedRecipe => {
+    const value: Record<string, unknown> = { ...fixture.value };
+    delete value['embed'];
+    if (name !== undefined) value['name'] = name;
+    return entry({ value });
+  };
+
+  it('chip variant emits no media-band element', () => {
+    const card = renderRecipeList([bareEntry()], { columns: 1 }).querySelector('a.card')!;
+    expect(card.querySelector('.photo-wrap')).toBeNull();
+    expect(card.querySelector('.card-photo')).toBeNull();
+    expect(card.querySelector('.card-photo--empty')).toBeNull();
+  });
+
+  it('chip variant emits exactly one glyph, from the shared placeholder mark', () => {
+    const card = renderRecipeList([bareEntry()], { columns: 1 }).querySelector('a.card')!;
+    const chip = card.querySelectorAll('.tile-chip');
+    expect(chip).toHaveLength(1);
+    // Same source as the band placeholder (shared helper, not a pasted copy):
+    // the themed light/dark pair pointing at the no-meal standin.
+    const srcs = [...chip[0]!.querySelectorAll('img.placeholder-mark')].map((m) => m.getAttribute('src'));
+    expect(srcs).toContain('./assets/no-meal-light.png');
+    expect(srcs).toContain('./assets/no-meal-dark.png');
+  });
+
+  it('the chip is decorative: aria-hidden and no contribution to the accessible name', () => {
+    const card = renderRecipeList([bareEntry('Greek Salad')], { columns: 1 }).querySelector('a.card')!;
+    const chip = card.querySelector('.tile-chip')!;
+    expect(chip.getAttribute('aria-hidden')).toBe('true');
+    // Every image inside the chip is decorative (empty alt).
+    for (const img of chip.querySelectorAll('img')) expect(img.getAttribute('alt')).toBe('');
+    // The link's accessible name is exactly the title text.
+    expect(card.textContent?.trim()).toBe('Greek Salad');
+  });
+
+  it('the accessible name equals the full title, including a title long enough to clamp', () => {
+    const long = 'Mulled Wine Spice (Gluehweingewuerz)';
+    const card = renderRecipeList([bareEntry(long)], { columns: 1 }).querySelector('a.card')!;
+    expect(card.querySelector('.card-title')?.textContent).toBe(long);
+    expect(card.textContent).toContain(long);
+  });
+
+  it('multi-column keeps the media band (no chip)', () => {
+    const card = renderRecipeList([bareEntry()], { columns: 2 }).querySelector('a.card')!;
+    expect(card.querySelector('.tile-chip')).toBeNull();
+    expect(card.querySelector('.card-photo--empty')).not.toBeNull();
+  });
+});
+
+describe('renderRecipeList — title clamp retains full text (Phase 1.3)', () => {
+  it('a pathologically long title renders its complete text in the DOM', () => {
+    const value: Record<string, unknown> = { ...fixture.value };
+    delete value['embed'];
+    const long = 'Mulled Wine Spice (Gluehweingewuerz)';
+    const longer = `${long} — ${long}`; // roughly twice as long
+    value['name'] = longer;
+    const card = renderRecipeList([entry({ value })], { columns: 1 }).querySelector('a.card')!;
+    // The clamp is visual only (-webkit-line-clamp); the full text stays present.
+    expect(card.querySelector('.card-title')?.textContent).toBe(longer);
+  });
+});
+
+describe('renderRecipeList — photo tiles are unchanged (Phase 1.2 byte-identical)', () => {
+  // Captured from the pre-change renderer output. Photo tiles at every width, and
+  // the multi-column empty band, must stay byte-for-byte what they are today.
+  const PHOTO_HTML =
+    '<a class="card" data-testid="recipe-item" href="./recipe.html?u=at%3A%2F%2Fdid%3Aplc%3A26tsx5juuss4yealylyfbj4h%2Fexchange.recipe.recipe%2F01JQJ5RW51ZVEW72XN6GSRWC8D"><div class="photo-wrap"><img class="card-photo" src="https://cdn.bsky.app/img/feed_thumbnail/plain/did:plc:26tsx5juuss4yealylyfbj4h/bafkreidtrbx6wbmsf6wlh73jyjsmhzdltngje2bleot5brgqkygnluyxcq@jpeg" alt="" loading="lazy"></div><span class="card-title">White Chocolate Strawberry Sourdough Sweet Bread</span></a>';
+  const EMPTY_BAND_HTML =
+    '<a class="card" data-testid="recipe-item" href="./recipe.html?u=at%3A%2F%2Fdid%3Aplc%3A26tsx5juuss4yealylyfbj4h%2Fexchange.recipe.recipe%2F01JQJ5RW51ZVEW72XN6GSRWC8D"><div class="photo-wrap"><div class="card-photo card-photo--empty"><img class="placeholder-mark logo--light" src="./assets/no-meal-light.png" alt=""><img class="placeholder-mark logo--dark" src="./assets/no-meal-dark.png" alt=""></div></div><span class="card-title">White Chocolate Strawberry Sourdough Sweet Bread</span></a>';
+
+  it('a photo tile is byte-identical at single column', () => {
+    const card = renderRecipeList([entry()], { columns: 1 }).querySelector('a.card')!;
+    expect(card.outerHTML).toBe(PHOTO_HTML);
+  });
+
+  it('a photo tile is byte-identical at multi column', () => {
+    const card = renderRecipeList([entry()], { columns: 3 }).querySelector('a.card')!;
+    expect(card.outerHTML).toBe(PHOTO_HTML);
+  });
+
+  it('the multi-column empty band is byte-identical', () => {
+    const bare: Record<string, unknown> = { ...fixture.value };
+    delete bare['embed'];
+    const card = renderRecipeList([entry({ value: bare })], { columns: 2 }).querySelector('a.card')!;
+    expect(card.outerHTML).toBe(EMPTY_BAND_HTML);
+  });
+});
+
+describe('renderRecipeList — mixed feed regression guard (Phase 1.4)', () => {
+  it('renders the same number of tiles in the same order, photo and pictureless mixed', () => {
+    const withImg = entry({ uri: 'at://did:plc:aaa/exchange.recipe.recipe/1' });
+    const bareValue: Record<string, unknown> = { ...fixture.value, name: 'No Photo Dish' };
+    delete bareValue['embed'];
+    const bare = entry({ uri: 'at://did:plc:bbb/exchange.recipe.recipe/2', value: bareValue });
+    const withImg2 = entry({ uri: 'at://did:plc:ccc/exchange.recipe.recipe/3' });
+    const el = renderRecipeList([withImg, bare, withImg2], { columns: 1 });
+    const cards = el.querySelectorAll('[data-testid=recipe-item]');
+    expect(cards).toHaveLength(3);
+    // Order preserved: the pictureless one is the middle tile and is a chip.
+    expect(cards[0]?.querySelector('.card-photo')).not.toBeNull();
+    expect(cards[1]?.querySelector('.tile-chip')).not.toBeNull();
+    expect(cards[2]?.querySelector('.card-photo')).not.toBeNull();
   });
 });

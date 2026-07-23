@@ -13,6 +13,11 @@ import { createRecipeCache, type CachedRecipe } from '../recipes/cache.js';
 import { createExclusions } from '../recipes/exclusions.js';
 import { collapseVersions } from '../recipes/model.js';
 import { createStarterPrefs, loadStarterFeed } from '../recipes/starter.js';
+import { loadSnapshotFeed, loadSnapshotManifest } from '../snapshot/load.js';
+import { createSnapshotStore } from '../snapshot/store.js';
+import { snapshotBuildId } from '../snapshot/paths.js';
+import { revalidateCooks } from '../snapshot/revalidate.js';
+import { resolveDidDoc } from '../identity/did.js';
 import { createCookFollowsLocal } from '../social/cook-follows-local.js';
 import { mergeCookAuthors } from '../social/default-feed.js';
 import { createRecipeReader } from '../recipes/read.js';
@@ -37,7 +42,14 @@ import {
   type ExportRecipe,
 } from '../recipes/export.js';
 import { renderToolbar } from '../recipes/toolbar.js';
-import { renderRecipeDetailsList, renderRecipeList, type RenderOptions } from '../recipes/view.js';
+import {
+  renderInSeasonStrip,
+  renderRecipeDetailsList,
+  renderRecipeList,
+  type RenderOptions,
+} from '../recipes/view.js';
+import { createSeasonalityPrefs } from '../seasonality/prefs.js';
+import { currentMonth, inSeasonProduce, inSeasonUriSet } from '../seasonality/season.js';
 import { registerServiceWorker } from '../sw-register.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -124,6 +136,7 @@ const main = async (): Promise<void> => {
   const browsePrefs = createBrowsePrefs(); // prefix 'browse' (default) — keys unchanged
   const dietPreference = createDietPreference();
   const tastePreference = createTastePreference();
+  const seasonalityPrefs = createSeasonalityPrefs();
   let state: BrowseState = browsePrefs.load();
 
   // Transient text-search query (D7): NOT persisted — navigating away drops it.
@@ -295,6 +308,16 @@ const main = async (): Promise<void> => {
     // badge linking to the compare grid); single recipes are untouched.
     const { representatives, counts } = collapseVersions(shown);
     options.versionCounts = counts;
+    // Seasonality (Feature B): boost only. The main feed order is untouched —
+    // the boost surfaces as an "In season now" strip above it plus a quiet badge
+    // on matching cards. With the setting off, this whole block is skipped and
+    // Browse is byte-identical to the pre-feature baseline.
+    let seasonStrip: HTMLElement | null = null;
+    if (seasonalityPrefs.enabled()) {
+      const ctx = { month: currentMonth(), region: seasonalityPrefs.region() };
+      options.inSeasonUris = inSeasonUriSet(representatives, ctx);
+      seasonStrip = renderInSeasonStrip(inSeasonProduce(representatives, ctx));
+    }
     // Window the collapsed cards to one page; the arrows step through the rest.
     const page = windowPage(representatives, { offset: browseOffset, size: BROWSE_PAGE_SIZE });
     browseOffset = page.total === 0 ? 0 : page.start - 1; // sync to the clamped window
@@ -304,7 +327,9 @@ const main = async (): Promise<void> => {
     pagerPrev.disabled = !page.hasPrev;
     pagerNext.disabled = !page.hasNext;
     const render = state.view === 'details' ? renderRecipeDetailsList : renderRecipeList;
-    listContainer.replaceChildren(render(page.items, options));
+    const rendered = render(page.items, options);
+    if (seasonStrip !== null) listContainer.replaceChildren(seasonStrip, rendered);
+    else listContainer.replaceChildren(rendered);
     log.debug('browse', 'render', {
       kind: current.kind,
       view: state.view,
@@ -623,7 +648,90 @@ const main = async (): Promise<void> => {
       toolbar.setStatus('starter pack is off — search a cook above');
       return;
     }
-    toolbar.setStatus('loading your starter pack…');
+    // Entries accumulate per cook so revalidation can replace/remove one cook's
+    // records in place (live wins, D4) without disturbing the others.
+    const authorDids = new Set(authors.map((a) => a.did));
+    const entriesByDid = new Map<string, CachedRecipe[]>();
+    const authorsByDid: Record<string, string> = {};
+    const didOf = (e: CachedRecipe): string => e.uri.split('/')[2] ?? '';
+    const applyEntries = (statusSuffix = ''): void => {
+      current = { entries: [...entriesByDid.values()].flat(), kind: 'starter', authorsByDid, statusSuffix };
+      browseOffset = 0;
+      showCurrent();
+    };
+
+    // D2: paint from the precached build-time snapshot FIRST — index + shards
+    // are same-origin, immutable, and precached, so first paint costs zero PDS
+    // network. Seeding the cache here also lets the live path degrade to these
+    // copies if the network is down, so the feed never blanks.
+    const snap = await loadSnapshotFeed({ cache }).catch((err: unknown) => {
+      log.warn('snapshot', 'snapshot feed failed — live only', { error: String(err) });
+      return null;
+    });
+    if (gen !== generation) return;
+    if (snap !== null) {
+      Object.assign(authorsByDid, snap.authorsByDid);
+      for (const e of snap.entries) {
+        const did = didOf(e);
+        if (!authorDids.has(did)) continue;
+        (entriesByDid.get(did) ?? entriesByDid.set(did, []).get(did)!).push(e);
+      }
+      if (entriesByDid.size > 0) applyEntries();
+    }
+
+    // Revalidation, off the critical path.
+    const manifest = snap === null ? null : await loadSnapshotManifest().catch(() => null);
+    if (snap !== null && manifest !== null) {
+      const store = createSnapshotStore({ buildId: snapshotBuildId() });
+      const covered = manifest.cooks.filter((c) => authorDids.has(c.did));
+      const coveredDids = new Set(covered.map((c) => c.did));
+
+      // Rev-revalidate snapshot cooks: ONE getLatestCommit each; unchanged cooks
+      // fetch no records. Changed/gone/renamed all update in place (D3/D4).
+      void revalidateCooks(
+        covered.map((c) => ({ did: c.did, handle: c.handle, displayName: c.displayName, pds: c.pds, rev: c.rev })),
+        {
+          store,
+          debounceMs: 60 * 60 * 1000, // O2: 60 minutes
+          readRecords: (t) => readRecipes(t),
+          resolveIdentity: async (did) => {
+            const doc = await resolveDidDoc(did);
+            return { handle: doc.handle ?? '' };
+          },
+          onChanged: async (did, records) => {
+            if (gen !== generation) return;
+            entriesByDid.set(did, await Promise.all(records.map((r) => cache.put(r))));
+            applyEntries();
+          },
+          onGone: (did) => {
+            if (gen !== generation) return;
+            entriesByDid.delete(did); // a dead cook is not rendered because the bundle says they exist (D4)
+            applyEntries();
+          },
+          onIdentity: (did, id) => {
+            if (gen !== generation || id.handle === '') return;
+            authorsByDid[did] = id.handle; // provisional snapshot identity yields to live (D4)
+            applyEntries();
+          },
+        },
+      ).catch((err: unknown) => log.warn('snapshot', 'revalidation failed', { error: String(err) }));
+
+      // Followed cooks not covered by the snapshot still load live.
+      const uncovered = authors.filter((a) => !coveredDids.has(a.did));
+      if (uncovered.length > 0) {
+        const feed = await loadStarterFeed(uncovered);
+        if (gen !== generation) return;
+        Object.assign(authorsByDid, feed.authorsByDid);
+        const byDid = new Map<string, CachedRecipe[]>();
+        for (const e of feed.entries) (byDid.get(didOf(e)) ?? byDid.set(didOf(e), []).get(didOf(e))!).push(e);
+        for (const [did, list] of byDid) entriesByDid.set(did, list);
+        applyEntries();
+      }
+      return;
+    }
+
+    // No snapshot (or no manifest): the existing full live path.
+    if (snap === null) toolbar.setStatus('loading your starter pack…');
     const feed = await loadStarterFeed(authors);
     if (gen !== generation) return; // the user searched while we loaded
     const failed =
