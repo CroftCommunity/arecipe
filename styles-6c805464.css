@@ -3218,6 +3218,22 @@ details.calendar-publish > summary {
   color: inherit;
   resize: vertical;
 }
+/* Acquire hub (import.html): the 0→1 entries around the import engine. */
+.acquire-hub {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+.acquire-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+.acquire-option {
+  flex: 1 1 12rem;
+  text-align: center;
+}
+
 /* Provenance + etiquette lines in the editor for an imported draft. */
 .import-provenance,
 .import-etiquette {
