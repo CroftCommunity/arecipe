@@ -53,7 +53,14 @@ export const mountBuildStamp = async (parent: HTMLElement): Promise<void> => {
   agentsLink.href = './agents.html';
   agentsLink.textContent = 'For AI agents';
 
-  footer.append(stamp, colophon, agentsLink);
+  // What's changed — the CI-generated changelog (from Changelog: commit trailers).
+  const changelogLink = document.createElement('a');
+  changelogLink.className = 'colophon';
+  changelogLink.dataset['testid'] = 'changelog-link';
+  changelogLink.href = './changelog.html';
+  changelogLink.textContent = "What's changed";
+
+  footer.append(stamp, colophon, agentsLink, changelogLink);
   parent.append(footer);
   try {
     const res = await fetch('./build-info.json');
