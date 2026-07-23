@@ -3,7 +3,7 @@
 // truncated snapshot must degrade to null (→ live loading) with a single log,
 // never a throw and never a blank screen.
 import 'fake-indexeddb/auto';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { loadSnapshotIndex, loadCookShard, loadSnapshotFeed } from '../../../src/snapshot/load.js';
 import { createRecipeCache } from '../../../src/recipes/cache.js';
 import { createLogger, type LogSink } from '../../../src/log.js';

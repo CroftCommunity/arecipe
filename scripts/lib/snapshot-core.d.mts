@@ -26,6 +26,7 @@ export type CookManifest = {
   did: string;
   handle: string;
   displayName: string;
+  pds: string;
   rev: string;
   cid: string;
   recordCount: number;

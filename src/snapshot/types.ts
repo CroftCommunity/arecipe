@@ -30,6 +30,8 @@ export type SnapshotCookManifest = {
   did: string;
   handle: string;
   displayName: string;
+  /** Recorded at capture so revalidation is one getLatestCommit per cook. */
+  pds: string;
   rev: string;
   cid: string;
   recordCount: number;

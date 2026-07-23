@@ -123,6 +123,10 @@ export const snapshotCook = async ({
       did: cook.did,
       handle: cook.handle,
       displayName: cook.displayName ?? cook.handle,
+      // The PDS is recorded so runtime revalidation is ONE getLatestCommit per
+      // cook — no DID re-resolution on the happy path. It is re-resolved only if
+      // that request fails (the PDS moved).
+      pds,
       rev: cap.rev,
       cid: cap.cid,
       recordCount: cap.records.length,

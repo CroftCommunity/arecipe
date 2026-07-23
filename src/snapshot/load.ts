@@ -8,8 +8,8 @@
 
 import { log as defaultLogger, type Logger } from '../log.js';
 import { createRecipeCache, type CachedRecipe, type RecipeCache } from '../recipes/cache.js';
-import { indexPath, cookShardPath, shardFilePath } from './paths.js';
-import type { SnapshotIndex, SnapshotIndexCook, SnapshotShard } from './types.js';
+import { indexPath, manifestPath, cookShardPath, shardFilePath } from './paths.js';
+import type { SnapshotIndex, SnapshotIndexCook, SnapshotManifest, SnapshotShard } from './types.js';
 
 type FetchFn = typeof fetch;
 
@@ -31,6 +31,23 @@ export const loadSnapshotIndex = async (
     return data;
   } catch (err) {
     logger.warn('snapshot', 'index unavailable — falling back to live loading', { error: String(err) });
+    return null;
+  }
+};
+
+/** Load manifest.json — the revalidation baseline (per-cook rev + pds). Returns
+ * null (logs once) on failure. */
+export const loadSnapshotManifest = async (
+  opts: { fetchFn?: FetchFn; url?: string; logger?: Logger } = {},
+): Promise<SnapshotManifest | null> => {
+  const fetchFn = opts.fetchFn ?? fetch;
+  const logger = opts.logger ?? defaultLogger;
+  try {
+    const data = await fetchJson<SnapshotManifest>(fetchFn, opts.url ?? manifestPath());
+    if (!Array.isArray(data.cooks)) throw new Error('manifest.json missing cooks[]');
+    return data;
+  } catch (err) {
+    logger.warn('snapshot', 'manifest unavailable — no rev revalidation this session', { error: String(err) });
     return null;
   }
 };
