@@ -15,6 +15,8 @@ export type PageContent = {
   revid: number;
   timestamp: string;
   wikitext: string;
+  /** The exact Action API request URL this content came from (D4 provenance). */
+  requestUrl: string;
 };
 
 export class WikiClient {
@@ -123,13 +125,15 @@ export class WikiClient {
     const out: PageContent[] = [];
     for (let i = 0; i < pageids.length; i += REVISION_BATCH) {
       const batch = pageids.slice(i, i + REVISION_BATCH);
-      const res = (await this.transport.get({
+      const params = {
         action: 'query',
         pageids: batch.join('|'),
         prop: 'revisions',
         rvprop: 'ids|timestamp|content',
         rvslots: 'main',
-      })) as {
+      };
+      const requestUrl = this.transport.buildUrl(params);
+      const res = (await this.transport.get(params)) as {
         query?: {
           pages?: {
             pageid: number;
@@ -147,7 +151,14 @@ export class WikiClient {
         const rev = pg.revisions?.[0];
         if (rev === undefined) continue;
         const wikitext = rev.slots?.main?.content ?? rev.content ?? '';
-        out.push({ pageid: pg.pageid, title: pg.title, revid: rev.revid, timestamp: rev.timestamp, wikitext });
+        out.push({
+          pageid: pg.pageid,
+          title: pg.title,
+          revid: rev.revid,
+          timestamp: rev.timestamp,
+          wikitext,
+          requestUrl,
+        });
       }
     }
     return out;

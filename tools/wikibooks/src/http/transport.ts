@@ -63,7 +63,8 @@ export class WikiTransport {
     return this.withLock(() => this.getWithRetry(params));
   }
 
-  private buildUrl(params: Record<string, string>): string {
+  /** Public so callers can record the exact request URL as provenance (D4/D9). */
+  buildUrl(params: Record<string, string>): string {
     const search = new URLSearchParams(params);
     // Etiquette params are forced — they are never the caller's to override.
     search.set('format', 'json');
