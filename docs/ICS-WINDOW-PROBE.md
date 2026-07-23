@@ -180,25 +180,44 @@ The exact bytes for all four files live at
 
 ---
 
-## 4. `curl -I` — Pages `.ics` content-type
+## 4. `curl -I` — Pages `.ics` content-type (deployed + re-confirmed)
 
 The probe requires the feed to be served as `text/calendar` at a stable HTTPS
-URL. This was verified authoritatively on **2026-07-12** in
-`docs/PAGES-ICS-PROBE.md`: GitHub Pages serves `assets/*.ics` as
-**`content-type: text/calendar`**, `access-control-allow-origin: *`,
-`cache-control: max-age=600`, same-path re-publish purges the edge cache.
+URL. Verified authoritatively on **2026-07-12** (`docs/PAGES-ICS-PROBE.md`) and
+**re-confirmed live for this run on 2026-07-23** against the actually-deployed
+probe feed:
 
-**Re-confirmation for this run (2026-07-23):** the live origin still serves via
-GitHub Pages with the same posture — e.g. `HEAD https://arecipe.app/assets/recipe_catalogue.md`
-returned `HTTP/2 200`, `server: GitHub.com`, `access-control-allow-origin: *`,
-`cache-control: max-age=600`. A `.ics`-specific re-confirmation
-(`curl -I https://arecipe.app/assets/ics-window-probe/arm1.ics`) **requires the
-probe `.ics` to be deployed first** and is therefore **pending the deploy step**
-(§6, blocker B1). No probe `.ics` is currently live (the 2026-07-12 fixture was
-cleaned up; a HEAD to it now returns `404`, as expected).
+**Live URLs (deployed 2026-07-23):**
 
-> Record the real `.ics` headers here once a probe feed is deployed. Do not
-> assume — the instruction is one `curl -I`, headers pasted verbatim.
+- Arm 1 Feed A: `https://arecipe.app/pr-preview/ics-window-probe/arm1.ics`
+- Arm 2 Feed A: `https://arecipe.app/pr-preview/ics-window-probe/arm2.ics`
+
+`curl -I https://arecipe.app/pr-preview/ics-window-probe/arm1.ics` →
+
+```
+HTTP/2 200
+server: GitHub.com
+content-type: text/calendar
+last-modified: Thu, 23 Jul 2026 05:39:45 GMT
+access-control-allow-origin: *
+etag: "6a61a921-2eb"
+cache-control: max-age=600
+accept-ranges: bytes
+content-length: 747
+```
+
+`arm2.ics` is identical in posture (`content-type: text/calendar`,
+`access-control-allow-origin: *`, `content-length: 751`). Bodies intact
+(`BEGIN:VCALENDAR … END:VCALENDAR`), lengths match the generated files exactly.
+
+**Why `pr-preview/ics-window-probe/` and not `assets/`.** The live site *is* the
+`gh-pages` branch, and every push to `main` runs `pages-deploy.sh root dist`,
+which clears the branch root **except `pr-preview/`** and re-copies `dist/`. A
+probe under `assets/` would therefore be **wiped by the next production deploy**,
+mid-run. `pr-preview/` is the one tree explicitly preserved across production
+deploys, so it is the durable home for a feed that must survive ~7 days of
+merges. (Deployed via the repo's own `scripts/pages-deploy.sh`; git identity was
+reset afterward. This writes only that subdirectory — production untouched.)
 
 ---
 
@@ -236,32 +255,29 @@ Run: `npx vitest run tools/ics-window-probe/feed.spec.mjs`.
 
 ## 6. Observation log — **NOT YET RUN**
 
-The live arms cannot be executed inside an automated agent session, and results
-were **not** fabricated (the plan, §4, forbids rounding an unclear result up to a
-conclusion — a fortiori it forbids inventing one). Two hard blockers:
+The live arms cannot be *measured* inside an automated agent session, and
+results were **not** fabricated (the plan, §4, forbids rounding an unclear result
+up to a conclusion — a fortiori it forbids inventing one).
 
-- **B1 — feeds are not deployed.** Serving them at a stable arecipe.app URL needs
-  a write to Pages. Pages deploys only from `main` (see `PAGES-ICS-PROBE.md`),
-  and this experiment merges nothing to `main` but this document; the alternative
-  is the manual `gh-pages` subtree push, which touches a different branch and
-  needs explicit human sign-off (branch-safety rule). **Not done autonomously.**
-- **B2 — no way to subscribe or to advance time.** Subscribing a Google account
-  to an external `.ics` **URL** is a Calendar-settings action with no API in the
-  tools available here (the Calendar tools manage events on existing calendars,
-  not "add subscription by URL"). And the core measurement is a **7-day** daily
-  poll of a refresh cadence Google neither documents nor lets us trigger. Neither
-  is doable in one session.
+- **B1 — feeds deployed (RESOLVED 2026-07-23).** Both arm-A feeds are live at the
+  `pr-preview/ics-window-probe/` URLs in §4, confirmed `text/calendar`.
+- **B2 — no way to subscribe or to advance time (still blocks measurement).**
+  Subscribing a Google account to an external `.ics` **URL** is a
+  Calendar-settings action with no API in the tools available here (the Calendar
+  tools manage events on existing calendars, not "add subscription by URL"). And
+  the core measurement is a **7-day** daily poll of a refresh cadence Google
+  neither documents nor lets us trigger. Neither is doable in one session.
 
-Everything deterministic is done; the run itself is a human-in-the-loop task.
-Fill the logs below as it runs.
+The feeds are live; the run itself (subscribe → wait → poll → publish Feed B →
+poll) is a human-in-the-loop task. Fill the logs below as it runs.
 
 ### 6.1 Arm 1 (omission) — log
 
 | Timestamp (UTC) | Client | Observation |
 |---|---|---|
-| _pending_ | Google | Subscribed to Feed A at URL `…` |
+| _pending_ | Google | Subscribed to Feed A `https://arecipe.app/pr-preview/ics-window-probe/arm1.ics` |
 | _pending_ | Google | E1/E2/E3 all first visible |
-| _pending_ | Google | Published Feed B (E1 removed) |
+| _pending_ | Google | Published Feed B (E1 removed) — deploy `arm1-feedB.ics` to the same URL |
 | _pending_ | Google | Daily poll: E1 present? / absent? |
 | … | | |
 
@@ -271,9 +287,9 @@ Fill the logs below as it runs.
 
 | Timestamp (UTC) | Client | Observation |
 |---|---|---|
-| _pending_ | Google | Subscribed to Feed A at URL `…` |
+| _pending_ | Google | Subscribed to Feed A `https://arecipe.app/pr-preview/ics-window-probe/arm2.ics` |
 | _pending_ | Google | E1/E2/E3 all first visible |
-| _pending_ | Google | Published Feed B (E1 → STATUS:CANCELLED, SEQUENCE:1) |
+| _pending_ | Google | Published Feed B (E1 → STATUS:CANCELLED, SEQUENCE:1) — deploy `arm2-feedB.ics` to the same URL |
 | _pending_ | Google | Daily poll: E1 present? / cancelled-styled? / absent? |
 | … | | |
 
@@ -351,15 +367,33 @@ observed and when, never a promise about behavior we don't control (§8).
 
 ## 9. Housekeeping / next actions
 
-1. **Deploy the two arm-A feeds** to stable arecipe.app URLs (blocker B1) — needs
-   the human's call on `main` vs the manual `gh-pages` push. Suggested paths:
-   `assets/ics-window-probe/arm1.ics` and `assets/ics-window-probe/arm2.ics`.
-2. `curl -I` each deployed `.ics`; paste headers into §4.
-3. Subscribe a Google account to each (blocker B2); record wall-clock times.
-4. After all three events appear, deploy the matching Feed B for each arm
-   (`arm1-feedB.ics` → arm1 URL, `arm2-feedB.ics` → arm2 URL).
-5. Poll daily ≤7 days; fill §6; select the §7 branch; write the sentence into the
-   calendar-setup page.
-6. **Clean up:** remove the deployed probe `.ics` files afterward and confirm
+1. ✅ **Arm-A feeds deployed** (2026-07-23) and `curl -I`-confirmed `text/calendar`
+   — §4.
+2. **Subscribe** a Google account to each arm-A URL (blocker B2, human step);
+   record wall-clock times in §6.
+3. **After all three events appear,** publish Feed B for each arm by re-deploying
+   the matching file to the *same* subtree (clean names `arm1.ics` / `arm2.ics`):
+
+   ```bash
+   # stage Feed B under the deployed names, then push the subtree
+   mkdir -p /tmp/icswin-b
+   cp tools/ics-window-probe/feeds/arm1-feedB.ics /tmp/icswin-b/arm1.ics
+   cp tools/ics-window-probe/feeds/arm2-feedB.ics /tmp/icswin-b/arm2.ics
+   bash scripts/pages-deploy.sh pr-preview/ics-window-probe /tmp/icswin-b \
+     "EXP-ICS-WINDOW: publish Feed B (arm1 omission, arm2 cancellation)"
+   # then reset git identity: git config user.name Claude; git config user.email noreply@anthropic.com
+   ```
+
+4. **Poll** daily ≤7 days; fill §6; select the §7 branch; write the sentence into
+   the calendar-setup page.
+5. **Clean up** when done — the probe lives under `pr-preview/`, which production
+   deploys do NOT wipe, so it must be removed explicitly:
+
+   ```bash
+   bash scripts/pages-deploy.sh pr-preview/ics-window-probe --remove \
+     "EXP-ICS-WINDOW: tear down probe feeds"
+   ```
+
+   Confirm `curl -sI https://arecipe.app/pr-preview/ics-window-probe/arm1.ics` →
    `404`. The `tools/ics-window-probe/` toolkit and this doc stay on the branch;
    **only this document is destined for `main`.**
