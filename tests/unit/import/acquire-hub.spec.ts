@@ -2,7 +2,8 @@
 // The Acquire hub composes the import engine with the extra 0→1 entries. It is
 // the share-target landing page and the destination of Alchemy's Import button.
 import { describe, expect, it, vi } from 'vitest';
-import { renderAcquireHub, OCR_GUIDANCE } from '../../../src/import/acquire-hub.js';
+import { renderAcquireHub, runPhotoOcr } from '../../../src/import/acquire-hub.js';
+import { OCR_GUIDANCE, type OcrEngine } from '../../../src/import/ocr.js';
 import type { AcquireResult } from '../../../src/import/acquire.js';
 
 const tick = (): Promise<void> => new Promise((r) => setTimeout(r, 0));
@@ -43,24 +44,44 @@ describe('renderAcquireHub', () => {
       acquireFromPaste: () => res,
       onImported,
       shared: { url: 'https://x/r', pasteText: '1 cup flour\n1 cup milk\n1 tsp salt' },
-      fromShare: true,
     });
     await tick();
     expect(onImported).toHaveBeenCalledWith(res);
   });
 
-  it('scan-a-photo shows on-device OCR guidance when no in-app handler is wired', () => {
+  it('scan-a-photo shows on-device OCR guidance when no in-app engine is wired', () => {
     const hub = renderAcquireHub({ ...noAcquire, onImported: () => {}, shared: { url: '' } });
+    expect(testid(hub, 'acquire-photo-input')).toBeNull(); // no file picker without an engine
     (testid(hub, 'acquire-photo') as HTMLButtonElement).click();
     const note = testid(hub, 'acquire-photo-note') as HTMLElement;
     expect(note.hidden).toBe(false);
     expect(note.textContent).toBe(OCR_GUIDANCE);
   });
 
-  it('scan-a-photo delegates to the in-app handler when provided', () => {
-    const onScanPhoto = vi.fn();
-    const hub = renderAcquireHub({ ...noAcquire, onImported: () => {}, shared: { url: '' }, onScanPhoto });
-    (testid(hub, 'acquire-photo') as HTMLButtonElement).click();
-    expect(onScanPhoto).toHaveBeenCalled();
+  it('renders a camera/file picker when an OCR engine is wired', () => {
+    const engine: OcrEngine = { recognize: async () => '' };
+    const hub = renderAcquireHub({ ...noAcquire, onImported: () => {}, shared: { url: '' }, ocrEngine: engine });
+    const input = testid(hub, 'acquire-photo-input') as HTMLInputElement;
+    expect(input).not.toBeNull();
+    expect(input.getAttribute('accept')).toBe('image/*');
+  });
+
+  it('OCR of a photo drops the recognized text into the paste box for review (human in the loop)', async () => {
+    const engine: OcrEngine = { recognize: async () => '2 cups flour\n1 tsp salt\nMix and bake.' };
+    const hub = renderAcquireHub({ ...noAcquire, onImported: () => {}, shared: { url: '' }, ocrEngine: engine });
+    const note = testid(hub, 'acquire-photo-note') as HTMLElement;
+    await runPhotoOcr(new Blob(['img'], { type: 'image/jpeg' }), engine, hub, note);
+    const paste = testid(hub, 'import-paste') as HTMLTextAreaElement;
+    expect(paste.value).toContain('2 cups flour');
+    expect((testid(hub, 'import-paste-block') as HTMLElement).hidden).toBe(false);
+    expect(note.textContent).toMatch(/check the text/i);
+  });
+
+  it('reports an unreadable photo honestly rather than importing nothing', async () => {
+    const engine: OcrEngine = { recognize: async () => '   ' };
+    const hub = renderAcquireHub({ ...noAcquire, onImported: () => {}, shared: { url: '' }, ocrEngine: engine });
+    const note = testid(hub, 'acquire-photo-note') as HTMLElement;
+    await runPhotoOcr(new Blob(['img']), engine, hub, note);
+    expect(note.textContent).toMatch(/couldn’t read any text/i);
   });
 });

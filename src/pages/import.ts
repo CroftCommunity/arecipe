@@ -40,6 +40,9 @@ const main = (): void => {
     }
   }
 
+  // No in-app OCR engine wired yet → "Scan a photo" shows the on-device (OS OCR +
+  // share) guidance. Wiring Tesseract.js is a sign-off-gated follow-up (see the
+  // plan): pass `ocrEngine` here once the adapter + self-hosted assets + CSP land.
   const hub = renderAcquireHub({
     acquireFromUrl: (url) => acquireFromUrl(url),
     acquireFromPaste: (pasted, sourceUrl) => acquireFromPaste(pasted, sourceUrl),
@@ -49,7 +52,6 @@ const main = (): void => {
       window.location.href = `./editor.html?draft=${encodeURIComponent(draft.id)}`;
     },
     shared,
-    fromShare,
   });
   content.append(hub);
 

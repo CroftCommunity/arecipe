@@ -48,14 +48,36 @@ the shared engine (a share/OCR both become "messy text → parse ladder → draf
   moves off Alchemy onto the hub (ends the "share-only, no import button" posture
   by design).
 
-## Next increment (OCR, laddered — recorded)
+## OCR seam (DONE) + the Tesseract greenlight step (NEXT, sign-off gated)
 
-- **Scan a photo**, two rungs: (1) accept OS-OCR'd text via share/paste (zero
-  deps, best mobile handwriting); (2) in-app camera → **Tesseract.js** (WASM,
-  **code-split** onto the hub only, CSP `wasm-unsafe-eval` + worker) for a raw
-  image file with no OS text-select. Output is a *candidate* draft → editor.
+**Landed — the photo→OCR→draft architecture + UI, engine-injected, TDD:**
+`src/import/ocr.ts` (`OcrEngine` contract + `recognizeImage` seam + `OCR_GUIDANCE`);
+the hub's **Scan a photo** card now, *with an injected engine*, opens a
+camera/file picker (`<input type=file accept=image/* capture=environment>`),
+recognizes the photo on device, and drops the text into the paste box for the
+cook to eyeball before importing (human-in-the-loop — OCR errs, especially on
+handwriting); *without* an engine it degrades to the on-device guidance (use the
+phone's own "select text from photo" and share/paste — best mobile handwriting,
+zero deps). Rung 1 of the ladder is therefore live today. Tests: `ocr.spec` (3),
+`acquire-hub.spec` OCR cases (fill-paste, unreadable-photo, engine-vs-guidance).
+
+**NEXT — wire the real in-app engine (Tesseract.js). Deliberately NOT done
+autonomously; needs explicit sign-off because it is a sensitive, hard-to-reverse
+change (the experiment brief says "no CSP change, no dependency"):**
+- Add `tesseract.js` (1.7 MB JS wrapper) as a dep; a small
+  `src/import/ocr-tesseract.ts` adapter implements `OcrEngine`, **lazy-loaded via
+  dynamic import** so it code-splits onto the hub only.
+- **Self-host the assets** (strict CSP forbids the default CDN): one WASM core
+  variant (~3–4 MB) + the worker + `eng.traineddata` (~4 MB "fast" / ~11 MB
+  standard) committed under `assets/` and pointed at via `corePath`/`workerPath`/
+  `langPath`. Real weight for a lean PWA (bundles today are 3–40 KB) — a size call
+  for the owner.
+- **CSP relaxation on `import.html` only**: `script-src` needs `wasm-unsafe-eval`
+  and a worker (`worker-src 'self' blob:`); note it in `docs/SECURITY.md`.
+- Verify real OCR in a browser (headless Chromium OCR is heavy/slow) as a
+  follow-up check.
 - Local-AI structuring (desktop-only, verbatim-gated — Arm 2 infra already built)
-  as an optional gap-filler; degrade honestly on mobile.
+  remains an optional later gap-filler; degrade honestly on mobile.
 
 ## Tests
 
