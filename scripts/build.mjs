@@ -243,6 +243,27 @@ writeFileSync('dist/.nojekyll', '');
 copyFileSync('client-metadata.json', 'dist/client-metadata.json'); // hosted OAuth client id (8c)
 cpSync('assets', 'dist/assets', { recursive: true });
 
+// Guard: asset/nav paths must be RELATIVE, never absolute-root. arecipe deploys
+// to a domain root (arecipe.app) AND serves per-PR previews under
+// gh-pages:/pr-preview/pr-N/ (docs/PREVIEWS.md). An absolute-root href/src like
+// `/assets/x.js` resolves to the domain root and 404s under the preview subpath —
+// a silently-blank preview. The hermetic gate serves at a root, so it cannot
+// catch this; fail the build instead. (scheme-absolute URLs like https://… are
+// fine and not matched.)
+const absoluteOffenders = readdirSync('dist')
+  .filter((f) => f.endsWith('.html'))
+  .map((f) => ({ file: f, hits: readFileSync(`dist/${f}`, 'utf8').match(/(?:href|src)="\/[^"]*"/g) }))
+  .filter((o) => o.hits);
+if (absoluteOffenders.length > 0) {
+  const detail = absoluteOffenders
+    .map((o) => `  ${o.file}: ${o.hits.join(', ')}`)
+    .join('\n');
+  throw new Error(
+    `build: absolute-root asset path(s) found — these break the /pr-preview/ subpath.\n${detail}\n` +
+      `Use relative paths (e.g. "assets/x.js", not "/assets/x.js").`,
+  );
+}
+
 // --- Build-time snapshot (RUN-BUNDLE-PRECACHE, D1) --------------------------
 // scripts/snapshot.mjs (run in CI before this build) captures each seed cook's
 // repo torn-shard-safely into `.snapshot-staging/`. Here we STAMP it with the
