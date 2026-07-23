@@ -48,6 +48,20 @@ loose ideas a later session can pick up.
 
 ## Ideas / loose
 
+- [ ] **RUN-RECIPE-META-STRIP follow-on: difficulty storage B1→B2.** The recipe
+      meta strip (serves / time / difficulty) ships difficulty as an **open-world
+      `difficulty` (number 1–5) extension field** on `exchange.recipe.recipe`,
+      written only on records arecipe authors (owner decision **O1 = B3**, see
+      `runs/recipe-meta-strip/D0-discovery.md`). B3 is invisible on recipes
+      authored by other apps. Follow-ups, in order: **(B1)** propose a `difficulty`
+      field to **recipe.exchange** upstream so the field name converges across
+      clients rather than forking; then, if a cross-app answer is wanted before/if
+      B1 lands, **(B2)** consider an `app.arecipe.recipeMeta` sidecar record
+      (strongRef to the recipe + the meta fields) so difficulty can attach to
+      *any* recipe including other people's — at the cost of a second record and a
+      read-time join. serves (`recipeYield`) and time (`prepTime`/`totalTime`) are
+      already upstream (Path A) and need none of this. _Noted 2026-07-23._
+
 - [ ] **Give Browse the Cookbook cache-first SWR paint.** Cookbook paints from
       the IndexedDB cache instantly, then revalidates in the background (see
       `src/pages/cookbook.ts` `showFeed` + `readFeedMeta`/`writeFeedMeta`). Browse

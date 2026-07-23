@@ -9,6 +9,7 @@ import { referenceIconLink } from '../icons.js';
 import { recipeFacets } from '../pages/browse-state.js';
 import type { ScreenWakeLock, WakeLockState } from '../ui/wake-lock.js';
 import type { CachedRecipe } from './cache.js';
+import { recipeMetaOf, type Difficulty, type RecipeMeta } from './meta.js';
 import { dishKeyOf, funFactsOf, versionLabelOf, type FunFact } from './model.js';
 import { firstImageCid, firstImageCredit, formatDuration, formatPublishedDate, thumbUrl } from './present.js';
 import { initStepState, stepReducer, stepStatusAt, type StepState } from './step-state.js';
@@ -452,9 +453,19 @@ export const renderFocusView = (
   // No image? Mark the photo area empty so it renders as a small top strip
   // rather than a full-height banner of blank placeholder (which ate ~75% of a
   // phone screen). CSS (.focus-view .focus-photo-empty) does the shrinking.
+  const hasImage = firstImageCid(entry.value) !== null;
   const photo = photoWrapEl(entry);
-  if (firstImageCid(entry.value) === null) photo.classList.add('focus-photo-empty');
-  overlay.append(photo);
+  if (!hasImage) photo.classList.add('focus-photo-empty');
+  // Focus is a during-cook surface: keep serves + time, suppress difficulty (O2).
+  const strip = renderMetaStrip(recipeMetaOf(entry.value), { focus: true, standalone: !hasImage });
+  if (strip !== null && hasImage) {
+    const hero = el('div', 'recipe-hero');
+    hero.append(photo, strip);
+    overlay.append(hero);
+  } else {
+    overlay.append(photo);
+    if (strip !== null) overlay.append(strip);
+  }
   const cols = el('div', 'focus-cols');
   const ingredients = el('section');
   ingredients.append(el('h3', undefined, 'Ingredients'));
@@ -625,6 +636,55 @@ export const renderFacetGroup = (opts: {
   return group;
 };
 
+/** The difficulty `<dd>`: five dots (aria-hidden decoration, `value` filled) plus
+ *  the text label — the accessible value a screen reader announces. */
+const difficultyDd = (d: Difficulty): HTMLElement => {
+  const dd = el('dd', 'difficulty-value');
+  const dots = el('span', 'dots');
+  dots.setAttribute('aria-hidden', 'true');
+  for (let i = 1; i <= 5; i += 1) {
+    dots.append(el('span', `dot ${i <= d.value ? 'dot--on' : 'dot--off'}`));
+  }
+  dd.append(dots, el('span', 'difficulty-label', d.label));
+  return dd;
+};
+
+const metaRow = (label: string, dd: HTMLElement): HTMLElement => {
+  const row = el('div', 'meta-row');
+  row.append(el('dt', undefined, label), dd);
+  return row;
+};
+
+/**
+ * RUN-RECIPE-META-STRIP D2 — the three-row meta strip that hangs off the bottom
+ * of the recipe image (Serves · Time · Difficulty, most-consequential first). A
+ * description list, because that is what it is. Returns null when nothing renders
+ * (callers leave the image alone — no empty container). Dots are decoration
+ * (`aria-hidden`); the difficulty label is the accessible value.
+ *
+ * - `focus`: suppress the difficulty row (O2 — a pre-cook field, hidden on the
+ *   during-cook surface). A difficulty-only strip then returns null.
+ * - `standalone`: mark the strip so CSS rounds ALL corners — the no-image case,
+ *   where it stands on its own rather than attached under an image.
+ */
+export const renderMetaStrip = (
+  meta: RecipeMeta,
+  opts: { focus?: boolean; standalone?: boolean } = {},
+): HTMLElement | null => {
+  const rows: HTMLElement[] = [];
+  if (meta.serves !== undefined) rows.push(metaRow('Serves', el('dd', undefined, meta.serves.display)));
+  if (meta.time !== undefined) rows.push(metaRow('Time', el('dd', undefined, meta.time.display)));
+  if (opts.focus !== true && meta.difficulty !== undefined) {
+    rows.push(metaRow('Difficulty', difficultyDd(meta.difficulty)));
+  }
+  if (rows.length === 0) return null;
+  const dl = el('dl', 'meta-strip');
+  if (opts.standalone === true) dl.classList.add('meta-strip--standalone');
+  dl.dataset['testid'] = 'meta-strip';
+  for (const row of rows) dl.append(row);
+  return dl;
+};
+
 /** Render one recipe in full: banner, title, chips, ingredients-first detail. */
 export const renderRecipeDetail = (
   entry: CachedRecipe,
@@ -638,7 +698,21 @@ export const renderRecipeDetail = (
   banner.classList.add('photo-wrap--banner');
   const photoCredit = imageCreditOverlay(value, { withLink: true, testid: 'photo-credit' });
   if (photoCredit !== null) banner.append(photoCredit);
-  article.append(banner);
+  // The meta strip (Serves · Time · Difficulty) hangs off the bottom of the
+  // image and reads as one object with it. With a real image the two live in a
+  // clipped .recipe-hero so the join squares off and the outer corners round;
+  // with no image the strip stands alone (all corners rounded) so it never looks
+  // like an orphaned fragment.
+  const hasImage = firstImageCid(entry.value) !== null;
+  const strip = renderMetaStrip(recipeMetaOf(entry.value), { standalone: !hasImage });
+  if (strip !== null && hasImage) {
+    const hero = el('div', 'recipe-hero');
+    hero.append(banner, strip);
+    article.append(hero);
+  } else {
+    article.append(banner);
+    if (strip !== null) article.append(strip);
+  }
   if (options.onFocus !== undefined) {
     const onFocus = options.onFocus;
     const actions = el('div', 'detail-actions');
@@ -658,8 +732,8 @@ export const renderRecipeDetail = (
   const titleRow = el('div', 'recipe-title-row');
   titleRow.append(el('h2', 'recipe-title', value.name ?? '(untitled)'));
   article.append(titleRow);
-  const chips = chipsEl(value);
-  if (chips !== null) article.append(chips);
+  // Time now lives in the meta strip under the image (not a separate chip here);
+  // chipsEl stays for the card surfaces, which are out of scope for this run.
   if (!entry.verified) article.append(alteredWarningEl());
   if (value.text !== undefined && value.text !== '') {
     article.append(el('p', 'lede', value.text));

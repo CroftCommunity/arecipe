@@ -1073,6 +1073,101 @@ a {
   border-radius: var(--r-l);
 }
 
+/* ---- RUN-RECIPE-META-STRIP — the Serves/Time/Difficulty strip ----
+   A three-row infobox (Wikibooks-style) hanging off the bottom of the recipe
+   image. Most-consequential first: serves changes what you buy, time whether
+   you cook it tonight, difficulty you check last. */
+
+/* Image + strip read as ONE object: the hero clips to the banner radius, so the
+   image's bottom corners square where the strip meets it and the strip carries
+   the outer radius on its own bottom corners — no gap between them. */
+.recipe-hero {
+  border-radius: var(--r-l);
+  overflow: hidden;
+  margin-bottom: var(--s-4);
+}
+.recipe-hero .photo-wrap--banner .card-photo,
+.recipe-hero .photo-wrap--banner .photo-credit {
+  border-radius: 0;
+}
+
+.meta-strip {
+  margin: 0;
+  background: var(--tile);
+  border: var(--stroke) solid var(--line);
+  border-top: none; /* the image sits above; the hero clips the corners */
+}
+/* No image → the strip stands alone at the top of the body: its own top edge,
+   all four corners rounded, so it never reads as an orphaned fragment. */
+.meta-strip--standalone {
+  border-top: var(--stroke) solid var(--line);
+  border-radius: var(--r-l);
+  margin-bottom: var(--s-4);
+}
+
+/* Rows: a fixed label measure so the three values align on a common left edge;
+   separated by a hairline, not whitespace, so the strip stays compact on a
+   phone (height budget ≤ 25% of the 16rem image). */
+.meta-row {
+  display: grid;
+  grid-template-columns: 5rem 1fr;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-1) var(--s-3);
+}
+.meta-row + .meta-row {
+  border-top: var(--stroke) solid var(--line);
+}
+
+/* Labels are the utility register: smaller, letter-spaced, lower emphasis. */
+.meta-row dt {
+  font-family: var(--mono);
+  font-size: var(--t-stamp);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  line-height: 1;
+}
+/* Values carry the weight. */
+.meta-row dd {
+  margin: 0;
+  font-size: var(--t-caption);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ink);
+}
+
+/* Difficulty is the one expressive element: dots in --rust (≈4.5:1 on --tile,
+   non-text-contrast safe — never --yolk, which fails at ~2:1). */
+.difficulty-value {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.dots {
+  display: inline-flex;
+  gap: 0.2rem;
+}
+.dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: var(--r-pill);
+  border: var(--stroke) solid var(--rust);
+  box-sizing: border-box;
+}
+.dot--on {
+  background: var(--rust);
+}
+/* Empty dots: outlined in the same stroke at reduced opacity — never filled with
+   a lighter tint that would drop below the contrast threshold. */
+.dot--off {
+  background: transparent;
+  opacity: 0.4;
+}
+.difficulty-label {
+  font-weight: 700;
+}
+
 /* ---- recipe detail page ---- */
 
 .recipe-detail {

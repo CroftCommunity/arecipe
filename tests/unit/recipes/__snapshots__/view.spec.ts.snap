@@ -1,0 +1,24 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renderMetaStrip > snapshot: the generated markup for each presence combination is stable 1`] = `
+"— serves only —
+<dl class="meta-strip" data-testid="meta-strip"><div class="meta-row"><dt>Serves</dt><dd>4</dd></div></dl>
+
+— time only —
+<dl class="meta-strip" data-testid="meta-strip"><div class="meta-row"><dt>Time</dt><dd>30 minutes</dd></div></dl>
+
+— difficulty only —
+<dl class="meta-strip" data-testid="meta-strip"><div class="meta-row"><dt>Difficulty</dt><dd class="difficulty-value"><span class="dots" aria-hidden="true"><span class="dot dot--on"></span><span class="dot dot--on"></span><span class="dot dot--on"></span><span class="dot dot--off"></span><span class="dot dot--off"></span></span><span class="difficulty-label">Average</span></dd></div></dl>
+
+— serves + time —
+<dl class="meta-strip" data-testid="meta-strip"><div class="meta-row"><dt>Serves</dt><dd>4</dd></div><div class="meta-row"><dt>Time</dt><dd>30 minutes</dd></div></dl>
+
+— serves + difficulty —
+<dl class="meta-strip" data-testid="meta-strip"><div class="meta-row"><dt>Serves</dt><dd>4</dd></div><div class="meta-row"><dt>Difficulty</dt><dd class="difficulty-value"><span class="dots" aria-hidden="true"><span class="dot dot--on"></span><span class="dot dot--on"></span><span class="dot dot--on"></span><span class="dot dot--off"></span><span class="dot dot--off"></span></span><span class="difficulty-label">Average</span></dd></div></dl>
+
+— time + difficulty —
+<dl class="meta-strip" data-testid="meta-strip"><div class="meta-row"><dt>Time</dt><dd>30 minutes</dd></div><div class="meta-row"><dt>Difficulty</dt><dd class="difficulty-value"><span class="dots" aria-hidden="true"><span class="dot dot--on"></span><span class="dot dot--on"></span><span class="dot dot--on"></span><span class="dot dot--off"></span><span class="dot dot--off"></span></span><span class="difficulty-label">Average</span></dd></div></dl>
+
+— all three —
+<dl class="meta-strip" data-testid="meta-strip"><div class="meta-row"><dt>Serves</dt><dd>4</dd></div><div class="meta-row"><dt>Time</dt><dd>30 minutes</dd></div><div class="meta-row"><dt>Difficulty</dt><dd class="difficulty-value"><span class="dots" aria-hidden="true"><span class="dot dot--on"></span><span class="dot dot--on"></span><span class="dot dot--on"></span><span class="dot dot--off"></span><span class="dot dot--off"></span></span><span class="difficulty-label">Average</span></dd></div></dl>"
+`;

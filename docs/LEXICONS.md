@@ -73,6 +73,8 @@ them. Verified open-world-safe via a live createRecord → getRecord → delete 
 | `primaryVersion` | `boolean` (optional) | Marks the default version to show for a `dishKey` group. |
 | `funFacts` | `array<{ text: string; source?: string }>` | Pooled "Did you know?" facts for the dish, denormalized onto each version record so any single record renders the full set. Replaces the single `funFact` string used in the import JSON. |
 | `sourceUrl` | `string` (uri) | Provenance of a recipe imported from a link (recipe-import). Set when a draft was prefilled from a page's schema.org/Recipe JSON-LD or pasted text; the editor shows it as a small provenance line and a single "own words" etiquette note near publish. Additive optional field — readers tolerate its absence; hand-authored recipes omit it. Accessor: `sourceUrlOf` (`src/recipes/model.ts`); written by `buildRecipeRecord` (`src/recipes/write.ts`). |
+| `difficulty` | `integer` (1–5) | Recipe difficulty for the meta strip (RUN-RECIPE-META-STRIP). **Owner decision O1 = B3** (`runs/recipe-meta-strip/D0-discovery.md`): open-world field written only on records arecipe authors (Wikibooks corpus + hand-authored), invisible on recipes authored by other apps. Read defensively via `parseDifficulty`/`recipeMetaOf` (`src/recipes/meta.ts`) — out-of-range, non-integer, and non-numeric values are **omitted, never clamped**. Maps to the Cookbook five-point wording (1 Very easy … 5 Very hard). Follow-on filed in `TODO.md`: propose upstream to recipe.exchange (B1), then an `app.arecipe.recipeMeta` sidecar (B2) if a cross-app answer is wanted. |
+| `servings` | `string` (free text) | Optional dedicated servings count, **distinct from upstream `recipeYield`** (which the recipe.exchange lexicon defines as "servings *or* yield"). When present it wins over `recipeYield` in the meta strip's serves row, so a record can carry both a servings count and a yield description without collision. Free text preserved verbatim ("1-2", "4"); a numeric hint is derived only for a future sort/filter run. Read via `recipeMetaOf` (`src/recipes/meta.ts`). Forward-compatible read for the Wikibooks corpus; hand-authored records omit it (serves falls back to `recipeYield`, Path A). |
 
 Types + defensive accessors for these fields are locked in **`src/recipes/model.ts`**
 (`FunFact`, `DishKey`, `RecipeExt`; `extensionsOf`/`funFactsOf`/`dishKeyOf`/`versionLabelOf`/
@@ -150,6 +152,7 @@ Two load-bearing notes govern any future use:
 - `discovery/alpha/ECOSYSTEM.md` — related-projects register (broader atproto ecosystem).
 - `plans/2026-07-09-1-plan-recipe-model-extensions.md` — the open-world extension-field work.
 
-_Last updated: 2026-07-23 (RUN-LAST-PLANNED — reserved `app.arecipe.plannedRollup`
-frozen planning rollup, SPECIFIED not BUILT; derived planned-index in
-`src/recipes/planned-index.ts`)._
+_Last updated: 2026-07-23 (RUN-RECIPE-META-STRIP — open-world `difficulty` (int 1–5,
+owner O1 = B3) + forward-compatible `servings` read on `exchange.recipe.recipe` for the
+recipe meta strip; `src/recipes/meta.ts`. Prior: RUN-LAST-PLANNED reserved
+`app.arecipe.plannedRollup`.)_
