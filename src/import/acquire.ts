@@ -10,6 +10,7 @@
 // pasted-text heuristic. The source URL is retained as provenance in EVERY path.
 
 import { extractRecipeFromJsonLd, type ImportedRecipe } from './recipe-jsonld.js';
+import { extractRecipeFromDom } from './recipe-dom.js';
 import { parseRecipeText } from './recipe-text.js';
 import { domHtmlParse, type HtmlParse } from './sanitize.js';
 
@@ -39,7 +40,7 @@ export type AcquireResult =
 /** Honest, user-facing copy for each outcome. The panel renders these verbatim. */
 export const IMPORT_COPY = {
   couldNotFetch:
-    "This site doesn’t allow direct reading from the browser — paste the page or the recipe text below instead.",
+    "This site can’t be read directly from the browser. On the recipe page, select the recipe text and share that — or paste it below.",
   noRecipe:
     "Couldn’t find a recipe on that page. Paste the page source or the visible recipe text to try again.",
   partialIngredients:
@@ -58,12 +59,16 @@ const runLadder = (source: string, parse: HtmlParse): ImportedRecipe | null => {
   const doc = parse(source);
   const viaJsonLd = extractRecipeFromJsonLd(doc, parse);
   if (useful(viaJsonLd)) return viaJsonLd;
-  // No usable JSON-LD Recipe — try the visible text (pasted plain text, or the
-  // stripped body of a fetched page).
+  // No usable JSON-LD Recipe — try the other structured formats a page can carry
+  // (microdata, RDFa, h-recipe) before falling back to the visible-text heuristic.
+  const viaDom = extractRecipeFromDom(doc, parse);
+  if (useful(viaDom)) return viaDom;
+  // Last rung: the visible text (pasted plain text, or the stripped body of a
+  // fetched page).
   const visible = doc.body?.textContent ?? source;
   const viaText = parseRecipeText(visible, parse);
   if (useful(viaText)) return viaText;
-  return viaJsonLd ?? null; // name-only at best → classified as no-recipe below
+  return viaJsonLd ?? viaDom ?? null; // name-only at best → classified as no-recipe below
 };
 
 const classify = (recipe: ImportedRecipe | null, sourceUrl: string): AcquireResult => {

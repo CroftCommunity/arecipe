@@ -13,6 +13,7 @@ import { createRecordReader } from '../recipes/read.js';
 import { createStarterPrefs, STARTER_AUTHORS } from '../recipes/starter.js';
 import { createCookbookPrefs } from '../social/cookbook-prefs.js';
 import { createSocialPrefs } from '../social/prefs.js';
+import { createOcrPrefs, type OcrModel } from '../import/ocr-prefs.js';
 import { createSeasonalityPrefs } from '../seasonality/prefs.js';
 import { REGIONS, type RegionId } from '../seasonality/produce.js';
 import { registerServiceWorker } from '../sw-register.js';
@@ -206,6 +207,52 @@ const main = async (): Promise<void> => {
   showExportRow.append(showExportBox, el('span', undefined, 'Show export'));
   cookbook.append(showExportRow);
 
+  // Import: the in-app "Scan a photo" OCR opt-out + model choice. On by default;
+  // off shows the on-device (OS OCR + share) route instead — cheaper on weak
+  // devices. The model is switchable: Fast (smaller/quicker) vs Standard (more
+  // accurate). A change takes effect the next time the hub is opened.
+  const importSettings = section('Import', 'import-settings');
+  importSettings.append(
+    el(
+      'p',
+      'status',
+      '“Scan a photo” reads a recipe from a picture using on-device text recognition. It loads a model the first time — turn it off on a slower phone or to save data.',
+    ),
+  );
+  const ocrPrefs = createOcrPrefs();
+  const ocrRow = el('label', 'starter-row');
+  ocrRow.dataset['testid'] = 'ocr-enabled';
+  const ocrBox = document.createElement('input');
+  ocrBox.type = 'checkbox';
+  ocrBox.checked = ocrPrefs.isEnabled();
+  ocrBox.addEventListener('change', () => {
+    ocrPrefs.setEnabled(ocrBox.checked);
+    log.debug('import', 'ocr toggled', { enabled: ocrBox.checked });
+  });
+  ocrRow.append(ocrBox, el('span', undefined, 'Scan a photo (OCR)'));
+  importSettings.append(ocrRow);
+
+  const modelRow = el('label', 'starter-row');
+  modelRow.dataset['testid'] = 'ocr-model';
+  const modelSelect = document.createElement('select');
+  modelSelect.className = 'settings-select';
+  for (const [value, label] of [
+    ['fast', 'Fast — smaller, quicker'],
+    ['standard', 'Standard — more accurate, larger'],
+  ] as const) {
+    const opt = document.createElement('option');
+    opt.value = value;
+    opt.textContent = label;
+    modelSelect.append(opt);
+  }
+  modelSelect.value = ocrPrefs.model();
+  modelSelect.addEventListener('change', () => {
+    ocrPrefs.setModel(modelSelect.value as OcrModel);
+    log.debug('import', 'ocr model changed', { model: modelSelect.value });
+  });
+  modelRow.append(el('span', undefined, 'OCR model'), modelSelect);
+  importSettings.append(modelRow);
+
   // Seasonality (Feature B): a boost-only "what's good right now" signal. On by
   // default; off is byte-identical to the pre-feature build. The region is
   // explicit and never inferred — no geolocation.
@@ -355,6 +402,7 @@ const main = async (): Promise<void> => {
     starter,
     social,
     cookbook,
+    importSettings,
     seasonality,
     hiddenSection,
     integrity,

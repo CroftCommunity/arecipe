@@ -1,0 +1,44 @@
+# EXP-IMPORT-EXTRACTION Phase 0 · real recipe URLs to probe (category<TAB>url).
+# Category is a rough source-type tag for the Phase 0 table; the probe measures
+# only real HTTP status + advertised Access-Control-Allow-Origin per URL.
+big-site-jsonld	https://www.allrecipes.com/recipe/20144/banana-banana-bread/
+big-site-jsonld	https://www.seriouseats.com/the-best-chocolate-chip-cookies-recipe
+big-site-jsonld	https://www.foodnetwork.com/recipes/alton-brown/the-chewy-recipe-1909046
+big-site-jsonld	https://www.bonappetit.com/recipe/bas-best-chocolate-chip-cookies
+big-site-jsonld	https://www.epicurious.com/recipes/food/views/classic-buttermilk-pancakes
+big-site-jsonld	https://www.simplyrecipes.com/recipes/banana_bread/
+big-site-jsonld	https://www.food.com/recipe/best-banana-bread-2886
+big-site-jsonld	https://www.tasteofhome.com/recipes/best-ever-banana-bread/
+big-site-jsonld	https://www.delish.com/cooking/recipe-ideas/a19636089/best-banana-bread-recipe/
+big-site-jsonld	https://www.thekitchn.com/how-to-make-banana-bread-recipe-259478
+big-site-jsonld	https://www.kingarthurbaking.com/recipes/classic-banana-bread-recipe
+big-site-jsonld	https://cooking.nytimes.com/recipes/1016270-baked-macaroni-and-cheese
+blog-jsonld	https://smittenkitchen.com/2013/07/summer-squash-pizza/
+blog-jsonld	https://minimalistbaker.com/1-bowl-banana-bread-v-gf/
+blog-jsonld	https://www.budgetbytes.com/homemade-pizza-dough/
+blog-jsonld	https://sallysbakingaddiction.com/banana-bread/
+blog-jsonld	https://cookieandkate.com/best-banana-bread-recipe/
+blog-jsonld	https://www.loveandlemons.com/banana-bread/
+blog-jsonld	https://pinchofyum.com/the-best-soft-chocolate-chip-cookies
+blog-jsonld	https://www.gimmesomeoven.com/banana-bread-recipe/
+blog-jsonld	https://thewoksoflife.com/kung-pao-chicken/
+blog-jsonld	https://www.recipetineats.com/banana-bread/
+blog-no-jsonld	https://www.davidlebovitz.com/chocolate-idiot-cake-flourless-recipe/
+blog-no-jsonld	https://www.101cookbooks.com/instant-pot-minestrone-soup-recipe/
+microdata-era	https://www.geniuskitchen.com/recipe/best-banana-bread-2886
+microdata-era	https://www.bettycrocker.com/recipes/classic-banana-bread/
+hrecipe-era	https://www.chef-menus.com/
+rdfa-era	https://www.jamieoliver.com/recipes/bread-recipes/easy-bread-recipe/
+big-site-eu	https://www.bbcgoodfood.com/recipes/best-ever-chocolate-brownies-recipe
+big-site-eu	https://www.bbc.co.uk/food/recipes/banana_bread_49193
+non-english-fr	https://www.marmiton.org/recettes/recette_cake-a-la-banane_39670.aspx
+non-english-de	https://www.chefkoch.de/rezepte/1076041211387405/Bananenbrot.html
+non-english-it	https://ricette.giallozafferano.it/Banana-bread.html
+non-english-es	https://www.directoalpaladar.com/postres/banana-bread-pan-de-platano-receta
+js-rendered	https://www.hellofresh.com/recipes/creamy-dijon-chicken
+consent-wall-eu	https://www.marmiton.org/recettes/recette_pancakes_18449.aspx
+aggregator	https://www.yummly.com/recipe/Banana-Bread-9530120
+aggregator	https://www.food52.com/recipes/22467-banana-bread
+wiki-open	https://en.wikibooks.org/wiki/Cookbook:Banana_Bread
+gov-open	https://www.myplate.gov/recipes/supplemental-nutrition-assistance-program-snap/banana-bread
+newsletter	https://www.seriouseats.com/classic-panzanella-salad-recipe-5197874

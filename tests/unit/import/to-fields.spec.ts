@@ -50,4 +50,20 @@ describe('mapImportedToFields', () => {
     const f = mapImportedToFields({ ...base, name: 'N' }, '');
     expect(f.sourceUrl).toBeUndefined();
   });
+
+  // The shared page title is a high-accuracy name signal for a direct share.
+  it('fills the name from the shared title when extraction found no name', () => {
+    const f = mapImportedToFields({ ...base, ingredients: ['1 egg'] }, 'https://x/r', 'Best Banana Bread');
+    expect(f.name).toBe('Best Banana Bread');
+  });
+
+  it('does NOT override a name the parser already extracted (structured data wins)', () => {
+    const f = mapImportedToFields({ ...base, name: 'Precise JSON-LD Name' }, 'https://x/r', 'OG Title From Share');
+    expect(f.name).toBe('Precise JSON-LD Name');
+  });
+
+  it('ignores a blank shared title', () => {
+    const f = mapImportedToFields(base, 'https://x/r', '   ');
+    expect(f.name).toBe('');
+  });
 });

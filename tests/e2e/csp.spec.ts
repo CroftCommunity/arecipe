@@ -31,7 +31,7 @@ const CONNECT_ORIGINS = [
 const SHELLS = [
   'index.html', 'mine.html', 'cookbook.html', 'settings.html',
   'account.html', 'recipe.html', 'editor.html', 'signin.html',
-  'user-guide.html',
+  'user-guide.html', 'import.html',
 ];
 
 // Install the violation collector before any page script runs.
@@ -234,15 +234,29 @@ test.describe('Zero third-party scripts (Phase 4)', () => {
         .map((s) => s.trim())
         .find((s) => s.startsWith('script-src '));
       expect(scriptSrc, `${doc}: has a script-src directive`).toBeTruthy();
+      // import.html runs in-app OCR (Tesseract WASM), so it — and ONLY it — may
+      // add 'wasm-unsafe-eval'. Everything else stays strict self+hashes.
+      const isOcrPage = doc === 'import.html';
       const tokens = (scriptSrc ?? '').replace('script-src ', '').trim().split(/\s+/);
       for (const tok of tokens) {
-        const ok = tok === "'self'" || /^'sha256-[A-Za-z0-9+/=]+'$/.test(tok);
-        expect(ok, `${doc}: script-src token "${tok}" must be 'self' or a sha256 hash`).toBe(true);
+        const ok =
+          tok === "'self'" ||
+          /^'sha256-[A-Za-z0-9+/=]+'$/.test(tok) ||
+          (isOcrPage && tok === "'wasm-unsafe-eval'");
+        expect(ok, `${doc}: script-src token "${tok}" must be 'self'/sha256${isOcrPage ? "/wasm-unsafe-eval" : ''}`).toBe(true);
       }
       expect(tokens, `${doc}: script-src includes 'self'`).toContain("'self'");
-      expect(scriptSrc, `${doc}: script-src has no unsafe/host/scheme/wildcard`).not.toMatch(
-        /unsafe-inline|unsafe-eval|wasm-unsafe-eval|https?:|\*/i,
-      );
+      if (isOcrPage) {
+        // Relaxation is bounded: WASM compile only, never plain eval/inline/host.
+        expect(tokens, `${doc}: allows wasm-unsafe-eval`).toContain("'wasm-unsafe-eval'");
+        expect(scriptSrc, `${doc}: no plain unsafe-eval/inline/host/scheme/wildcard`).not.toMatch(
+          /unsafe-inline|'unsafe-eval'|https?:|\*/i,
+        );
+      } else {
+        expect(scriptSrc, `${doc}: script-src has no unsafe/host/scheme/wildcard`).not.toMatch(
+          /unsafe-inline|unsafe-eval|wasm-unsafe-eval|https?:|\*/i,
+        );
+      }
     });
   }
 });

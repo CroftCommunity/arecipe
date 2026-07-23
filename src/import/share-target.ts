@@ -11,9 +11,11 @@
 
 export type ShareInput = { title?: string; text?: string; url?: string };
 
-/** What the panel should do with a share: a provenance URL (possibly empty) and,
- *  when the share carried actual content, the text to run through the ladder. */
-export type SharePlan = { url: string; pasteText?: string };
+/** What the panel should do with a share: a provenance URL (possibly empty),
+ *  when the share carried actual content, the text to run through the ladder,
+ *  and the OS-provided page title (a high-accuracy name signal — a share gives us
+ *  the real title even when it gives us no readable content). */
+export type SharePlan = { url: string; pasteText?: string; title?: string };
 
 /** Absolute http(s) URL → its href, else undefined (rejects javascript:, data:,
  *  relative, and garbage). */
@@ -26,7 +28,7 @@ const asHttpUrl = (value: string): string | undefined => {
   }
 };
 
-export const interpretShare = ({ text, url }: ShareInput): SharePlan => {
+export const interpretShare = ({ title, text, url }: ShareInput): SharePlan => {
   const t = (text ?? '').trim();
   const u = (url ?? '').trim();
 
@@ -45,5 +47,14 @@ export const interpretShare = ({ text, url }: ShareInput): SharePlan => {
     }
   }
 
-  return pasteText === undefined ? { url: effectiveUrl } : { url: effectiveUrl, pasteText };
+  // The OS title is a name signal — but drop a blank one, or one that merely
+  // repeats the URL (some browsers put the URL in the title slot).
+  const cleanTitle = (title ?? '').trim();
+  const usableTitle =
+    cleanTitle !== '' && cleanTitle !== effectiveUrl && cleanTitle !== u ? cleanTitle : undefined;
+
+  const plan: SharePlan = { url: effectiveUrl };
+  if (pasteText !== undefined) plan.pasteText = pasteText;
+  if (usableTitle !== undefined) plan.title = usableTitle;
+  return plan;
 };

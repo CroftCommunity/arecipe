@@ -110,7 +110,8 @@ const readInstructions = (node: Json): string[] => {
   return [];
 };
 
-/** recipeYield may be a string, a number, or an array; normalize to a string. */
+/** recipeYield may be a string, a number, an array, or a QuantitativeValue
+ *  object ({ value, unitText }); normalize to a string. */
 const readYield = (v: unknown): string | undefined => {
   if (typeof v === 'string') return v;
   if (typeof v === 'number') return String(v);
@@ -118,6 +119,15 @@ const readYield = (v: unknown): string | undefined => {
     const first = v[0];
     if (typeof first === 'string') return first;
     if (typeof first === 'number') return String(first);
+  }
+  if (isObject(v)) {
+    // QuantitativeValue: prefer "<value> <unitText>", else whichever is present.
+    const value = v['value'];
+    const unit = v['unitText'];
+    const valueStr = typeof value === 'string' ? value : typeof value === 'number' ? String(value) : '';
+    const unitStr = typeof unit === 'string' ? unit : '';
+    const combined = [valueStr, unitStr].filter((s) => s !== '').join(' ');
+    if (combined !== '') return combined;
   }
   return undefined;
 };
@@ -143,7 +153,7 @@ const toImported = (node: Json, parse: HtmlParse): ImportedRecipe => {
     const text = clean(node['description'], LEXICON_MAX.text);
     if (text !== '') result.text = text;
   }
-  const yieldRaw = readYield(node['recipeYield']);
+  const yieldRaw = readYield(node['recipeYield'] ?? node['yield']);
   if (yieldRaw !== undefined) {
     const y = clean(yieldRaw, LEXICON_MAX.name);
     if (y !== '') result.recipeYield = y;
