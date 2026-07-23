@@ -1,0 +1,165 @@
+{
+  "ingredients": [
+    {
+      "display": "1 slice stale bread",
+      "optional": false,
+      "raw": "1 slice stale [[Cookbook:Bread|bread]]",
+      "refs": [
+        "Bread"
+      ]
+    },
+    {
+      "display": "1 lb ground meat",
+      "optional": false,
+      "raw": "1 [[Cookbook:Pound|lb]] ground [[Cookbook:Meat|meat]]",
+      "refs": [
+        "Pound",
+        "Meat"
+      ]
+    },
+    {
+      "display": "1 small onion, finely-grated",
+      "optional": false,
+      "raw": "1 small [[Cookbook:Onion|onion]], finely-[[Cookbook:Grating|grated]]",
+      "refs": [
+        "Onion",
+        "Grating"
+      ]
+    },
+    {
+      "display": "2 tablespoons chopped feta cheese",
+      "optional": false,
+      "raw": "2 [[Cookbook:Tablespoon|tablespoons]] [[Cookbook:Chopping|chopped]] [[Cookbook:Feta_Cheese|feta]] cheese",
+      "refs": [
+        "Tablespoon",
+        "Chopping",
+        "Feta Cheese"
+      ]
+    },
+    {
+      "display": "2 tablespoons bread crumbs",
+      "optional": false,
+      "raw": "2 tablespoons [[Cookbook:Bread Crumb|bread crumbs]]",
+      "refs": [
+        "Bread Crumb"
+      ]
+    },
+    {
+      "display": "2 tablespoons oil or melted butter",
+      "optional": false,
+      "raw": "2 tablespoons [[Cookbook:Oil|oil]] or melted [[Cookbook:Butter|butter]]",
+      "refs": [
+        "Oil",
+        "Butter"
+      ]
+    },
+    {
+      "display": "1 tablespoon chopped parsley",
+      "optional": false,
+      "raw": "1 tablespoon chopped [[Cookbook:Parsley|parsley]]",
+      "refs": [
+        "Parsley"
+      ]
+    },
+    {
+      "display": "Salt",
+      "optional": false,
+      "raw": "[[Cookbook:Salt|Salt]]",
+      "refs": [
+        "Salt"
+      ]
+    },
+    {
+      "display": "Pepper",
+      "optional": false,
+      "raw": "[[Cookbook:Pepper|Pepper]]",
+      "refs": [
+        "Pepper"
+      ]
+    },
+    {
+      "display": "Mint",
+      "optional": false,
+      "raw": "[[Cookbook:Mint|Mint]]",
+      "refs": [
+        "Mint"
+      ]
+    },
+    {
+      "display": "Oregano",
+      "optional": false,
+      "raw": "[[Cookbook:Oregano|Oregano]]",
+      "refs": [
+        "Oregano"
+      ]
+    },
+    {
+      "display": "1 cup flour",
+      "optional": false,
+      "raw": "1 [[Cookbook:Cup|cup]] [[Cookbook:Flour|flour]]",
+      "refs": [
+        "Cup",
+        "Flour"
+      ]
+    },
+    {
+      "display": "1 cup oil (olive oil recommended)",
+      "optional": false,
+      "raw": "1 cup [[Cookbook:Oil|oil]] ([[Cookbook:Olive Oil|olive oil]] recommended)",
+      "refs": [
+        "Oil",
+        "Olive Oil"
+      ]
+    }
+  ],
+  "lead": "Fried meatballs (qofte të fërguara) is an Albanian dish.",
+  "parseFlags": [
+    {
+      "code": "template-stripped",
+      "detail": "PAGENAME"
+    }
+  ],
+  "procedure": [
+    {
+      "refs": [],
+      "text": "Soak bread in water and squeeze hard to drain."
+    },
+    {
+      "refs": [],
+      "text": "Combine soaked bread, ground meat, bread crumbs, oil or melted butter, onion, cheese, parsley, salt, pepper, and mint, and mix thoroughly."
+    },
+    {
+      "refs": [
+        "Inch"
+      ],
+      "text": "Form mixture into 1 inch-thick patties, then sprinkle with salt, pepper, and oregano."
+    },
+    {
+      "refs": [
+        "Frying"
+      ],
+      "text": "Roll in flour and fry in hot oil."
+    },
+    {
+      "refs": [],
+      "text": "Serve hot with French fries or mashed potatoes."
+    }
+  ],
+  "publishable": true,
+  "sections": [
+    {
+      "heading": "References",
+      "text": "This article contains information from Frosina.org and it is used with permission."
+    }
+  ],
+  "summary": {
+    "category": "Meat recipes",
+    "cuisine": "Albanian",
+    "difficulty": 3,
+    "servings": "4",
+    "servingsHint": {
+      "min": 4
+    }
+  },
+  "title": "Albanian Fried Meatballs"
+}

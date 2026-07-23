@@ -1,0 +1,85 @@
+{
+  "ingredients": [
+    {
+      "display": "1 cup almonds",
+      "optional": false,
+      "raw": "1 [[Cookbook:Cup|cup]] ({{convert|100|g|oz|abbr=on|disp=s}}) [[Cookbook:Almond|almonds]]",
+      "refs": [
+        "Cup",
+        "Almond"
+      ]
+    },
+    {
+      "display": "4 cups water",
+      "optional": false,
+      "raw": "4 cups ({{convert|1|l|USqt|abbr=on|disp=s}}) water",
+      "refs": []
+    },
+    {
+      "display": "Dates (optional)",
+      "optional": true,
+      "raw": "[[Cookbook:Date|Dates]] (optional)",
+      "refs": [
+        "Date"
+      ]
+    },
+    {
+      "display": "Salt (optional)",
+      "optional": true,
+      "raw": "Salt (optional)",
+      "refs": []
+    }
+  ],
+  "lead": "Almonds are soaked and ground to make almond milk, a plant-based beverage that can be used as a nondairy milk substitute.",
+  "parseFlags": [
+    {
+      "code": "template-in-value",
+      "detail": "yield: convert"
+    },
+    {
+      "code": "template-stripped",
+      "detail": "convert"
+    },
+    {
+      "code": "template-stripped",
+      "detail": "nutritionsummary"
+    }
+  ],
+  "procedure": [
+    {
+      "refs": [],
+      "text": "Soak the almonds in the water overnight. They should swell and become supple."
+    },
+    {
+      "refs": [],
+      "text": "Grind the soaked almonds and water in a blender. Blend in a pinch of salt and a few dates if desired."
+    },
+    {
+      "refs": [],
+      "text": "Strain the almond mixture through a fine filter to remove the almond solids. Folded cheesecloth or a nut milk bag work well."
+    },
+    {
+      "refs": [],
+      "text": "Use the almond milk immediately or chill."
+    }
+  ],
+  "publishable": true,
+  "sections": [
+    {
+      "heading": "Special equipment",
+      "text": "* Blender\n* Cheesecloth\n* Sieve"
+    },
+    {
+      "heading": "Notes, tips, and variations",
+      "text": "* Almond meal, which is made from the leftover chaff, can be used in smoothies and other recipes that call for almonds or almond flour."
+    }
+  ],
+  "summary": {
+    "category": "Beverage recipes",
+    "difficulty": 1,
+    "time": "10 minutes plus overnight soaking",
+    "timeMinutesHint": 10,
+    "yield": "4 cups"
+  },
+  "title": "Almond Milk I"
+}

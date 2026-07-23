@@ -1,0 +1,82 @@
+__NOTOC__
+{{Recipe summary
+| Category = Rice recipes
+| Difficulty = 3
+}}
+
+{{recipe}}
+
+'''''Arroz con gandules''''' is a Puerto Rican dish of rice, pigeon peas, smoked meat, and sofrito.
+
+==Ingredients==
+
+=== Sofrito ===
+* 2 medium yellow [[Cookbook:Onion|onions]], cut into large chunks
+* 3–4 Italian frying peppers (also known as [[Cookbook:Cubanelle Pepper|cubanelle peppers]])
+* 16–20 cloves [[Cookbook:Garlic|garlic]], peeled
+* 1 large bunch [[Cookbook:Cilantro|cilantro]] macho or common cilantro, washed (with roots if possible but just the leaves and stems are fine)
+* 10–12 ají dulce [[Cookbook:Chiles|chile peppers]], seeded (e.g. ''ají cachucha'', ''quechucha'', ''ajicito'', or ''ají gustoso'')
+* 10 leaves of [[Cookbook:Culantro|culantro]] (recao), or another handful of cilantro
+* 3–4 ripe plum [[Cookbook:Tomato|tomatoes]], seeded, cored and cut into chunks or roasted then skin and seeds removed
+* 1 large red [[Cookbook:Bell Pepper|bell pepper]], cored, seeded and cut into large chunks or roasted first then seeds and some skin removed
+
+=== Rice ===
+* ½ [[Cookbook:Cup|cup]] extra-virgin [[Cookbook:Olive Oil|olive oil]]
+* 1 [[Cookbook:Tablespoon|tablespoon]] achiote ([[Cookbook:Annatto|annatto]]) seeds
+* 3 cups sofrito (recipe above)
+* ½ cup coarsely-[[Cookbook:Chopping|chopped]] [[Cookbook:Alcaparrado|alcaparrado]] (manzanilla [[Cookbook:Olive|olives]], pimiento, and [[Cookbook:Caper|capers]]) 
+* 3 tablespoons of salt
+* 1 tablespoon fresh cracked black [[Cookbook:Pepper|pepper]]
+* 1 tablespoon [[Cookbook:Cumin|cumin]] seeds or ground cumin or more to taste
+* 2 teaspoons [[Cookbook:Coriander|coriander]] seeds or ground coriander or more to taste
+* 5 tablespoons (⅓ cup) chopped [[Cookbook:Mexican Mint|Mexican mint]] (optional)
+* 2 green plantains or 3 green bananas grated
+* 1–2 whole pieces of smoked ham hock or smoked turkey, depending how big just for flavor
+* 1½ [[Cookbook:Pound|pounds]] Puerto Rican [[Cookbook:Salami|salami]] (salchichón), [[Cookbook:Ham|ham]], or chorizo, [[Cookbook:Dice|diced]] 
+* 6 cups medium grain [[Cookbook:Rice|rice]] (do not rinse)
+* 1 bag (13 [[Cookbook:Ounce|ounces]]) of frozen [[Cookbook:Pigeon Pea|pigeon peas]] or 1 can (15 ounces) of pigeon peas 
+* About 7 cups beef, chicken, turkey, or vegetable [[Cookbook:Broth|broth]]
+* 6 [[Cookbook:Bay Leaf|bay leaves]] or avocado leaves
+* 1 [[Cookbook:Banana|banana]] leaf or [[Cookbook:Plantain|plantain]] leaf (optional)
+
+==Procedure==
+
+=== Sofrito ===
+# Add chopped onions to [[Cookbook:Blender|blender]], and blend until liquefied.
+#With the motor running, add the remaining sofrito ingredients one at a time and process until smooth.
+#Remove and reserve 3 cups of sofrito for rice.
+
+=== Rice ===
+# Heat the oil and annatto seeds in a small [[Cookbook:Skillet|skillet]] over medium heat just until the seeds give off a lively, steady sizzle. Don't overheat the mixture or the seeds will turn black and the oil green. Once they're sizzling, pull the pan from the heat and let stand until the sizzling stops. Strain as much of the oil as you can into a heavy 5-quart pot or [[Cookbook:Dutch Oven|Dutch oven]] and let it stand for at least 5 minutes.  
+# Lightly toast the cumin and coriander seeds in a small skillet over low heat for a few minutes before grinding them releases flavor and aroma. Keep an eye on them, they turn dark fast. Grind in a little [[Cookbook:Spice Grinder|spice grinder]], [[Cookbook:Coffee Grinder|coffee mill]], or [[Cookbook:Mortar and Pestle|mortar and pestle]].
+# If using frozen pigeon peas, boil them for 10 minutes before using. If using from a can, drain the liquid and rinse the peas.
+# Re-heat oil over high heat until rippling. Stir in ham hock and salami and brown. Add sofrito, alcaparrado, grated plantain, and salt. Cook until sofrito stops boiling and sizzles, about 5 minutes.
+# Add cumin, coriander, orégano brujo, bay leaves or avocado leaves, and black pepper. Cook, stirring in the sofrito for an additional 30–45 seconds until the aroma release from spices.
+# Stir in the rice and peas until everything is mixed together and rice is coated with oil all over. Stir in enough broth or water to cover the rice by the width of two fingers. Top with banana leaf (or pan lid), folding it up as necessary to fit over rice or can cut what ever sticks out pot.
+# Bring to a boil, then boil without stirring until the level of liquid meets the rice. Remove the banana leaf, give the rice a big stir, and put leaf back on top.
+# Reduce the heat to low, cover the pot with lid, and cook until the water has been absorbed and the rice is tender (about 20 minutes).
+
+== Notes, tips, and variations ==
+
+* The remaining sofrito will keep in the refrigerator for up to 3 days or freeze in ice trays and it will last a month. Tomatoes can be roasted and passed threw a strainer, removing seeds and skin as an option. Red peppers are usually roasted on an open flame before blending into sofrito.
+* Homemade broth is best, but you can use store-bought or water.
+
+[[Category:Caribbean recipes]]
+[[Category:Puerto Rican recipes]]
+[[Category:Recipes using rice]]
+[[Category:Main course recipes]]
+[[Category:Recipes using aji dulce]]
+[[Category:Recipes using annatto]]
+[[Category:Recipes using bay leaf]]
+[[Category:Recipes using red bell pepper]]
+[[Category:Recipes using caper]]
+[[Category:Recipes using cilantro]]
+[[Category:Recipes using coriander]]
+[[Category:Recipes using culantro]]
+[[Category:Recipes using pigeon pea]]
+[[Category:Recipes using cumin]]
+[[Category:Recipes using beef broth and stock]]
+[[Category:Recipes using turkey broth and stock]]
+[[Category:Recipes using vegetable broth and stock]]
+[[Category:Recipes using chicken broth and stock]]
+[[Category:Recipes using ham]]

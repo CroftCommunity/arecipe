@@ -1,0 +1,108 @@
+{{recipesummary
+| Category = Flatbread recipes
+| Servings = 8 pieces
+| Time = 2½ hours
+| Difficulty = 3
+| Image = [[Image:Afghan bread.jpg|300px]]
+}}
+{{recipe}} | [[Cookbook:Cuisine of Afghanistan|Cuisine of Afghanistan]]
+
+'''Afghan bread''' or '''Nan-i-Afghani''' is the national bread of [[Cookbook:Cuisine of Afghanistan|Afghanistan]]. It is a [[Cookbook:Flatbread|flatbread]] and can be oval or rectangular. It is baked in a [[Cookbook:tandoor|tandoor]], the primary cooking equipment of the sub-continent region. The Afghan tandoor sits above ground and is round and made of bricks, which are heated to cook the bread. Afghan bread, also known as "nan breads", are shaped, then stuck onto the sides of the oven to bake. Often black cumin seeds or caraway seeds are sprinkled on Afghan bread for decoration as much as taste, and lines are made in the dough lengthwise to add texture to the bread. Afghan bread is similar to [[Cookbook:Pita|pita]] or Lebanese bread.
+
+Afghan bread is commonly stocked at [[Cookbook:Middle Eastern cuisines|Middle Eastern]] grocery stores in western countries. In Afghanistan the baker still cooks the bread the traditional way by spreading the dough around the tandoor, whereby it gets puffy quickly and starts to colour and emit a fresh bread smell that draws the early morning throngs of people. The baker then uses two long iron tongs to pull the bread from the tandoor wall. It is carried in cloth bags by Afghans, unlike western breads packaged in plastic. 
+
+Afghans serve bread with most meals; it is used as an equivalent to a fork to envelop foods and soak up liquids on the plate. Generally the bread is torn into shreds and used to pinch the foods, similar to a sandwich. The bread acts as both fork and spoon, as Afghan often use their hands to eat. The bread has no firm crust and tastes similar to Indian [[Cookbook:naan|naan]] bread. It has a dense and rich taste.  
+
+==Ingredients==
+{| class="wikitable" style="background: none"
+!Ingredient
+!Count
+!Volume
+!Weight
+![[Cookbook:Baker's Percentage|Baker's %]] (optional)
+|-
+| colspan="5" style="text-align: center; background: #f5f5f5" |'''Dough'''
+|-
+|Water
+|
+|1½ [[Cookbook:Cup|cups]]
+|375 [[Cookbook:Gram|g]]
+|68.2%
+|-
+|Dry [[Cookbook:yeast|yeast]]
+|1 sachet
+|
+|7 g
+|1.3%
+|-
+|[[Cookbook:Sugar|Sugar]]
+|
+|1 [[Cookbook:Tablespoon|tablespoon]]
+|14 g
+|2.5%
+|-
+|[[Cookbook:Flour|All-purpose flour]]
+|
+|4 cups
+|550 g
+|100%
+|-
+|[[Cookbook:Salt|Salt]]
+|
+|1 tablespoon
+|18 g
+|3.3%
+|-
+|[[Cookbook:Baking Soda|Baking soda]]
+|
+|1¾ [[Cookbook:Teaspoon|teaspoons]]
+|7 g
+|1.6%
+|-
+|[[Cookbook:Corn Oil|Corn oil]]
+|
+|¼ cup
+|55 g
+|10%
+|-
+| colspan="5" style="text-align: center; background: #f5f5f5" |'''Egg wash'''
+|-
+|Water
+|
+|1 tablespoon
+|15 g
+|2.7%
+|-
+|[[Cookbook:Egg yolk|Egg yolk]]
+|1 ea.
+|
+|24 g
+|4.4%
+|-
+| colspan="5" style="text-align: center; background: #f5f5f5" |'''Topping'''
+|-
+|Black [[Cookbook:Cumin|cumin]] seeds
+|
+|2 tablespoons
+|30 g
+|5.5%
+|}
+==Procedure==
+# Mix ½ cup water, yeast, and sugar. Let it sit for 10 minutes until foamy.
+# Place flour in a mixing bowl and sprinkle in the salt. Make a well, then add oil and yeast mixture. Stir in add small amounts of the remaining water until it forms a soft [[Cookbook:Dough|dough]] that can be moulded. Knead for 5 mins. Cover with paper and let rise for 1½ hours.
+# Mix together the egg yolk and 1 tablespoon of water to make egg wash. Set aside.
+# Divide dough into eight parts and roll each into a ball. Roll each bread into an oval shape 20 [[Cookbook:Centimetre (cm)|cm]] long and 5 cm thick.
+# Make lines in top of dough. [[Cookbook:Brush|Brush]] on egg wash, and sprinkle with black cumin seeds.
+# Bake in a preheated 350°F (175°C) oven for 25 mins. Total cooking time is around 2½ hours.
+
+[[Category:Afghan recipes|{{PAGENAME}}]]
+[[Category:Pashtun recipes|{{PAGENAME}}]]
+[[Category:Recipes for flatbread]]
+[[Category:Vegetarian recipes]]
+[[Category:Recipes with images]]
+[[Category:Recipes with metric units]]
+[[Category:Baking recipes]]
+[[Category:Recipes using sugar]]
+[[Category:Recipes using egg yolk]]
+[[Category:Recipes using all-purpose flour]]
+[[Category:Recipes using corn oil]]

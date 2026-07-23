@@ -1,0 +1,57 @@
+__NOTOC__{{Recipe summary
+| Category = Egg recipes
+| Servings = 4
+| Difficulty = 2
+}}
+
+{{recipe}}
+
+Like the traditional [[Cookbook:Spanish_Omelet|Spanish omelet]], '''frittata''' is a thick, hearty omelet filled with vegetables. A frittata may be filled with any variety of vegetables, cheeses, pastas, or meats. This recipe is for a simple vegetarian one.
+
+==Ingredients==
+* 1 [[Cookbook:Tablespoon|tablespoon]] [[Cookbook:Olive Oil|olive oil]]
+* 2 [[Cookbook:Garlic|garlic]] cloves, [[Cookbook:Mincing|minced]]
+* 1 bunch of fresh [[Cookbook:Asparagus|asparagus]], trimmed and [[Cookbook:Chopping|chopped]]
+* 8 large [[Cookbook:Egg|eggs]]
+* 3 [[Cookbook:Teaspoon|teaspoons]] [[Cookbook:Milk|milk]] (whole fat milk is best, but part skim would be fine)
+* 2 teaspoons [[Cookbook:Chopping|chopped]] fresh [[Cookbook:Basil|basil]] or 1 teaspoon dried basil
+* 1 [[Cookbook:Pinch|pinch]] of [[Cookbook:Salt|salt]]
+* 1 pinch of ground [[Cookbook:Pepper|black pepper]]
+* 3 tablespoons grated [[Cookbook:Parmesan Cheese|Parmesan cheese]]
+
+==Equipment==
+*12-[[Cookbook:Inch|inch]] (30cm) oven-safe [[Cookbook:Frying Pan|frying pan]] (i.e. no plastic or wooden handles)
+*Medium-sized bowl
+*[[Cookbook:Whisk|Whisk]] or fork
+
+==Procedure==
+# In a bowl, beat together the eggs, milk, basil, salt and pepper. Set aside.
+# Preheat [[Cookbook:Broiler|broiler]]/[[Cookbook:Oven|oven]] to 350°F (175°C). Heat the olive oil in the heat-safe skillet over medium heat.
+# When the oil is hot, add the garlic and [[Cookbook:Sautéing|sauté]] until fragrant, about a minute. 
+# Add the chopped asparagus and sauté for about 5 minutes until it begins to become tender. 
+# Pour the egg mixture into the skillet and cook about 4 minutes or until bubbles begin to form in the center of the eggs. 
+# Sprinkle the Parmesan cheese on top of the eggs, and immediately transfer the pan to the oven.
+# Cook under the broiler until the top puffs and browns, about 3 minutes. 
+# Remove the pan from the oven (careful, it will be hot) and cut the frittata into wedges.
+# Serve immediately with crusty bread and fresh fruit for a light spring dinner.
+
+==Notes, tips, and variations==
+* Try bitter greens like [[Cookbook:Swiss Chard|Swiss chard]], ruby chard, or [[Cookbook:Broccoli rabe|broccoli rabe]].
+* [[Cookbook:Bell Pepper|Bell peppers]], [[Cookbook:Mushroom|mushrooms]], [[Cookbook:Potato|potatoes]], and [[Cookbook:Zucchini|zucchini]] are all delicious in a frittata. 
+* For a meat version, try adding cubed [[Cookbook:Ham|ham]], chopped [[Cookbook:Bacon|bacon]] or [[Cookbook:Pancetta|pancetta]], or any variety of [[Cookbook:Sausage|sausage]].
+* Different [[Cookbook:Cheese|cheeses]] can be used, such as fontina, [[Cookbook:Cheddar Cheese|cheddar]], havarti, Emmenthal, or Pecorino Romano. 
+* You may also add ½ cup of cooked, drained [[Cookbook:Pasta|pasta]] such as [[Cookbook:Linguine|linguine]], [[Cookbook:Spaghetti|spaghetti]], or even [[Cookbook:Macaroni|macaroni]]. 
+* Adding [[Cookbook:Bread Crumb|breadcrumbs]] to the beaten eggs is another good way of adding bulk.
+* Wrap leftovers (if there are any) in [[Cookbook:Aluminium Foil|tin foil]] and chill in refrigerator. Leftover frittata makes a great [[Cookbook:Sandwiches|sandwich]]: just allow the eggs to come to room temperature and place them between two slices of buttered, toasted bread.
+
+== See also ==
+* [[Cookbook:Fall Chanterelle Mushroom Frittata|Fall Chanterelle Mushroom Frittata]]
+
+[[Category:Recipes using egg]]
+[[Category:Recipes for omelettes]]
+[[Category:Vegetarian recipes]]
+[[Category:Recipes using asparagus]]
+[[Category:Broiled recipes]]
+[[Category:Main course recipes]]
+[[Category:Recipes using basil]]
+[[Category:Recipes using whole milk]]

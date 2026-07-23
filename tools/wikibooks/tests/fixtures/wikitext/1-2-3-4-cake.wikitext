@@ -1,0 +1,67 @@
+__NOTOC__
+{{recipesummary|category=Cake recipes|servings=8–10|time=Prep: 20 minutes<br/>Baking: 60 minutes|difficulty=2|image=[[Image:1-2-3-4 cake slice with chocolate sour cream icing.JPG|300px]]
+}}
+
+{{recipe|Chocolate Cake, 1-2-3-4}} | [[Cookbook:Cuisine of the United States|United States]] | [[Cookbook:Cake|Cake]]
+
+This is a traditional American recipe for a '''1-2-3-4 cake''', a simple form of yellow [[Cookbook:Cake|cake]]. The name comes from the volumetric ratio of butter to sugar, flour, and eggs.
+==Ingredients==
+* 1 [[Cookbook:Cup|cup]] (240 [[Cookbook:Gram|g]] / 8.5 [[Cookbook:Ounce|oz]]) [[Cookbook:Butter|butter]] 
+* 1 cup (240 ml / 8.1 oz) [[Cookbook:Milk|milk]]
+* 1 [[Cookbook:Teaspoon|teaspoon]] [[Cookbook:Vanilla Extract|vanilla extract]]
+* 2 cups (450 g / 16 oz) white granulated [[Cookbook:Sugar|sugar]]
+* 3 cups (400 g / 14 oz) [[Cookbook:All-purpose flour|all-purpose flour]]
+* 3 teaspoons [[Cookbook:Baking Powder|baking powder]]
+* 3 [[Cookbook:Pinch|pinches]] of [[Cookbook:Salt|salt]]
+* 4 [[Cookbook:Egg|egg]]s
+
+==Procedure (brief)==
+# Preheat oven to 175 °C (350 °F)
+# [[Cookbook:Creaming|Cream]] the butter and sugar together until fluffy. 
+# Beat in the vanilla and eggs, one at a time, ensuring the batter is well mixed after each egg. 
+# Gradually sift in the dry ingredients, alternating with small additions of the milk. 
+# Transfer to a greased and floured [[Cookbook:Cake Pan|baking pan]]. 
+# Bake at 175 °C (350 °F), until a skewer inserted shows no moist crumbs.
+
+==Procedure (detailed)==
+===Preparation===
+You will need these things:
+
+<gallery mode="nolines" widths="180" heights="180">
+File:1-2-3-4 Cake ingredients.JPG|The ingredients. (Salt not shown here)
+File:1-2-3-4 Cake cooking implements.JPG|Cooking implements: beaters, large bowl, cup measurement and large cake tin. Scales optional.
+File:Oven.jpg|An oven, of course!
+</gallery>
+
+===Method===
+
+<gallery mode="nolines" widths="180" heights="180">
+File:Oven.jpg|1. Preheat your oven.
+File:Creaming butter - step 1.JPG|2. [[Cookbook:Creaming|Cream]] the butter and sugar together.
+File:Cracking an egg.JPG|3. Crack the eggs in, and beat them in too
+File:1-2-3-4 Cake after beating in eggs.JPG|After beating in the eggs, it looks like this
+File:Flour and milk.JPG|4. Now get your flour and milk
+File:Beating flour into cake mixture.JPG|5. Mix a little bit of flour in it.
+File:Beating milk into cake mixture.JPG|6. Then a little bit of milk.
+File:1-2-3-4 Cake mixture.JPG|Repeat 5 and 6 until done. By now the mixture will be very smooth.
+File:Cake mixture in tin.JPG|7. Pour the mixture into a greased and floured cake tin, then pop it in the oven
+File:Checking if cake is done.JPG|8. Checking if the cake is "done": put a sharp knife or skewer into the centre of the cake
+File:Dirty knife from cake.JPG|If the knife is dirty - the mixture is still wet - put it back in! (This was after about 15 minutes, it takes a lot longer)
+File:1-2-3-4 cake.JPG|Finally, it's done! Notice how brown the top is, due to the high sugar content
+</gallery>
+
+
+
+{{DEFAULTSORT:Chocolate Cake, 1-2-3-4}}
+[[Category:Recipes for cake]]
+[[Category:Featured recipes]]
+[[Category:Vegetarian recipes]]
+[[Category:Recipes using butter]]
+[[Category:Recipes using egg]]
+[[Category:Recipes for dessert]]
+[[Category:Recipes using baking powder]]
+
+[[ar:كعكة-1-2-3-4]]
+[[Category:Recipes using white sugar]]
+[[Category:Recipes using all-purpose flour]]
+[[Category:Recipes using cow milk]]

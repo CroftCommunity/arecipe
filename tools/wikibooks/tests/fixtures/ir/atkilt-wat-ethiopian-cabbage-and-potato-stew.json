@@ -1,0 +1,183 @@
+{
+  "ingredients": [
+    {
+      "display": "2 carrots, peeled and sliced",
+      "optional": false,
+      "raw": "2 [[Cookbook:Carrot|carrots]], peeled and [[Cookbook:Slicing|sliced]]",
+      "refs": [
+        "Carrot",
+        "Slicing"
+      ]
+    },
+    {
+      "display": "2 tablespoons vegetable oil",
+      "optional": false,
+      "raw": "2 [[Cookbook:Tablespoon|tablespoons]] [[Cookbook:vegetable oil|vegetable oil]]",
+      "refs": [
+        "Tablespoon",
+        "vegetable oil"
+      ]
+    },
+    {
+      "display": "1 onion, finely chopped",
+      "optional": false,
+      "raw": "1 [[Cookbook:Onion|onion]], finely [[Cookbook:Chopping|chopped]]",
+      "refs": [
+        "Onion",
+        "Chopping"
+      ]
+    },
+    {
+      "display": "3 cloves of garlic, minced",
+      "optional": false,
+      "raw": "3 cloves of [[Cookbook:Garlic|garlic]], [[Cookbook:Mince|minced]]",
+      "refs": [
+        "Garlic",
+        "Mince"
+      ]
+    },
+    {
+      "display": "1 tablespoon grated ginger",
+      "optional": false,
+      "raw": "1 tablespoon grated [[Cookbook:Ginger|ginger]]",
+      "refs": [
+        "Ginger"
+      ]
+    },
+    {
+      "display": "1 teaspoon turmeric",
+      "optional": false,
+      "raw": "1 [[Cookbook:Teaspoon|teaspoon]] [[Cookbook:turmeric|turmeric]]",
+      "refs": [
+        "Teaspoon",
+        "turmeric"
+      ]
+    },
+    {
+      "display": "1 teaspoon paprika",
+      "optional": false,
+      "raw": "1 teaspoon [[Cookbook:paprika|paprika]]",
+      "refs": [
+        "paprika"
+      ]
+    },
+    {
+      "display": "½ teaspoon cumin",
+      "optional": false,
+      "raw": "½ teaspoon [[Cookbook:cumin|cumin]]",
+      "refs": [
+        "cumin"
+      ]
+    },
+    {
+      "display": "½ teaspoon coriander",
+      "optional": false,
+      "raw": "½ teaspoon [[Cookbook:coriander|coriander]]",
+      "refs": [
+        "coriander"
+      ]
+    },
+    {
+      "display": "¼ teaspoon cayenne pepper, or to taste",
+      "optional": false,
+      "raw": "¼ teaspoon [[Cookbook:cayenne pepper|cayenne pepper]], or to taste",
+      "refs": [
+        "cayenne pepper"
+      ]
+    },
+    {
+      "display": "1 medium cabbage, finely shredded",
+      "optional": false,
+      "raw": "1 medium [[Cookbook:Cabbage|cabbage]], finely shredded",
+      "refs": [
+        "Cabbage"
+      ]
+    },
+    {
+      "display": "2 large potatoes, peeled and cubed",
+      "optional": false,
+      "raw": "2 large [[Cookbook:Potato |potatoes]], peeled and [[Cookbook:Cube|cubed]]",
+      "refs": [
+        "Potato",
+        "Cube"
+      ]
+    },
+    {
+      "display": "Salt, to taste",
+      "optional": false,
+      "raw": "[[Cookbook:Salt|Salt]], to taste",
+      "refs": [
+        "Salt"
+      ]
+    },
+    {
+      "display": "Fresh cilantro, chopped, for garnish",
+      "optional": false,
+      "raw": "Fresh [[Cookbook:cilantro|cilantro]], chopped, for [[Cookbook:Garnish|garnish]]",
+      "refs": [
+        "cilantro",
+        "Garnish"
+      ]
+    }
+  ],
+  "lead": "Atkilt wat is a flavorful and comforting dish that is a staple in Ethiopian cuisine. This hearty stew is made with a combination of cabbage, potatoes, carrots, and aromatic spices, creating a delicious and satisfying meal.",
+  "parseFlags": [],
+  "procedure": [
+    {
+      "refs": [],
+      "text": "In a large pot, heat the vegetable oil over medium heat."
+    },
+    {
+      "refs": [
+        "Sautéing"
+      ],
+      "text": "Add the chopped onion and sauté until it becomes soft and translucent."
+    },
+    {
+      "refs": [],
+      "text": "Stir in the minced garlic and grated ginger, and cook for another minute until fragrant."
+    },
+    {
+      "refs": [],
+      "text": "Add the turmeric, paprika, cumin, coriander, and cayenne pepper to the pot. Mix well to coat the onions and spices."
+    },
+    {
+      "refs": [],
+      "text": "Add the cubed potatoes and sliced carrots to the pot. Stir to coat the vegetables with the spices."
+    },
+    {
+      "refs": [],
+      "text": "Pour in a small amount of water (about ¼ cup) and cover the pot. Cook for about 5 minutes to soften the potatoes and carrots."
+    },
+    {
+      "refs": [],
+      "text": "Add the finely shredded cabbage to the pot. Mix everything together and cover the pot. Cook for another 15–20 minutes, or until the cabbage is tender, stirring occasionally."
+    },
+    {
+      "refs": [],
+      "text": "Taste and season with salt according to your preference."
+    },
+    {
+      "refs": [
+        "Garnish"
+      ],
+      "text": "Remove the pot from the heat and let the stew rest for a few minutes. Garnish with freshly chopped cilantro before serving."
+    }
+  ],
+  "publishable": true,
+  "sections": [
+    {
+      "heading": "Equipment",
+      "text": "* Large pot\n* Wooden spoon or spatula\n* Cutting board\n* Chef's knife"
+    },
+    {
+      "heading": "Notes, tips, and variations",
+      "text": "* Adjust the spiciness of the stew by adding more or less cayenne pepper according to your taste preferences.\n* Feel free to add other vegetables like bell peppers or green beans for additional flavor and variety.\n* To save time, you can prepare the vegetables in advance by shredding the cabbage and cubing the potatoes and carrots.\n* Make sure to cook the cabbage until it is tender but still retains some texture for a satisfying bite.\n* For a vegan version, omit the vegetable oil and use a cooking spray or water for sautéing the onions and spices.\n* Add other spices or herbs like cardamom, cinnamon, or thyme for additional flavor variations.\n* Atkilt wat is a good source of dietary fiber from the cabbage."
+    }
+  ],
+  "summary": {
+    "category": "Ethiopian recipes",
+    "difficulty": 2
+  },
+  "title": "Atkilt Wat (Ethiopian Cabbage and Potato Stew)"
+}

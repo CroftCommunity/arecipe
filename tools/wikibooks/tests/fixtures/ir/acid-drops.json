@@ -1,0 +1,96 @@
+{
+  "ingredients": [
+    {
+      "display": "2 cups (480 mL) white granulated sugar",
+      "optional": false,
+      "raw": "2 [[Cookbook:Cup|cups]] (480 [[Cookbook:Milliliter|mL]]) white granulated [[Cookbook:Sugar|sugar]]",
+      "refs": [
+        "Cup",
+        "Milliliter",
+        "Sugar"
+      ]
+    },
+    {
+      "display": "1 cup (240 mL) water",
+      "optional": false,
+      "raw": "1 cup (240 mL) [[Cookbook:Water|water]]",
+      "refs": [
+        "Water"
+      ]
+    },
+    {
+      "display": "½ tsp (2.5 mL) cream of tartar",
+      "optional": false,
+      "raw": "½ [[Cookbook:Teaspoon|tsp]] (2.5 mL) [[Cookbook:Cream of Tartar|cream of tartar]]",
+      "refs": [
+        "Teaspoon",
+        "Cream of Tartar"
+      ]
+    },
+    {
+      "display": "1 Tbsp (15 mL) citric acid",
+      "optional": false,
+      "raw": "1 [[Cookbook:Tablespoon|Tbsp]] (15 mL) [[Cookbook:Citric acid|citric acid]] <ref>In the United States, citric acid is available from some Armenian and South Asian grocers, and on-line from cheese-making suppliers.</ref>",
+      "refs": [
+        "Tablespoon",
+        "Citric acid"
+      ]
+    },
+    {
+      "display": "Powdered sugar",
+      "optional": false,
+      "raw": "[[Cookbook:Powdered Sugar|Powdered sugar]]",
+      "refs": [
+        "Powdered Sugar"
+      ]
+    }
+  ],
+  "lead": "Acid drops are a hard candy or confection made very sour through the addition of acid. Citric acid and tartaric acid are commonly used.",
+  "parseFlags": [
+    {
+      "code": "template-stripped",
+      "detail": "reflist"
+    }
+  ],
+  "procedure": [
+    {
+      "refs": [
+        "Cooking Sugar"
+      ],
+      "text": "Bring the sugar, water and cream of tartar to boil over medium-low heat. Stir gently until syrup reaches 310°F (155°C/hard crack stage) or is pale brown. Syrup should harden completely when dropped on to a cold plate and snap between the teeth when cold."
+    },
+    {
+      "refs": [],
+      "text": "Pour the mixture onto an oiled heatproof work surface, and sprinkle with the citric acid."
+    },
+    {
+      "refs": [
+        "Spatula"
+      ],
+      "text": "Use a greased spatula to fold in the sides and thoroughly work the acid in."
+    },
+    {
+      "refs": [],
+      "text": "When the candy is cool enough to touch but still pliable, roll it into sticks and snip off drop-sized bits."
+    },
+    {
+      "refs": [
+        "Sifter"
+      ],
+      "text": "Sift powdered sugar onto the candies, and shake to coat."
+    },
+    {
+      "refs": [],
+      "text": "Allow to cool and harden completely. Store in an air-tight container."
+    }
+  ],
+  "publishable": true,
+  "sections": [],
+  "summary": {
+    "category": "Confection recipes",
+    "difficulty": 3,
+    "time": "45 minutes",
+    "timeMinutesHint": 45
+  },
+  "title": "Acid Drops"
+}

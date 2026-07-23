@@ -1,0 +1,58 @@
+__NOTOC__
+{{recipe summary
+| category = Ethiopian recipes
+| difficulty = 3
+| image = [[File:Meat stir-fry dish at a Tibetan restaurant.jpg|300px]]
+}}
+
+{{Recipe}}
+
+'''Awaze tibs''' is a flavorful and aromatic dish that showcases the vibrant spices of Ethiopian cuisine. This dish is made with tender pieces of meat, such as beef or lamb, stir-fried with a rich and spicy sauce known as awaze.
+== Ingredients ==
+* 2 [[Cookbook:Tablespoon|tablespoons]] [[Cookbook:vegetable oil|vegetable oil]]
+* 1.5 pounds [[Cookbook:Beef|beef]] or [[Cookbook:Lamb|lamb]], thinly [[Cookbook:Slicing|sliced]]
+* 1 large [[Cookbook:Onion|onion]], thinly sliced
+* 3 cloves of [[Cookbook:Garlic|garlic]], [[Cookbook:Mince|minced]]
+* 2 tablespoons [[Cookbook:berbere|berbere spice]]
+* 1 tablespoon [[Cookbook:Tomato Paste|tomato paste]]
+* 1 tablespoon [[Cookbook:paprika|paprika]]
+* 1 tablespoon [[Cookbook:cayenne pepper|cayenne pepper]], or to taste
+* 1 tablespoon awaze sauce
+* 1 tablespoon [[Cookbook:soy sauce|soy sauce]]
+* 1 tablespoon [[Cookbook:vinegar|vinegar]]
+* 1 teaspoon [[Cookbook:salt|salt]], or to taste
+* Fresh [[Cookbook:cilantro|cilantro]], [[Cookbook:Chopping|chopped]], for [[Cookbook:Garnish|garnish]]
+
+== Equipment ==
+* Large [[Cookbook:Skillet|skillet]]
+* Wooden spoon or [[Cookbook:Spatula|spatula]]
+* [[Cookbook:Cutting Board|Cutting board]]
+* Chef's [[knife]]
+
+== Procedure ==
+# Heat the vegetable oil in a large skillet or wok over medium-high heat.
+# Add the thinly sliced meat to the hot skillet and [[Cookbook:Stir-frying|stir-fry]] for 3–4 minutes until browned and cooked through. Remove the cooked meat from the skillet and set it aside.
+# In the same skillet, add the sliced onion and minced garlic. Stir-fry for about 2–3 minutes until the onion becomes translucent and fragrant.
+# Add the berbere spice, tomato paste, paprika, and cayenne pepper to the skillet. Stir well to coat the onions and garlic with the spices.
+# Return the cooked meat to the skillet and toss it with the spiced onion mixture.
+# Add the awaze sauce, soy sauce, vinegar, and salt to the skillet. Stir everything together to combine the flavors and coat the meat evenly.
+# Continue to stir-fry for another 2–3 minutes until the sauce thickens and coats the meat.
+# Taste the dish and adjust the seasoning with salt or additional spices according to your preference.
+# Remove the skillet from the heat and [[Cookbook:Garnish|garnish]] the with freshly chopped cilantro.
+
+== Notes, tips, and variations ==
+* Adjust the spiciness of the dish by adding more or less cayenne pepper and berbere spice, according to your taste preferences.
+* Awaze sauce can be found in Ethiopian grocery stores or made at home using a combination of spices and peppers.
+* Awaze tibs is traditionally served with injera, a sourdough flatbread that complements the spicy flavors of the dish. You can also serve it with rice or bread.
+* Serve the stir-fry with a side of fresh salad or steamed vegetables for a complete and balanced meal.
+* For a tender and flavorful meat, marinate it in the awaze sauce for at least 30 minutes before cooking.
+* Stir-fry the ingredients on high heat for a shorter duration to retain the juiciness of the meat.
+* Add diced [[Cookbook:Bell Pepper|bell peppers]], [[Cookbook:Carrot|carrots]], or other [[Cookbook:Vegetable|vegetables]] to the stir-fry for added color and texture.
+* Experiment with different protein options like [[Cookbook:Chicken|chicken]] or [[Cookbook:Tofu|tofu]] for a variation in flavors and dietary preferences.
+
+[[Category:Ethiopian recipes]]
+[[Category:Recipes using beef]]
+[[Category:Recipes using lamb]]
+[[Category:Recipes using cilantro]]
+[[Category:Recipes using cayenne]]
+[[Category:Recipes using vegetable oil]]

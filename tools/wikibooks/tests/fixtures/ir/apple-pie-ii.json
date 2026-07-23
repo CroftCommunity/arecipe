@@ -1,0 +1,236 @@
+{
+  "ingredients": [
+    {
+      "display": "8 oz (225 g) plain flour",
+      "optional": false,
+      "raw": "8 [[Cookbook:Ounce|oz]] (225 [[Cookbook:Gram|g]]) plain [[Cookbook:Flour|flour]]",
+      "refs": [
+        "Ounce",
+        "Gram",
+        "Flour"
+      ]
+    },
+    {
+      "display": "4 oz (110 g) margarine",
+      "optional": false,
+      "raw": "4 oz (110 g) [[Cookbook:Margarine|margarine]]",
+      "refs": [
+        "Margarine"
+      ]
+    },
+    {
+      "display": "2 oz (55 g) lard",
+      "optional": false,
+      "raw": "2 oz (55 g) [[Cookbook:Lard|lard]]",
+      "refs": [
+        "Lard"
+      ]
+    },
+    {
+      "display": "1 pinch of salt",
+      "optional": false,
+      "raw": "1 [[Cookbook:Pinch|pinch]] of [[Cookbook:Salt|salt]]",
+      "refs": [
+        "Pinch",
+        "Salt"
+      ]
+    },
+    {
+      "display": "2 tablespoons cold water",
+      "optional": false,
+      "raw": "2 [[Cookbook:Tablespoon|tablespoons]] cold water",
+      "refs": [
+        "Tablespoon"
+      ]
+    },
+    {
+      "display": "4 McIntosh apples",
+      "optional": false,
+      "raw": "4 McIntosh [[Cookbook:Apple|apples]]",
+      "refs": [
+        "Apple"
+      ]
+    },
+    {
+      "display": "1 teaspoon cinnamon",
+      "optional": false,
+      "raw": "1 [[Cookbook:Teaspoon|teaspoon]] [[Cookbook:Cinnamon|cinnamon]]",
+      "refs": [
+        "Teaspoon",
+        "Cinnamon"
+      ]
+    },
+    {
+      "display": "2 cups white granulated sugar",
+      "optional": false,
+      "raw": "2 [[Cookbook:Cup|cups]] white granulated [[Cookbook:Sugar|sugar]]",
+      "refs": [
+        "Cup",
+        "Sugar"
+      ]
+    },
+    {
+      "display": "¼ cup flour",
+      "optional": false,
+      "raw": "¼ cup [[Cookbook:Flour|flour]]",
+      "refs": [
+        "Flour"
+      ]
+    },
+    {
+      "display": "2 cups water",
+      "optional": false,
+      "raw": "2 cups [[Cookbook:Water|water]]",
+      "refs": [
+        "Water"
+      ]
+    },
+    {
+      "display": "3½ tablespoons cornstarch",
+      "optional": false,
+      "raw": "3½ tablespoons [[Cookbook:Cornstarch|cornstarch]]",
+      "refs": [
+        "Cornstarch"
+      ]
+    },
+    {
+      "display": "lemon juice (of ½ lemon)",
+      "optional": false,
+      "raw": "[[Cookbook:Lemon|lemon]] juice (of ½ lemon)",
+      "refs": [
+        "Lemon"
+      ]
+    },
+    {
+      "display": "½ teaspoon ground nutmeg",
+      "optional": false,
+      "raw": "½ teaspoon ground [[Cookbook:Nutmeg|nutmeg]]",
+      "refs": [
+        "Nutmeg"
+      ]
+    }
+  ],
+  "parseFlags": [
+    {
+      "code": "ingredients-prose",
+      "detail": "Filling"
+    },
+    {
+      "code": "ingredients-prose",
+      "detail": "Pie crust"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "Filling"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "Pie crust"
+    }
+  ],
+  "procedure": [
+    {
+      "refs": [
+        "Bread Crumb"
+      ],
+      "text": "Rub flour, margarine, lard, and salt together until the mixture has the consistency of fine breadcrumbs."
+    },
+    {
+      "refs": [],
+      "text": "Gently mix in 2 tablespoons water to make a soft but firm dough."
+    },
+    {
+      "refs": [],
+      "text": "Divide dough in half, then roll each half out on floured surface to the size you want your pie."
+    },
+    {
+      "refs": [
+        "Pie Crust",
+        "Pie and Tart Pans"
+      ],
+      "text": "Use one crust to line your pie pan."
+    },
+    {
+      "refs": [
+        "Slicing",
+        "Inch",
+        "Centimetre (cm)"
+      ],
+      "text": "Core, peel, and slice the apples into ⅛–¼-inch (0.5–1 cm) segments."
+    },
+    {
+      "refs": [],
+      "text": "Add lemon juice to the apple segments."
+    },
+    {
+      "refs": [],
+      "text": "Transfer excess juices to the pie pan."
+    },
+    {
+      "refs": [
+        "Saucepan",
+        "Boiling",
+        "Simple Syrup"
+      ],
+      "text": "Combine the sugar and water in a saucepan. Bring to a boil over medium heat, stirring gently until the sugar dissolves and you get a simple syrup. Remove from the heat and let cool until just warm."
+    },
+    {
+      "refs": [],
+      "text": "In a separate bowl, mix the cinnamon, nutmeg, flour, and cornstarch."
+    },
+    {
+      "refs": [
+        "Tossing"
+      ],
+      "text": "Combine the apples, spice mixture, and syrup in a bowl. Toss well."
+    },
+    {
+      "refs": [],
+      "text": "Transfer the apple filling to the crust-lined pie pan."
+    },
+    {
+      "refs": [],
+      "text": "Cover the filling with the second pie crust and make three slits on top."
+    },
+    {
+      "refs": [
+        "Pie Crust Edges"
+      ],
+      "text": "Crimp the edges of the crust together, making a decorative border if desired."
+    },
+    {
+      "refs": [
+        "Baking",
+        "Oven",
+        "Fahrenheit"
+      ],
+      "text": "Bake in the oven at 350°F (175°C) for 60 minutes or until golden brown."
+    },
+    {
+      "refs": [],
+      "text": "Take out the pie and let cool."
+    },
+    {
+      "refs": [
+        "Ice Cream"
+      ],
+      "text": "If desired, serve warm with ice cream, frozen custard, or frozen yogurt."
+    }
+  ],
+  "publishable": true,
+  "sections": [
+    {
+      "heading": "Notes, tips, and variations",
+      "text": "* You can also use 2 store-bought pie crusts instead of making the dough from scratch."
+    },
+    {
+      "heading": "See also",
+      "text": "*Apple Pie I\n*Apple Pie"
+    }
+  ],
+  "summary": {
+    "category": "Pie and tart recipes",
+    "difficulty": 3
+  },
+  "title": "Apple Pie II"
+}

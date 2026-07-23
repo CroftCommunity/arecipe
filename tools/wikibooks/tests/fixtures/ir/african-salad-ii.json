@@ -1,0 +1,201 @@
+{
+  "ingredients": [
+    {
+      "display": "3 handfuls abacha (shredded dried cassava)",
+      "optional": false,
+      "raw": "3 handfuls abacha (shredded dried [[Cookbook:Cassava|cassava]])",
+      "refs": [
+        "Cassava"
+      ]
+    },
+    {
+      "display": "2 cups ugba (ukpaka)",
+      "optional": false,
+      "raw": "2 cups [[Cookbook:Ugba|ugba]] (ukpaka)",
+      "refs": [
+        "Ugba"
+      ]
+    },
+    {
+      "display": "30 cl red palm oil",
+      "optional": false,
+      "raw": "30 cl red [[Cookbook:Palm Oil|palm oil]]",
+      "refs": [
+        "Palm Oil"
+      ]
+    },
+    {
+      "display": "2 tablespoons powdered edible potash (food tenderizer)",
+      "optional": false,
+      "raw": "2 tablespoons powdered edible [[Cookbook:Potash|potash]] (food tenderizer)",
+      "refs": [
+        "Potash"
+      ]
+    },
+    {
+      "display": "2 teaspoons ground Ehu seeds (Calabash Nutmeg)",
+      "optional": false,
+      "raw": "2 teaspoons ground [[Cookbook:Calabash Nutmeg|Ehu]] seeds (Calabash Nutmeg)",
+      "refs": [
+        "Calabash Nutmeg"
+      ]
+    },
+    {
+      "display": "Habanero pepper, to taste",
+      "optional": false,
+      "raw": "[[Cookbook:Habanero|Habanero]] pepper, to taste",
+      "refs": [
+        "Habanero"
+      ]
+    },
+    {
+      "display": "4 tablespoons ground crayfish",
+      "optional": false,
+      "raw": "4 tablespoons [[Cookbook:Ground Crayfish|ground crayfish]]",
+      "refs": [
+        "Ground Crayfish"
+      ]
+    },
+    {
+      "display": "2 stock cubes (preferably Knorr brand), crushed",
+      "optional": false,
+      "raw": "2 [[Cookbook:Bouillon Cube|stock cubes]] (preferably Knorr brand), crushed",
+      "refs": [
+        "Bouillon Cube"
+      ]
+    },
+    {
+      "display": "2 onions, diced",
+      "optional": false,
+      "raw": "2 [[Cookbook:Onion|onions]], diced",
+      "refs": [
+        "Onion"
+      ]
+    },
+    {
+      "display": "Ogiri (castor seed paste)",
+      "optional": false,
+      "raw": "[[Cookbook:Ogiri|Ogiri]] (castor seed paste)",
+      "refs": [
+        "Ogiri"
+      ]
+    },
+    {
+      "display": "Other meat and vegetables for the Abacha",
+      "optional": false,
+      "raw": "Other meat and vegetables for the Abacha",
+      "refs": []
+    },
+    {
+      "display": "Fish(mackerel/dryfish/stockfish)",
+      "optional": false,
+      "raw": "[[Cookbook:Fish|Fish]]([[Cookbook:Mackerel|mackerel]]/[[Cookbook:Dryfish|dryfish]]/[[Cookbook:Stockfish|stockfish]])",
+      "refs": [
+        "Fish",
+        "Mackerel",
+        "Dryfish",
+        "Stockfish"
+      ]
+    },
+    {
+      "display": "Ponmo/kanda (cow skin)",
+      "optional": false,
+      "raw": "[[Cookbook:Ponmo|Ponmo]]/kanda (cow skin)",
+      "refs": [
+        "Ponmo"
+      ]
+    },
+    {
+      "display": "3 fresh utazi leaves",
+      "optional": false,
+      "raw": "3 fresh [[Cookbook:Utazi|utazi]] leaves",
+      "refs": [
+        "Utazi"
+      ]
+    },
+    {
+      "display": "Salt, to taste",
+      "optional": false,
+      "raw": "[[Cookbook:Salt|Salt]], to taste",
+      "refs": [
+        "Salt"
+      ]
+    },
+    {
+      "display": "Garden eggs (white eggplant)",
+      "optional": false,
+      "raw": "Garden eggs (white [[Cookbook:Eggplant|eggplant]])",
+      "refs": [
+        "Eggplant"
+      ]
+    },
+    {
+      "display": "Garden egg leaves",
+      "optional": false,
+      "raw": "Garden egg leaves",
+      "refs": []
+    }
+  ],
+  "parseFlags": [
+    {
+      "code": "ingredients-prose",
+      "detail": "When preparing Abacha, the more ingredients used, the tastier and more \"complete\" the dish will be:"
+    }
+  ],
+  "procedure": [
+    {
+      "refs": [
+        "Boiling"
+      ],
+      "text": "Soak the shredded abacha in cold water for 10 minutes until it softens. Pour boiling water over it and drain."
+    },
+    {
+      "refs": [],
+      "text": "Rinse the ugba with warm water."
+    },
+    {
+      "refs": [
+        "Sieve"
+      ],
+      "text": "Dissolve the potash in water and sieve out any residual solids."
+    },
+    {
+      "refs": [],
+      "text": "Stir the potash water with the palm oil in a pot until it forms a yellowish paste. Place on the heat, and stir in the ground ehu, pepper, crayfish, and seasoning."
+    },
+    {
+      "refs": [],
+      "text": "Stir in the crushed stock cubes, diced onions, and ugba. Take off the heat."
+    },
+    {
+      "refs": [],
+      "text": "Mix in the ogiri, then add meat and fish if using."
+    },
+    {
+      "refs": [],
+      "text": "Mix in the abacha, allowing the ingredients to blend."
+    },
+    {
+      "refs": [],
+      "text": "Add sliced utazi and salt to taste."
+    },
+    {
+      "refs": [
+        "Garnish"
+      ],
+      "text": "Garnish with chopped garden egg leaves and sliced onions."
+    }
+  ],
+  "publishable": true,
+  "sections": [
+    {
+      "heading": "Notes, tips, and variations",
+      "text": "* Abacha is made by boiling and grating/shredding cassava tubers.\n* Ukpaka or ugba is shredded oil bean seeds. It is optional, and if not added it won't affect the end result.\n* Red palm oil must be used when preparing abacha.\n* If garden egg leaves are not available, baby spinach leaves are a good alternative.\n* At least one type of fish must be used in preparing abacha. You can use stockfish, dryfish (e.g. catfish, mangala), fried mackerel, and/or smoked fish.\n* Crayfish much be added.\n* Pepper must be used—you can either add habanero pepper (recommended) or dry cayenne pepper. Habanero pepper is atarodo, atarugu or ose oyibo. Black pepper is not a good fit for abacha.\n* Add ogiri for the classic traditional taste, but if not available you should add stock cubes.\n* Edible potash (akanwu, kaun, keun) is what makes palm oil curdle and it is a must. If you do not have it or you do not want to eat edible potash, baking soda (bicarbonate of soda) has similar properties.\n* Be careful when adding salt, since the dish contains lots of ingredients that already have salt (stockfish, stock cubes, crayfish, etc)."
+    }
+  ],
+  "summary": {
+    "category": "Salad recipes",
+    "difficulty": 3
+  },
+  "title": "African Salad II"
+}

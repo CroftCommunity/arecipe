@@ -1,0 +1,199 @@
+{
+  "ingredients": [
+    {
+      "display": "1300 g (4 lb) chicken",
+      "optional": false,
+      "raw": "1300 g (4 [[Cookbook:Pound|lb]]) [[cookbook:chicken|chicken]]",
+      "refs": [
+        "Pound",
+        "chicken"
+      ]
+    },
+    {
+      "display": "120 ml (½ cup) of olive oil",
+      "optional": false,
+      "raw": "120 ml (½ [[Cookbook:Cup|cup]]) of [[cookbook:olive oil|olive oil]]",
+      "refs": [
+        "Cup",
+        "olive oil"
+      ]
+    },
+    {
+      "display": "1 large finely chopped onion",
+      "optional": false,
+      "raw": "1 large finely chopped [[cookbook:onion|onion]]",
+      "refs": [
+        "onion"
+      ]
+    },
+    {
+      "display": "8 cloves of minced garlic",
+      "optional": false,
+      "raw": "8 cloves of minced [[cookbook:garlic|garlic]]",
+      "refs": [
+        "garlic"
+      ]
+    },
+    {
+      "display": "3 hot yellow South American chilis (seeds and filaments removed): Adjust quantity for individual taste.",
+      "optional": false,
+      "raw": "3 hot [[cookbook: Aji amarillo|yellow South American chilis]] (seeds and filaments removed): Adjust quantity for individual taste.",
+      "refs": [
+        "Aji amarillo"
+      ]
+    },
+    {
+      "display": "Salt and pepper to taste",
+      "optional": false,
+      "raw": "[[cookbook:Salt|Salt]] and [[cookbook:pepper|pepper]] to taste",
+      "refs": [
+        "Salt",
+        "pepper"
+      ]
+    },
+    {
+      "display": "1 chicken stock cube",
+      "optional": false,
+      "raw": "1 [[cookbook:Stock|chicken stock]] cube",
+      "refs": [
+        "Stock"
+      ]
+    },
+    {
+      "display": "¼ loaf of bread",
+      "optional": false,
+      "raw": "¼ loaf of [[cookbook:bread|bread]]",
+      "refs": [
+        "bread"
+      ]
+    },
+    {
+      "display": "110 g (¼ lb) of chopped pecans",
+      "optional": false,
+      "raw": "110 g (¼ lb) of chopped [[cookbook:pecan|pecans]]",
+      "refs": [
+        "pecan"
+      ]
+    },
+    {
+      "display": "110 g (4 ounces) grated Parmesan cheese",
+      "optional": false,
+      "raw": "110 g (4 [[Cookbook:Ounce|ounces]])  grated [[cookbook:Parmesan Cheese|Parmesan cheese]]",
+      "refs": [
+        "Ounce",
+        "Parmesan Cheese"
+      ]
+    },
+    {
+      "display": "1 can of evaporated milk",
+      "optional": false,
+      "raw": "1 can of [[cookbook:evaporated milk|evaporated milk]]",
+      "refs": [
+        "evaporated milk"
+      ]
+    },
+    {
+      "display": "1.6 kg (3.5 lbs) boiled rice (flavored with chopped garlic and salt)",
+      "optional": false,
+      "raw": "1.6 kg (3.5 lbs) boiled [[cookbook:rice|rice]] (flavored with chopped garlic and salt)",
+      "refs": [
+        "rice"
+      ]
+    },
+    {
+      "display": "4 hard boiled eggs",
+      "optional": false,
+      "raw": "4 hard boiled [[cookbook:egg|eggs]]",
+      "refs": [
+        "egg"
+      ]
+    },
+    {
+      "display": "6 potatoes",
+      "optional": false,
+      "raw": "6 [[cookbook:Potato|potatoes]]",
+      "refs": [
+        "Potato"
+      ]
+    },
+    {
+      "display": "120 g (½ cup) black olives",
+      "optional": false,
+      "raw": "120 g (½ cup) [[cookbook:Olive|black olives]]",
+      "refs": [
+        "Olive"
+      ]
+    }
+  ],
+  "lead": "(Spanish for chili pepper chicken) is a traditional Peruvian dish which has its roots in the social upheaval of the French Revolution in 1789.",
+  "parseFlags": [
+    {
+      "code": "image-unresolved",
+      "detail": "Ají de gallina (gourmet)-b.jpg"
+    },
+    {
+      "code": "template-stripped",
+      "detail": "lang"
+    },
+    {
+      "code": "template-stripped",
+      "detail": "reflist"
+    }
+  ],
+  "procedure": [
+    {
+      "refs": [
+        "Boil"
+      ],
+      "text": "Boil chicken in salted water together with the stock cube. Remove bones and break into bite size pieces, keeping the resulting chicken stock."
+    },
+    {
+      "refs": [
+        "saucepan",
+        "sauté"
+      ],
+      "text": "In a saucepan, heat oil and sauté the onion, garlic, and finely chopped chili peppers and add salt and pepper. Fry this until the onions are cooked and golden."
+    },
+    {
+      "refs": [
+        "blender"
+      ],
+      "text": "Soak the bread in two cups of the stock from the boiled chicken and place in a blender for a couple of minutes and then add the resulting liquid to the saucepan."
+    },
+    {
+      "refs": [],
+      "text": "Cook slowly for ten minutes. Cook slowly, stirring to thicken."
+    },
+    {
+      "refs": [],
+      "text": "While the Ají de Gallina is cooking slowly, boil the rice: first fry the garlic for a couple of seconds, then add the rice and the salt, then add the water. When the water starts to boil, let the rice cook in a closed pot very slowly for about 20 minutes or until the water has completely evaporated (hint: to cook \"peruvian\" rice: cook a cup of rice in two cups of water)."
+    },
+    {
+      "refs": [],
+      "text": "Back to the Ají de Gallina: add the chopped pecans, grated cheese, and chicken pieces. Cook until it has a thick creamy texture. About five minutes before serving, add the evaporated milk and continue cooking on low heat."
+    },
+    {
+      "refs": [],
+      "text": "Serve over the boiled rice and garnish with halved potatoes, eggs quartered lengthwise, and olives."
+    }
+  ],
+  "publishable": true,
+  "sections": [
+    {
+      "heading": "References",
+      "text": "Artes culinarias/Recetas/Ají de gallina"
+    }
+  ],
+  "summary": {
+    "cuisine": "Peruvian",
+    "difficulty": 2,
+    "image": "Ají de gallina (gourmet)-b.jpg",
+    "servings": "8",
+    "servingsHint": {
+      "min": 8
+    },
+    "time": "About 45 minutes",
+    "timeMinutesHint": 45
+  },
+  "title": "Ají de Gallina (Peruvian Chili Chicken)"
+}

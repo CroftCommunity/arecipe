@@ -1,0 +1,184 @@
+{
+  "ingredients": [
+    {
+      "display": "Extra-virgin olive oil (preferably Italian, if not Italian then Tunisian, French, and Greek are advisable)",
+      "optional": false,
+      "raw": "Extra-virgin [[Cookbook:Olive Oil|olive oil]] (preferably Italian, if not Italian then Tunisian, French, and Greek are advisable)",
+      "refs": [
+        "Olive Oil"
+      ]
+    },
+    {
+      "display": "2 tablespoons almond oil",
+      "optional": false,
+      "raw": "2 [[Cookbook:Tablespoon|tablespoons]] [[Cookbook:Almond Oil|almond oil]]",
+      "refs": [
+        "Tablespoon",
+        "Almond Oil"
+      ]
+    },
+    {
+      "display": "½ head of garlic (or less), minced",
+      "optional": false,
+      "raw": "½ head of [[Cookbook:Garlic|garlic]] (or less), [[Cookbook:Mincing|minced]]",
+      "refs": [
+        "Garlic",
+        "Mincing"
+      ]
+    },
+    {
+      "display": "2 tablespoons dried oregano",
+      "optional": false,
+      "raw": "2 tablespoons dried [[Cookbook:Oregano|oregano]]",
+      "refs": [
+        "Oregano"
+      ]
+    },
+    {
+      "display": "2 tablespoons dried thyme",
+      "optional": false,
+      "raw": "2 tablespoons dried [[Cookbook:Thyme|thyme]]",
+      "refs": [
+        "Thyme"
+      ]
+    },
+    {
+      "display": "2 tablespoons dried red chile flakes",
+      "optional": false,
+      "raw": "2 tablespoons dried [[Cookbook:Red pepper flakes|red chile flakes]]",
+      "refs": [
+        "Red pepper flakes"
+      ]
+    },
+    {
+      "display": "1 cup (240 g) fresh basil, finely torn or roughly chopped and reserved",
+      "optional": false,
+      "raw": "1 [[Cookbook:Cup|cup]] (240 [[Cookbook:Gram|g]]) fresh [[Cookbook:Basil|basil]], finely torn or roughly chopped and reserved",
+      "refs": [
+        "Cup",
+        "Gram",
+        "Basil"
+      ]
+    },
+    {
+      "display": "2 medium to large onions (preferably red or yellow), diced",
+      "optional": false,
+      "raw": "2 medium to large [[Cookbook:Onion|onions]] (preferably red or yellow), [[Cookbook:Dice|diced]]",
+      "refs": [
+        "Onion",
+        "Dice"
+      ]
+    },
+    {
+      "display": "1 yellow bell pepper, cut into strips",
+      "optional": false,
+      "raw": "1 yellow [[Cookbook:Bell Pepper|bell pepper]], cut into strips",
+      "refs": [
+        "Bell Pepper"
+      ]
+    },
+    {
+      "display": "1 large can plus 1 small can whole tomatoes, crushed by hand with juices",
+      "optional": false,
+      "raw": "1 large can plus 1 small can whole [[Cookbook:Tomato|tomatoes]], crushed by hand with juices",
+      "refs": [
+        "Tomato"
+      ]
+    },
+    {
+      "display": "1 large can crushed tomatoes",
+      "optional": false,
+      "raw": "1 large can crushed tomatoes",
+      "refs": []
+    },
+    {
+      "display": "½ cup (120 ml), plus more as needed, white table wine",
+      "optional": false,
+      "raw": "½ cup (120 [[Cookbook:Milliliter|ml]]), plus more as needed, white table [[Cookbook:Wine|wine]]",
+      "refs": [
+        "Milliliter",
+        "Wine"
+      ]
+    },
+    {
+      "display": "Salt to taste",
+      "optional": false,
+      "raw": "[[Cookbook:Salt|Salt]] to taste",
+      "refs": [
+        "Salt"
+      ]
+    },
+    {
+      "display": "Ground black pepper to taste",
+      "optional": false,
+      "raw": "Ground [[Cookbook:Black Pepper|black pepper]] to taste",
+      "refs": [
+        "Black Pepper"
+      ]
+    },
+    {
+      "display": "Freshly-grated Parmigiano-Reggiano to taste",
+      "optional": false,
+      "raw": "Freshly-grated [[Cookbook:Parmesan Cheese|Parmigiano-Reggiano]] to taste",
+      "refs": [
+        "Parmesan Cheese"
+      ]
+    }
+  ],
+  "lead": "This is a more rustic and less \"Italian-American\" recipe than the other one.",
+  "parseFlags": [],
+  "procedure": [
+    {
+      "refs": [
+        "Sweat"
+      ],
+      "text": "Heat the olive oil and almond oil in an oversized pan. Add onion, garlic, and bell pepper, and sweat."
+    },
+    {
+      "refs": [
+        "Deglazing"
+      ],
+      "text": "Deglaze pan with white wine, then add tomatoes."
+    },
+    {
+      "refs": [
+        "Mortar and Pestle"
+      ],
+      "text": "Grind dried herbs and red pepper flakes with a mortar and pestle. Add this mixture and the unreserved fresh basil to the pan."
+    },
+    {
+      "refs": [
+        "Simmering"
+      ],
+      "text": "Simmer for an hour (or more if necessary), stirring occasionally."
+    },
+    {
+      "refs": [],
+      "text": "Add wine until desired consistency is achieved. Add salt and pepper to taste."
+    },
+    {
+      "refs": [
+        "Al Dente",
+        "Pasta",
+        "Tongs"
+      ],
+      "text": "Add al dente pasta to pan with sauce and combine using tongs."
+    },
+    {
+      "refs": [],
+      "text": "Plate and garnish with fresh basil and Parmigiano-Reggiano."
+    }
+  ],
+  "publishable": true,
+  "sections": [
+    {
+      "heading": "Notes, tips, and variations",
+      "text": "* To save time, make the sauce the night before you plan to serve it. Chill overnight, and reheat it over low heat while you cook the pasta. The overnight rest period also allows for flavor development and sweetness."
+    }
+  ],
+  "summary": {
+    "category": "Sauce recipes",
+    "difficulty": 3
+  },
+  "title": "American Marinara Sauce II"
+}

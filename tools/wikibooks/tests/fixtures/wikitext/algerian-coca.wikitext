@@ -1,0 +1,98 @@
+__NOTOC__
+{{Recipe summary
+| name = Algerian Coca
+| category = Recipes for pastries
+| servings = 4–6
+| time = 2 hours (including resting and baking)
+| difficulty = 3
+| image = [[File:Coca argelina.jpg|300px]]
+}}
+
+
+{{recipe}} | [[Cookbook:Cuisine of Algeria|Algerian recipes]]
+
+'''Algerian coca''' (كوكة) is a savory pastry that is popular in Algeria, particularly in the city of Oran. It is similar to a thin-crust pizza or a flatbread, often topped with a variety of ingredients such as onions, tomatoes, peppers, and sometimes meat or fish.
+
+==Ingredients==
+
+=== Dough ===
+* 500 [[Cookbook:Gram|g]] (4 [[Cookbook:Cup|cups]]) [[Cookbook:All-purpose flour|all-purpose flour]]
+* 1 [[Cookbook:Teaspoon|teaspoon]] [[Cookbook:Salt|salt]]
+* 1 [[Cookbook:Tablespoon|tablespoon]] [[Cookbook:Sugar|sugar]]
+* 1 packet (7 g) active dry [[Cookbook:Yeast|yeast]]
+* 250 [[Cookbook:Milliliter|ml]] (1 cup) warm [[Cookbook: Water|water]]
+* 3 tablespoons [[Cookbook:Olive Oil|olive oil]]
+
+=== Topping ===
+* 2 large [[Cookbook:Onion|onions]], thinly [[Cookbook:Slicing|sliced]]
+* 2 large [[Cookbook:Tomato|tomatoes]], thinly sliced
+* 1 [[Cookbook:Bell Pepper|bell pepper]], thinly sliced
+* 2–3 [[Cookbook:Clove|cloves]] [[Cookbook:Garlic|garlic]], [[Cookbook:Mince|minced]]
+* 2 tablespoons [[Cookbook: Olive Oil|olive oil]]
+* 1 teaspoon [[Cookbook:Paprika|paprika]]
+* 1 teaspoon ground [[Cookbook:Cumin|cumin]]
+* [[Cookbook:Salt|Salt]] and [[Cookbook : Pepper|pepper]] to taste
+
+=== Garnish ===
+* Black [[Cookbook:Olive|olives]], whole or sliced
+* Chopped fresh [[Cookbook: Parsley|parsley]] (optional)
+
+==Equipment==
+
+* Large [[Cookbook: Mixing Bowl|mixing bowl]]
+* [[Cookbook: Frying Pan|Skillet]] or [[Cookbook:Sauté Pan|sauté pan]]
+* [[Cookbook: Rolling Pin|Rolling pin]]
+* [[Cookbook: Baking Sheet|Baking sheet]]
+* [[Cookbook: Parchment Paper|Parchment paper]]
+* [[Cookbook:Oven|Oven]]
+
+==Procedure==
+
+=== Dough preparation ===
+# In a bowl, dissolve the sugar in warm water, then sprinkle the yeast. Let sit 10 minutes until frothy.
+# In a large mixing bowl, combine the flour and salt. Make a well in the center and pour in the yeast mixture and olive oil. Mix until a [[Cookbook:Dough|dough]] forms.
+# Turn the dough out onto a floured surface and [[Cookbook:Knead|knead]] for about 10 minutes until it becomes smooth and elastic.
+# Place the dough in a lightly oiled bowl, cover with a clean kitchen towel, and let it rise in a warm place for about 1 hour or until it doubles in size.
+
+=== Topping preparation ===
+# Heat the olive oil over medium heat in a large [[Cookbook:Skillet|skillet]]. Add the sliced onions and cook until they become soft and translucent, about 10 minutes.
+# Add the garlic, paprika, cumin, salt, and pepper to the onions. Stir well and cook for another 2–3 minutes.
+# Add the sliced tomatoes and bell peppers to the skillet. Cook for another 5–7 minutes until the vegetables are soft but not mushy. Remove from heat and let it cool slightly.
+
+=== Assembly ===
+# Preheat your [[Cookbook:Oven|oven]] to [[Cookbook:Oven Temperatures|200°C (400°F)]].
+# Press the risen dough to deflate it, then divide it into two equal portions. [[Cookbook:Dough#Rolling|Roll out]] each portion into a thin rectangle or oval shape, about ¼ inch thick.
+# Transfer the rectangles to one or more [[Cookbook:Baking Sheet|baking sheets]] lined with [[Cookbook:Parchment Paper|parchment paper]]. Spread the cooked vegetable mixture evenly over the rolled-out dough.
+# [[Cookbook:Baking|Bake]] in the preheated oven for about 20–25 minutes, or until the edges are golden brown and the dough is cooked through.
+
+=== Garnish and serve ===
+# Remove the coca from the oven and let it cool slightly. Garnish with chopped fresh parsley and olives if desired.
+# Cut into squares or slices and serve warm.
+
+== Notes, Tips, and Variations==
+
+* You may substitute homemade dough with store-bought puff pastry for a quicker version.
+* Traditional versions may include canned tuna, anchovies, or cooked ground meat layered under the vegetables.
+* The filling can be made ahead and stored in the refrigerator for up to 2 days.
+* Serve with a fresh salad for a complete meal.
+
+
+[[Category:Baked recipes]]
+[[Category:Algerian recipes]]
+[[Category:Vegetarian recipes]]
+[[Category: Recipes for pastries]]
+[[Category: Snacks recipes]]
+[[Category:Recipes_with_metric_units]]
+[[Category:Recipes using all-purpose flour]]
+[[Category:Recipes using salt]]
+[[Category:Recipes using sugar]]
+[[Category:Recipes using yeast]]
+[[Category:Recipes using olive oil]]
+[[Category:Recipes using onion]]
+[[Category:Recipes using tomato]]
+[[Category:Recipes using bell pepper]]
+[[Category:Recipes using garlic]]
+[[Category:Recipes using paprika]]
+[[Category:Recipes using cumin]]
+[[Category: Recipes using olive]]
+[[Category:Recipes using pepper]]

@@ -1,0 +1,84 @@
+__NOTOC__
+{{recipesummary|category=Recipes for dessert|servings=6–8|time=prep: 45 minutes<br/>baking: ~60 minutes|difficulty=3|image=[[Image:Apple pie.jpg|300px]]
+}}
+
+{{recipe}} | [[Cookbook:Dessert|Desserts]]
+
+==Ingredients==
+===Crust===
+*8 [[Cookbook:Ounce|oz]] (225 [[Cookbook:Gram|g]]) plain [[Cookbook:Flour|flour]]
+*4 oz (110 g) [[Cookbook:Margarine|margarine]]
+*2 oz (55 g) [[Cookbook:Lard|lard]]
+*1 [[Cookbook:Pinch|pinch]] [[Cookbook:Salt|salt]]
+*2 [[Cookbook:Tablespoon|tbsp]] cold [[Cookbook:Water|water]]
+
+===Filling===
+*1 [[Cookbook:Pound|lb]] (500 g) [[Cookbook:Apple|apples]], sliced
+*2 tbsp [[cookbook:Lemon Juice|lemon juice]]
+*1 oz (28 g) salted [[cookbook:butter|butter]]
+*2&frac12; [[Cookbook:Cup|cup]] [[cookbook:sugar|sugar]], and additional for sprinkling
+*&frac14; cup [[cookbook:flour|flour]]
+*2&frac12; tbsp [[Cookbook:Cornstarch|cornstarch]]
+*[[Cookbook:Cinnamon|Cinnamon]]
+*[[Cookbook:Nutmeg|Nutmeg]]
+
+===Topping===
+*1 oz (28 g) [[Cookbook:Milk|milk]]
+*[[cookbook:cinnamon|Cinnamon]]
+*[[cookbook:sugar|Sugar]]
+
+==Procedure==
+===Crust===
+#Rub flour, margarine, lard, and salt together until the mixture has the consistency of fine breadcrumbs.
+#Add 2 tablespoons water to make a soft but firm dough.
+#Roll pastry on floured surface to the size you want your pie. Make two crusts.
+#Place one crust in [[Cookbook:Pie and Tart Pans|pie pan]].
+
+===Filling===
+#Peel and slice apples into ⅛ to ¼-[[Cookbook:Inch|inch]] (about 5 mm) thick segments.
+#Add lemon juice to apples.
+#Mix apples by hand with ½ cup sugar and a few dashes of cinnamon.
+#Transfer segments, minus their acquired juices, to pie pan. Omitting the expressed juice will help prevent the pie from boiling over in the oven.
+#Mix the rest of the sugar, cinnamon, nutmeg, flour, and cornstarch in a separate bowl.
+#Pour this over the apples in pie pan.
+#Dot with butter.
+#Cover with the other crust.
+#Firm down edges with fork or finger.
+#Cut heart or diamond-shaped vents into top crust.
+#[[Cookbook:Brush|Brush]] the pastry top with milk and sprinkle additional sugar and cinnamon over the top.
+#[[cookbook:Bake|Bake]] at 350 °F (180 °C) until golden brown (about 60 minutes.)
+#Take the pie out of the oven and let it cool slightly on the counter. Do not try to eat it right out of the oven, as it will be very hot and this can cause burns!
+#Serve warm with ice cream or [[Cookbook:Custard|custard]].
+
+==Notes, tips, and variations==
+*Use a variety of apples to get more complex flavors and textures.
+*Use 2–3 Granny Smith apples, in combination with the other apples.
+*Replace the lard with shortening for a vegan dessert.
+*Do not precook apples, as this will deprive the pie of a substantial amount of flavor and turns the apples into mush!
+
+==Warnings==
+*Filling will be '''<big>EXTREMELY</big>''' hot immediately after the pie is taken from the oven, so let it cool slightly before you eat it!
+
+==See also==
+*[[Cookbook:Apple Pie II|Apple Pie II]]
+*[[Cookbook:Apple Pie|Apple pie]]
+
+{{wikipedia|apple pie}}
+
+[[Category:Recipes for dessert|Apple Pie]]
+[[Category:Recipes for apple pie|Apple Pie]]
+[[Category:Recipes using apple]]
+[[Category:Baking recipes|{{PAGENAME}}]]
+[[Category:Recipes with metric units]]
+[[Category:Recipes with images]]
+[[Category:Recipes using butter]]
+[[Category:Recipes using white sugar]]
+[[Category:Recipes using ground cinnamon]]
+[[Category:Recipes using lemon juice]]
+[[Category:Recipes using cornstarch]]
+[[Category:Recipes using pie dough]]
+[[Category:Recipes using all-purpose flour]]
+[[Category:Recipes using lard]]
+[[Category:Recipes using margarine]]
+[[Category:Recipes for pie dough]]
+[[Category:Recipes using cow milk]]

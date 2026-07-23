@@ -1,0 +1,74 @@
+__notoc__{{recipe}}
+
+{{Recipe summary
+| Cuisine = Nigerian
+| Origin = Nigeria
+| Yield = 
+| Servings = 3–4
+| Time = 1 hour
+| Difficulty = 3
+| Image = [[File:Asaro ( Yam Porridge).jpg|300px]]
+| Note = 
+}}
+
+'''Asaro''', also known as yam porridge is a traditional Nigerian dish made by cooking yam in a richly seasoned sauce of tomatoes, peppers, onions, and oil. It is particularly popular among the Yoruba people of southwestern Nigeria but is enjoyed throughout the country.<ref>{{Cite web |date=2022-01-25 |title=Asaro: How to prepare the Yoruba thick and spicy yam porridge |url=https://www.pulse.ng/story/asaro-how-to-prepare-the-yoruba-thick-and-spicy-yam-porridge-2024073123565836660 |access-date=2026-06-06 |website=Pulse Nigeria |language=en}}</ref><ref>{{Cite web |last=Ajoke |date=2020-03-26 |title=Yam porridge (Asaro) |url=https://www.myactivekitchen.com/asaro-elepo-rederede-yam-porridge/ |access-date=2026-06-06 |website=My Active Kitchen |language=en-GB}}</ref><ref>{{Cite web |last=Osinkolu |first=Lola |date=2022-06-17 |title=Yam pottage/Yam Porridge (Asaro recipe) |url=https://cheflolaskitchen.com/yam-porridge-pottage/ |access-date=2026-06-06 |website=Chef Lola's Kitchen |language=en-US}}</ref>
+
+The dish is known for its soft texture and rich flavor. During cooking, part of the yam breaks down into the sauce, creating a thick and hearty porridge. Asaro may be prepared with fish, meat, vegetables, or seafood,<ref>{{Cite web |last=Nigeria |first=Guardian |date=2017-09-15 |title=How To Make Asaro (Yam Porridge) |url=https://guardian.ng/life/food/how-to-make-asaro-yam-porridge/ |access-date=2026-06-06 |website=The Guardian Nigeria News - Nigeria and World News |language=en-GB}}</ref><ref>{{Cite web |last=Nigeria |first=Guardian |date=2022-12-19 |title=Easy Homemade Asaro Recipe |url=https://guardian.ng/life/easy-homemade-asaro-recipe/ |access-date=2026-06-06 |website=The Guardian Nigeria News - Nigeria and World News |language=en-GB}}</ref><ref>{{Cite web |title=How to Make Delicious Nigerian Yam Porridge (Asaro) |url=https://kashgain.net/blog/how-to-make-yam-porridge-in-nigeria/ |access-date=2026-06-06 |website=kashgain.net |language=en}}</ref> and it is served hot.
+
+== Ingredients ==
+
+* 3 medium [[Cookbook:Tomato|tomatoes]]
+* 2 red [[Cookbook:Bell Pepper|bell pepper]]<nowiki/>[[Cookbook:Bell Pepper|s]]
+* 2 scotch bonnet [[Cookbook:Chiles|chile peppers]]
+* 1 medium [[Cookbook:Onion|onion]]
+* ½ [[Cookbook:Cup|cup]] [[Cookbook:Palm Oil|palm oil]] or [[Cookbook:Vegetable Oil|vegetable oil]]
+* 2–3 [[Cookbook:Dehydrated Broth|seasoning cubes]]
+* [[Cookbook:Salt|Salt]] to taste
+* 200 g protein, such as fresh [[Cookbook:Fish|fish]], [[Cookbook:Meat|meat]], or [[Cookbook:Dryfish|smoked fish]] (optional)
+* 4 cups water or [[Cookbook:Broth and Stock|stock]]
+* 1 medium (about 1 [[Cookbook:Kilogram|kg]]) [[Cookbook:Yam|yam]], peeled and [[Cookbook:Cube|cubed]]
+* Leafy vegetables such as [[Cookbook:Spinach|spinach]] or [[Cookbook:Fluted Pumpkin|ugu]] (optional)
+
+== Equipment ==
+
+* [[Cookbook:Cookware|Cooking pot]]
+* [[Cookbook:Knife|Knife]]
+* [[Cookbook:Chopping board|Chopping board]]
+* [[Cookbook:Blender|Blender]] or [[Cookbook:Food Processor|food processor]]
+* [[Cookbook:Mixing Bowl|Mixing bowls]]
+* Measuring [[Cookbook:Measuring Cup|cups]] and [[Cookbook:Measuring Spoons|spoons]]
+* Wooden spoon
+* [[Cookbook:Colander|Colander]] or [[Cookbook:Sieve|sieve]]
+* [[Cookbook:Cooktop|Stove]] or other heat source
+
+== Procedure ==
+
+# Blend the tomatoes, peppers, and onion into a smooth [[Cookbook:Puréeing|purée]].
+# Heat the oil in a pot and add the purée. Cook for about 10 minutes, stirring occasionally.
+# Stir in seasoning cubes, salt, and any protein being used.
+# Stir in the water and bring to a [[Cookbook:Boiling|boil]].
+# Gently stir in the cubed yam. Cover and [[Cookbook:Simmering|simmer]], stirring occasionally, until the yam becomes soft and some of it has broken down to thicken the dish.
+# Add leafy vegetables if desired and cook for an additional 3–5 minutes.
+# Adjust seasoning and remove from heat.
+
+== Notes, tips, and variations ==
+
+* Do not over-stir during cooking, as this may cause all the yam pieces to break apart. The dish should be thick and creamy but still contain visible yam chunks.
+* Fresh stock can be used to enhance flavor.
+* The amount of chile pepper can be adjusted according to personal taste.
+
+== References ==
+{{reflist}}
+[[Category:Yoruba recipes]]
+[[Category:Recipes with images]]
+[[Category:Recipes using tomato]]
+[[Category:Recipes using chile]]
+[[Category:Recipes using onion]]
+[[Category:Recipes using broth and stock]]
+[[Category:Recipes using salt]]
+[[Category:Recipes using red bell pepper]]
+[[Category:Recipes using yam]]
+[[Category:Recipes using palm oil]]
+[[Category:Recipes using vegetable oil]]
+[[Category:Recipes using spinach]]
+[[Category:Recipes using fluted pumpkin]]
