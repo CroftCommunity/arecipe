@@ -1,4 +1,24 @@
 {
+  "categories": [
+    "Caribbean recipes",
+    "Puerto Rican recipes",
+    "Recipes using rice",
+    "Main course recipes",
+    "Recipes using annatto",
+    "Recipes using bay leaf",
+    "Recipes using red bell pepper",
+    "Recipes using caper",
+    "Recipes using aji dulce",
+    "Recipes using cilantro",
+    "Recipes using coriander",
+    "Recipes using corn",
+    "Recipes using culantro",
+    "Recipes using cumin",
+    "Recipes using beef broth and stock",
+    "Recipes using turkey broth and stock",
+    "Recipes using chicken broth and stock",
+    "Recipes using vegetable broth and stock"
+  ],
   "ingredients": [
     {
       "display": "2 medium yellow onions, cut into large chunks",

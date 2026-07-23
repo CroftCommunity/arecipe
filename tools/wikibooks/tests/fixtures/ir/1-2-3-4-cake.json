@@ -1,4 +1,16 @@
 {
+  "categories": [
+    "Recipes for cake",
+    "Featured recipes",
+    "Vegetarian recipes",
+    "Recipes using butter",
+    "Recipes using egg",
+    "Recipes for dessert",
+    "Recipes using baking powder",
+    "Recipes using white sugar",
+    "Recipes using all-purpose flour",
+    "Recipes using cow milk"
+  ],
   "ingredients": [
     {
       "display": "1 cup (240 g / 8.5 oz) butter",

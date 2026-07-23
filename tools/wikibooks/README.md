@@ -46,7 +46,18 @@ A parser improvement re-runs against `raw/` with **zero** wiki traffic
 | `WIKIBOOKS_API_BASE` | — | Action API endpoint (default en.wikibooks). |
 | `WIKIBOOKS_LICENSE_ID` / `_TOKEN` / `_ATTRIBUTION` | publish | Licence on every record (O2). Defaults to CC BY-SA 4.0. |
 | `WIKIBOOKS_PUBLISH_HANDLE` / `_SERVICE` / `_APP_PASSWORD` | publish | Publish account (O4: `cookbook.arecipe.app`). Absent → publish refused. |
+| `WIKIBOOKS_DISHKEY_MAP` | — | Path to the approved `{approved:{rkey→dishKey}}` map (D14). Stamps `dishKey` so versions of one dish group in arecipe. Built offline in `spike/wikibooks-dishkeys/`; absent → no dishKeys. |
 | `WIKIBOOKS_LIVE=1` | — | Enables the single live smoke test (D12), skipped by default. |
+
+### Metadata enrichment (D15)
+
+Beyond text/provenance, records carry controlled-vocabulary metadata derived
+from the source (see `MAPPING.md` + `src/transform/enrich-*.ts`):
+`suitableForDiet[]` (from dietary categories → defs `diet*` refs),
+`recipeCategory`/`recipeCuisine` (bare-lowercase `category*`/`cuisine*` tokens;
+unmapped values fall through to `keywords`), `keywords[]`, `nutrition.calories`
+(from infobox energy), and `cookingMethod` (inferred, precision-first). All are
+pure, deterministic, and omitted when the source doesn't support them.
 
 ## Commands (D13)
 

@@ -7,7 +7,7 @@
 //   wbsync publish --publish       apply the plan
 //   wbsync run [--publish]         all of the above, DRY by default
 //   wbsync status                  ledger counts, last run, drift summary
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { loadConfig, MissingContactError } from './config.ts';
 import { realClock } from './util/clock.ts';
@@ -26,6 +26,18 @@ const realFetch: FetchLike = (url, init) => fetch(url, { headers: init.headers }
 const nowRunId = (): string => new Date().toISOString().replace(/[:.]/g, '-');
 
 type BaseDeps = { ctx: RunContext; ledger: Ledger };
+
+/** Load the approved rkey→dishKey map from a JSON file (`{ approved: {...} }` or
+ *  a bare map). Returns undefined when unset. Fails loud on a bad path/shape —
+ *  a silently-empty map would drop every dishKey without warning. */
+const loadDishKeyMap = (path: string | undefined): Record<string, string> | undefined => {
+  if (path === undefined || path.trim() === '') return undefined;
+  const parsed = JSON.parse(readFileSync(path, 'utf8')) as { approved?: Record<string, string> } | Record<string, string>;
+  const map = 'approved' in parsed && parsed.approved !== undefined ? parsed.approved : (parsed as Record<string, string>);
+  const entries = Object.entries(map).filter(([, v]) => typeof v === 'string' && v.trim() !== '');
+  if (entries.length === 0) throw new Error(`WIKIBOOKS_DISHKEY_MAP at ${path} has no rkey→dishKey entries`);
+  return Object.fromEntries(entries);
+};
 
 const buildDeps = async (runId: string, wantPublish: boolean): Promise<BaseDeps> => {
   const cfg = loadConfig(process.env);
@@ -46,12 +58,16 @@ const buildDeps = async (runId: string, wantPublish: boolean): Promise<BaseDeps>
     pds = await HttpPdsClient.connect(cfg.publish.service, cfg.publish.handle, cfg.publish.appPassword);
   }
 
+  // Approved dishKey map (D14), operator-supplied via WIKIBOOKS_DISHKEY_MAP.
+  // Data only — reviewed offline (spike/wikibooks-dishkeys); wbsync never derives it.
+  const dishKeyMap = loadDishKeyMap(process.env.WIKIBOOKS_DISHKEY_MAP);
+
   const ctx: RunContext = {
     cfg, ledger, client,
     stateDir: join(home, 'state'),
     rawDir: join(home, 'raw'),
     runDir: join(home, 'runs', runId),
-    runId, clock: realClock, pds,
+    runId, clock: realClock, pds, dishKeyMap,
   };
   return { ctx, ledger };
 };
