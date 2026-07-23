@@ -4,7 +4,7 @@
 // the whole run is testable with fakes and no network. Produces the RunSummary
 // the acceptance criteria require.
 import { join } from 'node:path';
-import { writeFileSync, mkdirSync } from 'node:fs';
+import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import type { Config } from './config.ts';
 import { TRANSFORM_VERSION } from './config.ts';
 import type { WikiClient } from './http/wiki-client.ts';
@@ -16,6 +16,8 @@ import { irSha256, type RecipeIR } from './ir.ts';
 import { sha256 } from './util/hash.ts';
 import type { Clock } from './util/clock.ts';
 import { buildRecord, deterministicRkey, type RawMeta } from './publish/record.ts';
+import { attachEmbeds } from './publish/embed.ts';
+import { loadManifest, type ImageTarget } from './images/stage.ts';
 import {
   buildPlan, writePlanFiles, applyPlan, assertPlanExists,
   type Plan, type PlanItem, type PdsClient,
@@ -37,6 +39,8 @@ export type RunContext = {
   /** Approved rkey→dishKey map (D14). Absent → no dishKeys stamped. The map is
    *  operator-supplied data (reviewed offline); wbsync never derives it. */
   dishKeyMap?: Record<string, string>;
+  /** Image cache + manifest dir (D15). Absent → no image embeds. */
+  imagesDir?: string;
 };
 
 export type RunSummary = {
@@ -191,11 +195,34 @@ export const stagePlan = (ctx: RunContext, discovery: DiscoveryResult | undefine
   return buildPlan(items, { runId: ctx.runId });
 };
 
+/** Publishable pages that carry an infobox image → image-stage targets (D15). */
+export const imageTargets = (ctx: RunContext): ImageTarget[] => {
+  const out: ImageTarget[] = [];
+  for (const pageid of rawPageIds(ctx.rawDir)) {
+    const raw = latestRawFor(ctx.rawDir, pageid);
+    if (raw === undefined) continue;
+    const ir = transform(raw.wikitext, raw.title);
+    if (!ir.publishable || ir.summary.image === undefined) continue;
+    out.push({ pageid, filename: ir.summary.image, alt: ir.title });
+  }
+  return out;
+};
+
 /** Apply a plan and fold publish results back into the ledger. */
 export const stagePublish = async (ctx: RunContext, plan: Plan): Promise<string | null> => {
   if (ctx.pds === undefined) throw new Error('publish requested but no PDS client configured');
   assertPlanExists(ctx.runDir);
   const repo = ctx.cfg.publish?.handle ?? 'self';
+  // D15 images: upload cached renditions and attach embeds before applying the
+  // plan, so each putRecord carries its image. Idempotent — items already
+  // embedded are skipped. Only runs when a manifest + an uploadBlob-capable PDS
+  // are present.
+  if (ctx.imagesDir !== undefined && typeof ctx.pds.uploadBlob === 'function') {
+    const manifest = loadManifest(ctx.imagesDir);
+    const uploader = { uploadBlob: ctx.pds.uploadBlob.bind(ctx.pds) };
+    const r = await attachEmbeds(plan.items, { manifest, imagesDir: ctx.imagesDir, pds: uploader, readFile: (p) => readFileSync(p), log: (m) => process.stderr.write(`${m}\n`) });
+    process.stderr.write(`images: ${r.uploaded} uploaded · ${r.skipped} already embedded · ${r.failed} failed\n`);
+  }
   const result = await applyPlan(ctx.pds, repo, plan, ctx.runDir);
   const now = iso(ctx.clock);
   for (const it of plan.items) {
