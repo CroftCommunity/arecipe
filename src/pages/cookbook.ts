@@ -24,6 +24,7 @@ import { retryOnce } from '../retry.js';
 import { requestPersistence } from '../storage-persist.js';
 import { resolveCookbook, type ReachConfig } from '../social/cookbook.js';
 import { membersToAuthors } from '../social/cookbook-members-view.js';
+import { createCookbookPrefs } from '../social/cookbook-prefs.js';
 import { createReachPrefs } from '../social/reach.js';
 import { createSourcePref, type CookbookSource } from '../social/cookbook-source-pref.js';
 import { loadAuthorsFeed } from '../social/feed.js';
@@ -60,6 +61,9 @@ const didOf = (uri: string): string => uri.split('/')[2] ?? '';
  * the viewed DID on the cold-view, your own DID on the signed-in view. Native
  * share sheet on mobile, clipboard copy (+ "Copied" flash) on desktop. */
 const mountCookbookShare = (titleGroup: HTMLElement, did: string): void => {
+  // Hidden by default: the export button appears only when the viewer opts in
+  // via Settings → Cookbook → "Show export" (localStorage-backed pref).
+  if (!createCookbookPrefs().showExport()) return;
   titleGroup.append(
     renderShareButton({
       url: buildCookbookShareUrl(shareOrigin(), did),

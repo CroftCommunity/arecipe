@@ -11,6 +11,7 @@ import { createExclusions } from '../recipes/exclusions.js';
 import { abbreviateId } from '../recipes/present.js';
 import { createRecordReader } from '../recipes/read.js';
 import { createStarterPrefs, STARTER_AUTHORS } from '../recipes/starter.js';
+import { createCookbookPrefs } from '../social/cookbook-prefs.js';
 import { createSocialPrefs } from '../social/prefs.js';
 import { registerServiceWorker } from '../sw-register.js';
 
@@ -180,6 +181,27 @@ const main = async (): Promise<void> => {
   funFactsRow.append(funFactsBox, el('span', undefined, 'Include fun facts'));
   social.append(funFactsRow);
 
+  const cookbook = section('Cookbook', 'cookbook-settings');
+  cookbook.append(
+    el(
+      'p',
+      'status',
+      'The export button beside the Cookbook title. Hidden by default — turn on to show it.',
+    ),
+  );
+  const cookbookPrefs = createCookbookPrefs();
+  const showExportRow = el('label', 'starter-row');
+  showExportRow.dataset['testid'] = 'cookbook-show-export';
+  const showExportBox = document.createElement('input');
+  showExportBox.type = 'checkbox';
+  showExportBox.checked = cookbookPrefs.showExport();
+  showExportBox.addEventListener('change', () => {
+    cookbookPrefs.setShowExport(showExportBox.checked);
+    log.debug('cookbook', 'show export toggled', { show: showExportBox.checked });
+  });
+  showExportRow.append(showExportBox, el('span', undefined, 'Show export'));
+  cookbook.append(showExportRow);
+
   // Collapsed by default (it can hold many baseline entries): a <details> whose
   // summary carries the live count; the list is revealed only when expanded.
   const hiddenSection = el('details', 'settings-section hidden-recipes') as HTMLDetailsElement;
@@ -277,7 +299,7 @@ const main = async (): Promise<void> => {
   );
   about.append(guidePara);
 
-  content.append(build, updates, starter, social, hiddenSection, integrity, about);
+  content.append(build, updates, starter, social, cookbook, hiddenSection, integrity, about);
   mountShell(app, content);
   void mountBuildStamp(app);
   log.debug('shell', 'mounted', { page: 'settings' });
