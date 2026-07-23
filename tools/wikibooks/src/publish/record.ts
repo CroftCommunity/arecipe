@@ -24,6 +24,14 @@ export type RawMeta = {
   retrievedAt: string; // when we fetched it (from the raw file's fetchedAt)
 };
 
+/** atproto blob reference as stored on a record (D15 images). */
+export type BlobRef = {
+  $type: 'blob';
+  ref: { $link: string };
+  mimeType: string;
+  size: number;
+};
+
 export type AttributionWebsite = {
   $type: 'exchange.recipe.defs#attributionWebsite';
   name: string;
