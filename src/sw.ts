@@ -15,12 +15,22 @@
 //   toast asks the user; updates never ambush)
 
 import { navigationResponse } from './sw-nav.js';
+import { snapshotDirsToPurge } from './snapshot/purge.js';
 
 declare const __BUILD_VERSION__: string;
 declare const __PRECACHE__: string[];
 
 const sw = self as unknown as ServiceWorkerGlobalScope;
 const CACHE = `arecipe-${__BUILD_VERSION__}`;
+
+// Build ids whose snapshot directory must survive the activate-time purge: the
+// active build, plus any pinned build. The version pin (device-local, pins the
+// current version, refuses upgrades) is a later feature; when it lands it feeds
+// its pinned build id(s) here so a pinned install never loses its own snapshot.
+// Until then this is just the active build, and the purge only ever removes a
+// stray older-build snapshot that somehow shares the active cache.
+const pinnedBuildIds = (): string[] => [];
+
 
 // --- Calendar-publish token (plan D1, secure default path) -------------------
 // The page hands the GitHub PAT here via postMessage; it lives ONLY in this
@@ -52,9 +62,18 @@ sw.addEventListener('install', (event) => {
 sw.addEventListener('activate', (event) => {
   event.waitUntil(
     (async () => {
+      // Whole older-version caches vanish here (their snapshots go with them).
       for (const name of await caches.keys()) {
         if (name !== CACHE && name.startsWith('arecipe-')) await caches.delete(name);
       }
+      // Within the active cache, purge any snapshot directory whose build id is
+      // neither the active build nor a pinned build (D5) — pinned snapshots are
+      // never deleted.
+      const cache = await caches.open(CACHE);
+      const keep = new Set([__BUILD_VERSION__, ...pinnedBuildIds()]);
+      const requests = await cache.keys();
+      const stale = new Set(snapshotDirsToPurge(requests.map((r) => r.url), keep));
+      await Promise.all(requests.filter((r) => stale.has(r.url)).map((r) => cache.delete(r)));
       await sw.clients.claim();
     })(),
   );
