@@ -257,6 +257,9 @@ export type RenderOptions = {
   versionCounts?: Record<string, number>;
   /** Gate for the fun-fact cycler (Settings "Include fun facts"). Default: show. */
   showFunFacts?: boolean;
+  /** Seasonality (Feature B): uris that have ≥1 in-season ingredient get a
+   *  quiet "In season" badge. Boost-only — never removes or reorders a card. */
+  inSeasonUris?: ReadonlySet<string>;
 };
 
 const recipePageHref = (entry: CachedRecipe, options: RenderOptions): string => {
@@ -292,10 +295,36 @@ const renderCard = (entry: CachedRecipe, options: RenderOptions): HTMLElement =>
     badge.dataset['testid'] = 'version-badge';
     card.append(badge);
   }
+  if (options.inSeasonUris?.has(entry.uri) === true) {
+    const badge = el('span', 'in-season-badge', 'In season');
+    badge.dataset['testid'] = 'in-season-badge';
+    card.append(badge);
+  }
   const chips = chipsEl(value);
   if (chips !== null) card.append(chips);
   if (!entry.verified) card.append(alteredWarningEl());
   return card;
+};
+
+/** Seasonality (Feature B): the optional "In season now" strip — a compact,
+ *  additive row naming the produce that is in season right now among the shown
+ *  recipes. It surfaces what's good (B0), never duplicating or reordering the
+ *  cards below. Returns null when nothing is in season (so it takes no space). */
+export const renderInSeasonStrip = (produceNames: string[]): HTMLElement | null => {
+  const cap = 12;
+  const picks = produceNames.slice(0, cap);
+  if (picks.length === 0) return null;
+  const strip = el('section', 'in-season-strip');
+  strip.dataset['testid'] = 'in-season-strip';
+  strip.append(el('span', 'in-season-strip-label', 'In season now'));
+  const row = el('div', 'in-season-strip-row');
+  for (const name of picks) {
+    const chip = el('span', 'in-season-chip', name);
+    chip.dataset['testid'] = 'in-season-chip';
+    row.append(chip);
+  }
+  strip.append(row);
+  return strip;
 };
 
 /** Render cached recipes as a grid of link cards (each opens its own page). */
@@ -432,7 +461,7 @@ const focusInstructionsEl = (lines: string[]): HTMLElement => {
  *  screen wake lock's lifecycle, and removing it on exit. */
 export const renderFocusView = (
   entry: CachedRecipe,
-  opts: { onExit: () => void; wakeLock?: ScreenWakeLock },
+  opts: { onExit: () => void; wakeLock?: ScreenWakeLock; timerStripHost?: HTMLElement },
 ): HTMLElement => {
   const value = entry.value as RecipeValue;
   const overlay = el('div', 'focus-view');
@@ -444,6 +473,9 @@ export const renderFocusView = (
   heading.append(el('h2', 'focus-title', value.name ?? '(untitled)'));
   heading.append(wakeStateEl(opts.wakeLock));
   top.append(heading);
+  // Compact running-timers strip (A-D6). The caller mounts into this host; it
+  // renders nothing while no timer runs, so it takes no space from the step.
+  if (opts.timerStripHost !== undefined) top.append(opts.timerStripHost);
   const exit = el('button', 'button focus-exit', '✕ Exit focus') as HTMLButtonElement;
   exit.type = 'button';
   exit.dataset['testid'] = 'focus-exit';
