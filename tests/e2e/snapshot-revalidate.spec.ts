@@ -77,10 +77,13 @@ test('one changed cook triggers exactly one refetch and updates in place', async
   await routeSnapshot(page);
   // Hold revalidation until the snapshot has painted. This mirrors production
   // ordering — the precached snapshot renders first, THEN network revalidation
-  // runs — and makes the test deterministic: with the mocked getLatestCommit
-  // answering instantly, an un-gated response can beat the snapshot baseline
-  // into place, and a cook whose baseline rev has not loaded yet looks
-  // "changed", so every cook refetches instead of only the one that moved.
+  // runs — and makes the intermediate render deterministic: with the mocked
+  // getLatestCommit answering instantly, an un-gated swap replaces the snapshot
+  // value ("Snap 1") with the live value ("FRESH 1") before the assertion below
+  // can observe the "snapshot shown first" state. The refetch stays scoped to
+  // the one changed cook regardless — the caller loads the manifest (the rev
+  // baseline) before revalidating, so unchanged cooks compare equal and are not
+  // refetched.
   let releaseReval!: () => void;
   const revalReady = new Promise<void>((resolve) => {
     releaseReval = resolve;
