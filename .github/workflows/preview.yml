@@ -61,7 +61,7 @@ jobs:
       # skip rather than fail loudly). Outputs: skip, pr, sha, ref, closed.
       - name: Resolve PR context
         id: resolve
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        uses: actions/github-script@v9
         with:
           script: |
             let prNumber, headSha, headRef, headRepo, closed;
@@ -103,13 +103,13 @@ jobs:
       # need the deploy script, so the default branch is enough.
       - name: Check out
         if: steps.resolve.outputs.skip == 'false'
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@v7
         with:
           ref: ${{ steps.resolve.outputs.closed == 'true' && 'main' || steps.resolve.outputs.sha }}
 
       # Build only when there's something to preview. On teardown we skip
       # straight to removal.
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - uses: actions/setup-node@v7
         if: steps.resolve.outputs.skip == 'false' && steps.resolve.outputs.closed == 'false'
         with:
           node-version: 22
@@ -142,7 +142,7 @@ jobs:
       # Sticky comment: one comment per PR, updated in place (no thread spam).
       - name: Comment preview status
         if: steps.resolve.outputs.skip == 'false'
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        uses: actions/github-script@v9
         env:
           PR: ${{ steps.resolve.outputs.pr }}
           SHA: ${{ steps.resolve.outputs.sha }}
