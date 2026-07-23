@@ -19,7 +19,7 @@ import { gzipSync } from 'node:zlib';
 import { buildSync } from 'esbuild';
 import { generateGuideIndex } from './build-guide-index.mjs';
 import { htmlShell, mdToHtml } from './md-to-html.mjs';
-import { normalizeRepoUrl, parseChangelog } from './changelog.mjs';
+import { collectCommits, mergeChangelog, parseChangelog, repoUrlFromGit } from './changelog.mjs';
 
 // Gzipped ceiling for the snapshot index.json (RUN-BUNDLE-PRECACHE, D1). Set
 // from D6 measurement: the seed index.json gzips to well under a KB; the corpus
@@ -369,28 +369,25 @@ const info = {
 };
 writeFileSync('dist/build-info.json', JSON.stringify(info));
 
-// Changelog: derived from opt-in `Changelog:` commit trailers (the pure logic is
-// scripts/changelog.mjs, unit-tested). Needs git history — in CI the checkout is
-// fetch-depth:0 for this reason; a shallow clone just yields fewer entries, never
-// a build failure. Delimiters are control chars that never occur in commit text.
-const FIELD = '\x1f';
-const REC = '\x1e';
-const rawLog = execSync(`git log --format=%H${FIELD}%aI${FIELD}%s${FIELD}%b${REC}`, {
-  encoding: 'utf8',
-  maxBuffer: 64 * 1024 * 1024,
-});
-const commits = rawLog
-  .split(REC)
-  .map((r) => r.trim())
-  .filter((r) => r !== '')
-  .map((rec) => {
-    const parts = rec.split(FIELD);
-    return { sha: parts[0], date: parts[1], subject: parts[2] ?? '', body: parts.slice(3).join(FIELD) };
-  });
-const repoUrl = normalizeRepoUrl(execSync('git config --get remote.origin.url', { encoding: 'utf8' }).trim());
-const changelog = { generatedAt: now.toISOString(), entries: parseChangelog(commits, { repoUrl }) };
+// Changelog: opt-in `Changelog:` commit trailers (collected from `git log`, parsed
+// by scripts/changelog.mjs — unit-tested) unioned with the hand-authored backlog
+// seed. Needs git history — CI checks out fetch-depth:0 for this reason; a shallow
+// clone just yields fewer derived entries (the seed is unaffected), never a failure.
+const commits = collectCommits();
+const derivedEntries = parseChangelog(commits, { repoUrl: repoUrlFromGit() });
+// Backlog seed: hand-authored pre-convention history (changelog.seed.json), unioned +
+// deduped with the git-derived entries so the timeline is complete and only grows.
+let seedEntries = [];
+try {
+  seedEntries = JSON.parse(readFileSync('changelog.seed.json', 'utf8')).entries ?? [];
+} catch {
+  /* no seed committed — derived entries only */
+}
+const changelog = { generatedAt: now.toISOString(), entries: mergeChangelog(seedEntries, derivedEntries) };
 writeFileSync('dist/changelog.json', JSON.stringify(changelog));
-console.log(`changelog: ${changelog.entries.length} user-facing entries from ${commits.length} commits`);
+console.log(
+  `changelog: ${changelog.entries.length} entries (${seedEntries.length} seed + ${derivedEntries.length} derived) from ${commits.length} commits`,
+);
 console.log(
   `built ${version}: ` +
     PAGES.map(

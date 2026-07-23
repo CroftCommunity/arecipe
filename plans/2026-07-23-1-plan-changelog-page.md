@@ -125,3 +125,24 @@ pipeline produce good copy.
   `release-manifest.json`, and link entries to the signed release. Follow-up plan.
 - **Squash-message discipline:** because PRs squash-merge, the `Changelog:` trailer must be in the squash
   commit message (the PR's final squash body), not only in intermediate commits. Note this in the guideline.
+
+## Follow-up (2026-07-23): backlog seed + bake (shipped)
+
+The initial page shipped with a regenerate-from-`git log` generator (PR #61, merged). Follow-up (this
+plan's second slice): a hand-authored backlog + durability, so the timeline is complete and only grows —
+**union, not append** (append would need CI to commit-back / read deploy state, which drifts; union of a
+committed seed with the fresh git-derived entries keeps regenerate's self-healing while adding a durable
+backlog).
+
+- `scripts/changelog.mjs` — `mergeChangelog(seed, derived)`: union deduped by sha (live git-derived wins on
+  collision → edited trailers self-heal; seed-only entries kept → the backlog is durable). Plus
+  `collectCommits` / `repoUrlFromGit` extracted here (DRY: shared by build + bake). 4 new unit tests.
+- `changelog.seed.json` — a curated backlog of ~12 notable pre-convention PRs (#33–#53) in the user's
+  voice, each tied to its real commit + PR. Edit the copy freely.
+- `scripts/build.mjs` — reads the seed (if present) and `mergeChangelog`s it with the derived entries.
+- `scripts/changelog-bake.mjs` + `npm run changelog:bake` — folds the current derived entries into the seed
+  on demand, making them permanent (survives a history rewrite / shallow clone). Optional durability.
+- `CLAUDE.md` — the seed/bake note added to the Changelog-trailer section.
+
+Decision recorded: **union (seed ∪ regenerated), not append.** Regenerate stays the default (stateless,
+self-healing, fast); the seed provides the backlog and the `bake` step provides opt-in permanence.
