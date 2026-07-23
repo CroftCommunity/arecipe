@@ -62,15 +62,25 @@ const seedPalette = async (page: Page, items: SeedItem[] = PALETTE): Promise<voi
   }, items);
 };
 
-test('meals.html mounts the shared shell with a Meals heading (wiring)', async ({ page }) => {
-  await page.goto('/meals.html');
+test('plan.html mounts the shared shell and the plan builder (wiring)', async ({ page }) => {
+  await page.goto('/plan.html');
 
   // Shell chrome came from mountShell: the shared topbar wordmark + tab bar.
   await expect(page.locator('header.topbar h1.wordmark')).toHaveText('arecipe');
   await expect(page.getByTestId('tab-browse')).toBeVisible();
 
-  // The page's own content: the planner heading.
-  await expect(page.getByRole('heading', { level: 2, name: 'Meals' })).toBeVisible();
+  // Plan is the active tab and the page's own content is the builder.
+  await expect(page.getByTestId('tab-plan')).toHaveClass(/tab--active/);
+  await expect(page.getByTestId('builder')).toBeVisible();
+});
+
+test('meals.html mounts the Menu (published plans) view (wiring)', async ({ page }) => {
+  await page.goto('/meals.html');
+
+  // Menu is the active tab; the published-plans surface is the page content
+  // (signed out it invites sign-in — asserted in its own test below).
+  await expect(page.getByTestId('tab-meals')).toHaveClass(/tab--active/);
+  await expect(page.getByTestId('published-plans')).toBeVisible();
 });
 
 test('the mobile bottom bar fits a narrow phone without horizontal overflow (Phase 2 risk)', async ({
@@ -81,11 +91,11 @@ test('the mobile bottom bar fits a narrow phone without horizontal overflow (Pha
   await page.setViewportSize({ width: 360, height: 780 });
   await page.goto('/meals.html');
 
-  // The four primary destinations are present and the active one is Meals.
+  // The four primary destinations are present and the active one is Menu.
   // Reference is desktop-only: still in the DOM (it IS a tab on wide screens)
   // but hidden from the mobile thumb row — reached via the open-book quick
   // links on recipe/editor/Alchemy instead.
-  for (const id of ['tab-browse', 'tab-cookbook', 'tab-mine', 'tab-meals']) {
+  for (const id of ['tab-browse', 'tab-cookbook', 'tab-plan', 'tab-meals']) {
     await expect(page.getByTestId(id)).toBeVisible();
   }
   await expect(page.getByTestId('tab-reference')).toBeHidden();
@@ -100,7 +110,7 @@ test('tap-to-place: arm a recipe, place it on a day, persist across reload, clea
   page,
 }) => {
   await seedPalette(page);
-  await page.goto('/meals.html');
+  await page.goto('/plan.html');
 
   // The seeded palette renders as tappable chips.
   const lasagna = page.getByTestId('palette-chip').filter({ hasText: 'Lasagna' });
@@ -135,7 +145,7 @@ test('tap-to-place: arm a recipe, place it on a day, persist across reload, clea
 // is unchanged (covered below); this only pins the control's shape.
 test('reset control is the shared reset icon button (labelled, icon-only)', async ({ page }) => {
   await seedPalette(page);
-  await page.goto('/meals.html');
+  await page.goto('/plan.html');
   const reset = page.getByTestId('reset-plan');
   await expect(reset).toBeVisible();
   await expect(reset).toHaveAttribute('aria-label', 'Reset plan');
@@ -150,7 +160,7 @@ test('reset: clears the plan back to one empty week (inline confirm; cancel is s
   page,
 }) => {
   await seedPalette(page);
-  await page.goto('/meals.html');
+  await page.goto('/plan.html');
 
   // Build some state: two weeks with a placed recipe.
   await page.getByTestId('palette-chip').filter({ hasText: 'Lasagna' }).click();
@@ -177,7 +187,7 @@ test('repeat planned weeks: duplicates the whole plan (meals and all) instead of
   page,
 }) => {
   await seedPalette(page);
-  await page.goto('/meals.html');
+  await page.goto('/plan.html');
 
   // Place Lasagna on Monday (day 0) of week 1.
   await page.getByTestId('palette-chip').filter({ hasText: 'Lasagna' }).click();
@@ -203,7 +213,7 @@ test('repeat planned weeks: duplicates the whole plan (meals and all) instead of
 
 test('calendar: shows an empty state until something is planned', async ({ page }) => {
   await seedPalette(page);
-  await page.goto('/meals.html');
+  await page.goto('/plan.html');
   await expect(page.getByTestId('calendar-empty')).toBeVisible();
 });
 
@@ -214,7 +224,7 @@ test('week-actions: Add then Repeat on the left, Reset on the right of the same 
   page,
 }) => {
   await seedPalette(page);
-  await page.goto('/meals.html');
+  await page.goto('/plan.html');
 
   // Add + Repeat sit together on the left, Add first.
   const leftBtns = page.locator('.week-actions-left button');
@@ -230,7 +240,7 @@ test('drag (desktop): drag a palette chip onto a day places it; drag a filled sl
   page,
 }) => {
   await seedPalette(page);
-  await page.goto('/meals.html');
+  await page.goto('/plan.html');
 
   const lasagna = page.getByTestId('palette-chip').filter({ hasText: 'Lasagna' });
   const week1 = page.getByTestId('week-row').first();
@@ -251,7 +261,7 @@ test('multi-meal: several recipes stack on one day and all show on the calendar'
   page,
 }) => {
   await seedPalette(page);
-  await page.goto('/meals.html');
+  await page.goto('/plan.html');
 
   const mon = page.getByTestId('week-row').first().getByTestId('day-slot').first();
 
@@ -275,7 +285,7 @@ test('multi-meal: several recipes stack on one day and all show on the calendar'
 
 test('meals/day cap: lowering it to 1 blocks adding a second meal', async ({ page }) => {
   await seedPalette(page);
-  await page.goto('/meals.html');
+  await page.goto('/plan.html');
 
   // Set the cap to 1 up front.
   await page.getByTestId('meals-per-day').selectOption('1');
@@ -300,7 +310,7 @@ test('calendar labels a meal with the recipe’s own category ("Breakfast: …")
   await seedPalette(page, [
     { uri: 'at://did:plc:cook/exchange.recipe.recipe/oatmeal', cid: 'bafyo', name: 'Oatmeal', category: 'breakfast' },
   ]);
-  await page.goto('/meals.html');
+  await page.goto('/plan.html');
 
   await page.getByTestId('palette-chip').filter({ hasText: 'Oatmeal' }).click();
   await page.getByTestId('week-row').first().getByTestId('day-slot').first().click();
@@ -312,7 +322,7 @@ test('calendar labels a meal with the recipe’s own category ("Breakfast: …")
 test('mobile: expand a day by its header, then Clear day removes its meals', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 780 });
   await seedPalette(page);
-  await page.goto('/meals.html');
+  await page.goto('/plan.html');
 
   const mon = page.getByTestId('week-row').first().getByTestId('day-slot').first();
   await page.getByTestId('palette-chip').filter({ hasText: 'Lasagna' }).click();
@@ -332,7 +342,7 @@ test('palette: Browse loads capped, type-ahead searches the full set, switch tog
   page,
 }) => {
   await routeFeeds(page);
-  await page.goto('/meals.html'); // signed out → Browse is the default source
+  await page.goto('/plan.html'); // signed out → Browse is the default source
 
   // Browse populates the palette, but the display is BOUNDED so it can't run
   // down half the page; the routed fixtures exceed the cap, so a hint shows the
@@ -375,7 +385,7 @@ test('palette: Browse loads capped, type-ahead searches the full set, switch tog
 
 test('planner: setting a start date lays the calendar out on real dates', async ({ page }) => {
   await seedPalette(page);
-  await page.goto('/meals.html');
+  await page.goto('/plan.html');
 
   // Place Lasagna on Monday so the calendar renders.
   await page.getByTestId('palette-chip').filter({ hasText: 'Lasagna' }).click();
@@ -454,33 +464,24 @@ test('shared view: a link without a user param explains what is missing', async 
   await expect(page.getByTestId('shared-plan')).toContainText('needs a “user”', { timeout: 15_000 });
 });
 
-test('the planner header links to the "Menu" plans subpage', async ({ page }) => {
+test('Menu (published), signed out: invites sign-in and nudges to Plan', async ({ page }) => {
+  // Menu is the default meals.html view and its own top-level tab. Signed out
+  // it can't list plans, so it invites sign-in AND offers a way straight to the
+  // Plan builder (so a new/signed-out cook doesn't hit a dead end).
   await page.goto('/meals.html');
-  const menu = page.getByTestId('my-plans');
-  await expect(menu).toHaveAttribute('href', /meals\.html\?plans$/);
-  // Renamed "Published" → "Menu", with a little arrow signalling it opens
-  // another page.
-  await expect(menu).toContainText('Menu');
-  await expect(menu).toContainText('↗');
-});
-
-test('published-plans subpage: signed out, it invites sign-in and offers a back link', async ({
-  page,
-}) => {
-  await page.goto('/meals.html?plans');
   await expect(page.getByTestId('published-plans')).toContainText('Sign in', { timeout: 15_000 });
-  await expect(page.getByTestId('plans-back')).toHaveAttribute('href', /meals\.html$/);
+  await expect(page.getByTestId('start-planning')).toHaveAttribute('href', /plan\.html$/);
 });
 
-test('edit route: signed out, it invites sign-in and links back to the published list', async ({
+test('edit route lives on plan.html; signed out it invites sign-in and links back to Menu', async ({
   page,
 }) => {
-  // ?edit=<rkey> is the staged-edit entry point from the Published subpage —
-  // signed-in only (publishing back needs the account). Signed out it explains
-  // and offers the way back instead of mounting the planner.
-  await page.goto('/meals.html?edit=some-rkey');
+  // ?edit=<rkey> is the staged-edit entry point (the builder) — signed-in only
+  // (publishing back needs the account). Signed out it explains and offers the
+  // way back to Menu instead of mounting the planner.
+  await page.goto('/plan.html?edit=some-rkey');
   await expect(page.getByTestId('edit-plan')).toContainText('Sign in', { timeout: 15_000 });
-  await expect(page.getByTestId('plans-back')).toHaveAttribute('href', /meals\.html\?plans$/);
+  await expect(page.getByTestId('plans-back')).toHaveAttribute('href', /meals\.html$/);
 });
 
 test('a staged edit copy never becomes the plain planner working plan', async ({ page }) => {
@@ -511,7 +512,7 @@ test('a staged edit copy never becomes the plain planner working plan', async ({
       /* private mode */
     }
   });
-  await page.goto('/meals.html');
+  await page.goto('/plan.html');
   await expect(page.getByTestId('builder')).toBeVisible();
   await expect(page.getByTestId('slot-filled')).toHaveCount(0); // fresh plan, not the staged copy
 });
@@ -529,7 +530,7 @@ test('taste preference: a "never" cuisine hides matching palette recipes (Meals)
     { uri: 'at://did:plc:cook/exchange.recipe.recipe/lasagna', cid: 'bafylasagna', name: 'Lasagna', cuisine: 'italian' },
     { uri: 'at://did:plc:cook/exchange.recipe.recipe/tacos', cid: 'bafytacos', name: 'Tacos', cuisine: 'mexican' },
   ]);
-  await page.goto('/meals.html');
+  await page.goto('/plan.html');
   await expect(page.getByTestId('palette-chip').first()).toBeVisible({ timeout: 15_000 });
   await expect(page.getByTestId('palette-chip').filter({ hasText: 'Lasagna' })).toHaveCount(1);
   // "Never: Mexican" hides the taco chip from the placeable palette.
@@ -538,14 +539,14 @@ test('taste preference: a "never" cuisine hides matching palette recipes (Meals)
 
 test('publish offers a "Reset on publish" checkbox, checked by default', async ({ page }) => {
   await seedPalette(page);
-  await page.goto('/meals.html');
+  await page.goto('/plan.html');
   const box = page.getByTestId('reset-on-publish');
   await expect(box).toBeVisible();
   await expect(box).toBeChecked();
 });
 
 test('planner start-date defaults to the next Monday for a fresh plan (D7)', async ({ page }) => {
-  await page.goto('/meals.html');
+  await page.goto('/plan.html');
   const value = await page.getByTestId('plan-start-date').inputValue();
   expect(value).not.toBe('');
   // The default is always a Monday (UTC day 1).
@@ -555,7 +556,7 @@ test('planner start-date defaults to the next Monday for a fresh plan (D7)', asy
 test('calendar sync chip: hidden by default, shown when enabled on this device (D9)', async ({
   page,
 }) => {
-  await page.goto('/meals.html');
+  await page.goto('/plan.html');
   await expect(page.getByTestId('calendar-sync-status')).toBeHidden();
 
   // Enable the device-local feature and reload — the chip + Resync appear.

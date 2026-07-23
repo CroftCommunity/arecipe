@@ -174,8 +174,8 @@ to be implemented with the page-per-destination restructure:
 - **Mobile nav goes to the bottom**: primary destinations render as a
   bottom tab bar on small screens (thumb reach — mealplanner does this),
   top tabs on wide screens. Same destinations, responsive placement.
-- **Cookbook is a third top-level destination** (M4/CB3; was "Friends" in 9a):
-  Browse · Cookbook · Alchemy · Reference. Your **Cookbook** is your own recipes plus a
+- **Cookbook is a third top-level destination** (M4/CB3; was "Friends" in 9a).
+  Your **Cookbook** is your own recipes plus a
   bounded, chosen **reach** — starter-pack cooks + who you follow on Bluesky +
   your Bluesky followers (Bluesky primitives; there is no arecipe-native friend
   record anymore). The page is your **recipe feed** — the members' recipes as a
@@ -188,12 +188,17 @@ to be implemented with the page-per-destination restructure:
   belong on Browse — OQ10). The legacy `friends.html` redirects here (query
   preserved). Browse stays broader and zero-auth; the Cookbook is
   "my-people's-kitchen."
-- **Meals is a fifth top-level destination** (2026-07): the full tab order is
-  Browse · Cookbook · Alchemy · **Meals** · Reference. The **Meals** planner
-  assigns recipes to days across weeks and expands them onto a calendar. It is
-  local-first (works signed-out) with a PDS-backed `app.arecipe.mealPlan` record
-  for cross-browser persistence, and follows the same page-per-destination
-  discipline — a real `meals.html` reached by a real tab, no modal/SPA state.
+- **Meal planning is two top-level destinations, Plan and Menu** (2026-07): the
+  full tab order is Browse · Cookbook · **Plan** · **Menu** · Reference (Timers
+  is desktop-only). **Plan** (`plan.html`) is the builder — assign recipes to
+  days across weeks; **Menu** (`meals.html`, the default) is the published
+  plans + a read-only calendar. Both are served by one module (`meals.ts`
+  routes on pathname) and are local-first (Plan works signed-out) with a
+  PDS-backed `app.arecipe.mealPlan` record for cross-browser persistence and
+  shareable `meals.html?mealplan=…` links. Same page-per-destination discipline
+  — real documents reached by real tabs, no modal/SPA state. **Alchemy is no
+  longer a top-level tab**: it (`mine.html`, the authoring hub) is reached from
+  the Cookbook page, freeing a nav slot for Plan without growing the mobile bar.
 - **Signed-in landing → Cookbook** (CB3.1): a signed-in visitor arriving at the
   home entry (typed URL, PWA launch, external link — anything without an in-app
   referrer) is sent to their Cookbook; everyone else lands on Browse. Browse

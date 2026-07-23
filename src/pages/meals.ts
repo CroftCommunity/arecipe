@@ -593,17 +593,25 @@ const publishedLabel = (iso: string): string => {
   return short !== null ? `${short}, ${datePart.slice(0, 4)}` : datePart;
 };
 
-/** Your published meal plans (a Meals subpage: `meals.html?plans`). Signed-in
+/** "Start planning →" — the nudge from the Menu (published) view's empty and
+ *  signed-out states to the Plan builder. Menu is its own top-level tab, so a
+ *  new or signed-out cook can land here with nothing to show; this keeps that
+ *  from being a dead end. */
+const startPlanningLink = (): HTMLAnchorElement => {
+  const link = el('a', 'button button--primary', 'Start planning →') as HTMLAnchorElement;
+  link.href = './plan.html';
+  link.dataset['testid'] = 'start-planning';
+  return link;
+};
+
+/** Your published meal plans (the Menu default: `meals.html`). Signed-in
  *  only — lists the account's app.arecipe.mealPlan records with their week range
  *  and publish date, a link to the shareable view, and a guarded delete. */
 const showPublishedPlans = async (app: HTMLElement): Promise<void> => {
   const content = el('section', 'panel');
+  // A slim header row carries the Archive link (populated once plans load); the
+  // tab itself is labeled by the nav, so no page title.
   const header = el('div', 'meals-header');
-  header.append(el('h2', 'section-title', 'Your published plans'));
-  const back = el('a', 'friend-link', '‹ Back to planner') as HTMLAnchorElement;
-  back.href = './meals.html';
-  back.dataset['testid'] = 'plans-back';
-  header.append(back);
   content.append(header);
   const body = el('div');
   body.dataset['testid'] = 'published-plans';
@@ -621,7 +629,10 @@ const showPublishedPlans = async (app: HTMLElement): Promise<void> => {
     log.warn('meal-plan', 'auth for published plans failed', { error: String(err) });
   }
   if (agent === null || agent.did === undefined) {
-    body.replaceChildren(el('p', 'status', 'Sign in to see your published meal plans.'));
+    body.replaceChildren(
+      el('p', 'status', 'Sign in to see your published meal plans.'),
+      startPlanningLink(),
+    );
     return;
   }
   const did = agent.did;
@@ -756,9 +767,12 @@ const showPublishedPlans = async (app: HTMLElement): Promise<void> => {
       body.replaceChildren(listEl, divider, monthCal);
       renderMonthCal(list);
       if (list.length === 0) {
-        listEl.replaceChildren(
-          el('p', 'empty-state', 'No published meal plans yet — Publish one from the planner.'),
+        const empty = el('div', 'empty-state');
+        empty.append(
+          el('p', undefined, 'No published meal plans yet.'),
+          startPlanningLink(),
         );
+        listEl.replaceChildren(empty);
         return;
       }
       listEl.replaceChildren();
@@ -781,7 +795,7 @@ const showPublishedPlans = async (app: HTMLElement): Promise<void> => {
         // replaces this record in place) + a guarded Delete.
         const actions = el('div', 'plan-actions');
         const edit = el('a', 'button', 'Edit') as HTMLAnchorElement;
-        edit.href = `./meals.html?edit=${encodeURIComponent(plan.id)}`;
+        edit.href = `./plan.html?edit=${encodeURIComponent(plan.id)}`;
         edit.dataset['testid'] = 'plan-edit';
 
         // Delete: guarded inline confirm (removes the PDS record).
@@ -853,21 +867,24 @@ export const main = async (
     await showSharedPlan(app, sharedRkey.trim(), routeParams.get('user'));
     return;
   }
-  // "Your published plans" subpage (signed-in management view).
-  if (routeParams.get('plans') !== null) {
-    await showPublishedPlans(app);
-    return;
-  }
-
-  const store = deps.store ?? createMealPlanStore();
-  const signedInHint = sessionHintSignedIn();
-
+  // meals.js serves both nav tabs. The Plan builder lives at /plan.html; the
+  // Menu published view at /meals.html (the default). ?edit=<rkey> is the
+  // staged-edit sub-flow — the builder — so it renders wherever it's opened
+  // (its links point at /plan.html).
+  const onPlanPage = /\/plan\.html$/.test(window.location.pathname);
   // Edit mode (?edit=<rkey>): open a published plan as a STAGED local copy —
   // edits stay local (no write-through) until "Publish update" replaces the
   // published record in place (same rkey → the share link survives). Signed-in
   // only: publishing back needs the account, so the session boots eagerly here.
   const editParam = routeParams.get('edit');
   const editRkey = editParam !== null && editParam.trim() !== '' ? editParam.trim() : null;
+  if (!onPlanPage && editRkey === null) {
+    await showPublishedPlans(app);
+    return;
+  }
+
+  const store = deps.store ?? createMealPlanStore();
+  const signedInHint = sessionHintSignedIn();
   let editStaged: LocalPlan | null = null;
   let editAgent: Agent | null = null;
   if (editRkey !== null) {
@@ -876,8 +893,8 @@ export const main = async (
     editBody.dataset['testid'] = 'edit-plan';
     loadPanel.append(el('h2', 'section-title', 'Edit published plan'), editBody);
     const backToPlans = (): HTMLAnchorElement => {
-      const back = el('a', 'friend-link', '‹ Back to published plans') as HTMLAnchorElement;
-      back.href = './meals.html?plans';
+      const back = el('a', 'friend-link', '‹ Back to Menu') as HTMLAnchorElement;
+      back.href = './meals.html';
       back.dataset['testid'] = 'plans-back';
       return back;
     };
@@ -946,11 +963,10 @@ export const main = async (
   let you: { did: string; pds: string } | null = null;
 
   const content = el('section', 'panel');
-  // Title row: "Meals" on the left, "Menu" (+ the calendar chip) at the
-  // right. The per-day cap lives on its own line below; the Reset control rides
-  // the week-actions row (right-aligned, opposite Add/Repeat).
+  // No page title — the nav tab labels this view. The header row just carries
+  // the calendar chip (actions); the per-day cap lives on its own line below,
+  // the Reset control on the week-actions row.
   const header = el('div', 'meals-header');
-  header.append(el('h2', 'section-title', 'Meals'));
   const headerActions = el('div', 'meals-actions');
   // "Recipes per day" cap: how many recipes a day may hold. A plan-level setting
   // that gates adding (never deletes what's already placed); persisted + synced.
@@ -970,9 +986,6 @@ export const main = async (
     rerender();
   });
   perDayLabel.append(perDaySelect);
-  const plansLink = el('a', 'button meals-plans', 'Menu ↗') as HTMLAnchorElement;
-  plansLink.href = './meals.html?plans';
-  plansLink.dataset['testid'] = 'my-plans';
   const resetControl = el('div', 'meals-reset');
 
   // Calendar-publish status chip (D9): a device-local enabled/sync indicator
@@ -1021,7 +1034,7 @@ export const main = async (
   };
   refreshChip();
 
-  headerActions.append(calChip, plansLink);
+  headerActions.append(calChip);
   header.append(headerActions);
   // Controls row (below the title): the "Recipes per day" cap. The Reset
   // control now rides the week-actions row below (see renderBuilder).
@@ -1047,7 +1060,7 @@ export const main = async (
     discard.dataset['testid'] = 'edit-discard';
     discard.addEventListener('click', () => {
       store.remove(plan.id);
-      window.location.assign('./meals.html?plans');
+      window.location.assign('./meals.html');
     });
     banner.append(discard);
     content.append(banner);
@@ -1069,11 +1082,11 @@ export const main = async (
       el(
         'span',
         'recovery-notice-text',
-        `Found ${label} — resume the latest (${planTitle(latest)}) to edit and republish it, or open Published to browse them.`,
+        `Found ${label} — resume the latest (${planTitle(latest)}) to edit and republish it, or open Meals to browse them.`,
       ),
     );
     const resume = el('a', 'button', 'Resume latest') as HTMLAnchorElement;
-    resume.href = `./meals.html?edit=${encodeURIComponent(latest.id)}`;
+    resume.href = `./plan.html?edit=${encodeURIComponent(latest.id)}`;
     resume.dataset['testid'] = 'recovery-resume';
     recoveryNotice.append(resume);
     recoveryNotice.hidden = false;
@@ -1244,7 +1257,7 @@ export const main = async (
         if (plan.editOf !== undefined) {
           store.remove(plan.id);
           await calendarClient.republish(listPublished).catch(() => undefined);
-          window.location.assign('./meals.html?plans');
+          window.location.assign('./meals.html');
           return;
         }
         // Build the share link from the PUBLISHED plan's id before any reset.

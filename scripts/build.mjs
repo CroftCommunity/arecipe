@@ -51,6 +51,8 @@ const HTML = {
   'mine.html': 'mine',
   'cookbook.html': 'cookbook',
   'meals.html': 'meals',
+  // Plan (the builder) shares the meals bundle; meals.ts routes on pathname.
+  'plan.html': 'meals',
   'archive.html': 'archive',
   'reference.html': 'reference',
   'timers.html': 'timers',

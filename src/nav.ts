@@ -65,8 +65,13 @@ export const renderTopbar = (): HTMLElement => {
 const DESTINATIONS = [
   { label: 'Browse', href: './index.html', testid: 'tab-browse', match: /(^|\/)(index\.html)?$/ },
   { label: 'Cookbook', href: './cookbook.html', testid: 'tab-cookbook', match: /\/cookbook\.html$/ },
-  { label: 'Alchemy', href: './mine.html', testid: 'tab-mine', match: /\/mine\.html$/ },
-  { label: 'Meals', href: './meals.html', testid: 'tab-meals', match: /\/meals\.html$/ },
+  // Plan (the meal-plan builder) and Menu (published plans) are peer tabs, both
+  // served by meals.js — routed on pathname in src/pages/meals.ts. Menu keeps
+  // the meals.html page + tab-meals testid (it owns ?mealplan= share links);
+  // Plan is the plan.html shell. Alchemy (mine.html) is no longer a top tab —
+  // it's reached from the Cookbook page.
+  { label: 'Plan', href: './plan.html', testid: 'tab-plan', match: /\/plan\.html$/ },
+  { label: 'Menu', href: './meals.html', testid: 'tab-meals', match: /\/meals\.html$/ },
   {
     label: 'Reference',
     href: './reference.html',

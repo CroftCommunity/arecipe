@@ -52,7 +52,8 @@ const PAGES: { name: string; path: string; ready: string }[] = [
   { name: 'browse', path: '/index.html', ready: '[data-testid=recipe-search]' },
   { name: 'reference', path: '/reference.html', ready: 'section.ref-card' },
   { name: 'timers', path: '/timers.html', ready: '[data-testid=timer-start]' },
-  { name: 'meals', path: '/meals.html', ready: '[data-testid=calendar]' },
+  { name: 'plan', path: '/plan.html', ready: '[data-testid=calendar]' },
+  { name: 'menu', path: '/meals.html', ready: '[data-testid=published-plans]' },
   { name: 'settings', path: '/settings.html', ready: '[data-testid=build-facts]' },
   { name: 'account', path: '/account.html', ready: '[data-testid=account-signed-out]' },
   { name: 'signin', path: '/signin.html', ready: 'form' },
@@ -148,7 +149,7 @@ test('tap target ≥44px on a phone (Browse reset, filter active)', async ({ pag
 
 test('tap target ≥44px on a phone (Meals reset)', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 780 });
-  await page.goto('/meals.html');
+  await page.goto('/plan.html');
   const reset = page.getByTestId('reset-plan');
   await reset.waitFor({ timeout: 15_000 });
   const box = await reset.boundingBox();

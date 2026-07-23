@@ -490,13 +490,14 @@ const renderFeedView = (
     if (source !== 'mine' && likedEntries === null) loadLiked();
   }
 
-  // "New Recipe" builder link rides the title row, right-aligned (own cookbook
-  // only — mirrors Alchemy's own new-recipe button).
+  // "Alchemy" link rides the title row, right-aligned (own cookbook only).
+  // Alchemy (mine.html) is the authoring hub — drafts + its own "New" builder —
+  // and is reached from here now that it's no longer a top-level nav tab.
   if (view.isOwn) {
-    const newRecipe = el('a', 'button button--primary new-recipe', 'New Recipe') as HTMLAnchorElement;
-    newRecipe.href = './editor.html';
-    newRecipe.dataset['testid'] = 'cookbook-new-recipe';
-    header.append(newRecipe);
+    const alchemy = el('a', 'button button--primary new-recipe', 'Alchemy') as HTMLAnchorElement;
+    alchemy.href = './mine.html';
+    alchemy.dataset['testid'] = 'cookbook-alchemy';
+    header.append(alchemy);
   }
 
   // Content-freshness note at the bottom (SWR): a cache-first paint shows the
