@@ -40,4 +40,15 @@ describe('createOcrPrefs', () => {
     };
     expect(createOcrPrefs({ storage: throwing }).isEnabled()).toBe(true);
   });
+
+  it('defaults to the fast model and switches to standard, persisting the choice', () => {
+    const storage = memStorage();
+    const prefs = createOcrPrefs({ storage });
+    expect(prefs.model()).toBe('fast');
+    prefs.setModel('standard');
+    expect(prefs.model()).toBe('standard');
+    expect(createOcrPrefs({ storage }).model()).toBe('standard'); // survives a reload
+    prefs.setModel('fast');
+    expect(prefs.model()).toBe('fast');
+  });
 });

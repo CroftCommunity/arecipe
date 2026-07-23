@@ -132,8 +132,9 @@ preventing XSS. Four controls, each with its current implementation status
   documents under the enforcing policy and asserts zero `securitypolicyviolation`.
 - **One scoped CSP relaxation: `import.html` (in-app OCR).** The Acquire hub
   offers an optional "Scan a photo" that runs Tesseract.js **entirely on device**
-  (self-hosted worker + WASM core + `eng.traineddata` under `assets/ocr/`, no CDN,
-  no network beyond same-origin asset fetches). WebAssembly compilation requires
+  (self-hosted worker + WASM core + `eng.traineddata` under `assets/ocr/` — both a
+  fast and a standard model, switchable in Settings — no CDN, no network beyond
+  same-origin asset fetches). WebAssembly compilation requires
   `'wasm-unsafe-eval'` in `script-src`, and the worker may spawn from a blob
   (`worker-src 'self' blob:`). This relaxation is applied to **`import.html` only**
   (`scripts/build.mjs` `cspFor(html, { wasm: true })`); every other document keeps

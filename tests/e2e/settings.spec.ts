@@ -22,6 +22,21 @@ test('settings: Import → Scan a photo (OCR) is on by default and can be disabl
   ).not.toBeChecked();
 });
 
+test('settings: Import → OCR model defaults to Fast and switches to Standard, persisting', async ({
+  page,
+}) => {
+  await page.goto('/settings.html');
+  const select = page.getByTestId('import-settings').getByTestId('ocr-model').locator('select');
+  await expect(select).toHaveValue('fast');
+  expect(await page.evaluate(() => window.localStorage.getItem('ocr-model'))).toBeNull();
+  await select.selectOption('standard');
+  expect(await page.evaluate(() => window.localStorage.getItem('ocr-model'))).toBe('standard');
+  await page.reload();
+  await expect(
+    page.getByTestId('import-settings').getByTestId('ocr-model').locator('select'),
+  ).toHaveValue('standard');
+});
+
 test('settings: Cookbook → Show export toggles the pref off by default and persists', async ({
   page,
 }) => {

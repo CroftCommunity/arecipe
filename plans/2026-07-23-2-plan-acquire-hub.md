@@ -76,11 +76,15 @@ updated for no-fetch.
   Tesseract ESM bundle at runtime (a computed specifier, so esbuild leaves it
   external — bundling the npm *source* mangled the worker handshake). `tesseract.js`
   is a devDependency only, used to source the committed assets.
-- **Self-hosted assets** under `assets/ocr/` (~5.8 MB): the ESM bundle (63 KB),
+- **Self-hosted assets** under `assets/ocr/` (~17 MB): the ESM bundle (63 KB),
   `worker.min.js` (111 KB), the SIMD-LSTM core `.wasm.js` (3.9 MB, embeds the
-  WASM — the raw `.wasm` is not needed), and the **fast** `eng.traineddata.gz`
-  (2 MB). `corePath` is pinned to the one shipped variant so Tesseract can't
-  feature-detect a variant we don't ship.
+  WASM — the raw `.wasm` is not needed), and BOTH models under `tessdata-fast/`
+  (2 MB) and `tessdata-standard/` (11 MB) `eng.traineddata.gz`. `corePath` is
+  pinned to the one shipped core variant; `langPath` selects the model directory.
+- **Switchable model** (Settings → Import → "OCR model": Fast / Standard, default
+  Fast) via `createOcrPrefs().model()`; `loadOcrEngine(model)` picks the langPath.
+  A change applies the next time the hub is opened. Both models verified reading
+  an image end-to-end.
 - **Lazy on first tap** (not page load) so nothing heavy downloads until "Scan a
   photo" is used, and only when the Settings toggle leaves OCR enabled.
 - **CSP relaxation scoped to `import.html`** (`script-src` + `'wasm-unsafe-eval'`,

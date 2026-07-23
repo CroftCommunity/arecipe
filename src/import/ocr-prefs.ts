@@ -10,11 +10,19 @@
 type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
 const OCR_ENABLED_KEY = 'ocr-enabled';
+const OCR_MODEL_KEY = 'ocr-model';
+
+/** Which recognition model to load. `fast` (~2 MB) is quicker + smaller; `standard`
+ *  (~11 MB) is more accurate, notably on harder images. Switchable for testing. */
+export type OcrModel = 'fast' | 'standard';
 
 export type OcrPrefs = {
   /** Whether in-app photo OCR is enabled. Default ON (absence ⇒ enabled). */
   isEnabled: () => boolean;
   setEnabled: (on: boolean) => void;
+  /** The chosen model. Default 'fast'. */
+  model: () => OcrModel;
+  setModel: (m: OcrModel) => void;
 };
 
 export const createOcrPrefs = (opts: { storage?: StorageLike } = {}): OcrPrefs => {
@@ -31,6 +39,21 @@ export const createOcrPrefs = (opts: { storage?: StorageLike } = {}): OcrPrefs =
       try {
         if (on) storage.removeItem(OCR_ENABLED_KEY);
         else storage.setItem(OCR_ENABLED_KEY, '0');
+      } catch {
+        /* private mode: the choice lives for this page only */
+      }
+    },
+    model: () => {
+      try {
+        return storage.getItem(OCR_MODEL_KEY) === 'standard' ? 'standard' : 'fast';
+      } catch {
+        return 'fast';
+      }
+    },
+    setModel: (m) => {
+      try {
+        if (m === 'standard') storage.setItem(OCR_MODEL_KEY, 'standard');
+        else storage.removeItem(OCR_MODEL_KEY);
       } catch {
         /* private mode: the choice lives for this page only */
       }

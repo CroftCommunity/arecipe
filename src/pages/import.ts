@@ -43,10 +43,11 @@ const main = (): void => {
   }
 
   // "Scan a photo" (OCR) is gated by the Settings toggle (default on; a cook on a
-  // weak device can disable it). When enabled we hand the hub the lazy loader so
-  // the heavy engine downloads only on first tap; when disabled the card shows the
-  // on-device (OS OCR + share) guidance instead.
-  const ocrEnabled = createOcrPrefs().isEnabled();
+  // weak device can disable it) and uses the Settings-chosen model. When enabled
+  // we hand the hub a lazy loader so the heavy engine downloads only on first tap
+  // (reading the model then); when disabled the card shows the on-device (OS OCR +
+  // share) guidance instead.
+  const ocrPrefs = createOcrPrefs();
 
   const hub = renderAcquireHub({
     acquireFromPaste: (pasted, sourceUrl) => acquireFromPaste(pasted, sourceUrl),
@@ -56,7 +57,7 @@ const main = (): void => {
       window.location.href = `./editor.html?draft=${encodeURIComponent(draft.id)}`;
     },
     shared,
-    loadOcrEngine: ocrEnabled ? loadOcrEngine : undefined,
+    loadOcrEngine: ocrPrefs.isEnabled() ? () => loadOcrEngine(ocrPrefs.model()) : undefined,
   });
   content.append(hub);
 

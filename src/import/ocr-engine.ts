@@ -12,6 +12,7 @@
 
 import { log } from '../log.js';
 import type { OcrEngine } from './ocr.js';
+import type { OcrModel } from './ocr-prefs.js';
 
 /** The slice of a Tesseract worker we use — injectable so `makeOcrEngine` is
  *  unit-testable without the real (heavy, browser-only) worker. */
@@ -47,9 +48,16 @@ type TesseractApi = {
 // The prebuilt ESM bundle exposes the API as its DEFAULT export.
 type TesseractModule = { default?: TesseractApi } & Partial<TesseractApi>;
 
-/** Construct the Tesseract-backed engine, or undefined if it can't load (old
- *  browser, blocked WASM, missing assets) — the caller then shows guidance. */
-export const loadOcrEngine = async (): Promise<OcrEngine | undefined> => {
+/** The self-hosted language-data directory per model (each holds
+ *  `eng.traineddata.gz`). Fast = smaller/quicker; standard = more accurate. */
+const LANG_DIR: Record<OcrModel, string> = {
+  fast: `${OCR_ASSETS}tessdata-fast/`,
+  standard: `${OCR_ASSETS}tessdata-standard/`,
+};
+
+/** Construct the Tesseract-backed engine for the chosen model, or undefined if it
+ *  can't load (old browser, blocked WASM, missing assets) — caller shows guidance. */
+export const loadOcrEngine = async (model: OcrModel = 'fast'): Promise<OcrEngine | undefined> => {
   try {
     const spec = ENGINE_URL; // variable ⇒ esbuild keeps it external (not bundled)
     const mod = (await import(/* @vite-ignore */ spec)) as TesseractModule;
@@ -62,12 +70,12 @@ export const loadOcrEngine = async (): Promise<OcrEngine | undefined> => {
       // support, good perf) — a directory would let Tesseract feature-detect and
       // request a variant we don't ship.
       corePath: `${OCR_ASSETS}tesseract-core-simd-lstm.wasm.js`,
-      langPath: OCR_ASSETS,
+      langPath: LANG_DIR[model],
       gzip: true,
     });
     return makeOcrEngine(worker);
   } catch (err) {
-    log.warn('import', 'OCR engine unavailable', { error: String(err) });
+    log.warn('import', 'OCR engine unavailable', { error: String(err), model });
     return undefined;
   }
 };

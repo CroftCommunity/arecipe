@@ -13,7 +13,7 @@ import { createRecordReader } from '../recipes/read.js';
 import { createStarterPrefs, STARTER_AUTHORS } from '../recipes/starter.js';
 import { createCookbookPrefs } from '../social/cookbook-prefs.js';
 import { createSocialPrefs } from '../social/prefs.js';
-import { createOcrPrefs } from '../import/ocr-prefs.js';
+import { createOcrPrefs, type OcrModel } from '../import/ocr-prefs.js';
 import { registerServiceWorker } from '../sw-register.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -203,8 +203,10 @@ const main = async (): Promise<void> => {
   showExportRow.append(showExportBox, el('span', undefined, 'Show export'));
   cookbook.append(showExportRow);
 
-  // Import: the in-app "Scan a photo" OCR opt-out. On by default; off shows the
-  // on-device (OS OCR + share) route instead — cheaper on weak devices.
+  // Import: the in-app "Scan a photo" OCR opt-out + model choice. On by default;
+  // off shows the on-device (OS OCR + share) route instead — cheaper on weak
+  // devices. The model is switchable: Fast (smaller/quicker) vs Standard (more
+  // accurate). A change takes effect the next time the hub is opened.
   const importSettings = section('Import', 'import-settings');
   importSettings.append(
     el(
@@ -225,6 +227,27 @@ const main = async (): Promise<void> => {
   });
   ocrRow.append(ocrBox, el('span', undefined, 'Scan a photo (OCR)'));
   importSettings.append(ocrRow);
+
+  const modelRow = el('label', 'starter-row');
+  modelRow.dataset['testid'] = 'ocr-model';
+  const modelSelect = document.createElement('select');
+  modelSelect.className = 'settings-select';
+  for (const [value, label] of [
+    ['fast', 'Fast — smaller, quicker'],
+    ['standard', 'Standard — more accurate, larger'],
+  ] as const) {
+    const opt = document.createElement('option');
+    opt.value = value;
+    opt.textContent = label;
+    modelSelect.append(opt);
+  }
+  modelSelect.value = ocrPrefs.model();
+  modelSelect.addEventListener('change', () => {
+    ocrPrefs.setModel(modelSelect.value as OcrModel);
+    log.debug('import', 'ocr model changed', { model: modelSelect.value });
+  });
+  modelRow.append(el('span', undefined, 'OCR model'), modelSelect);
+  importSettings.append(modelRow);
 
   // Collapsed by default (it can hold many baseline entries): a <details> whose
   // summary carries the live count; the list is revealed only when expanded.
