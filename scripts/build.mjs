@@ -316,6 +316,20 @@ const pages = Object.fromEntries(
   }),
 );
 
+// Bundle-size budget (adopted from croft-pwa): each PAGE ENTRY's gzipped size is
+// capped — a tripwire against accidental entry bloat. Shared chunks (incl. the
+// ~176K gz @atproto/api client, lazy-loaded via recipe.ts and runtime-cached) are
+// intentionally excluded, since they are not a page's up-front cost. Raise it
+// deliberately rather than letting it drift.
+const PAGE_ENTRY_GZ_BUDGET = 24 * 1024;
+const overBudget = Object.entries(pages).filter(([, s]) => s.gzipBytes > PAGE_ENTRY_GZ_BUDGET);
+if (overBudget.length > 0) {
+  throw new Error(
+    `build: page bundle budget exceeded (${(PAGE_ENTRY_GZ_BUDGET / 1024).toFixed(0)}K gz/entry):\n` +
+      overBudget.map(([p, s]) => `  ${p}: ${(s.gzipBytes / 1024).toFixed(1)}K gz`).join('\n'),
+  );
+}
+
 // Service worker: version + stable-shell precache baked in. Stable names
 // only — hashed assets cache on first fetch.
 // Precache the light shell — page entries + their small shared chunks. Large

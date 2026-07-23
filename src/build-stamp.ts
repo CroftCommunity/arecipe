@@ -60,7 +60,16 @@ export const mountBuildStamp = async (parent: HTMLElement): Promise<void> => {
   changelogLink.href = './changelog.html';
   changelogLink.textContent = "What's changed";
 
-  footer.append(stamp, colophon, agentsLink, changelogLink);
+  // Croft attribution — arecipe is a Croft project. (Placeholder target pending
+  // the brand-name resolution in the discovery corpus.)
+  const croftLink = document.createElement('a');
+  croftLink.className = 'colophon';
+  croftLink.dataset['testid'] = 'croft-link';
+  croftLink.href = 'https://croft.ing';
+  croftLink.rel = 'noopener';
+  croftLink.textContent = 'A Croft project';
+
+  footer.append(stamp, colophon, agentsLink, changelogLink, croftLink);
   parent.append(footer);
   try {
     const res = await fetch('./build-info.json');

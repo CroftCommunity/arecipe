@@ -115,6 +115,16 @@ const main = async (): Promise<void> => {
 
   const paint = (): void => {
     const now = Date.now();
+    if (timers.length === 0) {
+      // Empty state is a SIBLING of the <ul>, never a child — a <p> inside
+      // <ul> is invalid list structure (axe "list" rule, a11y.spec.ts).
+      listEl.replaceChildren();
+      listEl.hidden = true;
+      emptyMsg.hidden = false;
+      return;
+    }
+    emptyMsg.hidden = true;
+    listEl.hidden = false;
     listEl.replaceChildren(
       ...timers.map((t) => {
         const expired = isExpired(t, now);
@@ -156,7 +166,6 @@ const main = async (): Promise<void> => {
         return li;
       }),
     );
-    if (timers.length === 0) listEl.replaceChildren(emptyMsg);
   };
 
   form.addEventListener('submit', (e) => {
@@ -189,7 +198,7 @@ const main = async (): Promise<void> => {
   };
   window.setInterval(tick, 250);
 
-  content.append(form, notifySection, listEl);
+  content.append(form, notifySection, listEl, emptyMsg);
   paint();
 
   mountShell(app, content);
