@@ -19,6 +19,7 @@ import { gzipSync } from 'node:zlib';
 import { buildSync } from 'esbuild';
 import { generateGuideIndex } from './build-guide-index.mjs';
 import { htmlShell, mdToHtml } from './md-to-html.mjs';
+import { normalizeRepoUrl, parseChangelog } from './changelog.mjs';
 
 // Gzipped ceiling for the snapshot index.json (RUN-BUNDLE-PRECACHE, D1). Set
 // from D6 measurement: the seed index.json gzips to well under a KB; the corpus
@@ -44,6 +45,7 @@ const PAGES = [
   'signin',
   'user-guide',
   'import',
+  'changelog',
 ];
 const HTML = {
   'index.html': 'browse',
@@ -61,6 +63,7 @@ const HTML = {
   'signin.html': 'signin',
   'user-guide.html': 'user-guide',
   'import.html': 'import',
+  'changelog.html': 'changelog',
 };
 
 rmSync('dist', { recursive: true, force: true }); // no stale artifacts
@@ -329,6 +332,7 @@ const precache = [
   './friends.html', // legacy redirect stub (offline-resolvable)
   './calendar-setup.html', // calendar-publish setup guide (offline-resolvable)
   './agents.html', // agent guide mirror (offline-resolvable, footer-linked)
+  './changelog.json', // generated changelog data (offline-resolvable; the page fetches it)
   './manifest.webmanifest',
   './assets/fonts/fonts.css',
   ...readdirSync('assets/fonts')
@@ -364,6 +368,29 @@ const info = {
   pages,
 };
 writeFileSync('dist/build-info.json', JSON.stringify(info));
+
+// Changelog: derived from opt-in `Changelog:` commit trailers (the pure logic is
+// scripts/changelog.mjs, unit-tested). Needs git history — in CI the checkout is
+// fetch-depth:0 for this reason; a shallow clone just yields fewer entries, never
+// a build failure. Delimiters are control chars that never occur in commit text.
+const FIELD = '\x1f';
+const REC = '\x1e';
+const rawLog = execSync(`git log --format=%H${FIELD}%aI${FIELD}%s${FIELD}%b${REC}`, {
+  encoding: 'utf8',
+  maxBuffer: 64 * 1024 * 1024,
+});
+const commits = rawLog
+  .split(REC)
+  .map((r) => r.trim())
+  .filter((r) => r !== '')
+  .map((rec) => {
+    const parts = rec.split(FIELD);
+    return { sha: parts[0], date: parts[1], subject: parts[2] ?? '', body: parts.slice(3).join(FIELD) };
+  });
+const repoUrl = normalizeRepoUrl(execSync('git config --get remote.origin.url', { encoding: 'utf8' }).trim());
+const changelog = { generatedAt: now.toISOString(), entries: parseChangelog(commits, { repoUrl }) };
+writeFileSync('dist/changelog.json', JSON.stringify(changelog));
+console.log(`changelog: ${changelog.entries.length} user-facing entries from ${commits.length} commits`);
 console.log(
   `built ${version}: ` +
     PAGES.map(

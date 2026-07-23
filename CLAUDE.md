@@ -66,6 +66,21 @@ run the other sub-gates directly and use the config above for e2e.
   `app.arecipe.*`. Update that doc when a record shape changes.
 - **Plans.** Non-trivial features get a dated plan doc in `plans/` (see existing
   ones); record the outcome when done.
+- **Changelog trailers.** The `/changelog` page is generated at build time from
+  opt-in `Changelog:` commit trailers (`scripts/build.mjs` → `dist/changelog.json`;
+  pure logic in `scripts/changelog.mjs`). **If a commit changes what a cook sees
+  or can do, add a trailer**; internal-only commits (refactors, tests, deps, CI,
+  docs) omit it — absence is normal.
+  - Form: `Changelog(added|changed|fixed|removed): <one line>`. A bare
+    `Changelog: …` defaults to `changed`. Repeat the trailer for multiple
+    user-facing changes in one commit.
+  - **Write it in the user's voice** — present tense, benefit-first, no jargon,
+    one line. Good: `Changelog(added): Added a shopping list you can check off as
+    you cook`. Bad (dev-voice, don't): `Changelog: impl ShoppingListStore redb
+    projection`.
+  - **Squash caveat:** PRs squash-merge to `main`, so the trailer must be in the
+    **final squash commit message** (edit the PR's squash body), not only in an
+    intermediate commit — otherwise it won't reach `main`'s history.
 
 ## Previews on a PR — and the agent gotcha
 
