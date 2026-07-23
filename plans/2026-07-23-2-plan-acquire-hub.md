@@ -61,9 +61,20 @@ phone's own "select text from photo" and share/paste — best mobile handwriting
 zero deps). Rung 1 of the ladder is therefore live today. Tests: `ocr.spec` (3),
 `acquire-hub.spec` OCR cases (fill-paste, unreadable-photo, engine-vs-guidance).
 
-**NEXT — wire the real in-app engine (Tesseract.js). Deliberately NOT done
-autonomously; needs explicit sign-off because it is a sensitive, hard-to-reverse
-change (the experiment brief says "no CSP change, no dependency"):**
+**Fetch removed + OCR toggle (DONE, 2026-07-23).** Built-in URL fetch is a
+no-go (Phase 0: 0/10 reachable) — removed the "From a link" entry and the bare-
+link fetch attempt; a bare shared link now reveals paste with guidance (the link
+kept as provenance), no network. A **Settings → Import → "Scan a photo (OCR)"**
+toggle (`src/import/ocr-prefs.ts`, default ON) lets a cook on a weak device opt
+out; `import.ts` gates the engine on it via the `loadOcrEngine` seam
+(`src/import/ocr-engine.ts`, returns undefined until Tesseract lands → guidance).
+Tests: `ocr-prefs.spec` (4), settings e2e (toggle), panel/hub/recipe-import specs
+updated for no-fetch.
+
+**NEXT — wire the real in-app engine (Tesseract.js) in `loadOcrEngine`. The
+architecture, toggle, and gating are all in place; this is the remaining
+sign-off-gated, hard-to-reverse part (the experiment brief says "no CSP change,
+no dependency"):**
 - Add `tesseract.js` (1.7 MB JS wrapper) as a dep; a small
   `src/import/ocr-tesseract.ts` adapter implements `OcrEngine`, **lazy-loaded via
   dynamic import** so it code-splits onto the hub only.

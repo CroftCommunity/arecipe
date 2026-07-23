@@ -16,7 +16,7 @@ import { log } from '../log.js';
 
 export type AcquireHubDeps = Pick<
   ImportPanelDeps,
-  'acquireFromUrl' | 'acquireFromPaste' | 'onImported' | 'shared'
+  'acquireFromPaste' | 'onImported' | 'shared'
 > & {
   /** Where "Build from scratch" points (a blank draft in the editor). */
   editorHref?: string;
@@ -50,11 +50,9 @@ export const renderAcquireHub = (deps: AcquireHubDeps): HTMLElement => {
   // The paste + "From a link" + share engine (built first so "Scan a photo" can
   // drop recognized text into its paste box).
   const panel = renderImportPanel({
-    acquireFromUrl: deps.acquireFromUrl,
     acquireFromPaste: deps.acquireFromPaste,
     onImported: deps.onImported,
     shared: deps.shared,
-    manualUrl: true,
     revealPasteInitially: !fromShare,
   });
 

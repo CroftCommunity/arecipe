@@ -4,15 +4,17 @@
 
 import { mountBuildStamp } from '../build-stamp.js';
 import { mountShell } from '../nav.js';
-import { acquireFromPaste, acquireFromUrl } from '../import/acquire.js';
+import { acquireFromPaste } from '../import/acquire.js';
 import { renderAcquireHub } from '../import/acquire-hub.js';
+import { createOcrPrefs } from '../import/ocr-prefs.js';
+import { loadOcrEngine } from '../import/ocr-engine.js';
 import { interpretShare } from '../import/share-target.js';
 import { mapImportedToFields } from '../import/to-fields.js';
 import { createDraftStore } from '../recipes/drafts-local.js';
 import { requestPersistence } from '../storage-persist.js';
 import { registerServiceWorker } from '../sw-register.js';
 
-const main = (): void => {
+const main = async (): Promise<void> => {
   const app = document.getElementById('app');
   if (app === null) throw new Error('shell mount point #app missing');
 
@@ -40,11 +42,13 @@ const main = (): void => {
     }
   }
 
-  // No in-app OCR engine wired yet → "Scan a photo" shows the on-device (OS OCR +
-  // share) guidance. Wiring Tesseract.js is a sign-off-gated follow-up (see the
-  // plan): pass `ocrEngine` here once the adapter + self-hosted assets + CSP land.
+  // "Scan a photo" (OCR) is gated by the Settings toggle (default on; a cook on a
+  // weak device can disable it). When enabled we load the engine seam; when
+  // disabled — or when no engine is available yet — the card shows the on-device
+  // (OS OCR + share) guidance instead.
+  const ocrEngine = createOcrPrefs().isEnabled() ? await loadOcrEngine() : undefined;
+
   const hub = renderAcquireHub({
-    acquireFromUrl: (url) => acquireFromUrl(url),
     acquireFromPaste: (pasted, sourceUrl) => acquireFromPaste(pasted, sourceUrl),
     onImported: async (result) => {
       const fields = mapImportedToFields(result.recipe, result.sourceUrl, shared.title);
@@ -52,6 +56,7 @@ const main = (): void => {
       window.location.href = `./editor.html?draft=${encodeURIComponent(draft.id)}`;
     },
     shared,
+    ocrEngine,
   });
   content.append(hub);
 
@@ -60,4 +65,4 @@ const main = (): void => {
   void registerServiceWorker();
 };
 
-main();
+void main();

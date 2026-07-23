@@ -13,6 +13,7 @@ import { createRecordReader } from '../recipes/read.js';
 import { createStarterPrefs, STARTER_AUTHORS } from '../recipes/starter.js';
 import { createCookbookPrefs } from '../social/cookbook-prefs.js';
 import { createSocialPrefs } from '../social/prefs.js';
+import { createOcrPrefs } from '../import/ocr-prefs.js';
 import { registerServiceWorker } from '../sw-register.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
@@ -202,6 +203,29 @@ const main = async (): Promise<void> => {
   showExportRow.append(showExportBox, el('span', undefined, 'Show export'));
   cookbook.append(showExportRow);
 
+  // Import: the in-app "Scan a photo" OCR opt-out. On by default; off shows the
+  // on-device (OS OCR + share) route instead — cheaper on weak devices.
+  const importSettings = section('Import', 'import-settings');
+  importSettings.append(
+    el(
+      'p',
+      'status',
+      '“Scan a photo” reads a recipe from a picture using on-device text recognition. It loads a model the first time — turn it off on a slower phone or to save data.',
+    ),
+  );
+  const ocrPrefs = createOcrPrefs();
+  const ocrRow = el('label', 'starter-row');
+  ocrRow.dataset['testid'] = 'ocr-enabled';
+  const ocrBox = document.createElement('input');
+  ocrBox.type = 'checkbox';
+  ocrBox.checked = ocrPrefs.isEnabled();
+  ocrBox.addEventListener('change', () => {
+    ocrPrefs.setEnabled(ocrBox.checked);
+    log.debug('import', 'ocr toggled', { enabled: ocrBox.checked });
+  });
+  ocrRow.append(ocrBox, el('span', undefined, 'Scan a photo (OCR)'));
+  importSettings.append(ocrRow);
+
   // Collapsed by default (it can hold many baseline entries): a <details> whose
   // summary carries the live count; the list is revealed only when expanded.
   const hiddenSection = el('details', 'settings-section hidden-recipes') as HTMLDetailsElement;
@@ -299,7 +323,7 @@ const main = async (): Promise<void> => {
   );
   about.append(guidePara);
 
-  content.append(build, updates, starter, social, cookbook, hiddenSection, integrity, about);
+  content.append(build, updates, starter, social, cookbook, importSettings, hiddenSection, integrity, about);
   mountShell(app, content);
   void mountBuildStamp(app);
   log.debug('shell', 'mounted', { page: 'settings' });

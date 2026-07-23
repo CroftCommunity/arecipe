@@ -11,16 +11,15 @@ const testid = (root: HTMLElement, id: string): HTMLElement | null =>
   root.querySelector(`[data-testid="${id}"]`);
 
 const noAcquire = {
-  acquireFromUrl: () => Promise.resolve<AcquireResult>({ kind: 'no-recipe', sourceUrl: '' }),
   acquireFromPaste: () => ({ kind: 'no-recipe', sourceUrl: '' }) as AcquireResult,
 };
 
 describe('renderAcquireHub', () => {
-  it('offers the 0→1 entries: paste, from-a-link, scan-a-photo, build-from-scratch', () => {
+  it('offers the 0→1 entries: paste, scan-a-photo, build-from-scratch (no fetch)', () => {
     const hub = renderAcquireHub({ ...noAcquire, onImported: () => {}, shared: { url: '' } });
     expect(hub.dataset['testid']).toBe('acquire-hub');
     expect(testid(hub, 'import-paste-block')).not.toBeNull(); // paste
-    expect(testid(hub, 'import-url')).not.toBeNull(); // from a link
+    expect(testid(hub, 'import-url')).toBeNull(); // fetch is not a path
     expect(testid(hub, 'acquire-photo')).not.toBeNull(); // scan a photo
     const scratch = testid(hub, 'acquire-scratch') as HTMLAnchorElement;
     expect(scratch.getAttribute('href')).toMatch(/editor\.html$/);
@@ -40,7 +39,6 @@ describe('renderAcquireHub', () => {
       missing: 'none',
     };
     renderAcquireHub({
-      acquireFromUrl: noAcquire.acquireFromUrl,
       acquireFromPaste: () => res,
       onImported,
       shared: { url: 'https://x/r', pasteText: '1 cup flour\n1 cup milk\n1 tsp salt' },

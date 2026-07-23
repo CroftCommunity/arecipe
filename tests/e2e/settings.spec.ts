@@ -2,6 +2,26 @@
 // page's Taste section — its suite lives in account.spec.ts.
 import { expect, test } from '@playwright/test';
 
+test('settings: Import → Scan a photo (OCR) is on by default and can be disabled', async ({
+  page,
+}) => {
+  await page.goto('/settings.html');
+  const section = page.getByTestId('import-settings');
+  await expect(section).toBeVisible();
+  await expect(section).toContainText('Scan a photo (OCR)');
+  const box = section.getByTestId('ocr-enabled').locator('input[type=checkbox]');
+  // On by default: checked, nothing stored (absence ⇒ enabled).
+  await expect(box).toBeChecked();
+  expect(await page.evaluate(() => window.localStorage.getItem('ocr-enabled'))).toBeNull();
+  // Turning it off persists the opt-out and survives a reload.
+  await box.uncheck();
+  expect(await page.evaluate(() => window.localStorage.getItem('ocr-enabled'))).toBe('0');
+  await page.reload();
+  await expect(
+    page.getByTestId('import-settings').getByTestId('ocr-enabled').locator('input'),
+  ).not.toBeChecked();
+});
+
 test('settings: Cookbook → Show export toggles the pref off by default and persists', async ({
   page,
 }) => {
