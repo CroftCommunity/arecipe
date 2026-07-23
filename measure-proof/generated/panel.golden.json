@@ -1,0 +1,224 @@
+[
+  {
+    "name": "page_home",
+    "type": "page",
+    "disclosure": "That the home screen was opened",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "page_browse",
+    "type": "page",
+    "disclosure": "That the browse screen was opened",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "page_recipe",
+    "type": "page",
+    "disclosure": "That a recipe page was opened (not which recipe)",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "page_cookbook",
+    "type": "page",
+    "disclosure": "That a cookbook was opened",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "page_meals",
+    "type": "page",
+    "disclosure": "That the meal planner was opened",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "page_timers",
+    "type": "page",
+    "disclosure": "That the timers screen was opened",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "page_mine",
+    "type": "page",
+    "disclosure": "That your own-recipes screen was opened",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "page_editor",
+    "type": "page",
+    "disclosure": "That the recipe editor was opened",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "page_guide",
+    "type": "page",
+    "disclosure": "That the guide was opened",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "page_settings",
+    "type": "page",
+    "disclosure": "That the settings screen was opened",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "feat_search",
+    "type": "feature",
+    "disclosure": "That the search box was used (not what you searched for)",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "feat_filter",
+    "type": "feature",
+    "disclosure": "That a filter was applied while browsing",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "feat_cook_focus",
+    "type": "feature",
+    "disclosure": "That cook mode was started",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "feat_share",
+    "type": "feature",
+    "disclosure": "That a share link was created",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "feat_plan_add",
+    "type": "feature",
+    "disclosure": "That a recipe was added to the meal planner",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "feat_timer_start",
+    "type": "feature",
+    "disclosure": "That a timer was started",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "feat_open_recipe",
+    "type": "feature",
+    "disclosure": "That a recipe was opened from a list",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "feat_save",
+    "type": "feature",
+    "disclosure": "That a recipe was saved",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "feat_guide_jump",
+    "type": "feature",
+    "disclosure": "That a guide section was opened",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "feat_theme_toggle",
+    "type": "feature",
+    "disclosure": "That the theme was switched",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "time_home_load",
+    "type": "timing",
+    "disclosure": "How long the home screen took to load (coarse buckets)",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "time_browse_load",
+    "type": "timing",
+    "disclosure": "How long the browse screen took to load (coarse buckets)",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "time_browse_first_result",
+    "type": "timing",
+    "disclosure": "How long until the first browse result appeared (coarse buckets)",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "time_recipe_load",
+    "type": "timing",
+    "disclosure": "How long a recipe took to load (coarse buckets)",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "time_cookbook_load",
+    "type": "timing",
+    "disclosure": "How long a cookbook took to load (coarse buckets)",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "time_meals_load",
+    "type": "timing",
+    "disclosure": "How long the meal planner took to load (coarse buckets)",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "time_mine_load",
+    "type": "timing",
+    "disclosure": "How long your own-recipes screen took to load (coarse buckets)",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "nav_home__to__browse",
+    "type": "edge",
+    "disclosure": "That someone moved from home to browse",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "nav_home__to__recipe",
+    "type": "edge",
+    "disclosure": "That someone moved from home to a recipe",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "nav_home__to__cookbook",
+    "type": "edge",
+    "disclosure": "That someone moved from home to a cookbook",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "nav_browse__to__recipe",
+    "type": "edge",
+    "disclosure": "That someone moved from browse to a recipe",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "nav_recipe__to__timers",
+    "type": "edge",
+    "disclosure": "That someone moved from a recipe to timers",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "nav_recipe__to__meals",
+    "type": "edge",
+    "disclosure": "That someone moved from a recipe to the meal planner",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "nav_recipe__to__browse",
+    "type": "edge",
+    "disclosure": "That someone moved from a recipe back to browse",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "nav_cookbook__to__recipe",
+    "type": "edge",
+    "disclosure": "That someone moved from a cookbook to a recipe",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "nav_meals__to__recipe",
+    "type": "edge",
+    "disclosure": "That someone moved from the meal planner to a recipe",
+    "expires": "2027-06-30"
+  },
+  {
+    "name": "nav_timers__to__recipe",
+    "type": "edge",
+    "disclosure": "That someone moved from timers back to a recipe",
+    "expires": "2027-06-30"
+  }
+]

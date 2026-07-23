@@ -1,0 +1,62 @@
+{
+  "small": {
+    "sessions": 641,
+    "divergence": [
+      {
+        "lengthClass": "2",
+        "paths": 25,
+        "sessions": 201,
+        "tvd": 0.09205841448271052
+      },
+      {
+        "lengthClass": "3",
+        "paths": 66,
+        "sessions": 182,
+        "tvd": 0.17746835272939057
+      },
+      {
+        "lengthClass": "4+",
+        "paths": 161,
+        "sessions": 187,
+        "tvd": 0.388542849582799
+      }
+    ],
+    "edgeBucket": {
+      "declaredSum": 770,
+      "other": 507,
+      "total": 1277,
+      "otherPct": 39.7,
+      "declaredPct": 60.3
+    }
+  },
+  "medium": {
+    "sessions": 52022,
+    "divergence": [
+      {
+        "lengthClass": "2",
+        "paths": 26,
+        "sessions": 15699,
+        "tvd": 0.013529953513975781
+      },
+      {
+        "lengthClass": "3",
+        "paths": 121,
+        "sessions": 13481,
+        "tvd": 0.03424436785083483
+      },
+      {
+        "lengthClass": "4+",
+        "paths": 4317,
+        "sessions": 16676,
+        "tvd": 0.16431496797154366
+      }
+    ],
+    "edgeBucket": {
+      "declaredSum": 69468,
+      "other": 37082,
+      "total": 106550,
+      "otherPct": 34.8,
+      "declaredPct": 65.2
+    }
+  }
+}

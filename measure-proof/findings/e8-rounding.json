@@ -1,0 +1,77 @@
+{
+  "deadFeaturesModeled": [
+    "feat_print",
+    "feat_export_pdf",
+    "feat_scale_batch",
+    "feat_nutrition",
+    "feat_voice_read"
+  ],
+  "profiles": {
+    "small": {
+      "sessions": 641,
+      "total": 26,
+      "dead": 5,
+      "aliveRoundingToZero": 1,
+      "aliveDistinguishable": 20,
+      "signalDestroyed": true
+    },
+    "medium": {
+      "sessions": 52022,
+      "total": 26,
+      "dead": 5,
+      "aliveRoundingToZero": 0,
+      "aliveDistinguishable": 21,
+      "signalDestroyed": false
+    }
+  },
+  "threshold": {
+    "threshold": 3200,
+    "sweep": [
+      {
+        "sessions": 200,
+        "aliveRoundingToZero": 2,
+        "signalDestroyed": true
+      },
+      {
+        "sessions": 400,
+        "aliveRoundingToZero": 1,
+        "signalDestroyed": true
+      },
+      {
+        "sessions": 800,
+        "aliveRoundingToZero": 1,
+        "signalDestroyed": true
+      },
+      {
+        "sessions": 1600,
+        "aliveRoundingToZero": 1,
+        "signalDestroyed": true
+      },
+      {
+        "sessions": 3200,
+        "aliveRoundingToZero": 0,
+        "signalDestroyed": false
+      },
+      {
+        "sessions": 6400,
+        "aliveRoundingToZero": 0,
+        "signalDestroyed": false
+      },
+      {
+        "sessions": 12800,
+        "aliveRoundingToZero": 0,
+        "signalDestroyed": false
+      },
+      {
+        "sessions": 25600,
+        "aliveRoundingToZero": 0,
+        "signalDestroyed": false
+      },
+      {
+        "sessions": 51200,
+        "aliveRoundingToZero": 0,
+        "signalDestroyed": false
+      }
+    ]
+  }
+}

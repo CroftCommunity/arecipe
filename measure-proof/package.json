@@ -1,0 +1,15 @@
+{
+  "name": "measure-proof",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "RUN-MEASURE-01 scratch experiment repo: proof-out for a counter-based, registry-driven usage-measurement kit. Findings, goldens, harnesses only — not a product build.",
+  "scripts": {
+    "gen": "node --experimental-strip-types src/registry/cli.ts generate",
+    "gen:check": "node --experimental-strip-types src/registry/cli.ts check",
+    "test:unit": "vitest run --config vitest.config.ts",
+    "test:e2e": "playwright test --config playwright.config.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "corpus": "node --experimental-strip-types src/corpus/cli.ts"
+  }
+}

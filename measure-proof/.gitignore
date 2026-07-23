@@ -1,0 +1,6 @@
+# measure-proof is a self-contained scratch project reusing the repo-root
+# node_modules. These are local/tooling artifacts, never committed.
+node_modules/
+test-results/
+playwright-report/
+.pw-local.config.ts

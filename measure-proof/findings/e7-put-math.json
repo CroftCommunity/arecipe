@@ -1,0 +1,125 @@
+{
+  "seconds_per_month": 2592000,
+  "ceilings": {
+    "1s": 2592000,
+    "3s": 864000,
+    "10s": 259200,
+    "30s": 86400,
+    "60s": 43200
+  },
+  "crossovers": {
+    "per-session@1s": 20,
+    "per-session@3s": "none",
+    "hourly@1s": 1389,
+    "hourly@3s": "none",
+    "daily@1s": 33331,
+    "daily@3s": "none"
+  },
+  "table": [
+    {
+      "cadence": "per-session",
+      "sites": 1,
+      "sync": "1s",
+      "putsPerMonth": 52112,
+      "overBudget": false
+    },
+    {
+      "cadence": "per-session",
+      "sites": 10,
+      "sync": "1s",
+      "putsPerMonth": 520310,
+      "overBudget": false
+    },
+    {
+      "cadence": "per-session",
+      "sites": 50,
+      "sync": "1s",
+      "putsPerMonth": 2592090,
+      "overBudget": true
+    },
+    {
+      "cadence": "per-session",
+      "sites": 100,
+      "sync": "1s",
+      "putsPerMonth": 2592090,
+      "overBudget": true
+    },
+    {
+      "cadence": "per-session",
+      "sites": 1000,
+      "sync": "1s",
+      "putsPerMonth": 2592090,
+      "overBudget": true
+    },
+    {
+      "cadence": "hourly",
+      "sites": 1,
+      "sync": "1s",
+      "putsPerMonth": 810,
+      "overBudget": false
+    },
+    {
+      "cadence": "hourly",
+      "sites": 10,
+      "sync": "1s",
+      "putsPerMonth": 7290,
+      "overBudget": false
+    },
+    {
+      "cadence": "hourly",
+      "sites": 50,
+      "sync": "1s",
+      "putsPerMonth": 36090,
+      "overBudget": false
+    },
+    {
+      "cadence": "hourly",
+      "sites": 100,
+      "sync": "1s",
+      "putsPerMonth": 72090,
+      "overBudget": false
+    },
+    {
+      "cadence": "hourly",
+      "sites": 1000,
+      "sync": "1s",
+      "putsPerMonth": 720090,
+      "overBudget": false
+    },
+    {
+      "cadence": "daily",
+      "sites": 1,
+      "sync": "1s",
+      "putsPerMonth": 120,
+      "overBudget": false
+    },
+    {
+      "cadence": "daily",
+      "sites": 10,
+      "sync": "1s",
+      "putsPerMonth": 390,
+      "overBudget": false
+    },
+    {
+      "cadence": "daily",
+      "sites": 50,
+      "sync": "1s",
+      "putsPerMonth": 1590,
+      "overBudget": false
+    },
+    {
+      "cadence": "daily",
+      "sites": 100,
+      "sync": "1s",
+      "putsPerMonth": 3090,
+      "overBudget": false
+    },
+    {
+      "cadence": "daily",
+      "sites": 1000,
+      "sync": "1s",
+      "putsPerMonth": 30090,
+      "overBudget": false
+    }
+  ]
+}

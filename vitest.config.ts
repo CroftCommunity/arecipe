@@ -6,6 +6,9 @@ import { configDefaults, defineConfig } from 'vitest/config';
 // substring filter, which otherwise matches `.claude/worktrees/*/tests/unit`.
 export default defineConfig({
   test: {
-    exclude: [...configDefaults.exclude, '.claude/**'],
+    // `measure-proof/**` is a self-contained scratch experiment repo with its own
+    // vitest config; its tests (`measure-proof/tests/unit/*`) match the `tests/unit`
+    // substring filter, so exclude them from the app's unit run.
+    exclude: [...configDefaults.exclude, '.claude/**', 'measure-proof/**'],
   },
 });

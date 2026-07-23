@@ -1,0 +1,257 @@
+# measure-proof metric registry (Glean-shaped).
+#
+# This ONE file is the source of truth. From it the generator emits three
+# artifacts (typed client calls, the disclosure-panel data structure, and test
+# fixtures). Drift between any of them and this file is a failing test, not a
+# documentation debt.
+#
+# Every entry declares at minimum: type, description, expires, disclosure.
+#   type        one of: page | feature | timing | edge
+#   description internal, for engineers
+#   expires     YYYY-MM-DD — honored at runtime by the generated client (E6)
+#   disclosure  plain-language line shown to the user in the panel
+# Type-specific required fields:
+#   edge        from, to   (a declared transition nav.<from>__to__<to>)
+# Optional, open-world fields (page info, timing unit, feature label) are
+# preserved but never required.
+
+metrics:
+  # ── pages ────────────────────────────────────────────────────────────────
+  page_home:
+    type: page
+    description: Landing on the home page
+    expires: 2027-06-30
+    disclosure: "That the home screen was opened"
+    info: route
+  page_browse:
+    type: page
+    description: Landing on the browse/search page
+    expires: 2027-06-30
+    disclosure: "That the browse screen was opened"
+    info: route
+  page_recipe:
+    type: page
+    description: Viewing a recipe
+    expires: 2027-06-30
+    disclosure: "That a recipe page was opened (not which recipe)"
+    info: route
+  page_cookbook:
+    type: page
+    description: Viewing a cookbook
+    expires: 2027-06-30
+    disclosure: "That a cookbook was opened"
+    info: route
+  page_meals:
+    type: page
+    description: Opening the meal planner
+    expires: 2027-06-30
+    disclosure: "That the meal planner was opened"
+    info: route
+  page_timers:
+    type: page
+    description: Opening the timers page
+    expires: 2027-06-30
+    disclosure: "That the timers screen was opened"
+    info: route
+  page_mine:
+    type: page
+    description: Opening your own recipes
+    expires: 2027-06-30
+    disclosure: "That your own-recipes screen was opened"
+    info: route
+  page_editor:
+    type: page
+    description: Opening the recipe editor
+    expires: 2027-06-30
+    disclosure: "That the recipe editor was opened"
+    info: route
+  page_guide:
+    type: page
+    description: Opening the user guide
+    expires: 2027-06-30
+    disclosure: "That the guide was opened"
+    info: route
+  page_settings:
+    type: page
+    description: Opening settings
+    expires: 2027-06-30
+    disclosure: "That the settings screen was opened"
+    info: route
+
+  # ── features ─────────────────────────────────────────────────────────────
+  feat_search:
+    type: feature
+    description: A search was run
+    expires: 2027-06-30
+    disclosure: "That the search box was used (not what you searched for)"
+    label: query
+  feat_filter:
+    type: feature
+    description: A browse filter was applied
+    expires: 2027-06-30
+    disclosure: "That a filter was applied while browsing"
+    label: tag
+  feat_cook_focus:
+    type: feature
+    description: Cook/focus mode entered
+    expires: 2027-06-30
+    disclosure: "That cook mode was started"
+    label: enter
+  feat_share:
+    type: feature
+    description: A recipe share link was created
+    expires: 2027-06-30
+    disclosure: "That a share link was created"
+    label: link
+  feat_plan_add:
+    type: feature
+    description: A recipe was added to the meal plan
+    expires: 2027-06-30
+    disclosure: "That a recipe was added to the meal planner"
+    label: meals
+  feat_timer_start:
+    type: feature
+    description: A timer was started
+    expires: 2027-06-30
+    disclosure: "That a timer was started"
+    label: step
+  feat_open_recipe:
+    type: feature
+    description: A recipe was opened from a list
+    expires: 2027-06-30
+    disclosure: "That a recipe was opened from a list"
+    label: recipe
+  feat_save:
+    type: feature
+    description: A recipe was saved in the editor
+    expires: 2027-06-30
+    disclosure: "That a recipe was saved"
+    label: recipe
+  feat_guide_jump:
+    type: feature
+    description: A jump to a guide section
+    expires: 2027-06-30
+    disclosure: "That a guide section was opened"
+    label: section
+  feat_theme_toggle:
+    type: feature
+    description: The light/dark theme was toggled
+    expires: 2027-06-30
+    disclosure: "That the theme was switched"
+    label: mode
+
+  # ── timings ──────────────────────────────────────────────────────────────
+  time_home_load:
+    type: timing
+    description: Home page load time
+    expires: 2027-06-30
+    disclosure: "How long the home screen took to load (coarse buckets)"
+    unit: ms
+  time_browse_load:
+    type: timing
+    description: Browse page load time
+    expires: 2027-06-30
+    disclosure: "How long the browse screen took to load (coarse buckets)"
+    unit: ms
+  time_browse_first_result:
+    type: timing
+    description: Time to first browse result
+    expires: 2027-06-30
+    disclosure: "How long until the first browse result appeared (coarse buckets)"
+    unit: ms
+  time_recipe_load:
+    type: timing
+    description: Recipe page load time
+    expires: 2027-06-30
+    disclosure: "How long a recipe took to load (coarse buckets)"
+    unit: ms
+  time_cookbook_load:
+    type: timing
+    description: Cookbook page load time
+    expires: 2027-06-30
+    disclosure: "How long a cookbook took to load (coarse buckets)"
+    unit: ms
+  time_meals_load:
+    type: timing
+    description: Meal planner load time
+    expires: 2027-06-30
+    disclosure: "How long the meal planner took to load (coarse buckets)"
+    unit: ms
+  time_mine_load:
+    type: timing
+    description: Own-recipes load time
+    expires: 2027-06-30
+    disclosure: "How long your own-recipes screen took to load (coarse buckets)"
+    unit: ms
+
+  # ── declared edges (aggregate flow, no individual journeys) ───────────────
+  nav_home__to__browse:
+    type: edge
+    description: Home to browse
+    expires: 2027-06-30
+    disclosure: "That someone moved from home to browse"
+    from: home
+    to: browse
+  nav_home__to__recipe:
+    type: edge
+    description: Home to a recipe
+    expires: 2027-06-30
+    disclosure: "That someone moved from home to a recipe"
+    from: home
+    to: recipe
+  nav_home__to__cookbook:
+    type: edge
+    description: Home to a cookbook
+    expires: 2027-06-30
+    disclosure: "That someone moved from home to a cookbook"
+    from: home
+    to: cookbook
+  nav_browse__to__recipe:
+    type: edge
+    description: Browse to a recipe
+    expires: 2027-06-30
+    disclosure: "That someone moved from browse to a recipe"
+    from: browse
+    to: recipe
+  nav_recipe__to__timers:
+    type: edge
+    description: Recipe to timers
+    expires: 2027-06-30
+    disclosure: "That someone moved from a recipe to timers"
+    from: recipe
+    to: timers
+  nav_recipe__to__meals:
+    type: edge
+    description: Recipe to the meal planner
+    expires: 2027-06-30
+    disclosure: "That someone moved from a recipe to the meal planner"
+    from: recipe
+    to: meals
+  nav_recipe__to__browse:
+    type: edge
+    description: Recipe back to browse
+    expires: 2027-06-30
+    disclosure: "That someone moved from a recipe back to browse"
+    from: recipe
+    to: browse
+  nav_cookbook__to__recipe:
+    type: edge
+    description: Cookbook to a recipe
+    expires: 2027-06-30
+    disclosure: "That someone moved from a cookbook to a recipe"
+    from: cookbook
+    to: recipe
+  nav_meals__to__recipe:
+    type: edge
+    description: Meal planner to a recipe
+    expires: 2027-06-30
+    disclosure: "That someone moved from the meal planner to a recipe"
+    from: meals
+    to: recipe
+  nav_timers__to__recipe:
+    type: edge
+    description: Timers back to a recipe
+    expires: 2027-06-30
+    disclosure: "That someone moved from timers back to a recipe"
+    from: timers
+    to: recipe

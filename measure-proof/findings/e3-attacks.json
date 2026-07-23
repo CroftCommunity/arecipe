@@ -1,0 +1,77 @@
+{
+  "profile": "small",
+  "sessions": 641,
+  "devices": 233,
+  "rows": [
+    {
+      "scenario": "naive baseline",
+      "A1_prec": 0.979,
+      "A1_rec": 1,
+      "A1_f1": 0.989,
+      "A2_acc": 1,
+      "A3_minCombo": 1,
+      "A3_isolable": 66,
+      "A3_frac": 0.103
+    },
+    {
+      "scenario": "+ jittered flush",
+      "A1_prec": 0.979,
+      "A1_rec": 1,
+      "A1_f1": 0.989,
+      "A2_acc": 0.581,
+      "A3_minCombo": 1,
+      "A3_isolable": 81,
+      "A3_frac": 0.126
+    },
+    {
+      "scenario": "+ IP dropped",
+      "A1_prec": 0.004,
+      "A1_rec": 0.157,
+      "A1_f1": 0.008,
+      "A2_acc": 1,
+      "A3_minCombo": 1,
+      "A3_isolable": 66,
+      "A3_frac": 0.103
+    },
+    {
+      "scenario": "+ no per-flush id",
+      "A1_prec": 0.979,
+      "A1_rec": 1,
+      "A1_f1": 0.989,
+      "A2_acc": 1,
+      "A3_minCombo": 1,
+      "A3_isolable": 66,
+      "A3_frac": 0.103
+    },
+    {
+      "scenario": "+ coarse time (1 day)",
+      "A1_prec": 0.979,
+      "A1_rec": 1,
+      "A1_f1": 0.989,
+      "A2_acc": 1,
+      "A3_minCombo": 1,
+      "A3_isolable": 19,
+      "A3_frac": 0.03
+    },
+    {
+      "scenario": "+ min-count suppression (>=2)",
+      "A1_prec": 0.979,
+      "A1_rec": 1,
+      "A1_f1": 0.989,
+      "A2_acc": 1,
+      "A3_minCombo": 1,
+      "A3_isolable": 113,
+      "A3_frac": 0.176
+    },
+    {
+      "scenario": "ALL mitigations",
+      "A1_prec": 0.004,
+      "A1_rec": 0.114,
+      "A1_f1": 0.008,
+      "A2_acc": 0.581,
+      "A3_minCombo": 1,
+      "A3_isolable": 49,
+      "A3_frac": 0.076
+    }
+  ]
+}
