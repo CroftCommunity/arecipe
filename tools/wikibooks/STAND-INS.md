@@ -23,6 +23,18 @@ would make it real**.
   running `wbsync publish --publish`. Deliberately **not** covered by any live
   test — the brief keeps publish dry (D12: "Do not point the live test at a PDS").
 
+### `HttpPdsClient` (`src/publish/http-pds.ts`) — untested real code
+- **Stands in for:** nothing at test time — it is the REAL PDS client, but it is
+  never exercised by the suite (publish stays dry, D12). It is the untested
+  boundary: a live `wbsync publish --publish` against `cookbook.arecipe.app` is
+  what would exercise it.
+- **applyWrites vs putRecord:** the brief says batch via
+  `com.atproto.repo.applyWrites` "if the pinned SDK exposes it; otherwise
+  sequential putRecord with backoff." There is no SDK (zero runtime deps), so we
+  take the **sequential putRecord** path — which also buys idempotent, resumable
+  application. Making applyWrites real: add a batched `applyWrites` XRPC call and
+  a lexicon check that the PDS accepts it.
+
 ### `FakeClock` (`src/util/clock.ts`)
 - **Stands in for:** wall-clock time and real `setTimeout` delays.
 - **Where:** etiquette backoff/gap tests; any transform test needing `retrievedAt`.
