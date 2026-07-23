@@ -13,6 +13,7 @@ import { createRecipeCache, type CachedRecipe } from '../recipes/cache.js';
 import { createExclusions } from '../recipes/exclusions.js';
 import { collapseVersions } from '../recipes/model.js';
 import { createStarterPrefs, loadStarterFeed } from '../recipes/starter.js';
+import { loadSnapshotFeed } from '../snapshot/load.js';
 import { createCookFollowsLocal } from '../social/cook-follows-local.js';
 import { mergeCookAuthors } from '../social/default-feed.js';
 import { createRecipeReader } from '../recipes/read.js';
@@ -623,7 +624,30 @@ const main = async (): Promise<void> => {
       toolbar.setStatus('starter pack is off — search a cook above');
       return;
     }
-    toolbar.setStatus('loading your starter pack…');
+    // D2: paint from the precached build-time snapshot FIRST — index + shards
+    // are same-origin, immutable, and precached, so first paint costs zero PDS
+    // network. Filter to the cooks currently enabled/followed. Seeding the cache
+    // here also means the live load below degrades to these copies if the
+    // network is down, so the feed never blanks.
+    const authorDids = new Set(authors.map((a) => a.did));
+    const snap = await loadSnapshotFeed({ cache }).catch((err: unknown) => {
+      log.warn('snapshot', 'snapshot feed failed — live only', { error: String(err) });
+      return null;
+    });
+    if (gen !== generation) return;
+    if (snap !== null) {
+      const entries = snap.entries.filter((e) => authorDids.has(e.uri.split('/')[2] ?? ''));
+      if (entries.length > 0) {
+        current = { entries, kind: 'starter', authorsByDid: snap.authorsByDid, statusSuffix: '' };
+        browseOffset = 0;
+        showCurrent();
+      }
+    }
+
+    // Then revalidate off the critical path: the live feed refreshes identity +
+    // content, and live always wins over the provisional snapshot (D4). A
+    // failure here keeps the snapshot rendered (degrade-not-blank).
+    if (snap === null) toolbar.setStatus('loading your starter pack…');
     const feed = await loadStarterFeed(authors);
     if (gen !== generation) return; // the user searched while we loaded
     const failed =

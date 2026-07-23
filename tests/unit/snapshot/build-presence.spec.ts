@@ -81,7 +81,13 @@ const version = (): string =>
   (JSON.parse(readFileSync(`${root}dist/build-info.json`, 'utf8')) as { version: string }).version;
 
 describe('build snapshot emission', () => {
-  afterAll(() => rmSync(STAGING, { recursive: true, force: true }));
+  // Leave dist/ clean (these tests build with fixture staging / a forced-fail
+  // ceiling). The gate rebuilds before e2e anyway, but this avoids a confusing
+  // stale dist for anyone running suites out of order.
+  afterAll(() => {
+    rmSync(STAGING, { recursive: true, force: true });
+    execFileSync('node', ['scripts/build.mjs'], { cwd: root, stdio: 'ignore' });
+  });
 
   it('emits the snapshot from staging into dist/assets/snapshot/<buildId>/', () => {
     writeStaging();
