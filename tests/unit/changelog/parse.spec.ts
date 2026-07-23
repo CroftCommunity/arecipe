@@ -12,7 +12,7 @@
 // - each entry carries sha/shortSha/date/commitUrl (+ pr/prUrl when present).
 import { describe, expect, it } from 'vitest';
 // @ts-expect-error - plain-JS build helper (JSDoc-typed), same as scripts/md-to-html.mjs
-import { normalizeRepoUrl, parseChangelog } from '../../../scripts/changelog.mjs';
+import { mergeChangelog, normalizeRepoUrl, parseChangelog } from '../../../scripts/changelog.mjs';
 
 const REPO = 'https://github.com/CroftCommunity/arecipe';
 
@@ -90,6 +90,42 @@ describe('parseChangelog', () => {
       { repoUrl: REPO },
     );
     expect(out.map((e: { text: string }) => e.text)).toEqual(['newer', 'older']);
+  });
+});
+
+describe('mergeChangelog (backlog seed ∪ git-derived)', () => {
+  const e = (sha: string, date: string, text: string) => ({
+    date,
+    category: 'added',
+    text,
+    sha,
+    shortSha: sha.slice(0, 7),
+    commitUrl: `https://github.com/CroftCommunity/arecipe/commit/${sha}`,
+  });
+
+  it('unions seed and derived, newest date first', () => {
+    const out = mergeChangelog([e('seed001', '2026-07-10', 'backlog thing')], [e('der0001', '2026-07-20', 'new thing')]);
+    expect(out.map((x: { text: string }) => x.text)).toEqual(['new thing', 'backlog thing']);
+  });
+
+  it('dedupes by sha, with the git-derived (live) entry winning', () => {
+    const out = mergeChangelog(
+      [e('shaXXXX', '2026-07-15', 'stale seed text')],
+      [e('shaXXXX', '2026-07-15', 'fresh trailer text')],
+    );
+    expect(out).toHaveLength(1);
+    expect(out[0].text).toBe('fresh trailer text');
+  });
+
+  it('keeps seed-only entries whose sha is absent from derived (the durable backlog)', () => {
+    const out = mergeChangelog([e('onlySeed', '2026-07-01', 'pre-convention change')], []);
+    expect(out).toHaveLength(1);
+    expect(out[0].text).toBe('pre-convention change');
+  });
+
+  it('handles an empty seed', () => {
+    const out = mergeChangelog([], [e('der0001', '2026-07-20', 'only derived')]);
+    expect(out.map((x: { text: string }) => x.text)).toEqual(['only derived']);
   });
 });
 

@@ -1,8 +1,15 @@
-// Pure changelog logic, shared by scripts/build.mjs (which collects commits from
-// `git log` and writes dist/changelog.json) and tests/unit/changelog/parse.spec.ts.
-// No I/O here — the git exec lives in build.mjs — so this stays unit-testable, the
-// same split as scripts/md-to-html.mjs. Plain ESM JS with JSDoc types (not TS),
-// because build.mjs is Node and cannot import TS at runtime.
+// Changelog logic, shared by scripts/build.mjs (writes dist/changelog.json),
+// scripts/changelog-bake.mjs (folds derived entries into the seed), and
+// tests/unit/changelog/parse.spec.ts. The parse/merge/normalize functions are
+// PURE (no I/O) so they stay unit-testable; collectCommits/repoUrlFromGit are the
+// thin git-exec used by the build tools (never imported by the app or the tests).
+// Plain ESM JS with JSDoc types (not TS), because build.mjs is Node and cannot
+// import TS at runtime — same split as scripts/md-to-html.mjs.
+import { execSync } from 'node:child_process';
+
+// Control-char delimiters that never occur in commit text.
+const FIELD = '\x1f';
+const REC = '\x1e';
 
 /** @typedef {'added' | 'changed' | 'fixed' | 'removed'} Category */
 /** @typedef {{ sha: string, subject: string, date: string, body: string }} GitCommit */
@@ -68,6 +75,25 @@ export function parseChangelog(commits, { repoUrl }) {
 }
 
 /**
+ * Merge a hand-authored backlog seed with the git-derived entries: union deduped
+ * by sha, newest date first. A git-derived (live-trailer) entry wins over a seed
+ * entry with the same sha, so an edited trailer self-heals on the next build.
+ * Seed-only entries — shas absent from the derived set, i.e. the pre-convention
+ * backlog or commits whose trailers a history rewrite dropped — are kept, so the
+ * published changelog only grows.
+ * @param {ChangelogEntry[]} seed
+ * @param {ChangelogEntry[]} derived
+ * @returns {ChangelogEntry[]}
+ */
+export function mergeChangelog(seed, derived) {
+  /** @type {Map<string, ChangelogEntry>} */
+  const bySha = new Map();
+  for (const entry of seed) bySha.set(entry.sha, entry);
+  for (const entry of derived) bySha.set(entry.sha, entry); // live entry wins on collision
+  return [...bySha.values()].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+}
+
+/**
  * Normalize a git remote URL to its canonical `https://github.com/<owner>/<repo>`
  * form. Handles SSH remotes (including SSH-alias hosts like `github-personal`)
  * and https remotes, and strips a trailing `.git`. Forces the github.com host so
@@ -80,4 +106,31 @@ export function normalizeRepoUrl(remote) {
   const m = s.match(/[:/]([^/:]+\/[^/:]+)$/); // last two path segments = owner/repo
   const ownerRepo = m ? m[1] : s;
   return `https://github.com/${ownerRepo}`;
+}
+
+// --- git-exec (Node-only build helpers; not imported by the app or the tests) ---
+
+/**
+ * Collect commits from `git log`, newest-first, as GitCommit records. Needs git
+ * history (CI checks out fetch-depth:0); a shallow clone just yields fewer commits.
+ * @returns {GitCommit[]}
+ */
+export function collectCommits() {
+  const raw = execSync(`git log --format=%H${FIELD}%aI${FIELD}%s${FIELD}%b${REC}`, {
+    encoding: 'utf8',
+    maxBuffer: 64 * 1024 * 1024,
+  });
+  return raw
+    .split(REC)
+    .map((r) => r.trim())
+    .filter((r) => r !== '')
+    .map((rec) => {
+      const parts = rec.split(FIELD);
+      return { sha: parts[0], date: parts[1], subject: parts[2] ?? '', body: parts.slice(3).join(FIELD) };
+    });
+}
+
+/** The canonical github.com repo URL, from `git config remote.origin.url`. */
+export function repoUrlFromGit() {
+  return normalizeRepoUrl(execSync('git config --get remote.origin.url', { encoding: 'utf8' }).trim());
 }

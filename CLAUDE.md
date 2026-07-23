@@ -81,6 +81,12 @@ run the other sub-gates directly and use the config above for e2e.
   - **Squash caveat:** PRs squash-merge to `main`, so the trailer must be in the
     **final squash commit message** (edit the PR's squash body), not only in an
     intermediate commit — otherwise it won't reach `main`'s history.
+  - **Backlog / durability:** entries that aren't derivable from a trailer
+    (pre-convention history) live in `changelog.seed.json` (hand-authored); the
+    build unions + dedupes it with the git-derived entries. `npm run changelog:bake`
+    folds the current derived entries into that seed to make them permanent (they
+    survive a history rewrite). Prefer a trailer for new changes; use the seed for
+    backlog.
 
 ## Previews on a PR — and the agent gotcha
 
