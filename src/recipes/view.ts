@@ -7,9 +7,11 @@
 
 import { referenceIconLink } from '../icons.js';
 import { recipeFacets } from '../pages/browse-state.js';
+import type { ScreenWakeLock, WakeLockState } from '../ui/wake-lock.js';
 import type { CachedRecipe } from './cache.js';
 import { dishKeyOf, funFactsOf, versionLabelOf, type FunFact } from './model.js';
 import { firstImageCid, firstImageCredit, formatDuration, formatPublishedDate, thumbUrl } from './present.js';
+import { initStepState, stepReducer, stepStatusAt, type StepState } from './step-state.js';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
   const node = document.createElement(tag);
@@ -353,18 +355,94 @@ export const renderVersionBar = (opts: {
   return bar;
 };
 
+/** The visible wake-lock status line in `.focus-top` (D2). Held → a quiet
+ *  reassurance; anything else (idle/denied/unsupported) renders NOTHING — no
+ *  warning, no "your browser doesn't support" nag. Subscribes to the lock so it
+ *  reflects a mid-session platform release/re-acquire. Rendered even with no
+ *  lock (stays empty) so the testid always resolves. */
+const wakeStateEl = (wakeLock: ScreenWakeLock | undefined): HTMLElement => {
+  const status = el('span', 'focus-wake-state');
+  status.dataset['testid'] = 'wake-state';
+  const paint = (s: WakeLockState): void => {
+    status.textContent = s === 'held' ? 'screen staying on' : '';
+  };
+  if (wakeLock !== undefined) {
+    paint(wakeLock.state);
+    wakeLock.subscribe(paint);
+  } else {
+    paint('idle');
+  }
+  return status;
+};
+
+/** The step-at-a-time instructions section (D3): the FULL <ol> stays in the
+ *  DOM — exactly one step is `current` (aria-current + prominence), earlier
+ *  steps recede as `done`, later steps are untouched. Next/Back move the current
+ *  step (clamped, no wraparound) and tapping any step makes it current. State is
+ *  per session, held in a pure reducer; nothing is persisted or hidden. */
+const focusInstructionsEl = (lines: string[]): HTMLElement => {
+  const section = el('section', 'focus-instructions-section');
+  section.append(el('h3', undefined, 'Instructions'));
+  const list = el('ol', 'focus-instructions') as HTMLOListElement;
+  list.dataset['testid'] = 'focus-instructions';
+  const items = lines.map((line, i) => {
+    const li = el('li', 'focus-step', line) as HTMLLIElement;
+    li.dataset['stepIndex'] = String(i);
+    list.append(li);
+    return li;
+  });
+  section.append(list);
+
+  let state: StepState = initStepState(lines.length);
+  const paint = (): void => {
+    items.forEach((li, i) => {
+      const status = stepStatusAt(state, i);
+      li.classList.toggle('step-done', status === 'done');
+      li.classList.toggle('step-current', status === 'current');
+      if (status === 'current') li.setAttribute('aria-current', 'step');
+      else li.removeAttribute('aria-current');
+    });
+  };
+  const dispatch = (action: Parameters<typeof stepReducer>[1]): void => {
+    state = stepReducer(state, action);
+    paint();
+  };
+  items.forEach((li, i) => li.addEventListener('click', () => dispatch({ type: 'setCurrent', index: i })));
+
+  const controls = el('div', 'focus-step-controls');
+  const back = el('button', 'button focus-step-back', '‹ Back') as HTMLButtonElement;
+  back.type = 'button';
+  back.dataset['testid'] = 'step-back';
+  back.addEventListener('click', () => dispatch({ type: 'back' }));
+  const next = el('button', 'button focus-step-next', 'Next ›') as HTMLButtonElement;
+  next.type = 'button';
+  next.dataset['testid'] = 'step-next';
+  next.addEventListener('click', () => dispatch({ type: 'next' }));
+  controls.append(back, next);
+  section.append(controls);
+
+  paint();
+  return section;
+};
+
 /** ⛶ Focus mode: a distraction-free cook view of ONE version — image +
- *  ingredients + instructions only, larger type. The caller (recipe.ts) owns
- *  showing it full-screen (Fullscreen API / overlay) and removing it on exit. */
+ *  ingredients + step-at-a-time instructions, cook-scale type. The caller
+ *  (recipe.ts) owns showing it full-screen (Fullscreen API / overlay), the
+ *  screen wake lock's lifecycle, and removing it on exit. */
 export const renderFocusView = (
   entry: CachedRecipe,
-  opts: { onExit: () => void },
+  opts: { onExit: () => void; wakeLock?: ScreenWakeLock },
 ): HTMLElement => {
   const value = entry.value as RecipeValue;
   const overlay = el('div', 'focus-view');
   overlay.dataset['testid'] = 'focus-view';
   const top = el('div', 'focus-top');
-  top.append(el('h2', 'focus-title', value.name ?? '(untitled)'));
+  // Left cluster: the title with the (silent-unless-held) wake status beneath it,
+  // so the exit control stays hard-right on its own.
+  const heading = el('div', 'focus-top-heading');
+  heading.append(el('h2', 'focus-title', value.name ?? '(untitled)'));
+  heading.append(wakeStateEl(opts.wakeLock));
+  top.append(heading);
   const exit = el('button', 'button focus-exit', '✕ Exit focus') as HTMLButtonElement;
   exit.type = 'button';
   exit.dataset['testid'] = 'focus-exit';
@@ -381,10 +459,7 @@ export const renderFocusView = (
   const ingredients = el('section');
   ingredients.append(el('h3', undefined, 'Ingredients'));
   ingredients.append(listEl('ul', 'focus-ingredients', value.ingredients ?? []));
-  const instructions = el('section');
-  instructions.append(el('h3', undefined, 'Instructions'));
-  instructions.append(listEl('ol', 'focus-instructions', value.instructions ?? []));
-  cols.append(ingredients, instructions);
+  cols.append(ingredients, focusInstructionsEl(value.instructions ?? []));
   overlay.append(cols);
   return overlay;
 };
