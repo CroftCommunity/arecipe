@@ -162,7 +162,7 @@ test('undated planner: the week selector narrows the shopping list', async ({ pa
       /* private mode: palette stays empty */
     }
   }, PALETTE);
-  await page.goto('/meals.html');
+  await page.goto('/plan.html');
 
   // Place Lasagna in week 1, add a week, place Salad in week 2.
   await page.getByTestId('palette-chip').filter({ hasText: 'Lasagna' }).click();

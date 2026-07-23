@@ -13,6 +13,6 @@ test('archive page: signed out, it invites sign-in and links back to the publish
   page.on('pageerror', (e) => errors.push(String(e)));
   await page.goto('/archive.html');
   await expect(page.getByTestId('archive-body')).toContainText('Sign in', { timeout: 15_000 });
-  await expect(page.getByTestId('archive-back')).toHaveAttribute('href', /meals\.html\?plans$/);
+  await expect(page.getByTestId('archive-back')).toHaveAttribute('href', /meals\.html$/);
   expect(errors).toEqual([]);
 });

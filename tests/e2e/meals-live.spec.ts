@@ -82,7 +82,7 @@ test('@live meal plan syncs to the PDS and survives eviction', async ({ page, ba
   }, SEED);
 
   await signIn(page, { handle: HANDLE, password: PASSWORD, origin });
-  await page.goto('/meals.html');
+  await page.goto('/plan.html');
   // Name the plan so the record is findable for cleanup (default name otherwise).
   await page.evaluate((marker) => {
     try {
@@ -94,7 +94,7 @@ test('@live meal plan syncs to the PDS and survives eviction', async ({ page, ba
       /* ignore */
     }
   }, MARKER);
-  await page.goto('/meals.html');
+  await page.goto('/plan.html');
 
   // Place the seeded recipe on Monday of week 1 — this persists + syncs.
   await page.getByTestId('palette-chip').first().click();
@@ -116,7 +116,7 @@ test('@live meal plan syncs to the PDS and survives eviction', async ({ page, ba
       /* ignore */
     }
   });
-  await page.goto('/meals.html');
+  await page.goto('/plan.html');
   const notice = page.getByTestId('recovery-notice');
   await expect(notice).toBeVisible({ timeout: 30_000 });
   await expect(page.getByTestId('slot-filled')).toHaveCount(0); // fresh canvas, nothing adopted
@@ -124,7 +124,7 @@ test('@live meal plan syncs to the PDS and survives eviction', async ({ page, ba
   // Resume: opens the record as a STAGED copy (banner + the placed recipe back
   // on the canvas), publishable in place from there.
   await notice.getByTestId('recovery-resume').click();
-  await expect(page).toHaveURL(/meals\.html\?edit=/);
+  await expect(page).toHaveURL(/plan\.html\?edit=/);
   await expect(page.getByTestId('edit-banner')).toBeVisible({ timeout: 30_000 });
   await expect(page.getByTestId('slot-filled').first()).toBeVisible({ timeout: 30_000 });
 
@@ -153,7 +153,7 @@ test('@live publish a plan, then open the shared link anonymously', async ({
   }, SEED);
 
   await signIn(page, { handle: HANDLE, password: PASSWORD, origin });
-  await page.goto('/meals.html');
+  await page.goto('/plan.html');
   // Name the plan (MARKER) so cleanup can find the record.
   await page.evaluate((marker) => {
     try {
@@ -165,7 +165,7 @@ test('@live publish a plan, then open the shared link anonymously', async ({
       /* ignore */
     }
   }, MARKER);
-  await page.goto('/meals.html');
+  await page.goto('/plan.html');
 
   // Place a recipe and anchor a start date, then Publish.
   await page.getByTestId('palette-chip').first().click();
@@ -216,7 +216,7 @@ test('@live "Published" plans subpage lists a published plan, then deletes it', 
   }, SEED);
 
   await signIn(page, { handle: HANDLE, password: PASSWORD, origin });
-  await page.goto('/meals.html');
+  await page.goto('/plan.html');
   await page.evaluate((marker) => {
     try {
       const raw = localStorage.getItem('arecipe.mealplans.v1');
@@ -227,7 +227,7 @@ test('@live "Published" plans subpage lists a published plan, then deletes it', 
       /* ignore */
     }
   }, MARKER);
-  await page.goto('/meals.html');
+  await page.goto('/plan.html');
 
   await page.getByTestId('palette-chip').first().click();
   await page.getByTestId('week-row').first().getByTestId('day-slot').first().click();
@@ -235,10 +235,10 @@ test('@live "Published" plans subpage lists a published plan, then deletes it', 
   await page.getByTestId('publish-plan').click();
   await expect(page.getByTestId('share-url')).toBeVisible({ timeout: 30_000 });
 
-  // The "Published" plans subpage lists the published plan with its week range + a
-  // share link, and can delete it.
-  await page.getByTestId('my-plans').click();
-  await expect(page).toHaveURL(/meals\.html\?plans$/);
+  // The Menu tab lists the published plan with its week range + a share link,
+  // and can delete it.
+  await page.getByTestId('tab-meals').click();
+  await expect(page).toHaveURL(/meals\.html$/);
   // Plans are titled by date range now (not the generic name), so filter the
   // row by its published-date meta instead.
   const row = page.getByTestId('plan-row').filter({ hasText: 'published' });
@@ -274,7 +274,7 @@ test('@live edit a published plan in place from the Published subpage', async ({
   }, SEED);
 
   await signIn(page, { handle: HANDLE, password: PASSWORD, origin });
-  await page.goto('/meals.html');
+  await page.goto('/plan.html');
   await page.evaluate((marker) => {
     try {
       const raw = localStorage.getItem('arecipe.mealplans.v1');
@@ -285,7 +285,7 @@ test('@live edit a published plan in place from the Published subpage', async ({
       /* ignore */
     }
   }, MARKER);
-  await page.goto('/meals.html');
+  await page.goto('/plan.html');
 
   // Publish a one-recipe plan (Monday), anchored on a Monday.
   await page.getByTestId('palette-chip').first().click();
@@ -295,12 +295,12 @@ test('@live edit a published plan in place from the Published subpage', async ({
   await expect(page.getByTestId('share-url')).toBeVisible({ timeout: 30_000 });
 
   // Open the Published subpage and enter edit mode from the row's Edit button.
-  await page.goto('/meals.html?plans');
+  await page.goto('/meals.html');
   const row = page.getByTestId('plan-row').filter({ hasText: 'published' });
   await expect(row).toHaveCount(1, { timeout: 30_000 });
   const shareBefore = await row.getByTestId('plan-open').getAttribute('href');
   await row.getByTestId('plan-edit').click();
-  await expect(page).toHaveURL(/meals\.html\?edit=/);
+  await expect(page).toHaveURL(/plan\.html\?edit=/);
 
   // The planner opens on a STAGED copy of the published plan: banner + the
   // published placement already on the canvas.
@@ -312,7 +312,7 @@ test('@live edit a published plan in place from the Published subpage', async ({
   await page.getByTestId('palette-chip').first().click();
   await page.getByTestId('week-row').first().getByTestId('day-slot').nth(1).click();
   await page.getByTestId('publish-plan').click();
-  await expect(page).toHaveURL(/meals\.html\?plans$/, { timeout: 30_000 });
+  await expect(page).toHaveURL(/meals\.html$/, { timeout: 30_000 });
   const rowAfter = page.getByTestId('plan-row').filter({ hasText: 'published' });
   await expect(rowAfter).toHaveCount(1, { timeout: 30_000 }); // replaced, not added
   expect(await rowAfter.getByTestId('plan-open').getAttribute('href')).toBe(shareBefore);

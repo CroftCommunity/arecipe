@@ -49,7 +49,7 @@ export const isLoopbackHostname = (hostname: string): boolean =>
 type LocationLike = { hostname: string; port: string; pathname?: string };
 
 /** The app's authed pages — those that boot a session (importers of
- * `auth/boot.ts`: signin, account, cookbook, editor, meals, mine, recipe) — as
+ * `auth/boot.ts`: signin, account, cookbook, editor, meals, plan, mine, recipe) — as
  * redirect_uri pathnames. `signin.html` MUST stay first: it is the sole page
  * that completes the OAuth callback, and @atproto/oauth-client defaults BOTH the
  * authorization request and the code exchange to `redirect_uris[0]`. The rest
@@ -61,6 +61,7 @@ export const LOOPBACK_REDIRECT_PATHS = [
   '/cookbook.html',
   '/editor.html',
   '/meals.html',
+  '/plan.html',
   '/mine.html',
   '/recipe.html',
 ] as const;
