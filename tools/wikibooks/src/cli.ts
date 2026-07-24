@@ -100,7 +100,10 @@ export const main = async (argv: string[]): Promise<number> => {
   const flags = new Set(argv.slice(1));
   const publish = flags.has('--publish');
   const reparse = flags.has('--reparse');
-  const runId = nowRunId();
+  // WBSYNC_RUN_ID reuses a prior run's dir so a killed/interrupted publish
+  // resumes: applyPlan's per-run apply-progress.json skips already-applied
+  // writes, and progress accumulates across re-launches until the plan drains.
+  const runId = process.env.WBSYNC_RUN_ID ?? nowRunId();
 
   try {
     switch (command) {
