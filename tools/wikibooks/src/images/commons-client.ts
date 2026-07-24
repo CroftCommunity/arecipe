@@ -49,7 +49,11 @@ export class CommonsClient {
 
   constructor(deps: { fetch?: CommonsFetch; clock?: Clock; limiter?: RateLimiter; contact: string }) {
     this.fetch = deps.fetch ?? ((url, init) => fetch(url, init as RequestInit) as unknown as Promise<CommonsResponse>);
-    this.limiter = deps.limiter ?? new RateLimiter(deps.clock ?? realClock);
+    this.limiter =
+      deps.limiter ??
+      new RateLimiter(deps.clock ?? realClock, {
+        onWait: (i) => process.stderr.write(`  ↳ Commons ${i.reason} — waiting ${Math.round(i.ms / 1000)}s (attempt ${i.attempt + 1})\n`),
+      });
     this.ua = `arecipe-wikibooks-sync/0.1.0 (https://arecipe.app; ${deps.contact})`;
   }
 

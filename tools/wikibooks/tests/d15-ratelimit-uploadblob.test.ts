@@ -37,6 +37,24 @@ test('RateLimiter retries 429 honoring Retry-After, then returns the success', a
   assert.ok(clock.sleeps.includes(2000), `expected a 2000ms Retry-After sleep, got ${clock.sleeps}`);
 });
 
+test('RateLimiter reports each backoff via onWait (429, 5xx, network) so waits are visible', async () => {
+  const clock = new FakeClock(0);
+  const waits: { reason: string; ms: number }[] = [];
+  const rl = new RateLimiter(clock, { minGapMs: 0, onWait: (i) => waits.push({ reason: i.reason, ms: i.ms }) });
+  let calls = 0;
+  await rl.run(async () => {
+    calls++;
+    if (calls === 1) return res(429, { 'Retry-After': '30' });
+    if (calls === 2) return res(503);
+    if (calls === 3) throw new TypeError('fetch failed');
+    return res(200);
+  });
+  assert.equal(calls, 4);
+  assert.ok(waits.some((w) => /429/.test(w.reason) && w.ms === 30000), 'logged the 429 with its Retry-After');
+  assert.ok(waits.some((w) => /5|server/.test(w.reason)), 'logged the 5xx pause');
+  assert.ok(waits.some((w) => /network/i.test(w.reason)), 'logged the network-error backoff');
+});
+
 test('RateLimiter retries a THROWN fetch (transient network error), then returns the success', async () => {
   const clock = new FakeClock(0);
   const rl = new RateLimiter(clock, { minGapMs: 0 });

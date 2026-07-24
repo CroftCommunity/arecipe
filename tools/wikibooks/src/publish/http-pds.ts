@@ -29,6 +29,12 @@ export type PdsDeps = { fetch?: PdsFetch; clock?: Clock; limiter?: RateLimiter }
 
 const realFetch: PdsFetch = (url, init) => fetch(url, init as RequestInit) as unknown as Promise<PdsResponse>;
 
+/** Surface limiter backoffs so a long rate-limit sleep is visible, not a hang. */
+const waitLog = (i: { reason: string; ms: number; attempt: number }): void => {
+  process.stderr.write(`  ↳ PDS ${i.reason} — waiting ${Math.round(i.ms / 1000)}s (attempt ${i.attempt + 1})\n`);
+};
+const defaultLimiter = (clock: Clock): RateLimiter => new RateLimiter(clock, { onWait: waitLog });
+
 export class HttpPdsClient implements PdsClient {
   private readonly service: string;
   private readonly session: Session;
@@ -39,12 +45,12 @@ export class HttpPdsClient implements PdsClient {
     this.service = service;
     this.session = session;
     this.fetch = deps.fetch ?? realFetch;
-    this.limiter = deps.limiter ?? new RateLimiter(deps.clock ?? realClock);
+    this.limiter = deps.limiter ?? defaultLimiter(deps.clock ?? realClock);
   }
 
   static async connect(service: string, identifier: string, password: string, deps: PdsDeps = {}): Promise<HttpPdsClient> {
     const fetchFn = deps.fetch ?? realFetch;
-    const limiter = deps.limiter ?? new RateLimiter(deps.clock ?? realClock);
+    const limiter = deps.limiter ?? defaultLimiter(deps.clock ?? realClock);
     const res = await limiter.run(() =>
       fetchFn(`${service}/xrpc/com.atproto.server.createSession`, {
         method: 'POST',
