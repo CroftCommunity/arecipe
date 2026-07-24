@@ -7,6 +7,42 @@ Tool suite 152 pass / 1 skip; app unit suite green for the touched files
 (nutrition 7/7, view 68/68; 7 pre-existing cook-follow failures on this base are
 unrelated). Pre-existing failure to resolve via the origin/main rebase.
 
+## ⏸ RESUME MONDAY — publish blocked on Bluesky rate limit (2026-07-24)
+
+Build 100% done. Live publish to `arecipe.bsky.social` (PDS
+`phellinus.us-west.host.bsky.network`) is **partially applied and paused** on a
+Bluesky **529 (cumulative overload / rate limit)** — repeated kill+restart cycles
+in the sandbox burned the hourly write + login budget. Limits reset over the
+weekend; resume Monday.
+
+**Live on the account already (safe, idempotent):** 750/750 images uploaded;
+**2,500/3,695 records** written. **~1,195 records remain.**
+
+**Resume in a PERSISTENT terminal (not the sandbox — it reaps long tasks). Steps:**
+1. Re-drop the app-password into a file (the old scratchpad file won't survive;
+   **rotate the credential first** — it's in the session transcript). Extraction
+   in the command below reads a `pw:`-bearing line.
+2. Ledger is left at `transform_version=1` so `--reparse` re-plans all 3,695;
+   `WBSYNC_RUN_ID=2026-07-24T14-56-46-759Z` makes applyPlan skip the 2,500 done
+   and write only the rest. Both records and blob CIDs persist per-item, so it's
+   fully resumable. Run ONCE and let it ride — the limiter now logs backoffs
+   (`↳ PDS 429 …`); do NOT kill+restart (each restart re-triggers the login throttle).
+3. Command (from `tools/wikibooks/`, worktree `arecipe-wt-wbsync`, branch
+   `claude/wbsync-enrich` @ `7c19b9b`):
+   ```
+   WIKIBOOKS_CONTACT=chase@owasp.org \
+   WIKIBOOKS_DISHKEY_MAP=../../spike/wikibooks-dishkeys/wb-dishkeys.approved.json \
+   WIKIBOOKS_PUBLISH_HANDLE=arecipe.bsky.social \
+   WIKIBOOKS_PUBLISH_SERVICE=https://phellinus.us-west.host.bsky.network \
+   WBSYNC_RUN_ID=2026-07-24T14-56-46-759Z \
+   WIKIBOOKS_PUBLISH_APP_PASSWORD="$(sed -E 's/.*[Pp][Ww][[:space:]]*:[[:space:]]*//' <pwfile> | tr -d '\n\r' | awk '{print $1}')" \
+   node --experimental-strip-types bin/wbsync.ts run --reparse --publish
+   ```
+   Done when it prints `Repo rev: <cid>`. Then verify the account lists 3,695
+   `wb-*` records with embeds.
+4. Pre-PR: rebase `claude/wbsync-enrich` onto `origin/main` (also picks up the
+   fix for the 7 pre-existing cook-follow unit failures).
+
 ## Outcome Summary
 
 | Phase | Status | Note |
