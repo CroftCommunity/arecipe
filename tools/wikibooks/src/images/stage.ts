@@ -6,11 +6,12 @@
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import type { ImageCredit, Resolution } from './commons-client.ts';
+import type { BlobRef } from '../publish/record.ts';
 
 export type ImageTarget = { pageid: number; filename: string; alt: string };
 
 export type ManifestEntry =
-  | { status: 'resolved'; file: string; mime: string; width: number; height: number; alt: string; credit: ImageCredit }
+  | { status: 'resolved'; file: string; mime: string; width: number; height: number; alt: string; credit: ImageCredit; blob?: BlobRef }
   | { status: 'skipped'; reason: string };
 export type Manifest = Record<string, ManifestEntry>;
 
@@ -26,7 +27,7 @@ const manifestPath = (dir: string): string => join(dir, 'manifest.json');
 export const loadManifest = (dir: string): Manifest =>
   existsSync(manifestPath(dir)) ? (JSON.parse(readFileSync(manifestPath(dir), 'utf8')) as Manifest) : {};
 
-const saveManifest = (dir: string, m: Manifest): void => {
+export const saveManifest = (dir: string, m: Manifest): void => {
   // Deterministic key order without a replacer (a replacer array would drop the
   // entries' own properties — it filters keys recursively).
   const sorted: Manifest = {};

@@ -37,12 +37,36 @@ test('attachEmbeds uploads the cached rendition and sets record.embed', async ()
   const uploads: string[] = [];
   const pds = { async uploadBlob(bytes: Uint8Array, mime: string): Promise<BlobRef> { uploads.push(`${bytes.length}:${mime}`); return blob('cidUp'); } };
   const items = [item(1, rec()), item(2, rec())];
-  const out = await attachEmbeds(items, { manifest, imagesDir: '/img', pds, readFile: () => new Uint8Array([1, 2, 3]) });
+  const out = await attachEmbeds(items, { manifest, imagesDir: '/img', pds, readFile: () => new Uint8Array([1, 2, 3]), persist: () => {} });
   assert.equal(out.uploaded, 1);
   assert.equal(uploads.length, 1, 'only the resolved one uploaded');
   assert.equal(items[0]!.value.embed?.images[0]!.image.ref.$link, 'cidUp');
   assert.equal(items[0]!.value.embed?.images[0]!.alt, 'Nachos');
   assert.equal(items[1]!.value.embed, undefined, 'skipped manifest entry gets no embed');
+});
+
+test('attachEmbeds reuses a manifest-recorded blob instead of re-uploading (resume-cheap)', async () => {
+  const manifest: Manifest = {
+    '1': { status: 'resolved', file: '1.jpg', mime: 'image/jpeg', width: 800, height: 600, alt: 'Nachos', credit: { license: 'CC0', source: 's' }, blob: blob('cidCached') },
+  };
+  let uploads = 0;
+  const pds = { async uploadBlob(): Promise<BlobRef> { uploads++; return blob('new'); } };
+  const items = [item(1, rec())];
+  const out = await attachEmbeds(items, { manifest, imagesDir: '/img', pds, readFile: () => new Uint8Array([1]) });
+  assert.equal(uploads, 0, 'no upload — reused the recorded blob');
+  assert.equal(out.reused, 1);
+  assert.equal(items[0]!.value.embed?.images[0]!.image.ref.$link, 'cidCached');
+});
+
+test('attachEmbeds records a freshly-uploaded blob into the manifest (persists for resume)', async () => {
+  const manifest: Manifest = {
+    '1': { status: 'resolved', file: '1.jpg', mime: 'image/jpeg', width: 800, height: 600, alt: 'x', credit: { license: 'CC0', source: 's' } },
+  };
+  const pds = { async uploadBlob(): Promise<BlobRef> { return blob('cidFresh'); } };
+  const items = [item(1, rec())];
+  await attachEmbeds(items, { manifest, imagesDir: '/img', pds, readFile: () => new Uint8Array([1]), persist: () => {} });
+  const entry = manifest['1'];
+  assert.equal(entry?.status === 'resolved' ? entry.blob?.ref.$link : undefined, 'cidFresh', 'blob recorded in manifest');
 });
 
 test('attachEmbeds is idempotent — an item already carrying an embed is not re-uploaded', async () => {
