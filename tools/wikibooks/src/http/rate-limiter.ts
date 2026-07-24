@@ -14,6 +14,10 @@ export type RateLimitOpts = {
   backoffBaseMs: number;
   backoffCapMs: number;
   fiveXxPauseMs: number;
+  /** Called before each retry backoff so callers can surface the wait — the
+   *  limiter is otherwise silent, which makes a long rate-limit sleep look like
+   *  a hang. Optional. */
+  onWait?: (info: { reason: string; ms: number; attempt: number }) => void;
 };
 
 const DEFAULTS: RateLimitOpts = {
@@ -70,14 +74,18 @@ export class RateLimiter {
         // reset, DNS). Treat it like a 5xx: back off and retry, so one blip
         // doesn't abort a long run. Rethrow once attempts are exhausted.
         if (attempt >= this.opts.maxAttempts - 1) throw err;
+        this.opts.onWait?.({ reason: `network error: ${(err as Error).message}`, ms: backoff, attempt });
         await this.clock.sleep(backoff);
         continue;
       }
       if (r.status === 429) {
-        await this.clock.sleep(retryAfterMs(r.headers) ?? backoff);
+        const ms = retryAfterMs(r.headers) ?? backoff;
+        this.opts.onWait?.({ reason: '429 rate-limited', ms, attempt });
+        await this.clock.sleep(ms);
         continue;
       }
       if (r.status >= 500) {
+        this.opts.onWait?.({ reason: `server ${r.status}`, ms: this.opts.fiveXxPauseMs, attempt });
         await this.clock.sleep(this.opts.fiveXxPauseMs);
         continue;
       }
