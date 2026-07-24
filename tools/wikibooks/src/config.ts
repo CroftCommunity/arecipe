@@ -9,7 +9,7 @@ export const TOOL_VERSION = '0.1.0';
 
 /** The current transform semantics version. Bump when the parser changes what
  *  IR it produces from the same wikitext — this is change-axis 2 (D2/D5–D8). */
-export const TRANSFORM_VERSION = 1;
+export const TRANSFORM_VERSION = 2;
 
 export type LicenseConfig = {
   /** exchange.recipe.defs licence token, e.g. "licenseCreativeCommonsBySa". */
