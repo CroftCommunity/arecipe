@@ -61,8 +61,18 @@ export class RateLimiter {
     for (let attempt = 0; attempt < this.opts.maxAttempts; attempt++) {
       await this.waitForGap();
       this.count++;
-      const r = await doFetch();
       const backoff = Math.min(this.opts.backoffCapMs, this.opts.backoffBaseMs * 2 ** attempt);
+      let r: R;
+      try {
+        r = await doFetch();
+      } catch (err) {
+        // A THROWN fetch is a transient network error (undici "fetch failed",
+        // reset, DNS). Treat it like a 5xx: back off and retry, so one blip
+        // doesn't abort a long run. Rethrow once attempts are exhausted.
+        if (attempt >= this.opts.maxAttempts - 1) throw err;
+        await this.clock.sleep(backoff);
+        continue;
+      }
       if (r.status === 429) {
         await this.clock.sleep(retryAfterMs(r.headers) ?? backoff);
         continue;
