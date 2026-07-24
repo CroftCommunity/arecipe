@@ -37,6 +37,34 @@ test('RateLimiter retries 429 honoring Retry-After, then returns the success', a
   assert.ok(clock.sleeps.includes(2000), `expected a 2000ms Retry-After sleep, got ${clock.sleeps}`);
 });
 
+test('RateLimiter retries a THROWN fetch (transient network error), then returns the success', async () => {
+  const clock = new FakeClock(0);
+  const rl = new RateLimiter(clock, { minGapMs: 0 });
+  let calls = 0;
+  const out = await rl.run(async () => {
+    calls++;
+    if (calls === 1) throw new TypeError('fetch failed'); // undici transient network throw
+    return res(200);
+  });
+  assert.equal(calls, 2, 'retried after the network throw');
+  assert.equal(out.status, 200);
+  assert.ok(clock.sleeps.length >= 1, 'backed off before retrying');
+});
+
+test('RateLimiter rethrows a persistent network error after exhausting attempts', async () => {
+  const clock = new FakeClock(0);
+  const rl = new RateLimiter(clock, { minGapMs: 0, maxAttempts: 3 });
+  let calls = 0;
+  await assert.rejects(
+    rl.run(async () => {
+      calls++;
+      throw new TypeError('fetch failed');
+    }),
+    /fetch failed/,
+  );
+  assert.equal(calls, 3, 'tried maxAttempts times then gave up');
+});
+
 test('RateLimiter serializes (concurrency 1) — overlapping runs do not interleave', async () => {
   const clock = new FakeClock(0);
   const rl = new RateLimiter(clock, { minGapMs: 0 });
