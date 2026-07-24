@@ -245,7 +245,7 @@ export const stagePublish = async (ctx: RunContext, plan: Plan): Promise<string 
     const manifest = loadManifest(ctx.imagesDir);
     const uploader = { uploadBlob: ctx.pds.uploadBlob.bind(ctx.pds) };
     const r = await attachEmbeds(plan.items, { manifest, imagesDir: ctx.imagesDir, pds: uploader, readFile: (p) => readFileSync(p), log: (m) => process.stderr.write(`${m}\n`) });
-    process.stderr.write(`images: ${r.uploaded} uploaded · ${r.skipped} already embedded · ${r.failed} failed\n`);
+    process.stderr.write(`images: ${r.uploaded} uploaded · ${r.reused} reused · ${r.skipped} already embedded · ${r.failed} failed\n`);
   }
   const result = await applyPlan(ctx.pds, repo, plan, ctx.runDir);
   const now = iso(ctx.clock);
