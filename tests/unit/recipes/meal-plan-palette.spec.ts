@@ -132,6 +132,18 @@ describe('loadStarterPalette', () => {
     expect(out).toEqual([{ uri: 'at://d/c/pie', cid: 'cidpie', name: 'Pie' }]);
   });
 
+  it('excludes hidden recipes so the palette pool matches Browse', async () => {
+    const out = await loadStarterPalette({
+      enabledAuthors: () => [{ handle: 'a.test', did: 'did:a' }],
+      loadStarterFeed: async () => ({
+        entries: [entry('at://d/c/pie', 'cidpie', 'Pie'), entry('at://d/c/junk', 'cidjunk', 'Junk')],
+      }),
+      isHidden: (uri) => uri === 'at://d/c/junk',
+      logger: recordingLogger(),
+    });
+    expect(out).toEqual([{ uri: 'at://d/c/pie', cid: 'cidpie', name: 'Pie' }]);
+  });
+
   it('degrades to [] when the starter feed throws', async () => {
     const out = await loadStarterPalette({
       loadStarterFeed: async () => {

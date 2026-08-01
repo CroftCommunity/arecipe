@@ -55,6 +55,7 @@ import {
   paginatePalette,
   type PaletteItem,
 } from '../recipes/meal-plan-palette.js';
+import { createExclusions } from '../recipes/exclusions.js';
 import { createRecipeCache } from '../recipes/cache.js';
 import { createRecordReader } from '../recipes/read.js';
 import {
@@ -1428,9 +1429,16 @@ export const main = async (
     }
   };
 
+  // Hidden recipes are dropped from the palette too, so the plannable pool
+  // matches Browse's eligible pool (a recipe hidden in Browse isn't offered as a
+  // chip here). Diet/taste are deliberately NOT applied — those are Browse view
+  // preferences, and a planner shouldn't silently withhold recipes on a standing
+  // taste; the cook narrows the palette with the filter box instead.
+  const isHidden = createExclusions().isHidden;
+
   const loadSource = async (): Promise<void> => {
     if (source === 'browse') {
-      sourceItems = await loadStarterPalette();
+      sourceItems = await loadStarterPalette({ isHidden });
     } else {
       // Cookbook (your authored + liked recipes) needs your identity — boot the
       // session lazily (defers the heavy auth client off the initial bundle).
@@ -1447,7 +1455,7 @@ export const main = async (
           log.warn('meal-plan', 'auth for cookbook palette failed', { error: String(err) });
         }
       }
-      sourceItems = await loadCookbookPalette(you === null ? {} : { you });
+      sourceItems = await loadCookbookPalette(you === null ? {} : { you }, { isHidden });
     }
     renderChips();
   };

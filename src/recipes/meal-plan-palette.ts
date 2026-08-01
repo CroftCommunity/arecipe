@@ -89,14 +89,22 @@ const toPaletteItem = (e: Entry): PaletteItem => {
 // the recipe-cookbook-ui branch merged into main and exports it (Q3 resolved).
 // The Pass 3 replica was removed in the post-rebase swap.
 
-/** Run a source, map entries → items, log success/degrade, never blank. */
+/** A predicate over an AT-URI: true → the recipe is hidden and must not appear
+ * as a plannable chip. Defaults to "nothing hidden" so the pure loaders stay
+ * window-free; the page wires the real exclusions (createExclusions().isHidden),
+ * exactly as Browse does, so a recipe hidden in Browse is hidden here too. */
+export type IsHidden = (uri: string) => boolean;
+const NOTHING_HIDDEN: IsHidden = () => false;
+
+/** Run a source, map entries → items, drop hidden ones, log, never blank. */
 const collect = async (
   source: string,
   produce: () => Promise<Entry[]>,
   logger: Logger,
+  isHidden: IsHidden = NOTHING_HIDDEN,
 ): Promise<PaletteItem[]> => {
   try {
-    const items = (await produce()).map(toPaletteItem);
+    const items = (await produce()).map(toPaletteItem).filter((i) => !isHidden(i.uri));
     logger.info('meal-plan', 'palette loaded', { source, count: items.length });
     return items;
   } catch (err) {
@@ -117,6 +125,7 @@ export const loadCookbookPalette = async (
     readRecipes?: (target: { pds: string; did: string }) => Promise<Entry[]>;
     listInteractions?: (target: { pds: string; did: string; kind: 'liked' }) => Promise<Interaction[]>;
     likedFeed?: (interactions: Interaction[]) => Promise<{ entries: Entry[] }>;
+    isHidden?: IsHidden;
     logger?: Logger;
   } = {},
 ): Promise<PaletteItem[]> => {
@@ -143,17 +152,23 @@ export const loadCookbookPalette = async (
       return [...own, ...liked.filter((e) => !seen.has(e.uri))];
     },
     logger,
+    deps.isHidden,
   );
 };
 
 /** Browse: the starter-pack feed (Browse's default corpus), public-read. */
 export const loadStarterPalette = async (
-  deps: { enabledAuthors?: () => FeedAuthor[]; loadStarterFeed?: FeedLoader; logger?: Logger } = {},
+  deps: {
+    enabledAuthors?: () => FeedAuthor[];
+    loadStarterFeed?: FeedLoader;
+    isHidden?: IsHidden;
+    logger?: Logger;
+  } = {},
 ): Promise<PaletteItem[]> => {
   const enabled = deps.enabledAuthors ?? (() => createStarterPrefs().enabledAuthors());
   const loadFeed = deps.loadStarterFeed ?? loadStarterFeed;
   const logger = deps.logger ?? defaultLogger;
-  return collect('browse', async () => (await loadFeed(enabled())).entries, logger);
+  return collect('browse', async () => (await loadFeed(enabled())).entries, logger, deps.isHidden);
 };
 
 /** Add-a-cook-by-handle: Browse's by-cook "search" (resolve → read that repo). */
@@ -162,6 +177,7 @@ export const loadHandlePalette = async (
   deps: {
     resolver?: (handle: string) => Promise<{ did: string; pds: string }>;
     reader?: (target: { pds: string; did: string }) => Promise<Entry[]>;
+    isHidden?: IsHidden;
     logger?: Logger;
   } = {},
 ): Promise<PaletteItem[]> => {
@@ -175,5 +191,6 @@ export const loadHandlePalette = async (
       return read({ pds, did });
     },
     logger,
+    deps.isHidden,
   );
 };

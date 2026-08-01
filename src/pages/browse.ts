@@ -669,6 +669,7 @@ const main = async (): Promise<void> => {
       return null;
     });
     if (gen !== generation) return;
+    const store = createSnapshotStore({ buildId: snapshotBuildId() });
     if (snap !== null) {
       Object.assign(authorsByDid, snap.authorsByDid);
       for (const e of snap.entries) {
@@ -679,10 +680,28 @@ const main = async (): Promise<void> => {
       if (entriesByDid.size > 0) applyEntries();
     }
 
+    // Cross-session freshness: the bundle is a build-time snapshot and can be
+    // days stale (a cook that published since the last deploy). A prior session
+    // may already have refetched that cook live and stored the delta — overlay
+    // it now so a returning visitor sees the last-known-live corpus (and count)
+    // immediately, instead of being stuck on the stale bundle for up to the
+    // 60-minute rev-check debounce. Live revalidation below still wins when it
+    // lands. These are bounded local IndexedDB reads, so the bundle still paints
+    // first and this never blocks first paint on the network.
+    let overlaidDelta = false;
+    for (const a of authors) {
+      const delta = await store.getLatestDelta(a.did).catch(() => null);
+      if (gen !== generation) return;
+      if (delta === null) continue;
+      const records = delta.records as { uri: string; cid: string; value: Record<string, unknown> }[];
+      entriesByDid.set(a.did, await Promise.all(records.map((r) => cache.put(r))));
+      overlaidDelta = true;
+    }
+    if (overlaidDelta) applyEntries();
+
     // Revalidation, off the critical path.
     const manifest = snap === null ? null : await loadSnapshotManifest().catch(() => null);
     if (snap !== null && manifest !== null) {
-      const store = createSnapshotStore({ buildId: snapshotBuildId() });
       const covered = manifest.cooks.filter((c) => authorDids.has(c.did));
       const coveredDids = new Set(covered.map((c) => c.did));
 
