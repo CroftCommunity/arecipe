@@ -1,0 +1,64 @@
+# Scheduled snapshot refresh. The build-time snapshot (RUN-BUNDLE-PRECACHE) is
+# only regenerated on a `main` deploy (ci.yml), so it drifts stale whenever a
+# seed cook publishes recipes between code deploys — e.g. the Wikibooks corpus
+# import to arecipe.bsky.social, which left Browse first-painting a count of ~400
+# while the repo was really ~2900 (plans/2026-08-01-recipe-count-discrepancy.md).
+#
+# This job re-captures the seed cooks and redeploys the SAME built site daily, so
+# the shipped snapshot is never more than ~1 day behind live regardless of how
+# often code lands. It rebuilds main verbatim (no code change); only the captured
+# snapshot data differs. Runtime revalidation still corrects any residual drift
+# per session — this just keeps first paint honest.
+name: snapshot-refresh
+
+on:
+  schedule:
+    - cron: '0 9 * * *' # daily, 09:00 UTC
+  workflow_dispatch: {} # on-demand: the immediate fix when the corpus jumps
+
+permissions:
+  contents: read
+
+jobs:
+  refresh:
+    # Never run on forks (no gh-pages write, no reason to burn minutes).
+    if: github.repository == 'CroftCommunity/arecipe'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # push the rebuilt site to the gh-pages branch
+    # Share the writer lock with ci.yml's deploy + preview.yml so concurrent
+    # pushes to gh-pages can't race.
+    concurrency:
+      group: gh-pages
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main # always refresh the live build, whatever triggered us
+          fetch-depth: 0 # full history: scripts/build.mjs derives changelog.json from `git log`
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # The one networked step (reads plc.directory + each PDS). Unlike ci.yml's
+      # deploy — where an empty snapshot is a tolerable side effect of shipping
+      # code — a refresh run must NOT deploy on capture failure: build.mjs would
+      # emit an empty skeleton and we'd overwrite the good live snapshot with
+      # nothing. So let a failure fail the job; the last good snapshot stays live
+      # and tomorrow's run retries.
+      - run: node scripts/snapshot.mjs
+      # Belt-and-braces: refuse to deploy a captured-but-empty snapshot (0 cooks),
+      # which would still wipe the live one.
+      - name: Guard against an empty capture
+        run: |
+          node -e '
+            const fs = require("fs");
+            const p = ".snapshot-staging/index.json";
+            if (!fs.existsSync(p)) { console.error("no staged snapshot — aborting"); process.exit(1); }
+            const cooks = (JSON.parse(fs.readFileSync(p, "utf8")).cooks ?? []).length;
+            if (cooks === 0) { console.error("staged snapshot has 0 cooks — aborting"); process.exit(1); }
+            console.log(`staged snapshot: ${cooks} cook(s)`);
+          '
+      - run: npm run build
+      - run: bash scripts/pages-deploy.sh root dist "snapshot refresh ${{ github.sha }}"
