@@ -125,6 +125,48 @@ test('one changed cook triggers exactly one refetch and updates in place', async
     .toBe(1); // only the changed cook
 });
 
+test('a stored delta from a prior session survives a debounced reload (count reflects the delta, not the stale bundle)', async ({ page }) => {
+  await routeSnapshot(page);
+  // The changed cook moved AND now has two recipes; the bundle shipped one.
+  await page.route('**/xrpc/com.atproto.sync.getLatestCommit**', (r) => {
+    const did = didFromCommit(r.request().url());
+    return json(r, { rev: did === CHANGED.did ? 'MOVED' : revOf(did), cid: 'c' });
+  });
+  await page.route('**/xrpc/com.atproto.repo.listRecords**', (r) => json(r, { records: [] }));
+  await page.route(`${CHANGED.pds}/xrpc/com.atproto.repo.listRecords**`, (r) =>
+    json(r, { records: [recipe(CHANGED.did, 'ka', 'FRESH A'), recipe(CHANGED.did, 'kb', 'FRESH B')] }),
+  );
+  await page.route('https://plc.directory/**', (r) => {
+    const did = decodeURIComponent(new URL(r.request().url()).pathname.split('/').pop() ?? '');
+    const cook = COOKS.find((c) => c.did === did) ?? CHANGED;
+    return json(r, { id: cook.did, alsoKnownAs: [`at://${cook.handle}`], service: [{ id: '#atproto_pds', type: 'AtprotoPersonalDataServer', serviceEndpoint: cook.pds }] });
+  });
+
+  const tileWith = (label: string) => page.getByTestId('recipe-item').filter({ hasText: label });
+
+  // Session 1: revalidation refetches the changed cook and stores the delta.
+  await page.goto('/');
+  await expect(tileWith('FRESH A')).toHaveCount(1, { timeout: 15_000 });
+  await expect(tileWith('FRESH B')).toHaveCount(1);
+  await expect(page.getByTestId('recipe-item')).toHaveCount(5); // 3 bundle + 2 fresh
+
+  // Session 2: reload. Every cook is now within the 60-minute debounce window,
+  // so revalidation makes NO network calls — the only way the fresh pair can
+  // still show (and "Snap 1" stay gone) is the boot overlay applying the stored
+  // delta over the stale one-record bundle. Without that overlay the reload
+  // would regress to the bundle's "Snap 1".
+  const reqs: string[] = [];
+  page.on('request', (r) => reqs.push(r.url()));
+  await page.reload();
+  await expect(tileWith('FRESH A')).toHaveCount(1, { timeout: 15_000 });
+  await expect(tileWith('FRESH B')).toHaveCount(1);
+  await expect(tileWith('Snap 1')).toHaveCount(0);
+  await expect(page.getByTestId('recipe-item')).toHaveCount(5);
+  await page.waitForTimeout(300);
+  expect(reqs.filter((u) => u.includes('listRecords')).length).toBe(0); // served from the stored delta, not the network
+  expect(reqs.filter((u) => u.includes('getLatestCommit')).length).toBe(0); // debounced
+});
+
 test('a deactivated cook (400) disappears from the live view', async ({ page }) => {
   await routeSnapshot(page);
   await page.route('**/xrpc/com.atproto.sync.getLatestCommit**', (r) => {
