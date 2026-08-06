@@ -72,9 +72,28 @@ would break browse: for a sharded cook the index carries only
 (dishKey, category, cuisine, diet, cookingMethod, time, yield all live in record
 bodies). The index becomes the first-paint payload and must carry them.
 
-**D3 — service-worker image cache with a PDS fallback.** Cache-first keyed by
-CID, LRU-capped; on CDN failure fall back to `sync.getBlob` on the cook's PDS
-before the existing placeholder (`view.ts:207`).
+**D3 — service-worker image cache with a rate-limited PDS fallback.**
+Cache-first keyed by CID, LRU-capped; on CDN failure fall back to
+`sync.getBlob` on the cook's PDS before the existing placeholder
+(`view.ts:207`).
+
+The fallback is **adaptively** throttled, not capped at a hardcoded number:
+honour `429` and `Retry-After`, back off exponentially on repeated failure, and
+recover when requests succeed. Verified limits (docs.bsky.app): overall API
+requests are **3,000 per 5 minutes, keyed by IP** — not per account. That is
+generous for one user browsing 50 cards, but an IP-keyed budget is *shared* by
+everyone behind one egress: office NAT, café wifi, mobile carrier CGNAT. The
+failure mode to design against is a sustained CDN outage where every card on
+every page falls through for many users on one carrier NAT — at which point the
+PDS starts rejecting everything, not just images. So: modest concurrency, back
+off hard on 429, and treat the placeholder as the terminal state rather than
+retrying aggressively.
+
+`src/retry.ts` (`retryOnce`) is not sufficient — two attempts, fixed delay, no
+`429`/`Retry-After` awareness. wbsync's `RateLimiter` cannot be imported either:
+O1 isolation forbids `src/` importing from `tools/` (`o1-isolation.test.ts`
+enforces it). D3 needs its own small adaptive limiter, or that pattern ported
+into `src/`.
 
 **D4 — window cookbook** to match browse. No prefetching until this lands.
 
@@ -117,9 +136,18 @@ dirtying two per move and doing it in bulk on a map regeneration. That directly
 undercuts the update granularity this plan exists to buy. It is also 10 records
 short of full coverage.
 
-*Caveat:* the dishKey-churn argument is from how the map is built, not observed
-history — the corpus has been published once. If that map proves stable,
-`hash(dishKey)` becomes defensible and D1 is a one-line change.
+The churn risk is confirmed in code, not inferred. `spike/wikibooks-dishkeys/propose.mjs:46,54`
+derives keys with `normalizeDishKey(r.name)` — **dishKey is a function of the
+recipe name** — while the ledger is keyed on pageid precisely because names move
+(`RUN-WIKIBOOKS-CORPUS-SUMMARY.md`: "Ledger keyed by pageid, never title →
+renames are updates, not delete+create"). The shard key would depend on exactly
+the thing the system was architected to survive.
+
+*Qualification:* the approved map is `rkey → dishKey` and human-curated, so
+stamped keys are stable until the map is **regenerated** — a deliberate ops
+action. But regenerating after upstream renames is the very case that moves
+keys. And this establishes the mechanism, not a frequency: how often Wikibooks
+renames a page is unmeasured.
 
 ### Why the ceiling has to move
 
@@ -137,6 +165,29 @@ Adding *only* the thumbnail CID already breaches it. The ceiling was set when
 primary first-paint payload and needs a budget matching that role. Raising it
 silently would defeat the gate's purpose, so it moves deliberately, with this
 table as the record. Even at 177 K it is a 12× improvement on today's 2.21 MB.
+
+**The ceiling is a cap on how large a corpus the app can bundle at all.** Unlike
+shards, `index.json` cannot be deferred: it must be fully loaded at first paint
+to render the grid and its filters, so it is an unavoidable O(corpus) cost. At a
+measured **45 B/record gzipped**:
+
+| ceiling | holds | headroom from today's 4,041 |
+|---|---:|---:|
+| 96 K (current) | ~2,189 | **−1,852** (already over) |
+| **256 K (chosen)** | **~5,839** | **+1,798** |
+| 512 K | ~11,679 | +7,638 |
+
+256 K is chosen because the Wikibooks corpus is now fully captured and no second
+corpus is planned — it buys room for the corpus we have, not a general answer.
+
+**Paging trigger (documented so the next person meets a decision, not a surprise
+build failure):** at ~5,800 records `index.json` hits 256 K again, and trimming
+will not save it — **24% of the index (43 K) is thumbnail CIDs**, which are
+base32 hashes and near-incompressible, unlike the titles and repeated facet
+values around them. Past that point the only real lever is **paging the index
+itself** (browse loads index parts as it pages), which is an architectural change
+affecting cross-corpus search and filtering. Do not simply raise the number
+again without re-reading this section.
 
 ### Why this does not trade away offline
 
@@ -162,7 +213,7 @@ measured 2.2× mean shrink).
 |---|---|---|
 | D1 | Corpus in the `corpus` slot, `hash(rkey) mod 16` | `snapshot-seed.json`, `snapshot-core.mjs` |
 | D2 | Enriched `index.json` + ceiling 96 K → 256 K | `snapshot-core.mjs`, `build.mjs:24` |
-| D3 | SW image cache (CID cache-first, LRU) + `getBlob` fallback | `sw.ts`, `present.ts` |
+| D3 | SW image cache (CID cache-first, LRU) + adaptively rate-limited `getBlob` fallback | `sw.ts`, `present.ts`, new limiter in `src/` |
 | D4 | Cookbook windowing | `cookbook.ts` |
 | D5 | Batched IndexedDB writes | `cache.ts`, `load.ts` |
 | D6 | Offline e2e + precache-failure reporting | `tests/e2e/`, `sw.ts` |
@@ -183,13 +234,18 @@ run the full `npm run test` (Node 22 — see `.nvmrc`; on newer Node,
 
 ## Open questions
 
-1. **LRU bound: entry count or bytes?** Bytes is honest about the 122 MB
-   ceiling; entry count is easier to reason about ("the last N recipes you
-   looked at"). Unresolved.
-2. **Should `getBlob` fallback be rate-limited?** It serves full-size originals
-   (240 KB median stored, vs ~115 KB average through the CDN transform — a
-   measured 2.2× mean shrink). Fine as a degraded path, expensive if
-   the CDN has a sustained outage and every card falls through.
-3. **Revalidation granularity** is out of scope here but unresolved: one write
+1. **LRU bound: entry count or bytes?** Bytes is honest about the ~122 MB of
+   thumbnails; entry count is easier to reason about ("the last N recipes you
+   looked at"). **Still unresolved** — the only open item blocking D3.
+2. **Revalidation granularity** is out of scope here but unresolved: one write
    to the corpus account still invalidates all 4,041 records. Sharding makes a
    per-shard rev conceivable; not attempted in this plan.
+
+## Resolved during planning
+
+- **Shard key: `hash(rkey)`**, not `dishKey` and not semantic — see Reasoning.
+- **Ceiling: 256 K**, with the paging trigger documented above. The Wikibooks
+  corpus is fully captured and no second corpus is planned.
+- **`getBlob` fallback: adaptive backoff, not a hardcoded cap** — honour
+  `429`/`Retry-After` and throttle dynamically (D3). Limits verified against
+  docs.bsky.app rather than assumed; the IP keying is the part that matters.
