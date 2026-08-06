@@ -3,5 +3,8 @@ node_modules/
 state/
 raw/
 runs/
+# Cached Commons renditions + the blob-CID manifest (~190MB). Rebuilt by
+# `wbsync images`; the manifest re-resolves and re-uploads on demand.
+images/
 # Throwaway
 *.local.*

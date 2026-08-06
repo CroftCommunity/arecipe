@@ -1,47 +1,57 @@
 # Wikibooks corpus enrichment: metadata crosswalks + Commons images (RUN-WIKIBOOKS-ENRICH / D15)
 
-**Status:** ✅ **All build phases (1–10B) shipped** 2026-07-23 on branch
-`claude/wbsync-enrich` (isolated worktree). Remaining: live ops (`wbsync images`
-full run — in progress; `--publish`) and a rebase onto origin/main before PR.
-Tool suite 152 pass / 1 skip; app unit suite green for the touched files
-(nutrition 7/7, view 68/68; 7 pre-existing cook-follow failures on this base are
-unrelated). Pre-existing failure to resolve via the origin/main rebase.
+**Status:** ✅ **All build phases (1–10B) shipped** 2026-07-23 and the **live
+publish completed 2026-08-05** on branch `claude/wbsync-enrich` (isolated
+worktree). Remaining: a rebase onto origin/main before PR. Tool suite 162 pass /
+1 skip; app unit suite green for the touched files (nutrition 7/7, view 68/68;
+7 pre-existing cook-follow failures on this base are unrelated). Pre-existing
+failure to resolve via the origin/main rebase.
 
-## ⏸ RESUME MONDAY — publish blocked on Bluesky rate limit (2026-07-24)
+## ✅ PUBLISH COMPLETE (2026-08-05)
 
-Build 100% done. Live publish to `arecipe.bsky.social` (PDS
-`phellinus.us-west.host.bsky.network`) is **partially applied and paused** on a
-Bluesky **529 (cumulative overload / rate limit)** — repeated kill+restart cycles
-in the sandbox burned the hourly write + login budget. Limits reset over the
-weekend; resume Monday.
+The corpus is fully live on `arecipe.bsky.social`
+(`did:plc:spfl4xaktvvchr2cqp2r2xvp`, PDS `phellinus.us-west.host.bsky.network`)
+at repo rev **`3msem3zmjej2v`**.
 
-**Live on the account already (safe, idempotent):** 750/750 images uploaded;
-**2,500/3,695 records** written. **~1,195 records remain.**
+| | |
+|---|---|
+| `exchange.recipe.recipe` records | **3,695 / 3,695** (0 missing, 0 unexpected) |
+| image embeds | **750 / 750** |
+| skipped (not publishable) | 129 — 94 no ingredient lines, 33 no procedure steps, 2 neither |
+| rate-limit backoffs during the run | none |
 
-**Resume in a PERSISTENT terminal (not the sandbox — it reaps long tasks). Steps:**
-1. Re-drop the app-password into a file (the old scratchpad file won't survive;
-   **rotate the credential first** — it's in the session transcript). Extraction
-   in the command below reads a `pw:`-bearing line.
-2. Ledger is left at `transform_version=1` so `--reparse` re-plans all 3,695;
-   `WBSYNC_RUN_ID=2026-07-24T14-56-46-759Z` makes applyPlan skip the 2,500 done
-   and write only the rest. Both records and blob CIDs persist per-item, so it's
-   fully resumable. Run ONCE and let it ride — the limiter now logs backoffs
-   (`↳ PDS 429 …`); do NOT kill+restart (each restart re-triggers the login throttle).
-3. Command (from `tools/wikibooks/`, worktree `arecipe-wt-wbsync`, branch
-   `claude/wbsync-enrich` @ `7c19b9b`):
-   ```
-   WIKIBOOKS_CONTACT=chase@owasp.org \
-   WIKIBOOKS_DISHKEY_MAP=../../spike/wikibooks-dishkeys/wb-dishkeys.approved.json \
-   WIKIBOOKS_PUBLISH_HANDLE=arecipe.bsky.social \
-   WIKIBOOKS_PUBLISH_SERVICE=https://phellinus.us-west.host.bsky.network \
-   WBSYNC_RUN_ID=2026-07-24T14-56-46-759Z \
-   WIKIBOOKS_PUBLISH_APP_PASSWORD="$(sed -E 's/.*[Pp][Ww][[:space:]]*:[[:space:]]*//' <pwfile> | tr -d '\n\r' | awk '{print $1}')" \
-   node --experimental-strip-types bin/wbsync.ts run --reparse --publish
-   ```
-   Done when it prints `Repo rev: <cid>`. Then verify the account lists 3,695
-   `wb-*` records with embeds.
-4. Pre-PR: rebase `claude/wbsync-enrich` onto `origin/main` (also picks up the
-   fix for the 7 pre-existing cook-follow unit failures).
+The July pause was a Bluesky **529** (cumulative write/login budget burned by
+repeated sandbox kill+restart cycles), not a defect. Limits reset; the resume ran
+clean in ~24 min (272 image uploads, then 1,195 record writes at ~120/min).
+
+### Two things the resume surfaced
+
+**1. Blob CIDs were missing from the manifest.** The commit that persists
+uploaded blob CIDs (`3690933`) landed *after* the paused run started, so
+`images/manifest.json` had none. Because `attachEmbeds` runs over the whole plan
+before `applyPlan` filters the already-applied items, a resume would have
+re-uploaded all 750 blobs before writing a single record — spending exactly the
+budget that caused the original stall. Backfilled the 478 already-live blob refs
+from the published records (read-only `listRecords`), cutting the resume to 272
+uploads. The manifest now carries all 750 and is durable for future runs.
+
+**2. `currentRev` addressed `getLatestCommit` by handle → HTTP 400** (fixed, D16,
+`tests/d16-currentrev-did.test.ts`). `stagePublish` passes the configured publish
+*handle*, but that endpoint takes a DID only. It threw at the very end of
+`applyPlan` — after all 3,695 records had landed — which aborted the ledger
+fold-back loop, leaving `record_rkey` / `published_at` / `published_repo_rev`
+null for a corpus that was in fact fully published. The fix falls back to the
+authenticated session DID. Ledger reconciled by re-arming `transform_version=1`
+and re-running: all 3,695 items were already in `apply-progress.json`, so the
+pass made **zero** PDS writes and simply populated the ledger.
+
+> **Note on the run summary:** `PDS writes 3695` in `summary.json` is the
+> *planned* count (`plan.counts.create + …`), not the number actually applied.
+> On a resumed run most of those are skipped. Read `apply-progress.json` for
+> what truly landed.
+
+**Pre-PR:** rebase `claude/wbsync-enrich` onto `origin/main` (also picks up the
+fix for the 7 pre-existing cook-follow unit failures).
 
 ## Outcome Summary
 
