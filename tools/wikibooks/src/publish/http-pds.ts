@@ -106,8 +106,12 @@ export class HttpPdsClient implements PdsClient {
   }
 
   async currentRev(repo: string): Promise<string> {
+    // getLatestCommit's `did` parameter accepts a DID only — callers pass the
+    // configured publish HANDLE, which returns HTTP 400. Fall back to the
+    // authenticated session's DID, which is the repo we just wrote to.
+    const did = repo.startsWith('did:') ? repo : this.session.did;
     const res = await this.limiter.run(() =>
-      this.fetch(`${this.service}/xrpc/com.atproto.sync.getLatestCommit?${new URLSearchParams({ did: repo }).toString()}`, {
+      this.fetch(`${this.service}/xrpc/com.atproto.sync.getLatestCommit?${new URLSearchParams({ did }).toString()}`, {
         headers: { Authorization: `Bearer ${this.session.accessJwt}` },
       }),
     );
