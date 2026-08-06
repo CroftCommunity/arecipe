@@ -2432,6 +2432,23 @@ table.ref.pairs td.eq {
   font-weight: 700;
   opacity: 0.6;
 }
+/* The grounded date beside the day name ("Mon 8/10"): lighter than the name,
+   kept whole (no mid-token break) — the space before it is the wrap point on a
+   narrow column. */
+.day-date {
+  font-weight: 400;
+  white-space: nowrap;
+}
+/* Today's card: an enamel ring + a full-strength label so the current day
+   stands out from the grid at a glance. */
+.day.is-today {
+  border-color: var(--enamel);
+  box-shadow: inset 0 0 0 1px var(--enamel);
+}
+.day.is-today .day-label {
+  opacity: 1;
+  color: var(--enamel);
+}
 .day-count {
   font-size: 0.65rem;
   opacity: 0.55;
@@ -2533,19 +2550,20 @@ table.ref.pairs td.eq {
 /* Reset keeps its shared, normal-sized glyph (~18px) in this row rather than
    being scaled up — the ≥44px hit area (tap-first) stays, and align-items above
    centres it on the buttons' line. */
+/* Shared read-only plan view's calendar (buildCalendarRows). */
 .calendar {
   margin-top: var(--s-5);
 }
-/* Start-date control: label + date input on one row above the calendar. */
-.cal-start {
+/* Start-date control: label + date input on one row at the top of the builder,
+   above the Week 1 block (the grid's gap spaces it). */
+.plan-start {
   display: flex;
   align-items: center;
   gap: var(--s-2);
   flex-wrap: wrap;
-  margin-bottom: var(--s-3);
   font-size: var(--t-caption);
 }
-.cal-start-input {
+.plan-start-input {
   font: inherit;
   padding: var(--s-1) var(--s-2);
   border: var(--stroke) solid var(--line);
@@ -2676,10 +2694,6 @@ table.ref.pairs td.eq {
 }
 .shopping-download-slot:empty {
   display: none;
-}
-.cal-body {
-  display: grid;
-  gap: var(--s-3);
 }
 .cal-week {
   border: var(--stroke) solid var(--line);

@@ -25,7 +25,14 @@ import {
   MEALS_PER_DAY_MAX,
   MEALS_PER_DAY_MIN,
 } from '../recipes/meal-plan.js';
-import { dateForSlot, formatShortDate, nextMonday, weekRangeLabel } from '../recipes/meal-plan-dates.js';
+import {
+  dateForSlot,
+  formatDayMonth,
+  formatShortDate,
+  mondayOf,
+  nextMonday,
+  weekRangeLabel,
+} from '../recipes/meal-plan-dates.js';
 import { createCalendarClient } from '../publish/client.js';
 import { createTastePreference, matchesTaste } from '../recipes/taste-preference.js';
 import {
@@ -129,12 +136,13 @@ const readSeed = (): PaletteItem[] => {
   }
 };
 
-/** Build the calendar rows for a plan: one `.cal-week` per expanded week, days
- *  labelled with real dates when the plan has a `startDate` (the first Monday).
- *  Shared by the planner (read-only names) and the shared view (`linkRecipes`
- *  makes each placed meal a link to its recipe). Returns the empty-state element
- *  when nothing is planned. Pure. */
-const buildCalendarRows = (plan: LocalPlan, opts: { linkRecipes: boolean }): HTMLElement[] => {
+/** Build the calendar rows for a published plan: one `.cal-week` per expanded
+ *  week, days labelled with real dates when the plan has a `startDate` (the
+ *  first Monday), each placed meal a link to its recipe. The SHARED read-only
+ *  view's renderer — the planner grounds its own week grid instead (see
+ *  renderBuilder). Returns the empty-state element when nothing is planned.
+ *  Pure. */
+const buildCalendarRows = (plan: LocalPlan): HTMLElement[] => {
   const anyPlanned = plan.weeks.some((w) => w.days.some((s) => s.meals.length > 0));
   if (!anyPlanned) {
     const empty = el(
@@ -179,15 +187,10 @@ const buildCalendarRows = (plan: LocalPlan, opts: { linkRecipes: boolean }): HTM
         cell.classList.add('day--filled');
         // One line per meal, "Type: Recipe" (type from the recipe's category).
         for (const meal of slot.meals) {
-          const text = mealLineText(meal);
-          if (opts.linkRecipes) {
-            const link = el('a', 'cal-slot', text) as HTMLAnchorElement;
-            link.href = `./recipe.html?u=${encodeURIComponent(meal.recipe.uri)}`;
-            link.dataset['testid'] = 'shared-meal';
-            cell.append(link);
-          } else {
-            cell.append(el('span', 'cal-slot', text));
-          }
+          const link = el('a', 'cal-slot', mealLineText(meal)) as HTMLAnchorElement;
+          link.href = `./recipe.html?u=${encodeURIComponent(meal.recipe.uri)}`;
+          link.dataset['testid'] = 'shared-meal';
+          cell.append(link);
         }
       }
       daysEl.append(cell);
@@ -572,7 +575,7 @@ const showSharedPlan = async (
     titleRow.append(shopping.button);
     head.append(titleRow, shopping.panel);
     const calendar = el('section', 'calendar');
-    for (const row of buildCalendarRows(plan, { linkRecipes: true })) calendar.append(row);
+    for (const row of buildCalendarRows(plan)) calendar.append(row);
     body.replaceChildren(head, calendar);
     log.debug('shell', 'mounted', { page: 'meals', view: 'shared-plan' });
   } catch (err) {
@@ -1147,31 +1150,52 @@ export const main = async (
   planner.append(palette, builder);
   content.append(planner);
 
-  const calendar = el('section', 'calendar');
-  calendar.dataset['testid'] = 'calendar';
-  calendar.append(el('h3', 'palette-title', 'Calendar'));
-
-  // Start-date control: anchor the plan on its first Monday so the calendar lays
-  // out real dates. Empty clears the anchor (back to abstract "Week N").
-  const startRow = el('label', 'cal-start');
-  startRow.append(el('span', 'cal-start-label', 'Starts (first Monday)'));
-  const startInput = el('input', 'cal-start-input') as HTMLInputElement;
+  // Start-date control (top of the builder, above Week 1): anchor the plan on
+  // its first Monday so the week grid grounds on real dates. Any picked date
+  // SNAPS back to its week's Monday; empty clears the anchor (back to abstract
+  // "Week N"). Re-anchoring only relabels — placements are untouched.
+  const startRow = el('label', 'plan-start');
+  startRow.append(el('span', 'plan-start-label', 'Starts (first Monday)'));
+  const startInput = el('input', 'plan-start-input') as HTMLInputElement;
   startInput.type = 'date';
   startInput.dataset['testid'] = 'plan-start-date';
   if (plan.startDate !== undefined) startInput.value = plan.startDate;
+  // Reflect the anchor in the URL (?start=YYYY-MM-DD) so the grounded view is
+  // shareable and survives a refresh. Skipped for a staged edit — its identity
+  // is ?edit=<rkey>, and the copy's date belongs to the published record.
+  const syncStartToUrl = (): void => {
+    if (editing) return;
+    const url = new URL(window.location.href);
+    if (plan.startDate !== undefined) url.searchParams.set('start', plan.startDate);
+    else url.searchParams.delete('start');
+    window.history.replaceState(null, '', url);
+  };
   startInput.addEventListener('change', () => {
     const v = startInput.value.trim();
-    if (v === '') delete plan.startDate;
-    else plan.startDate = v;
+    if (v === '') {
+      delete plan.startDate;
+    } else {
+      const snapped = mondayOf(v);
+      if (snapped === null) return; // unparseable — leave the plan as it was
+      plan.startDate = snapped;
+      startInput.value = snapped;
+    }
     persist();
-    renderCalendar();
+    syncStartToUrl();
+    rerender();
   });
   startRow.append(startInput);
-  calendar.append(startRow);
+  // A fresh canvas (Reset / reset-on-publish) re-anchors on the next Monday —
+  // the same default a fresh load gets (D7) — keeping the input, URL, and week
+  // labels in step. In-memory only: the blank plan stays local until something
+  // is placed (persist() then carries the anchor along).
+  const anchorFreshPlan = (): void => {
+    const nm = nextMonday(new Date().toISOString().slice(0, 10));
+    if (nm !== null) plan.startDate = nm;
+    startInput.value = plan.startDate ?? '';
+    syncStartToUrl();
+  };
 
-  const calBody = el('div', 'cal-body');
-  calendar.append(calBody);
-  content.append(calendar);
   // Shopping list for the working plan — reads the LIVE plan (getter), so it
   // reflects the current canvas even after a reset-on-publish reassigns it. The
   // button rides the publish row (left, opposite Publish); its panel drops below.
@@ -1282,6 +1306,7 @@ export const main = async (
           filterInput.value = '';
           paletteOffset = 0;
           expandedDays.clear();
+          anchorFreshPlan();
           rerender();
           renderChips();
         }
@@ -1353,17 +1378,27 @@ export const main = async (
     // A staged edit (editOf) rebuilds on its eventual "Publish update", not here.
   };
 
-  // D7: default a fresh plan's anchor to the next Monday so it is dated
-  // (calendar-eligible) by default. Only when unset — never clobbers a chosen
-  // date, and clearing the input still returns the plan to abstract "Week N".
-  // Skipped for a staged edit: the copy stays faithful to the published record.
-  if (plan.startDate === undefined && !editing) {
-    const nm = nextMonday(new Date().toISOString().slice(0, 10));
-    if (nm !== null) {
-      plan.startDate = nm;
-      startInput.value = nm;
+  // Anchor resolution on load (working plan only — a staged edit stays faithful
+  // to its published record):
+  //  1. ?start=YYYY-MM-DD in the URL wins, snapped to its week's Monday.
+  //  2. D7: a fresh, unanchored plan defaults to the next Monday so it is dated
+  //     (calendar-eligible) by default. Only when unset — never clobbers a
+  //     chosen date; clearing the input still returns the plan to "Week N".
+  if (!editing) {
+    const requested = mondayOf(routeParams.get('start')?.trim() ?? '');
+    if (requested !== null && requested !== plan.startDate) {
+      plan.startDate = requested;
+      startInput.value = requested;
       persist();
+    } else if (plan.startDate === undefined) {
+      const nm = nextMonday(new Date().toISOString().slice(0, 10));
+      if (nm !== null) {
+        plan.startDate = nm;
+        startInput.value = nm;
+        persist();
+      }
     }
+    syncStartToUrl();
   }
 
   const combined = (): PaletteItem[] => {
@@ -1470,22 +1505,27 @@ export const main = async (
     renderChips();
   });
 
-  const renderCalendar = (): void => {
-    // The planner calendar shows names (not links); dates appear once a start
-    // date is set. Same builder as the shared view (buildCalendarRows).
-    calBody.replaceChildren(...buildCalendarRows(plan, { linkRecipes: false }));
-  };
-
   const renderBuilder = (): void => {
     const cap = plan.mealsPerDay;
     perDaySelect.value = String(cap); // keep the header control in sync with the plan
-    builder.replaceChildren();
+    // The start control leads the builder (above Week 1); it's a persistent
+    // element (input value + listeners survive), re-slotted on each render.
+    builder.replaceChildren(startRow);
+    const start = plan.startDate;
+    const todayIso = new Date().toISOString().slice(0, 10);
     plan.weeks.forEach((week, wi) => {
       const row = el('div', 'week');
       row.dataset['testid'] = 'week-row';
 
       const head = el('div', 'week-head');
-      head.append(el('span', 'week-name', `Week ${wi + 1}`));
+      // Anchored, the week header carries its real span: "Week 1 (Aug 10 – Aug 16)".
+      const spanStart = start !== undefined ? dateForSlot(start, wi, 0) : null;
+      const spanEnd = start !== undefined ? dateForSlot(start, wi, 6) : null;
+      const s = spanStart !== null ? formatShortDate(spanStart) : null;
+      const e = spanEnd !== null ? formatShortDate(spanEnd) : null;
+      head.append(
+        el('span', 'week-name', s !== null && e !== null ? `Week ${wi + 1} (${s} – ${e})` : `Week ${wi + 1}`),
+      );
 
       // Remove only makes sense with more than one week — you can't remove the
       // only week, so on a single-week plan the button is omitted entirely
@@ -1517,11 +1557,20 @@ export const main = async (
         // Armed + not full ⇒ the cell is the tap target that adds the next meal.
         cell.classList.add(armed !== null && !full ? 'day--placeable' : 'day--empty');
 
-        // Header: the day label + a count, and the mobile expand toggle. Tapping
-        // the header expands the day (a roomy panel for removing meals) UNLESS a
-        // recipe is armed — then the whole cell is a placement target instead.
+        // Grounded day card: the real calendar date rides the anchor (continuous
+        // across weeks, +7 days each), and today's card gets the highlight.
+        const dayIso = start !== undefined ? dateForSlot(start, wi, di) : null;
+        if (dayIso !== null && dayIso === todayIso) cell.classList.add('is-today');
+
+        // Header: the day label (+ its date when anchored, "Mon 8/10") + a
+        // count, and the mobile expand toggle. Tapping the header expands the
+        // day (a roomy panel for removing meals) UNLESS a recipe is armed —
+        // then the whole cell is a placement target instead.
         const head = el('div', 'day-head');
-        head.append(el('span', 'day-label', DAY_LABELS[di]));
+        const dayLabel = el('span', 'day-label', DAY_LABELS[di]);
+        const dm = dayIso !== null ? formatDayMonth(dayIso) : null;
+        if (dm !== null) dayLabel.append(' ', el('span', 'day-date', dm));
+        head.append(dayLabel);
         if (slot.meals.length > 0 || cap > 1) {
           head.append(el('span', 'day-count', `${slot.meals.length}/${cap}`));
         }
@@ -1669,7 +1718,6 @@ export const main = async (
 
   const rerender = (): void => {
     renderBuilder();
-    renderCalendar();
   };
 
   // Reset (controls row, right-aligned): clear the plan back to a single empty week
@@ -1701,6 +1749,7 @@ export const main = async (
         filterInput.value = '';
         paletteOffset = 0;
         expandedDays.clear();
+        anchorFreshPlan();
         renderResetControl();
         rerender();
         renderChips();

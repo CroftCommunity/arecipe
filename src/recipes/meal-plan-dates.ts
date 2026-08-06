@@ -54,6 +54,27 @@ export const formatShortDate = (isoDate: string): string | null => {
   return `${MONTHS[date.getUTCMonth()]} ${date.getUTCDate()}`;
 };
 
+/** A compact numeric "M/D" label for an ISO date (no zero padding), e.g.
+ *  "8/10" — the grounded day-card stamp, where "Aug 10" would crowd a 7-column
+ *  grid on a phone. Null if the date is invalid. */
+export const formatDayMonth = (isoDate: string): string | null => {
+  const date = parseIsoDate(isoDate);
+  if (date === null) return null;
+  return `${date.getUTCMonth() + 1}/${date.getUTCDate()}`;
+};
+
+/** The Monday of the week CONTAINING `isoDate` (the date itself when it is a
+ *  Monday; Sunday counts as the end of the week, so it snaps back six days).
+ *  The planner's start picker normalizes any chosen date through this, keeping
+ *  the plan anchored on a first Monday. Null if `isoDate` is unparseable. */
+export const mondayOf = (isoDate: string): string | null => {
+  const date = parseIsoDate(isoDate);
+  if (date === null) return null;
+  const day = date.getUTCDay(); // 0=Sun … 6=Sat
+  const daysSinceMonday = (day + 6) % 7; // Mon=0 … Sun=6
+  return addDays(isoDate, -daysSinceMonday);
+};
+
 /** The soonest Monday ON OR AFTER `todayIsoDate` (today itself if it is a
  *  Monday) as an ISO `YYYY-MM-DD`. The planner uses this to default the
  *  "starting Monday" picker so a fresh plan is dated (calendar-eligible) by

@@ -180,7 +180,6 @@ test('reset: clears the plan back to one empty week (inline confirm; cancel is s
   await page.getByTestId('reset-confirm').click();
   await expect(page.getByTestId('week-row')).toHaveCount(1);
   await expect(page.getByTestId('slot-filled')).toHaveCount(0);
-  await expect(page.getByTestId('calendar-empty')).toBeVisible();
 });
 
 test('repeat planned weeks: duplicates the whole plan (meals and all) instead of adding a blank week', async ({
@@ -203,18 +202,109 @@ test('repeat planned weeks: duplicates the whole plan (meals and all) instead of
   await expect(page.getByTestId('week-row').nth(1).getByTestId('slot-filled')).toHaveText(
     'Lasagna',
   );
-
-  // The calendar below stamps both weeks, each carrying the filled day.
-  const calWeeks = page.getByTestId('cal-week');
-  await expect(calWeeks).toHaveCount(2);
-  await expect(calWeeks.nth(0)).toContainText('Lasagna');
-  await expect(calWeeks.nth(1)).toContainText('Lasagna');
 });
 
-test('calendar: shows an empty state until something is planned', async ({ page }) => {
+// Unified view: the planner IS the calendar — week and day headers carry the
+// real dates, so the old standalone "Calendar" preview (and its empty-state
+// placeholder) is gone from the plan page. The shared read-only view keeps its
+// own calendar (covered below).
+test('plan page has no separate calendar preview section', async ({ page }) => {
   await seedPalette(page);
   await page.goto('/plan.html');
-  await expect(page.getByTestId('calendar-empty')).toBeVisible();
+  await expect(page.getByTestId('builder')).toBeVisible();
+  await expect(page.getByTestId('calendar')).toHaveCount(0);
+  await expect(page.getByTestId('calendar-empty')).toHaveCount(0);
+  await expect(page.getByTestId('cal-week')).toHaveCount(0);
+  // The start-date control moved up: it now lives inside the builder, ABOVE the
+  // first week block.
+  const startInBuilder = page.getByTestId('builder').getByTestId('plan-start-date');
+  await expect(startInBuilder).toBeVisible();
+  const startY = (await startInBuilder.boundingBox())?.y ?? Infinity;
+  const week1Y = (await page.getByTestId('week-row').first().boundingBox())?.y ?? 0;
+  expect(startY).toBeLessThan(week1Y);
+});
+
+test('grounded weeks: headers carry the date span, day cards the real dates, continuing week over week', async ({
+  page,
+}) => {
+  await seedPalette(page);
+  await page.goto('/plan.html');
+
+  await page.getByTestId('plan-start-date').fill('2026-08-10');
+  // Week header reads "Week 1 (Aug 10 – Aug 16)".
+  await expect(page.locator('.week-name').first()).toHaveText('Week 1 (Aug 10 – Aug 16)');
+  // Day cards stamp the day of week AND the date: "Mon 8/10", "Tue 8/11".
+  const week1 = page.getByTestId('week-row').first();
+  await expect(week1.getByTestId('day-slot').nth(0)).toContainText('Mon 8/10');
+  await expect(week1.getByTestId('day-slot').nth(1)).toContainText('Tue 8/11');
+  await expect(week1.getByTestId('day-slot').nth(6)).toContainText('Sun 8/16');
+
+  // A second week continues from the start (+7 days), no barrier between weeks.
+  await page.getByTestId('add-week').click();
+  await expect(page.locator('.week-name').nth(1)).toHaveText('Week 2 (Aug 17 – Aug 23)');
+  await expect(
+    page.getByTestId('week-row').nth(1).getByTestId('day-slot').first(),
+  ).toContainText('Mon 8/17');
+
+  // Clearing the anchor returns the headers to the abstract labels.
+  await page.getByTestId('plan-start-date').fill('');
+  await expect(page.locator('.week-name').first()).toHaveText('Week 1');
+  await expect(week1.getByTestId('day-slot').first()).toContainText('Mon');
+  await expect(week1.getByTestId('day-slot').first()).not.toContainText('8/10');
+});
+
+test('start picker snaps any chosen date back to that week’s Monday and syncs the URL', async ({
+  page,
+}) => {
+  await seedPalette(page);
+  await page.goto('/plan.html');
+
+  // Place a recipe FIRST — re-anchoring must never wipe placements.
+  await page.getByTestId('palette-chip').filter({ hasText: 'Lasagna' }).click();
+  await page.getByTestId('week-row').first().getByTestId('day-slot').nth(1).click();
+  await expect(page.getByTestId('slot-filled')).toHaveText('Lasagna');
+
+  // Pick a Wednesday — the input normalizes to that week's Monday.
+  await page.getByTestId('plan-start-date').fill('2026-08-12');
+  await expect(page.getByTestId('plan-start-date')).toHaveValue('2026-08-10');
+  await expect(page.locator('.week-name').first()).toHaveText('Week 1 (Aug 10 – Aug 16)');
+
+  // Non-destructive shift: the placed recipe survives the re-anchor.
+  await expect(page.getByTestId('slot-filled')).toHaveText('Lasagna');
+
+  // The chosen start rides the URL (?start=) for shareable/refreshable state…
+  await expect(page).toHaveURL(/[?&]start=2026-08-10/);
+
+  // …and persists locally: a plain reload retains both the date and the meal.
+  await page.goto('/plan.html');
+  await expect(page.getByTestId('plan-start-date')).toHaveValue('2026-08-10');
+  await expect(page.getByTestId('slot-filled')).toHaveText('Lasagna');
+});
+
+test('?start= in the URL grounds the plan on load (snapped to Monday)', async ({ page }) => {
+  await seedPalette(page);
+  // A Saturday in the query — the page adopts its week's Monday.
+  await page.goto('/plan.html?start=2026-08-15');
+  await expect(page.getByTestId('plan-start-date')).toHaveValue('2026-08-10');
+  await expect(page.locator('.week-name').first()).toHaveText('Week 1 (Aug 10 – Aug 16)');
+});
+
+test('today’s day card carries the is-today highlight', async ({ page }) => {
+  await seedPalette(page);
+  await page.goto('/plan.html');
+
+  // Anchor the plan on THIS week's Monday so today is inside week 1.
+  const today = new Date().toISOString().slice(0, 10);
+  const utcDay = new Date(`${today}T00:00:00Z`).getUTCDay(); // 0=Sun … 6=Sat
+  const dayIndex = (utcDay + 6) % 7; // Mon=0 … Sun=6
+  const monday = new Date(`${today}T00:00:00Z`);
+  monday.setUTCDate(monday.getUTCDate() - dayIndex);
+  await page.getByTestId('plan-start-date').fill(monday.toISOString().slice(0, 10));
+
+  const days = page.getByTestId('week-row').first().getByTestId('day-slot');
+  await expect(days.nth(dayIndex)).toHaveClass(/is-today/);
+  // Exactly one card is "today".
+  await expect(page.locator('.day.is-today')).toHaveCount(1);
 });
 
 // Week-actions layout: "+ Add" then "⧉ Repeat" left-aligned in the row, with
@@ -276,11 +366,8 @@ test('multi-meal: several recipes stack on one day and all show on the calendar'
   await page.reload();
   const monAfter = page.getByTestId('week-row').first().getByTestId('day-slot').first();
   await expect(monAfter.getByTestId('slot-filled')).toHaveCount(2);
-
-  // The calendar day carries both meals.
-  const calDay = page.getByTestId('cal-week').first().locator('.cal-day').first();
-  await expect(calDay).toContainText('Lasagna');
-  await expect(calDay).toContainText('Tacos');
+  await expect(monAfter).toContainText('Lasagna');
+  await expect(monAfter).toContainText('Tacos');
 });
 
 test('meals/day cap: lowering it to 1 blocks adding a second meal', async ({ page }) => {
@@ -306,7 +393,7 @@ test('meals/day cap: lowering it to 1 blocks adding a second meal', async ({ pag
   await expect(page.getByTestId('meals-per-day')).toHaveValue('1');
 });
 
-test('calendar labels a meal with the recipe’s own category ("Breakfast: …")', async ({ page }) => {
+test('a placed meal is labelled with the recipe’s own category ("Breakfast: …")', async ({ page }) => {
   await seedPalette(page, [
     { uri: 'at://did:plc:cook/exchange.recipe.recipe/oatmeal', cid: 'bafyo', name: 'Oatmeal', category: 'breakfast' },
   ]);
@@ -315,8 +402,8 @@ test('calendar labels a meal with the recipe’s own category ("Breakfast: …")
   await page.getByTestId('palette-chip').filter({ hasText: 'Oatmeal' }).click();
   await page.getByTestId('week-row').first().getByTestId('day-slot').first().click();
 
-  // The calendar line reads "Breakfast: Oatmeal" (label from recipeCategory).
-  await expect(page.getByTestId('cal-week').first()).toContainText('Breakfast: Oatmeal');
+  // The placed slot reads "Breakfast: Oatmeal" (label from recipeCategory).
+  await expect(page.getByTestId('slot-filled')).toHaveText('Breakfast: Oatmeal');
 });
 
 test('mobile: expand a day by its header, then Clear day removes its meals', async ({ page }) => {
@@ -381,18 +468,6 @@ test('palette: Browse loads capped, type-ahead searches the full set, switch tog
   // Add-a-cook moved to the Browse tab — the palette carries no handle input.
   await expect(page.getByTestId('palette-handle-input')).toHaveCount(0);
   await expect(page.getByTestId('palette-handle-add')).toHaveCount(0);
-});
-
-test('planner: setting a start date lays the calendar out on real dates', async ({ page }) => {
-  await seedPalette(page);
-  await page.goto('/plan.html');
-
-  // Place Lasagna on Monday so the calendar renders.
-  await page.getByTestId('palette-chip').filter({ hasText: 'Lasagna' }).click();
-  await page.getByTestId('week-row').first().getByTestId('day-slot').first().click();
-  // Anchor the first Monday → the week label becomes a real date range.
-  await page.getByTestId('plan-start-date').fill('2026-07-13');
-  await expect(page.getByTestId('cal-week').first()).toContainText('Jul 13');
 });
 
 test('shared view: ?mealplan=&user= renders a read-only, dated calendar linking each meal', async ({
