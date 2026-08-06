@@ -11,14 +11,24 @@ test('the Plan tab navigates to plan.html and mounts the plan builder (wiring)',
   await expect(tab).toHaveText('Plan');
   await expect(tab).toHaveAttribute('href', /plan\.html$/);
   await tab.click();
-  await expect(page).toHaveURL(/plan\.html$/);
+  // Not `$`-anchored: plan.html grounds itself on mount and syncs the anchor to
+  // the URL as `?start=YYYY-MM-DD` (calendar unification, D6) — measured landing
+  // ~25ms after the click. A `$` anchor made this a race that only passed when
+  // the first poll beat the replaceState, which held on CI's slower runner and
+  // failed on a fast dev machine. Assert the document, tolerate its query.
+  await expect(page).toHaveURL(/plan\.html(\?|$)/);
   await expect(page.getByTestId('builder')).toBeVisible();
 });
 
 test('tabs navigate between documents and native back works (wiring)', async ({ page }) => {
   await page.goto('/');
   await page.getByTestId('tab-plan').click();
-  await expect(page).toHaveURL(/plan\.html$/);
+  // Not `$`-anchored: plan.html grounds itself on mount and syncs the anchor to
+  // the URL as `?start=YYYY-MM-DD` (calendar unification, D6) — measured landing
+  // ~25ms after the click. A `$` anchor made this a race that only passed when
+  // the first poll beat the replaceState, which held on CI's slower runner and
+  // failed on a fast dev machine. Assert the document, tolerate its query.
+  await expect(page).toHaveURL(/plan\.html(\?|$)/);
   // Plan is a real document (page-per-destination): its own content mounts.
   await expect(page.getByTestId('builder')).toBeVisible();
   // Native back returns to Browse — no SPA router, no trapped state.
