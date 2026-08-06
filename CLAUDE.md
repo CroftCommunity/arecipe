@@ -15,6 +15,16 @@ npm run test          # lint · typecheck (src + tests) · unit (vitest) · buil
 Sub-parts: `npm run lint`, `npm run typecheck`, `npm run test:unit`, `npm run build`,
 `npm run test:e2e`. `@live` e2e (real PDS, credentials) run only via `npm run test:live`.
 
+**Node version — run `nvm use` first.** `.nvmrc` pins Node to the same major CI
+uses; `tests/unit/toolchain-pin.spec.ts` fails if the two ever drift, so bumping
+one means bumping the other. Running the suite on a newer Node produces failures
+that have nothing to do with your change: on Node 25,
+`tests/unit/social/cookbook-members-view.spec.ts` fails 7 tests with
+`localStorage.clear is not a function`, because Node 25 ships a global
+`localStorage` that shadows happy-dom's and is a stub without `--localstorage-file`.
+**If a spec fails on a DOM global you never touched, check `node --version`
+before debugging the test.**
+
 **Playwright browser — do this BEFORE your first e2e run.** This environment
 ships Chromium under `/opt/pw-browsers`, but the npm-pinned Playwright usually
 expects a *different* build number, so a stock `npm run test:e2e` fails with
