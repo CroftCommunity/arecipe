@@ -317,8 +317,13 @@ probe and confirm the 2.21 MB request is gone.
 **Changes:**
 - [ ] `scripts/lib/snapshot-core.mjs` — `indexCook.recipes` carries thumb CID,
       dishKey, category, cuisine, diet, cookingMethod, totalTime, recipeYield.
-- [ ] `scripts/build.mjs` — `CEILING` 98304 → 262144, with the paging-trigger
-      rationale in the comment, pointing at this plan.
+- [ ] `scripts/build.mjs:30` — `SNAPSHOT_INDEX_GZIP_CEILING` `96 * 1024` →
+      `256 * 1024`, with the paging-trigger rationale in the comment above it
+      (lines 24-29), pointing at this plan. Note it stays **env-overridable**
+      (`build.mjs:298` reads `process.env.SNAPSHOT_INDEX_GZIP_CEILING`), which
+      is how `tests/unit/snapshot/build-presence.spec.ts` drives the real build
+      with a 1-byte ceiling to prove the gate fires — that override must keep
+      working, so raise the default, don't hardcode past it.
 - [ ] `tests/unit/snapshot/index-shape.spec.ts` — index entries carry the facet
       set; the ceiling check still fails when genuinely exceeded.
 
