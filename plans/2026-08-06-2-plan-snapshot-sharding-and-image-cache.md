@@ -235,8 +235,13 @@ Chromium only — see Open Question 3).
 ## Concurrency Map
 
 ```
-Sequential spine: Phase 1 → Phase 2 → [Phase 3 || Phase 4 → Phase 5] → Phase 6 → Phase 7 → Phase 8
+Sequential spine: Phase 1 → Phase 2 → Phase 2B → [Phase 3 || Phase 4 → Phase 5] → Phase 6 → Phase 7 → Phase 8
 ```
+
+Phase 2B is sequential after Phase 2 (it needs the thumb CIDs the enriched index
+carries) and before Phase 4 (the SW must know which images are same-origin
+bundled versus PDS-cached). It shares `scripts/build.mjs` with Phase 2, so the
+two cannot be parallel.
 
 **Parallel set {3, 4→5}:** Phase 3 (IndexedDB batching) is independent of the
 image-caching chain (4 then 5).
@@ -344,6 +349,52 @@ pass confirming cards and filters look right.
 
 ---
 
+### Phase 2B: Bundle a stable thumbnail subset as same-origin assets
+
+**Goal:** A fresh install is visually complete offline, without opaque-response
+padding.
+**Changes:**
+- [ ] `scripts/snapshot.mjs` — fetch the CDN rendition for a **stable** selected
+      subset at build time (server-side, so no CORS constraint) into
+      `.snapshot-staging/thumbs/<cid>.jpg`.
+- [ ] `scripts/build.mjs` — emit them under the versioned snapshot path and add
+      them to `__PRECACHE__`.
+- [ ] `scripts/lib/snapshot-core.test.mjs` — subset selection is deterministic
+      across builds and independent of the calendar day.
+
+**Call chain:** CI `snapshot.mjs` → build-time CDN fetch → staging → `build.mjs`
+→ `dist/assets/snapshot/<buildId>/thumbs/` → SW precache → `<img>` resolves
+same-origin, no CORS, no padding.
+**Wiring test:** offline e2e — fresh install, go offline, first browse page
+shows **real images**, not placeholders. Asserting the files exist in `dist/`
+would not prove the app actually resolves to them.
+**Depends on:** Phase 2 (index carries thumb CIDs); Open Question — the iOS
+precache answer sets the subset size.
+**Read-set:** `scripts/snapshot.mjs`, `scripts/build.mjs`,
+`src/recipes/present.ts`, `src/pages/browse.ts`.
+**Write-set:** `scripts/snapshot.mjs`, `scripts/build.mjs`,
+`scripts/lib/snapshot-core.test.mjs`.
+**Shared-state contract:** Build-time only; network reads from the CDN during
+CI. No git, port, or env mutation. Writes only under `.snapshot-staging/`.
+**Risks:**
+- **Browse's feed rotates daily** (`browse.ts:190` seeds the mix on the UTC
+  calendar day), so "the first page's worth" is not a fixed set. Selection must
+  be a stable rule, and offline the mix may need to prefer bundled CIDs — else
+  the bundled subset and the displayed page drift apart and the whole phase
+  buys nothing.
+- At ~115 KB per CDN thumbnail, 100 images ≈ 11.5 MB and 200 ≈ 23 MB added to
+  **every** install, against today's ~2.3 MB snapshot. Check whether a smaller
+  CDN rendition exists before fixing the count — do not assume one does.
+**Done when:**
+1. **Behavioral:** A fresh install, taken offline before any browsing, shows
+   real images on the first browse page.
+2. **Verification:** `npx playwright test tests/e2e/offline-first-run.spec.ts`.
+
+**Validation:** Broad. Tests, plus a real-device iOS check that the precache
+survives (the gating question above).
+
+---
+
 ### Phase 3: Batch the IndexedDB writes
 
 **Goal:** Hydrating a cook stops costing one DB connection per record.
@@ -352,6 +403,11 @@ pass confirming cards and filters look right.
       one transaction; keep `put` for single writes.
 - [ ] `src/snapshot/load.ts` — replace the per-record `await cache.put` loop
       (line 106) with a single `putMany` per shard.
+- [ ] `src/pages/browse.ts` — **line 703** does the same per-record `cache.put`
+      on the *revalidation* path (`onChanged`). Found while tracing Q4; batching
+      only `load.ts` would leave the pathology live on exactly the path that
+      hurts most — a rev change re-writes all 4,041 records one connection at a
+      time.
 - [ ] `tests/unit/recipes/cache.spec.ts` — `putMany` verifies every CID, marks
       mismatches unverified, and writes all records in one transaction.
 
@@ -363,7 +419,7 @@ uses the batched path, not just that `putMany` works.
 **Depends on:** nothing (parallel-safe with Phases 4–5).
 **Read-set:** `src/snapshot/load.ts`, `src/recipes/cache.ts`.
 **Write-set:** `src/recipes/cache.ts`, `src/snapshot/load.ts`,
-`tests/unit/recipes/cache.spec.ts`.
+`src/pages/browse.ts`, `tests/unit/recipes/cache.spec.ts`.
 **Shared-state contract:** Runs in a worktree off the feature branch. Does not
 invoke `git checkout`/`stash`/`rebase` in the parent worktree, binds no ports,
 scratch under `$TMPDIR/phase3/`. Tests use a per-test IndexedDB name so parallel
@@ -559,25 +615,33 @@ separate plan in that repo.
 
 ## Open Questions
 
-- **[RECOMMENDED: BLOCKING] Which source displays images and which populates
-  the offline cache?** Option A: display from CDN (fast, small, free of quota),
-  cache from PDS for offline — two sources, best of each, but a cached image and
-  a displayed image are different bytes. Option B: PDS for everything — one
-  path, simpler, offline-consistent, but 2.2× bytes on every display and far
-  more pressure on the IP-shared 3,000/5 min budget. *Rationale: Phase 4 cannot
-  start without it, and it determines Phase 5's load profile.*
-- **[RECOMMENDED: PHASE-GATED (Phase 4)] What byte budget for the image LRU?*
-  176 MB caches the whole corpus; a smaller cap (say 50 MB, ~300 images) covers
-  realistic browsing. *Rationale: needed before the eviction policy is written,
-  not before planning proceeds.*
-- **[RECOMMENDED: ADVISORY] Does the 7 MB opaque padding hold on Safari/iOS?**
-  Measured on Chromium only. *Rationale: the plan already avoids opaque caching
-  entirely, so a different figure changes nothing — but iOS is the platform
-  where eviction pressure is worst, so it is worth knowing.*
-- **[RECOMMENDED: ADVISORY] Revalidation granularity.** One write to the corpus
-  account still invalidates all 4,041 records; sharding makes a per-shard rev
-  conceivable. *Rationale: out of scope here, but sharding is the enabling step,
-  so it should be recorded while the context is fresh.*
+All four walked through with the owner on 2026-08-06; none remain open.
+
+- **[RESOLVED] Which source displays images, which populates the offline
+  cache?** → **C for a bounded set + A for the rest.** Bundle a stable subset of
+  thumbnails as same-origin build assets (Phase 2B) so a fresh install is
+  visually complete offline; display the rest from the CDN uncached, and let the
+  PDS-backed SW cache fill in as the user browses. Options A and B alone were
+  rejected because both leave a fresh offline install showing 4,041 recipes with
+  placeholder art, which defeats the stated goal.
+- **[CONFIRMED: PHASE-GATED (Phase 4)] Image LRU budget** → **50 MB with LRU
+  eviction, plus `QuotaExceededError` handling as a backstop.** Browsers grant a
+  fraction of free disk rather than a fixed quota, so a self-imposed cap sits
+  under an unpredictable one; the cache must degrade rather than assume the cap
+  holds.
+- **[REPLACED — was: does 7 MB opaque padding hold on iOS?]** Retired: the plan
+  never caches opaque responses, so the figure informs no remaining decision.
+  Swapped for **[CONFIRMED: PHASE-GATED (Phase 2B)] Does the bundled-thumbnail
+  precache survive on a real iOS device, and is partial failure reported rather
+  than silent?** iOS has the tightest quota and most aggressive eviction, and
+  `sw.ts:52` currently fails silently — bundling 23 MB that iOS quietly drops is
+  worse than bundling 6 MB that sticks. The subset size depends on the answer.
+- **[PROMOTED to its own plan] Revalidation granularity.** Phase 0 discovery was
+  executed 2026-08-06 and confirmed `com.atproto.sync.getRepo?since=<rev>` is
+  the right primitive (59 B when unchanged; ~3.5 KB for a one-record change vs
+  today's ~10 MB full refetch). It also found the complication that makes it a
+  plan of its own rather than a phase here: **deletes appear only as absence**,
+  with no tombstone. See `plans/2026-08-06-3-plan-incremental-revalidation.md`.
 
 ## Review Log
 
@@ -618,6 +682,43 @@ intuition.
 - `hash(rkey)` over `hash(dishKey)` held up; the dishKey argument strengthened
   from inference to code evidence (`propose.mjs:46,54`).
 - Browse's lazy loading needs no work — recorded so it is not re-litigated.
+
+### Open-question walk-through + Phase 0 discovery — 2026-08-06
+**Found:**
+- Q1 resolved to **C+A**, which added **Phase 2B** (bundle a stable thumbnail
+  subset). Neither A nor B alone met the stated goal: both leave a fresh offline
+  install rendering 4,041 recipes as placeholder art.
+- Q1 surfaced that **browse's feed rotates daily** (`browse.ts:190`), so the
+  bundled subset needs a stable selection rule — recorded as a Phase 2B risk.
+- Q3 was **retired and replaced**. As written it measured a number the plan had
+  already routed around; the live risk is iOS silently dropping a 23 MB
+  precache, which gates Phase 2B's subset size.
+- Tracing Q4 found a **gap in Phase 3**: `browse.ts:703` repeats the per-record
+  `cache.put` on the revalidation path. Phase 3 originally batched only
+  `load.ts:106`, leaving the pathology live on the path that hurts most.
+- **Phase 0 discovery executed** for the Q4 idea before committing to it, using
+  an isolated Node 22 (the system node broke mid-session — Homebrew `llhttp`
+  9.3/9.4.3 linkage):
+  - `getRepo?since=` verified: 59 B unchanged, 8.59 MB across a 3,695-record
+    boundary — proportional to real change.
+  - CAR reader marginal bundle cost: **+2,376 B gz**, 9.7% of the 24 KB
+    per-entry budget — the objection recorded at `revalidate.ts:14` assumed
+    shipping dag-cbor too, which already ships.
+  - One-record diff: **~3.5 KB**, 9 blocks — MST overhead is modest.
+  - **Deletes carry no tombstone.** Create and update put the record block in
+    the CAR; delete simply omits it. Since a `since` diff carries only *changed*
+    MST nodes, the vanished key set is not recoverable from the CAR alone.
+**Concurrency:**
+- Phase 2B added to the sequential spine between 2 and 4 — shares
+  `scripts/build.mjs` with Phase 2, so it cannot be parallel with it.
+- Parallel set {3, 4→5} unchanged; Phase 3's write-set grew by
+  `src/pages/browse.ts`, which does not overlap 4 or 5.
+**Changed:**
+- Open Questions replaced with resolutions; Phase 2B added; Phase 3 gained the
+  `browse.ts:703` call site; Concurrency Map extended.
+- Q4 promoted out to `plans/2026-08-06-3-plan-incremental-revalidation.md`.
+**Confirmed:**
+- The remaining phases held up unchanged under the walk-through.
 
 ### Pass 3: Quality gates — pending
 Run in a fresh context.
