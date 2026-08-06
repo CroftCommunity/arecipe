@@ -1,19 +1,19 @@
-# Plan: shard the bundled snapshot, cache images, and make offline honest
+# Plan: shard the bundled snapshot, cache images offline, and make the gap testable
 
-**Date:** 2026-08-06 · **Status:** proposed
+**Date:** 2026-08-06 · **Status:** planned (Pass 1+2 complete; Pass 3 pending)
 
-## Problem
+## Problem Statement
 
-Publishing the Wikibooks Cookbook corpus (3,695 records, 2026-08-05) landed
-4,041 records in `arecipe.bsky.social` — an account already listed under `cooks`
-in `snapshot-seed.json`. Nobody decided that; it fell out of publishing into an
-account that was already a snapshot seed. The consequences are all measured:
+Publishing the Wikibooks Cookbook corpus (3,695 records, 2026-08-05) put 4,041
+records into `arecipe.bsky.social` — an account already listed under `cooks` in
+`snapshot-seed.json`. Nobody decided that; it fell out of publishing into an
+account that was already a snapshot seed. Everything below is measured.
 
-**The corpus is eagerly hydrated at every boot.** `load.ts:105` skips sharded
-("corpus-style") cooks at first paint and opens one shard on demand, but
-hydrates single-file cooks in full. Because the corpus went into `cooks` rather
-than the `corpus` slot, it is a single-file cook. Measured on a cold load of
-`index.html`:
+**The corpus is eagerly hydrated at every boot.** `src/snapshot/load.ts:105`
+skips sharded ("corpus-style") cooks at first paint and opens one shard on
+demand, but hydrates single-file cooks in full. The corpus went into `cooks`,
+not the `corpus` slot, so it is a single-file cook. Cold load of `index.html`,
+headless Chromium:
 
 ```
 load event              104 ms
@@ -22,91 +22,54 @@ snapshot requests: 6 — including a 2.21 MB corpus shard
 cdn.bsky image requests: 10   (50 cards in DOM, 13 img tags)
 ```
 
-So every boot downloads 2.21 MB and pushes 4,041 records through `cache.put`.
+**Those writes are pathological.** `src/recipes/cache.ts:62` (`inStore`) opens an
+IndexedDB connection, runs ONE request, closes it — per record, awaited
+sequentially by `load.ts:106`. Benchmarked at 4,041 records: **1.2 s** vs
+**0.58 s** batched (~2×; phones typically 4–6× slower).
 
-**Those writes are pathological.** `cache.ts:62` (`inStore`) opens an IndexedDB
-connection, runs ONE request, and closes it — per record, awaited sequentially.
-Benchmarked in headless Chromium at 4,041 records: **1.2 s** versus **0.58 s**
-for a single batched transaction (~2×; phones are typically 4–6× slower). Real,
-but not the dominant cost.
-
-**Images have no service-worker cache at all.** `sw.ts:124` returns early on all
-cross-origin requests, and thumbnails come from `cdn.bsky.app`
-(`present.ts:71`). So images live only in the browser HTTP cache
-(`max-age=604800`), are evicted at the browser's discretion — aggressive for
-PWAs on iOS — and **never work offline**. `present.ts:67` already records this
-as deferred to "Phase 8b offline caching," which has not happened.
+**Images have no service-worker cache and cannot work offline.**
+`src/sw.ts:124` returns early on all cross-origin requests; thumbnails come from
+`cdn.bsky.app` (`src/recipes/present.ts:71`). `present.ts:67` already records
+this as deferred to "Phase 8b offline caching," which never happened.
 
 **A single write invalidates the whole corpus.** Revalidation compares one rev
-per repo; a changed rev refetches that cook's records via paginated
-`listRecords`. All four cooks' revs currently match, so this is not firing — but
-one write to the corpus account re-pages all 4,041 records for every client.
+per repo. All four cooks' revs currently match, so it is not firing — but one
+write to the corpus account re-pages all 4,041 records for every client.
 
 **Cookbook renders unbounded.** Browse windows to 50 (`BROWSE_PAGE_SIZE`) and
-slices *before* rendering; `cookbook.ts:317` calls the same `renderRecipeList`
-(`view.ts:387`, a bare `for` over every entry) without windowing. Follow the
-corpus account and cookbook builds 4,041 cards.
+slices *before* rendering; `src/pages/cookbook.ts:317` calls the same
+`renderRecipeList` (`src/recipes/view.ts:387`, a bare `for` over every entry)
+without windowing.
 
-**Precache failure is silent.** `sw.ts:52` tolerates per-asset failures so one
-miss cannot brick the install — correct, but unreported. A 10 MB shard is the
-likeliest asset to fail, and when it does the app refetches it live on every
+**Precache failure is silent.** `src/sw.ts:52` tolerates per-asset failures so
+one miss cannot brick the install — correct, but unreported. A 10 MB shard is
+the likeliest asset to fail, and when it does the app refetches it live every
 boot with no signal.
 
-Not a problem, and worth stating because it was suspected: **browse's lazy
-loading already works.** 10 image requests for 50 cards. `loading="lazy"` plus
-the 50-item window is doing its job.
-
-## Approach
-
-Keep the entire corpus bundled and precached — it must travel with the PWA — but
-stop hydrating it at boot, and give images a real cache.
-
-**D1 — corpus to the `corpus` slot, sharded by `hash(rkey) mod 16`.** The seed's
-own `$comment` always intended this. `shardRecords` exists, `load.ts:105`
-already skips sharded cooks, `loadRecipeShard` already opens one part. This is a
-seed change plus a shard-key function.
-
-**D2 — enrich `index.json`, and raise its ceiling 96 K → 256 K.** Sharding alone
-would break browse: for a sharded cook the index carries only
-`{rkey, title, shard}`, so cards would lose thumbnails and every filter facet
-(dishKey, category, cuisine, diet, cookingMethod, time, yield all live in record
-bodies). The index becomes the first-paint payload and must carry them.
-
-**D3 — service-worker image cache with a rate-limited PDS fallback.**
-Cache-first keyed by CID, LRU-capped; on CDN failure fall back to
-`sync.getBlob` on the cook's PDS before the existing placeholder
-(`view.ts:207`).
-
-The fallback is **adaptively** throttled, not capped at a hardcoded number:
-honour `429` and `Retry-After`, back off exponentially on repeated failure, and
-recover when requests succeed. Verified limits (docs.bsky.app): overall API
-requests are **3,000 per 5 minutes, keyed by IP** — not per account. That is
-generous for one user browsing 50 cards, but an IP-keyed budget is *shared* by
-everyone behind one egress: office NAT, café wifi, mobile carrier CGNAT. The
-failure mode to design against is a sustained CDN outage where every card on
-every page falls through for many users on one carrier NAT — at which point the
-PDS starts rejecting everything, not just images. So: modest concurrency, back
-off hard on 429, and treat the placeholder as the terminal state rather than
-retrying aggressively.
-
-`src/retry.ts` (`retryOnce`) is not sufficient — two attempts, fixed delay, no
-`429`/`Retry-After` awareness. wbsync's `RateLimiter` cannot be imported either:
-O1 isolation forbids `src/` importing from `tools/` (`o1-isolation.test.ts`
-enforces it). D3 needs its own small adaptive limiter, or that pattern ported
-into `src/`.
-
-**D4 — window cookbook** to match browse. No prefetching until this lands.
-
-**D5 — batch the IndexedDB writes** — one transaction per shard instead of one
-connection per record.
-
-**D6 — offline e2e coverage**, and make precache failure visible.
+**Not a problem, stated so it is not re-litigated:** browse's lazy loading
+already works — 10 image requests for 50 cards. `loading="lazy"` plus the
+50-item window is doing its job. No prefetching is planned.
 
 ## Reasoning
 
-### Why shard, and why by `hash(rkey)`
+### Keep the whole corpus bundled
 
-Three schemes measured over the real 4,041 records (gzipped):
+Decided by the owner: the corpus should travel with the PWA to save bandwidth
+and be useful offline from first run. Recipes are near-static, so heavy caching
+is the right posture. This plan therefore does **not** reduce what ships — every
+shard stays in `__PRECACHE__`. It changes only *when bodies are parsed*: on
+demand from local cache instead of all 4,041 at boot. Nothing extra crosses the
+network offline.
+
+Net first paint: **2.21 MB + 4,041 IndexedDB writes → ~177 KB + zero.**
+
+Rejected: a two-tier bundle that fetches bodies from the network on demand. It
+would shrink the install 12.6× but breaks "open any recipe offline," which is
+the point of bundling.
+
+### Why shard, and why `hash(rkey)`
+
+Measured over the real 4,041 records (gzipped):
 
 | scheme | shards | median | max | one added recipe dirties | worst shard loss |
 |---|---:|---:|---:|---|---:|
@@ -114,42 +77,33 @@ Three schemes measured over the real 4,041 records (gzipped):
 | **`hash(rkey) mod 16`** | 16 | 150 K | 169 K | **exactly 1** | 7.1% |
 | by `recipeCategory` | 16 | 75 K | **609 K** | exactly 1 | **27.4%** |
 
-- **Fixed-size is rejected** because it chunks in `listRecords` order, so
-  inserting one recipe shifts every downstream chunk.
-- **Semantic (meal/category) is rejected** on two counts: `recipeCategory` is
-  present on only 73% of records and skews badly (`_uncategorized` 1,088,
-  `dessert` 772 — an 8× spread), and it fails *coherently*. Losing a shard means
-  "every dessert is gone" rather than a uniform 7% scatter that leaves every
-  category represented. There is no meal field; `breakfast` (137) and `dinner`
-  (178) are two thin values among 15, not a partition.
+- **Fixed-size rejected:** chunks in `listRecords` order, so inserting one
+  recipe shifts every downstream chunk.
+- **Semantic (meal/category) rejected:** `recipeCategory` covers only 73% of
+  records and skews badly (`_uncategorized` 1,088, `dessert` 772 — 8× spread),
+  and it fails *coherently*. A lost shard means "every dessert is gone" instead
+  of a uniform 7% scatter leaving every category represented. There is no meal
+  field; `breakfast` (137) and `dinner` (178) are two thin values among 15.
+- **`rkey` over `dishKey`:** balance is a wash (1.30× vs 1.29× spread).
+  `hash(dishKey)` co-locates variants perfectly (136/136 multi-variant dishes vs
+  9/136 by chance) and `src/pages/dish.ts:56` really does hydrate all siblings —
+  but only **8.2% of records share a dishKey**, 3,701 of 3,837 dishes being a
+  single recipe, and both shards are already precached so it saves a local
+  parse, not a fetch. The decider is mutability:
+  `spike/wikibooks-dishkeys/propose.mjs:46,54` derives keys via
+  `normalizeDishKey(r.name)` — **dishKey is a function of the recipe name** —
+  while the ledger is keyed on pageid precisely because names move
+  (`RUN-WIKIBOOKS-CORPUS-SUMMARY.md`: "Ledger keyed by pageid, never title →
+  renames are updates, not delete+create"). The shard key would depend on the
+  very thing the system was built to survive. It is also 10 records short of
+  full coverage.
 
-**`rkey` over `dishKey`.** Balance is a wash (1.30× vs 1.29× spread).
-`hash(dishKey)` co-locates variants perfectly (136/136 multi-variant dishes vs
-9/136 by chance) and `dish.ts:56` really does hydrate all siblings — but the
-prize is small: **only 8.2% of records share a dishKey**, 3,701 of 3,837 dishes
-being a single recipe, and both shards are already in precache so it saves a
-local parse, not a fetch. The deciding factor is mutability. `rkey` is
-`wb-<pageid>` — the wbsync ledger is keyed on pageid precisely so a Wikibooks
-rename is an update in place. `dishKey` is *derived* from the curated map
-(`wb-dishkeys.approved.json`); re-deriving it moves records between shards,
-dirtying two per move and doing it in bulk on a map regeneration. That directly
-undercuts the update granularity this plan exists to buy. It is also 10 records
-short of full coverage.
+  *Qualification:* the approved map is `rkey → dishKey` and human-curated, so
+  keys are stable until the map is **regenerated** — a deliberate ops action,
+  though regenerating after upstream renames is exactly the case that moves
+  keys. This establishes a mechanism, not a rename frequency.
 
-The churn risk is confirmed in code, not inferred. `spike/wikibooks-dishkeys/propose.mjs:46,54`
-derives keys with `normalizeDishKey(r.name)` — **dishKey is a function of the
-recipe name** — while the ledger is keyed on pageid precisely because names move
-(`RUN-WIKIBOOKS-CORPUS-SUMMARY.md`: "Ledger keyed by pageid, never title →
-renames are updates, not delete+create"). The shard key would depend on exactly
-the thing the system was architected to survive.
-
-*Qualification:* the approved map is `rkey → dishKey` and human-curated, so
-stamped keys are stable until the map is **regenerated** — a deliberate ops
-action. But regenerating after upstream renames is the very case that moves
-keys. And this establishes the mechanism, not a frequency: how often Wikibooks
-renames a page is unmeasured.
-
-### Why the ceiling has to move
+### Why the ceiling must move, and what it costs later
 
 `index.json` variants, gzipped, against the current 98,304 B gate:
 
@@ -160,16 +114,15 @@ renames a page is unmeasured.
 | + thumb, dishKey, category, diet | 142 K | over by 46 K |
 | full facet set (9 fields) | 177 K | over by 81 K |
 
-Adding *only* the thumbnail CID already breaches it. The ceiling was set when
-`index.json` was rkey+title for a few small cooks; under D1 it becomes the
-primary first-paint payload and needs a budget matching that role. Raising it
-silently would defeat the gate's purpose, so it moves deliberately, with this
-table as the record. Even at 177 K it is a 12× improvement on today's 2.21 MB.
+Sharding alone would break browse: for a sharded cook the index carries only
+`{rkey, title, shard}`, so cards would lose thumbnails and every filter facet.
+The enriched index is what makes sharding viable, and adding *only* the
+thumbnail CID already breaches the gate.
 
 **The ceiling is a cap on how large a corpus the app can bundle at all.** Unlike
-shards, `index.json` cannot be deferred: it must be fully loaded at first paint
-to render the grid and its filters, so it is an unavoidable O(corpus) cost. At a
-measured **45 B/record gzipped**:
+shards, `index.json` cannot be deferred — it must be fully loaded at first paint
+to render the grid and filters, so it is an unavoidable O(corpus) cost. At a
+measured **45 B/record gz**:
 
 | ceiling | holds | headroom from today's 4,041 |
 |---|---:|---:|
@@ -177,75 +130,494 @@ measured **45 B/record gzipped**:
 | **256 K (chosen)** | **~5,839** | **+1,798** |
 | 512 K | ~11,679 | +7,638 |
 
-256 K is chosen because the Wikibooks corpus is now fully captured and no second
-corpus is planned — it buys room for the corpus we have, not a general answer.
+256 K is chosen because the Wikibooks corpus is fully captured and no second
+corpus is planned. It buys room for the corpus we have, not a general answer.
 
 **Paging trigger (documented so the next person meets a decision, not a surprise
 build failure):** at ~5,800 records `index.json` hits 256 K again, and trimming
-will not save it — **24% of the index (43 K) is thumbnail CIDs**, which are
-base32 hashes and near-incompressible, unlike the titles and repeated facet
-values around them. Past that point the only real lever is **paging the index
-itself** (browse loads index parts as it pages), which is an architectural change
-affecting cross-corpus search and filtering. Do not simply raise the number
-again without re-reading this section.
+will not save it — **24% of the index (43 K) is thumbnail CIDs**, base32 hashes
+that are near-incompressible unlike the titles and repeated facets around them.
+Past that point the only lever is **paging the index itself** (browse loads
+index parts as it pages), an architectural change affecting cross-corpus search
+and filtering. Do not simply raise the number again without re-reading this.
 
-### Why this does not trade away offline
+### Why images must be cached from the PDS, not the CDN
 
-Sharded still means precached — every shard stays in `__PRECACHE__`. The change
-is that bodies are parsed on demand *from local cache*, not fetched from the
-network. Nothing extra crosses the network offline. Bundling the whole corpus is
-the deliberate choice (recipes are near-static; it saves bandwidth and makes the
-PWA useful offline from first run), and this plan preserves it.
+This inverts the obvious design and is the single most important finding.
+`cdn.bsky.app` sends **no CORS headers**, so a service-worker fetch of an image
+yields an **opaque** response. Browsers pad opaque cache entries to frustrate
+size-probing. Measured in headless Chromium via `navigator.storage.estimate()`
+over 20 real thumbnails:
 
-Net first paint: **2.21 MB + 4,041 IndexedDB writes → ~177 KB + zero.**
+| source | CORS | storage per entry | extrapolated to 1,057 thumbs |
+|---|---|---:|---:|
+| `cdn.bsky.app` (opaque) | none | **7.04 MB** | **7.4 GB** |
+| PDS `getBlob` | `ACAO: *` | 0.17 MB (actual bytes) | 176 MB |
 
-### Why LRU by CID, not TTL
+**42× padding overhead.** Caching the CDN is infeasible — a few hundred images
+would exhaust the origin quota. Opaque responses also report `status: 0`, so the
+SW cannot distinguish success from failure, which breaks the fallback logic.
 
-Blob CIDs are content addresses: the bytes for a CID can never change. So
-freshness is not a concern and a TTL would only cause needless refetches of
-immutable, long-lived content. The cache needs a *size* bound, not an age one —
-4,041 thumbnails is ~122 MB (271 MB at full size; the CDN transform is a
-measured 2.2× mean shrink).
+Only the PDS path is cacheable. It costs 2.2× the bytes (341 KB vs 146 KB
+sampled; 240 KB median stored vs ~115 KB via the CDN transform) because
+`getBlob` serves the full-size original.
 
-## Deliverables
+So the two sources are used for what each is good at: **CDN for online display**
+(fast, small, `max-age=604800` in the browser HTTP cache, no quota cost) and
+**PDS for offline durability** (CORS-clean, inspectable, cacheable). See Open
+Question 1 — the exact split is the one BLOCKING decision left.
 
-| | Deliverable | Notes |
-|---|---|---|
-| D1 | Corpus in the `corpus` slot, `hash(rkey) mod 16` | `snapshot-seed.json`, `snapshot-core.mjs` |
-| D2 | Enriched `index.json` + ceiling 96 K → 256 K | `snapshot-core.mjs`, `build.mjs:24` |
-| D3 | SW image cache (CID cache-first, LRU) + adaptively rate-limited `getBlob` fallback | `sw.ts`, `present.ts`, new limiter in `src/` |
-| D4 | Cookbook windowing | `cookbook.ts` |
-| D5 | Batched IndexedDB writes | `cache.ts`, `load.ts` |
-| D6 | Offline e2e + precache-failure reporting | `tests/e2e/`, `sw.ts` |
+### Why LRU by bytes, not TTL
 
-## Testing
+Blob CIDs are content addresses: the bytes for a CID can never change. Freshness
+is not a concern and a TTL would only force needless refetches of immutable,
+long-lived content. The cache needs a *size* bound. Bytes rather than entry
+count because the quota is what actually runs out (176 MB for the full set).
 
-TDD throughout. Unit (vitest) for shard assignment, index shape, LRU eviction
-and the blob-URL fallback chain; hermetic e2e for the offline flows.
+### Why rate limiting is adaptive, not hardcoded
 
-Offline e2e is the gap that let the eager-load regression ship, so it is a
-deliverable, not a nicety. At minimum: cold install → go offline → browse
-renders cards with images; open an unopened recipe offline; and a precache miss
-surfaces rather than silently refetching.
+Verified against docs.bsky.app: overall API requests are **3,000 per 5 minutes,
+keyed by IP** — not per account. Generous for one user browsing 50 cards, but an
+IP-keyed budget is *shared* by everyone behind one egress: office NAT, café
+wifi, mobile carrier CGNAT. If `getBlob` becomes the caching path (not just a
+fallback), every cache miss hits the PDS, making this materially more likely to
+bite. Design target: honour `429`/`Retry-After`, exponential backoff, modest
+concurrency, placeholder as terminal state.
 
-Watch every test fail first. D1 and D2 change bytes that `build.mjs` gates, so
-run the full `npm run test` (Node 22 — see `.nvmrc`; on newer Node,
-`cookbook-members-view.spec.ts` fails 7 tests for unrelated reasons).
+`src/retry.ts` (`retryOnce`) is insufficient — two attempts, fixed delay, no
+`429` awareness. wbsync's `RateLimiter` cannot be imported: O1 isolation forbids
+`src/` importing from `tools/` (`tools/wikibooks/tests/o1-isolation.test.ts`
+enforces it). A new limiter belongs in `src/`.
 
-## Open questions
+## Verified Assumptions
 
-1. **LRU bound: entry count or bytes?** Bytes is honest about the ~122 MB of
-   thumbnails; entry count is easier to reason about ("the last N recipes you
-   looked at"). **Still unresolved** — the only open item blocking D3.
-2. **Revalidation granularity** is out of scope here but unresolved: one write
-   to the corpus account still invalidates all 4,041 records. Sharding makes a
-   per-shard rev conceivable; not attempted in this plan.
+| Assumption | How verified |
+|---|---|
+| Corpus is a single-file (eager) cook | `snapshot-seed.json` lists `did:plc:spfl4…` under `cooks`; `corpus: null` |
+| Sharded cooks skip eager load | `src/snapshot/load.ts:105` — `if (named.length > 0) continue` |
+| Sharded index carries only rkey/title/shard | `src/snapshot/types.ts:9-15`; `loadRecipeShard` at `load.ts:117` |
+| SW ignores cross-origin | `src/sw.ts:124` |
+| SW precache failure is silent | `src/sw.ts:44-58`, per-asset `try/catch` |
+| `inStore` opens/closes per call | `src/recipes/cache.ts:62-76` |
+| CID recompute is NOT the bottleneck | benchmarked: 95 ms for 4,041 records |
+| IDB batching gain | measured 1.2 s → 0.58 s (~2×), headless Chromium |
+| Cold-load shape | Playwright: 104 ms load, 1,488 ms first cards, 2.21 MB shard, 10 image requests |
+| cdn.bsky.app sends no CORS | probe: `access-control-allow-origin: None` |
+| PDS getBlob sends `ACAO: *` | probe against `phellinus.us-west.host.bsky.network` |
+| Opaque padding ≈ 7 MB/entry | `navigator.storage.estimate()` over 20 real thumbnails, 42× vs CORS |
+| CDN cache headers | `cache-control: max-age=604800, public` |
+| Bluesky limits: 3,000/5 min per **IP** | docs.bsky.app rate-limits page |
+| Browse already lazy + windowed | `browse.ts:110,322`; `view.ts:206` sets `loading="lazy"` |
+| Cookbook is NOT windowed | `cookbook.ts:317` → `view.ts:387` bare `for` |
+| dishKey is name-derived | `spike/wikibooks-dishkeys/propose.mjs:46,54` |
+| croft-pwa shares the cross-origin gap | `croft-pwa/src/sw-nav.ts:26` — `return 'skip'` for cross-origin |
+| croft-pwa has no offline tests | grep of `croft-pwa/tests/` for `setOffline`/`offline` — no matches |
 
-## Resolved during planning
+**Unverified / explicitly not claimed:** how often Wikibooks renames pages;
+whether the 7 MB opaque padding figure holds on Safari/iOS (measured on
+Chromium only — see Open Question 3).
 
-- **Shard key: `hash(rkey)`**, not `dishKey` and not semantic — see Reasoning.
-- **Ceiling: 256 K**, with the paging trigger documented above. The Wikibooks
-  corpus is fully captured and no second corpus is planned.
-- **`getBlob` fallback: adaptive backoff, not a hardcoded cap** — honour
-  `429`/`Retry-After` and throttle dynamically (D3). Limits verified against
-  docs.bsky.app rather than assumed; the IP keying is the part that matters.
+## Documentation Impact
+
+- `docs/PREVIEWS.md` — no change (grepped `snapshot`, `index.json`: no hits).
+- `CLAUDE.md` — Phase 2 adds a line on the snapshot ceiling and where the
+  paging trigger is documented. Existing gate/Node sections unaffected.
+- `RUN-BUNDLE-PRECACHE` references in `scripts/build.mjs:24,261-262` and
+  `src/snapshot/*.ts` header comments — Phases 1–2 update the comments that
+  describe eager vs sharded behaviour, since the corpus changes category.
+- `docs/LEXICONS.md` — no change; record shapes are untouched.
+- `snapshot-seed.json` `$comment` — Phase 1 rewrites it; it currently says the
+  corpus block is "the future Wikibooks tenant," which becomes false.
+- `croft-pwa` docs — Phase 8 output only; no edits to croft-pwa in this plan.
+- Grepped for `BROWSE_PAGE_SIZE`, `renderRecipeList`, `thumbUrl` — all
+  references are in-code and covered by their phases.
+
+## Concurrency Map
+
+```
+Sequential spine: Phase 1 → Phase 2 → [Phase 3 || Phase 4 → Phase 5] → Phase 6 → Phase 7 → Phase 8
+```
+
+**Parallel set {3, 4→5}:** Phase 3 (IndexedDB batching) is independent of the
+image-caching chain (4 then 5).
+
+- **Disjoint write-sets:** Phase 3 writes `src/recipes/cache.ts`,
+  `src/snapshot/load.ts`, `tests/unit/recipes/cache.spec.ts`. Phases 4–5 write
+  `src/sw.ts`, `src/net/blob-source.ts`, `src/recipes/present.ts`,
+  `src/recipes/view.ts` and their tests. No overlap.
+- **Shared-state contract:** Both run in git worktrees off the feature branch.
+  Neither invokes `git checkout`/`stash`/`rebase` in the parent worktree.
+  Neither binds a port or starts a daemon. Both use `$TMPDIR/<phase-id>/` for
+  scratch. Neither writes `dist/` (build is per-phase verification only, and
+  `dist/` is gitignored).
+- **Re-entry verification:** parent-repo `HEAD` equals the pre-dispatch SHA;
+  `git status` clean in the main worktree; `git worktree list` shows only the
+  expected entries; no orphaned `node`/`playwright` processes.
+
+Phases 1→2 are strictly sequential (2 consumes the shard layout 1 defines).
+Phase 5 depends on 4 (the limiter is called from the SW path 4 introduces).
+Phases 6, 7, 8 are sequential at the tail: 7's offline tests assert behaviour
+from 1–6, and 8 audits against the finished outcome.
+
+## Phases
+
+### Phase 1: Corpus into the `corpus` slot, sharded by `hash(rkey) mod 16`
+
+**Goal:** The corpus stops being an eagerly-hydrated single-file cook.
+**Changes:**
+- [ ] `scripts/lib/snapshot-core.mjs` — add `shardKeyFor(rkey, n)` (sha256 →
+      mod n) and use it in place of positional chunking when a cook declares
+      sharding.
+- [ ] `snapshot-seed.json` — move `did:plc:spfl4…` from `cooks` into `corpus`
+      with the shard count; rewrite the now-false `$comment`.
+- [ ] `scripts/lib/snapshot-core.test.mjs` — shard assignment is deterministic,
+      balanced, and stable when a record is added.
+
+**Call chain:** CI `node scripts/snapshot.mjs` → `snapshotCook()` →
+`shardRecords`/`shardKeyFor` → `.snapshot-staging/cooks/<did>.<part>.json` →
+`build.mjs emitSnapshot()` → `dist/assets/snapshot/<buildId>/` → SW precache →
+`load.ts:105` sees `recipe.shard` set and skips eager hydration.
+**Wiring test:** a test that runs the real `snapshot.mjs` capture against a
+fixture repo and asserts the emitted index marks recipes with `shard` files —
+i.e. that `shardFilesFor()` classifies the corpus cook as sharded. Component
+tests on `shardKeyFor` alone would not prove the corpus actually changes
+category.
+**Depends on:** nothing.
+**Read-set:** `scripts/snapshot.mjs`, `src/snapshot/load.ts`,
+`src/snapshot/types.ts`.
+**Write-set:** `scripts/lib/snapshot-core.mjs`, `snapshot-seed.json`,
+`scripts/lib/snapshot-core.test.mjs`.
+**Shared-state contract:** No shared mutable state beyond the write-set. Does
+not touch git, ports, or env.
+**Risks:** `shardFilesFor()` (`load.ts:71`) infers "sharded" from index entries
+naming shard files — if the emitted index omits `shard`, the corpus silently
+stays eager and every later phase's benefit evaporates. The wiring test exists
+for exactly this.
+**Done when:**
+1. **Behavioral:** A built `dist/` has the corpus split across 16
+   `cooks/<did>.<n>.json` files, and its index entries name their shard, so
+   first paint no longer downloads a 2.21 MB single shard.
+2. **Verification:** `node scripts/snapshot.mjs && npm run build` then assert
+   the shard file count and that `loadSnapshotFeed` skips the corpus —
+   `npx vitest run tests/unit/snapshot/`.
+
+**Validation:** Moderate. Tests plus a real build, then re-run the cold-load
+probe and confirm the 2.21 MB request is gone.
+
+---
+
+### Phase 2: Enriched `index.json` and a deliberate ceiling raise
+
+**Goal:** Browse renders full cards and filters from the index alone.
+**Changes:**
+- [ ] `scripts/lib/snapshot-core.mjs` — `indexCook.recipes` carries thumb CID,
+      dishKey, category, cuisine, diet, cookingMethod, totalTime, recipeYield.
+- [ ] `scripts/build.mjs` — `CEILING` 98304 → 262144, with the paging-trigger
+      rationale in the comment, pointing at this plan.
+- [ ] `tests/unit/snapshot/index-shape.spec.ts` — index entries carry the facet
+      set; the ceiling check still fails when genuinely exceeded.
+
+**Call chain:** `snapshot-core.mjs` builds `indexCook.recipes` → `index.json` →
+`loadSnapshotIndex` (`load.ts:23`) → browse renders cards from index entries for
+sharded cooks.
+**Wiring test:** an e2e that loads browse with a sharded corpus fixture and
+asserts cards show **thumbnails and respond to a diet filter** — proving the
+facets reached the UI, not merely that the index file contains them.
+**Depends on:** Phase 1.
+**Read-set:** `src/snapshot/load.ts`, `src/snapshot/types.ts`,
+`src/pages/browse.ts`, `src/recipes/view.ts`.
+**Write-set:** `scripts/lib/snapshot-core.mjs`, `scripts/build.mjs`,
+`tests/unit/snapshot/index-shape.spec.ts`.
+**Shared-state contract:** No shared mutable state beyond the write-set.
+**Risks:** Browse currently renders cards from full `CachedRecipe` objects; a
+sharded cook supplies index entries instead. If the card renderer cannot accept
+the leaner shape, this phase grows a `view.ts` change — watch for it and split
+rather than absorb (4-file rule).
+**Done when:**
+1. **Behavioral:** With the corpus sharded, browse shows 50 cards *with
+   thumbnails*, and diet/category filters work, without loading any shard.
+2. **Verification:** `npx playwright test tests/e2e/browse-sharded.spec.ts`
+   plus `npm run build` succeeding at the new ceiling.
+
+**Validation:** Moderate-to-broad. Tests, a real build, and a manual browse
+pass confirming cards and filters look right.
+
+---
+
+### Phase 3: Batch the IndexedDB writes
+
+**Goal:** Hydrating a cook stops costing one DB connection per record.
+**Changes:**
+- [ ] `src/recipes/cache.ts` — add `putMany(records)` using one connection and
+      one transaction; keep `put` for single writes.
+- [ ] `src/snapshot/load.ts` — replace the per-record `await cache.put` loop
+      (line 106) with a single `putMany` per shard.
+- [ ] `tests/unit/recipes/cache.spec.ts` — `putMany` verifies every CID, marks
+      mismatches unverified, and writes all records in one transaction.
+
+**Call chain:** `loadSnapshotFeed` → `cache.putMany(shard.records)` →
+`inStore`-equivalent single transaction → IndexedDB.
+**Wiring test:** a test that drives `loadSnapshotFeed` with a multi-record
+fixture and asserts every record is retrievable afterwards — proving the loader
+uses the batched path, not just that `putMany` works.
+**Depends on:** nothing (parallel-safe with Phases 4–5).
+**Read-set:** `src/snapshot/load.ts`, `src/recipes/cache.ts`.
+**Write-set:** `src/recipes/cache.ts`, `src/snapshot/load.ts`,
+`tests/unit/recipes/cache.spec.ts`.
+**Shared-state contract:** Runs in a worktree off the feature branch. Does not
+invoke `git checkout`/`stash`/`rebase` in the parent worktree, binds no ports,
+scratch under `$TMPDIR/phase3/`. Tests use a per-test IndexedDB name so parallel
+runs cannot collide.
+**Re-entry verification:** parent `HEAD` == pre-dispatch SHA; `git status` clean
+in main worktree; `git worktree list` shows only expected entries; no orphaned
+node processes.
+**Risks:** CID verification must stay per-record — batching writes must not
+batch away the `verified` flag, which is a trust-surface property
+(`cache.ts:2-5`).
+**Done when:**
+1. **Behavioral:** Loading a cook's shard writes all its records in one
+   transaction, with `verified` still correct per record.
+2. **Verification:** `npx vitest run tests/unit/recipes/cache.spec.ts` and the
+   loader wiring test.
+
+**Validation:** Narrow-to-moderate. Tests, plus re-run the IDB benchmark to
+confirm the improvement is real rather than assumed.
+
+---
+
+### Phase 4: Service-worker image cache (PDS-sourced, CORS-clean, LRU by bytes)
+
+**Goal:** Images survive offline and eviction, without blowing storage quota.
+**Changes:**
+- [ ] `src/sw.ts` — stop blanket-skipping cross-origin; route blob requests to
+      a cache-first handler keyed by CID, with LRU eviction by bytes.
+- [ ] `tests/unit/sw-image-cache.spec.ts` — cache-first hit/miss, LRU evicts
+      oldest by byte budget, non-blob cross-origin still skipped.
+
+**Call chain:** `<img src>` → SW `fetch` handler → CID-keyed cache lookup → hit
+returns cached, miss fetches from the PDS (CORS) and stores.
+**Wiring test:** an offline e2e — load browse online, go offline, reload, assert
+card images still render. Unit tests on the LRU alone would not prove the SW
+actually intercepts image requests.
+**Depends on:** Open Question 1 (display/cache source split) must be resolved.
+**Read-set:** `src/sw.ts`, `src/sw-nav.ts`, `src/recipes/present.ts`.
+**Write-set:** `src/sw.ts`, `tests/unit/sw-image-cache.spec.ts`.
+**Shared-state contract:** Runs in a worktree off the feature branch. Same git
+invariants as Phase 3; scratch under `$TMPDIR/phase4/`. Tests must use a
+distinct Cache Storage name so parallel runs do not share cache state.
+**Re-entry verification:** as Phase 3.
+**Risks:** **Never cache opaque responses** — measured at 7.04 MB of quota per
+entry, 42× the real bytes. Any code path that stores a `no-cors` fetch is a
+defect this phase must actively prevent, with a test asserting it.
+**Done when:**
+1. **Behavioral:** After browsing online, going offline and reloading still
+   shows card images.
+2. **Verification:** `npx playwright test tests/e2e/offline-images.spec.ts`.
+
+**Validation:** Broad. Tests, plus a manual offline pass, plus checking
+`navigator.storage.estimate()` to confirm real usage tracks actual bytes and
+not a padded figure.
+
+---
+
+### Phase 5: Adaptive rate limiter for the PDS blob path
+
+**Goal:** The PDS path degrades gracefully instead of tripping an IP-shared
+budget.
+**Changes:**
+- [ ] `src/net/blob-source.ts` — new: adaptive limiter honouring
+      `429`/`Retry-After` with exponential backoff and bounded concurrency.
+- [ ] `src/recipes/present.ts` — blob URL resolution for CDN vs PDS per the
+      Open Question 1 decision.
+- [ ] `tests/unit/net/blob-source.spec.ts` — backs off on 429, honours
+      `Retry-After`, recovers on success, caps concurrency.
+
+**Call chain:** SW image handler (Phase 4) → `blob-source` → throttled
+`getBlob` → cache.
+**Wiring test:** a test driving the SW image path against a stub PDS returning
+`429` once, asserting the image still resolves after backoff rather than
+falling straight to the placeholder.
+**Depends on:** Phase 4; Open Question 1.
+**Read-set:** `src/sw.ts`, `src/retry.ts`, `src/recipes/view.ts`.
+**Write-set:** `src/net/blob-source.ts`, `src/recipes/present.ts`,
+`tests/unit/net/blob-source.spec.ts`.
+**Shared-state contract:** as Phase 4.
+**Risks:** Must not import from `tools/` — O1 isolation
+(`tools/wikibooks/tests/o1-isolation.test.ts`) fails the build if it does.
+**Done when:**
+1. **Behavioral:** With the PDS returning 429, images resolve after backoff and
+   the app never floods the endpoint.
+2. **Verification:** `npx vitest run tests/unit/net/blob-source.spec.ts` plus
+   the wiring test.
+
+**Validation:** Moderate. Tests plus a throttled-network manual pass.
+
+---
+
+### Phase 6: Window the cookbook list
+
+**Goal:** Cookbook stops building a card per record.
+**Changes:**
+- [ ] `src/pages/cookbook.ts` — window with `windowPage` as browse does
+      (`browse.ts:322`), same page size and arrows.
+- [ ] `tests/e2e/cookbook-window.spec.ts` — a large cookbook renders one page,
+      not every entry.
+
+**Call chain:** `cookbook.ts` render → `windowPage(entries, …)` →
+`renderRecipeList` with a windowed slice.
+**Wiring test:** the e2e above — asserts the DOM card count is capped with a
+large fixture, proving the windowing is wired, not merely available.
+**Depends on:** nothing functionally; sequenced after 3–5 to keep the diff
+readable.
+**Read-set:** `src/pages/browse.ts`, `src/recipes/paginate.ts`,
+`src/recipes/view.ts`.
+**Write-set:** `src/pages/cookbook.ts`, `tests/e2e/cookbook-window.spec.ts`.
+**Shared-state contract:** No shared mutable state beyond the write-set.
+**Risks:** Cookbook has its own sort/filter state (`cookbook.ts:290`); windowing
+must apply after sorting, or paging will scramble order.
+**Done when:**
+1. **Behavioral:** A cookbook with 4,000 entries renders one page of cards with
+   working arrows.
+2. **Verification:** `npx playwright test tests/e2e/cookbook-window.spec.ts`.
+
+**Validation:** Narrow. Tests plus a manual look at a large cookbook.
+
+---
+
+### Phase 7: Offline e2e coverage and precache-failure visibility
+
+**Goal:** The offline promise becomes testable, and silent precache failure
+stops being silent.
+**Changes:**
+- [ ] `tests/e2e/offline.spec.ts` — install, go offline, browse renders cards
+      with images; open a never-opened recipe offline and it renders.
+- [ ] `src/sw.ts` — report precache failures (count + first failing asset) via
+      an existing log path rather than swallowing them.
+
+**Call chain:** SW `install` → per-asset `cache.add` → failure recorded →
+surfaced to the page/log.
+**Wiring test:** `offline.spec.ts` itself is the wiring test for the whole plan
+— it exercises the real entry point with the network cut.
+**Depends on:** Phases 1–6.
+**Read-set:** all phases' outputs.
+**Write-set:** `tests/e2e/offline.spec.ts`, `src/sw.ts`.
+**Shared-state contract:** Playwright contexts are isolated; no shared state
+beyond the write-set. Must not run in parallel with Phase 4 (both write
+`src/sw.ts`) — hence sequential placement.
+**Risks:** This is the gap that let the eager-load path ship. If it is deferred
+or trimmed, the plan has not actually fixed the class of problem, only this
+instance.
+**Done when:**
+1. **Behavioral:** With the network disabled, browse renders cards with images
+   and a previously-unopened recipe opens.
+2. **Verification:** `npx playwright test tests/e2e/offline.spec.ts`.
+
+**Validation:** Broad. Tests plus a manual airplane-mode pass on a real device
+if available — the desktop harness cannot fully model iOS eviction.
+
+---
+
+### Phase 8: Audit croft-pwa against these findings
+
+**Goal:** Check whether the sibling PWA carries the same latent gaps, and report
+— no code changes here.
+**Changes:**
+- [ ] Write `croft-pwa`-side findings to a plan doc **in that repo**
+      (per the workspace rule that repo content lives in its repo).
+
+**Grounded starting points (already verified):**
+- `croft-pwa/src/sw-nav.ts:26` returns `'skip'` for cross-origin — the **same**
+  gap as `arecipe/src/sw.ts:124`. Whether it *matters* depends on whether
+  croft-pwa fetches cacheable cross-origin assets; it references
+  `public.api.bsky.app` and `plc.directory` at runtime (API calls, not images).
+- No offline coverage: grep of `croft-pwa/tests/` for `setOffline`/`offline`
+  returned nothing, while `tests/e2e`, `unit`, `live`, `ext` all exist.
+- Check whether croft-pwa precaches with the same silent per-asset tolerance.
+- Check whether it has any O(corpus) first-paint payload with a size gate.
+
+**Call chain:** n/a — audit only.
+**Wiring test:** n/a. This phase produces a document, not behaviour. Its
+"done" is a written finding per checklist item, each with a file:line or a
+recorded probe.
+**Depends on:** Phases 1–7 (audits against the finished outcome, so the
+lessons are concrete rather than predicted).
+**Read-set:** `croft-pwa/src/sw.ts`, `croft-pwa/src/sw-nav.ts`,
+`croft-pwa/tests/`, `croft-pwa/scripts/`.
+**Write-set:** a new plan doc under `croft-pwa/plans/`.
+**Shared-state contract:** Read-only against croft-pwa's working tree. Does
+**not** create branches, commit, or check out anything in that repo — it is a
+separate repo with its own history. Writes exactly one new file.
+**Risks:** Scope creep into fixing croft-pwa. This phase reports; any fix is a
+separate plan in that repo.
+**Done when:**
+1. **Behavioral:** A reviewer can read the croft-pwa findings doc and know, per
+   item, whether each arecipe lesson applies there, with evidence.
+2. **Verification:** the doc exists, and every checklist item above has either
+   a file:line citation or a recorded probe result.
+
+**Validation:** Narrow. Peer-readable evidence per claim.
+
+## Open Questions
+
+- **[RECOMMENDED: BLOCKING] Which source displays images and which populates
+  the offline cache?** Option A: display from CDN (fast, small, free of quota),
+  cache from PDS for offline — two sources, best of each, but a cached image and
+  a displayed image are different bytes. Option B: PDS for everything — one
+  path, simpler, offline-consistent, but 2.2× bytes on every display and far
+  more pressure on the IP-shared 3,000/5 min budget. *Rationale: Phase 4 cannot
+  start without it, and it determines Phase 5's load profile.*
+- **[RECOMMENDED: PHASE-GATED (Phase 4)] What byte budget for the image LRU?*
+  176 MB caches the whole corpus; a smaller cap (say 50 MB, ~300 images) covers
+  realistic browsing. *Rationale: needed before the eviction policy is written,
+  not before planning proceeds.*
+- **[RECOMMENDED: ADVISORY] Does the 7 MB opaque padding hold on Safari/iOS?**
+  Measured on Chromium only. *Rationale: the plan already avoids opaque caching
+  entirely, so a different figure changes nothing — but iOS is the platform
+  where eviction pressure is worst, so it is worth knowing.*
+- **[RECOMMENDED: ADVISORY] Revalidation granularity.** One write to the corpus
+  account still invalidates all 4,041 records; sharding makes a per-shard rev
+  conceivable. *Rationale: out of scope here, but sharding is the enabling step,
+  so it should be recorded while the context is fresh.*
+
+## Review Log
+
+### Pass 1: Plan development — 2026-08-06
+Built from a live investigation of the deployed app and PDS. Three candidate
+causes for the reported slow loads were measured and two were **disproved**
+(revalidation thrash; CID recompute at 95 ms). Sharding schemes, index sizing,
+and shard-key choice were each decided against measurements rather than
+intuition.
+
+### Pass 2: Gap analysis — 2026-08-06
+**Found:**
+- **Opaque-response padding would have broken Phase 4 mid-implementation.**
+  The original D3 had the CDN as the cached source; measurement showed 7.04 MB
+  of quota per opaque entry (42× real bytes, 7.4 GB extrapolated). Verified the
+  PDS sends `ACAO: *` and is therefore the only viable cache source. This
+  inverted the design before any code was written.
+- Phase 2 risk: browse renders from full `CachedRecipe` objects today, so a
+  sharded cook's leaner index entries may force a `view.ts` change — flagged
+  with an instruction to split rather than absorb (4-file rule).
+- Phase 1 risk: `shardFilesFor()` infers "sharded" from the emitted index, so a
+  missing `shard` field silently reverts the corpus to eager. Wiring test added
+  specifically for that.
+- Phase 7 must not run parallel to Phase 4 — both write `src/sw.ts`.
+- Documentation Impact was initially empty; `snapshot-seed.json`'s `$comment`
+  becomes false at Phase 1 and is now a phase item.
+**Concurrency:**
+- Parallel set {3, 4→5} confirmed: write-sets disjoint, shared-state contracts
+  expressed as invariants (no parent-worktree git mutations, no port binds,
+  scoped tmp, distinct IndexedDB/Cache names) with concrete re-entry checks.
+- Phase 7 pulled explicitly to sequential on the `src/sw.ts` write-set overlap.
+**Changed:**
+- Reasoning gained the CORS/opaque section; Verified Assumptions gained the
+  probe results; Open Question 1 was reframed from "should getBlob be
+  rate-limited" (answered: yes, adaptively) to the source-split decision the
+  measurements exposed.
+**Confirmed:**
+- `hash(rkey)` over `hash(dishKey)` held up; the dishKey argument strengthened
+  from inference to code evidence (`propose.mjs:46,54`).
+- Browse's lazy loading needs no work — recorded so it is not re-litigated.
+
+### Pass 3: Quality gates — pending
+Run in a fresh context.
