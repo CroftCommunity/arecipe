@@ -261,11 +261,20 @@ since the fallback exists precisely for real-world PDS variation.
 
 **Goal:** A recipe deleted upstream stops being displayed, within a defined
 window.
-**Changes:** *Shape depends on Open Question 1.* Under strategy (b):
-- [ ] `src/snapshot/revalidate.ts` — track reconcile staleness per cook; force a
-      full sync when the window lapses.
+**Changes:** Strategy **(b)** confirmed — reconcile bookkeeping, no MST walking:
+- [ ] `src/snapshot/revalidate.ts` — track `lastReconciledAt` per cook; force a
+      full sync when the window lapses, and prune records absent from it.
+- [ ] `src/snapshot/revalidate.ts` — **merge** diff records into the held set
+      rather than replacing it. This is the correctness trap: today
+      `onChanged` (`browse.ts:703`) does
+      `entriesByDid.set(did, records.map(...))` — it **replaces** the cook's
+      whole list, which is correct only because `readRecords` returns the
+      complete current set (so deletions vanish by construction). A CAR diff
+      returns only *changed* records, so calling the same path with them would
+      **wipe every unchanged recipe for that cook**. The diff path must merge;
+      only the reconcile may replace.
 - [ ] `tests/unit/snapshot/revalidate.spec.ts` — a delete is invisible to the
-      diff path and **is** caught by the reconcile.
+      diff path and **is** caught by the reconcile; the window is respected.
 
 **Call chain:** boot → revalidate → window lapsed → full sync → removed records
 pruned from the store → view updates.
@@ -277,9 +286,19 @@ the store.
 **Write-set:** `src/snapshot/revalidate.ts`,
 `tests/unit/snapshot/revalidate.spec.ts`.
 **Shared-state contract:** No shared mutable state beyond the write-set.
-**Risks:** This is the phase most likely to be skipped once Phase 2 shows a big
-win — and skipping it means deleted recipes linger indefinitely. Phase 2 must
-not ship without it.
+**Risks:**
+- This is the phase most likely to be skipped once Phase 2 shows a big win — and
+  skipping it means deleted recipes linger indefinitely. Phase 2 must not ship
+  without it.
+- **Replace-vs-merge is the sharp edge.** `onChanged`'s replace semantics are
+  load-bearing today; feeding it a partial diff silently deletes the rest of the
+  cook's recipes from view. A test must pin merge-on-diff and replace-on-
+  reconcile explicitly.
+- **Deltas may accumulate.** `store.ts:70` keys rows `buildId|did|rev`, so every
+  new rev writes another row, and `purge.ts` only cleans **Cache Storage** by
+  build id — it does not touch the IndexedDB `deltas` store. Incremental
+  revalidation makes revs move more often, so verify whether stale delta rows
+  are cleaned anywhere; if not, this phase should bound them.
 **Done when:**
 1. **Behavioral:** A recipe deleted upstream disappears from the feed within the
    defined window.
@@ -289,14 +308,23 @@ not ship without it.
 
 ## Open Questions
 
-- **[RECOMMENDED: BLOCKING] Deletion strategy: (a) cache MST nodes and walk the
-  tree, or (b) cheap diff plus periodic full reconcile?** *Rationale: Phase 3's
-  entire shape depends on it, and (a) would also change Phase 1's decoder
-  surface. Leaning (b) — deletions are rare here and (a) puts MST correctness on
-  every boot — but (b) accepts a window where a deleted recipe stays visible.*
-- **[RECOMMENDED: PHASE-GATED (Phase 3)] If (b), how long is the reconcile
-  window?** *Rationale: it is the visible-staleness budget for deletions; needed
-  before Phase 3 is written, not before work starts.*
+- **[RESOLVED — strategy (b)]** Deletion strategy: **cheap diff for
+  creates/updates, periodic full reconcile to catch deletions.** Confirmed by
+  the owner 2026-08-06. Consequences now baked into the plan:
+  - Phase 1's decoder stays a **flat record decoder** — no MST walking, no
+    client-side Merkle tree. This is the larger de-risking: strategy (a) would
+    have put tree correctness on the critical path of every boot.
+  - Phase 3 becomes reconcile-window bookkeeping rather than tree diffing.
+  - **Accepted tradeoff:** a recipe deleted upstream stays visible until the
+    next reconcile. That window is a deliberate staleness budget, not a bug —
+    but it must be bounded and tested, or "rare deletions" silently becomes
+    "deletions never propagate."
+- **[RECOMMENDED: PHASE-GATED (Phase 3)] How long is the reconcile window?**
+  *Rationale: with (b) chosen this is the visible-staleness budget for
+  deletions. Needed before Phase 3 is written, not before work starts. Worth
+  noting the reconcile costs a full sync (9.19 MB for the corpus), so the window
+  trades deletion latency against bandwidth — a per-cook window scaled to repo
+  size may beat one global number.*
 - **[RECOMMENDED: ADVISORY] Do non-Bluesky PDS hosts honour `since` identically?**
   *Rationale: the fallback covers it either way, so this affects how often the
   fast path is taken, not correctness.*
