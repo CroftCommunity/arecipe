@@ -83,6 +83,15 @@ run the other sub-gates directly and use the config above for e2e.
   `app.arecipe.*`. Update that doc when a record shape changes.
 - **Plans.** Non-trivial features get a dated plan doc in `plans/` (see existing
   ones); record the outcome when done.
+- **Do not delete the `wbsync` worktree.** `git worktree list` shows a detached,
+  branchless worktree at `CroftC/worktrees/arecipe/wbsync` — it reads like
+  leftover cruft and is not. It holds the only populated copy of the Wikibooks
+  corpus state (270 MB: ledger, 3,824 raw pages, 751 cached images with their
+  uploaded blob CIDs), all gitignored. Removing it costs a full re-crawl of
+  ~4,500 rate-limited upstream requests before the next incremental sync can run.
+  It is detached rather than on a branch because its branch merged in #74 and git
+  will not check out `main` in two worktrees at once. Full rationale:
+  `tools/wikibooks/README.md` § "Local state".
 - **Changelog trailers.** The `/changelog` page is generated at build time from
   opt-in `Changelog:` commit trailers (`scripts/build.mjs` → `dist/changelog.json`;
   pure logic in `scripts/changelog.mjs`). **If a commit changes what a cook sees

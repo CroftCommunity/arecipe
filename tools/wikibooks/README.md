@@ -31,6 +31,44 @@ publish   ──► PDS           records + delta application (dry-run by defaul
 A parser improvement re-runs against `raw/` with **zero** wiki traffic
 (`wbsync transform --reparse`). A publish retry never re-transforms.
 
+## Local state — where it lives, and why it is not disposable
+
+The stages above only hold if their inputs survive between runs. All of it is
+**gitignored** (`.gitignore`: `state/`, `raw/`, `runs/`, `images/`) because it is
+large and machine-local — but gitignored is not the same as regenerable-for-free.
+
+| dir | size | what it is | cost to rebuild |
+|---|---:|---|---|
+| `state/` | 2.2 MB | `corpus.db` — the ledger: pageid → revid, `ir_sha256`, `transform_version`, publish state | rebuildable only by re-fetching everything below |
+| `raw/` | 17 MB | 3,824 pages of wikitext exactly as retrieved | 3,824 wiki requests under D1 etiquette rate limiting |
+| `images/` | 190 MB | 751 cached Commons renditions + `manifest.json` **including uploaded blob CIDs** | 751 Commons downloads + re-resolution |
+| `runs/` | 34 MB | per-run plans, summaries, `apply-progress.json` | not rebuildable — it is the record of what was applied |
+| | **270 MB** | | |
+
+**Why it matters.** The ledger is what makes a re-sync incremental: it is keyed
+by pageid (never title, so an upstream rename is an update in place) and stores
+both change axes, so a re-run spends wiki requests only on pages whose revid
+actually moved. Lose `state/` + `raw/` and the next `wbsync run` is a full
+cold-start crawl of the whole Cookbook rather than a delta. Lose
+`images/manifest.json` and every blob is re-uploaded — the exact failure that
+stalled the 2026-08-05 publish on a Bluesky rate limit (see
+`plans/2026-07-23-3-plan-wikibooks-corpus-enrichment.md`).
+
+**Where it currently lives.** The only populated copy is the worktree at
+`CroftC/worktrees/arecipe/wbsync`, which is deliberately kept on a **detached
+HEAD** at a `main` commit rather than on a branch:
+
+- Its branch (`claude/wbsync-enrich`) was merged in #74 and deleted. The worktree
+  outlived it because the *state* is the valuable part, not the branch.
+- Git refuses to check out `main` in two worktrees at once, so detaching is what
+  lets the primary checkout hold `main` while this one keeps the corpus.
+
+**If you are tidying up:** `git worktree list` will show it as a detached,
+seemingly branchless worktree — which reads like leftover cruft. It is not.
+Removing it costs a full re-crawl (~4,500 upstream requests, rate-limited) before
+the next incremental sync can run. If you do need to reclaim the space, `runs/`
+is the cheapest to lose and `images/` the most expensive.
+
 ## Requirements
 
 - **Node 20+** (developed on 22.22; uses `node:sqlite` and native TypeScript
