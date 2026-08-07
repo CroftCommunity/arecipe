@@ -25,6 +25,13 @@ that have nothing to do with your change: on Node 25,
 **If a spec fails on a DOM global you never touched, check `node --version`
 before debugging the test.**
 
+**When CI is red, the deploy seems stale, or images look broken:** read
+`docs/CI-TROUBLESHOOTING.md` before debugging code. It covers telling a GitHub
+outage from a real failure (a cancelled job reports as `fail` in
+`gh pr checks` — check the job `conclusion`), verifying a deploy actually landed,
+the snapshot-rev freshness check that silently costs every client a full
+refetch, and why images can fail while the rest of the app works offline.
+
 **Playwright browser — do this BEFORE your first e2e run.** This environment
 ships Chromium under `/opt/pw-browsers`, but the npm-pinned Playwright usually
 expects a *different* build number, so a stock `npm run test:e2e` fails with
