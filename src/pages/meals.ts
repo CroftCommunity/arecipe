@@ -612,9 +612,12 @@ const startPlanningLink = (): HTMLAnchorElement => {
  *  and publish date, a link to the shareable view, and a guarded delete. */
 const showPublishedPlans = async (app: HTMLElement): Promise<void> => {
   const content = el('section', 'panel');
-  // A slim header row carries the Archive link (populated once plans load); the
-  // tab itself is labeled by the nav, so no page title.
+  // A slim header row: the Archive link on the left (populated once plans
+  // load) and the calendar-publish chip pinned upper right; the tab itself is
+  // labeled by the nav, so no page title.
   const header = el('div', 'meals-header');
+  const headerActions = el('div', 'meals-actions');
+  header.append(headerActions);
   content.append(header);
   const body = el('div');
   body.dataset['testid'] = 'published-plans';
@@ -625,6 +628,54 @@ const showPublishedPlans = async (app: HTMLElement): Promise<void> => {
 
   body.replaceChildren(el('p', 'status', 'loading your published plans…'));
   let agent: Agent | null = null;
+
+  // Calendar-publish status chip (D9): a device-local enabled/sync indicator
+  // with a manual Resync, riding the Menu header's right edge — the calendar
+  // mirrors the published plans listed here. Hidden unless the feature is
+  // enabled on this device; rendered before auth so it shows signed-out too.
+  const calendarClient = createCalendarClient();
+  const listPublished = async (): Promise<LocalPlan[]> => {
+    if (agent?.did === undefined) return [];
+    const { pds } = await resolveDidDoc(agent.did);
+    return listPdsPlans(pds, agent.did);
+  };
+  const calChip = el('div', 'calendar-chip');
+  calChip.dataset['testid'] = 'calendar-sync-status';
+  const refreshChip = (): void => {
+    const cfg = calendarClient.config.load();
+    if (!cfg.enabled) {
+      calChip.hidden = true;
+      calChip.replaceChildren();
+      return;
+    }
+    calChip.hidden = false;
+    const st = calendarClient.syncState.load();
+    const labels: Record<string, string> = {
+      unknown: 'Calendar: on',
+      syncing: 'Calendar: syncing…',
+      synced: 'Calendar: synced ✓',
+      error: 'Calendar: sync failed ⚠',
+      'needs-token': 'Calendar: reconnect',
+    };
+    const label = el('span', 'calendar-chip-label', labels[st.status] ?? 'Calendar');
+    if (st.status === 'error' && st.message !== undefined) label.title = st.message;
+    const resync = el('button', 'button calendar-resync', 'Resync') as HTMLButtonElement;
+    resync.type = 'button';
+    resync.dataset['testid'] = 'calendar-resync';
+    resync.addEventListener('click', () => {
+      const p = calendarClient.republish(listPublished);
+      refreshChip(); // reflects 'syncing' (set synchronously at the start)
+      void p.finally(() => refreshChip());
+    });
+    calChip.replaceChildren(label, resync);
+    if (st.status === 'needs-token') {
+      const setLink = el('a', 'friend-link', 'Set token') as HTMLAnchorElement;
+      setLink.href = './account.html';
+      calChip.append(setLink);
+    }
+  };
+  headerActions.append(calChip);
+  refreshChip();
   try {
     const { bootSession } = await import('../auth/boot.js');
     ({ agent } = await bootSession());
@@ -654,10 +705,8 @@ const showPublishedPlans = async (app: HTMLElement): Promise<void> => {
     // deletion (the records are untouched).
     const { active: activePlans, archived: archivedPlans } = partitionPlans(plans, new Date());
     // Deleting a published plan (a date range) must also update the subscribable
-    // calendar in place (no-op unless enabled on this device); regenerate from
-    // the remaining set.
-    const calendarClient = createCalendarClient();
-    const listPublished = (): Promise<LocalPlan[]> => listPdsPlans(pds, did);
+    // calendar in place (no-op unless enabled on this device); the header
+    // chip's client + lister above regenerate from the remaining set.
 
     // Below the list (past a divider): a read-only month calendar with every
     // published plan filled in. Days holding meals are tappable — selecting one
@@ -817,7 +866,9 @@ const showPublishedPlans = async (app: HTMLElement): Promise<void> => {
             confirm.addEventListener('click', () => {
               void removePlanFromPds(boundAgent, plan.id)
                 .then(() => {
-                  void calendarClient.republish(listPublished); // in-place calendar update
+                  const calP = calendarClient.republish(listPublished); // in-place calendar update
+                  refreshChip();
+                  void calP.finally(() => refreshChip());
                   render(list.filter((x) => x.id !== plan.id));
                 })
                 .catch((err: unknown) => {
@@ -848,7 +899,7 @@ const showPublishedPlans = async (app: HTMLElement): Promise<void> => {
     ) as HTMLAnchorElement;
     archiveLink.href = './archive.html';
     archiveLink.dataset['testid'] = 'plans-archive-link';
-    header.append(archiveLink);
+    header.prepend(archiveLink);
     render(activePlans);
     log.debug('shell', 'mounted', { page: 'meals', view: 'published-plans', archived: archivedPlans.length });
   } catch (err) {
@@ -966,11 +1017,9 @@ export const main = async (
   let you: { did: string; pds: string } | null = null;
 
   const content = el('section', 'panel');
-  // No page title — the nav tab labels this view. The header row just carries
-  // the calendar chip (actions); the per-day cap lives on its own line below,
-  // the Reset control on the week-actions row.
-  const header = el('div', 'meals-header');
-  const headerActions = el('div', 'meals-actions');
+  // No page title — the nav tab labels this view. The per-day cap lives on its
+  // own line at the top, the Reset control on the week-actions row; the
+  // calendar-publish chip rides the Menu (published plans) header instead.
   // "Recipes per day" cap: how many recipes a day may hold. A plan-level setting
   // that gates adding (never deletes what's already placed); persisted + synced.
   const perDayLabel = el('label', 'meals-perday');
@@ -991,8 +1040,9 @@ export const main = async (
   perDayLabel.append(perDaySelect);
   const resetControl = el('div', 'meals-reset');
 
-  // Calendar-publish status chip (D9): a device-local enabled/sync indicator
-  // with a manual Resync. Hidden unless the feature is enabled on this device.
+  // Calendar publishing (D9): the publish/delete flows below refresh the
+  // subscribable calendar in place. The status chip itself now lives on the
+  // Menu (published plans) page — see showPublishedPlans.
   const calendarClient = createCalendarClient();
   const listPublished = async (): Promise<LocalPlan[]> => {
     const a = syncAgent;
@@ -1000,50 +1050,11 @@ export const main = async (
     const pds = you?.pds ?? (await resolveDidDoc(a.did)).pds;
     return listPdsPlans(pds, a.did);
   };
-  const calChip = el('div', 'calendar-chip');
-  calChip.dataset['testid'] = 'calendar-sync-status';
-  const refreshChip = (): void => {
-    const cfg = calendarClient.config.load();
-    if (!cfg.enabled) {
-      calChip.hidden = true;
-      calChip.replaceChildren();
-      return;
-    }
-    calChip.hidden = false;
-    const st = calendarClient.syncState.load();
-    const labels: Record<string, string> = {
-      unknown: 'Calendar: on',
-      syncing: 'Calendar: syncing…',
-      synced: 'Calendar: synced ✓',
-      error: 'Calendar: sync failed ⚠',
-      'needs-token': 'Calendar: reconnect',
-    };
-    const label = el('span', 'calendar-chip-label', labels[st.status] ?? 'Calendar');
-    if (st.status === 'error' && st.message !== undefined) label.title = st.message;
-    const resync = el('button', 'button calendar-resync', 'Resync') as HTMLButtonElement;
-    resync.type = 'button';
-    resync.dataset['testid'] = 'calendar-resync';
-    resync.addEventListener('click', () => {
-      const p = calendarClient.republish(listPublished);
-      refreshChip(); // reflects 'syncing' (set synchronously at the start)
-      void p.finally(() => refreshChip());
-    });
-    calChip.replaceChildren(label, resync);
-    if (st.status === 'needs-token') {
-      const setLink = el('a', 'friend-link', 'Set token') as HTMLAnchorElement;
-      setLink.href = './account.html';
-      calChip.append(setLink);
-    }
-  };
-  refreshChip();
-
-  headerActions.append(calChip);
-  header.append(headerActions);
-  // Controls row (below the title): the "Recipes per day" cap. The Reset
+  // Controls row (top of the panel): the "Recipes per day" cap. The Reset
   // control now rides the week-actions row below (see renderBuilder).
   const controlsRow = el('div', 'meals-controls');
   controlsRow.append(perDayLabel);
-  content.append(header, controlsRow);
+  content.append(controlsRow);
 
   // Edit-mode banner: the canvas holds a STAGED copy of a published plan.
   // Discard removes the copy (the published record is untouched) and returns
@@ -1293,9 +1304,7 @@ export const main = async (
         // Also update the subscribable calendar (no-op unless enabled on this
         // device). Runs after the PDS write so listPublished sees the new plan;
         // a calendar failure never blocks publishing.
-        const calP = calendarClient.republish(listPublished);
-        refreshChip();
-        void calP.finally(() => refreshChip());
+        void calendarClient.republish(listPublished);
         // Reset on publish: freeze the published record and start fresh (a NEW
         // local id, so the published rkey is never overwritten by later edits).
         if (resetOnPublish.checked) {
