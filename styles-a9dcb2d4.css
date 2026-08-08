@@ -1328,12 +1328,14 @@ a {
   flex-wrap: wrap;
 }
 
-/* Meals title-row actions: calendar chip + "Published", grouped at the right. */
+/* Menu header actions: the calendar chip, pinned to the right edge even when
+   it's the row's only child (the Archive link fills in after plans load). */
 .meals-actions {
   display: flex;
   align-items: center;
   gap: var(--s-2);
   flex-wrap: wrap;
+  margin-left: auto;
 }
 /* Controls row below the title: the "Recipes per day" cap. (The Reset control
    now rides the week-actions row, right-aligned opposite Add/Repeat.) */
