@@ -628,13 +628,15 @@ test('planner start-date defaults to the next Monday for a fresh plan (D7)', asy
   expect(new Date(`${value}T00:00:00Z`).getUTCDay()).toBe(1);
 });
 
-test('calendar sync chip: hidden by default, shown when enabled on this device (D9)', async ({
+test('calendar sync chip: hidden by default, shown top-right on the Menu page when enabled (D9)', async ({
   page,
 }) => {
-  await page.goto('/plan.html');
+  await page.goto('/meals.html');
+  await expect(page.getByTestId('published-plans')).toBeVisible();
   await expect(page.getByTestId('calendar-sync-status')).toBeHidden();
 
-  // Enable the device-local feature and reload — the chip + Resync appear.
+  // Enable the device-local feature and reload — the chip + Resync appear in
+  // the Menu page's header, hugging the right edge.
   await page.addInitScript(() =>
     localStorage.setItem(
       'arecipe.calendar-publish.v1',
@@ -646,4 +648,26 @@ test('calendar sync chip: hidden by default, shown when enabled on this device (
   await expect(chip).toBeVisible();
   await expect(chip).toContainText('Calendar');
   await expect(page.getByTestId('calendar-resync')).toBeVisible();
+  const [chipBox, headerBox] = await Promise.all([
+    chip.boundingBox(),
+    page.locator('.meals-header').boundingBox(),
+  ]);
+  expect(chipBox).not.toBeNull();
+  expect(headerBox).not.toBeNull();
+  // Upper right: the chip's right edge sits at the header's right edge.
+  expect(chipBox!.x + chipBox!.width).toBeGreaterThan(headerBox!.x + headerBox!.width - 8);
+});
+
+test('calendar sync chip no longer rides the Plan builder header (moved to Menu)', async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem(
+      'arecipe.calendar-publish.v1',
+      JSON.stringify({ enabled: true, repo: 'me/cal', path: 'meals.ics' }),
+    ),
+  );
+  await page.goto('/plan.html');
+  await expect(page.getByTestId('builder')).toBeVisible();
+  await expect(page.getByTestId('calendar-sync-status')).toHaveCount(0);
 });
