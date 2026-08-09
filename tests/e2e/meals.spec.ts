@@ -307,23 +307,54 @@ test('today’s day card carries the is-today highlight', async ({ page }) => {
   await expect(page.locator('.day.is-today')).toHaveCount(1);
 });
 
-// Week-actions layout: "+ Add" then "⧉ Repeat" left-aligned in the row, with
-// the plan Reset moved down into the same row's right-aligned spot (it used to
-// live in the top controls row beside "Recipes per day").
-test('week-actions: Add then Repeat on the left, Reset on the right of the same row', async ({
+// Week-actions layout: "+ Add" leads on the left with "⧉ Repeat" right-aligned
+// on the same row; the plan Reset now rides the start row, right-aligned beside
+// the "Starts" date picker (it used to sit in the week-actions row).
+test('week-actions: Add on the left, Repeat right-aligned; Reset rides the start row', async ({
   page,
 }) => {
   await seedPalette(page);
   await page.goto('/plan.html');
 
-  // Add + Repeat sit together on the left, Add first.
-  const leftBtns = page.locator('.week-actions-left button');
-  await expect(leftBtns.nth(0)).toHaveAttribute('data-testid', 'add-week');
-  await expect(leftBtns.nth(1)).toHaveAttribute('data-testid', 'repeat-weeks');
+  const add = page.getByTestId('add-week');
+  const repeat = page.getByTestId('repeat-weeks');
+  await expect(add).toBeVisible();
+  await expect(repeat).toBeVisible();
+  const [addBox, repeatBox, rowBox] = await Promise.all([
+    add.boundingBox(),
+    repeat.boundingBox(),
+    page.locator('.week-actions').boundingBox(),
+  ]);
+  // Same line (vertical overlap): Add hugs the row's left edge, Repeat its right.
+  expect(addBox!.y).toBeLessThan(repeatBox!.y + repeatBox!.height);
+  expect(repeatBox!.y).toBeLessThan(addBox!.y + addBox!.height);
+  expect(addBox!.x).toBeLessThan(rowBox!.x + 8);
+  expect(repeatBox!.x + repeatBox!.width).toBeGreaterThan(rowBox!.x + rowBox!.width - 8);
 
-  // Reset moved down into the week-actions row (no longer in the controls row).
-  await expect(page.locator('.week-actions [data-testid="reset-plan"]')).toBeVisible();
+  // Reset moved up into the start row (right-aligned, same line as the picker);
+  // it's gone from the week-actions and controls rows.
+  const reset = page.locator('.plan-start [data-testid="reset-plan"]');
+  await expect(reset).toBeVisible();
+  await expect(page.locator('.week-actions [data-testid="reset-plan"]')).toHaveCount(0);
   await expect(page.locator('.meals-controls [data-testid="reset-plan"]')).toHaveCount(0);
+  const [resetBox, startBox, startRowBox] = await Promise.all([
+    reset.boundingBox(),
+    page.getByTestId('plan-start-date').boundingBox(),
+    page.locator('.plan-start').boundingBox(),
+  ]);
+  expect(resetBox!.y).toBeLessThan(startBox!.y + startBox!.height);
+  expect(startBox!.y).toBeLessThan(resetBox!.y + resetBox!.height);
+  expect(resetBox!.x + resetBox!.width).toBeGreaterThan(
+    startRowBox!.x + startRowBox!.width - 8,
+  );
+});
+
+// The start control's label is just "Starts" — the Monday-snapping behavior is
+// unchanged (covered by the snap tests above), only the wordy hint is gone.
+test('start control is labeled plainly "Starts"', async ({ page }) => {
+  await seedPalette(page);
+  await page.goto('/plan.html');
+  await expect(page.locator('.plan-start-label')).toHaveText('Starts');
 });
 
 test('drag (desktop): drag a palette chip onto a day places it; drag a filled slot moves it', async ({
@@ -612,12 +643,34 @@ test('taste preference: a "never" cuisine hides matching palette recipes (Meals)
   await expect(page.getByTestId('palette-chip').filter({ hasText: 'Tacos' })).toHaveCount(0);
 });
 
-test('publish offers a "Reset on publish" checkbox, checked by default', async ({ page }) => {
+// The reset-on-publish toggle is gone — publishing always starts a fresh plan
+// (the old default). Publish stands alone, right-aligned on its row.
+test('publish row: no reset-on-publish toggle, Publish right-aligned', async ({ page }) => {
   await seedPalette(page);
   await page.goto('/plan.html');
-  const box = page.getByTestId('reset-on-publish');
-  await expect(box).toBeVisible();
-  await expect(box).toBeChecked();
+  await expect(page.getByTestId('reset-on-publish')).toHaveCount(0);
+  const publish = page.getByTestId('publish-plan');
+  await expect(publish).toBeVisible();
+  const [pubBox, rowBox] = await Promise.all([
+    publish.boundingBox(),
+    page.locator('.plan-publish-row').boundingBox(),
+  ]);
+  expect(pubBox!.x + pubBox!.width).toBeGreaterThan(rowBox!.x + rowBox!.width - 8);
+});
+
+// Symmetry: the shopping-list cart sits directly below "+ Add" and mirrors its
+// size — same width, same height.
+test('shopping cart button matches the Add button box', async ({ page }) => {
+  await seedPalette(page);
+  await page.goto('/plan.html');
+  const [cartBox, addBox] = await Promise.all([
+    page.getByTestId('shopping-list-open').boundingBox(),
+    page.getByTestId('add-week').boundingBox(),
+  ]);
+  expect(cartBox).not.toBeNull();
+  expect(addBox).not.toBeNull();
+  expect(Math.abs(cartBox!.width - addBox!.width)).toBeLessThanOrEqual(1);
+  expect(Math.abs(cartBox!.height - addBox!.height)).toBeLessThanOrEqual(1);
 });
 
 test('planner start-date defaults to the next Monday for a fresh plan (D7)', async ({ page }) => {

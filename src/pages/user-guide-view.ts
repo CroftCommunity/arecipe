@@ -417,7 +417,8 @@ const mealsEntry: GuideEntry = {
         strong('Weeks are the working unit. ', '+ Add appends a blank week (up to six), and '),
         '⧉ Repeat doubles the plan — every planned week, meals included — which ',
         'is how a fortnight’s rotation becomes a month in one tap. Set ',
-        '“Starts (first Monday)” and the whole plan snaps to real dates, with a ',
+        '“Starts” and the whole plan snaps to real dates (any picked date ',
+        'snaps to its week’s Monday), with a ',
         'calendar underneath showing it day by day.',
       ),
       p(

@@ -15,7 +15,7 @@
 import type { Agent } from '@atproto/api';
 import { mountBuildStamp } from '../build-stamp.js';
 import { resolveDidDoc } from '../identity/did.js';
-import { resetIcon, resetIconButton } from '../icons.js';
+import { resetIconButton } from '../icons.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
 import { createResolver } from '../identity/resolve.js';
@@ -1018,7 +1018,7 @@ export const main = async (
 
   const content = el('section', 'panel');
   // No page title — the nav tab labels this view. The per-day cap lives on its
-  // own line at the top, the Reset control on the week-actions row; the
+  // own line at the top, the Reset control on the start row; the
   // calendar-publish chip rides the Menu (published plans) header instead.
   // "Recipes per day" cap: how many recipes a day may hold. A plan-level setting
   // that gates adding (never deletes what's already placed); persisted + synced.
@@ -1051,7 +1051,7 @@ export const main = async (
     return listPdsPlans(pds, a.did);
   };
   // Controls row (top of the panel): the "Recipes per day" cap. The Reset
-  // control now rides the week-actions row below (see renderBuilder).
+  // control now rides the start row below (beside the "Starts" picker).
   const controlsRow = el('div', 'meals-controls');
   controlsRow.append(perDayLabel);
   content.append(controlsRow);
@@ -1165,8 +1165,9 @@ export const main = async (
   // its first Monday so the week grid grounds on real dates. Any picked date
   // SNAPS back to its week's Monday; empty clears the anchor (back to abstract
   // "Week N"). Re-anchoring only relabels — placements are untouched.
-  const startRow = el('label', 'plan-start');
-  startRow.append(el('span', 'plan-start-label', 'Starts (first Monday)'));
+  const startRow = el('div', 'plan-start');
+  const startField = el('label', 'plan-start-field');
+  startField.append(el('span', 'plan-start-label', 'Starts'));
   const startInput = el('input', 'plan-start-input') as HTMLInputElement;
   startInput.type = 'date';
   startInput.dataset['testid'] = 'plan-start-date';
@@ -1195,7 +1196,11 @@ export const main = async (
     syncStartToUrl();
     rerender();
   });
-  startRow.append(startInput);
+  startField.append(startInput);
+  startRow.append(startField);
+  // The plan Reset rides this row's right-aligned spot (space-between), on the
+  // same line as the picker. Edit mode has no Reset — see renderResetControl.
+  if (!editing) startRow.append(resetControl);
   // A fresh canvas (Reset / reset-on-publish) re-anchors on the next Monday —
   // the same default a fresh load gets (D7) — keeping the input, URL, and week
   // labels in step. In-memory only: the blank plan stays local until something
@@ -1224,27 +1229,9 @@ export const main = async (
   ) as HTMLButtonElement;
   publishBtn.type = 'button';
   publishBtn.dataset['testid'] = 'publish-plan';
-  // Reset on publish (default on): after publishing, start a FRESH working plan
-  // so the published record is preserved (a new local id → the old rkey is never
-  // overwritten) and the canvas is clear for the next plan. Icon-only (the
-  // shared reset glyph beside the checkbox), so the accessible name lives on
-  // the label's aria-label/title — rust, like every reset-flavored control.
-  const resetOnPublishLabel = el('label', 'browse-toggle reset-on-publish-toggle');
-  resetOnPublishLabel.setAttribute('aria-label', 'Reset on publish');
-  resetOnPublishLabel.title = 'Reset on publish';
-  const resetOnPublish = document.createElement('input');
-  resetOnPublish.type = 'checkbox';
-  resetOnPublish.checked = true;
-  resetOnPublish.dataset['testid'] = 'reset-on-publish';
-  resetOnPublishLabel.append(resetOnPublish, resetIcon());
-  // The row splits: Shopping list on the LEFT, Publish (+ reset toggle) on the
-  // RIGHT (space-between). The shopping panel drops below the row.
-  const publishRight = el('div', 'plan-publish-right');
-  publishRight.append(publishBtn);
-  // Reset-on-publish is about starting the NEXT plan; a staged edit returns to
-  // the published list instead, so the toggle is omitted in edit mode.
-  if (!editing) publishRight.append(resetOnPublishLabel);
-  publishRow.append(shoppingList.button, publishRight);
+  // The row splits: Shopping list on the LEFT, Publish right-aligned opposite
+  // it (space-between). The shopping panel drops below the row.
+  publishRow.append(shoppingList.button, publishBtn);
   const shareSlot = el('div', 'plan-share-slot');
   const renderShareLink = (link: string): HTMLElement => {
     const box = el('div', 'share-link');
@@ -1305,20 +1292,19 @@ export const main = async (
         // device). Runs after the PDS write so listPublished sees the new plan;
         // a calendar failure never blocks publishing.
         void calendarClient.republish(listPublished);
-        // Reset on publish: freeze the published record and start fresh (a NEW
-        // local id, so the published rkey is never overwritten by later edits).
-        if (resetOnPublish.checked) {
-          plan = store.save({ name: 'My meal plan', weeks: [emptyWeek()], mealsPerDay: plan.mealsPerDay });
-          armed = null;
-          dragging = null;
-          filterText = '';
-          filterInput.value = '';
-          paletteOffset = 0;
-          expandedDays.clear();
-          anchorFreshPlan();
-          rerender();
-          renderChips();
-        }
+        // Reset on publish (always): freeze the published record and start
+        // fresh (a NEW local id, so the published rkey is never overwritten by
+        // later edits) — the canvas is clear for the next plan.
+        plan = store.save({ name: 'My meal plan', weeks: [emptyWeek()], mealsPerDay: plan.mealsPerDay });
+        armed = null;
+        dragging = null;
+        filterText = '';
+        filterInput.value = '';
+        paletteOffset = 0;
+        expandedDays.clear();
+        anchorFreshPlan();
+        rerender();
+        renderChips();
       })
       .catch((err: unknown) => {
         shareSlot.replaceChildren(el('p', 'status', `publish failed: ${String(err)}`));
@@ -1716,12 +1702,9 @@ export const main = async (
       rerender();
     });
 
-    // Add + Repeat lead the row, left-aligned (Add first); the plan Reset rides
-    // the same row's right-aligned spot (edit mode has no Reset — see below).
-    const leftActions = el('div', 'week-actions-left');
-    leftActions.append(addBtn, repeatBtn);
-    actions.append(leftActions);
-    if (!editing) actions.append(resetControl);
+    // Add leads on the left, Repeat right-aligned opposite it (space-between);
+    // the plan Reset rides the start row up top beside the "Starts" picker.
+    actions.append(addBtn, repeatBtn);
     builder.append(actions);
   };
 
@@ -1729,7 +1712,7 @@ export const main = async (
     renderBuilder();
   };
 
-  // Reset (controls row, right-aligned): clear the plan back to a single empty week
+  // Reset (start row, right-aligned): clear the plan back to a single empty week
   // — drops every placement and the start date, then persists (write-through to
   // the PDS when signed in). Destructive + synced, so it takes an inline two-step
   // confirm (mirrors the recipe Hide control — no native dialog).
