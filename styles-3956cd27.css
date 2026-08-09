@@ -2543,26 +2543,26 @@ table.ref.pairs td.eq {
   gap: var(--s-2);
   margin-top: var(--s-3);
 }
-/* Add + Repeat grouped on the left, keeping their own gap when the row wraps. */
-.week-actions-left {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--s-2);
-}
-/* Reset keeps its shared, normal-sized glyph (~18px) in this row rather than
-   being scaled up — the ≥44px hit area (tap-first) stays, and align-items above
-   centres it on the buttons' line. */
+/* Add hugs the left edge, Repeat the right (space-between above). */
 /* Shared read-only plan view's calendar (buildCalendarRows). */
 .calendar {
   margin-top: var(--s-5);
 }
 /* Start-date control: label + date input on one row at the top of the builder,
    above the Week 1 block (the grid's gap spaces it). */
+/* Start row: the "Starts" label + date picker on the left, the plan Reset
+   control (icon button, or its inline confirm) right-aligned on the same line. */
 .plan-start {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--s-2);
   flex-wrap: wrap;
+}
+.plan-start-field {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
   font-size: var(--t-caption);
 }
 .plan-start-input {
@@ -2606,10 +2606,21 @@ table.ref.pairs td.eq {
   margin-top: var(--s-4);
 }
 /* Icon-only trigger (🛒): square-ish, emoji carries the meaning. */
+/* The cart mirrors "+ Add" (the button directly above it) for symmetry: the
+   two share one explicit box — same min-width/height, centred content. The
+   min-height also clears the 44px tap-first floor. */
+.button.add-week,
+.button.shopping-open {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--s-2) var(--s-4);
+  min-width: 7rem;
+  min-height: 2.75rem;
+}
 .shopping-open {
   font-size: 1.15rem;
   line-height: 1;
-  padding: var(--s-2) var(--s-3);
 }
 /* The detail toggle reads as "on" when pressed (enamel fill, like the tabs). */
 .shopping-detail.is-active {
@@ -2924,21 +2935,12 @@ table.ref.pairs td.eq {
   min-height: 0;
 }
 
-/* Publish row: the Publish button + the icon-only "Reset on publish" toggle on
-   one line, right-aligned under the calendar preview (mirrors .week-actions). */
+/* Publish row: Shopping list on the left, Publish right-aligned on the same
+   line (mirrors .week-actions). */
 .plan-publish-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--s-3);
-  flex-wrap: wrap;
-}
-/* Publish + its reset toggle stay grouped on the right; Shopping list leads on
-   the left (the row's first child). */
-.plan-publish-right {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
   gap: var(--s-3);
   flex-wrap: wrap;
 }
@@ -2955,21 +2957,6 @@ table.ref.pairs td.eq {
 .button.plan-publish-btn:hover {
   background: var(--rust-deep);
   border-color: var(--rust-deep);
-}
-
-/* "Reset on publish": the shared reset glyph + a checked-by-default checkbox,
-   no text (the accessible name is the label's aria-label/title). Rust to read
-   as one family with the Publish button it sits beside. */
-.reset-on-publish-toggle {
-  background: var(--rust-soft);
-  color: var(--rust);
-}
-.reset-on-publish-toggle input {
-  accent-color: var(--rust);
-}
-.reset-on-publish-toggle svg {
-  width: 1.125rem;
-  height: 1.125rem;
 }
 
 /* Browse pager: ◀ "Showing X–Y of N" ▶ centred below the feed. Reuses the
