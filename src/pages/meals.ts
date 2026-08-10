@@ -26,10 +26,11 @@ import {
   MEALS_PER_DAY_MIN,
 } from '../recipes/meal-plan.js';
 import {
+  addDays,
   dateForSlot,
   formatDayMonth,
   formatShortDate,
-  mondayOf,
+  formatWeekday,
   nextMonday,
   weekRangeLabel,
 } from '../recipes/meal-plan-dates.js';
@@ -182,7 +183,10 @@ const buildCalendarRows = (plan: LocalPlan): HTMLElement[] => {
       const cell = el('div', 'cal-day');
       const dayIso = start !== undefined ? dateForSlot(start, rowIndex, di) : null;
       const shortDay = dayIso !== null ? formatShortDate(dayIso) : null;
-      cell.append(el('span', 'day-label', shortDay !== null ? `${DAY_LABELS[di]} ${shortDay}` : DAY_LABELS[di]));
+      // Weekday follows the real date (a plan can start on any weekday), falling
+      // back to the fixed Mon-first label only when the plan has no anchor.
+      const dow = (dayIso !== null ? formatWeekday(dayIso) : null) ?? DAY_LABELS[di];
+      cell.append(el('span', 'day-label', shortDay !== null ? `${dow} ${shortDay}` : dow));
       if (slot.meals.length > 0) {
         cell.classList.add('day--filled');
         // One line per meal, "Type: Recipe" (type from the recipe's category).
@@ -1023,7 +1027,7 @@ export const main = async (
   // "Recipes per day" cap: how many recipes a day may hold. A plan-level setting
   // that gates adding (never deletes what's already placed); persisted + synced.
   const perDayLabel = el('label', 'meals-perday');
-  perDayLabel.append(el('span', 'meals-perday-label', 'Recipes per day'));
+  perDayLabel.append(el('span', 'meals-perday-label', 'Per Day'));
   const perDaySelect = el('select', 'meals-perday-select') as HTMLSelectElement;
   perDaySelect.dataset['testid'] = 'meals-per-day';
   for (let n = MEALS_PER_DAY_MIN; n <= MEALS_PER_DAY_MAX; n += 1) {
@@ -1050,11 +1054,9 @@ export const main = async (
     const pds = you?.pds ?? (await resolveDidDoc(a.did)).pds;
     return listPdsPlans(pds, a.did);
   };
-  // Controls row (top of the panel): the "Recipes per day" cap. The Reset
-  // control now rides the start row below (beside the "Starts" picker).
-  const controlsRow = el('div', 'meals-controls');
-  controlsRow.append(perDayLabel);
-  content.append(controlsRow);
+  // The per-day cap ("Per Day") now rides the start row below, next to the
+  // "Starts" date picker (see the plan-start block); it no longer needs its own
+  // controls row at the top of the panel.
 
   // Edit-mode banner: the canvas holds a STAGED copy of a published plan.
   // Discard removes the copy (the published record is untouched) and returns
@@ -1161,15 +1163,30 @@ export const main = async (
   planner.append(palette, builder);
   content.append(planner);
 
-  // Start-date control (top of the builder, above Week 1): anchor the plan on
-  // its first Monday so the week grid grounds on real dates. Any picked date
-  // SNAPS back to its week's Monday; empty clears the anchor (back to abstract
-  // "Week N"). Re-anchoring only relabels — placements are untouched.
+  // Today (floating, UTC) — the earliest date the plan may start on. Used as the
+  // picker's `min` and to clamp any past date forward, so a plan is always
+  // anchored on today or a future day.
+  const todayIso = new Date().toISOString().slice(0, 10);
+  // Clamp a chosen ISO date to today-or-later: unparseable → null; a past date →
+  // today; otherwise the date verbatim (NO Monday snapping — a plan may start on
+  // any weekday, and the calendar follows that day).
+  const clampStart = (iso: string): string | null => {
+    const normalized = addDays(iso, 0); // validates + canonicalizes; null if bad
+    if (normalized === null) return null;
+    return normalized < todayIso ? todayIso : normalized;
+  };
+
+  // Start-date control (top of the builder, above Week 1): anchor the plan on a
+  // real date so the week grid grounds on real days. The plan starts on exactly
+  // the chosen day (any weekday); empty clears the anchor (back to abstract "Week
+  // N"). Re-anchoring only relabels — placements are untouched.
   const startRow = el('div', 'plan-start');
+  const startFields = el('div', 'plan-start-fields');
   const startField = el('label', 'plan-start-field');
   startField.append(el('span', 'plan-start-label', 'Starts'));
   const startInput = el('input', 'plan-start-input') as HTMLInputElement;
   startInput.type = 'date';
+  startInput.min = todayIso; // can't start a plan in the past
   startInput.dataset['testid'] = 'plan-start-date';
   if (plan.startDate !== undefined) startInput.value = plan.startDate;
   // Reflect the anchor in the URL (?start=YYYY-MM-DD) so the grounded view is
@@ -1187,17 +1204,20 @@ export const main = async (
     if (v === '') {
       delete plan.startDate;
     } else {
-      const snapped = mondayOf(v);
-      if (snapped === null) return; // unparseable — leave the plan as it was
-      plan.startDate = snapped;
-      startInput.value = snapped;
+      const picked = clampStart(v);
+      if (picked === null) return; // unparseable — leave the plan as it was
+      plan.startDate = picked;
+      startInput.value = picked;
     }
     persist();
     syncStartToUrl();
     rerender();
   });
   startField.append(startInput);
-  startRow.append(startField);
+  // "Starts" (date) leads; the "Per Day" cap sits directly beside it, both with
+  // their label stacked above the control.
+  startFields.append(startField, perDayLabel);
+  startRow.append(startFields);
   // The plan Reset rides this row's right-aligned spot (space-between), on the
   // same line as the picker. Edit mode has no Reset — see renderResetControl.
   if (!editing) startRow.append(resetControl);
@@ -1206,7 +1226,7 @@ export const main = async (
   // labels in step. In-memory only: the blank plan stays local until something
   // is placed (persist() then carries the anchor along).
   const anchorFreshPlan = (): void => {
-    const nm = nextMonday(new Date().toISOString().slice(0, 10));
+    const nm = nextMonday(todayIso);
     if (nm !== null) plan.startDate = nm;
     startInput.value = plan.startDate ?? '';
     syncStartToUrl();
@@ -1375,18 +1395,20 @@ export const main = async (
 
   // Anchor resolution on load (working plan only — a staged edit stays faithful
   // to its published record):
-  //  1. ?start=YYYY-MM-DD in the URL wins, snapped to its week's Monday.
+  //  1. ?start=YYYY-MM-DD in the URL wins, used as the exact start day (clamped
+  //     forward if it names a past date).
   //  2. D7: a fresh, unanchored plan defaults to the next Monday so it is dated
   //     (calendar-eligible) by default. Only when unset — never clobbers a
   //     chosen date; clearing the input still returns the plan to "Week N".
   if (!editing) {
-    const requested = mondayOf(routeParams.get('start')?.trim() ?? '');
+    const requestedRaw = routeParams.get('start')?.trim() ?? '';
+    const requested = requestedRaw !== '' ? clampStart(requestedRaw) : null;
     if (requested !== null && requested !== plan.startDate) {
       plan.startDate = requested;
       startInput.value = requested;
       persist();
     } else if (plan.startDate === undefined) {
-      const nm = nextMonday(new Date().toISOString().slice(0, 10));
+      const nm = nextMonday(todayIso);
       if (nm !== null) {
         plan.startDate = nm;
         startInput.value = nm;
@@ -1507,7 +1529,6 @@ export const main = async (
     // element (input value + listeners survive), re-slotted on each render.
     builder.replaceChildren(startRow);
     const start = plan.startDate;
-    const todayIso = new Date().toISOString().slice(0, 10);
     plan.weeks.forEach((week, wi) => {
       const row = el('div', 'week');
       row.dataset['testid'] = 'week-row';
@@ -1562,7 +1583,10 @@ export const main = async (
         // day (a roomy panel for removing meals) UNLESS a recipe is armed —
         // then the whole cell is a placement target instead.
         const head = el('div', 'day-head');
-        const dayLabel = el('span', 'day-label', DAY_LABELS[di]);
+        // Weekday follows the real date so a plan can start on any day; the fixed
+        // Mon-first label is the fallback for an unanchored plan.
+        const dow = (dayIso !== null ? formatWeekday(dayIso) : null) ?? DAY_LABELS[di];
+        const dayLabel = el('span', 'day-label', dow);
         const dm = dayIso !== null ? formatDayMonth(dayIso) : null;
         if (dm !== null) dayLabel.append(' ', el('span', 'day-date', dm));
         head.append(dayLabel);
@@ -1689,10 +1713,13 @@ export const main = async (
 
     // Repeat weeks: instead of adding a blank week, append a copy of
     // every currently-planned week (with its placed meals). Doubling the plan,
-    // so it's disabled when that would blow past the max-week cap.
-    const repeatBtn = el('button', 'button repeat-weeks', '⧉ Repeat') as HTMLButtonElement;
+    // so it's disabled when that would blow past the max-week cap. Icon-only
+    // (⧉) — the accessible name lives on aria-label/title.
+    const repeatBtn = el('button', 'button repeat-weeks', '⧉') as HTMLButtonElement;
     repeatBtn.type = 'button';
     repeatBtn.dataset['testid'] = 'repeat-weeks';
+    repeatBtn.setAttribute('aria-label', 'Repeat planned weeks');
+    repeatBtn.title = 'Repeat planned weeks';
     repeatBtn.disabled = plan.weeks.length * 2 > MAX_WEEKS;
     repeatBtn.addEventListener('click', () => {
       const next = duplicateWeeks(plan.weeks, MAX_WEEKS);

@@ -11,6 +11,7 @@ import {
   dateForSlot,
   formatDayMonth,
   formatShortDate,
+  formatWeekday,
   mondayOf,
   nextMonday,
   weekRangeLabel,
@@ -99,6 +100,19 @@ describe('mondayOf', () => {
   it('returns null for an unparseable date', () => {
     expect(mondayOf('not-a-date')).toBeNull();
     expect(mondayOf('')).toBeNull();
+  });
+});
+
+describe('formatWeekday', () => {
+  it('names the weekday of an ISO date (locale-independent, UTC)', () => {
+    expect(formatWeekday('2026-08-10')).toBe('Mon');
+    expect(formatWeekday('2026-08-12')).toBe('Wed');
+    expect(formatWeekday('2026-08-15')).toBe('Sat');
+    expect(formatWeekday('2026-08-16')).toBe('Sun');
+  });
+  it('returns null for an unparseable date', () => {
+    expect(formatWeekday('not-a-date')).toBeNull();
+    expect(formatWeekday('')).toBeNull();
   });
 });
 
