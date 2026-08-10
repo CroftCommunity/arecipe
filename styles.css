@@ -2507,10 +2507,12 @@ table.ref.pairs td.eq {
 .day-clear {
   align-self: flex-start;
 }
-/* "Recipes per day" cap control in the Meals controls row. */
+/* "Per Day" cap control — the label stacks ABOVE its dropdown, and the whole
+   field sits beside the "Starts" picker in the start row. */
 .meals-perday {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   gap: var(--s-1);
   font-size: var(--t-caption);
 }
@@ -2548,22 +2550,33 @@ table.ref.pairs td.eq {
 .calendar {
   margin-top: var(--s-5);
 }
-/* Start-date control: label + date input on one row at the top of the builder,
-   above the Week 1 block (the grid's gap spaces it). */
-/* Start row: the "Starts" label + date picker on the left, the plan Reset
-   control (icon button, or its inline confirm) right-aligned on the same line. */
+/* Start row (top of the builder, above the Week 1 block): the "Starts" date
+   picker and the "Per Day" cap grouped on the left, the plan Reset control (icon
+   button, or its inline confirm) right-aligned on the same line. Fields align on
+   their controls' baseline (flex-end) so the stacked labels sit above them. */
 .plan-start {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   gap: var(--s-2);
   flex-wrap: wrap;
 }
+.plan-start-fields {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+/* "Starts": the label stacks ABOVE the date input, left-justified over it. */
 .plan-start-field {
   display: flex;
-  align-items: center;
-  gap: var(--s-2);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-1);
   font-size: var(--t-caption);
+}
+.plan-start-label {
+  opacity: 0.8;
 }
 .plan-start-input {
   font: inherit;
@@ -2943,6 +2956,22 @@ table.ref.pairs td.eq {
   justify-content: space-between;
   gap: var(--s-3);
   flex-wrap: wrap;
+}
+
+/* Repeat ("⧉", icon-only) matches the Publish button's footprint so the two
+   read as a pair (Repeat above, Publish below): same explicit box, centred
+   glyph. Publish shares the box so their sizes are provably equal. */
+.button.repeat-weeks,
+.button.plan-publish-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 7rem;
+  min-height: 2.75rem;
+}
+.repeat-weeks {
+  font-size: 1.15rem; /* the ⧉ glyph reads a touch larger, like the 🛒 */
+  line-height: 1;
 }
 
 /* Publish is a commit-with-consequences action (it freezes the plan and — with

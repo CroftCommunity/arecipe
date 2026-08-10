@@ -62,6 +62,33 @@ const seedPalette = async (page: Page, items: SeedItem[] = PALETTE): Promise<voi
   }, items);
 };
 
+// UTC date helpers mirroring src/recipes/meal-plan-dates.ts. The start picker
+// now enforces today-or-later (via `min`) and grounds the calendar on the exact
+// chosen day, so date-anchored assertions compute their expected labels from a
+// clock-relative start rather than hardcoding a (now potentially past) date.
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const isoOf = (d: Date): string => d.toISOString().slice(0, 10);
+const todayIso = (): string => isoOf(new Date());
+const addDays = (iso: string, n: number): string => {
+  const d = new Date(`${iso}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + n);
+  return isoOf(d);
+};
+const shortDate = (iso: string): string => {
+  const d = new Date(`${iso}T00:00:00Z`);
+  return `${MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}`;
+};
+const dayMonth = (iso: string): string => {
+  const d = new Date(`${iso}T00:00:00Z`);
+  return `${d.getUTCMonth() + 1}/${d.getUTCDate()}`;
+};
+// The next occurrence, on or after today, of a UTC weekday (0=Sun … 6=Sat).
+const nextDow = (dow: number): string => {
+  const t = todayIso();
+  const cur = new Date(`${t}T00:00:00Z`).getUTCDay();
+  return addDays(t, (dow - cur + 7) % 7);
+};
+
 test('plan.html mounts the shared shell and the plan builder (wiring)', async ({ page }) => {
   await page.goto('/plan.html');
 
@@ -230,30 +257,36 @@ test('grounded weeks: headers carry the date span, day cards the real dates, con
   await seedPalette(page);
   await page.goto('/plan.html');
 
-  await page.getByTestId('plan-start-date').fill('2026-08-10');
-  // Week header reads "Week 1 (Aug 10 – Aug 16)".
-  await expect(page.locator('.week-name').first()).toHaveText('Week 1 (Aug 10 – Aug 16)');
-  // Day cards stamp the day of week AND the date: "Mon 8/10", "Tue 8/11".
+  const start = nextDow(1); // a Monday on or after today
+  await page.getByTestId('plan-start-date').fill(start);
+  // Week header reads "Week 1 (Mon-date – Sun-date)".
+  await expect(page.locator('.week-name').first()).toHaveText(
+    `Week 1 (${shortDate(start)} – ${shortDate(addDays(start, 6))})`,
+  );
+  // Day cards stamp the day of week AND the date: "Mon M/D", "Tue M/D".
   const week1 = page.getByTestId('week-row').first();
-  await expect(week1.getByTestId('day-slot').nth(0)).toContainText('Mon 8/10');
-  await expect(week1.getByTestId('day-slot').nth(1)).toContainText('Tue 8/11');
-  await expect(week1.getByTestId('day-slot').nth(6)).toContainText('Sun 8/16');
+  await expect(week1.getByTestId('day-slot').nth(0)).toContainText(`Mon ${dayMonth(start)}`);
+  await expect(week1.getByTestId('day-slot').nth(1)).toContainText(`Tue ${dayMonth(addDays(start, 1))}`);
+  await expect(week1.getByTestId('day-slot').nth(6)).toContainText(`Sun ${dayMonth(addDays(start, 6))}`);
 
   // A second week continues from the start (+7 days), no barrier between weeks.
   await page.getByTestId('add-week').click();
-  await expect(page.locator('.week-name').nth(1)).toHaveText('Week 2 (Aug 17 – Aug 23)');
+  const w2 = addDays(start, 7);
+  await expect(page.locator('.week-name').nth(1)).toHaveText(
+    `Week 2 (${shortDate(w2)} – ${shortDate(addDays(start, 13))})`,
+  );
   await expect(
     page.getByTestId('week-row').nth(1).getByTestId('day-slot').first(),
-  ).toContainText('Mon 8/17');
+  ).toContainText(`Mon ${dayMonth(w2)}`);
 
   // Clearing the anchor returns the headers to the abstract labels.
   await page.getByTestId('plan-start-date').fill('');
   await expect(page.locator('.week-name').first()).toHaveText('Week 1');
   await expect(week1.getByTestId('day-slot').first()).toContainText('Mon');
-  await expect(week1.getByTestId('day-slot').first()).not.toContainText('8/10');
+  await expect(week1.getByTestId('day-slot').first()).not.toContainText(dayMonth(start));
 });
 
-test('start picker snaps any chosen date back to that week’s Monday and syncs the URL', async ({
+test('start picker uses the exact chosen day (any weekday) and syncs the calendar + URL', async ({
   page,
 }) => {
   await seedPalette(page);
@@ -264,45 +297,58 @@ test('start picker snaps any chosen date back to that week’s Monday and syncs 
   await page.getByTestId('week-row').first().getByTestId('day-slot').nth(1).click();
   await expect(page.getByTestId('slot-filled')).toHaveText('Lasagna');
 
-  // Pick a Wednesday — the input normalizes to that week's Monday.
-  await page.getByTestId('plan-start-date').fill('2026-08-12');
-  await expect(page.getByTestId('plan-start-date')).toHaveValue('2026-08-10');
-  await expect(page.locator('.week-name').first()).toHaveText('Week 1 (Aug 10 – Aug 16)');
+  // Pick a Wednesday — the calendar now STARTS on that Wednesday (no snapping
+  // back to Monday), so day 0 is the Wednesday and day 1 the Thursday after it.
+  const wed = nextDow(3);
+  await page.getByTestId('plan-start-date').fill(wed);
+  await expect(page.getByTestId('plan-start-date')).toHaveValue(wed);
+  await expect(page.locator('.week-name').first()).toHaveText(
+    `Week 1 (${shortDate(wed)} – ${shortDate(addDays(wed, 6))})`,
+  );
+  const week1 = page.getByTestId('week-row').first();
+  await expect(week1.getByTestId('day-slot').nth(0)).toContainText(`Wed ${dayMonth(wed)}`);
+  await expect(week1.getByTestId('day-slot').nth(1)).toContainText(`Thu ${dayMonth(addDays(wed, 1))}`);
 
   // Non-destructive shift: the placed recipe survives the re-anchor.
   await expect(page.getByTestId('slot-filled')).toHaveText('Lasagna');
 
   // The chosen start rides the URL (?start=) for shareable/refreshable state…
-  await expect(page).toHaveURL(/[?&]start=2026-08-10/);
+  await expect(page).toHaveURL(new RegExp(`[?&]start=${wed}`));
 
   // …and persists locally: a plain reload retains both the date and the meal.
   await page.goto('/plan.html');
-  await expect(page.getByTestId('plan-start-date')).toHaveValue('2026-08-10');
+  await expect(page.getByTestId('plan-start-date')).toHaveValue(wed);
   await expect(page.getByTestId('slot-filled')).toHaveText('Lasagna');
 });
 
-test('?start= in the URL grounds the plan on load (snapped to Monday)', async ({ page }) => {
+test('?start= in the URL grounds the plan on load, on the exact date (any weekday)', async ({ page }) => {
   await seedPalette(page);
-  // A Saturday in the query — the page adopts its week's Monday.
-  await page.goto('/plan.html?start=2026-08-15');
-  await expect(page.getByTestId('plan-start-date')).toHaveValue('2026-08-10');
-  await expect(page.locator('.week-name').first()).toHaveText('Week 1 (Aug 10 – Aug 16)');
+  // A Saturday in the query — the page adopts it verbatim (no Monday snap).
+  const sat = nextDow(6);
+  await page.goto(`/plan.html?start=${sat}`);
+  await expect(page.getByTestId('plan-start-date')).toHaveValue(sat);
+  await expect(page.locator('.week-name').first()).toHaveText(
+    `Week 1 (${shortDate(sat)} – ${shortDate(addDays(sat, 6))})`,
+  );
+  await expect(
+    page.getByTestId('week-row').first().getByTestId('day-slot').nth(0),
+  ).toContainText(`Sat ${dayMonth(sat)}`);
+});
+
+test('start picker cannot be set before today (min = today)', async ({ page }) => {
+  await seedPalette(page);
+  await page.goto('/plan.html');
+  await expect(page.getByTestId('plan-start-date')).toHaveAttribute('min', todayIso());
 });
 
 test('today’s day card carries the is-today highlight', async ({ page }) => {
   await seedPalette(page);
   await page.goto('/plan.html');
 
-  // Anchor the plan on THIS week's Monday so today is inside week 1.
-  const today = new Date().toISOString().slice(0, 10);
-  const utcDay = new Date(`${today}T00:00:00Z`).getUTCDay(); // 0=Sun … 6=Sat
-  const dayIndex = (utcDay + 6) % 7; // Mon=0 … Sun=6
-  const monday = new Date(`${today}T00:00:00Z`);
-  monday.setUTCDate(monday.getUTCDate() - dayIndex);
-  await page.getByTestId('plan-start-date').fill(monday.toISOString().slice(0, 10));
-
+  // Anchor the plan on today so day 0 IS today (a plan may start on any day).
+  await page.getByTestId('plan-start-date').fill(todayIso());
   const days = page.getByTestId('week-row').first().getByTestId('day-slot');
-  await expect(days.nth(dayIndex)).toHaveClass(/is-today/);
+  await expect(days.nth(0)).toHaveClass(/is-today/);
   // Exactly one card is "today".
   await expect(page.locator('.day.is-today')).toHaveCount(1);
 });
@@ -349,12 +395,58 @@ test('week-actions: Add on the left, Repeat right-aligned; Reset rides the start
   );
 });
 
-// The start control's label is just "Starts" — the Monday-snapping behavior is
-// unchanged (covered by the snap tests above), only the wordy hint is gone.
-test('start control is labeled plainly "Starts"', async ({ page }) => {
+// The start control's label is just "Starts", stacked ABOVE its date input and
+// left-justified over it.
+test('start control is labeled plainly "Starts", above the date input', async ({ page }) => {
   await seedPalette(page);
   await page.goto('/plan.html');
   await expect(page.locator('.plan-start-label')).toHaveText('Starts');
+  const [labelBox, inputBox] = await Promise.all([
+    page.locator('.plan-start-label').boundingBox(),
+    page.getByTestId('plan-start-date').boundingBox(),
+  ]);
+  // Label bottom is at/above the input top (stacked), and left edges align.
+  expect(labelBox!.y + labelBox!.height).toBeLessThanOrEqual(inputBox!.y + 2);
+  expect(Math.abs(labelBox!.x - inputBox!.x)).toBeLessThanOrEqual(2);
+});
+
+// The per-day cap moved next to the "Starts" picker and was renamed "Per Day",
+// with its label stacked above the dropdown.
+test('Per Day cap sits beside the Starts picker, its label above the dropdown', async ({ page }) => {
+  await seedPalette(page);
+  await page.goto('/plan.html');
+  await expect(page.locator('.meals-perday-label')).toHaveText('Per Day');
+  const select = page.getByTestId('meals-per-day');
+  await expect(select).toBeVisible();
+  const [selBox, labelBox, startBox] = await Promise.all([
+    select.boundingBox(),
+    page.locator('.meals-perday-label').boundingBox(),
+    page.getByTestId('plan-start-date').boundingBox(),
+  ]);
+  // Label above the dropdown, left-aligned over it.
+  expect(labelBox!.y + labelBox!.height).toBeLessThanOrEqual(selBox!.y + 2);
+  expect(Math.abs(labelBox!.x - selBox!.x)).toBeLessThanOrEqual(2);
+  // The dropdown sits to the RIGHT of the Starts date input, on the same row.
+  expect(selBox!.x).toBeGreaterThan(startBox!.x);
+  expect(selBox!.y).toBeLessThan(startBox!.y + startBox!.height);
+  expect(startBox!.y).toBeLessThan(selBox!.y + selBox!.height);
+});
+
+// Repeat is now icon-only (⧉) and sized to match the Publish button below it.
+test('Repeat button shows only its icon and matches the Publish button size', async ({ page }) => {
+  await seedPalette(page);
+  await page.goto('/plan.html');
+  const repeat = page.getByTestId('repeat-weeks');
+  await expect(repeat).toHaveText('⧉');
+  await expect(repeat).toHaveAttribute('aria-label', /repeat/i);
+  const [repeatBox, publishBox] = await Promise.all([
+    repeat.boundingBox(),
+    page.getByTestId('publish-plan').boundingBox(),
+  ]);
+  expect(repeatBox).not.toBeNull();
+  expect(publishBox).not.toBeNull();
+  expect(Math.abs(repeatBox!.width - publishBox!.width)).toBeLessThanOrEqual(1);
+  expect(Math.abs(repeatBox!.height - publishBox!.height)).toBeLessThanOrEqual(1);
 });
 
 test('drag (desktop): drag a palette chip onto a day places it; drag a filled slot moves it', async ({

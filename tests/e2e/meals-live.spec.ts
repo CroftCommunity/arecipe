@@ -17,6 +17,22 @@ const APP_PASSWORD = env['BSKY_TEST_APP_PASSWORD'] ?? '';
 
 const TEST_DID = 'did:plc:xyfhcaweaeyew3zrgk6jaln7';
 const MARKER = 'arecipe e2e meals';
+
+// The start picker enforces today-or-later, so anchor on a Monday on/after today
+// (UTC) rather than a fixed past date, and derive the expected "Mon DD" label.
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const isoOf = (d: Date): string => d.toISOString().slice(0, 10);
+const nextMondayIso = (): string => {
+  const d = new Date(`${isoOf(new Date())}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + ((1 - d.getUTCDay() + 7) % 7));
+  return isoOf(d);
+};
+const shortDate = (iso: string): string => {
+  const d = new Date(`${iso}T00:00:00Z`);
+  return `${MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}`;
+};
+const START = nextMondayIso();
+const START_LABEL = shortDate(START);
 const COLLECTION = 'app.arecipe.mealPlan';
 const SEED = [
   { uri: 'at://did:plc:testcook/exchange.recipe.recipe/live1', cid: 'bafyliveone', name: `Live Dish (${MARKER})` },
@@ -170,7 +186,7 @@ test('@live publish a plan, then open the shared link anonymously', async ({
   // Place a recipe and anchor a start date, then Publish.
   await page.getByTestId('palette-chip').first().click();
   await page.getByTestId('week-row').first().getByTestId('day-slot').first().click();
-  await page.getByTestId('plan-start-date').fill('2026-07-13');
+  await page.getByTestId('plan-start-date').fill(START);
   await page.getByTestId('publish-plan').click();
 
   const shareUrl = page.getByTestId('share-url');
@@ -189,7 +205,7 @@ test('@live publish a plan, then open the shared link anonymously', async ({
   const anonPage = await anon.newPage();
   await anonPage.goto(url);
   await expect(anonPage.getByTestId('shared-plan')).toBeVisible({ timeout: 30_000 });
-  await expect(anonPage.getByTestId('cal-week').first()).toContainText('Jul 13', { timeout: 30_000 });
+  await expect(anonPage.getByTestId('cal-week').first()).toContainText(START_LABEL, { timeout: 30_000 });
   const meal = anonPage.getByTestId('shared-meal').first();
   await expect(meal).toBeVisible({ timeout: 30_000 });
   await expect(meal).toHaveAttribute('href', /recipe\.html\?u=/);
@@ -231,7 +247,7 @@ test('@live "Published" plans subpage lists a published plan, then deletes it', 
 
   await page.getByTestId('palette-chip').first().click();
   await page.getByTestId('week-row').first().getByTestId('day-slot').first().click();
-  await page.getByTestId('plan-start-date').fill('2026-07-13');
+  await page.getByTestId('plan-start-date').fill(START);
   await page.getByTestId('publish-plan').click();
   await expect(page.getByTestId('share-url')).toBeVisible({ timeout: 30_000 });
 
@@ -245,7 +261,7 @@ test('@live "Published" plans subpage lists a published plan, then deletes it', 
   await expect(row).toHaveCount(1, { timeout: 30_000 });
   const open = row.getByTestId('plan-open');
   await expect(open).toHaveAttribute('href', /mealplan=.*user=/);
-  await expect(open).toContainText('Jul 13'); // date-range title
+  await expect(open).toContainText(START_LABEL); // date-range title
   await expect(row.getByTestId('plan-meta')).toContainText('published');
 
   await row.getByTestId('plan-delete').click();
@@ -290,7 +306,7 @@ test('@live edit a published plan in place from the Published subpage', async ({
   // Publish a one-recipe plan (Monday), anchored on a Monday.
   await page.getByTestId('palette-chip').first().click();
   await page.getByTestId('week-row').first().getByTestId('day-slot').first().click();
-  await page.getByTestId('plan-start-date').fill('2026-07-13');
+  await page.getByTestId('plan-start-date').fill(START);
   await page.getByTestId('publish-plan').click();
   await expect(page.getByTestId('share-url')).toBeVisible({ timeout: 30_000 });
 
