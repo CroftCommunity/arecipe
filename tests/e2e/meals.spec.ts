@@ -493,6 +493,75 @@ test('multi-meal: several recipes stack on one day and all show on the calendar'
   await expect(monAfter).toContainText('Tacos');
 });
 
+// Per-week day-layout toggle: each week header carries a switch on its LEFT
+// edge that flips THAT week's days between the horizontal 7-column grid and a
+// vertical stack. The glyph reflects the current mode; tapping swaps it.
+test('week layout toggle flips a single week between columns and stacked rows', async ({
+  page,
+}) => {
+  await seedPalette(page);
+  await page.goto('/plan.html');
+
+  const week1 = page.getByTestId('week-row').first();
+  const toggle = week1.getByTestId('week-layout-toggle');
+  await expect(toggle).toBeVisible();
+
+  // It sits on the LEFT of the week head, at/left of the "Week 1" name.
+  const [toggleBox, nameBox] = await Promise.all([
+    toggle.boundingBox(),
+    week1.locator('.week-name').boundingBox(),
+  ]);
+  expect(toggleBox!.x).toBeLessThanOrEqual(nameBox!.x + 1);
+
+  const dayBoxes = async (): Promise<[NonNullable<Awaited<ReturnType<typeof toggle.boundingBox>>>, NonNullable<Awaited<ReturnType<typeof toggle.boundingBox>>>]> => {
+    const days = week1.getByTestId('day-slot');
+    const [a, b] = await Promise.all([days.nth(0).boundingBox(), days.nth(1).boundingBox()]);
+    return [a!, b!];
+  };
+
+  // Default = horizontal columns: Mon and Tue sit side by side on one row.
+  let [mon, tue] = await dayBoxes();
+  expect(tue.x).toBeGreaterThan(mon.x + 4); // Tue to the right of Mon
+  expect(tue.y).toBeLessThan(mon.y + mon.height); // same row (vertical overlap)
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+
+  // Tap → the week's days stack vertically (Tue below Mon, left edges aligned).
+  await toggle.click();
+  [mon, tue] = await dayBoxes();
+  expect(tue.y).toBeGreaterThan(mon.y + mon.height - 1); // Tue below Mon
+  expect(Math.abs(tue.x - mon.x)).toBeLessThanOrEqual(2); // left edges align
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+
+  // Tap again → back to columns.
+  await toggle.click();
+  [mon, tue] = await dayBoxes();
+  expect(tue.x).toBeGreaterThan(mon.x + 4);
+  expect(tue.y).toBeLessThan(mon.y + mon.height);
+});
+
+test('each week block has its own toggle — flipping one leaves the other in columns', async ({
+  page,
+}) => {
+  await seedPalette(page);
+  await page.goto('/plan.html');
+
+  // Add a second week so there are two independent blocks.
+  await page.getByTestId('add-week').click();
+  const weeks = page.getByTestId('week-row');
+  await expect(weeks).toHaveCount(2);
+
+  const isStacked = async (week: ReturnType<typeof weeks.nth>): Promise<boolean> => {
+    const days = week.getByTestId('day-slot');
+    const [a, b] = await Promise.all([days.nth(0).boundingBox(), days.nth(1).boundingBox()]);
+    return b!.y > a!.y + a!.height - 1;
+  };
+
+  // Flip only week 1 to stacked; week 2 stays in columns.
+  await weeks.nth(0).getByTestId('week-layout-toggle').click();
+  expect(await isStacked(weeks.nth(0))).toBe(true);
+  expect(await isStacked(weeks.nth(1))).toBe(false);
+});
+
 test('meals/day cap: lowering it to 1 blocks adding a second meal', async ({ page }) => {
   await seedPalette(page);
   await page.goto('/plan.html');
