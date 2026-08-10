@@ -16,6 +16,7 @@ import { createCalendarClient } from '../publish/client.js';
 import { listPdsPlans } from '../recipes/meal-plan-sync.js';
 import type { LocalPlan } from '../recipes/meal-plan-local.js';
 import { createDietPreference, DIET_OPTIONS } from '../recipes/diet-preference.js';
+import { createShoppingPrefs, normalizeStaples, type ShoppingPrefs } from '../recipes/shopping-prefs.js';
 import { createReachPrefs } from '../social/reach.js';
 import {
   CUISINE_OPTIONS,
@@ -186,6 +187,116 @@ const renderTastePrefs = (): HTMLElement => {
   return section;
 };
 
+/** The "Shopping list" section: device-local settings the meal-plan shopping
+ *  panel reads. Two controls:
+ *   - Staples: ingredients always assumed on hand (salt, pepper, water, …). A
+ *     chip input (type + Enter/Add, tap ✕ to remove). They stay visible in the
+ *     panel as a muted annotation but drop out of every copy / download / AI
+ *     payload — so the copied list is shopping that still needs doing.
+ *   - AI shopper instructions: free text folded into the "AI shopper" copy
+ *     (e.g. "prefer versions we've bought before").
+ *  Both are device-local (no account needed), so this renders for everyone. */
+const renderShoppingPrefs = (): HTMLElement => {
+  const store = createShoppingPrefs();
+  let prefs: ShoppingPrefs = store.load();
+
+  const section = el('section', 'settings-section shopping-prefs');
+  section.dataset['testid'] = 'shopping-prefs';
+  section.append(el('h3', 'section-title', 'Shopping list'));
+
+  // --- Staples (assumed on hand) ---
+  const staplesBlock = el('div', 'shopping-staples-block');
+  staplesBlock.append(el('h4', 'taste-bucket-title', 'Staples — assumed on hand'));
+  staplesBlock.append(
+    el(
+      'p',
+      'status',
+      'Ingredients you always have (salt, pepper, oil, water…). They still show on the shopping list, marked “on hand”, but are left out of the copied, downloaded, and AI-shopper lists — so what you copy is shopping that still needs doing.',
+    ),
+  );
+
+  const chips = el('div', 'staples-chips');
+  chips.dataset['testid'] = 'staples-chips';
+
+  const persist = (): void => store.save(prefs);
+  const renderChips = (): void => {
+    chips.replaceChildren();
+    for (const staple of prefs.staples) {
+      const chip = el('span', 'staple-chip');
+      chip.dataset['testid'] = 'staple-chip';
+      chip.append(el('span', 'staple-chip-label', staple));
+      const remove = el('button', 'staple-chip-remove', '✕') as HTMLButtonElement;
+      remove.type = 'button';
+      remove.setAttribute('aria-label', `Remove ${staple}`);
+      remove.addEventListener('click', () => {
+        prefs = { ...prefs, staples: prefs.staples.filter((s) => s !== staple) };
+        persist();
+        renderChips();
+      });
+      chip.append(remove);
+      chips.append(chip);
+    }
+  };
+
+  const addRow = el('div', 'staples-add-row');
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'staples-input';
+  input.placeholder = 'e.g. salt';
+  input.dataset['testid'] = 'staples-input';
+  input.setAttribute('aria-label', 'Add a staple ingredient');
+  const addBtn = el('button', 'button staples-add', 'Add') as HTMLButtonElement;
+  addBtn.type = 'button';
+  addBtn.dataset['testid'] = 'staples-add';
+  const commit = (): void => {
+    const merged = normalizeStaples([...prefs.staples, input.value]);
+    if (merged.length !== prefs.staples.length) {
+      prefs = { ...prefs, staples: merged };
+      persist();
+      renderChips();
+    }
+    input.value = '';
+    input.focus();
+  };
+  addBtn.addEventListener('click', commit);
+  input.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      commit();
+    }
+  });
+  addRow.append(input, addBtn);
+  staplesBlock.append(chips, addRow);
+  section.append(staplesBlock);
+  renderChips();
+
+  // --- AI shopper instructions ---
+  const aiBlock = el('div', 'shopping-ai-block');
+  aiBlock.append(el('h4', 'taste-bucket-title', 'AI shopper instructions'));
+  aiBlock.append(
+    el(
+      'p',
+      'status',
+      'Added to the “AI shopper” copy — standing directions for a shopping agent. Example: “prefer versions we have bought before”.',
+    ),
+  );
+  const textarea = document.createElement('textarea');
+  textarea.className = 'ai-instructions';
+  textarea.rows = 2;
+  textarea.placeholder = 'prefer versions we have bought before';
+  textarea.dataset['testid'] = 'ai-instructions';
+  textarea.setAttribute('aria-label', 'AI shopper instructions');
+  textarea.value = prefs.aiInstructions;
+  textarea.addEventListener('change', () => {
+    prefs = { ...prefs, aiInstructions: textarea.value };
+    persist();
+  });
+  aiBlock.append(textarea);
+  section.append(aiBlock);
+
+  return section;
+};
+
 const main = async (): Promise<void> => {
   const app = document.getElementById('app');
   if (app === null) throw new Error('shell mount point #app missing');
@@ -271,6 +382,10 @@ const main = async (): Promise<void> => {
   // Taste preferences are device-local (no account needed), so they render for
   // everyone on the account page — signed in or out.
   content.append(renderTastePrefs());
+
+  // Shopping-list preferences (staples + AI-shopper instructions) are likewise
+  // device-local, so they render for everyone — signed in or out.
+  content.append(renderShoppingPrefs());
 
   // Publish-a-calendar is likewise device-local, so it renders for everyone
   // (configurable signed-out — the token/repo live in this browser). "Publish

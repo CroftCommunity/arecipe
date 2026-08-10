@@ -7,12 +7,19 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
+  applyStaples,
   buildShoppingList,
   collectScheduledRefs,
+  combinedLineKey,
   combinedLineText,
   expandedWeekCount,
+  filterForShopping,
+  makeStapleMatcher,
+  normalizeIngredientName,
   parseIngredient,
   planDateBounds,
+  rawLineKey,
+  renderAiShopperText,
   renderByRecipeMarkdown,
   renderCombinedMarkdown,
   renderShoppingListDocument,
@@ -478,5 +485,85 @@ describe('renderByRecipeMarkdown — multiply mode', () => {
     expect(md).toContain('- cucumber ×2');
     // Default (per batch) is unchanged.
     expect(renderByRecipeMarkdown(list)).toContain('- 2 cups flour');
+  });
+});
+
+describe('makeStapleMatcher — assumed-on-hand names', () => {
+  it('matches on equality and whole-word containment (not substrings)', () => {
+    const isStaple = makeStapleMatcher(['salt', 'olive oil']);
+    expect(isStaple('salt')).toBe(true);
+    expect(isStaple('Sea Salt')).toBe(true); // whole word, case-insensitive
+    expect(isStaple('extra virgin olive oil')).toBe(true);
+    expect(isStaple('salted butter')).toBe(false); // "salt" is not a whole word here
+    expect(isStaple('flour')).toBe(false);
+  });
+  it('folds plurals like the parser (pinches → pinch, eggs → egg)', () => {
+    expect(makeStapleMatcher(['egg'])('2 eggs'.replace(/^\d+\s*/, ''))).toBe(true);
+    expect(normalizeIngredientName('Eggs')).toBe('egg');
+  });
+  it('an empty staple list matches nothing', () => {
+    const none = makeStapleMatcher([]);
+    expect(none('salt')).toBe(false);
+  });
+});
+
+describe('applyStaples — flags without dropping', () => {
+  it('flags combined, by-recipe, and as-listed lines whose ingredient is a staple', () => {
+    const list = buildShoppingList([recipe('Cake', ['2 cups flour', '2 pinches salt', 'salt to taste'])]);
+    const flagged = applyStaples(list, ['salt']);
+    expect(combinedFor(flagged, 'flour')?.staple).toBeUndefined();
+    // "2 pinches salt" → name "salt"; "salt to taste" → name "salt to taste".
+    expect(flagged.combined.lines.filter((l) => l.staple === true).map((l) => l.name).sort()).toEqual([
+      'salt',
+      'salt to taste',
+    ]);
+    const cake = flagged.byRecipe.find((s) => s.name === 'Cake')!;
+    expect(cake.lines.find((l) => l.raw === '2 pinches salt')?.staple).toBe(true);
+    expect(cake.lines.find((l) => l.raw === '2 cups flour')?.staple).toBeUndefined();
+  });
+});
+
+describe('filterForShopping — the honest payload', () => {
+  it('drops staples and checked-off lines from both views', () => {
+    const raw = buildShoppingList([
+      recipe('Cake', ['2 cups flour', '2 pinches salt']),
+      recipe('Soup', ['1 cup flour', 'cucumber']),
+    ]);
+    const withStaples = applyStaples(raw, ['salt']);
+    // Check off "cucumber" by its shared name key.
+    const checked = new Set([rawLineKey('cucumber')]);
+    const out = filterForShopping(withStaples, (k) => checked.has(k));
+    const names = out.combined.lines.map((l) => l.name).sort();
+    expect(names).toEqual(['flour']); // salt (staple) + cucumber (checked) gone
+    // By-recipe: salt is gone from Cake; cucumber gone from Soup.
+    const cake = out.byRecipe.find((s) => s.name === 'Cake')!;
+    expect(cake.lines.map((l) => l.raw)).toEqual(['2 cups flour']);
+    const soup = out.byRecipe.find((s) => s.name === 'Soup')!;
+    expect(soup.lines.map((l) => l.raw)).toEqual(['1 cup flour']);
+  });
+  it('a combined key checked in one view removes it from the other', () => {
+    const list = buildShoppingList([recipe('Cake', ['2 cups flour'])]);
+    const flour = combinedFor(list, 'flour')!;
+    // The combined key and the by-recipe raw key agree by normalized name.
+    expect(combinedLineKey(flour)).toBe(rawLineKey('2 cups flour'));
+  });
+});
+
+describe('renderAiShopperText — terse cart instructions', () => {
+  it('lists items with the custom instructions folded in, no recipe framing', () => {
+    const list = buildShoppingList([recipe('Cake', ['2 cups flour', 'cucumber'])]);
+    const text = renderAiShopperText(list, { instructions: 'prefer versions we have bought before' });
+    expect(text).toContain('Add these grocery items to my shopping cart:');
+    expect(text).toContain('prefer versions we have bought before');
+    expect(text).toContain('- flour — 2 cups');
+    expect(text).toContain('- cucumber ×1');
+    expect(text).not.toContain('arecipe');
+    expect(text).not.toContain('recipe)'); // no "(from …recipe)" attribution
+  });
+  it('omits the instructions block when none is set, and notes an empty cart', () => {
+    const empty = renderAiShopperText(buildShoppingList([]), {});
+    expect(empty).toContain('(nothing left to buy)');
+    const list = buildShoppingList([recipe('Cake', ['2 cups flour'])]);
+    expect(renderAiShopperText(list)).not.toContain('\n\n\n');
   });
 });

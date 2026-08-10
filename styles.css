@@ -2752,6 +2752,124 @@ table.ref.pairs td.eq {
 .shopping-download-slot:empty {
   display: none;
 }
+/* Check-off list: the checkbox is the marker, so drop the bullet. Each row is a
+   full-width tap target (label wraps the box + text). */
+.shopping-checklist,
+.shopping-onhand {
+  list-style: none;
+  padding-left: 0;
+}
+.shopping-check {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-2);
+  cursor: pointer;
+  padding: var(--s-1) 0;
+}
+.shopping-check-box {
+  flex: 0 0 auto;
+  width: 1.1rem;
+  height: 1.1rem;
+  min-width: 1.1rem;
+  align-self: center;
+}
+.shopping-check-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+/* "I already have this" — struck through, de-emphasized, but still visible. */
+.shopping-line.is-checked .shopping-check-text {
+  text-decoration: line-through;
+  opacity: 0.55;
+}
+/* Staples: assumed on hand — muted annotation, never copied. */
+.shopping-onhand-head {
+  opacity: 0.7;
+}
+.shopping-staple {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-2);
+  opacity: 0.7;
+}
+.shopping-staple .shopping-check-text {
+  overflow-wrap: anywhere;
+}
+.shopping-staple-tag {
+  flex: 0 0 auto;
+  font-size: var(--t-caption);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0 var(--s-1);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-s);
+}
+/* The AI-shopper copy button reads as a secondary action beside Copy. */
+.shopping-ai {
+  white-space: nowrap;
+}
+
+/* Account → Shopping list: staple chips + AI-instructions controls. */
+.shopping-staples-block,
+.shopping-ai-block {
+  margin-top: var(--s-3);
+}
+.staples-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  margin: var(--s-2) 0;
+}
+.staples-chips:empty {
+  display: none;
+}
+.staple-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  padding: var(--s-1) var(--s-2);
+  background: var(--enamel-soft);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-l);
+  font-size: var(--t-caption);
+}
+.staple-chip-remove {
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0 var(--s-1);
+  min-width: 1.75rem;
+  min-height: 1.75rem;
+}
+.staples-add-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  align-items: center;
+}
+.staples-input,
+.ai-instructions {
+  font: inherit;
+  padding: var(--s-2);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-s);
+  background: var(--card);
+  color: inherit;
+}
+.staples-input {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+.ai-instructions {
+  display: block;
+  width: 100%;
+  margin-top: var(--s-2);
+  resize: vertical;
+}
 .cal-week {
   border: var(--stroke) solid var(--line);
   border-radius: var(--r-m);

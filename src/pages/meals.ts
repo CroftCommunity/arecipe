@@ -66,9 +66,14 @@ import {
 import { createRecipeCache } from '../recipes/cache.js';
 import { createRecordReader } from '../recipes/read.js';
 import {
+  applyStaples,
+  combinedLineKey,
   combinedLineText,
   expandedWeekCount,
+  filterForShopping,
   planDateBounds,
+  rawLineKey,
+  renderAiShopperText,
   renderByRecipeMarkdown,
   renderCombinedMarkdown,
   renderShoppingListDocument,
@@ -80,6 +85,7 @@ import {
   type ShoppingPlan,
   type ShoppingRange,
 } from '../recipes/shopping-list.js';
+import { createShoppingPrefs } from '../recipes/shopping-prefs.js';
 import { registerServiceWorker } from '../sw-register.js';
 
 export type PaletteProvider = () => Promise<PaletteItem[]>;
@@ -271,6 +277,21 @@ const buildShoppingListSection = (
   let detail = false;
   let list: ShoppingList | null = null;
   let downloadUrl: string | null = null;
+
+  // Device-local shopping prefs (staples + AI instructions), re-read on each open
+  // so an edit on the Account page takes effect without a reload.
+  const prefs = createShoppingPrefs();
+  let staples: string[] = [];
+  let aiInstructions = '';
+  // In-panel "I already have this" check-off, keyed by the shared line key (so a
+  // name checked in one tab is excluded in the other). Kept for the panel's life;
+  // keys that still exist after a range change stay checked.
+  const checked = new Set<string>();
+  const isExcluded = (key: string): boolean => checked.has(key);
+  // The honest payload: the built list minus staples and checked-off lines. Copy,
+  // Download, and AI shopper all render from THIS; the panel shows the full list.
+  const payloadList = (): ShoppingList | null =>
+    list === null ? null : filterForShopping(list, isExcluded);
   const revoke = (): void => {
     if (downloadUrl !== null) URL.revokeObjectURL(downloadUrl);
     downloadUrl = null;
@@ -349,20 +370,36 @@ const buildShoppingListSection = (
   const copyBtn = el('button', 'button shopping-copy', 'Copy') as HTMLButtonElement;
   copyBtn.type = 'button';
   copyBtn.dataset['testid'] = 'shopping-copy';
+  const aiBtn = el('button', 'button shopping-ai', 'AI shopper') as HTMLButtonElement;
+  aiBtn.type = 'button';
+  aiBtn.title = 'Copy as instructions for an AI shopping agent';
+  aiBtn.dataset['testid'] = 'shopping-ai';
   const downloadSlot = el('span', 'shopping-download-slot');
   const closeBtn = el('button', 'button shopping-close', 'Close') as HTMLButtonElement;
   closeBtn.type = 'button';
   closeBtn.dataset['testid'] = 'shopping-close';
-  actionsRow.append(detailBtn, copyBtn, downloadSlot, closeBtn);
+  actionsRow.append(detailBtn, copyBtn, aiBtn, downloadSlot, closeBtn);
 
   panel.append(rangeRow, tabsRow, contentEl, actionsRow);
 
-  const activeMarkdown = (): string =>
-    list === null
+  // Copy renders the honest payload (staples + checked-off lines removed), not
+  // the full on-screen list.
+  const activeMarkdown = (): string => {
+    const p = payloadList();
+    return p === null
       ? ''
       : activeTab === 'combined'
-        ? renderCombinedMarkdown(list, { sources: detail })
-        : renderByRecipeMarkdown(list, { multiply: detail });
+        ? renderCombinedMarkdown(p, { sources: detail })
+        : renderByRecipeMarkdown(p, { multiply: detail });
+  };
+
+  // Toggle one line's "already have" state; refresh only what depends on it (the
+  // prebuilt download link — Copy/AI read live on click).
+  const onToggle = (key: string, on: boolean): void => {
+    if (on) checked.add(key);
+    else checked.delete(key);
+    updateDownload();
+  };
 
   // The toggle's label reflects what it does in the CURRENT tab (By-recipe →
   // scale amounts by ×N; Combined → show which recipes each ingredient is from).
@@ -383,18 +420,19 @@ const buildShoppingListSection = (
     }
     contentEl.append(
       activeTab === 'combined'
-        ? renderCombinedDom(list, { sources: detail })
-        : renderByRecipeDom(list, { multiply: detail }),
+        ? renderCombinedDom(list, { sources: detail, checked, onToggle })
+        : renderByRecipeDom(list, { multiply: detail, checked, onToggle }),
     );
   };
 
   const updateDownload = (): void => {
     revoke();
-    if (list === null) return;
+    const payload = payloadList();
+    if (payload === null) return;
     const plan = getPlan();
     const range = currentRange();
     const label = shoppingRangeLabel(plan, range);
-    const doc = renderShoppingListDocument(list, {
+    const doc = renderShoppingListDocument(payload, {
       planName: planTitle(plan as LocalPlan),
       rangeLabel: label,
       detail,
@@ -412,7 +450,10 @@ const buildShoppingListSection = (
     list = null;
     renderContent();
     try {
-      list = await resolveShoppingList(getPlan(), currentRange(), fetchIngredients);
+      const built = await resolveShoppingList(getPlan(), currentRange(), fetchIngredients);
+      // Flag staples (assumed on hand) so the panel annotates them and the
+      // payload drops them from copy/download/AI.
+      list = applyStaples(built, staples);
     } catch (err) {
       log.warn('meal-plan', 'shopping list build failed', { error: String(err) });
       contentEl.replaceChildren(el('p', 'status', `couldn’t build the list: ${String(err)}`));
@@ -435,16 +476,23 @@ const buildShoppingListSection = (
     renderContent();
     updateDownload();
   });
-  copyBtn.addEventListener('click', () => {
-    const done = navigator.clipboard?.writeText(activeMarkdown());
+  // Flash a button's label to confirm a clipboard copy, then restore it.
+  const flashCopied = (btn: HTMLButtonElement, restore: string, payload: string): void => {
+    const done = navigator.clipboard?.writeText(payload);
     if (done === undefined) return;
     void done.then(
       () => {
-        copyBtn.textContent = 'Copied';
-        window.setTimeout(() => (copyBtn.textContent = 'Copy'), 1200);
+        btn.textContent = 'Copied';
+        window.setTimeout(() => (btn.textContent = restore), 1200);
       },
       () => undefined,
     );
+  };
+  copyBtn.addEventListener('click', () => flashCopied(copyBtn, 'Copy', activeMarkdown()));
+  aiBtn.addEventListener('click', () => {
+    const payload = payloadList();
+    if (payload === null) return;
+    flashCopied(aiBtn, 'AI shopper', renderAiShopperText(payload, { instructions: aiInstructions }));
   });
   closeBtn.addEventListener('click', () => {
     panel.hidden = true;
@@ -457,6 +505,10 @@ const buildShoppingListSection = (
       return;
     }
     panel.hidden = false;
+    // Re-read device-local prefs each open so Account-page edits take effect.
+    const loaded = prefs.load();
+    staples = loaded.staples;
+    aiInstructions = loaded.aiInstructions;
     buildRangeControls();
     void regenerate();
   });
@@ -464,27 +516,68 @@ const buildShoppingListSection = (
   return { button: openBtn, panel };
 };
 
-/** The Combined tab as DOM (aggregated lines, "as listed", unavailable). With
+/** Check-off wiring shared by both tabs: which line keys are marked "already
+ * have", and the toggle callback. Absent → the list renders read-only. */
+type CheckOpts = { checked?: Set<string>; onToggle?: (key: string, on: boolean) => void };
+
+/** A tappable shopping line: a checkbox + label. Toggling marks "I already have
+ * this" — the row strikes through and drops out of the copy/download/AI payload.
+ * `extraClass` carries the line's own styling (e.g. flagged/combined). */
+const checkableLine = (text: string, key: string, extraClass: string, opts: CheckOpts): HTMLElement => {
+  const li = el('li', `shopping-line ${extraClass}`.trim());
+  const label = el('label', 'shopping-check');
+  const box = document.createElement('input');
+  box.type = 'checkbox';
+  box.className = 'shopping-check-box';
+  box.checked = opts.checked?.has(key) === true;
+  box.dataset['testid'] = 'shopping-check';
+  box.setAttribute('aria-label', `Already have ${text}`);
+  box.addEventListener('change', () => {
+    li.classList.toggle('is-checked', box.checked);
+    opts.onToggle?.(key, box.checked);
+  });
+  label.append(box, el('span', 'shopping-check-text', text));
+  li.classList.toggle('is-checked', box.checked);
+  li.append(label);
+  return li;
+};
+
+/** A muted "assumed on hand" line — a staple. Shown as an annotation, never
+ * checkable, never part of the copied/downloaded/AI payload. */
+const stapleLine = (text: string): HTMLElement => {
+  const li = el('li', 'shopping-line shopping-staple');
+  li.dataset['testid'] = 'shopping-staple';
+  li.append(el('span', 'shopping-check-text', text), el('span', 'shopping-staple-tag', 'on hand'));
+  return li;
+};
+
+/** The Combined tab as DOM (aggregated lines, "as listed", unavailable). Shop
+ * lines are checkable; staples drop to a muted "Assumed on hand" annotation. With
  * `sources`, each aggregated line carries the recipes it was drawn from. */
-const renderCombinedDom = (list: ShoppingList, opts: { sources?: boolean } = {}): HTMLElement => {
+const renderCombinedDom = (list: ShoppingList, opts: { sources?: boolean } & CheckOpts = {}): HTMLElement => {
   const wrap = el('div', 'shopping-combined');
   wrap.dataset['testid'] = 'shopping-combined';
+  const shopLines = list.combined.lines.filter((l) => l.staple !== true);
+  const stapleLines = list.combined.lines.filter((l) => l.staple === true);
+  const shopAsListed = list.combined.asListed.filter((l) => l.staple !== true);
+  const stapleAsListed = list.combined.asListed.filter((l) => l.staple === true);
+
   if (list.combined.lines.length === 0) {
     wrap.append(el('p', 'status', 'Nothing to combine.'));
-  } else {
-    const ul = el('ul', 'shopping-list-ul');
-    for (const line of list.combined.lines) {
-      const li = el('li', 'shopping-combined-line', combinedLineText(line, opts));
+  } else if (shopLines.length > 0) {
+    const ul = el('ul', 'shopping-list-ul shopping-checklist');
+    for (const line of shopLines) {
+      const li = checkableLine(combinedLineText(line, opts), combinedLineKey(line), 'shopping-combined-line', opts);
       li.dataset['testid'] = 'shopping-combined-line';
       ul.append(li);
     }
     wrap.append(ul);
   }
-  if (list.combined.asListed.length > 0) {
+  if (shopAsListed.length > 0) {
     wrap.append(el('h4', 'shopping-subhead', 'As listed'));
-    const ul = el('ul', 'shopping-list-ul');
-    for (const item of list.combined.asListed) {
-      ul.append(el('li', 'shopping-aslisted', `${item.raw} (from ${item.recipes.join(', ')})`));
+    const ul = el('ul', 'shopping-list-ul shopping-checklist');
+    for (const item of shopAsListed) {
+      ul.append(checkableLine(`${item.raw} (from ${item.recipes.join(', ')})`, rawLineKey(item.raw), 'shopping-aslisted', opts));
     }
     wrap.append(ul);
   }
@@ -498,13 +591,22 @@ const renderCombinedDom = (list: ShoppingList, opts: { sources?: boolean } = {})
     }
     wrap.append(ul);
   }
+  if (stapleLines.length > 0 || stapleAsListed.length > 0) {
+    wrap.append(el('h4', 'shopping-subhead shopping-onhand-head', 'Assumed on hand'));
+    const ul = el('ul', 'shopping-list-ul shopping-onhand');
+    ul.dataset['testid'] = 'shopping-onhand';
+    for (const line of stapleLines) ul.append(stapleLine(combinedLineText(line, opts)));
+    for (const item of stapleAsListed) ul.append(stapleLine(item.raw));
+    wrap.append(ul);
+  }
   return wrap;
 };
 
 /** The By-recipe tab as DOM (one section per recipe, verbatim lines, flags).
- * With `multiply`, each line's amount is scaled by the recipe's ×N (a bare line
- * gets an occurrence count; an unparseable line stays verbatim). */
-const renderByRecipeDom = (list: ShoppingList, opts: { multiply?: boolean } = {}): HTMLElement => {
+ * Shop lines are checkable; staples render muted ("on hand") inline. With
+ * `multiply`, each line's amount is scaled by the recipe's ×N (a bare line gets
+ * an occurrence count; an unparseable line stays verbatim). */
+const renderByRecipeDom = (list: ShoppingList, opts: { multiply?: boolean } & CheckOpts = {}): HTMLElement => {
   const wrap = el('div', 'shopping-byrecipe');
   wrap.dataset['testid'] = 'shopping-byrecipe';
   const anyFlagged = list.byRecipe.some((s) => s.unavailable || s.lines.some((l) => l.flagged));
@@ -520,10 +622,14 @@ const renderByRecipeDom = (list: ShoppingList, opts: { multiply?: boolean } = {}
       p.dataset['testid'] = 'shopping-recipe-unavailable';
       sec.append(p);
     } else {
-      const ul = el('ul', 'shopping-list-ul');
+      const ul = el('ul', 'shopping-list-ul shopping-checklist');
       for (const line of s.lines) {
         const text = opts.multiply === true ? scaleIngredientLine(line.raw, s.count) : line.raw;
-        const li = el('li', line.flagged ? 'shopping-line shopping-flagged' : 'shopping-line', line.flagged ? `${text} ⚑` : text);
+        if (line.staple === true) {
+          ul.append(stapleLine(text));
+          continue;
+        }
+        const li = checkableLine(line.flagged ? `${text} ⚑` : text, rawLineKey(line.raw), line.flagged ? 'shopping-flagged' : '', opts);
         if (line.flagged) li.dataset['testid'] = 'shopping-flagged';
         ul.append(li);
       }
