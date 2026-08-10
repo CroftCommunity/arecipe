@@ -2387,8 +2387,34 @@ table.ref.pairs td.eq {
   justify-content: space-between;
   margin-bottom: var(--s-2);
 }
+/* The head's left cluster: the day-layout toggle then the "Week N" name, held
+   together on the left edge (Remove sits opposite, right). */
+.week-head-left {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-width: 0;
+}
 .week-name {
   font-weight: 700;
+}
+/* Per-week day-layout toggle (☰ stacked / ▥ columns): a small quiet control on
+   the week head's left edge; the glyph shows the current mode, tapping swaps it. */
+.week-layout-toggle {
+  appearance: none;
+  flex: none;
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-s);
+  background: var(--card);
+  color: inherit;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0.2rem 0.4rem;
+  cursor: pointer;
+}
+.week-layout-toggle:hover {
+  border-color: var(--enamel);
+  color: var(--enamel);
 }
 .week-days {
   display: grid;
@@ -2397,6 +2423,11 @@ table.ref.pairs td.eq {
      the viewport on a narrow phone. */
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: var(--s-1);
+}
+/* Stacked (vertical) mode: the 7 days become full-width rows, one per line —
+   each day's header (label left, count right) already reads as a row. */
+.week-days--stacked {
+  grid-template-columns: 1fr;
 }
 .day {
   display: flex;
@@ -2838,6 +2869,7 @@ table.ref.pairs td.eq {
   .chip,
   .facet-dd-summary,
   .palette-page-btn,
+  .week-layout-toggle,
   .nav-gear,
   .nav-auth,
   .fun-fact-next,

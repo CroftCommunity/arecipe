@@ -1006,6 +1006,12 @@ export const main = async (
   // × and "Clear day" are comfortably tappable. Keyed `${weekIndex}:${dayIndex}`;
   // survives re-renders (renderBuilder rebuilds the DOM each time).
   const expandedDays = new Set<string>();
+  // Per-week day layout (view-only, in-memory like expandedDays): a week whose
+  // index is in this set shows its 7 days STACKED vertically (full-width rows)
+  // instead of the default horizontal 7-column grid. Each week toggles its own,
+  // keyed by week index — matching expandedDays' index keying (view state, not
+  // part of the record, so it isn't reindexed on add/remove).
+  const stackedWeeks = new Set<number>();
   // Set once the session is booted (signed in): enables write-through to the
   // PDS. Edit mode already booted eagerly above.
   let syncAgent: Agent | null = editAgent;
@@ -1534,14 +1540,36 @@ export const main = async (
       row.dataset['testid'] = 'week-row';
 
       const head = el('div', 'week-head');
+      const stacked = stackedWeeks.has(wi);
+      // Left cluster: the day-layout toggle then the week name, kept together on
+      // the head's left edge (the optional Remove button sits opposite, right).
+      const headLeft = el('div', 'week-head-left');
+      // Day-layout toggle: flips THIS week's days between the horizontal
+      // 7-column grid and a vertical stack. The glyph reflects the CURRENT mode
+      // (☰ stacked rows / ▥ columns); tapping swaps it. Each week owns its own.
+      const layoutToggle = el('button', 'week-layout-toggle', stacked ? '☰' : '▥') as HTMLButtonElement;
+      layoutToggle.type = 'button';
+      layoutToggle.dataset['testid'] = 'week-layout-toggle';
+      layoutToggle.dataset['week'] = String(wi);
+      const modeLabel = stacked ? 'stacked rows' : 'columns';
+      layoutToggle.setAttribute('aria-pressed', String(stacked));
+      layoutToggle.setAttribute('aria-label', `Day layout: ${modeLabel} — tap to switch`);
+      layoutToggle.title = `Day layout: ${modeLabel}`;
+      layoutToggle.addEventListener('click', () => {
+        if (stackedWeeks.has(wi)) stackedWeeks.delete(wi);
+        else stackedWeeks.add(wi);
+        rerender();
+      });
+      headLeft.append(layoutToggle);
       // Anchored, the week header carries its real span: "Week 1 (Aug 10 – Aug 16)".
       const spanStart = start !== undefined ? dateForSlot(start, wi, 0) : null;
       const spanEnd = start !== undefined ? dateForSlot(start, wi, 6) : null;
       const s = spanStart !== null ? formatShortDate(spanStart) : null;
       const e = spanEnd !== null ? formatShortDate(spanEnd) : null;
-      head.append(
+      headLeft.append(
         el('span', 'week-name', s !== null && e !== null ? `Week ${wi + 1} (${s} – ${e})` : `Week ${wi + 1}`),
       );
+      head.append(headLeft);
 
       // Remove only makes sense with more than one week — you can't remove the
       // only week, so on a single-week plan the button is omitted entirely
@@ -1559,7 +1587,7 @@ export const main = async (
       }
       row.append(head);
 
-      const daysEl = el('div', 'week-days');
+      const daysEl = el('div', stacked ? 'week-days week-days--stacked' : 'week-days');
       week.days.forEach((slot, di) => {
         const key = `${wi}:${di}`;
         const full = slot.meals.length >= cap;
