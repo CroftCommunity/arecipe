@@ -2791,6 +2791,12 @@ table.ref.pairs td.eq {
   padding-top: var(--s-3);
   border-top: var(--stroke) solid var(--line);
 }
+/* Discoverability hint when no staple matched the menu. */
+.shopping-staple-hint {
+  margin-top: var(--s-3);
+  padding-top: var(--s-3);
+  border-top: var(--stroke) solid var(--line);
+}
 /* The AI-shopper copy button reads as a secondary action beside Copy. */
 .shopping-ai {
   white-space: nowrap;

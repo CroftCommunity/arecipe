@@ -191,6 +191,18 @@ test('staples ride in "Be sure to double check" pre-checked; items check off; AI
   expect(clip).toContain('cucumber'); // an unchecked item still shops
 });
 
+test('with no staples configured, the shopping list shows a discoverability hint', async ({ page }) => {
+  await routeAll(page);
+  await page.goto(`/meals.html?mealplan=plan-1&user=${encodeURIComponent(OWNER)}`);
+  await page.getByTestId('shopping-list-open').click({ timeout: 15_000 });
+  await page.getByTestId('shopping-byrecipe').waitFor({ timeout: 15_000 });
+  const hint = page.getByTestId('shopping-staple-hint');
+  await expect(hint).toContainText('add pantry staples');
+  await expect(hint.getByRole('link', { name: 'your Account' })).toHaveAttribute('href', './account.html');
+  // No "double check" section when nothing matched.
+  await expect(page.getByTestId('shopping-doublecheck')).toHaveCount(0);
+});
+
 test('shopping panel fits a narrow phone without horizontal overflow', async ({ page }) => {
   await routeAll(page);
   await page.setViewportSize({ width: 360, height: 780 });

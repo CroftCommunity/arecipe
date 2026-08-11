@@ -424,6 +424,24 @@ const buildShoppingListSection = (
         ? renderCombinedDom(list, { sources: detail, checked, onToggle })
         : renderByRecipeDom(list, { multiply: detail, checked, onToggle }),
     );
+    // When no staple matched this menu, the "Be sure to double check" section is
+    // absent — leave a hint so the feature is never a silent no-op.
+    if (stapleLineKeys(list).length === 0) {
+      const hint = el('p', 'status shopping-staple-hint');
+      hint.dataset['testid'] = 'shopping-staple-hint';
+      if (staples.length === 0) {
+        const link = el('a', 'friend-link', 'your Account') as HTMLAnchorElement;
+        link.href = './account.html';
+        hint.append(
+          document.createTextNode('Tip: add pantry staples (salt, oil, sugar…) on '),
+          link,
+          document.createTextNode(' and they’ll be ticked off here automatically, so you only copy what you still need.'),
+        );
+      } else {
+        hint.textContent = `None of your staples (${staples.join(', ')}) are in this menu.`;
+      }
+      contentEl.append(hint);
+    }
   };
 
   const updateDownload = (): void => {
