@@ -43,10 +43,19 @@ export const recomputeCid = async (value: Record<string, unknown>): Promise<stri
   return CID.createV1(dagCbor.code, hash).toString();
 };
 
+type PutRecord = { uri: string; cid: string; value: Record<string, unknown> };
+
 export type RecipeCache = {
-  put: (record: { uri: string; cid: string; value: Record<string, unknown> }) => Promise<CachedRecipe>;
+  put: (record: PutRecord) => Promise<CachedRecipe>;
+  /** Batch write: ONE connection + ONE transaction for the whole batch (a
+   * per-record connection is pathological at corpus size — Phase 3 of the
+   * 2026-08-06 sharding plan). Verification stays per record. */
+  putMany: (records: PutRecord[]) => Promise<CachedRecipe[]>;
   get: (uri: string) => Promise<CachedRecipe | undefined>;
   list: () => Promise<CachedRecipe[]>;
+  /** One cook's records via a key range over the `at://<did>/` uri prefix —
+   * a small cook's read must not scan a corpus-sized store. */
+  listByUriPrefix: (prefix: string) => Promise<CachedRecipe[]>;
 };
 
 const STORE = 'recipes';
@@ -82,30 +91,60 @@ export const createRecipeCache = (
   const dbName = options.dbName ?? 'arecipe';
   const logger = options.logger ?? defaultLogger;
 
+  const verify = async (record: PutRecord): Promise<CachedRecipe> => {
+    const recomputed = await recomputeCid(record.value);
+    const verified = recomputed === record.cid;
+    if (verified) {
+      logger.debug('cache', 'cid verified', { uri: record.uri });
+    } else {
+      logger.warn('cache', 'cid mismatch — stored as unverified', {
+        uri: record.uri,
+        reported: record.cid,
+        recomputed,
+      });
+    }
+    return {
+      uri: record.uri,
+      cid: record.cid,
+      value: record.value,
+      verified,
+      cachedAt: new Date().toISOString(),
+    };
+  };
+
   return {
     put: async (record) => {
-      const recomputed = await recomputeCid(record.value);
-      const verified = recomputed === record.cid;
-      if (verified) {
-        logger.debug('cache', 'cid verified', { uri: record.uri });
-      } else {
-        logger.warn('cache', 'cid mismatch — stored as unverified', {
-          uri: record.uri,
-          reported: record.cid,
-          recomputed,
-        });
-      }
-      const entry: CachedRecipe = {
-        uri: record.uri,
-        cid: record.cid,
-        value: record.value,
-        verified,
-        cachedAt: new Date().toISOString(),
-      };
+      const entry = await verify(record);
       await inStore(dbName, 'readwrite', (store) => store.put(entry));
       return entry;
     },
+    putMany: async (records) => {
+      if (records.length === 0) return [];
+      const entries: CachedRecipe[] = [];
+      for (const record of records) entries.push(await verify(record));
+      const db = await openDb(dbName);
+      try {
+        await new Promise<void>((resolve, reject) => {
+          const tx = db.transaction(STORE, 'readwrite');
+          const store = tx.objectStore(STORE);
+          for (const entry of entries) store.put(entry);
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => reject(tx.error as Error);
+          tx.onabort = () => reject((tx.error as Error | null) ?? new Error('transaction aborted'));
+        });
+      } finally {
+        db.close();
+      }
+      return entries;
+    },
     get: (uri) => inStore(dbName, 'readonly', (store) => store.get(uri) as IDBRequest<CachedRecipe | undefined>),
     list: () => inStore(dbName, 'readonly', (store) => store.getAll() as IDBRequest<CachedRecipe[]>),
+    listByUriPrefix: (prefix) =>
+      inStore(
+        dbName,
+        'readonly',
+        (store) =>
+          store.getAll(IDBKeyRange.bound(prefix, `${prefix}\uffff`)) as IDBRequest<CachedRecipe[]>,
+      ),
   };
 };

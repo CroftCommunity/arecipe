@@ -623,7 +623,7 @@ const main = async (): Promise<void> => {
     void (async () => {
       const identity: ResolvedIdentity = await resolve(handle);
       const records = await readRecipes({ pds: identity.pds, did: identity.did });
-      const entries = await Promise.all(records.map((r) => cache.put(r)));
+      const entries = await cache.putMany(records);
       saveLastFind({ handle: identity.handle, did: identity.did, uris: entries.map((e) => e.uri) });
       if (gen !== generation) return; // superseded
       showEntries(entries, identity.handle, identity.did);
@@ -664,25 +664,44 @@ const main = async (): Promise<void> => {
     // are same-origin, immutable, and precached, so first paint costs zero PDS
     // network. Seeding the cache here also lets the live path degrade to these
     // copies if the network is down, so the feed never blanks.
-    const snap = await loadSnapshotFeed({ cache }).catch((err: unknown) => {
+    //
+    // Perf (recipe-loading perf run): cooks land PROGRESSIVELY — small cooks
+    // paint the moment their shard (or the hydration fast path) resolves, so
+    // first cards never wait on the corpus-sized shard. The store's hydration
+    // marker lets every later boot on this build serve straight from IndexedDB.
+    const store = createSnapshotStore({ buildId: snapshotBuildId() });
+    const snap = await loadSnapshotFeed({
+      cache,
+      store,
+      onCookLoaded: (cook, entries) => {
+        if (gen !== generation || !authorDids.has(cook.did)) return;
+        authorsByDid[cook.did] = cook.handle;
+        entriesByDid.set(cook.did, entries);
+        applyEntries();
+      },
+    }).catch((err: unknown) => {
       log.warn('snapshot', 'snapshot feed failed — live only', { error: String(err) });
       return null;
     });
     if (gen !== generation) return;
     if (snap !== null) {
       Object.assign(authorsByDid, snap.authorsByDid);
+      // Re-derive per-cook lists with SET semantics — the progressive callback
+      // may already have applied some cooks, and a second pass must not double
+      // their entries.
+      const byDid = new Map<string, CachedRecipe[]>();
       for (const e of snap.entries) {
         const did = didOf(e);
         if (!authorDids.has(did)) continue;
-        (entriesByDid.get(did) ?? entriesByDid.set(did, []).get(did)!).push(e);
+        (byDid.get(did) ?? byDid.set(did, []).get(did)!).push(e);
       }
+      for (const [did, list] of byDid) entriesByDid.set(did, list);
       if (entriesByDid.size > 0) applyEntries();
     }
 
     // Revalidation, off the critical path.
     const manifest = snap === null ? null : await loadSnapshotManifest().catch(() => null);
     if (snap !== null && manifest !== null) {
-      const store = createSnapshotStore({ buildId: snapshotBuildId() });
       const covered = manifest.cooks.filter((c) => authorDids.has(c.did));
       const coveredDids = new Set(covered.map((c) => c.did));
 
@@ -700,7 +719,9 @@ const main = async (): Promise<void> => {
           },
           onChanged: async (did, records) => {
             if (gen !== generation) return;
-            entriesByDid.set(did, await Promise.all(records.map((r) => cache.put(r))));
+            // Batched: a rev change re-writes a whole cook — per-record
+            // connections here are the path that hurts most (plan Phase 3).
+            entriesByDid.set(did, await cache.putMany(records));
             applyEntries();
           },
           onGone: (did) => {

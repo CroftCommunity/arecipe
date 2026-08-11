@@ -45,7 +45,9 @@ export const loadAuthorsFeed = async (authors: FeedAuthor[]): Promise<AuthorsFee
       try {
         const { pds } = await resolveDidDoc(author.did);
         const records = await read({ pds, did: author.did });
-        return await Promise.all(records.map((r) => cache.put(r)));
+        // ONE transaction per author — per-record connections are pathological
+        // at corpus size (Phase 3 of the 2026-08-06 sharding plan).
+        return await cache.putMany(records);
       } catch (err) {
         const cached = await cachedByDid(author.did);
         if (cached.length > 0) {

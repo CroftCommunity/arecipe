@@ -17,8 +17,9 @@ import { log as defaultLogger, type Logger } from '../log.js';
 import { createRecipeReader } from './read.js';
 import { loadLikedFeed as defaultLoadLikedFeed } from '../social/liked-feed.js';
 import { listInteractionsFor, type Interaction } from '../social/interactions.js';
+import { loadSnapshotFirstFeed } from '../social/default-feed.js';
 import type { FeedAuthor } from '../social/feed.js';
-import { createStarterPrefs, loadStarterFeed } from './starter.js';
+import { createStarterPrefs } from './starter.js';
 
 /** A placeable recipe: strong-ref material plus a display name, and (when known)
  *  its cuisine/category so the standing taste preference can filter the palette. */
@@ -146,12 +147,15 @@ export const loadCookbookPalette = async (
   );
 };
 
-/** Browse: the starter-pack feed (Browse's default corpus), public-read. */
+/** Browse: the starter-pack feed (Browse's default corpus), public-read.
+ * Snapshot-first (recipe-loading perf): covered cooks come from the precached
+ * bundle / IndexedDB hydration — NOT a full live re-page of the corpus on every
+ * plan-page visit; only snapshot-uncovered authors go to the PDS. */
 export const loadStarterPalette = async (
   deps: { enabledAuthors?: () => FeedAuthor[]; loadStarterFeed?: FeedLoader; logger?: Logger } = {},
 ): Promise<PaletteItem[]> => {
   const enabled = deps.enabledAuthors ?? (() => createStarterPrefs().enabledAuthors());
-  const loadFeed = deps.loadStarterFeed ?? loadStarterFeed;
+  const loadFeed = deps.loadStarterFeed ?? loadSnapshotFirstFeed;
   const logger = deps.logger ?? defaultLogger;
   return collect('browse', async () => (await loadFeed(enabled())).entries, logger);
 };
