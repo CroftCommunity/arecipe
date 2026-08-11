@@ -569,6 +569,47 @@ export const buildShoppingList = (recipes: ScheduledRecipe[]): ShoppingList => {
   };
 };
 
+// --- substitutions (swap an ingredient for a preferred alternative) --------
+
+/** A cook's ingredient substitution: wherever a recipe calls for `from`, prefer
+ * `to`. Both are free text; matching is whole-word and case-insensitive. The
+ * device-local store (shopping-prefs) owns the list; this is the pure matcher. */
+export type Substitution = { from: string; to: string };
+
+/** Escape a string for literal use inside a RegExp. */
+const escapeRegExp = (s: string): string => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/** A case-insensitive, whole-word pattern for a substitution's `from` phrase —
+ * so "milk" swaps in "2 cups milk" but never inside "buttermilk". */
+const fromPattern = (from: string): RegExp => new RegExp(`\\b${escapeRegExp(from.trim())}\\b`, 'i');
+
+/** One line's substitution result: the original text, the rewritten text, and
+ * the from/to that matched. Null when no substitution applies. */
+export type LineSubstitution = { original: string; substituted: string; from: string; to: string };
+
+/** Apply the FIRST matching substitution to a raw ingredient line: replace the
+ * whole-word `from` phrase with `to` in place, preserving the leading
+ * quantity/unit and everything else verbatim. Blank sides are skipped. Returns
+ * null when nothing matches. Pure. */
+export const applyLineSubstitution = (raw: string, subs: Substitution[]): LineSubstitution | null => {
+  for (const sub of subs) {
+    const from = sub.from.trim();
+    const to = sub.to.trim();
+    if (from === '' || to === '') continue;
+    const pattern = fromPattern(from);
+    if (pattern.test(raw)) {
+      // Function replacement so a `to` containing `$` is inserted literally.
+      return { original: raw, substituted: raw.replace(pattern, () => to), from, to };
+    }
+  }
+  return null;
+};
+
+/** Map raw ingredient lines through substitutions (matched lines rewritten, the
+ * rest untouched). A no-op with no substitutions. Pure. */
+export const substituteLines = (lines: string[], subs: Substitution[]): string[] =>
+  subs.length === 0 ? lines : lines.map((raw) => applyLineSubstitution(raw, subs)?.substituted ?? raw);
+
 // --- Phase 3: range + resolution ------------------------------------------
 
 /** The minimal plan shape the list builder reads — structurally satisfied by
@@ -662,13 +703,17 @@ export const resolveShoppingList = async (
   plan: ShoppingPlan,
   range: ShoppingRange,
   fetchIngredients: IngredientFetcher,
+  substitutions: Substitution[] = [],
 ): Promise<ShoppingList> => {
   const refs = collectScheduledRefs(plan, range);
   const scheduled = await Promise.all(
     refs.map(async (ref): Promise<ScheduledRecipe> => {
       let ingredients: string[] | undefined;
       try {
-        ingredients = (await fetchIngredients({ uri: ref.uri, cid: ref.cid })) ?? undefined;
+        const fetched = await fetchIngredients({ uri: ref.uri, cid: ref.cid });
+        // Substitutions swap ingredients BEFORE aggregation, so two recipes that
+        // both resolve to the substitute combine into one line.
+        ingredients = fetched === null ? undefined : substituteLines(fetched, substitutions);
       } catch {
         ingredients = undefined;
       }

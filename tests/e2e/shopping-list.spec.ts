@@ -191,6 +191,45 @@ test('staples ride in "Be sure to double check" pre-checked; items check off; AI
   expect(clip).toContain('cucumber'); // an unchecked item still shops
 });
 
+test('substitutions are swapped into the shopping list by default (screen + copy)', async ({
+  page,
+  context,
+}) => {
+  await routeAll(page);
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  // Account-page prefs: swap flour → almond flour. On the shopping list this is
+  // applied by default (unlike the opt-in recipe page).
+  await page.addInitScript(() => {
+    try {
+      localStorage.setItem(
+        'shopping-prefs',
+        JSON.stringify({
+          staples: [],
+          aiInstructions: '',
+          substitutions: [{ from: 'flour', to: 'almond flour' }],
+          alwaysApplySubstitutions: false,
+        }),
+      );
+    } catch {
+      /* private mode */
+    }
+  });
+  await page.goto(`/meals.html?mealplan=plan-1&user=${encodeURIComponent(OWNER)}`);
+  await page.getByTestId('shopping-list-open').click({ timeout: 15_000 });
+
+  // Combined view: the roll-up is the SUBSTITUTED ingredient, not the original.
+  await page.getByTestId('shopping-tab-combined').click();
+  const combined = page.getByTestId('shopping-combined');
+  await expect(combined).toContainText('almond flour — 6 cups', { timeout: 15_000 });
+  await expect(combined).not.toContainText('bread flour');
+  await expect(combined.getByTestId('shopping-combined-line').filter({ hasText: /^flour/ })).toHaveCount(0);
+
+  // The copied payload carries the substitute too.
+  await page.getByTestId('shopping-copy').click();
+  const clip = await page.evaluate(() => navigator.clipboard.readText());
+  expect(clip).toContain('almond flour — 6 cups');
+});
+
 test('with no staples configured, the shopping list shows a discoverability hint', async ({ page }) => {
   await routeAll(page);
   await page.goto(`/meals.html?mealplan=plan-1&user=${encodeURIComponent(OWNER)}`);

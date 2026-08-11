@@ -7,6 +7,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
+  applyLineSubstitution,
   applyStaples,
   buildShoppingList,
   collectScheduledRefs,
@@ -27,6 +28,7 @@ import {
   resolveShoppingList,
   scaleIngredientLine,
   shoppingListFilename,
+  substituteLines,
   type ParsedIngredient,
   type ScheduledRecipe,
   type ShoppingPlan,
@@ -564,6 +566,71 @@ describe('filterForShopping — the honest payload', () => {
     const flour = combinedFor(list, 'flour')!;
     // The combined key and the by-recipe raw key agree by normalized name.
     expect(combinedLineKey(flour)).toBe(rawLineKey('2 cups flour'));
+  });
+});
+
+describe('applyLineSubstitution — swap an ingredient, keeping qty/unit', () => {
+  const subs = [
+    { from: 'ground hamburger', to: 'ground turkey' },
+    { from: 'milk', to: 'lactaid milk' },
+  ];
+  it('rewrites the matched phrase in place, preserving the rest of the line', () => {
+    expect(applyLineSubstitution('1 lb ground hamburger', subs)).toEqual({
+      original: '1 lb ground hamburger',
+      substituted: '1 lb ground turkey',
+      from: 'ground hamburger',
+      to: 'ground turkey',
+    });
+    expect(applyLineSubstitution('2 cups milk', subs)).toEqual({
+      original: '2 cups milk',
+      substituted: '2 cups lactaid milk',
+      from: 'milk',
+      to: 'lactaid milk',
+    });
+  });
+  it('matches whole words case-insensitively, not substrings', () => {
+    expect(applyLineSubstitution('1 cup buttermilk', subs)).toBeNull(); // milk ⊄ buttermilk
+    expect(applyLineSubstitution('1 cup MILK', subs)?.substituted).toBe('1 cup lactaid milk');
+  });
+  it('returns null when nothing matches', () => {
+    expect(applyLineSubstitution('2 cups flour', subs)).toBeNull();
+  });
+  it('applies the FIRST matching substitution only (user list order)', () => {
+    const ordered = [
+      { from: 'milk', to: 'oat milk' },
+      { from: 'milk', to: 'lactaid milk' },
+    ];
+    expect(applyLineSubstitution('1 cup milk', ordered)?.substituted).toBe('1 cup oat milk');
+  });
+});
+
+describe('substituteLines — map raw lines through substitutions', () => {
+  it('swaps matched lines and leaves the rest untouched', () => {
+    const subs = [{ from: 'milk', to: 'lactaid milk' }];
+    expect(substituteLines(['2 cups milk', '2 cups flour'], subs)).toEqual([
+      '2 cups lactaid milk',
+      '2 cups flour',
+    ]);
+  });
+  it('is a no-op with no substitutions', () => {
+    expect(substituteLines(['2 cups milk'], [])).toEqual(['2 cups milk']);
+  });
+});
+
+describe('resolveShoppingList — substitutions applied before aggregation', () => {
+  const plan: ShoppingPlan = {
+    name: 'P',
+    weeks: [{ repeat: 1, days: [{ meals: [{ recipe: { uri: 'at://x/burgers', cid: 'c', name: 'Burgers' } }] }] }],
+  };
+  it('aggregates the substituted ingredient, not the original', async () => {
+    const list = await resolveShoppingList(
+      plan,
+      { kind: 'all' },
+      async () => ['1 lb ground hamburger'],
+      [{ from: 'ground hamburger', to: 'ground turkey' }],
+    );
+    expect(list.combined.lines.map((l) => l.name)).toContain('ground turkey');
+    expect(list.combined.lines.map((l) => l.name)).not.toContain('ground hamburger');
   });
 });
 

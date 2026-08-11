@@ -2862,6 +2862,58 @@ table.ref.pairs td.eq {
   margin-top: var(--s-2);
   resize: vertical;
 }
+
+/* Account → Shopping list: substitution rows (from ⇄ to) + always-apply. */
+.subs-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  margin: var(--s-2) 0;
+}
+.subs-list:empty {
+  display: none;
+}
+.sub-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  padding: var(--s-1) var(--s-2);
+  background: var(--enamel-soft);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-l);
+  font-size: var(--t-caption);
+}
+.sub-chip-arrow {
+  opacity: 0.6;
+}
+.subs-add-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  align-items: center;
+}
+.subs-always-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin-top: var(--s-3);
+}
+
+/* Recipe page: the "Apply ⇄" ingredient-substitution toggle + swapped lines. */
+.sub-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  margin: var(--s-1) 0 var(--s-2);
+  font-size: var(--t-caption);
+  cursor: pointer;
+}
+.ingredient-substituted .ingredient-original {
+  opacity: 0.55;
+}
+.ingredient-substituted .ingredient-sub {
+  font-weight: 600;
+}
 .cal-week {
   border: var(--stroke) solid var(--line);
   border-radius: var(--r-m);

@@ -200,6 +200,40 @@ test('shopping prefs: staples add/remove and AI instructions persist (device-loc
   await expect(page.getByTestId('staple-chip')).toContainText('Pepper');
 });
 
+test('shopping prefs: substitutions add/remove, always-apply toggle persist (device-local)', async ({
+  page,
+}) => {
+  await page.goto('/account.html');
+  const section = page.getByTestId('shopping-prefs');
+  await expect(section).toBeVisible({ timeout: 15_000 });
+  await expect(section).toContainText('Substitutions');
+
+  // Add a substitution via the from/to inputs (Enter on the second commits).
+  await page.getByTestId('substitution-from').fill('ground hamburger');
+  await page.getByTestId('substitution-to').fill('ground turkey');
+  await page.getByTestId('substitution-add').click();
+  // A blank side is dropped (no new chip).
+  await page.getByTestId('substitution-from').fill('milk');
+  await page.getByTestId('substitution-to').fill('');
+  await page.getByTestId('substitution-to').press('Enter');
+  await expect(page.getByTestId('substitution-chip')).toHaveCount(1);
+  await expect(page.getByTestId('substitution-chip')).toContainText('ground turkey');
+
+  // Turn on "always apply".
+  await page.getByTestId('substitutions-always').check();
+
+  // Both survive a reload (device-local storage).
+  await page.reload();
+  await expect(page.getByTestId('substitution-chip')).toHaveCount(1);
+  await expect(page.getByTestId('substitutions-always')).toBeChecked();
+
+  // Remove the substitution → gone, persisted.
+  await page.getByTestId('substitution-chip').getByRole('button').click();
+  await expect(page.getByTestId('substitution-chip')).toHaveCount(0);
+  await page.reload();
+  await expect(page.getByTestId('substitution-chip')).toHaveCount(0);
+});
+
 // Danger zone (plan 2026-07-16-5): sign out + "Delete all arecipe data" both
 // need a session, so the signed-out page renders NEITHER control (the flows
 // themselves are unit-tested; the signed-in mount is proven @live).

@@ -12,8 +12,13 @@ import type { CachedRecipe } from './cache.js';
 import { recipeMetaOf, type Difficulty, type RecipeMeta } from './meta.js';
 import { dishKeyOf, funFactsOf, versionLabelOf, type FunFact } from './model.js';
 import { firstImageCid, firstImageCredit, formatDuration, formatPublishedDate, nutritionOf, thumbUrl } from './present.js';
+import { applyLineSubstitution, type Substitution } from './shopping-list.js';
 import { initStepState, stepReducer, stepStatusAt, type StepState } from './step-state.js';
 import { tileMediaVariant } from './tile-variant.js';
+
+/** The substitution affordance glyph — the swap arrows, matching the app's
+ *  monochrome control glyphs (⧉ copy, ⚑ flag, ⛶ focus). */
+export const SUBSTITUTION_GLYPH = '⇄';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
   const node = document.createElement(tag);
@@ -26,6 +31,29 @@ const listEl = (tag: 'ul' | 'ol', testid: string, items: string[]): HTMLElement 
   const list = el(tag);
   list.dataset['testid'] = testid;
   for (const item of items) list.append(el('li', undefined, item));
+  return list;
+};
+
+/** The Ingredients list, with substitutions optionally applied. A line that a
+ *  substitution rewrites shows the original struck through with the preferred
+ *  swap beside it (⇄); every other line is plain text. With no substitutions
+ *  this is just a plain ingredient list. */
+const ingredientListEl = (lines: string[], subs: Substitution[]): HTMLElement => {
+  const list = el('ul');
+  list.dataset['testid'] = 'recipe-ingredients';
+  for (const raw of lines) {
+    const li = el('li');
+    const sub = subs.length > 0 ? applyLineSubstitution(raw, subs) : null;
+    if (sub === null) {
+      li.textContent = raw;
+    } else {
+      li.classList.add('ingredient-substituted');
+      const del = el('del', 'ingredient-original', sub.original);
+      const swap = el('span', 'ingredient-sub', `${SUBSTITUTION_GLYPH} ${sub.substituted}`);
+      li.append(del, document.createTextNode(' '), swap);
+    }
+    list.append(li);
+  }
   return list;
 };
 
@@ -297,6 +325,12 @@ export type RenderOptions = {
    *  via matchMedia at render time. Drives the pictureless-tile chip variant
    *  (chip at 1 column, media band otherwise); tests pass it explicitly. */
   columns?: number;
+  /** Recipe detail only: the cook's ingredient substitutions (from→to). When any
+   *  matches an ingredient line, an "Apply ⇄" toggle appears above Ingredients. */
+  substitutions?: Substitution[];
+  /** Recipe detail only: start with substitutions applied (the ⇄ toggle checked).
+   *  Set from the Account "Always apply substitutions" preference. Default off. */
+  applySubstitutions?: boolean;
 };
 
 const recipePageHref = (entry: CachedRecipe, options: RenderOptions): string => {
@@ -854,7 +888,34 @@ export const renderRecipeDetail = (
   const instructionLines = value.instructions ?? [];
   const ingredients = el('section');
   ingredients.append(sectionHead('Ingredients', ingredientLines, 'copy-ingredients'));
-  ingredients.append(listEl('ul', 'recipe-ingredients', ingredientLines));
+  // Substitutions (⇄): opt-in on the recipe page. The toggle only appears when a
+  // configured substitution actually matches a line here (never a no-op control);
+  // checking it re-renders the list with matched lines struck through and the
+  // preferred swap shown beside them. `applySubstitutions` (the Account "always
+  // apply" preference) sets the initial state.
+  const subs = options.substitutions ?? [];
+  const anyMatch = subs.length > 0 && ingredientLines.some((l) => applyLineSubstitution(l, subs) !== null);
+  let applying = anyMatch && options.applySubstitutions === true;
+  const listHost = el('div', 'ingredient-list-host');
+  const paintIngredients = (): void => {
+    listHost.replaceChildren(ingredientListEl(ingredientLines, applying ? subs : []));
+  };
+  if (anyMatch) {
+    const toggle = el('label', 'sub-toggle') as HTMLLabelElement;
+    toggle.title = 'Show your ingredient substitutions';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = applying;
+    cb.dataset['testid'] = 'apply-substitutions';
+    cb.addEventListener('change', () => {
+      applying = cb.checked;
+      paintIngredients();
+    });
+    toggle.append(cb, document.createTextNode(` Apply ${SUBSTITUTION_GLYPH}`));
+    ingredients.append(toggle);
+  }
+  paintIngredients();
+  ingredients.append(listHost);
   const instructions = el('section');
   instructions.append(sectionHead('Instructions', instructionLines, 'copy-instructions'));
   instructions.append(listEl('ol', 'recipe-instructions', instructionLines));
