@@ -15,7 +15,6 @@
 import type { Agent } from '@atproto/api';
 import { mountBuildStamp } from '../build-stamp.js';
 import { resolveDidDoc } from '../identity/did.js';
-import { resetIconButton } from '../icons.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
 import { createResolver } from '../identity/resolve.js';
@@ -1773,11 +1772,13 @@ export const main = async (
   // confirm (mirrors the recipe Hide control — no native dialog).
   const renderResetControl = (): void => {
     resetControl.replaceChildren();
-    // Reset-surface v2 (D5): the shared reset icon button (src/icons.ts) — the
-    // same counterclockwise glyph as the toolbar reset. Destructive weight lives
-    // in the confirm step below, not the glyph; the clockwise direction stays
-    // RESERVED for the calendar Resync in the title row above.
-    const reset = resetIconButton('Reset plan');
+    // Reset-surface v3: a "Reset" text button styled like Publish (the shared
+    // .plan-reset-btn footprint + rust fill — same family as the Publish button
+    // below). Destructive weight lives in the confirm step below, not the label.
+    const reset = el('button', 'button plan-reset-btn', 'Reset') as HTMLButtonElement;
+    reset.type = 'button';
+    reset.setAttribute('aria-label', 'Reset plan');
+    reset.title = 'Reset plan';
     reset.dataset['testid'] = 'reset-plan';
     reset.addEventListener('click', () => {
       resetControl.replaceChildren();

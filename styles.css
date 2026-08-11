@@ -2994,7 +2994,8 @@ table.ref.pairs td.eq {
    read as a pair (Repeat above, Publish below): same explicit box, centred
    glyph. Publish shares the box so their sizes are provably equal. */
 .button.repeat-weeks,
-.button.plan-publish-btn {
+.button.plan-publish-btn,
+.button.plan-reset-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -3008,14 +3009,17 @@ table.ref.pairs td.eq {
 
 /* Publish is a commit-with-consequences action (it freezes the plan and — with
    the reset toggle on — clears the canvas), so it wears rust like the reset
-   family, not the enamel primary. Doubled selector so the fill/hover beat the
-   base .button rules. */
-.button.plan-publish-btn {
+   family, not the enamel primary. Reset (which clears the canvas outright) is
+   the same destructive family, so it shares the rust fill and footprint. Doubled
+   selector so the fill/hover beat the base .button rules. */
+.button.plan-publish-btn,
+.button.plan-reset-btn {
   background: var(--rust);
   border-color: var(--rust);
   color: var(--card);
 }
-.button.plan-publish-btn:hover {
+.button.plan-publish-btn:hover,
+.button.plan-reset-btn:hover {
   background: var(--rust-deep);
   border-color: var(--rust-deep);
 }
