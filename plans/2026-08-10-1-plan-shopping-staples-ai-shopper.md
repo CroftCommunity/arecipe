@@ -58,12 +58,19 @@ Download / new **AI shopper** button all run through `filterForShopping`.
 ## Outcome
 
 Shipped 2026-08-10. Core in `shopping-list.ts` (`makeStapleMatcher`, `applyStaples`,
-`combinedLineKey`/`rawLineKey`, `filterForShopping`, `renderAiShopperText`,
-`normalizeIngredientName`) + `shopping-prefs.ts` store. Account page grows a
-"Shopping list" section (staple chips + AI-instructions textarea). The meal-plan
-shopping panel now: flags staples as a muted "Assumed on hand" annotation, makes
-every shop line tap-to-check in both views (shared by normalized name across the two
-tabs), and adds an **AI shopper** copy button. Copy / Download / AI all run through
-`filterForShopping`, so staples and checked-off items never reach the payload.
-Covered by unit (staple matcher, applyStaples, keys, filter, AI render, store) and
-e2e (account persistence; panel annotate + check-off + AI copy) specs.
+`combinedLineKey`/`rawLineKey`, `stapleLineKeys`, `filterForShopping`,
+`renderAiShopperText`, `normalizeIngredientName`) + `shopping-prefs.ts` store.
+Account page grows a "Shopping list" section (staple chips + AI-instructions
+textarea). The meal-plan shopping panel now: makes every shop line tap-to-check in
+both views (shared by normalized name across the two tabs), and adds an **AI
+shopper** copy button.
+
+Staples land in a bottom **"Be sure to double check"** section rendered as
+checkboxes that start **ticked** (the panel seeds their keys via `stapleLineKeys`),
+so they're excluded from copy/download/AI by default — but un-ticking one you're
+actually out of brings it back into the shopping payload. Filtering is now purely
+check-driven: `filterForShopping` drops any line whose key is excluded, and staples
+are simply pre-excluded. Copy / Download / AI all run through it. Covered by unit
+(staple matcher, applyStaples, keys, seed, filter incl. un-ticked staple, AI render,
+store) and e2e (account persistence; pre-checked double-check + un-tick-to-shop +
+check-off + AI copy) specs.

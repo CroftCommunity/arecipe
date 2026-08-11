@@ -386,18 +386,30 @@ export const rawLineKey = (raw: string): string => {
     : `n:${parsed.name}`;
 };
 
-/** Produce a NEW list carrying only what still needs shopping: staples and any
- * caller-excluded keys (lines the cook checked off as "already have") are
- * dropped from combined lines, as-listed, and every by-recipe section. The
- * existing markdown/document renderers then render the honest shopping payload.
- * Unavailable recipes are kept (their absence is itself worth copying). Pure. */
+/** Every check-off key belonging to a staple line (combined, as-listed, and
+ * by-recipe), de-duped. The panel seeds these into its "checked" set so staples
+ * start ticked (assumed on hand) in the "Be sure to double check" section — and
+ * un-ticking one there brings it back into the shopping payload. Pure. */
+export const stapleLineKeys = (list: ShoppingList): string[] => {
+  const keys = new Set<string>();
+  for (const l of list.combined.lines) if (l.staple === true) keys.add(combinedLineKey(l));
+  for (const l of list.combined.asListed) if (l.staple === true) keys.add(rawLineKey(l.raw));
+  for (const s of list.byRecipe) for (const l of s.lines) if (l.staple === true) keys.add(rawLineKey(l.raw));
+  return [...keys];
+};
+
+/** Produce a NEW list carrying only what still needs shopping: every line whose
+ * key the caller marks excluded (checked off as "already have" — staples included,
+ * since the panel seeds them checked) is dropped from combined lines, as-listed,
+ * and every by-recipe section. The existing markdown/document renderers then
+ * render the honest shopping payload. Unavailable recipes are kept (their absence
+ * is itself worth copying). Pure. */
 export const filterForShopping = (
   list: ShoppingList,
   isExcluded: (key: string) => boolean = () => false,
 ): ShoppingList => {
-  const keepCombined = (l: CombinedLine): boolean => l.staple !== true && !isExcluded(combinedLineKey(l));
-  const keepRaw = (l: { raw: string; staple?: boolean }): boolean =>
-    l.staple !== true && !isExcluded(rawLineKey(l.raw));
+  const keepCombined = (l: CombinedLine): boolean => !isExcluded(combinedLineKey(l));
+  const keepRaw = (l: { raw: string; staple?: boolean }): boolean => !isExcluded(rawLineKey(l.raw));
   return {
     byRecipe: list.byRecipe.map((s) => ({ ...s, lines: s.lines.filter(keepRaw) })),
     combined: {

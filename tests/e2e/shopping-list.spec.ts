@@ -136,7 +136,7 @@ test('public plan view: the shopping list builds both views (roll-up, flag, ×2 
   await expect(lasagna).toContainText('4 cups flour'); // 2 cups × the ×2 repeat
 });
 
-test('staples are annotated (not shopped), items check off, AI shopper copies instructions', async ({
+test('staples ride in "Be sure to double check" pre-checked; items check off; AI shopper copies instructions', async ({
   page,
   context,
 }) => {
@@ -160,10 +160,12 @@ test('staples are annotated (not shopped), items check off, AI shopper copies in
   const combined = page.getByTestId('shopping-combined');
   await expect(combined).toContainText('flour — 6 cups', { timeout: 15_000 });
 
-  // Salt (the staple) is annotated "Assumed on hand", NOT a checkable shop line.
-  const onHand = page.getByTestId('shopping-onhand');
-  await expect(onHand).toContainText('salt');
-  await expect(onHand).toContainText('on hand');
+  // Salt (the staple) sits in the bottom "Be sure to double check" section as a
+  // pre-checked box — NOT in the main shop list.
+  const doubleCheck = page.getByTestId('shopping-doublecheck');
+  await expect(doubleCheck).toContainText('Be sure to double check');
+  await expect(doubleCheck).toContainText('salt');
+  await expect(doubleCheck.getByTestId('shopping-check')).toBeChecked();
 
   // AI shopper: terse cart instructions with the custom block, minus the staple.
   const readClip = () => page.evaluate(() => navigator.clipboard.readText());
@@ -172,8 +174,14 @@ test('staples are annotated (not shopped), items check off, AI shopper copies in
   expect(clip).toContain('Add these grocery items to my shopping cart:');
   expect(clip).toContain('prefer versions we have bought before');
   expect(clip).toContain('flour — 6 cups');
-  expect(clip).not.toContain('salt'); // staple excluded from the payload
+  expect(clip).not.toContain('salt'); // pre-checked staple excluded from the payload
   expect(clip.toLowerCase()).not.toContain('recipe'); // no arecipe/recipe framing
+
+  // Un-tick the staple (I'm actually out of salt) → it joins the shopping list.
+  await doubleCheck.getByTestId('shopping-check').uncheck();
+  await page.getByTestId('shopping-ai').click();
+  clip = await readClip();
+  expect(clip).toContain('salt');
 
   // Check off "flour" in place → it drops from the next copy.
   await page.getByTestId('shopping-combined-line').filter({ hasText: 'flour' }).getByTestId('shopping-check').check();

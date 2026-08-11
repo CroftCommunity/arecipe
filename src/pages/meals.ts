@@ -80,6 +80,7 @@ import {
   resolveShoppingList,
   scaleIngredientLine,
   shoppingListFilename,
+  stapleLineKeys,
   type IngredientFetcher,
   type ShoppingList,
   type ShoppingPlan,
@@ -451,9 +452,11 @@ const buildShoppingListSection = (
     renderContent();
     try {
       const built = await resolveShoppingList(getPlan(), currentRange(), fetchIngredients);
-      // Flag staples (assumed on hand) so the panel annotates them and the
-      // payload drops them from copy/download/AI.
+      // Flag staples so they drop to the "Be sure to double check" section, and
+      // seed them CHECKED (assumed on hand) — so they start excluded from
+      // copy/download/AI, but the cook can un-tick one they're actually out of.
       list = applyStaples(built, staples);
+      for (const key of stapleLineKeys(list)) checked.add(key);
     } catch (err) {
       log.warn('meal-plan', 'shopping list build failed', { error: String(err) });
       contentEl.replaceChildren(el('p', 'status', `couldn’t build the list: ${String(err)}`));
@@ -542,25 +545,28 @@ const checkableLine = (text: string, key: string, extraClass: string, opts: Chec
   return li;
 };
 
-/** A muted "assumed on hand" line — a staple. Shown as an annotation, never
- * checkable, never part of the copied/downloaded/AI payload. */
-const stapleLine = (text: string): HTMLElement => {
-  const li = el('li', 'shopping-line shopping-staple');
-  li.dataset['testid'] = 'shopping-staple';
-  li.append(el('span', 'shopping-check-text', text), el('span', 'shopping-staple-tag', 'on hand'));
-  return li;
+/** The bottom "Be sure to double check" section: staples, pre-checked (assumed
+ * on hand → excluded from the payload). Un-tick one you're actually out of and it
+ * rejoins the shopping list. `rows` is [displayText, checkKey] pairs. */
+const doubleCheckSection = (rows: [string, string][], opts: CheckOpts): HTMLElement | null => {
+  if (rows.length === 0) return null;
+  const frag = el('div', 'shopping-doublecheck-section');
+  frag.dataset['testid'] = 'shopping-doublecheck';
+  frag.append(el('h4', 'shopping-subhead shopping-doublecheck-head', 'Be sure to double check'));
+  const ul = el('ul', 'shopping-list-ul shopping-checklist');
+  for (const [text, key] of rows) ul.append(checkableLine(text, key, 'shopping-doublecheck-line', opts));
+  frag.append(ul);
+  return frag;
 };
 
 /** The Combined tab as DOM (aggregated lines, "as listed", unavailable). Shop
- * lines are checkable; staples drop to a muted "Assumed on hand" annotation. With
- * `sources`, each aggregated line carries the recipes it was drawn from. */
+ * lines are checkable; staples drop to the pre-checked "Be sure to double check"
+ * section. With `sources`, each aggregated line carries its source recipes. */
 const renderCombinedDom = (list: ShoppingList, opts: { sources?: boolean } & CheckOpts = {}): HTMLElement => {
   const wrap = el('div', 'shopping-combined');
   wrap.dataset['testid'] = 'shopping-combined';
   const shopLines = list.combined.lines.filter((l) => l.staple !== true);
-  const stapleLines = list.combined.lines.filter((l) => l.staple === true);
   const shopAsListed = list.combined.asListed.filter((l) => l.staple !== true);
-  const stapleAsListed = list.combined.asListed.filter((l) => l.staple === true);
 
   if (list.combined.lines.length === 0) {
     wrap.append(el('p', 'status', 'Nothing to combine.'));
@@ -591,19 +597,18 @@ const renderCombinedDom = (list: ShoppingList, opts: { sources?: boolean } & Che
     }
     wrap.append(ul);
   }
-  if (stapleLines.length > 0 || stapleAsListed.length > 0) {
-    wrap.append(el('h4', 'shopping-subhead shopping-onhand-head', 'Assumed on hand'));
-    const ul = el('ul', 'shopping-list-ul shopping-onhand');
-    ul.dataset['testid'] = 'shopping-onhand';
-    for (const line of stapleLines) ul.append(stapleLine(combinedLineText(line, opts)));
-    for (const item of stapleAsListed) ul.append(stapleLine(item.raw));
-    wrap.append(ul);
-  }
+  const stapleRows: [string, string][] = [
+    ...list.combined.lines.filter((l) => l.staple === true).map((l): [string, string] => [combinedLineText(l, opts), combinedLineKey(l)]),
+    ...list.combined.asListed.filter((l) => l.staple === true).map((l): [string, string] => [l.raw, rawLineKey(l.raw)]),
+  ];
+  const dc = doubleCheckSection(stapleRows, opts);
+  if (dc !== null) wrap.append(dc);
   return wrap;
 };
 
 /** The By-recipe tab as DOM (one section per recipe, verbatim lines, flags).
- * Shop lines are checkable; staples render muted ("on hand") inline. With
+ * Shop lines are checkable; staples are pulled out to one shared, pre-checked
+ * "Be sure to double check" section at the bottom (deduped across recipes). With
  * `multiply`, each line's amount is scaled by the recipe's ×N (a bare line gets
  * an occurrence count; an unparseable line stays verbatim). */
 const renderByRecipeDom = (list: ShoppingList, opts: { multiply?: boolean } & CheckOpts = {}): HTMLElement => {
@@ -613,6 +618,8 @@ const renderByRecipeDom = (list: ShoppingList, opts: { multiply?: boolean } & Ch
   if (anyFlagged) {
     wrap.append(el('p', 'shopping-legend', '⚑ couldn’t be combined — check this line yourself.'));
   }
+  // Staples across every recipe, deduped by check key (first spelling wins).
+  const staples = new Map<string, string>();
   for (const s of list.byRecipe) {
     const sec = el('div', 'shopping-recipe-section');
     sec.dataset['testid'] = 'shopping-recipe-section';
@@ -626,17 +633,24 @@ const renderByRecipeDom = (list: ShoppingList, opts: { multiply?: boolean } & Ch
       for (const line of s.lines) {
         const text = opts.multiply === true ? scaleIngredientLine(line.raw, s.count) : line.raw;
         if (line.staple === true) {
-          ul.append(stapleLine(text));
+          const key = rawLineKey(line.raw);
+          if (!staples.has(key)) staples.set(key, text);
           continue;
         }
         const li = checkableLine(line.flagged ? `${text} ⚑` : text, rawLineKey(line.raw), line.flagged ? 'shopping-flagged' : '', opts);
         if (line.flagged) li.dataset['testid'] = 'shopping-flagged';
         ul.append(li);
       }
-      sec.append(ul);
+      if (ul.childElementCount === 0) {
+        sec.append(el('p', 'status', 'Only pantry staples — see below.'));
+      } else {
+        sec.append(ul);
+      }
     }
     wrap.append(sec);
   }
+  const dc = doubleCheckSection([...staples].map(([key, text]): [string, string] => [text, key]), opts);
+  if (dc !== null) wrap.append(dc);
   return wrap;
 };
 

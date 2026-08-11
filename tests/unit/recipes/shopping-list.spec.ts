@@ -19,6 +19,7 @@ import {
   parseIngredient,
   planDateBounds,
   rawLineKey,
+  stapleLineKeys,
   renderAiShopperText,
   renderByRecipeMarkdown,
   renderCombinedMarkdown,
@@ -523,23 +524,40 @@ describe('applyStaples — flags without dropping', () => {
   });
 });
 
+describe('stapleLineKeys — the "double check" seed', () => {
+  it('returns every staple line key (combined, as-listed, by-recipe), de-duped', () => {
+    const list = applyStaples(
+      buildShoppingList([recipe('Cake', ['2 cups flour', '2 pinches salt']), recipe('Soup', ['1 cup flour', '1 pinch salt'])]),
+      ['salt'],
+    );
+    // salt collapses to one shared key across both recipes + the combined line.
+    expect(stapleLineKeys(list)).toEqual([rawLineKey('2 pinches salt')]);
+    expect(stapleLineKeys(applyStaples(buildShoppingList([recipe('Cake', ['flour'])]), []))).toEqual([]);
+  });
+});
+
 describe('filterForShopping — the honest payload', () => {
-  it('drops staples and checked-off lines from both views', () => {
+  it('drops checked-off lines; staples ride in via the seeded check set', () => {
     const raw = buildShoppingList([
       recipe('Cake', ['2 cups flour', '2 pinches salt']),
       recipe('Soup', ['1 cup flour', 'cucumber']),
     ]);
     const withStaples = applyStaples(raw, ['salt']);
-    // Check off "cucumber" by its shared name key.
-    const checked = new Set([rawLineKey('cucumber')]);
+    // The panel seeds staples as checked; the cook also checks off cucumber.
+    const checked = new Set([...stapleLineKeys(withStaples), rawLineKey('cucumber')]);
     const out = filterForShopping(withStaples, (k) => checked.has(k));
     const names = out.combined.lines.map((l) => l.name).sort();
-    expect(names).toEqual(['flour']); // salt (staple) + cucumber (checked) gone
-    // By-recipe: salt is gone from Cake; cucumber gone from Soup.
+    expect(names).toEqual(['flour']); // salt (seeded) + cucumber (checked) gone
     const cake = out.byRecipe.find((s) => s.name === 'Cake')!;
     expect(cake.lines.map((l) => l.raw)).toEqual(['2 cups flour']);
     const soup = out.byRecipe.find((s) => s.name === 'Soup')!;
     expect(soup.lines.map((l) => l.raw)).toEqual(['1 cup flour']);
+  });
+  it('an UN-checked staple stays in the payload (double-checked → actually needed)', () => {
+    const withStaples = applyStaples(buildShoppingList([recipe('Cake', ['2 pinches salt', '2 cups flour'])]), ['salt']);
+    // Nothing checked → salt is still shoppable (the cook un-ticked it).
+    const out = filterForShopping(withStaples, () => false);
+    expect(out.combined.lines.map((l) => l.name).sort()).toEqual(['flour', 'salt']);
   });
   it('a combined key checked in one view removes it from the other', () => {
     const list = buildShoppingList([recipe('Cake', ['2 cups flour'])]);
