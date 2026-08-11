@@ -167,20 +167,28 @@ test('tap-to-place: arm a recipe, place it on a day, persist across reload, clea
   await expect(page.getByTestId('remove-week')).toHaveCount(2);
 });
 
-// Reset-surface v2 (D5): the meals reset is the SAME shared icon button as the
-// toolbar reset — a labelled, icon-only counterclockwise arrow. The confirm gate
-// is unchanged (covered below); this only pins the control's shape.
-test('reset control is the shared reset icon button (labelled, icon-only)', async ({ page }) => {
+// Reset-surface v3: the meals reset is a text button reading "Reset", styled
+// like Publish (the shared .plan-publish-btn footprint + rust fill). The confirm
+// gate is unchanged (covered below); this only pins the control's shape.
+test('reset control is a "Reset" text button styled like Publish', async ({ page }) => {
   await seedPalette(page);
   await page.goto('/plan.html');
   const reset = page.getByTestId('reset-plan');
   await expect(reset).toBeVisible();
+  await expect(reset).toHaveText('Reset');
   await expect(reset).toHaveAttribute('aria-label', 'Reset plan');
   await expect(reset).toHaveAttribute('title', 'Reset plan');
-  // Icon-only via the shared helper: the class + inline svg, no text label.
-  expect(await reset.evaluate((n) => n.classList.contains('reset-icon-btn'))).toBe(true);
-  expect(await reset.evaluate((n) => n.querySelector('svg') !== null)).toBe(true);
-  await expect(reset).toHaveText('');
+  // Styled like Publish: shares the enamel .button base and the .plan-reset-btn
+  // rust footprint, and is no longer the icon-only glyph.
+  expect(await reset.evaluate((n) => n.classList.contains('button'))).toBe(true);
+  expect(await reset.evaluate((n) => n.classList.contains('plan-reset-btn'))).toBe(true);
+  expect(await reset.evaluate((n) => n.classList.contains('reset-icon-btn'))).toBe(false);
+  expect(await reset.evaluate((n) => n.querySelector('svg'))).toBeNull();
+  // Same rust fill as the Publish button (styled-like-Publish check).
+  const publish = page.getByTestId('publish-plan');
+  const resetBg = await reset.evaluate((n) => getComputedStyle(n).backgroundColor);
+  const publishBg = await publish.evaluate((n) => getComputedStyle(n).backgroundColor);
+  expect(resetBg).toBe(publishBg);
 });
 
 test('reset: clears the plan back to one empty week (inline confirm; cancel is safe)', async ({
