@@ -40,6 +40,7 @@ import {
   PLANNED_SORT_MODES,
   sortEntries,
 } from '../recipes/sort.js';
+import { windowPage } from '../recipes/paginate.js';
 import { createPlannedIndexCache } from '../recipes/planned-index-local.js';
 import type { PlannedEntry } from '../recipes/planned-index.js';
 import { createTastePreference, matchesTaste } from '../recipes/taste-preference.js';
@@ -175,6 +176,33 @@ const renderFeedView = (
   // a source switch or a feed update() rebuilds.
   let query = '';
   const searchMemo = createSearchMemo();
+
+  // Windowing (Phase 6 of the 2026-08-06 sharding plan): a large cookbook must
+  // render ONE page of cards, not a card per record — same page size and pager
+  // as Browse. Any change to the result set snaps back to page 1.
+  const FEED_PAGE_SIZE = 50;
+  let feedOffset = 0;
+  const pager = el('div', 'browse-pager');
+  pager.dataset['testid'] = 'cookbook-pager';
+  const pagerPrev = el('button', 'palette-page-btn', '◀') as HTMLButtonElement;
+  pagerPrev.type = 'button';
+  pagerPrev.dataset['testid'] = 'cookbook-prev';
+  pagerPrev.setAttribute('aria-label', 'Previous page');
+  const pagerHint = el('span', 'browse-pager-hint');
+  const pagerNext = el('button', 'palette-page-btn', '▶') as HTMLButtonElement;
+  pagerNext.type = 'button';
+  pagerNext.dataset['testid'] = 'cookbook-next';
+  pagerNext.setAttribute('aria-label', 'Next page');
+  pager.append(pagerPrev, pagerHint, pagerNext);
+  pager.hidden = true;
+  pagerPrev.addEventListener('click', () => {
+    feedOffset = Math.max(0, feedOffset - FEED_PAGE_SIZE);
+    renderCurrent();
+  });
+  pagerNext.addEventListener('click', () => {
+    feedOffset += FEED_PAGE_SIZE;
+    renderCurrent();
+  });
   // Feed data is mutable so a background revalidate can swap it in place without
   // rebuilding the toolbar/source-control chrome (built once below).
   let entries = initialEntries;
@@ -269,6 +297,8 @@ const renderFeedView = (
   };
 
   const renderCurrent = (): void => {
+    pager.hidden = true; // shown again below only by the windowed path
+    pagerHint.textContent = '';
     if (source === 'liked' && likedLoading) {
       feedContainer.replaceChildren(el('p', 'status', 'loading your liked recipes…'));
       return;
@@ -346,7 +376,16 @@ const renderFeedView = (
       options.inSeasonUris = inSeasonUriSet(shown, ctx);
       seasonStrip = renderInSeasonStrip(inSeasonProduce(shown, ctx));
     }
-    const rendered = render(shown, options);
+    // Window the ordered set to one page; the arrows step through the rest
+    // (Phase 6 — a 4,000-entry cookbook must not build 4,000 cards).
+    const page = windowPage(shown, { offset: feedOffset, size: FEED_PAGE_SIZE });
+    feedOffset = page.total === 0 ? 0 : page.start - 1; // sync to the clamped window
+    const paged = page.total > FEED_PAGE_SIZE;
+    pager.hidden = !paged;
+    pagerHint.textContent = paged ? `Showing ${page.start}–${page.end} of ${page.total}` : '';
+    pagerPrev.disabled = !page.hasPrev;
+    pagerNext.disabled = !page.hasNext;
+    const rendered = render(page.items, options);
     if (seasonStrip !== null) feedContainer.replaceChildren(seasonStrip, rendered);
     else feedContainer.replaceChildren(rendered);
   };
@@ -371,6 +410,7 @@ const renderFeedView = (
       onPhotosToggle: (photosOnly) => {
         state = { ...state, photosOnly };
         prefs.save(state);
+        feedOffset = 0; // the result set changed — back to page 1
         renderCurrent();
       },
       onFacetChange: (dimension, value, checked) => {
@@ -379,15 +419,18 @@ const renderFeedView = (
         else selected.delete(value);
         state = { ...state, facets: { ...state.facets, [dimension]: [...selected] } };
         prefs.save(state);
+        feedOffset = 0;
         renderCurrent();
       },
       onQueryChange: (q) => {
         query = q;
+        feedOffset = 0;
         renderCurrent();
       },
       onSortChange: (sort) => {
         state = { ...state, sort };
         prefs.save(state);
+        feedOffset = 0; // reordered → back to page 1
         renderCurrent();
       },
       onReset: () => {
@@ -397,6 +440,7 @@ const renderFeedView = (
         toolbar.setSearch('');
         toolbar.setPhotos(false);
         if (resetSource !== null) resetSource(); // also clear the source line
+        feedOffset = 0;
         showCurrent();
       },
     },
@@ -405,6 +449,7 @@ const renderFeedView = (
   toolbar.reflectView(state.view);
   toolbar.setSort(state.sort);
   container.insertBefore(toolbar.element, feedContainer);
+  feedContainer.after(pager);
 
   // Source control — on every cookbook view, subject-relative: your own reads
   // Mine | Liked | Both; someone's shared cookbook reads Created | Liked | Both
@@ -456,6 +501,7 @@ const renderFeedView = (
       if (source === key) return;
       source = key;
       if (view.isOwn) sourcePref.save(source); // sticky across visits (own only)
+      feedOffset = 0; // a fresh source starts at page 1
       reflectSource();
       if (key !== 'mine' && likedEntries === null) {
         loadLiked(); // sets likedLoading = true

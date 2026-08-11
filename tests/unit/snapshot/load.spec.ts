@@ -6,6 +6,7 @@ import 'fake-indexeddb/auto';
 import { describe, expect, it } from 'vitest';
 import { loadSnapshotIndex, loadCookShard, loadSnapshotFeed } from '../../../src/snapshot/load.js';
 import { createRecipeCache } from '../../../src/recipes/cache.js';
+import { createSnapshotStore } from '../../../src/snapshot/store.js';
 import { createLogger, type LogSink } from '../../../src/log.js';
 
 const DID_A = 'did:plc:aaaaaaaaaaaaaaaaaaaaaaaa';
@@ -103,5 +104,79 @@ describe('loadSnapshotFeed', () => {
     const emptyFetch = (async () => okJson({ buildId: 'dev', cooks: [] })) as typeof fetch;
     const feed = await loadSnapshotFeed({ fetchFn: emptyFetch, cache: createRecipeCache({ dbName: `e-${Math.random()}` }), buildId: 'dev' });
     expect(feed).toBeNull();
+  });
+
+  // Phase 3 wiring (2026-08-06 sharding plan): the loader must use the BATCHED
+  // write path — one putMany per shard — not one connection per record. A spy
+  // cache proves the seam; retrievability proves the batch really landed.
+  it('hydrates each shard with ONE putMany, never per-record put', async () => {
+    const cache = createRecipeCache({ dbName: `batch-${Math.random()}` });
+    let putCalls = 0;
+    let putManyCalls = 0;
+    const spy: typeof cache = {
+      ...cache,
+      put: async (r) => {
+        putCalls += 1;
+        return cache.put(r);
+      },
+      putMany: async (rs) => {
+        putManyCalls += 1;
+        return cache.putMany(rs);
+      },
+    };
+    const feed = await loadSnapshotFeed({ fetchFn: bundleFetch(), cache: spy, buildId: 'dev' });
+    expect(feed!.entries).toHaveLength(3);
+    expect(putCalls).toBe(0);
+    expect(putManyCalls).toBe(2); // one per cook shard
+    expect(await cache.get(feed!.entries[0]!.uri)).toBeDefined();
+  });
+
+  it('reports each cook as it loads via onCookLoaded (progressive first paint)', async () => {
+    const cache = createRecipeCache({ dbName: `prog-${Math.random()}` });
+    const seen: [string, number][] = [];
+    await loadSnapshotFeed({
+      fetchFn: bundleFetch(),
+      cache,
+      buildId: 'dev',
+      onCookLoaded: (cook, entries) => seen.push([cook.did, entries.length]),
+    });
+    expect(seen.sort()).toEqual([
+      [DID_A, 2],
+      [DID_B, 1],
+    ]);
+  });
+
+  // Hydration fast path: a cook already hydrated for this build serves straight
+  // from the recipe cache — its shard is neither fetched nor re-verified.
+  it('serves an already-hydrated cook from IndexedDB without touching its shard', async () => {
+    const dbName = `fast-${Math.random()}`;
+    const storeDb = `fast-store-${Math.random()}`;
+    const cache = createRecipeCache({ dbName });
+    const store = createSnapshotStore({ buildId: 'dev', dbName: storeDb });
+    // First boot: normal hydration, records the marker.
+    const first = await loadSnapshotFeed({ fetchFn: bundleFetch(), cache, buildId: 'dev', store });
+    expect(first!.entries).toHaveLength(3);
+    // Second boot: shard requests now fail loudly — only index.json may load.
+    const indexOnly = (async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.endsWith('/index.json')) return okJson(index);
+      throw new Error(`unexpected shard fetch: ${url}`);
+    }) as typeof fetch;
+    const second = await loadSnapshotFeed({ fetchFn: indexOnly, cache, buildId: 'dev', store });
+    expect(second).not.toBeNull();
+    expect(second!.entries).toHaveLength(3);
+    expect(second!.entries.map((e) => (e.value as { name?: string }).name).sort()).toEqual(['Apple', 'Bread', 'Cake']);
+    // Cached entries keep their verification verdict.
+    expect(second!.entries.every((e) => typeof e.verified === 'boolean')).toBe(true);
+  });
+
+  it('falls back to the shard when the hydration marker outruns the cache', async () => {
+    const cache = createRecipeCache({ dbName: `stale-${Math.random()}` });
+    const store = createSnapshotStore({ buildId: 'dev', dbName: `stale-store-${Math.random()}` });
+    // A marker pointing at uris the cache does not hold (e.g. the recipe DB was
+    // cleared independently of the snapshot DB).
+    await store.setHydratedUris(DID_A, [rec(DID_A, 'a1', 'Apple').uri, rec(DID_A, 'a2', 'Bread').uri]);
+    const feed = await loadSnapshotFeed({ fetchFn: bundleFetch(), cache, buildId: 'dev', store });
+    expect(feed!.entries).toHaveLength(3); // shard fetch healed the gap
   });
 });

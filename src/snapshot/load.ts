@@ -9,6 +9,7 @@
 import { log as defaultLogger, type Logger } from '../log.js';
 import { createRecipeCache, type CachedRecipe, type RecipeCache } from '../recipes/cache.js';
 import { indexPath, manifestPath, cookShardPath, shardFilePath } from './paths.js';
+import type { SnapshotStore } from './store.js';
 import type { SnapshotIndex, SnapshotIndexCook, SnapshotManifest, SnapshotShard } from './types.js';
 
 type FetchFn = typeof fetch;
@@ -84,29 +85,89 @@ export type SnapshotFeed = {
  * cooks are loaded eagerly (full cards on first paint); sharded corpus cooks are
  * NOT eager-loaded here — first paint never loads the whole corpus (D6), their
  * recipes open a single shard on demand via loadRecipeShard. Records go through
- * cache.put so `verified` is honest (CID recompute) and the entries persist for
+ * cache.putMany (ONE transaction per shard — Phase 3 of the 2026-08-06 sharding
+ * plan) so `verified` is honest (CID recompute) and the entries persist for
  * revalidation. Returns null when there is no usable snapshot so boot falls back
  * to live loading.
+ *
+ * Two perf seams (recipe-loading perf run):
+ *  - `store`: once a cook has hydrated on this build, its uris are recorded; the
+ *    next boot serves those entries straight from the recipe cache — no shard
+ *    fetch/parse, no CID recompute. The marker outrunning the cache (recipe DB
+ *    cleared independently) falls back to the shard.
+ *  - `onCookLoaded`: cooks load in PARALLEL and each reports as it lands, so the
+ *    caller can paint small cooks immediately instead of waiting on the largest
+ *    shard.
  */
 export const loadSnapshotFeed = async (
-  opts: { fetchFn?: FetchFn; cache?: RecipeCache; buildId?: string; logger?: Logger } = {},
+  opts: {
+    fetchFn?: FetchFn;
+    cache?: RecipeCache;
+    buildId?: string;
+    logger?: Logger;
+    store?: SnapshotStore;
+    onCookLoaded?: (cook: { did: string; handle: string }, entries: CachedRecipe[]) => void;
+  } = {},
 ): Promise<SnapshotFeed | null> => {
   const fetchFn = opts.fetchFn ?? fetch;
   const cache = opts.cache ?? createRecipeCache();
+  const logger = opts.logger ?? defaultLogger;
+  const store = opts.store;
   const index = await loadSnapshotIndex({ fetchFn, url: indexPath(opts.buildId), logger: opts.logger });
   if (index === null || index.cooks.length === 0) return null;
 
   const authorsByDid: Record<string, string> = {};
-  const entries: CachedRecipe[] = [];
+  const eager: SnapshotIndexCook[] = [];
   for (const cook of index.cooks) {
     authorsByDid[cook.did] = cook.handle;
-    const named = shardFilesFor(cook);
-    if (named.length > 0) continue; // corpus cook: lazy, not eager (D6)
-    const shard = await loadCookShard({ fetchFn, url: cookShardPath(cook.did, opts.buildId), logger: opts.logger });
-    if (shard === null) continue;
-    for (const r of shard.records) entries.push(await cache.put(r));
+    if (shardFilesFor(cook).length === 0) eager.push(cook); // else corpus cook: lazy, not eager (D6)
   }
-  return { entries, authorsByDid, index };
+
+  const loadCook = async (cook: SnapshotIndexCook): Promise<CachedRecipe[]> => {
+    // Hydration fast path: a cook already hydrated on this build serves from
+    // the recipe cache via a PER-COOK key-range read (`at://<did>/` prefix) —
+    // never a whole-store scan, so a small cook's first paint cannot wait on
+    // the corpus-sized cook's rows.
+    if (store !== undefined) {
+      const uris = await store.getHydratedUris(cook.did).catch(() => null);
+      if (uris !== null) {
+        try {
+          const byUri = new Map(
+            (await cache.listByUriPrefix(`at://${cook.did}/`)).map((e) => [e.uri, e]),
+          );
+          const fromCache = uris
+            .map((u) => byUri.get(u))
+            .filter((e): e is CachedRecipe => e !== undefined);
+          // Serve from cache only when it holds the FULL hydrated set; a gap
+          // means the recipe DB was cleared out from under the marker — heal
+          // via the shard.
+          if (fromCache.length === uris.length) return fromCache;
+        } catch (err) {
+          logger.warn('snapshot', 'cache read failed — hydrating from shard', {
+            did: cook.did,
+            error: String(err),
+          });
+        }
+      }
+    }
+    const shard = await loadCookShard({ fetchFn, url: cookShardPath(cook.did, opts.buildId), logger: opts.logger });
+    if (shard === null) return [];
+    const entries = await cache.putMany(shard.records);
+    if (store !== undefined) {
+      // Best-effort: a failed marker write only costs the fast path next boot.
+      void store.setHydratedUris(cook.did, entries.map((e) => e.uri)).catch(() => undefined);
+    }
+    return entries;
+  };
+
+  const perCook = await Promise.all(
+    eager.map(async (cook) => {
+      const entries = await loadCook(cook);
+      if (entries.length > 0) opts.onCookLoaded?.({ did: cook.did, handle: cook.handle }, entries);
+      return entries;
+    }),
+  );
+  return { entries: perCook.flat(), authorsByDid, index };
 };
 
 /**

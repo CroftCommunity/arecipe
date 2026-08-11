@@ -1,6 +1,14 @@
 # Plan: shard the bundled snapshot, cache images offline, and make the gap testable
 
-**Date:** 2026-08-06 · **Status:** planned (Pass 1+2 complete; Pass 3 pending)
+**Date:** 2026-08-06 · **Status:** planned (Pass 1+2 complete; Pass 3 pending) ·
+**Phases 3 + 6 implemented 2026-08-11** (recipe-loading perf run, branch
+`claude/recipe-loading-perf-u6aaez`) along with three companion fixes outside
+this plan's phase list: a per-build hydration marker so a warm boot serves
+eager cooks straight from IndexedDB (no shard fetch/parse, no CID recompute),
+progressive per-cook painting in `loadSnapshotFeed` (small cooks stop waiting
+on the corpus shard), and a snapshot-first default feed for the meal planner's
+Browse palette source (which had been re-paging the whole corpus live from the
+PDS on every plan-page visit). Phases 1, 2, 2B, 4, 5, 7, 8 remain open.
 
 ## Problem Statement
 
@@ -400,21 +408,25 @@ survives (the gating question above).
 
 ---
 
-### Phase 3: Batch the IndexedDB writes
+### Phase 3: Batch the IndexedDB writes — **DONE 2026-08-11**
 
 **Goal:** Hydrating a cook stops costing one DB connection per record.
 **Changes:**
-- [ ] `src/recipes/cache.ts` — add `putMany(records)` using one connection and
+- [x] `src/recipes/cache.ts` — add `putMany(records)` using one connection and
       one transaction; keep `put` for single writes.
-- [ ] `src/snapshot/load.ts` — replace the per-record `await cache.put` loop
+- [x] `src/snapshot/load.ts` — replace the per-record `await cache.put` loop
       (line 106) with a single `putMany` per shard.
-- [ ] `src/pages/browse.ts` — **line 703** does the same per-record `cache.put`
+- [x] `src/pages/browse.ts` — **line 703** does the same per-record `cache.put`
       on the *revalidation* path (`onChanged`). Found while tracing Q4; batching
       only `load.ts` would leave the pathology live on exactly the path that
       hurts most — a rev change re-writes all 4,041 records one connection at a
       time.
-- [ ] `tests/unit/recipes/cache.spec.ts` — `putMany` verifies every CID, marks
+- [x] `tests/unit/recipes/cache.spec.ts` — `putMany` verifies every CID, marks
       mismatches unverified, and writes all records in one transaction.
+- [x] *(beyond plan)* `src/social/feed.ts` — `loadAuthorsFeed` had the same
+      pathology on the LIVE path (`Promise.all` of per-record `put`s = one
+      IndexedDB connection per record, thousands at once); now one `putMany`
+      per author. Also `browse.ts`'s handle-lookup path.
 
 **Call chain:** `loadSnapshotFeed` → `cache.putMany(shard.records)` →
 `inStore`-equivalent single transaction → IndexedDB.
@@ -515,13 +527,13 @@ falling straight to the placeholder.
 
 ---
 
-### Phase 6: Window the cookbook list
+### Phase 6: Window the cookbook list — **DONE 2026-08-11**
 
 **Goal:** Cookbook stops building a card per record.
 **Changes:**
-- [ ] `src/pages/cookbook.ts` — window with `windowPage` as browse does
+- [x] `src/pages/cookbook.ts` — window with `windowPage` as browse does
       (`browse.ts:322`), same page size and arrows.
-- [ ] `tests/e2e/cookbook-window.spec.ts` — a large cookbook renders one page,
+- [x] `tests/e2e/cookbook-window.spec.ts` — a large cookbook renders one page,
       not every entry.
 
 **Call chain:** `cookbook.ts` render → `windowPage(entries, …)` →
