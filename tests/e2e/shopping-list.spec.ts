@@ -20,7 +20,7 @@ const recipeValue = (name: string, ingredients: string[]) => ({
 
 // rkey → ingredients (missing rkey → 404, i.e. an unresolvable recipe).
 const RECIPES: Record<string, { name: string; ingredients: string[] }> = {
-  lasagna: { name: 'Lasagna', ingredients: ['2 cups flour', '2 cups', 'cucumber'] },
+  lasagna: { name: 'Lasagna', ingredients: ['2 cups flour', '2 cups', 'cucumber', '2 pinches salt'] },
   salad: { name: 'Salad', ingredients: ['1 cup flour', 'cucumber'] },
 };
 
@@ -134,6 +134,73 @@ test('public plan view: the shopping list builds both views (roll-up, flag, ×2 
   await page.getByTestId('shopping-tab-byrecipe').click();
   await expect(detail).toHaveText('Amounts ×N'); // label reflects the active tab
   await expect(lasagna).toContainText('4 cups flour'); // 2 cups × the ×2 repeat
+});
+
+test('staples ride in "Be sure to double check" pre-checked; items check off; AI shopper copies instructions', async ({
+  page,
+  context,
+}) => {
+  await routeAll(page);
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  // Account-page prefs: salt is a staple; a standing AI-shopper instruction.
+  await page.addInitScript(() => {
+    try {
+      localStorage.setItem(
+        'shopping-prefs',
+        JSON.stringify({ staples: ['salt'], aiInstructions: 'prefer versions we have bought before' }),
+      );
+    } catch {
+      /* private mode */
+    }
+  });
+  await page.goto(`/meals.html?mealplan=plan-1&user=${encodeURIComponent(OWNER)}`);
+  await page.getByTestId('shopping-list-open').click({ timeout: 15_000 });
+
+  await page.getByTestId('shopping-tab-combined').click();
+  const combined = page.getByTestId('shopping-combined');
+  await expect(combined).toContainText('flour — 6 cups', { timeout: 15_000 });
+
+  // Salt (the staple) sits in the bottom "Be sure to double check" section as a
+  // pre-checked box — NOT in the main shop list.
+  const doubleCheck = page.getByTestId('shopping-doublecheck');
+  await expect(doubleCheck).toContainText('Be sure to double check');
+  await expect(doubleCheck).toContainText('salt');
+  await expect(doubleCheck.getByTestId('shopping-check')).toBeChecked();
+
+  // AI shopper: terse cart instructions with the custom block, minus the staple.
+  const readClip = () => page.evaluate(() => navigator.clipboard.readText());
+  await page.getByTestId('shopping-ai').click();
+  let clip = await readClip();
+  expect(clip).toContain('Add these grocery items to my shopping cart:');
+  expect(clip).toContain('prefer versions we have bought before');
+  expect(clip).toContain('flour — 6 cups');
+  expect(clip).not.toContain('salt'); // pre-checked staple excluded from the payload
+  expect(clip.toLowerCase()).not.toContain('recipe'); // no arecipe/recipe framing
+
+  // Un-tick the staple (I'm actually out of salt) → it joins the shopping list.
+  await doubleCheck.getByTestId('shopping-check').uncheck();
+  await page.getByTestId('shopping-ai').click();
+  clip = await readClip();
+  expect(clip).toContain('salt');
+
+  // Check off "flour" in place → it drops from the next copy.
+  await page.getByTestId('shopping-combined-line').filter({ hasText: 'flour' }).getByTestId('shopping-check').check();
+  await page.getByTestId('shopping-ai').click();
+  clip = await readClip();
+  expect(clip).not.toContain('flour');
+  expect(clip).toContain('cucumber'); // an unchecked item still shops
+});
+
+test('with no staples configured, the shopping list shows a discoverability hint', async ({ page }) => {
+  await routeAll(page);
+  await page.goto(`/meals.html?mealplan=plan-1&user=${encodeURIComponent(OWNER)}`);
+  await page.getByTestId('shopping-list-open').click({ timeout: 15_000 });
+  await page.getByTestId('shopping-byrecipe').waitFor({ timeout: 15_000 });
+  const hint = page.getByTestId('shopping-staple-hint');
+  await expect(hint).toContainText('add pantry staples');
+  await expect(hint.getByRole('link', { name: 'your Account' })).toHaveAttribute('href', './account.html');
+  // No "double check" section when nothing matched.
+  await expect(page.getByTestId('shopping-doublecheck')).toHaveCount(0);
 });
 
 test('shopping panel fits a narrow phone without horizontal overflow', async ({ page }) => {

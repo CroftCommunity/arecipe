@@ -164,6 +164,42 @@ test('account taste "Never show me" excludes via per-dimension dropdowns with pe
   await expect(page.getByTestId('taste-never-cuisine-thai')).not.toBeChecked();
 });
 
+test('shopping prefs: staples add/remove and AI instructions persist (device-local)', async ({
+  page,
+}) => {
+  await page.goto('/account.html');
+  const section = page.getByTestId('shopping-prefs');
+  await expect(section).toBeVisible({ timeout: 15_000 });
+  await expect(section).toContainText('Staples');
+
+  // Add two staples via the chip input (Enter commits; blanks/dupes are dropped).
+  const input = page.getByTestId('staples-input');
+  await input.fill('salt');
+  await input.press('Enter');
+  await input.fill('Pepper');
+  await page.getByTestId('staples-add').click();
+  await input.fill('salt'); // duplicate (case-insensitive) — no new chip
+  await input.press('Enter');
+  await expect(page.getByTestId('staple-chip')).toHaveCount(2);
+
+  // AI instructions persist too.
+  await page.getByTestId('ai-instructions').fill('prefer versions we have bought before');
+  await page.getByTestId('ai-instructions').blur();
+
+  // Both survive a reload (device-local storage).
+  await page.reload();
+  await expect(page.getByTestId('staple-chip')).toHaveCount(2);
+  await expect(page.getByTestId('shopping-prefs')).toContainText('salt');
+  await expect(page.getByTestId('ai-instructions')).toHaveValue('prefer versions we have bought before');
+
+  // Remove one staple → one chip remains, persisted.
+  await page.getByTestId('staple-chip').filter({ hasText: 'salt' }).getByRole('button').click();
+  await expect(page.getByTestId('staple-chip')).toHaveCount(1);
+  await page.reload();
+  await expect(page.getByTestId('staple-chip')).toHaveCount(1);
+  await expect(page.getByTestId('staple-chip')).toContainText('Pepper');
+});
+
 // Danger zone (plan 2026-07-16-5): sign out + "Delete all arecipe data" both
 // need a session, so the signed-out page renders NEITHER control (the flows
 // themselves are unit-tested; the signed-in mount is proven @live).
