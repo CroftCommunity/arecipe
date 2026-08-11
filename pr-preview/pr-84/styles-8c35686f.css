@@ -2783,27 +2783,13 @@ table.ref.pairs td.eq {
   text-decoration: line-through;
   opacity: 0.55;
 }
-/* Staples: assumed on hand — muted annotation, never copied. */
-.shopping-onhand-head {
-  opacity: 0.7;
-}
-.shopping-staple {
-  display: flex;
-  align-items: baseline;
-  gap: var(--s-2);
-  opacity: 0.7;
-}
-.shopping-staple .shopping-check-text {
-  overflow-wrap: anywhere;
-}
-.shopping-staple-tag {
-  flex: 0 0 auto;
-  font-size: var(--t-caption);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: 0 var(--s-1);
-  border: var(--stroke) solid var(--line);
-  border-radius: var(--r-s);
+/* "Be sure to double check": staples, pre-checked (assumed on hand). Set off
+   from the shop list with a rule + muted heading; un-tick one to shop it. */
+.shopping-doublecheck-head {
+  opacity: 0.75;
+  margin-top: var(--s-3);
+  padding-top: var(--s-3);
+  border-top: var(--stroke) solid var(--line);
 }
 /* The AI-shopper copy button reads as a secondary action beside Copy. */
 .shopping-ai {
