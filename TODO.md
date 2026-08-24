@@ -122,3 +122,21 @@ loose ideas a later session can pick up.
         drafts is the natural place to point cooks at attribution norms.
       Source of truth for accuracy: `plans/2026-07-18-1-plan-recipe-import.md`.
       _Noted 2026-07-18 during the recipe-import run._
+
+- [ ] **Ingredient normalization + substitution engine — plan filed, execution
+      not scheduled.** `plans/2026-08-12-1-plan-ingredient-normalization-and-substitutions.md`
+      supersedes PR #87's direct-regex matching (PR is OPEN; whether its UI
+      shell survives is deliberately a **Phase 0 decision**, don't merge or
+      close it ahead of that). Mostly-deterministic hybrid: build-time reviewed
+      `ingredientkeys.json` (the `dishKey` workflow applied to ingredients) →
+      pure matcher on `parseIngredient` output → search-by-ingredient →
+      substitution rules seeded from the reference-view pairs tables → local
+      correction overlay (`exclusions.ts` idiom) → decision GATE → optional
+      closed-set MiniLM fuzzy tier. Before execution: (a) decide the pending
+      **external-DB amendment** — USDA FDC / FoodOn / the annotated
+      ingredient-phrase datasets / FoodKG were scoped in-dialogue as Phase 1
+      seed + Phase 2 fixture inputs behind the same human review, but were
+      never folded into the plan file (licensing claims unverified); (b) the
+      Phase 2 coverage floor (90%) is a placeholder pending the Phase 0 census.
+      Cross-repo tracking: discovery ROADMAP_TODO **E119**. _Noted 2026-08-23
+      (plan dated 2026-08-12)._
