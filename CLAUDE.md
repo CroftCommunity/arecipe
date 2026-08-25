@@ -188,3 +188,11 @@ deployed a preview for, confirm the preview is gone and remove it if it isn't:
 **Confirm** the teardown: `curl -sI https://arecipe.app/pr-preview/pr-<N>/` →
 `404` (and the base site still `200`). A `--remove` that reports "no changes to
 publish" means it was already gone — that's success, not an error.
+
+## Concurrent sessions (workspace norm)
+
+Multiple agent sessions share the `CroftC/` workspace. Do multi-turn work in a dedicated
+worktree — `git -C arecipe worktree add ../worktrees/arecipe/<slug> -b claude/<slug>` — never in
+this checkout (peer sessions stage with `git add -A`; loose files get swept into unrelated
+commits). Contested surfaces here — claim in `CroftC/.coordination/claims/` before
+touching: **landing on `main`**. Note: `worktrees/arecipe/wbsync` is a registered exception (deliberately detached, holds the sole gitignored corpus copy — never remove it). Full protocol and the reasons behind it: `CroftC/.claude/COORDINATION.md`.
