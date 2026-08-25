@@ -1,5 +1,9 @@
 # arecipe — TODO / backlog
 
+> Repo operations / deferred items only. The product/design backlog of record is
+> `discovery/alpha/ROADMAP_TODO.md`; the tracking scheme is `CroftC/.claude/TRACKING.md`.
+> Cross-reference E-numbers where an item here implements a backlog row.
+
 Actionable, not-yet-scheduled items. Feature deferrals with rationale live in
 `docs/BUILD-PLAN.md` § Deferred; this file is for tooling/QA follow-ups and
 loose ideas a later session can pick up.
