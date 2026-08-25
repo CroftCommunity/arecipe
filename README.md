@@ -24,7 +24,7 @@ npm run serve               # serve dist/ at http://127.0.0.1:4173
 
 Two test tiers: the **hermetic** tier above needs no credentials or network
 beyond localhost and runs in CI on every push. The **`@live`** tier (real-PDS
-suites, arriving with the auth phase) needs the out-of-band test-account
+suites, run via `npm run test:live`) needs the out-of-band test-account
 credential in a gitignored `.env` and runs locally as a phase gate — never in
 push CI.
 
