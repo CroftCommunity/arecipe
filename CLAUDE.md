@@ -5,7 +5,8 @@
 **Scope:** Zero-backend recipe PWA on atproto (`app.arecipe.*` lexicons, PDS-resident data) + Wikibooks corpus tooling.
 **Not this repo:** the marketing/treatise page (arecipe_treatise); generic atproto auth patterns (workspace prior art — DECISIONS.md).
 **Provides:** the arecipe.app PWA. **Consumes:** `@atproto/oauth-client-browser`, user PDSes.
-Card + altitudes: `CroftC/.claude/ARCHITECTURE.md`.
+Card + altitudes: `CroftC/.claude/ARCHITECTURE.md`. (`ui-lab/` = mock-data-only UI
+explorations, Phase 9c/9d — never live data.)
 
 arecipe is a zero-backend recipe-sharing **SPA/PWA on the AT Protocol** (atproto).
 No server: all data lives in the user's PDS repo or in the browser. Vanilla
