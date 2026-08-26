@@ -254,7 +254,9 @@ to be implemented with the page-per-destination restructure:
   `--yolk-deep` exists.
 - `prefers-reduced-motion` respected; motion is at most a 120ms border/color
   ease anywhere.
-- Mobile-first: single-column detail below 40rem; touch targets ≥ 40px.
+- Mobile-first: single-column detail below 40rem; touch targets ≥ 44px (WCAG
+  2.5.5 — the workspace floor, `CroftC/.claude/MOBILE-FIRST.md`; this is what
+  `tests/e2e/mobile-fit.spec.ts` has always asserted).
 
 ## Recipe versions, fun facts & focus (recipe-model-extensions)
 
