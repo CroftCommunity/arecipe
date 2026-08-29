@@ -1,0 +1,30 @@
+# The workspace secret-scanning gate. Defined once in croft-pwa; this file only
+# calls it, so the pinned scanner version lives in one place (CI-PATTERN rule 7).
+#
+# Rule and why: CroftC/.claude/SUPPLY-CHAIN.md rule 1. GitHub's own free secret
+# scanning covers PUBLIC repos only and alerts rather than blocks; this gate blocks,
+# and it reaches the private repos too.
+#
+# Extra allowlists for this repo go in `.gitleaks-extra.toml` at the root — appended to
+# the workspace baseline, never replacing it.
+
+name: security
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  # A new detector, or a secret older than any PR, needs a scan that is not triggered
+  # by a change. This is also the only trigger that reaches a repo which has gone quiet.
+  schedule:
+    - cron: "17 6 * * 1"
+  # The manual path: GitHub throttles webhook deliveries during Actions incidents, and
+  # dispatch is exempt (croft-pwa docs/CI.md §8).
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  secrets:
+    uses: CroftCommunity/croft-pwa/.github/workflows/security-reusable.yml@main
