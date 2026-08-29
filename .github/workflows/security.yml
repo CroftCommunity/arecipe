@@ -1,12 +1,17 @@
-# The workspace secret-scanning gate. Defined once in croft-pwa; this file only
-# calls it, so the pinned scanner version lives in one place (CI-PATTERN rule 7).
+# The workspace security gates — secrets AND dependencies. Defined once in croft-pwa
+# (docs/CI.md rule 9); this file only calls it, so the pinned scanner versions live in
+# one place (CI-PATTERN rule 7).
 #
-# Rule and why: CroftC/.claude/SUPPLY-CHAIN.md rule 1. GitHub's own free secret
+# Rule and why: CroftC/.claude/SUPPLY-CHAIN.md rules 1 and 3. GitHub's own free secret
 # scanning covers PUBLIC repos only and alerts rather than blocks; this gate blocks,
-# and it reaches the private repos too.
+# and it reaches the private repos too. The dependency half does not read severities:
+# it decides rule 5 rung 2 — whether the vulnerable package is on the production path
+# of a SHIPPED artifact — because croft's Android scan reports 43 advisories, 19 of
+# them High, and none of them reach the APK.
 #
-# Extra allowlists for this repo go in `.gitleaks-extra.toml` at the root — appended to
-# the workspace baseline, never replacing it.
+# Extra secret allowlists for this repo go in `.gitleaks-extra.toml` at the root —
+# appended to the workspace baseline, never replacing it. A repo that publishes nothing
+# from a subtree (frozen spikes, proofs) passes `advisory-paths` below.
 
 name: security
 
@@ -26,5 +31,5 @@ permissions:
   contents: read
 
 jobs:
-  secrets:
+  security:
     uses: CroftCommunity/croft-pwa/.github/workflows/security-reusable.yml@main
