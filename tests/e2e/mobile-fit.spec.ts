@@ -56,7 +56,7 @@ const PAGES: { name: string; path: string; ready: string }[] = [
   { name: 'menu', path: '/meals.html', ready: '[data-testid=published-plans]' },
   { name: 'settings', path: '/settings.html', ready: '[data-testid=build-facts]' },
   { name: 'account', path: '/account.html', ready: '[data-testid=account-signed-out]' },
-  { name: 'signin', path: '/signin.html', ready: 'form' },
+  { name: 'signin', path: '/signin.html', ready: '[data-testid=provider-other]' },
   { name: 'editor', path: '/editor.html', ready: '[data-testid=editor-name]' },
   { name: 'alchemy', path: '/mine.html', ready: '[data-testid=new-recipe]' },
   { name: 'user-guide', path: '/user-guide.html', ready: '[data-testid=user-guide-title]' },

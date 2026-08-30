@@ -150,12 +150,12 @@ loose ideas a later session can pick up.
 
 ## Design standard gaps (croft-pwa/docs/DESIGN.md)
 
-- [ ] **Sign-in copy: the noun is "atmo provider", not Bluesky.** `src/pages/signin.ts`
+- [x] ~~**Sign-in copy: the noun is "atmo provider", not Bluesky.**~~ DONE 2026-08-30 (signin-pattern). `src/pages/signin.ts`
   says *Sign in with your Bluesky handle to save recipes…* and the placeholder names
   `name.bsky.social` for a field that takes a handle on any host. Use the sheet's words
   and the verbatim gloss (DESIGN.md § Copy). Workspace audit check 45 FLAGs this until it
   changes.
-- [ ] **Adopt the sign-in flow.** `signin.html` is handle-only with no provider registry
+- [x] ~~**Adopt the sign-in flow.**~~ DONE 2026-08-30 (signin-pattern; `src/auth/providers.{json,ts}`, `tests/e2e/signin.spec.ts`, `tests/e2e/providers-live.spec.ts`). `signin.html` was handle-only with no provider registry
   and no Create. Adopt DESIGN.md § Flows › Sign in — registry with probed posture + live
   drift check, two panels split by posture, Create only where signups are open, the handle
   seam; reference `croft-pwa/src/signin/`. The dedicated page is a legitimate container

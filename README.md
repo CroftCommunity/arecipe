@@ -36,7 +36,9 @@ The legacy `friends.html` redirects here), `mine.html` (Alchemy — your draftin
 workspace; account-free; no longer hosts the login form), `meals.html` (Meals —
 a weekly meal planner: assign recipes to days, repeat weeks onto a calendar),
 `signin.html` (the dedicated
-sign-in page — atproto OAuth, forwards to Cookbook on success),
+sign-in page — "Choose your atmo provider", the workspace sign-in pattern from
+`croft-pwa/docs/DESIGN.md`: pick a provider or bring a handle; atproto OAuth, forwards to
+Cookbook on success),
 `settings.html`, plus `recipe.html`, `dish.html` (compare a dish's alternative
 versions side by side — the recipe page's "View All"), and `editor.html`.
 

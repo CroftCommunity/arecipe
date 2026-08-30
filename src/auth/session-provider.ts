@@ -14,7 +14,14 @@ import { setSessionHint } from './session-hint.js';
 /** The slice of BrowserOAuthClient the provider consumes (injectable for tests). */
 export type OAuthClientPort = {
   init: () => Promise<{ session: OAuthSessionLike } | undefined>;
-  signIn: (handle: string) => Promise<unknown>;
+  signIn: (target: string, options?: SignInOptions) => Promise<unknown>;
+};
+
+/** Sign-in intent (DESIGN.md § Flows › Sign in rule 4): `create` lands in the
+ * provider's registration wizard instead of its sign-in screen. Only ever sent
+ * for a provider start where signups are open. */
+export type SignInOptions = {
+  readonly prompt?: 'create';
 };
 
 /** The slice of OAuthSession the provider consumes. */
@@ -28,8 +35,10 @@ export type OAuthSessionLike = {
 export type SessionProvider = {
   /** Restore an existing session (or complete a login callback). Null when signed out. */
   restore: () => Promise<Agent | null>;
-  /** Begin the interactive sign-in redirect. Resolves only on failure/abort. */
-  signIn: (handle: string) => Promise<void>;
+  /** Begin the interactive sign-in redirect at a handle, DID, or provider
+   * ENTRYWAY (https origin — server first, the DID comes back in the token).
+   * Resolves only on failure/abort. */
+  signIn: (target: string, options?: SignInOptions) => Promise<void>;
   /** Revoke the restored session. No-op when signed out. */
   signOut: () => Promise<void>;
   /**
@@ -55,9 +64,13 @@ export const createOAuthSessionProvider = (opts: { client: OAuthClientPort }): S
       log.info('auth', 'session restored', { did: current.did });
       return new Agent(result.session);
     },
-    signIn: async (handle) => {
-      log.info('auth', 'sign-in initiated', { handle });
-      await opts.client.signIn(handle);
+    signIn: async (target, options) => {
+      log.info('auth', 'sign-in initiated', { target, prompt: options?.prompt ?? '' });
+      // Forwarded verbatim and ONLY when given: an options-less call must not
+      // invent a prompt (the official client treats undefined and {} alike, but
+      // the test pins the seam so a future default cannot creep in).
+      if (options === undefined) await opts.client.signIn(target);
+      else await opts.client.signIn(target, options);
     },
     signOut: async () => {
       if (current === null) return;

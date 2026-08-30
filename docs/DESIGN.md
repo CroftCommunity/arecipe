@@ -209,8 +209,14 @@ to be implemented with the page-per-destination restructure:
   reachable while signed in.
 - **Sign-in is its own page** (`signin.html`): authentication is a distinct
   task with a distinct mental model, so it gets a dedicated document rather than
-  a section on Alchemy — enter a handle, sign in via atproto OAuth, land in
-  the app (forwards to Cookbook on success). Every signed-out "Sign in"
+  a section on Alchemy — and since 2026-08-30 its content is the workspace
+  sign-in pattern (`CroftC/.claude/DESIGN.md` → `croft-pwa/docs/DESIGN.md`
+  § Flows › Sign in): "Choose your atmo provider", a probed provider registry
+  (`src/auth/providers.json`, drift-checked by the @live tier), open providers
+  with Create account + Sign in, invite-only providers and the any-handle field
+  behind "Another provider". The page container is the recorded variant; the
+  copy, registry and both-direction Create rule are the pattern's. Sign in via
+  atproto OAuth, land in the app (forwards to Cookbook on success). Every signed-out "Sign in"
   affordance (nav top-right, the Account note, the Alchemy pointer) points
   here. (The Cookbook no longer has a signed-out gate — it redirects to Browse.) **Alchemy stays account-free for drafting**: signed
   out it shows New recipe + local Drafts plus a short pointer to `signin.html`,

@@ -67,10 +67,10 @@ const blueskyEntry: GuideEntry = {
   build: (entry) => {
     entry.append(
       p(
-        'arecipe has no server of its own. When you sign in, you sign in with a ',
-        'Bluesky account — because Bluesky is built on an open network (the AT ',
-        'Protocol) where every account comes with its own small, public data ',
-        'store. Everything you publish through arecipe — recipes, likes, ',
+        'arecipe has no server of its own. When you sign in, you sign in with an ',
+        'account from an atmo provider — a Personal Data Server provider in the ',
+        'open social Atmosphere; Bluesky is one of many — because the network ',
+        '(the AT Protocol) gives every account its own small, public data store. Everything you publish through arecipe — recipes, likes, ',
         'comments, published meal plans — is saved there, in your account, not ',
         'on some arecipe database. That has three consequences worth knowing.',
       ),
