@@ -176,6 +176,64 @@ test('intact cards are clean; detail carries the human provenance line', async (
   await expect(page.getByTestId('provenance').first()).toContainText('fingerprint matches');
 });
 
+// Substitutions (⇄): opt-in on the recipe page. The toggle appears only when a
+// configured substitution matches a line here; checking it strikes the original
+// and shows the preferred swap. The Account "always apply" pref seeds it on.
+test('recipe page: Apply ⇄ toggle swaps a matching ingredient (opt-in)', async ({ page }) => {
+  await routeFixtures(page);
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'shopping-prefs',
+      JSON.stringify({
+        staples: [],
+        aiInstructions: '',
+        substitutions: [{ from: 'bread flour', to: 'almond flour' }],
+        alwaysApplySubstitutions: false,
+      }),
+    );
+  });
+  const uri = `at://${AUTHOR_DID}/exchange.recipe.recipe/01JQJ5RW51ZVEW72XN6GSRWC8D`;
+  await page.goto(`/recipe.html?u=${encodeURIComponent(uri)}&by=somechef.example.com`);
+  await expect(page.locator('h2')).toContainText('White Chocolate', { timeout: 15_000 });
+
+  const ing = page.getByTestId('recipe-ingredients');
+  const toggle = page.getByTestId('apply-substitutions');
+  await expect(toggle).not.toBeChecked();
+  await expect(ing.locator('del')).toHaveCount(0);
+  await expect(ing).toContainText('500 g bread flour');
+
+  // Check it → the flour line is struck through and the swap shows beside it.
+  await toggle.check();
+  await expect(ing.locator('del').first()).toHaveText('500 g bread flour');
+  await expect(ing).toContainText('almond flour');
+
+  // Unchecking restores the plain list.
+  await toggle.uncheck();
+  await expect(ing.locator('del')).toHaveCount(0);
+});
+
+test('recipe page: "always apply substitutions" opens with the ⇄ toggle already on', async ({
+  page,
+}) => {
+  await routeFixtures(page);
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'shopping-prefs',
+      JSON.stringify({
+        staples: [],
+        aiInstructions: '',
+        substitutions: [{ from: 'bread flour', to: 'almond flour' }],
+        alwaysApplySubstitutions: true,
+      }),
+    );
+  });
+  const uri = `at://${AUTHOR_DID}/exchange.recipe.recipe/01JQJ5RW51ZVEW72XN6GSRWC8D`;
+  await page.goto(`/recipe.html?u=${encodeURIComponent(uri)}&by=somechef.example.com`);
+  await expect(page.locator('h2')).toContainText('White Chocolate', { timeout: 15_000 });
+  await expect(page.getByTestId('apply-substitutions')).toBeChecked();
+  await expect(page.getByTestId('recipe-ingredients')).toContainText('almond flour');
+});
+
 // Phase 4 wiring: "Hide" sits on the recipe-title row (right of the title) and
 // hiding takes an inline two-step confirm (no native dialog); Cancel reverts and
 // does NOT hide; Confirm hides (the control then offers one-tap Unhide). Both
