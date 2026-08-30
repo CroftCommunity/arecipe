@@ -401,6 +401,39 @@ a {
   opacity: 0.45;
 }
 
+/* ---- sign-in page: the workspace sign-in pattern (croft-pwa/docs/DESIGN.md
+   § Flows › Sign in) in a page container. Rows: label left, actions right
+   (flex: none, so the label wraps and the buttons do not); a missing action
+   leaves its words in the slot so the Sign in column stays aligned. ---- */
+.signin-list { margin: 0 0 var(--s-3); }
+.signin-row {
+  display: flex;
+  flex-wrap: wrap; /* 320px: the two buttons drop under the label rather than past the edge */
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--s-2) var(--s-3);
+  padding: var(--s-2) 0;
+}
+.signin-row + .signin-row { border-top: var(--stroke) solid var(--line); }
+.signin-provider { font-weight: 700; }
+.signin-actions { display: flex; align-items: center; gap: var(--s-2); flex: none; margin-left: auto; }
+.signin-actions .button { min-height: 44px; padding: var(--s-2) var(--s-3); }
+.signin-invite {
+  min-width: 6.5rem;
+  text-align: center;
+  font-style: italic;
+  font-size: var(--t-caption);
+  opacity: 0.75;
+}
+.signin-more { width: 100%; min-height: 44px; margin: 0 0 var(--s-3); }
+.signin-other { margin-top: var(--s-2); }
+.signin-label { display: block; font-size: var(--t-caption); opacity: 0.75; margin-bottom: var(--s-1); }
+.signin-intro { font-family: var(--body); font-size: 0.95rem; opacity: 0.85; }
+/* The gloss keeps the UA's dotted underline as the "there is more here" cue. */
+.signin-gloss { text-decoration: underline dotted; text-underline-offset: 3px; cursor: help; }
+[data-signin-page] .lookup input,
+[data-signin-page] .lookup .button { min-height: 44px; }
+
 /* Export button (↑ export glyph) beside "Find recipes": square, secondary. */
 .export-recipes {
   flex: none;

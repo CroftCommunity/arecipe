@@ -76,7 +76,7 @@ test.describe('CSP: enforcing policy admits every document (Phase 2)', () => {
       // Exercise a real render: signin mounts its form; other shells render
       // their app root. Either way the entry module has executed by now.
       if (doc === 'signin.html') {
-        await expect(page.getByTestId('handle-input')).toBeVisible();
+        await expect(page.getByTestId('provider-other')).toBeVisible();
       } else {
         await expect(page.locator('#app')).toBeAttached();
       }
@@ -171,7 +171,7 @@ test.describe('SRI: entry module + both stylesheets (Phase 3)', () => {
       // Render proof for the entry module: a wrong entry digest blocks the
       // module, so a live render means its integrity is correct, not just present.
       if (doc === 'signin.html') {
-        await expect(page.getByTestId('handle-input')).toBeVisible();
+        await expect(page.getByTestId('provider-other')).toBeVisible();
       } else {
         await expect(page.locator('#app')).toBeAttached();
       }

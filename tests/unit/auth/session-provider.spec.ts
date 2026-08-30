@@ -92,3 +92,26 @@ describe('createOAuthSessionProvider', () => {
     expect(calls).toEqual(['signOut:did:plc:abc123']);
   });
 });
+
+// The sign-in page's Create account button sends prompt=create through the same
+// seam; plain Sign in sends nothing. Both directions, so an options-less signIn
+// cannot invent a prompt and a create cannot lose one (DESIGN.md § Flows rule 4).
+describe('createOAuthSessionProvider — sign-in options', () => {
+  it('forwards { prompt: "create" } to the client, and nothing when absent', async () => {
+    const calls: unknown[][] = [];
+    const provider = createOAuthSessionProvider({
+      client: {
+        init: async () => undefined,
+        signIn: async (...args: unknown[]) => {
+          calls.push(args);
+        },
+      },
+    });
+    await provider.signIn('https://bsky.social', { prompt: 'create' });
+    await provider.signIn('alice.test');
+    expect(calls).toEqual([
+      ['https://bsky.social', { prompt: 'create' }],
+      ['alice.test'],
+    ]);
+  });
+});
