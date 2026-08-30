@@ -2,7 +2,7 @@
 
 **Status:** Pass 1 · Phase 0 discovery · Pass 2 gap analysis · **Pass 3 quality gates ALL
 COMPLETE 2026-07-09. Plan is READY FOR EXECUTION — no unresolved BLOCKING items.** 10 phases
-(0 + 1 + 1b + 2 + 3 + 4a done). **UI design REVISED 2026-07-09 via mockups** (`docs/mockups/`):
+(0 + 1 + 1b + 2 + 3 + 4a done). **UI design REVISED 2026-07-09 via mockups** (`mocks/`, moved from `docs/mockups/` 2026-08-30):
 inline flip primary, grid = View All, + Focus mode + Settings fun-facts toggle; comments stay
 per-version (dish-level deferred). Phases 0–5 done (all UI complete). **Next: Phase 6 (migrate 41
 live + pilot-then-bulk publish) — the only live-write phase.** Worktree `recipe-import-batch`.
@@ -98,7 +98,7 @@ default** (`primaryVersion` then published order); most-liked-first is a Deferre
 are pooled per dish, shown
 just above Comments, and gated by a **Settings "Include fun facts" toggle** (on by default).
 **Comments stay per-version** (no change to the `app.arecipe.comment` model); **dish-level shared
-comments are a Deferred TODO** (see below). Reference mockups live in `docs/mockups/`. This inverts
+comments are a Deferred TODO** (see below). Reference mockups (sketches) live in `mocks/`. This inverts
 the earlier "compare-page-first" decision — the grid is now the deeper option, not the entry point.
 
 **Migration + publish — pilot first (DECIDED).** Once fields exist: (1) a
@@ -173,7 +173,7 @@ future TODO behind the open-world probe. Client-only name grouping — fragile; 
   keeps the extension-field table in sync with the locked types; Phase 6 flips those fields'
   status note to "live on the PDS" once published. Any new NSID (e.g. a revived overlay) is
   registered here first.
-- `docs/mockups/recipe-flip-mockup.html` + `docs/mockups/dish-mockup.html` — the agreed UI
+- `mocks/recipe-flip.html` + `mocks/dish.html` — the agreed UI
   reference (inline flip + Focus; grid). Committed 2026-07-09; update if the UX changes.
 - `spike/import/*.json` `_meta` — note the fields became live (in the publish phase).
 
@@ -331,8 +331,8 @@ adopts this paginated reader.
 
 > **Design pivot (2026-07-09, from the mockup):** the recipe page stays the simple landing;
 > the **inline version flip is the PRIMARY mechanism** and the `dish.html` grid is the secondary
-> **"View All"**. Reference mockups: `docs/mockups/recipe-flip-mockup.html` (primary) +
-> `docs/mockups/dish-mockup.html` (grid). Comments stay **per-version** (no model change);
+> **"View All"**. Reference mockups: `mocks/recipe-flip.html` (primary) +
+> `mocks/dish.html` (grid). Comments stay **per-version** (no model change);
 > dish-level shared comments are a **Deferred TODO**. See the reordered phases below.
 
 ### Phase 4b: `dish.html` compare grid — the "View All" target (build wiring, main risk) — COMPLETE 2026-07-09
@@ -618,8 +618,8 @@ unresolved BLOCKING items (the BLOCKING lexicon question was settled by D1; cros
 is a confirmed YES implemented via Phase 1b's review checkpoint). Ready to execute Phase 1.
 
 ### Design revision (mid-execution, mockup-driven) — 2026-07-09
-After Phases 0–4a shipped, the user reviewed static mockups (`docs/mockups/recipe-flip-mockup.html`,
-`docs/mockups/dish-mockup.html`) and **inverted the version-switcher UX**:
+After Phases 0–4a shipped, the user reviewed static mockups (`mocks/recipe-flip.html`,
+`mocks/dish.html`) and **inverted the version-switcher UX**:
 - **Inline flip is now PRIMARY** (Phase 4c) — a `‹ N of M ›` bar above the banner that swaps
   image/title/ingredients/instructions in place; `⛶ Focus` full-screen cook view added (Phase 4d).
 - **`dish.html` grid demoted to secondary "View All"** (Phase 4b) — still built (it's the View All
