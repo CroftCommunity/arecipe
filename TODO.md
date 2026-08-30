@@ -34,6 +34,19 @@ loose ideas a later session can pick up.
 
 ## Tooling / QA
 
+- [ ] **Mocks: the two sketches carry a version but no captured counterpart; the first
+      captured mock is owed** (`CroftC/.claude/MOCKS.md` rules 1–2 and 8). `mocks/dish.html`
+      and `mocks/recipe-flip.html` (moved from `docs/mockups/` 2026-08-30) are sketches —
+      drawings in their own CSS, not built from the app — versioned as v1 with the baseline
+      they were drawn at. Under P4 arecipe's Proposed frame is a capture of a PR preview and
+      its Current frame a capture of production: `scripts/mock-snaps.mjs --as current --url
+      https://arecipe.app/` and `--as proposed --url https://arecipe.app/pr-preview/pr-N/`.
+      Owed: the next UI change opens a PR, captures both columns with that script, and lands
+      the first `mocks/<slug>.html` whose Proposed column is real pixels with a
+      `mock-proposal` meta — at which point the two sketches are either re-captured against
+      the built version or retired. `runs/<slug>/shots/*-390.png / *-1280.png` is the same
+      act done per run since 2026-07-23; the script standardises the frames and names the sha.
+
 - [x] **Per-PR preview deploys.** Every same-repo PR gets a live, read-only
       copy of the built app at `arecipe.app/pr-preview/pr-N/`, torn down on
       close. Plain-git deploy (`scripts/pages-deploy.sh`), no third-party
