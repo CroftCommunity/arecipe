@@ -147,3 +147,17 @@ loose ideas a later session can pick up.
       Phase 2 coverage floor (90%) is a placeholder pending the Phase 0 census.
       Cross-repo tracking: discovery ROADMAP_TODO **E119**. _Noted 2026-08-23
       (plan dated 2026-08-12)._
+
+## Design standard gaps (croft-pwa/docs/DESIGN.md)
+
+- [ ] **Sign-in copy: the noun is "atmo provider", not Bluesky.** `src/pages/signin.ts`
+  says *Sign in with your Bluesky handle to save recipes…* and the placeholder names
+  `name.bsky.social` for a field that takes a handle on any host. Use the sheet's words
+  and the verbatim gloss (DESIGN.md § Copy). Workspace audit check 44 FLAGs this until it
+  changes.
+- [ ] **Adopt the sign-in flow.** `signin.html` is handle-only with no provider registry
+  and no Create. Adopt DESIGN.md § Flows › Sign in — registry with probed posture + live
+  drift check, two panels split by posture, Create only where signups are open, the handle
+  seam; reference `croft-pwa/src/signin/`. The dedicated page is a legitimate container
+  (the sheet is the exception to "pages, not modals", not a mandate); the copy, registry
+  and both-direction Create rule are not optional. Check 44 NOTEs the missing registry.
