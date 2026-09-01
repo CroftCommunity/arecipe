@@ -5,6 +5,7 @@
 // timezone (a plan is a set of calendar dates, not instants). Pure; no clock.
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 /** Parse a strict `YYYY-MM-DD` string into a UTC Date, rejecting malformed or
  *  overflowing dates (e.g. `2026-02-30`). Returns null on any invalid input. */
@@ -52,6 +53,37 @@ export const formatShortDate = (isoDate: string): string | null => {
   const date = parseIsoDate(isoDate);
   if (date === null) return null;
   return `${MONTHS[date.getUTCMonth()]} ${date.getUTCDate()}`;
+};
+
+/** The three-letter weekday name of an ISO date ("Mon", "Tue", …), computed in
+ *  UTC so a floating plan reads the same in every timezone. Null if the date is
+ *  invalid. The grounded day cards use this so a plan can start on ANY weekday —
+ *  the labels follow the real dates rather than a fixed Mon-first grid. */
+export const formatWeekday = (isoDate: string): string | null => {
+  const date = parseIsoDate(isoDate);
+  if (date === null) return null;
+  return WEEKDAYS[date.getUTCDay()] ?? null;
+};
+
+/** A compact numeric "M/D" label for an ISO date (no zero padding), e.g.
+ *  "8/10" — the grounded day-card stamp, where "Aug 10" would crowd a 7-column
+ *  grid on a phone. Null if the date is invalid. */
+export const formatDayMonth = (isoDate: string): string | null => {
+  const date = parseIsoDate(isoDate);
+  if (date === null) return null;
+  return `${date.getUTCMonth() + 1}/${date.getUTCDate()}`;
+};
+
+/** The Monday of the week CONTAINING `isoDate` (the date itself when it is a
+ *  Monday; Sunday counts as the end of the week, so it snaps back six days).
+ *  The planner's start picker normalizes any chosen date through this, keeping
+ *  the plan anchored on a first Monday. Null if `isoDate` is unparseable. */
+export const mondayOf = (isoDate: string): string | null => {
+  const date = parseIsoDate(isoDate);
+  if (date === null) return null;
+  const day = date.getUTCDay(); // 0=Sun … 6=Sat
+  const daysSinceMonday = (day + 6) % 7; // Mon=0 … Sun=6
+  return addDays(isoDate, -daysSinceMonday);
 };
 
 /** The soonest Monday ON OR AFTER `todayIsoDate` (today itself if it is a

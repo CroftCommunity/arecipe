@@ -1,0 +1,9 @@
+{
+  "_why": "The provider registry DATA (croft-pwa/docs/DESIGN.md § Flows › Sign in). One source for the sign-in page; the CSP's connect-src already admits https:, so no build step reads it here. Facts and wrong-first-guesses are recorded in providers.ts; postures are re-probed by tests/e2e/providers-live.spec.ts.",
+  "providers": [
+    { "id": "bsky", "label": "Bluesky", "entryway": "https://bsky.social", "signups": "open" },
+    { "id": "blacksky", "label": "Blacksky", "entryway": "https://blacksky.app", "signups": "open" },
+    { "id": "eurosky", "label": "EuroSky", "entryway": "https://eurosky.social", "signups": "open" },
+    { "id": "northsky", "label": "Northsky", "entryway": "https://northsky.social", "signups": "invite" }
+  ]
+}

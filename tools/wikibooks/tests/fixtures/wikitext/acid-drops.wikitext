@@ -1,0 +1,28 @@
+{{recipesummary|category=Confection recipes|time=45 minutes|difficulty=3}}
+{{recipe}} | [[Cookbook:Confections|Confectionery]]
+
+'''Acid drops''' are a hard candy or [[Cookbook:Confections|confection]] made very sour through the addition of acid<ref>https://www.merriam-webster.com/dictionary/acid%20drop</ref>. Citric acid and tartaric acid are commonly used.
+
+==Ingredients==
+* 2 [[Cookbook:Cup|cups]] (480 [[Cookbook:Milliliter|mL]]) white granulated [[Cookbook:Sugar|sugar]]
+* 1 cup (240 mL) [[Cookbook:Water|water]]
+* ½ [[Cookbook:Teaspoon|tsp]] (2.5 mL) [[Cookbook:Cream of Tartar|cream of tartar]]
+* 1 [[Cookbook:Tablespoon|Tbsp]] (15 mL) [[Cookbook:Citric acid|citric acid]] <ref>In the United States, citric acid is available from some Armenian and South Asian grocers, and on-line from cheese-making suppliers.</ref>
+* [[Cookbook:Powdered Sugar|Powdered sugar]]
+
+==Procedure==
+#Bring the sugar, water and cream of tartar to boil over medium-low heat. Stir gently until syrup reaches [[Cookbook:Cooking Sugar|310°F (155°C/hard crack stage)]] or is pale brown. Syrup should harden completely when dropped on to a cold plate and snap between the teeth when cold.
+# Pour the mixture onto an oiled heatproof work surface, and sprinkle with the citric acid.
+#Use a greased [[Cookbook:Spatula|spatula]] to fold in the sides and thoroughly work the acid in.
+#When the candy is cool enough to touch but still pliable, roll it into sticks and snip off drop-sized bits.
+#[[Cookbook:Sifter|Sift]] powdered sugar onto the candies, and shake to coat.
+#Allow to cool and harden completely. Store in an air-tight container.
+
+==Notes==
+{{reflist}}
+
+[[Category:Recipes for confections]]
+[[Category:English recipes]]
+[[Category:Recipes using granulated sugar]]
+[[Category:Recipes using citric acid]]
+[[Category:Recipes using cream of tartar]]

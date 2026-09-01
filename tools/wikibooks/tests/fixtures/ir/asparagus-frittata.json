@@ -1,0 +1,161 @@
+{
+  "categories": [
+    "Recipes using egg",
+    "Recipes for omelettes",
+    "Vegetarian recipes",
+    "Recipes using asparagus",
+    "Broiled recipes",
+    "Main course recipes",
+    "Recipes using basil",
+    "Recipes using whole milk"
+  ],
+  "ingredients": [
+    {
+      "display": "1 tablespoon olive oil",
+      "optional": false,
+      "raw": "1 [[Cookbook:Tablespoon|tablespoon]] [[Cookbook:Olive Oil|olive oil]]",
+      "refs": [
+        "Tablespoon",
+        "Olive Oil"
+      ]
+    },
+    {
+      "display": "2 garlic cloves, minced",
+      "optional": false,
+      "raw": "2 [[Cookbook:Garlic|garlic]] cloves, [[Cookbook:Mincing|minced]]",
+      "refs": [
+        "Garlic",
+        "Mincing"
+      ]
+    },
+    {
+      "display": "1 bunch of fresh asparagus, trimmed and chopped",
+      "optional": false,
+      "raw": "1 bunch of fresh [[Cookbook:Asparagus|asparagus]], trimmed and [[Cookbook:Chopping|chopped]]",
+      "refs": [
+        "Asparagus",
+        "Chopping"
+      ]
+    },
+    {
+      "display": "8 large eggs",
+      "optional": false,
+      "raw": "8 large [[Cookbook:Egg|eggs]]",
+      "refs": [
+        "Egg"
+      ]
+    },
+    {
+      "display": "3 teaspoons milk (whole fat milk is best, but part skim would be fine)",
+      "optional": false,
+      "raw": "3 [[Cookbook:Teaspoon|teaspoons]] [[Cookbook:Milk|milk]] (whole fat milk is best, but part skim would be fine)",
+      "refs": [
+        "Teaspoon",
+        "Milk"
+      ]
+    },
+    {
+      "display": "2 teaspoons chopped fresh basil or 1 teaspoon dried basil",
+      "optional": false,
+      "raw": "2 teaspoons [[Cookbook:Chopping|chopped]] fresh [[Cookbook:Basil|basil]] or 1 teaspoon dried basil",
+      "refs": [
+        "Chopping",
+        "Basil"
+      ]
+    },
+    {
+      "display": "1 pinch of salt",
+      "optional": false,
+      "raw": "1 [[Cookbook:Pinch|pinch]] of [[Cookbook:Salt|salt]]",
+      "refs": [
+        "Pinch",
+        "Salt"
+      ]
+    },
+    {
+      "display": "1 pinch of ground black pepper",
+      "optional": false,
+      "raw": "1 pinch of ground [[Cookbook:Pepper|black pepper]]",
+      "refs": [
+        "Pepper"
+      ]
+    },
+    {
+      "display": "3 tablespoons grated Parmesan cheese",
+      "optional": false,
+      "raw": "3 tablespoons grated [[Cookbook:Parmesan Cheese|Parmesan cheese]]",
+      "refs": [
+        "Parmesan Cheese"
+      ]
+    }
+  ],
+  "lead": "Like the traditional Spanish omelet, frittata is a thick, hearty omelet filled with vegetables. A frittata may be filled with any variety of vegetables, cheeses, pastas, or meats. This recipe is for a simple vegetarian one.",
+  "parseFlags": [],
+  "procedure": [
+    {
+      "refs": [],
+      "text": "In a bowl, beat together the eggs, milk, basil, salt and pepper. Set aside."
+    },
+    {
+      "refs": [
+        "Broiler",
+        "Oven"
+      ],
+      "text": "Preheat broiler/oven to 350°F (175°C). Heat the olive oil in the heat-safe skillet over medium heat."
+    },
+    {
+      "refs": [
+        "Sautéing"
+      ],
+      "text": "When the oil is hot, add the garlic and sauté until fragrant, about a minute."
+    },
+    {
+      "refs": [],
+      "text": "Add the chopped asparagus and sauté for about 5 minutes until it begins to become tender."
+    },
+    {
+      "refs": [],
+      "text": "Pour the egg mixture into the skillet and cook about 4 minutes or until bubbles begin to form in the center of the eggs."
+    },
+    {
+      "refs": [],
+      "text": "Sprinkle the Parmesan cheese on top of the eggs, and immediately transfer the pan to the oven."
+    },
+    {
+      "refs": [],
+      "text": "Cook under the broiler until the top puffs and browns, about 3 minutes."
+    },
+    {
+      "refs": [],
+      "text": "Remove the pan from the oven (careful, it will be hot) and cut the frittata into wedges."
+    },
+    {
+      "refs": [],
+      "text": "Serve immediately with crusty bread and fresh fruit for a light spring dinner."
+    }
+  ],
+  "publishable": true,
+  "sections": [
+    {
+      "heading": "Equipment",
+      "text": "*12-inch (30cm) oven-safe frying pan (i.e. no plastic or wooden handles)\n*Medium-sized bowl\n*Whisk or fork"
+    },
+    {
+      "heading": "Notes, tips, and variations",
+      "text": "* Try bitter greens like Swiss chard, ruby chard, or broccoli rabe.\n* Bell peppers, mushrooms, potatoes, and zucchini are all delicious in a frittata.\n* For a meat version, try adding cubed ham, chopped bacon or pancetta, or any variety of sausage.\n* Different cheeses can be used, such as fontina, cheddar, havarti, Emmenthal, or Pecorino Romano.\n* You may also add ½ cup of cooked, drained pasta such as linguine, spaghetti, or even macaroni.\n* Adding breadcrumbs to the beaten eggs is another good way of adding bulk.\n* Wrap leftovers (if there are any) in tin foil and chill in refrigerator. Leftover frittata makes a great sandwich: just allow the eggs to come to room temperature and place them between two slices of buttered, toasted bread."
+    },
+    {
+      "heading": "See also",
+      "text": "* Fall Chanterelle Mushroom Frittata"
+    }
+  ],
+  "summary": {
+    "category": "Egg recipes",
+    "difficulty": 2,
+    "servings": "4",
+    "servingsHint": {
+      "min": 4
+    }
+  },
+  "title": "Asparagus Frittata"
+}

@@ -1,0 +1,56 @@
+{{Recipe summary
+| Category = Italian-American recipes
+| Difficulty = 3
+}}
+
+{{recipe}}
+
+Unlike traditional Italian ''Melanzane alla Parmigiana'' (see [[Cookbook:Eggplant Parmesan (Melanzane alla Parmigiana) I]] or [[Cookbook:Eggplant Parmesan (Melanzane alla Parmigiana) II]]), which is intended as a starter and thus not particularly filling, this Americanized recipe is served on top of pasta and has a higher cheese to eggplant ratio for more protein. It is thus a delicious vegetarian main dish.
+
+== Ingredients ==
+* 1 small [[Cookbook:eggplant|eggplant]], approx. 300–400 [[Cookbook:gram|g]]
+* [[Cookbook:Salt|Salt]]
+* 1 [[Cookbook:mozzarella|mozzarella]] roll, approx. 300 g
+* 100 g [[Cookbook:flour|flour]]
+* 1 [[Cookbook:egg|egg]]
+* 25 [[Cookbook:milliliter|ml]] [[Cookbook:milk|milk]]
+* 100 g [[Cookbook:Bread Crumbs|panko]]
+* ½ [[Cookbook:teaspoon|tsp]] [[Cookbook:Garlic Powder|garlic powder]]
+* ½ tsp [[Cookbook:Black Pepper|black pepper]]
+* ½ tsp dried [[Cookbook:oregano|oregano]]
+* 20 g + 20 g [[Cookbook:Parmigiano Reggiano|Parmigiano Reggiano]], grated
+* [[Cookbook:Canola Oil|Canola]] or [[Cookbook:Olive Oil|olive oil]] in a sprayer
+* 1 jar pasta sauce, approximately 300–400 g
+* 15 g fresh [[Cookbook:basil|basil]] leaves
+
+=== Procedure ===
+# Cut off the top and bottom of the eggplant and [[Cookbook:Slicing|slice]] it into six slices of equal thickness.
+# Salt both sides of each eggplant slice generously and place the slices between several layers of [[Cookbook:Paper Towel|paper towel]].
+# Weight the eggplant slices down with something heavy, such as a cast-iron [[Cookbook:Frying Pan|frying pan]], an encyclopedia, or an obese cat.
+# Let the eggplant slices rest under weight for at least an hour, until they have released a substantial amount of moisture.
+# Preheat the oven to 180°C.
+# Slice the mozzarella roll into six slices of equal thickness and arrange on fresh paper towels and let stand for about 20 minutes while you prepare the following steps.
+# Put the flour in a wide, flat bowl.
+# Whisk the egg and milk together in a second wide, flat bowl.
+# In a third wide, flat bowl, combine the panko, garlic powder, pepper, oregano and 20 g of Parmigiano.
+# Dredge the eggplant slices first in flour, then in the egg/milk mixture, then in the panko.
+# Spray oil on the inside of the [[Cookbook:Air Fryer|air fryer]] and on one side of each eggplant slice.
+# Lay eggplant slices in the air fryer basket, oiled side down, then spray the top side with additional oil. You may need to work in batches, since probably not all slices will fit in the basket at once.
+# Cook in the air fryer at 180°C for 10–12 minutes, turning halfway through.
+# While the eggplant is cooking, spread a thin layer of pasta sauce on the bottom of a rectangular baking pan.
+# When the eggplant is done, place the slices on top of the pasta sauce in the baking pan.
+# Lay one slice of mozzarella on top of each slice of eggplant.
+# Pour one large spoonful of pasta sauce over each slice.
+# Sprinkle the remaining 20 g of Parmigiano evenly over all slices.
+# Bake for 20–30 minutes or until the sauce is bubbling.
+# Turn the oven to [[Cookbook:Broil|Broil]] and brown the cheese on top for 2–3 minutes.
+# Remove from oven and arrange fresh basil leaves on top.
+# Cover with [[Cookbook:Aluminium Foil|aluminum foil]] and allow to stand while you boil fusilli or penne [[Cookbook:pasta|pasta]], which the eggplant parmigiana will be served on top of.
+
+[[Category:Air fried recipes]]
+[[Category:Italian-American recipes]]
+[[Category:Recipes using eggplant]]
+[[Category:Recipes using mozzarella]]
+[[Category:Recipes using parmesan]]
+[[Category:Recipes with metric units]]
+[[Category:Vegetarian recipes]]

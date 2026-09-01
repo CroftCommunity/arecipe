@@ -1,0 +1,66 @@
+{{Recipe summary
+| Category = Pie and tart recipes
+| Difficulty = 3
+}}
+
+{{recipe}} | [[Cookbook:Dessert|Desserts]]
+__NOTOC__
+==Ingredients==
+===Pie crust===
+* 8 [[Cookbook:Ounce|oz]] (225 [[Cookbook:Gram|g]]) plain [[Cookbook:Flour|flour]]
+* 4 oz (110 g) [[Cookbook:Margarine|margarine]]
+* 2 oz (55 g) [[Cookbook:Lard|lard]]
+* 1 [[Cookbook:Pinch|pinch]] of [[Cookbook:Salt|salt]]
+* 2 [[Cookbook:Tablespoon|tablespoons]] cold water
+===Filling===
+*4 McIntosh [[Cookbook:Apple|apples]]
+*1 [[Cookbook:Teaspoon|teaspoon]] [[Cookbook:Cinnamon|cinnamon]]
+*2 [[Cookbook:Cup|cups]] white granulated [[Cookbook:Sugar|sugar]]
+*¼ cup [[Cookbook:Flour|flour]]
+*2 cups [[Cookbook:Water|water]]
+*3½ tablespoons [[Cookbook:Cornstarch|cornstarch]]
+*[[Cookbook:Lemon|lemon]] juice (of ½ lemon)
+*½ teaspoon ground [[Cookbook:Nutmeg|nutmeg]]
+
+==Procedure==
+===Pie crust===
+#Rub flour, margarine, lard, and salt together until the mixture has the consistency of fine [[Cookbook:Bread Crumb|breadcrumbs]].
+#Gently mix in 2 tablespoons water to make a soft but firm dough.
+#Divide dough in half, then roll each half out on floured surface to the size you want your pie.
+#Use one [[Cookbook:Pie Crust|crust]] to line your [[Cookbook:Pie and Tart Pans|pie pan]].
+
+===Filling===
+#Core, peel, and [[Cookbook:Slicing|slice]] the apples into ⅛–¼-[[Cookbook:Inch|inch]] (0.5–1 [[Cookbook:Centimetre (cm)|cm]]) segments.
+#Add lemon juice to the apple segments.
+#Transfer excess juices to the pie pan.
+#Combine the sugar and water in a [[Cookbook:Saucepan|saucepan]]. Bring to a [[Cookbook:Boiling|boil]] over medium heat, stirring gently until the sugar dissolves and you get a [[Cookbook:Simple Syrup|simple syrup]]. Remove from the heat and let cool until just warm.
+#In a separate bowl, mix the cinnamon, nutmeg, flour, and cornstarch.
+#Combine the apples, spice mixture, and syrup in a bowl. [[Cookbook:Tossing|Toss]] well.
+#Transfer the apple filling to the crust-lined pie pan.
+#Cover the filling with the second pie crust and make three slits on top.
+#Crimp the edges of the crust together, [[Cookbook:Pie Crust Edges|making a decorative border]] if desired.
+#[[Cookbook:Baking|Bake]] in the [[Cookbook:Oven|oven]] at 350°[[Cookbook:Fahrenheit|F]] (175°C) for 60 minutes or until golden brown.
+#Take out the pie and let cool.
+#If desired, serve warm with [[Cookbook:Ice Cream|ice cream]], frozen custard, or frozen yogurt.
+
+== Notes, tips, and variations ==
+
+* You can also use 2 store-bought [[Cookbook:Pie Crust|pie crusts]] instead of making the dough from scratch.
+
+==See also==
+*[[Cookbook:Apple Pie I|Apple Pie I]]
+*[[Cookbook:Apple Pie|Apple Pie]]
+
+[[Category:Recipes for dessert]]
+[[Category:Recipes for apple pie]]
+[[Category:Recipes using apple]]
+[[Category:Recipes with metric units]]
+[[Category:Recipes using white sugar]]
+[[Category:Recipes using ground cinnamon]]
+[[Category:Recipes using lemon juice]]
+[[Category:Recipes using cornstarch]]
+[[Category:Recipes using pie dough]]
+[[Category:Recipes using all-purpose flour]]
+[[Category:Recipes using lard]]
+[[Category:Recipes using margarine]]
+[[Category:Recipes for pie dough]]

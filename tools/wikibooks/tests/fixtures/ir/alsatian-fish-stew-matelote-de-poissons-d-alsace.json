@@ -1,0 +1,256 @@
+{
+  "categories": [
+    "French recipes",
+    "Alsatian recipes",
+    "Recipes using carp",
+    "Recipes using bouquet garni",
+    "Recipes using granulated sugar",
+    "Recipes using butter",
+    "Recipes using crayfish",
+    "Recipes using cream",
+    "Recipes using croutons",
+    "Recipes using eel",
+    "Recipes using pike",
+    "Recipes using perch",
+    "Recipes using wheat flour",
+    "Recipes using garlic",
+    "Pescatarian recipes"
+  ],
+  "ingredients": [
+    {
+      "display": "1 lb filet of pike",
+      "optional": false,
+      "raw": "1 [[Cookbook:Pound|lb]] filet of [[Cookbook:Pike|pike]]",
+      "refs": [
+        "Pound",
+        "Pike"
+      ]
+    },
+    {
+      "display": "1 lb filet of carp",
+      "optional": false,
+      "raw": "1 lb filet of [[Cookbook:Carp|carp]]",
+      "refs": [
+        "Carp"
+      ]
+    },
+    {
+      "display": "½ lb eel",
+      "optional": false,
+      "raw": "½ lb [[Cookbook:Eel|eel]]",
+      "refs": [
+        "Eel"
+      ]
+    },
+    {
+      "display": "1 lb filet of perch",
+      "optional": false,
+      "raw": "1 lb filet of [[Cookbook:Perch|perch]]",
+      "refs": [
+        "Perch"
+      ]
+    },
+    {
+      "display": "6 crayfish",
+      "optional": false,
+      "raw": "6 [[Cookbook:Crawfish|crayfish]]",
+      "refs": [
+        "Crawfish"
+      ]
+    },
+    {
+      "display": "2 shallots, finely minced",
+      "optional": false,
+      "raw": "2 [[Cookbook:Shallot|shallots]], finely [[Cookbook:Mince|minced]]",
+      "refs": [
+        "Shallot",
+        "Mince"
+      ]
+    },
+    {
+      "display": "Salt",
+      "optional": false,
+      "raw": "[[Cookbook:Salt|Salt]]",
+      "refs": [
+        "Salt"
+      ]
+    },
+    {
+      "display": "Heads and tails of the above fish to make a broth",
+      "optional": false,
+      "raw": "Heads and tails of the above fish to make a broth",
+      "refs": []
+    },
+    {
+      "display": "1 cup Riesling wine (or other dry white wine)",
+      "optional": false,
+      "raw": "1 [[Cookbook:Cup|cup]] Riesling [[Cookbook:Wine|wine]] (or other dry [[Cookbook:White Wine|white wine]])",
+      "refs": [
+        "Cup",
+        "Wine",
+        "White Wine"
+      ]
+    },
+    {
+      "display": "1 oz white granulated sugar",
+      "optional": false,
+      "raw": "1 [[Cookbook:Ounce|oz]] white granulated [[Cookbook:Sugar|sugar]]",
+      "refs": [
+        "Ounce",
+        "Sugar"
+      ]
+    },
+    {
+      "display": "1 oz butter",
+      "optional": false,
+      "raw": "1 oz [[Cookbook:Butter|butter]]",
+      "refs": [
+        "Butter"
+      ]
+    },
+    {
+      "display": "1 oz flour",
+      "optional": false,
+      "raw": "1 oz [[Cookbook:Flour|flour]]",
+      "refs": [
+        "Flour"
+      ]
+    },
+    {
+      "display": "½ cup cream",
+      "optional": false,
+      "raw": "½ cup [[Cookbook:Cream|cream]]",
+      "refs": [
+        "Cream"
+      ]
+    },
+    {
+      "display": "1 bouquet garni",
+      "optional": false,
+      "raw": "1 [[Cookbook:Bouquet Garni|bouquet garni]]",
+      "refs": [
+        "Bouquet Garni"
+      ]
+    },
+    {
+      "display": "Pepper",
+      "optional": false,
+      "raw": "[[Cookbook:Pepper|Pepper]]",
+      "refs": [
+        "Pepper"
+      ]
+    },
+    {
+      "display": "Croutons",
+      "optional": false,
+      "raw": "[[Cookbook:Crouton|Croutons]]",
+      "refs": [
+        "Crouton"
+      ]
+    },
+    {
+      "display": "1 clove garlic",
+      "optional": false,
+      "raw": "1 clove [[Cookbook:Garlic|garlic]]",
+      "refs": [
+        "Garlic"
+      ]
+    },
+    {
+      "display": "4 oz (½ cup) grelot onions (may substitute Mexican green onions)",
+      "optional": false,
+      "raw": "4 oz (½ cup) grelot [[Cookbook:Onion|onions]] (may substitute Mexican green onions)",
+      "refs": [
+        "Onion"
+      ]
+    },
+    {
+      "display": "4 oz (½ cup) fresh white mushrooms",
+      "optional": false,
+      "raw": "4 oz (½ cup) fresh white [[Cookbook:Mushroom|mushrooms]]",
+      "refs": [
+        "Mushroom"
+      ]
+    },
+    {
+      "display": "Fresh parsley, chopped",
+      "optional": false,
+      "raw": "Fresh [[Cookbook:Parsley|parsley]], [[Cookbook:Chopping|chopped]]",
+      "refs": [
+        "Parsley",
+        "Chopping"
+      ]
+    }
+  ],
+  "parseFlags": [],
+  "procedure": [
+    {
+      "refs": [],
+      "text": "Wash the fish and remove any remaining debris. Cut the fish into approximately 2 oz pieces."
+    },
+    {
+      "refs": [
+        "Baking Dish"
+      ],
+      "text": "Place fish and crayfish in a buttered baking dish. Add the finely minced shallots. Salt lightly."
+    },
+    {
+      "refs": [],
+      "text": "Prepare a fumet with the fish heads and tails, the Riesling, 1 quart water, the bouquet garni and the garlic, salt and pepper. Simmer for 30 minutes."
+    },
+    {
+      "refs": [
+        "Straining",
+        "Aluminium Foil"
+      ],
+      "text": "Strain the boiling fish stock over the pieces of fish in the baking dish. Cover with aluminum foil."
+    },
+    {
+      "refs": [
+        "Oven"
+      ],
+      "text": "Place in the oven at 450°F. Bake for 10 minutes, then remove from the oven."
+    },
+    {
+      "refs": [
+        "Dutch Oven"
+      ],
+      "text": "Place the stock in a casserole or a cocotte en fonte (Dutch oven). Mix the butter with the flour. Add this to the liquid, stirring well to avoid lumps. Reduce to the desired thickness."
+    },
+    {
+      "refs": [],
+      "text": "Add the cream, and heat gently until it comes to the boil. Stop the cooking and strain through a chinois."
+    },
+    {
+      "refs": [],
+      "text": "Arrange the pieces of fish on a well-heated plate and coat with sauce."
+    },
+    {
+      "refs": [
+        "Sautéing"
+      ],
+      "text": "Sauté the onions and mushrooms. Add this mixture to the plate with a few croûtons rubbed with garlic."
+    },
+    {
+      "refs": [],
+      "text": "Add one crayfish per plate."
+    },
+    {
+      "refs": [],
+      "text": "Sprinkle with chopped parsley."
+    }
+  ],
+  "publishable": true,
+  "sections": [
+    {
+      "heading": "Notes, tips, and variations",
+      "text": "* As an accompaniment, serve with Nouilles fraîches à l'Alsacienne (fresh Alsatian noodles), or steamed potatoes.\n* A dry Riesling will enhance the flavour of the different fishes."
+    }
+  ],
+  "summary": {
+    "category": "Stew recipes",
+    "difficulty": 4,
+    "yield": "6"
+  },
+  "title": "Alsatian Fish Stew (Matelote de poissons d'Alsace)"
+}

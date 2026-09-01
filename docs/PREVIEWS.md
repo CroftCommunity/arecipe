@@ -118,7 +118,7 @@ Even the first-party actions are pinned to a full **commit SHA**, not a movable
 tag, with the version in a trailing comment:
 
 ```yaml
-- uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+- uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
 ```
 
 A tag like `@v7` is a pointer its maintainer can repoint at new code; a commit
@@ -126,6 +126,16 @@ SHA can't be moved, so CI runs exactly the reviewed code. `.github/dependabot.ym
 opens a weekly PR that bumps each SHA and its version comment together, so
 pinning doesn't become a staleness trap. This follows GitHub's own Actions
 hardening guidance and OWASP CI/CD recommendations.
+
+> **This paragraph described a control this repo did not have, until 2026-08-29.**
+> A workspace supply-chain sweep found all eight `uses:` lines resolving through
+> floating tags (`@v7`, `@v9`) while this file and `dependabot.yml` both asserted
+> full SHA pinning — and the Dependabot config written to bump those SHAs had no
+> SHAs to bump. The pins are real as of 2026-08-29; the note stays because silently
+> fixing it would erase the lesson. *Why it survived:* the claim was checkable in
+> one `grep` and nobody ran it — the doc was reviewed against its own intent rather
+> than against `.github/workflows/`. Audit check 33 now reads the `uses:` lines
+> themselves, which is the layer that acts.
 
 ## Agents: previews for a programmatically-opened PR
 

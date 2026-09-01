@@ -78,8 +78,8 @@ describe('resetIconButton', () => {
     expect(svg!.querySelector('path')!.getAttribute('d')).toBe(RESET_ICON_ARC_PATH);
   });
 
-  it('carries the shared .reset-icon-btn class so all three sites style identically', () => {
-    expect(resetIconButton('Reset plan').classList.contains('reset-icon-btn')).toBe(true);
+  it('carries the shared .reset-icon-btn class so every site styles identically', () => {
+    expect(resetIconButton('reset filters').classList.contains('reset-icon-btn')).toBe(true);
   });
 });
 

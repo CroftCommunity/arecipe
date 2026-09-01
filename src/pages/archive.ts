@@ -133,8 +133,8 @@ export const main = async (): Promise<void> => {
   const content = el('section', 'panel');
   const header = el('div', 'meals-header');
   header.append(el('h2', 'section-title', 'Plan archive'));
-  const back = el('a', 'friend-link', '‹ Back to published plans') as HTMLAnchorElement;
-  back.href = './meals.html?plans';
+  const back = el('a', 'friend-link', '‹ Back to Menu') as HTMLAnchorElement;
+  back.href = './meals.html';
   back.dataset['testid'] = 'archive-back';
   header.append(back);
   content.append(header);

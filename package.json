@@ -6,6 +6,8 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
+    "changelog:bake": "node scripts/changelog-bake.mjs",
+    "snapshot": "node scripts/snapshot.mjs",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.tests.json",
     "serve": "esbuild --servedir=dist --serve=127.0.0.1:4173",
     "test:unit": "vitest run tests/unit",
@@ -15,12 +17,14 @@
     "test": "npm run lint && npm run typecheck && npm run test:unit && npm run build && npm run test:e2e"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
     "@playwright/test": "^1.61.1",
     "@types/node": "^26.1.0",
     "esbuild": "^0.28.1",
     "eslint": "^10.6.0",
     "fake-indexeddb": "^6.2.5",
     "happy-dom": "^20.10.6",
+    "tesseract.js": "^7.0.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.63.0",
     "vitest": "^4.1.10"

@@ -1,0 +1,206 @@
+{
+  "categories": [
+    "Ethiopian recipes",
+    "Recipes for stew",
+    "Recipes using beef",
+    "Recipes using cilantro",
+    "Recipes using coriander",
+    "Recipes using fresh ginger",
+    "Recipes using ground cumin",
+    "Recipes using beef broth and stock"
+  ],
+  "ingredients": [
+    {
+      "display": "2 tablespoons olive oil",
+      "optional": false,
+      "raw": "2 [[Cookbook:Tablespoon|tablespoons]] [[Cookbook:olive oil|olive oil]]",
+      "refs": [
+        "Tablespoon",
+        "olive oil"
+      ]
+    },
+    {
+      "display": "2 large onions, finely chopped",
+      "optional": false,
+      "raw": "2 large [[Cookbook:onion|onions]], finely [[Cookbook:Chopping|chopped]]",
+      "refs": [
+        "onion",
+        "Chopping"
+      ]
+    },
+    {
+      "display": "4 cloves of garlic, minced",
+      "optional": false,
+      "raw": "4 cloves of [[Cookbook:garlic|garlic]], [[Cookbook:Mince|minced]]",
+      "refs": [
+        "garlic",
+        "Mince"
+      ]
+    },
+    {
+      "display": "2 tablespoons berbere spice blend",
+      "optional": false,
+      "raw": "2 tablespoons [[Cookbook:berbere|berbere spice blend]]",
+      "refs": [
+        "berbere"
+      ]
+    },
+    {
+      "display": "1 tablespoon grated ginger",
+      "optional": false,
+      "raw": "1 tablespoon [[Cookbook:Grating|grated]] [[Cookbook:ginger|ginger]]",
+      "refs": [
+        "Grating",
+        "ginger"
+      ]
+    },
+    {
+      "display": "1 tablespoon tomato paste",
+      "optional": false,
+      "raw": "1 tablespoon [[Cookbook:tomato |tomato paste]]",
+      "refs": [
+        "tomato"
+      ]
+    },
+    {
+      "display": "1 teaspoon ground turmeric",
+      "optional": false,
+      "raw": "1 [[Cookbook:Teaspoon|teaspoon]] ground [[Cookbook:turmeric|turmeric]]",
+      "refs": [
+        "Teaspoon",
+        "turmeric"
+      ]
+    },
+    {
+      "display": "½ teaspoon ground cumin",
+      "optional": false,
+      "raw": "½ teaspoon ground [[Cookbook:cumin|cumin]]",
+      "refs": [
+        "cumin"
+      ]
+    },
+    {
+      "display": "½ teaspoon ground coriander",
+      "optional": false,
+      "raw": "½ teaspoon ground [[Cookbook:coriander|coriander]]",
+      "refs": [
+        "coriander"
+      ]
+    },
+    {
+      "display": "½ teaspoon salt, or to taste",
+      "optional": false,
+      "raw": "½ teaspoon [[Cookbook:salt|salt]], or to taste",
+      "refs": [
+        "salt"
+      ]
+    },
+    {
+      "display": "500 grams (1 lb) beef, cubed",
+      "optional": false,
+      "raw": "500 [[Cookbook:Gram|grams]] (1 [[Cookbook:Pound|lb]]) [[Cookbook:Beef|beef]], [[Cookbook:Cube|cubed]]",
+      "refs": [
+        "Gram",
+        "Pound",
+        "Beef",
+        "Cube"
+      ]
+    },
+    {
+      "display": "¼ teaspoon black pepper",
+      "optional": false,
+      "raw": "¼ teaspoon [[Cookbook:black pepper|black pepper]]",
+      "refs": [
+        "black pepper"
+      ]
+    },
+    {
+      "display": "2 cups beef broth or water",
+      "optional": false,
+      "raw": "2 [[Cookbook:Cup|cups]] beef [[Cookbook:Broth|broth]] or water",
+      "refs": [
+        "Cup",
+        "Broth"
+      ]
+    },
+    {
+      "display": "Fresh cilantro or parsley, chopped, for garnish",
+      "optional": false,
+      "raw": "Fresh [[Cookbook:cilantro|cilantro]] or [[Cookbook:parsley|parsley]], chopped, for [[Cookbook:Garnish|garnish]]",
+      "refs": [
+        "cilantro",
+        "parsley",
+        "Garnish"
+      ]
+    }
+  ],
+  "lead": "Alicha wot is a mild and flavorful Ethiopian stew known for its aromatic spices and comforting flavors. Unlike its spicier counterparts, alicha wot features a milder seasoning profile, making it a great choice for those who prefer a less fiery dish.",
+  "parseFlags": [],
+  "procedure": [
+    {
+      "refs": [],
+      "text": "Heat the olive oil in a large pot or Dutch oven over medium heat."
+    },
+    {
+      "refs": [
+        "Sautéing"
+      ],
+      "text": "Add the chopped onions to the pot and sauté until they become translucent and slightly browned."
+    },
+    {
+      "refs": [],
+      "text": "Add the minced garlic and grated ginger to the pot and sauté for an additional minute until fragrant."
+    },
+    {
+      "refs": [],
+      "text": "Stir in the berbere spice blend, tomato paste, ground turmeric, ground cumin, ground coriander, salt, and black pepper. Mix well to combine the spices with the onions, garlic, and ginger."
+    },
+    {
+      "refs": [],
+      "text": "Add the beef to the pot and stir to coat it with the spice mixture. Cook the beef for a few minutes until it is browned on all sides."
+    },
+    {
+      "refs": [
+        "Boiling"
+      ],
+      "text": "Pour in the beef broth or water, ensuring that the beef is fully submerged in the liquid. Bring the mixture to a boil."
+    },
+    {
+      "refs": [
+        "Simmering"
+      ],
+      "text": "Reduce the heat to low, cover the pot, and simmer for about 1 hour, or until the beef is tender and the flavors have melded together. Stir occasionally and add more liquid if needed to maintain the desired consistency."
+    },
+    {
+      "refs": [],
+      "text": "Taste the stew and adjust the seasoning with salt and pepper if needed."
+    },
+    {
+      "refs": [],
+      "text": "Remove the pot from the heat and let rest for a few minutes before serving."
+    },
+    {
+      "refs": [],
+      "text": "Garnish with fresh chopped cilantro or parsley. Serve hot with injera or bread, and enjoy the mild yet flavorful experience of this Ethiopian stew."
+    }
+  ],
+  "publishable": true,
+  "sections": [
+    {
+      "heading": "Equipment",
+      "text": "* Large pot or Dutch oven\n* Wooden spoon or spatula\n* Cutting board\n* Chef's knife\n* Grater\n* Measuring spoons\n* Serving dish\n* Ladle"
+    },
+    {
+      "heading": "Notes, tips, and variations",
+      "text": "* If you prefer a vegetarian version, you can substitute the beef with vegetables like potatoes, carrots, and green beans. Adjust the cooking time accordingly.\n* Adjust the spiciness of the stew by adding more or less berbere spice blend according to your taste preferences.\n* Browning the beef before adding the spices adds depth of flavor to the stew. Take the time to brown the beef properly.\n* Alicha wot tastes even better the next day as the flavors have more time to develop. Consider making it in advance and reheating it before serving.\n* Feel free to add additional vegetables like bell peppers, peas, or cabbage to the stew for added texture and flavor.\n* Experiment with different meats such as lamb or chicken for a variation in taste and texture."
+    }
+  ],
+  "summary": {
+    "category": "Main course recipes",
+    "cuisine": "Ethiopian",
+    "difficulty": 3,
+    "time": "1 hour",
+    "timeMinutesHint": 60
+  },
+  "title": "Alicha Wot (Mild Ethiopian Stew)"
+}

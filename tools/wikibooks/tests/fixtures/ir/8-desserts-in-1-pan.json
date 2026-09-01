@@ -1,0 +1,359 @@
+{
+  "categories": [
+    "Recipes using graham cracker",
+    "Recipes using short dough",
+    "Recipes using butter",
+    "Recipes using light brown sugar",
+    "Recipes using superfine sugar",
+    "Recipes using egg",
+    "Recipes using vanilla",
+    "Recipes using all-purpose flour",
+    "Recipes using baking soda",
+    "Recipes using chocolate",
+    "Recipes using marshmallow",
+    "Recipes using cake mix",
+    "Recipes using vegetable oil",
+    "Recipes using apple",
+    "Recipes using ground cinnamon",
+    "Recipes using pumpkin",
+    "Recipes using heavy cream",
+    "Recipes using self-raising flour",
+    "Recipes using baking powder",
+    "Recipes using banana",
+    "Recipes using mascarpone",
+    "Recipes using cream cheese",
+    "Recipes using egg yolk",
+    "Baking recipes",
+    "Recipes for dessert"
+  ],
+  "ingredients": [
+    {
+      "display": "1¼ sticks (150 g) butter, softened",
+      "optional": false,
+      "raw": "1¼ sticks (150 [[Cookbook:Gram|g]]) [[Cookbook:butter|butter]], softened",
+      "refs": [
+        "Gram",
+        "butter"
+      ]
+    },
+    {
+      "display": "½ cup (90 g) light brown sugar",
+      "optional": false,
+      "raw": "½ [[Cookbook:cup|cup]] (90 g) light [[Cookbook:Brown Sugar|brown sugar]]",
+      "refs": [
+        "cup",
+        "Brown Sugar"
+      ]
+    },
+    {
+      "display": "½ cup (90 g) golden superfine sugar",
+      "optional": false,
+      "raw": "½ cup (90 g) golden [[Cookbook:White Sugar|superfine sugar]]",
+      "refs": [
+        "White Sugar"
+      ]
+    },
+    {
+      "display": "1 US large / UK standard egg",
+      "optional": false,
+      "raw": "1 US large / UK standard [[Cookbook:egg|egg]]",
+      "refs": [
+        "egg"
+      ]
+    },
+    {
+      "display": "1 teaspoon vanilla extract",
+      "optional": false,
+      "raw": "1 [[Cookbook:teaspoon|teaspoon]] [[Cookbook:vanilla|vanilla]] extract",
+      "refs": [
+        "teaspoon",
+        "vanilla"
+      ]
+    },
+    {
+      "display": "2 cups (240 g) all-purpose flour, more if needed",
+      "optional": false,
+      "raw": "2 cups (240 g) [[Cookbook:all-purpose flour|all-purpose flour]], more if needed",
+      "refs": [
+        "all-purpose flour"
+      ]
+    },
+    {
+      "display": "½ teaspoon baking soda",
+      "optional": false,
+      "raw": "½ teaspoon [[Cookbook:baking soda|baking soda]]",
+      "refs": [
+        "baking soda"
+      ]
+    },
+    {
+      "display": "¼ teaspoon salt",
+      "optional": false,
+      "raw": "¼ teaspoon [[Cookbook:salt|salt]]",
+      "refs": [
+        "salt"
+      ]
+    },
+    {
+      "display": "1½ cups (180 g) chocolate chips",
+      "optional": false,
+      "raw": "1½ cups (180 g) [[Cookbook:Chocolate#Forms|chocolate chips]]",
+      "refs": [
+        "Chocolate#Forms"
+      ]
+    },
+    {
+      "display": "1 small bag (approximately ⅓ cup / 40 g) M&Ms",
+      "optional": false,
+      "raw": "1 small bag (approximately ⅓ cup / 40 g) M&Ms <ref name=\"barrylewis\">{{Cite web |date=2018-09-10 |title=8 desserts 1 pan |url=https://barrylewis.net/recipe/8-desserts-1-pan/ |access-date=2024-12-07 |website=Barry Lewis |language=en-GB}}</ref>",
+      "refs": []
+    },
+    {
+      "display": "1 ea. (approximately 260 g) Bramley or green cooking apple",
+      "optional": false,
+      "raw": "1 ea. (approximately 260 g)<ref name=\"hoolebramley\">{{Cite web |title=Bramley Apple |url=https://hoolefoodmarket.co.uk/fruit/bramley-apple |access-date=2024-12-07 |website=Hoole Food Market Chester Food & Flowers Delivery Service |language=en-GB}}</ref> Bramley or green cooking [[Cookbook:apple|apple]]",
+      "refs": [
+        "apple"
+      ]
+    },
+    {
+      "display": "4 tablespoons golden superfine sugar",
+      "optional": false,
+      "raw": "4 tablespoons golden superfine sugar",
+      "refs": []
+    },
+    {
+      "display": "½ teaspoon ground cinnamon",
+      "optional": false,
+      "raw": "½ teaspoon ground [[Cookbook:cinnamon|cinnamon]]",
+      "refs": [
+        "cinnamon"
+      ]
+    },
+    {
+      "display": "1 tablespoon all-purpose flour",
+      "optional": false,
+      "raw": "1 tablespoon all-purpose flour",
+      "refs": []
+    }
+  ],
+  "lead": "This one-pan recipe merges eight desserts together on a single baking sheet. The original recipe by Buzzfeed Tasty went viral on YouTube in 2018, with the video amassing over 50 million views. This recipe takes inspiration from the original, combining multiple recipes for cakes, pies, and cookies into one.",
+  "parseFlags": [
+    {
+      "code": "procedure-prose",
+      "detail": "Apple pie filling"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "Assembly"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "Banana bread batter"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "Brownie batter"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "Cheesecake filling"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "Cookie dough"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "Pumpkin pie filling"
+    },
+    {
+      "code": "template-stripped",
+      "detail": "reflist"
+    }
+  ],
+  "procedure": [
+    {
+      "refs": [
+        "Creaming"
+      ],
+      "text": "Combine the butter and sugar in a mixing bowl and cream until fluffy and very light."
+    },
+    {
+      "refs": [
+        "Beat"
+      ],
+      "text": "Add the egg and vanilla, and beat in."
+    },
+    {
+      "refs": [
+        "Fold",
+        "Dough"
+      ],
+      "text": "Fold in the flour, salt and baking soda. This should form a soft dough that is not sticky to the touch."
+    },
+    {
+      "refs": [],
+      "text": "Mix in the chocolate chips, folding well to distribute."
+    },
+    {
+      "refs": [],
+      "text": "Divide the dough equally into two bowls."
+    },
+    {
+      "refs": [],
+      "text": "In one bowl, mix in the M&Ms."
+    },
+    {
+      "refs": [],
+      "text": "Set aside both the doughs."
+    },
+    {
+      "refs": [],
+      "text": "Combine the brownie mix with egg, oil and water. This should form a very thick batter that is only slightly softer than cookie dough. Set aside."
+    },
+    {
+      "refs": [],
+      "text": "Line a baking sheet with paper towels."
+    },
+    {
+      "refs": [
+        "Chop"
+      ],
+      "text": "Core and roughly chop the apple and transfer to the prepared baking sheet and fold the towel in half. Set aside for 1 hour."
+    },
+    {
+      "refs": [],
+      "text": "Combine the sugar, cinnamon and flour in a bowl."
+    },
+    {
+      "refs": [],
+      "text": "Add the apple, and mix using your hands to coat. Set aside."
+    },
+    {
+      "refs": [],
+      "text": "Combine the egg and sugar in a mixing bowl by whisking until smooth."
+    },
+    {
+      "refs": [],
+      "text": "Mix in other ingredients until smooth. Set aside."
+    },
+    {
+      "refs": [
+        "Creaming"
+      ],
+      "text": "Cream the butter and sugar until soft and fluffy."
+    },
+    {
+      "refs": [],
+      "text": "Combine in other ingredients until smooth. Set aside."
+    },
+    {
+      "refs": [],
+      "text": "Combine all ingredients until smooth. Set aside."
+    },
+    {
+      "refs": [],
+      "text": "Preheat the oven to 150°C (302°F)."
+    },
+    {
+      "refs": [],
+      "text": "Cut baking paper into a rectangle the size of your baking pan. Use a pencil and ruler to divide the paper into 8 equal sections—halved length-wise and quartered width-wise, as in the layout diagram. Annotate the sections as described in the diagram."
+    },
+    {
+      "refs": [],
+      "text": "Grease the baking pan and line with the annotated paper."
+    },
+    {
+      "refs": [],
+      "text": "Shape both cookie doughs into rectangles measuring 4½×6½ inches (11.5×16.5 cm). Align the doughs with their respective sections."
+    },
+    {
+      "refs": [],
+      "text": "Break the graham crackers into smaller rectangles. Place them, on edge, along the borders of the s'mores section, pressing them against the cookie doughs for support. You are essentially making walls to hold in the s'mores section."
+    },
+    {
+      "refs": [],
+      "text": "Place two graham crackers on the bottom of the s'mores section to create the base. Distribute the chocolate on top, then sprinkle with the marshmallows."
+    },
+    {
+      "refs": [],
+      "text": "Spread brownie batter over its respective section. It should be stiff enough to hold its shape. Using your wet hands or a spatula, gently press the right wall of batter to correctly align it with the right wall of the M&Ms cookie dough."
+    },
+    {
+      "refs": [],
+      "text": "If necessary, press the pastry dough sheets together so that they are big enough to cover both the pumpkin pie and apple pie sections of the pan. Press the dough over the right side of pan so that it covers these two sections and goes up three of the walls. Trim away any overhang as necessary."
+    },
+    {
+      "refs": [],
+      "text": "Use a long strip of dough, stood on edge, to create a wall between the pie section and the rest of the pan. Press to seal it with the existing dough. In a similar fashion, use another strip of pastry to create a wall between the pumpkin and apple sections so the fillings don't combine. Press to seal."
+    },
+    {
+      "refs": [],
+      "text": "Spread the apple pie and pumpkin pie fillings in their respective sections."
+    },
+    {
+      "refs": [],
+      "text": "Create graham cracker walls around the cheesecake section, and line the bottom with graham crackers. Spread the cheesecake filling over top."
+    },
+    {
+      "refs": [],
+      "text": "Spread the banana bread batter in the last remaining section."
+    },
+    {
+      "refs": [
+        "Baking"
+      ],
+      "text": "Bake for an hour in the preheated oven. Transfer to a wire rack and leave to cool completely."
+    },
+    {
+      "refs": [],
+      "text": "Slice into 32 squares (4 along the longer sides, 8 along the smaller sides)."
+    }
+  ],
+  "publishable": true,
+  "sections": [
+    {
+      "heading": "S'mores<ref name=\"tasty\" />",
+      "text": "* 115 g chocolate\n* 1 cup (60 g) mini marshmallows"
+    },
+    {
+      "heading": "Brownie batter<ref name=\"tasty\" /><ref name=\"barrylewis\" />",
+      "text": "* 1 package (15 oz / 425 g) brownie mix\n* 1 egg\n* 3 tablespoons (40 ml) vegetable oil\n* 2½ tablespoons (37.5 ml) water"
+    },
+    {
+      "heading": "Pumpkin pie filling<ref name=\"barrylewis\" />",
+      "text": "* 1 egg\n* ¼ cup (55 g) superfine sugar\n* ¼ cup (45 g) light brown sugar\n* 1 cup (250 g) pumpkin purée\n* ⅓ cup (80 ml) heavy cream\n* 1 teaspoon vanilla extract\n* 1 heaped teaspoon mixed spice"
+    },
+    {
+      "heading": "Banana bread batter<ref name=\"barrylewis\" />",
+      "text": "* ½ stick (60 g) butter, softened\n* ⅓ cup (70 g) sugar\n* 1 egg\n* ½ cup (70 g) self-rising flour\n* 1 teaspoon baking powder\n* 1 banana, mashed"
+    },
+    {
+      "heading": "Cheesecake filling<ref name=\"barrylewis\" />",
+      "text": "* 125 g mascarpone\n* 1¼ cup (300 g) cream cheese\n* 1 egg\n* 1 egg yolk\n* 4 tablespoons all-purpose flour\n* ½ cup (110 g) superfine sugar"
+    },
+    {
+      "heading": "Assembly",
+      "text": "* 8 graham crackers\n* 2 sheets shortcrust pastry"
+    },
+    {
+      "heading": "Equipment",
+      "text": "* 7 mixing bowls\n* Wooden spoon or electric mixer\n* Spatula\n* Chopping board\n* Apple corer\n* Knife\n* Baking sheet\n* Paper towels\n* Whisk\n* 13×18-inch (33×46 cm) baking sheet with short walls\n* Baking paper\n* Pencil\n* Ruler"
+    },
+    {
+      "heading": "Notes, tips and variations",
+      "text": "* If the cookie dough is too sticky to handle, knead in additional flour, 1 tablespoon at a time.\n* You can decorate the cheesecake section with some raspberries.\n* Slices can have up to 4 flavors depending on how you cut it."
+    }
+  ],
+  "summary": {
+    "difficulty": 4,
+    "servings": "20",
+    "servingsHint": {
+      "min": 20
+    },
+    "time": "2 hours",
+    "timeMinutesHint": 120
+  },
+  "title": "8 Desserts in 1 Pan"
+}

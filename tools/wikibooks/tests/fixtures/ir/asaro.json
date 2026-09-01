@@ -1,0 +1,186 @@
+{
+  "categories": [
+    "Yoruba recipes",
+    "Recipes with images",
+    "Recipes using tomato",
+    "Recipes using chile",
+    "Recipes using onion",
+    "Recipes using broth and stock",
+    "Recipes using salt",
+    "Recipes using red bell pepper",
+    "Recipes using yam",
+    "Recipes using palm oil",
+    "Recipes using vegetable oil",
+    "Recipes using spinach",
+    "Recipes using fluted pumpkin"
+  ],
+  "ingredients": [
+    {
+      "display": "3 medium tomatoes",
+      "optional": false,
+      "raw": "3 medium [[Cookbook:Tomato|tomatoes]]",
+      "refs": [
+        "Tomato"
+      ]
+    },
+    {
+      "display": "2 red bell pepper<nowiki/>s",
+      "optional": false,
+      "raw": "2 red [[Cookbook:Bell Pepper|bell pepper]]<nowiki/>[[Cookbook:Bell Pepper|s]]",
+      "refs": [
+        "Bell Pepper"
+      ]
+    },
+    {
+      "display": "2 scotch bonnet chile peppers",
+      "optional": false,
+      "raw": "2 scotch bonnet [[Cookbook:Chiles|chile peppers]]",
+      "refs": [
+        "Chiles"
+      ]
+    },
+    {
+      "display": "1 medium onion",
+      "optional": false,
+      "raw": "1 medium [[Cookbook:Onion|onion]]",
+      "refs": [
+        "Onion"
+      ]
+    },
+    {
+      "display": "½ cup palm oil or vegetable oil",
+      "optional": false,
+      "raw": "½ [[Cookbook:Cup|cup]] [[Cookbook:Palm Oil|palm oil]] or [[Cookbook:Vegetable Oil|vegetable oil]]",
+      "refs": [
+        "Cup",
+        "Palm Oil",
+        "Vegetable Oil"
+      ]
+    },
+    {
+      "display": "2–3 seasoning cubes",
+      "optional": false,
+      "raw": "2–3 [[Cookbook:Dehydrated Broth|seasoning cubes]]",
+      "refs": [
+        "Dehydrated Broth"
+      ]
+    },
+    {
+      "display": "Salt to taste",
+      "optional": false,
+      "raw": "[[Cookbook:Salt|Salt]] to taste",
+      "refs": [
+        "Salt"
+      ]
+    },
+    {
+      "display": "200 g protein, such as fresh fish, meat, or smoked fish (optional)",
+      "optional": true,
+      "raw": "200 g protein, such as fresh [[Cookbook:Fish|fish]], [[Cookbook:Meat|meat]], or [[Cookbook:Dryfish|smoked fish]] (optional)",
+      "refs": [
+        "Fish",
+        "Meat",
+        "Dryfish"
+      ]
+    },
+    {
+      "display": "4 cups water or stock",
+      "optional": false,
+      "raw": "4 cups water or [[Cookbook:Broth and Stock|stock]]",
+      "refs": [
+        "Broth and Stock"
+      ]
+    },
+    {
+      "display": "1 medium (about 1 kg) yam, peeled and cubed",
+      "optional": false,
+      "raw": "1 medium (about 1 [[Cookbook:Kilogram|kg]]) [[Cookbook:Yam|yam]], peeled and [[Cookbook:Cube|cubed]]",
+      "refs": [
+        "Kilogram",
+        "Yam",
+        "Cube"
+      ]
+    },
+    {
+      "display": "Leafy vegetables such as spinach or ugu (optional)",
+      "optional": true,
+      "raw": "Leafy vegetables such as [[Cookbook:Spinach|spinach]] or [[Cookbook:Fluted Pumpkin|ugu]] (optional)",
+      "refs": [
+        "Spinach",
+        "Fluted Pumpkin"
+      ]
+    }
+  ],
+  "lead": "Asaro, also known as yam porridge is a traditional Nigerian dish made by cooking yam in a richly seasoned sauce of tomatoes, peppers, onions, and oil. It is particularly popular among the Yoruba people of southwestern Nigeria but is enjoyed throughout the country.",
+  "parseFlags": [
+    {
+      "code": "image-unresolved",
+      "detail": "Asaro ( Yam Porridge).jpg"
+    },
+    {
+      "code": "template-stripped",
+      "detail": "reflist"
+    }
+  ],
+  "procedure": [
+    {
+      "refs": [
+        "Puréeing"
+      ],
+      "text": "Blend the tomatoes, peppers, and onion into a smooth purée."
+    },
+    {
+      "refs": [],
+      "text": "Heat the oil in a pot and add the purée. Cook for about 10 minutes, stirring occasionally."
+    },
+    {
+      "refs": [],
+      "text": "Stir in seasoning cubes, salt, and any protein being used."
+    },
+    {
+      "refs": [
+        "Boiling"
+      ],
+      "text": "Stir in the water and bring to a boil."
+    },
+    {
+      "refs": [
+        "Simmering"
+      ],
+      "text": "Gently stir in the cubed yam. Cover and simmer, stirring occasionally, until the yam becomes soft and some of it has broken down to thicken the dish."
+    },
+    {
+      "refs": [],
+      "text": "Add leafy vegetables if desired and cook for an additional 3–5 minutes."
+    },
+    {
+      "refs": [],
+      "text": "Adjust seasoning and remove from heat."
+    }
+  ],
+  "publishable": true,
+  "sections": [
+    {
+      "heading": "Equipment",
+      "text": "* Cooking pot\n* Knife\n* Chopping board\n* Blender or food processor\n* Mixing bowls\n* Measuring cups and spoons\n* Wooden spoon\n* Colander or sieve\n* Stove or other heat source"
+    },
+    {
+      "heading": "Notes, tips, and variations",
+      "text": "* Do not over-stir during cooking, as this may cause all the yam pieces to break apart. The dish should be thick and creamy but still contain visible yam chunks.\n* Fresh stock can be used to enhance flavor.\n* The amount of chile pepper can be adjusted according to personal taste."
+    }
+  ],
+  "summary": {
+    "cuisine": "Nigerian",
+    "difficulty": 3,
+    "image": "Asaro ( Yam Porridge).jpg",
+    "origin": "Nigeria",
+    "servings": "3–4",
+    "servingsHint": {
+      "max": 4,
+      "min": 3
+    },
+    "time": "1 hour",
+    "timeMinutesHint": 60
+  },
+  "title": "Asaro"
+}

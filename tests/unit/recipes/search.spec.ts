@@ -144,6 +144,38 @@ describe('createRecipeSearch — identity + lifecycle', () => {
     expect(names(second.query('salt'))).toEqual([]); // old entry gone
     expect(names(second.query('pepper'))).toEqual(['Third']); // new entry searchable
   });
+
+  // Recipe-loading perf: at corpus size (4k records) an eager index build costs
+  // real time on EVERY feed change — and browse re-derives the feed array on
+  // each progressive load and revalidation update. Construction must not read
+  // the record bodies at all; only the first non-empty query builds the index.
+  it('defers all record reads (index build) until the first non-empty query', () => {
+    let reads = 0;
+    const counted = (rkey: string, name: string): CachedRecipe => {
+      const value: Record<string, unknown> = {
+        text: '',
+        ingredients: ['thyme'],
+        instructions: [],
+        createdAt: '2026-07-15T00:00:00Z',
+        updatedAt: '2026-07-15T00:00:00Z',
+      };
+      Object.defineProperty(value, 'name', {
+        enumerable: true,
+        get: () => {
+          reads += 1;
+          return name;
+        },
+      });
+      return cached(value, rkey);
+    };
+    const entries = [counted('l1', 'Lazy One'), counted('l2', 'Lazy Two')];
+    const search = createRecipeSearch(entries);
+    expect(reads).toBe(0); // construction touched nothing
+    expect(search.query('')).toEqual(entries); // identity path stays index-free
+    expect(reads).toBe(0);
+    expect(names(search.query('lazy'))).toEqual(['Lazy One', 'Lazy Two']);
+    expect(reads).toBeGreaterThan(0); // the first real query built the index
+  });
 });
 
 describe('createSearchMemo — identity memoization', () => {

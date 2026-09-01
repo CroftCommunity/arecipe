@@ -1,0 +1,46 @@
+{{Recipe summary
+| Category = Meat recipes
+| Cuisine = Albanian
+| Servings = 4
+| Difficulty = 3
+}}
+
+{{recipe}} | [[Cookbook:Cuisine of Albania|Cuisine of Albania]] | [[Cookbook:Meat Recipes|Meat Recipes]]
+
+'''Fried meatballs''' ('''''qofte të fërguara''''') is an Albanian dish.
+
+==Ingredients==
+*1 slice stale [[Cookbook:Bread|bread]]
+*1 [[Cookbook:Pound|lb]] ground [[Cookbook:Meat|meat]]
+*1 small [[Cookbook:Onion|onion]], finely-[[Cookbook:Grating|grated]]
+*2 [[Cookbook:Tablespoon|tablespoons]] [[Cookbook:Chopping|chopped]] [[Cookbook:Feta_Cheese|feta]] cheese
+*2 tablespoons [[Cookbook:Bread Crumb|bread crumbs]]
+*2 tablespoons [[Cookbook:Oil|oil]] or melted [[Cookbook:Butter|butter]]
+*1 tablespoon chopped [[Cookbook:Parsley|parsley]]
+*[[Cookbook:Salt|Salt]]
+*[[Cookbook:Pepper|Pepper]]
+*[[Cookbook:Mint|Mint]]
+*[[Cookbook:Oregano|Oregano]]
+*1 [[Cookbook:Cup|cup]] [[Cookbook:Flour|flour]]
+*1 cup [[Cookbook:Oil|oil]] ([[Cookbook:Olive Oil|olive oil]] recommended)
+
+==Procedure==
+#Soak bread in water and squeeze hard to drain. 
+#Combine soaked bread, ground meat, bread crumbs, oil or melted butter, onion, cheese, parsley, salt, pepper, and mint, and mix thoroughly.
+#Form mixture into 1 [[Cookbook:Inch|inch]]-thick patties, then sprinkle with salt, pepper, and oregano. 
+#Roll in flour and [[Cookbook:Frying|fry]] in hot oil. 
+#Serve hot with French fries or mashed potatoes.
+
+==References==
+''This article contains information from [http://www.frosina.org Frosina.org] and it is used with [[w:User:Dori/www.frosina.org permission|permission]].''
+
+[[Category:Recipes using meat|{{PAGENAME}}]]
+[[Category:Pan fried recipes]]
+[[Category:Main course recipes]]
+[[Category:Albanian recipes|{{PAGENAME}}]]
+[[Category:Albanian recipes]]
+[[Category:Recipes using butter]]
+[[Category:Recipes using bread]]
+[[Category:Recipes using feta]]
+[[Category:Recipes using wheat flour]]
+[[Category:Recipes using mint]]

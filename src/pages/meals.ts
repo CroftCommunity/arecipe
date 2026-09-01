@@ -15,7 +15,6 @@
 import type { Agent } from '@atproto/api';
 import { mountBuildStamp } from '../build-stamp.js';
 import { resolveDidDoc } from '../identity/did.js';
-import { resetIcon, resetIconButton } from '../icons.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
 import { createResolver } from '../identity/resolve.js';
@@ -25,7 +24,15 @@ import {
   MEALS_PER_DAY_MAX,
   MEALS_PER_DAY_MIN,
 } from '../recipes/meal-plan.js';
-import { dateForSlot, formatShortDate, nextMonday, weekRangeLabel } from '../recipes/meal-plan-dates.js';
+import {
+  addDays,
+  dateForSlot,
+  formatDayMonth,
+  formatShortDate,
+  formatWeekday,
+  nextMonday,
+  weekRangeLabel,
+} from '../recipes/meal-plan-dates.js';
 import { createCalendarClient } from '../publish/client.js';
 import { createTastePreference, matchesTaste } from '../recipes/taste-preference.js';
 import {
@@ -58,20 +65,27 @@ import {
 import { createRecipeCache } from '../recipes/cache.js';
 import { createRecordReader } from '../recipes/read.js';
 import {
+  applyStaples,
+  combinedLineKey,
   combinedLineText,
   expandedWeekCount,
+  filterForShopping,
   planDateBounds,
+  rawLineKey,
+  renderAiShopperText,
   renderByRecipeMarkdown,
   renderCombinedMarkdown,
   renderShoppingListDocument,
   resolveShoppingList,
   scaleIngredientLine,
   shoppingListFilename,
+  stapleLineKeys,
   type IngredientFetcher,
   type ShoppingList,
   type ShoppingPlan,
   type ShoppingRange,
 } from '../recipes/shopping-list.js';
+import { createShoppingPrefs } from '../recipes/shopping-prefs.js';
 import { registerServiceWorker } from '../sw-register.js';
 
 export type PaletteProvider = () => Promise<PaletteItem[]>;
@@ -129,12 +143,13 @@ const readSeed = (): PaletteItem[] => {
   }
 };
 
-/** Build the calendar rows for a plan: one `.cal-week` per expanded week, days
- *  labelled with real dates when the plan has a `startDate` (the first Monday).
- *  Shared by the planner (read-only names) and the shared view (`linkRecipes`
- *  makes each placed meal a link to its recipe). Returns the empty-state element
- *  when nothing is planned. Pure. */
-const buildCalendarRows = (plan: LocalPlan, opts: { linkRecipes: boolean }): HTMLElement[] => {
+/** Build the calendar rows for a published plan: one `.cal-week` per expanded
+ *  week, days labelled with real dates when the plan has a `startDate` (the
+ *  first Monday), each placed meal a link to its recipe. The SHARED read-only
+ *  view's renderer — the planner grounds its own week grid instead (see
+ *  renderBuilder). Returns the empty-state element when nothing is planned.
+ *  Pure. */
+const buildCalendarRows = (plan: LocalPlan): HTMLElement[] => {
   const anyPlanned = plan.weeks.some((w) => w.days.some((s) => s.meals.length > 0));
   if (!anyPlanned) {
     const empty = el(
@@ -174,20 +189,18 @@ const buildCalendarRows = (plan: LocalPlan, opts: { linkRecipes: boolean }): HTM
       const cell = el('div', 'cal-day');
       const dayIso = start !== undefined ? dateForSlot(start, rowIndex, di) : null;
       const shortDay = dayIso !== null ? formatShortDate(dayIso) : null;
-      cell.append(el('span', 'day-label', shortDay !== null ? `${DAY_LABELS[di]} ${shortDay}` : DAY_LABELS[di]));
+      // Weekday follows the real date (a plan can start on any weekday), falling
+      // back to the fixed Mon-first label only when the plan has no anchor.
+      const dow = (dayIso !== null ? formatWeekday(dayIso) : null) ?? DAY_LABELS[di];
+      cell.append(el('span', 'day-label', shortDay !== null ? `${dow} ${shortDay}` : dow));
       if (slot.meals.length > 0) {
         cell.classList.add('day--filled');
         // One line per meal, "Type: Recipe" (type from the recipe's category).
         for (const meal of slot.meals) {
-          const text = mealLineText(meal);
-          if (opts.linkRecipes) {
-            const link = el('a', 'cal-slot', text) as HTMLAnchorElement;
-            link.href = `./recipe.html?u=${encodeURIComponent(meal.recipe.uri)}`;
-            link.dataset['testid'] = 'shared-meal';
-            cell.append(link);
-          } else {
-            cell.append(el('span', 'cal-slot', text));
-          }
+          const link = el('a', 'cal-slot', mealLineText(meal)) as HTMLAnchorElement;
+          link.href = `./recipe.html?u=${encodeURIComponent(meal.recipe.uri)}`;
+          link.dataset['testid'] = 'shared-meal';
+          cell.append(link);
         }
       }
       daysEl.append(cell);
@@ -264,6 +277,21 @@ const buildShoppingListSection = (
   let detail = false;
   let list: ShoppingList | null = null;
   let downloadUrl: string | null = null;
+
+  // Device-local shopping prefs (staples + AI instructions), re-read on each open
+  // so an edit on the Account page takes effect without a reload.
+  const prefs = createShoppingPrefs();
+  let staples: string[] = [];
+  let aiInstructions = '';
+  // In-panel "I already have this" check-off, keyed by the shared line key (so a
+  // name checked in one tab is excluded in the other). Kept for the panel's life;
+  // keys that still exist after a range change stay checked.
+  const checked = new Set<string>();
+  const isExcluded = (key: string): boolean => checked.has(key);
+  // The honest payload: the built list minus staples and checked-off lines. Copy,
+  // Download, and AI shopper all render from THIS; the panel shows the full list.
+  const payloadList = (): ShoppingList | null =>
+    list === null ? null : filterForShopping(list, isExcluded);
   const revoke = (): void => {
     if (downloadUrl !== null) URL.revokeObjectURL(downloadUrl);
     downloadUrl = null;
@@ -342,20 +370,36 @@ const buildShoppingListSection = (
   const copyBtn = el('button', 'button shopping-copy', 'Copy') as HTMLButtonElement;
   copyBtn.type = 'button';
   copyBtn.dataset['testid'] = 'shopping-copy';
+  const aiBtn = el('button', 'button shopping-ai', 'AI shopper') as HTMLButtonElement;
+  aiBtn.type = 'button';
+  aiBtn.title = 'Copy as instructions for an AI shopping agent';
+  aiBtn.dataset['testid'] = 'shopping-ai';
   const downloadSlot = el('span', 'shopping-download-slot');
   const closeBtn = el('button', 'button shopping-close', 'Close') as HTMLButtonElement;
   closeBtn.type = 'button';
   closeBtn.dataset['testid'] = 'shopping-close';
-  actionsRow.append(detailBtn, copyBtn, downloadSlot, closeBtn);
+  actionsRow.append(detailBtn, copyBtn, aiBtn, downloadSlot, closeBtn);
 
   panel.append(rangeRow, tabsRow, contentEl, actionsRow);
 
-  const activeMarkdown = (): string =>
-    list === null
+  // Copy renders the honest payload (staples + checked-off lines removed), not
+  // the full on-screen list.
+  const activeMarkdown = (): string => {
+    const p = payloadList();
+    return p === null
       ? ''
       : activeTab === 'combined'
-        ? renderCombinedMarkdown(list, { sources: detail })
-        : renderByRecipeMarkdown(list, { multiply: detail });
+        ? renderCombinedMarkdown(p, { sources: detail })
+        : renderByRecipeMarkdown(p, { multiply: detail });
+  };
+
+  // Toggle one line's "already have" state; refresh only what depends on it (the
+  // prebuilt download link — Copy/AI read live on click).
+  const onToggle = (key: string, on: boolean): void => {
+    if (on) checked.add(key);
+    else checked.delete(key);
+    updateDownload();
+  };
 
   // The toggle's label reflects what it does in the CURRENT tab (By-recipe →
   // scale amounts by ×N; Combined → show which recipes each ingredient is from).
@@ -376,18 +420,37 @@ const buildShoppingListSection = (
     }
     contentEl.append(
       activeTab === 'combined'
-        ? renderCombinedDom(list, { sources: detail })
-        : renderByRecipeDom(list, { multiply: detail }),
+        ? renderCombinedDom(list, { sources: detail, checked, onToggle })
+        : renderByRecipeDom(list, { multiply: detail, checked, onToggle }),
     );
+    // When no staple matched this menu, the "Be sure to double check" section is
+    // absent — leave a hint so the feature is never a silent no-op.
+    if (stapleLineKeys(list).length === 0) {
+      const hint = el('p', 'status shopping-staple-hint');
+      hint.dataset['testid'] = 'shopping-staple-hint';
+      if (staples.length === 0) {
+        const link = el('a', 'friend-link', 'your Account') as HTMLAnchorElement;
+        link.href = './account.html';
+        hint.append(
+          document.createTextNode('Tip: add pantry staples (salt, oil, sugar…) on '),
+          link,
+          document.createTextNode(' and they’ll be ticked off here automatically, so you only copy what you still need.'),
+        );
+      } else {
+        hint.textContent = `None of your staples (${staples.join(', ')}) are in this menu.`;
+      }
+      contentEl.append(hint);
+    }
   };
 
   const updateDownload = (): void => {
     revoke();
-    if (list === null) return;
+    const payload = payloadList();
+    if (payload === null) return;
     const plan = getPlan();
     const range = currentRange();
     const label = shoppingRangeLabel(plan, range);
-    const doc = renderShoppingListDocument(list, {
+    const doc = renderShoppingListDocument(payload, {
       planName: planTitle(plan as LocalPlan),
       rangeLabel: label,
       detail,
@@ -405,7 +468,12 @@ const buildShoppingListSection = (
     list = null;
     renderContent();
     try {
-      list = await resolveShoppingList(getPlan(), currentRange(), fetchIngredients);
+      const built = await resolveShoppingList(getPlan(), currentRange(), fetchIngredients);
+      // Flag staples so they drop to the "Be sure to double check" section, and
+      // seed them CHECKED (assumed on hand) — so they start excluded from
+      // copy/download/AI, but the cook can un-tick one they're actually out of.
+      list = applyStaples(built, staples);
+      for (const key of stapleLineKeys(list)) checked.add(key);
     } catch (err) {
       log.warn('meal-plan', 'shopping list build failed', { error: String(err) });
       contentEl.replaceChildren(el('p', 'status', `couldn’t build the list: ${String(err)}`));
@@ -428,16 +496,23 @@ const buildShoppingListSection = (
     renderContent();
     updateDownload();
   });
-  copyBtn.addEventListener('click', () => {
-    const done = navigator.clipboard?.writeText(activeMarkdown());
+  // Flash a button's label to confirm a clipboard copy, then restore it.
+  const flashCopied = (btn: HTMLButtonElement, restore: string, payload: string): void => {
+    const done = navigator.clipboard?.writeText(payload);
     if (done === undefined) return;
     void done.then(
       () => {
-        copyBtn.textContent = 'Copied';
-        window.setTimeout(() => (copyBtn.textContent = 'Copy'), 1200);
+        btn.textContent = 'Copied';
+        window.setTimeout(() => (btn.textContent = restore), 1200);
       },
       () => undefined,
     );
+  };
+  copyBtn.addEventListener('click', () => flashCopied(copyBtn, 'Copy', activeMarkdown()));
+  aiBtn.addEventListener('click', () => {
+    const payload = payloadList();
+    if (payload === null) return;
+    flashCopied(aiBtn, 'AI shopper', renderAiShopperText(payload, { instructions: aiInstructions }));
   });
   closeBtn.addEventListener('click', () => {
     panel.hidden = true;
@@ -450,6 +525,10 @@ const buildShoppingListSection = (
       return;
     }
     panel.hidden = false;
+    // Re-read device-local prefs each open so Account-page edits take effect.
+    const loaded = prefs.load();
+    staples = loaded.staples;
+    aiInstructions = loaded.aiInstructions;
     buildRangeControls();
     void regenerate();
   });
@@ -457,27 +536,71 @@ const buildShoppingListSection = (
   return { button: openBtn, panel };
 };
 
-/** The Combined tab as DOM (aggregated lines, "as listed", unavailable). With
- * `sources`, each aggregated line carries the recipes it was drawn from. */
-const renderCombinedDom = (list: ShoppingList, opts: { sources?: boolean } = {}): HTMLElement => {
+/** Check-off wiring shared by both tabs: which line keys are marked "already
+ * have", and the toggle callback. Absent → the list renders read-only. */
+type CheckOpts = { checked?: Set<string>; onToggle?: (key: string, on: boolean) => void };
+
+/** A tappable shopping line: a checkbox + label. Toggling marks "I already have
+ * this" — the row strikes through and drops out of the copy/download/AI payload.
+ * `extraClass` carries the line's own styling (e.g. flagged/combined). */
+const checkableLine = (text: string, key: string, extraClass: string, opts: CheckOpts): HTMLElement => {
+  const li = el('li', `shopping-line ${extraClass}`.trim());
+  const label = el('label', 'shopping-check');
+  const box = document.createElement('input');
+  box.type = 'checkbox';
+  box.className = 'shopping-check-box';
+  box.checked = opts.checked?.has(key) === true;
+  box.dataset['testid'] = 'shopping-check';
+  box.setAttribute('aria-label', `Already have ${text}`);
+  box.addEventListener('change', () => {
+    li.classList.toggle('is-checked', box.checked);
+    opts.onToggle?.(key, box.checked);
+  });
+  label.append(box, el('span', 'shopping-check-text', text));
+  li.classList.toggle('is-checked', box.checked);
+  li.append(label);
+  return li;
+};
+
+/** The bottom "Be sure to double check" section: staples, pre-checked (assumed
+ * on hand → excluded from the payload). Un-tick one you're actually out of and it
+ * rejoins the shopping list. `rows` is [displayText, checkKey] pairs. */
+const doubleCheckSection = (rows: [string, string][], opts: CheckOpts): HTMLElement | null => {
+  if (rows.length === 0) return null;
+  const frag = el('div', 'shopping-doublecheck-section');
+  frag.dataset['testid'] = 'shopping-doublecheck';
+  frag.append(el('h4', 'shopping-subhead shopping-doublecheck-head', 'Be sure to double check'));
+  const ul = el('ul', 'shopping-list-ul shopping-checklist');
+  for (const [text, key] of rows) ul.append(checkableLine(text, key, 'shopping-doublecheck-line', opts));
+  frag.append(ul);
+  return frag;
+};
+
+/** The Combined tab as DOM (aggregated lines, "as listed", unavailable). Shop
+ * lines are checkable; staples drop to the pre-checked "Be sure to double check"
+ * section. With `sources`, each aggregated line carries its source recipes. */
+const renderCombinedDom = (list: ShoppingList, opts: { sources?: boolean } & CheckOpts = {}): HTMLElement => {
   const wrap = el('div', 'shopping-combined');
   wrap.dataset['testid'] = 'shopping-combined';
+  const shopLines = list.combined.lines.filter((l) => l.staple !== true);
+  const shopAsListed = list.combined.asListed.filter((l) => l.staple !== true);
+
   if (list.combined.lines.length === 0) {
     wrap.append(el('p', 'status', 'Nothing to combine.'));
-  } else {
-    const ul = el('ul', 'shopping-list-ul');
-    for (const line of list.combined.lines) {
-      const li = el('li', 'shopping-combined-line', combinedLineText(line, opts));
+  } else if (shopLines.length > 0) {
+    const ul = el('ul', 'shopping-list-ul shopping-checklist');
+    for (const line of shopLines) {
+      const li = checkableLine(combinedLineText(line, opts), combinedLineKey(line), 'shopping-combined-line', opts);
       li.dataset['testid'] = 'shopping-combined-line';
       ul.append(li);
     }
     wrap.append(ul);
   }
-  if (list.combined.asListed.length > 0) {
+  if (shopAsListed.length > 0) {
     wrap.append(el('h4', 'shopping-subhead', 'As listed'));
-    const ul = el('ul', 'shopping-list-ul');
-    for (const item of list.combined.asListed) {
-      ul.append(el('li', 'shopping-aslisted', `${item.raw} (from ${item.recipes.join(', ')})`));
+    const ul = el('ul', 'shopping-list-ul shopping-checklist');
+    for (const item of shopAsListed) {
+      ul.append(checkableLine(`${item.raw} (from ${item.recipes.join(', ')})`, rawLineKey(item.raw), 'shopping-aslisted', opts));
     }
     wrap.append(ul);
   }
@@ -491,19 +614,29 @@ const renderCombinedDom = (list: ShoppingList, opts: { sources?: boolean } = {})
     }
     wrap.append(ul);
   }
+  const stapleRows: [string, string][] = [
+    ...list.combined.lines.filter((l) => l.staple === true).map((l): [string, string] => [combinedLineText(l, opts), combinedLineKey(l)]),
+    ...list.combined.asListed.filter((l) => l.staple === true).map((l): [string, string] => [l.raw, rawLineKey(l.raw)]),
+  ];
+  const dc = doubleCheckSection(stapleRows, opts);
+  if (dc !== null) wrap.append(dc);
   return wrap;
 };
 
 /** The By-recipe tab as DOM (one section per recipe, verbatim lines, flags).
- * With `multiply`, each line's amount is scaled by the recipe's ×N (a bare line
- * gets an occurrence count; an unparseable line stays verbatim). */
-const renderByRecipeDom = (list: ShoppingList, opts: { multiply?: boolean } = {}): HTMLElement => {
+ * Shop lines are checkable; staples are pulled out to one shared, pre-checked
+ * "Be sure to double check" section at the bottom (deduped across recipes). With
+ * `multiply`, each line's amount is scaled by the recipe's ×N (a bare line gets
+ * an occurrence count; an unparseable line stays verbatim). */
+const renderByRecipeDom = (list: ShoppingList, opts: { multiply?: boolean } & CheckOpts = {}): HTMLElement => {
   const wrap = el('div', 'shopping-byrecipe');
   wrap.dataset['testid'] = 'shopping-byrecipe';
   const anyFlagged = list.byRecipe.some((s) => s.unavailable || s.lines.some((l) => l.flagged));
   if (anyFlagged) {
     wrap.append(el('p', 'shopping-legend', '⚑ couldn’t be combined — check this line yourself.'));
   }
+  // Staples across every recipe, deduped by check key (first spelling wins).
+  const staples = new Map<string, string>();
   for (const s of list.byRecipe) {
     const sec = el('div', 'shopping-recipe-section');
     sec.dataset['testid'] = 'shopping-recipe-section';
@@ -513,17 +646,28 @@ const renderByRecipeDom = (list: ShoppingList, opts: { multiply?: boolean } = {}
       p.dataset['testid'] = 'shopping-recipe-unavailable';
       sec.append(p);
     } else {
-      const ul = el('ul', 'shopping-list-ul');
+      const ul = el('ul', 'shopping-list-ul shopping-checklist');
       for (const line of s.lines) {
         const text = opts.multiply === true ? scaleIngredientLine(line.raw, s.count) : line.raw;
-        const li = el('li', line.flagged ? 'shopping-line shopping-flagged' : 'shopping-line', line.flagged ? `${text} ⚑` : text);
+        if (line.staple === true) {
+          const key = rawLineKey(line.raw);
+          if (!staples.has(key)) staples.set(key, text);
+          continue;
+        }
+        const li = checkableLine(line.flagged ? `${text} ⚑` : text, rawLineKey(line.raw), line.flagged ? 'shopping-flagged' : '', opts);
         if (line.flagged) li.dataset['testid'] = 'shopping-flagged';
         ul.append(li);
       }
-      sec.append(ul);
+      if (ul.childElementCount === 0) {
+        sec.append(el('p', 'status', 'Only pantry staples — see below.'));
+      } else {
+        sec.append(ul);
+      }
     }
     wrap.append(sec);
   }
+  const dc = doubleCheckSection([...staples].map(([key, text]): [string, string] => [text, key]), opts);
+  if (dc !== null) wrap.append(dc);
   return wrap;
 };
 
@@ -572,7 +716,7 @@ const showSharedPlan = async (
     titleRow.append(shopping.button);
     head.append(titleRow, shopping.panel);
     const calendar = el('section', 'calendar');
-    for (const row of buildCalendarRows(plan, { linkRecipes: true })) calendar.append(row);
+    for (const row of buildCalendarRows(plan)) calendar.append(row);
     body.replaceChildren(head, calendar);
     log.debug('shell', 'mounted', { page: 'meals', view: 'shared-plan' });
   } catch (err) {
@@ -593,17 +737,28 @@ const publishedLabel = (iso: string): string => {
   return short !== null ? `${short}, ${datePart.slice(0, 4)}` : datePart;
 };
 
-/** Your published meal plans (a Meals subpage: `meals.html?plans`). Signed-in
+/** "Start planning →" — the nudge from the Menu (published) view's empty and
+ *  signed-out states to the Plan builder. Menu is its own top-level tab, so a
+ *  new or signed-out cook can land here with nothing to show; this keeps that
+ *  from being a dead end. */
+const startPlanningLink = (): HTMLAnchorElement => {
+  const link = el('a', 'button button--primary', 'Start planning →') as HTMLAnchorElement;
+  link.href = './plan.html';
+  link.dataset['testid'] = 'start-planning';
+  return link;
+};
+
+/** Your published meal plans (the Menu default: `meals.html`). Signed-in
  *  only — lists the account's app.arecipe.mealPlan records with their week range
  *  and publish date, a link to the shareable view, and a guarded delete. */
 const showPublishedPlans = async (app: HTMLElement): Promise<void> => {
   const content = el('section', 'panel');
+  // A slim header row: the Archive link on the left (populated once plans
+  // load) and the calendar-publish chip pinned upper right; the tab itself is
+  // labeled by the nav, so no page title.
   const header = el('div', 'meals-header');
-  header.append(el('h2', 'section-title', 'Your published plans'));
-  const back = el('a', 'friend-link', '‹ Back to planner') as HTMLAnchorElement;
-  back.href = './meals.html';
-  back.dataset['testid'] = 'plans-back';
-  header.append(back);
+  const headerActions = el('div', 'meals-actions');
+  header.append(headerActions);
   content.append(header);
   const body = el('div');
   body.dataset['testid'] = 'published-plans';
@@ -614,6 +769,54 @@ const showPublishedPlans = async (app: HTMLElement): Promise<void> => {
 
   body.replaceChildren(el('p', 'status', 'loading your published plans…'));
   let agent: Agent | null = null;
+
+  // Calendar-publish status chip (D9): a device-local enabled/sync indicator
+  // with a manual Resync, riding the Menu header's right edge — the calendar
+  // mirrors the published plans listed here. Hidden unless the feature is
+  // enabled on this device; rendered before auth so it shows signed-out too.
+  const calendarClient = createCalendarClient();
+  const listPublished = async (): Promise<LocalPlan[]> => {
+    if (agent?.did === undefined) return [];
+    const { pds } = await resolveDidDoc(agent.did);
+    return listPdsPlans(pds, agent.did);
+  };
+  const calChip = el('div', 'calendar-chip');
+  calChip.dataset['testid'] = 'calendar-sync-status';
+  const refreshChip = (): void => {
+    const cfg = calendarClient.config.load();
+    if (!cfg.enabled) {
+      calChip.hidden = true;
+      calChip.replaceChildren();
+      return;
+    }
+    calChip.hidden = false;
+    const st = calendarClient.syncState.load();
+    const labels: Record<string, string> = {
+      unknown: 'Calendar: on',
+      syncing: 'Calendar: syncing…',
+      synced: 'Calendar: synced ✓',
+      error: 'Calendar: sync failed ⚠',
+      'needs-token': 'Calendar: reconnect',
+    };
+    const label = el('span', 'calendar-chip-label', labels[st.status] ?? 'Calendar');
+    if (st.status === 'error' && st.message !== undefined) label.title = st.message;
+    const resync = el('button', 'button calendar-resync', 'Resync') as HTMLButtonElement;
+    resync.type = 'button';
+    resync.dataset['testid'] = 'calendar-resync';
+    resync.addEventListener('click', () => {
+      const p = calendarClient.republish(listPublished);
+      refreshChip(); // reflects 'syncing' (set synchronously at the start)
+      void p.finally(() => refreshChip());
+    });
+    calChip.replaceChildren(label, resync);
+    if (st.status === 'needs-token') {
+      const setLink = el('a', 'friend-link', 'Set token') as HTMLAnchorElement;
+      setLink.href = './account.html';
+      calChip.append(setLink);
+    }
+  };
+  headerActions.append(calChip);
+  refreshChip();
   try {
     const { bootSession } = await import('../auth/boot.js');
     ({ agent } = await bootSession());
@@ -621,7 +824,10 @@ const showPublishedPlans = async (app: HTMLElement): Promise<void> => {
     log.warn('meal-plan', 'auth for published plans failed', { error: String(err) });
   }
   if (agent === null || agent.did === undefined) {
-    body.replaceChildren(el('p', 'status', 'Sign in to see your published meal plans.'));
+    body.replaceChildren(
+      el('p', 'status', 'Sign in to see your published meal plans.'),
+      startPlanningLink(),
+    );
     return;
   }
   const did = agent.did;
@@ -640,10 +846,8 @@ const showPublishedPlans = async (app: HTMLElement): Promise<void> => {
     // deletion (the records are untouched).
     const { active: activePlans, archived: archivedPlans } = partitionPlans(plans, new Date());
     // Deleting a published plan (a date range) must also update the subscribable
-    // calendar in place (no-op unless enabled on this device); regenerate from
-    // the remaining set.
-    const calendarClient = createCalendarClient();
-    const listPublished = (): Promise<LocalPlan[]> => listPdsPlans(pds, did);
+    // calendar in place (no-op unless enabled on this device); the header
+    // chip's client + lister above regenerate from the remaining set.
 
     // Below the list (past a divider): a read-only month calendar with every
     // published plan filled in. Days holding meals are tappable — selecting one
@@ -756,9 +960,12 @@ const showPublishedPlans = async (app: HTMLElement): Promise<void> => {
       body.replaceChildren(listEl, divider, monthCal);
       renderMonthCal(list);
       if (list.length === 0) {
-        listEl.replaceChildren(
-          el('p', 'empty-state', 'No published meal plans yet — Publish one from the planner.'),
+        const empty = el('div', 'empty-state');
+        empty.append(
+          el('p', undefined, 'No published meal plans yet.'),
+          startPlanningLink(),
         );
+        listEl.replaceChildren(empty);
         return;
       }
       listEl.replaceChildren();
@@ -781,7 +988,7 @@ const showPublishedPlans = async (app: HTMLElement): Promise<void> => {
         // replaces this record in place) + a guarded Delete.
         const actions = el('div', 'plan-actions');
         const edit = el('a', 'button', 'Edit') as HTMLAnchorElement;
-        edit.href = `./meals.html?edit=${encodeURIComponent(plan.id)}`;
+        edit.href = `./plan.html?edit=${encodeURIComponent(plan.id)}`;
         edit.dataset['testid'] = 'plan-edit';
 
         // Delete: guarded inline confirm (removes the PDS record).
@@ -800,7 +1007,9 @@ const showPublishedPlans = async (app: HTMLElement): Promise<void> => {
             confirm.addEventListener('click', () => {
               void removePlanFromPds(boundAgent, plan.id)
                 .then(() => {
-                  void calendarClient.republish(listPublished); // in-place calendar update
+                  const calP = calendarClient.republish(listPublished); // in-place calendar update
+                  refreshChip();
+                  void calP.finally(() => refreshChip());
                   render(list.filter((x) => x.id !== plan.id));
                 })
                 .catch((err: unknown) => {
@@ -831,7 +1040,7 @@ const showPublishedPlans = async (app: HTMLElement): Promise<void> => {
     ) as HTMLAnchorElement;
     archiveLink.href = './archive.html';
     archiveLink.dataset['testid'] = 'plans-archive-link';
-    header.append(archiveLink);
+    header.prepend(archiveLink);
     render(activePlans);
     log.debug('shell', 'mounted', { page: 'meals', view: 'published-plans', archived: archivedPlans.length });
   } catch (err) {
@@ -853,21 +1062,24 @@ export const main = async (
     await showSharedPlan(app, sharedRkey.trim(), routeParams.get('user'));
     return;
   }
-  // "Your published plans" subpage (signed-in management view).
-  if (routeParams.get('plans') !== null) {
-    await showPublishedPlans(app);
-    return;
-  }
-
-  const store = deps.store ?? createMealPlanStore();
-  const signedInHint = sessionHintSignedIn();
-
+  // meals.js serves both nav tabs. The Plan builder lives at /plan.html; the
+  // Menu published view at /meals.html (the default). ?edit=<rkey> is the
+  // staged-edit sub-flow — the builder — so it renders wherever it's opened
+  // (its links point at /plan.html).
+  const onPlanPage = /\/plan\.html$/.test(window.location.pathname);
   // Edit mode (?edit=<rkey>): open a published plan as a STAGED local copy —
   // edits stay local (no write-through) until "Publish update" replaces the
   // published record in place (same rkey → the share link survives). Signed-in
   // only: publishing back needs the account, so the session boots eagerly here.
   const editParam = routeParams.get('edit');
   const editRkey = editParam !== null && editParam.trim() !== '' ? editParam.trim() : null;
+  if (!onPlanPage && editRkey === null) {
+    await showPublishedPlans(app);
+    return;
+  }
+
+  const store = deps.store ?? createMealPlanStore();
+  const signedInHint = sessionHintSignedIn();
   let editStaged: LocalPlan | null = null;
   let editAgent: Agent | null = null;
   if (editRkey !== null) {
@@ -876,8 +1088,8 @@ export const main = async (
     editBody.dataset['testid'] = 'edit-plan';
     loadPanel.append(el('h2', 'section-title', 'Edit published plan'), editBody);
     const backToPlans = (): HTMLAnchorElement => {
-      const back = el('a', 'friend-link', '‹ Back to published plans') as HTMLAnchorElement;
-      back.href = './meals.html?plans';
+      const back = el('a', 'friend-link', '‹ Back to Menu') as HTMLAnchorElement;
+      back.href = './meals.html';
       back.dataset['testid'] = 'plans-back';
       return back;
     };
@@ -931,6 +1143,12 @@ export const main = async (
   // × and "Clear day" are comfortably tappable. Keyed `${weekIndex}:${dayIndex}`;
   // survives re-renders (renderBuilder rebuilds the DOM each time).
   const expandedDays = new Set<string>();
+  // Per-week day layout (view-only, in-memory like expandedDays): a week whose
+  // index is in this set shows its 7 days STACKED vertically (full-width rows)
+  // instead of the default horizontal 7-column grid. Each week toggles its own,
+  // keyed by week index — matching expandedDays' index keying (view state, not
+  // part of the record, so it isn't reindexed on add/remove).
+  const stackedWeeks = new Set<number>();
   // Set once the session is booted (signed in): enables write-through to the
   // PDS. Edit mode already booted eagerly above.
   let syncAgent: Agent | null = editAgent;
@@ -946,16 +1164,13 @@ export const main = async (
   let you: { did: string; pds: string } | null = null;
 
   const content = el('section', 'panel');
-  // Title row: "Meals" on the left, "Menu" (+ the calendar chip) at the
-  // right. The per-day cap lives on its own line below; the Reset control rides
-  // the week-actions row (right-aligned, opposite Add/Repeat).
-  const header = el('div', 'meals-header');
-  header.append(el('h2', 'section-title', 'Meals'));
-  const headerActions = el('div', 'meals-actions');
+  // No page title — the nav tab labels this view. The per-day cap lives on its
+  // own line at the top, the Reset control on the start row; the
+  // calendar-publish chip rides the Menu (published plans) header instead.
   // "Recipes per day" cap: how many recipes a day may hold. A plan-level setting
   // that gates adding (never deletes what's already placed); persisted + synced.
   const perDayLabel = el('label', 'meals-perday');
-  perDayLabel.append(el('span', 'meals-perday-label', 'Recipes per day'));
+  perDayLabel.append(el('span', 'meals-perday-label', 'Per Day'));
   const perDaySelect = el('select', 'meals-perday-select') as HTMLSelectElement;
   perDaySelect.dataset['testid'] = 'meals-per-day';
   for (let n = MEALS_PER_DAY_MIN; n <= MEALS_PER_DAY_MAX; n += 1) {
@@ -970,13 +1185,11 @@ export const main = async (
     rerender();
   });
   perDayLabel.append(perDaySelect);
-  const plansLink = el('a', 'button meals-plans', 'Menu ↗') as HTMLAnchorElement;
-  plansLink.href = './meals.html?plans';
-  plansLink.dataset['testid'] = 'my-plans';
   const resetControl = el('div', 'meals-reset');
 
-  // Calendar-publish status chip (D9): a device-local enabled/sync indicator
-  // with a manual Resync. Hidden unless the feature is enabled on this device.
+  // Calendar publishing (D9): the publish/delete flows below refresh the
+  // subscribable calendar in place. The status chip itself now lives on the
+  // Menu (published plans) page — see showPublishedPlans.
   const calendarClient = createCalendarClient();
   const listPublished = async (): Promise<LocalPlan[]> => {
     const a = syncAgent;
@@ -984,50 +1197,9 @@ export const main = async (
     const pds = you?.pds ?? (await resolveDidDoc(a.did)).pds;
     return listPdsPlans(pds, a.did);
   };
-  const calChip = el('div', 'calendar-chip');
-  calChip.dataset['testid'] = 'calendar-sync-status';
-  const refreshChip = (): void => {
-    const cfg = calendarClient.config.load();
-    if (!cfg.enabled) {
-      calChip.hidden = true;
-      calChip.replaceChildren();
-      return;
-    }
-    calChip.hidden = false;
-    const st = calendarClient.syncState.load();
-    const labels: Record<string, string> = {
-      unknown: 'Calendar: on',
-      syncing: 'Calendar: syncing…',
-      synced: 'Calendar: synced ✓',
-      error: 'Calendar: sync failed ⚠',
-      'needs-token': 'Calendar: reconnect',
-    };
-    const label = el('span', 'calendar-chip-label', labels[st.status] ?? 'Calendar');
-    if (st.status === 'error' && st.message !== undefined) label.title = st.message;
-    const resync = el('button', 'button calendar-resync', 'Resync') as HTMLButtonElement;
-    resync.type = 'button';
-    resync.dataset['testid'] = 'calendar-resync';
-    resync.addEventListener('click', () => {
-      const p = calendarClient.republish(listPublished);
-      refreshChip(); // reflects 'syncing' (set synchronously at the start)
-      void p.finally(() => refreshChip());
-    });
-    calChip.replaceChildren(label, resync);
-    if (st.status === 'needs-token') {
-      const setLink = el('a', 'friend-link', 'Set token') as HTMLAnchorElement;
-      setLink.href = './account.html';
-      calChip.append(setLink);
-    }
-  };
-  refreshChip();
-
-  headerActions.append(calChip, plansLink);
-  header.append(headerActions);
-  // Controls row (below the title): the "Recipes per day" cap. The Reset
-  // control now rides the week-actions row below (see renderBuilder).
-  const controlsRow = el('div', 'meals-controls');
-  controlsRow.append(perDayLabel);
-  content.append(header, controlsRow);
+  // The per-day cap ("Per Day") now rides the start row below, next to the
+  // "Starts" date picker (see the plan-start block); it no longer needs its own
+  // controls row at the top of the panel.
 
   // Edit-mode banner: the canvas holds a STAGED copy of a published plan.
   // Discard removes the copy (the published record is untouched) and returns
@@ -1047,7 +1219,7 @@ export const main = async (
     discard.dataset['testid'] = 'edit-discard';
     discard.addEventListener('click', () => {
       store.remove(plan.id);
-      window.location.assign('./meals.html?plans');
+      window.location.assign('./meals.html');
     });
     banner.append(discard);
     content.append(banner);
@@ -1069,11 +1241,11 @@ export const main = async (
       el(
         'span',
         'recovery-notice-text',
-        `Found ${label} — resume the latest (${planTitle(latest)}) to edit and republish it, or open Published to browse them.`,
+        `Found ${label} — resume the latest (${planTitle(latest)}) to edit and republish it, or open Meals to browse them.`,
       ),
     );
     const resume = el('a', 'button', 'Resume latest') as HTMLAnchorElement;
-    resume.href = `./meals.html?edit=${encodeURIComponent(latest.id)}`;
+    resume.href = `./plan.html?edit=${encodeURIComponent(latest.id)}`;
     resume.dataset['testid'] = 'recovery-resume';
     recoveryNotice.append(resume);
     recoveryNotice.hidden = false;
@@ -1134,31 +1306,75 @@ export const main = async (
   planner.append(palette, builder);
   content.append(planner);
 
-  const calendar = el('section', 'calendar');
-  calendar.dataset['testid'] = 'calendar';
-  calendar.append(el('h3', 'palette-title', 'Calendar'));
+  // Today (floating, UTC) — the earliest date the plan may start on. Used as the
+  // picker's `min` and to clamp any past date forward, so a plan is always
+  // anchored on today or a future day.
+  const todayIso = new Date().toISOString().slice(0, 10);
+  // Clamp a chosen ISO date to today-or-later: unparseable → null; a past date →
+  // today; otherwise the date verbatim (NO Monday snapping — a plan may start on
+  // any weekday, and the calendar follows that day).
+  const clampStart = (iso: string): string | null => {
+    const normalized = addDays(iso, 0); // validates + canonicalizes; null if bad
+    if (normalized === null) return null;
+    return normalized < todayIso ? todayIso : normalized;
+  };
 
-  // Start-date control: anchor the plan on its first Monday so the calendar lays
-  // out real dates. Empty clears the anchor (back to abstract "Week N").
-  const startRow = el('label', 'cal-start');
-  startRow.append(el('span', 'cal-start-label', 'Starts (first Monday)'));
-  const startInput = el('input', 'cal-start-input') as HTMLInputElement;
+  // Start-date control (top of the builder, above Week 1): anchor the plan on a
+  // real date so the week grid grounds on real days. The plan starts on exactly
+  // the chosen day (any weekday); empty clears the anchor (back to abstract "Week
+  // N"). Re-anchoring only relabels — placements are untouched.
+  const startRow = el('div', 'plan-start');
+  const startFields = el('div', 'plan-start-fields');
+  const startField = el('label', 'plan-start-field');
+  startField.append(el('span', 'plan-start-label', 'Starts'));
+  const startInput = el('input', 'plan-start-input') as HTMLInputElement;
   startInput.type = 'date';
+  startInput.min = todayIso; // can't start a plan in the past
   startInput.dataset['testid'] = 'plan-start-date';
   if (plan.startDate !== undefined) startInput.value = plan.startDate;
+  // Reflect the anchor in the URL (?start=YYYY-MM-DD) so the grounded view is
+  // shareable and survives a refresh. Skipped for a staged edit — its identity
+  // is ?edit=<rkey>, and the copy's date belongs to the published record.
+  const syncStartToUrl = (): void => {
+    if (editing) return;
+    const url = new URL(window.location.href);
+    if (plan.startDate !== undefined) url.searchParams.set('start', plan.startDate);
+    else url.searchParams.delete('start');
+    window.history.replaceState(null, '', url);
+  };
   startInput.addEventListener('change', () => {
     const v = startInput.value.trim();
-    if (v === '') delete plan.startDate;
-    else plan.startDate = v;
+    if (v === '') {
+      delete plan.startDate;
+    } else {
+      const picked = clampStart(v);
+      if (picked === null) return; // unparseable — leave the plan as it was
+      plan.startDate = picked;
+      startInput.value = picked;
+    }
     persist();
-    renderCalendar();
+    syncStartToUrl();
+    rerender();
   });
-  startRow.append(startInput);
-  calendar.append(startRow);
+  startField.append(startInput);
+  // "Starts" (date) leads; the "Per Day" cap sits directly beside it, both with
+  // their label stacked above the control.
+  startFields.append(startField, perDayLabel);
+  startRow.append(startFields);
+  // The plan Reset rides this row's right-aligned spot (space-between), on the
+  // same line as the picker. Edit mode has no Reset — see renderResetControl.
+  if (!editing) startRow.append(resetControl);
+  // A fresh canvas (Reset / reset-on-publish) re-anchors on the next Monday —
+  // the same default a fresh load gets (D7) — keeping the input, URL, and week
+  // labels in step. In-memory only: the blank plan stays local until something
+  // is placed (persist() then carries the anchor along).
+  const anchorFreshPlan = (): void => {
+    const nm = nextMonday(todayIso);
+    if (nm !== null) plan.startDate = nm;
+    startInput.value = plan.startDate ?? '';
+    syncStartToUrl();
+  };
 
-  const calBody = el('div', 'cal-body');
-  calendar.append(calBody);
-  content.append(calendar);
   // Shopping list for the working plan — reads the LIVE plan (getter), so it
   // reflects the current canvas even after a reset-on-publish reassigns it. The
   // button rides the publish row (left, opposite Publish); its panel drops below.
@@ -1176,27 +1392,9 @@ export const main = async (
   ) as HTMLButtonElement;
   publishBtn.type = 'button';
   publishBtn.dataset['testid'] = 'publish-plan';
-  // Reset on publish (default on): after publishing, start a FRESH working plan
-  // so the published record is preserved (a new local id → the old rkey is never
-  // overwritten) and the canvas is clear for the next plan. Icon-only (the
-  // shared reset glyph beside the checkbox), so the accessible name lives on
-  // the label's aria-label/title — rust, like every reset-flavored control.
-  const resetOnPublishLabel = el('label', 'browse-toggle reset-on-publish-toggle');
-  resetOnPublishLabel.setAttribute('aria-label', 'Reset on publish');
-  resetOnPublishLabel.title = 'Reset on publish';
-  const resetOnPublish = document.createElement('input');
-  resetOnPublish.type = 'checkbox';
-  resetOnPublish.checked = true;
-  resetOnPublish.dataset['testid'] = 'reset-on-publish';
-  resetOnPublishLabel.append(resetOnPublish, resetIcon());
-  // The row splits: Shopping list on the LEFT, Publish (+ reset toggle) on the
-  // RIGHT (space-between). The shopping panel drops below the row.
-  const publishRight = el('div', 'plan-publish-right');
-  publishRight.append(publishBtn);
-  // Reset-on-publish is about starting the NEXT plan; a staged edit returns to
-  // the published list instead, so the toggle is omitted in edit mode.
-  if (!editing) publishRight.append(resetOnPublishLabel);
-  publishRow.append(shoppingList.button, publishRight);
+  // The row splits: Shopping list on the LEFT, Publish right-aligned opposite
+  // it (space-between). The shopping panel drops below the row.
+  publishRow.append(shoppingList.button, publishBtn);
   const shareSlot = el('div', 'plan-share-slot');
   const renderShareLink = (link: string): HTMLElement => {
     const box = el('div', 'share-link');
@@ -1244,7 +1442,7 @@ export const main = async (
         if (plan.editOf !== undefined) {
           store.remove(plan.id);
           await calendarClient.republish(listPublished).catch(() => undefined);
-          window.location.assign('./meals.html?plans');
+          window.location.assign('./meals.html');
           return;
         }
         // Build the share link from the PUBLISHED plan's id before any reset.
@@ -1256,22 +1454,20 @@ export const main = async (
         // Also update the subscribable calendar (no-op unless enabled on this
         // device). Runs after the PDS write so listPublished sees the new plan;
         // a calendar failure never blocks publishing.
-        const calP = calendarClient.republish(listPublished);
-        refreshChip();
-        void calP.finally(() => refreshChip());
-        // Reset on publish: freeze the published record and start fresh (a NEW
-        // local id, so the published rkey is never overwritten by later edits).
-        if (resetOnPublish.checked) {
-          plan = store.save({ name: 'My meal plan', weeks: [emptyWeek()], mealsPerDay: plan.mealsPerDay });
-          armed = null;
-          dragging = null;
-          filterText = '';
-          filterInput.value = '';
-          paletteOffset = 0;
-          expandedDays.clear();
-          rerender();
-          renderChips();
-        }
+        void calendarClient.republish(listPublished);
+        // Reset on publish (always): freeze the published record and start
+        // fresh (a NEW local id, so the published rkey is never overwritten by
+        // later edits) — the canvas is clear for the next plan.
+        plan = store.save({ name: 'My meal plan', weeks: [emptyWeek()], mealsPerDay: plan.mealsPerDay });
+        armed = null;
+        dragging = null;
+        filterText = '';
+        filterInput.value = '';
+        paletteOffset = 0;
+        expandedDays.clear();
+        anchorFreshPlan();
+        rerender();
+        renderChips();
       })
       .catch((err: unknown) => {
         shareSlot.replaceChildren(el('p', 'status', `publish failed: ${String(err)}`));
@@ -1340,17 +1536,29 @@ export const main = async (
     // A staged edit (editOf) rebuilds on its eventual "Publish update", not here.
   };
 
-  // D7: default a fresh plan's anchor to the next Monday so it is dated
-  // (calendar-eligible) by default. Only when unset — never clobbers a chosen
-  // date, and clearing the input still returns the plan to abstract "Week N".
-  // Skipped for a staged edit: the copy stays faithful to the published record.
-  if (plan.startDate === undefined && !editing) {
-    const nm = nextMonday(new Date().toISOString().slice(0, 10));
-    if (nm !== null) {
-      plan.startDate = nm;
-      startInput.value = nm;
+  // Anchor resolution on load (working plan only — a staged edit stays faithful
+  // to its published record):
+  //  1. ?start=YYYY-MM-DD in the URL wins, used as the exact start day (clamped
+  //     forward if it names a past date).
+  //  2. D7: a fresh, unanchored plan defaults to the next Monday so it is dated
+  //     (calendar-eligible) by default. Only when unset — never clobbers a
+  //     chosen date; clearing the input still returns the plan to "Week N".
+  if (!editing) {
+    const requestedRaw = routeParams.get('start')?.trim() ?? '';
+    const requested = requestedRaw !== '' ? clampStart(requestedRaw) : null;
+    if (requested !== null && requested !== plan.startDate) {
+      plan.startDate = requested;
+      startInput.value = requested;
       persist();
+    } else if (plan.startDate === undefined) {
+      const nm = nextMonday(todayIso);
+      if (nm !== null) {
+        plan.startDate = nm;
+        startInput.value = nm;
+        persist();
+      }
     }
+    syncStartToUrl();
   }
 
   const combined = (): PaletteItem[] => {
@@ -1457,22 +1665,48 @@ export const main = async (
     renderChips();
   });
 
-  const renderCalendar = (): void => {
-    // The planner calendar shows names (not links); dates appear once a start
-    // date is set. Same builder as the shared view (buildCalendarRows).
-    calBody.replaceChildren(...buildCalendarRows(plan, { linkRecipes: false }));
-  };
-
   const renderBuilder = (): void => {
     const cap = plan.mealsPerDay;
     perDaySelect.value = String(cap); // keep the header control in sync with the plan
-    builder.replaceChildren();
+    // The start control leads the builder (above Week 1); it's a persistent
+    // element (input value + listeners survive), re-slotted on each render.
+    builder.replaceChildren(startRow);
+    const start = plan.startDate;
     plan.weeks.forEach((week, wi) => {
       const row = el('div', 'week');
       row.dataset['testid'] = 'week-row';
 
       const head = el('div', 'week-head');
-      head.append(el('span', 'week-name', `Week ${wi + 1}`));
+      const stacked = stackedWeeks.has(wi);
+      // Left cluster: the day-layout toggle then the week name, kept together on
+      // the head's left edge (the optional Remove button sits opposite, right).
+      const headLeft = el('div', 'week-head-left');
+      // Day-layout toggle: flips THIS week's days between the horizontal
+      // 7-column grid and a vertical stack. The glyph reflects the CURRENT mode
+      // (☰ stacked rows / ▥ columns); tapping swaps it. Each week owns its own.
+      const layoutToggle = el('button', 'week-layout-toggle', stacked ? '☰' : '▥') as HTMLButtonElement;
+      layoutToggle.type = 'button';
+      layoutToggle.dataset['testid'] = 'week-layout-toggle';
+      layoutToggle.dataset['week'] = String(wi);
+      const modeLabel = stacked ? 'stacked rows' : 'columns';
+      layoutToggle.setAttribute('aria-pressed', String(stacked));
+      layoutToggle.setAttribute('aria-label', `Day layout: ${modeLabel} — tap to switch`);
+      layoutToggle.title = `Day layout: ${modeLabel}`;
+      layoutToggle.addEventListener('click', () => {
+        if (stackedWeeks.has(wi)) stackedWeeks.delete(wi);
+        else stackedWeeks.add(wi);
+        rerender();
+      });
+      headLeft.append(layoutToggle);
+      // Anchored, the week header carries its real span: "Week 1 (Aug 10 – Aug 16)".
+      const spanStart = start !== undefined ? dateForSlot(start, wi, 0) : null;
+      const spanEnd = start !== undefined ? dateForSlot(start, wi, 6) : null;
+      const s = spanStart !== null ? formatShortDate(spanStart) : null;
+      const e = spanEnd !== null ? formatShortDate(spanEnd) : null;
+      headLeft.append(
+        el('span', 'week-name', s !== null && e !== null ? `Week ${wi + 1} (${s} – ${e})` : `Week ${wi + 1}`),
+      );
+      head.append(headLeft);
 
       // Remove only makes sense with more than one week — you can't remove the
       // only week, so on a single-week plan the button is omitted entirely
@@ -1490,7 +1724,7 @@ export const main = async (
       }
       row.append(head);
 
-      const daysEl = el('div', 'week-days');
+      const daysEl = el('div', stacked ? 'week-days week-days--stacked' : 'week-days');
       week.days.forEach((slot, di) => {
         const key = `${wi}:${di}`;
         const full = slot.meals.length >= cap;
@@ -1504,11 +1738,23 @@ export const main = async (
         // Armed + not full ⇒ the cell is the tap target that adds the next meal.
         cell.classList.add(armed !== null && !full ? 'day--placeable' : 'day--empty');
 
-        // Header: the day label + a count, and the mobile expand toggle. Tapping
-        // the header expands the day (a roomy panel for removing meals) UNLESS a
-        // recipe is armed — then the whole cell is a placement target instead.
+        // Grounded day card: the real calendar date rides the anchor (continuous
+        // across weeks, +7 days each), and today's card gets the highlight.
+        const dayIso = start !== undefined ? dateForSlot(start, wi, di) : null;
+        if (dayIso !== null && dayIso === todayIso) cell.classList.add('is-today');
+
+        // Header: the day label (+ its date when anchored, "Mon 8/10") + a
+        // count, and the mobile expand toggle. Tapping the header expands the
+        // day (a roomy panel for removing meals) UNLESS a recipe is armed —
+        // then the whole cell is a placement target instead.
         const head = el('div', 'day-head');
-        head.append(el('span', 'day-label', DAY_LABELS[di]));
+        // Weekday follows the real date so a plan can start on any day; the fixed
+        // Mon-first label is the fallback for an unanchored plan.
+        const dow = (dayIso !== null ? formatWeekday(dayIso) : null) ?? DAY_LABELS[di];
+        const dayLabel = el('span', 'day-label', dow);
+        const dm = dayIso !== null ? formatDayMonth(dayIso) : null;
+        if (dm !== null) dayLabel.append(' ', el('span', 'day-date', dm));
+        head.append(dayLabel);
         if (slot.meals.length > 0 || cap > 1) {
           head.append(el('span', 'day-count', `${slot.meals.length}/${cap}`));
         }
@@ -1632,10 +1878,13 @@ export const main = async (
 
     // Repeat weeks: instead of adding a blank week, append a copy of
     // every currently-planned week (with its placed meals). Doubling the plan,
-    // so it's disabled when that would blow past the max-week cap.
-    const repeatBtn = el('button', 'button repeat-weeks', '⧉ Repeat') as HTMLButtonElement;
+    // so it's disabled when that would blow past the max-week cap. Icon-only
+    // (⧉) — the accessible name lives on aria-label/title.
+    const repeatBtn = el('button', 'button repeat-weeks', '⧉') as HTMLButtonElement;
     repeatBtn.type = 'button';
     repeatBtn.dataset['testid'] = 'repeat-weeks';
+    repeatBtn.setAttribute('aria-label', 'Repeat planned weeks');
+    repeatBtn.title = 'Repeat planned weeks';
     repeatBtn.disabled = plan.weeks.length * 2 > MAX_WEEKS;
     repeatBtn.addEventListener('click', () => {
       const next = duplicateWeeks(plan.weeks, MAX_WEEKS);
@@ -1645,31 +1894,29 @@ export const main = async (
       rerender();
     });
 
-    // Add + Repeat lead the row, left-aligned (Add first); the plan Reset rides
-    // the same row's right-aligned spot (edit mode has no Reset — see below).
-    const leftActions = el('div', 'week-actions-left');
-    leftActions.append(addBtn, repeatBtn);
-    actions.append(leftActions);
-    if (!editing) actions.append(resetControl);
+    // Add leads on the left, Repeat right-aligned opposite it (space-between);
+    // the plan Reset rides the start row up top beside the "Starts" picker.
+    actions.append(addBtn, repeatBtn);
     builder.append(actions);
   };
 
   const rerender = (): void => {
     renderBuilder();
-    renderCalendar();
   };
 
-  // Reset (controls row, right-aligned): clear the plan back to a single empty week
+  // Reset (start row, right-aligned): clear the plan back to a single empty week
   // — drops every placement and the start date, then persists (write-through to
   // the PDS when signed in). Destructive + synced, so it takes an inline two-step
   // confirm (mirrors the recipe Hide control — no native dialog).
   const renderResetControl = (): void => {
     resetControl.replaceChildren();
-    // Reset-surface v2 (D5): the shared reset icon button (src/icons.ts) — the
-    // same counterclockwise glyph as the toolbar reset. Destructive weight lives
-    // in the confirm step below, not the glyph; the clockwise direction stays
-    // RESERVED for the calendar Resync in the title row above.
-    const reset = resetIconButton('Reset plan');
+    // Reset-surface v3: a "Reset" text button styled like Publish (the shared
+    // .plan-reset-btn footprint + rust fill — same family as the Publish button
+    // below). Destructive weight lives in the confirm step below, not the label.
+    const reset = el('button', 'button plan-reset-btn', 'Reset') as HTMLButtonElement;
+    reset.type = 'button';
+    reset.setAttribute('aria-label', 'Reset plan');
+    reset.title = 'Reset plan';
     reset.dataset['testid'] = 'reset-plan';
     reset.addEventListener('click', () => {
       resetControl.replaceChildren();
@@ -1688,6 +1935,7 @@ export const main = async (
         filterInput.value = '';
         paletteOffset = 0;
         expandedDays.clear();
+        anchorFreshPlan();
         renderResetControl();
         rerender();
         renderChips();

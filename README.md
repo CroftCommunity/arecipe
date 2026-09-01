@@ -24,7 +24,7 @@ npm run serve               # serve dist/ at http://127.0.0.1:4173
 
 Two test tiers: the **hermetic** tier above needs no credentials or network
 beyond localhost and runs in CI on every push. The **`@live`** tier (real-PDS
-suites, arriving with the auth phase) needs the out-of-band test-account
+suites, run via `npm run test:live`) needs the out-of-band test-account
 credential in a gitignored `.env` and runs locally as a phase gate — never in
 push CI.
 
@@ -36,7 +36,9 @@ The legacy `friends.html` redirects here), `mine.html` (Alchemy — your draftin
 workspace; account-free; no longer hosts the login form), `meals.html` (Meals —
 a weekly meal planner: assign recipes to days, repeat weeks onto a calendar),
 `signin.html` (the dedicated
-sign-in page — atproto OAuth, forwards to Cookbook on success),
+sign-in page — "Choose your atmo provider", the workspace sign-in pattern from
+`croft-pwa/docs/DESIGN.md`: pick a provider or bring a handle; atproto OAuth, forwards to
+Cookbook on success),
 `settings.html`, plus `recipe.html`, `dish.html` (compare a dish's alternative
 versions side by side — the recipe page's "View All"), and `editor.html`.
 

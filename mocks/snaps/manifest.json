@@ -1,0 +1,85 @@
+{
+  "capturedAt": "2026-08-30",
+  "files": [
+    {
+      "file": "index.phone.current.png",
+      "route": "index",
+      "viewport": "phone",
+      "width": 390,
+      "height": 844,
+      "baseline": "arecipe@d4af842",
+      "population": "production",
+      "url": "https://arecipe.app/index.html"
+    },
+    {
+      "file": "cookbook.phone.current.png",
+      "route": "cookbook",
+      "viewport": "phone",
+      "width": 390,
+      "height": 844,
+      "baseline": "arecipe@d4af842",
+      "population": "production",
+      "url": "https://arecipe.app/cookbook.html"
+    },
+    {
+      "file": "dish.phone.current.png",
+      "route": "dish",
+      "viewport": "phone",
+      "width": 390,
+      "height": 844,
+      "baseline": "arecipe@d4af842",
+      "population": "production",
+      "url": "https://arecipe.app/dish.html"
+    },
+    {
+      "file": "recipe.phone.current.png",
+      "route": "recipe",
+      "viewport": "phone",
+      "width": 390,
+      "height": 844,
+      "baseline": "arecipe@d4af842",
+      "population": "production",
+      "url": "https://arecipe.app/recipe.html"
+    },
+    {
+      "file": "index.desktop.current.png",
+      "route": "index",
+      "viewport": "desktop",
+      "width": 1280,
+      "height": 900,
+      "baseline": "arecipe@d4af842",
+      "population": "production",
+      "url": "https://arecipe.app/index.html"
+    },
+    {
+      "file": "cookbook.desktop.current.png",
+      "route": "cookbook",
+      "viewport": "desktop",
+      "width": 1280,
+      "height": 900,
+      "baseline": "arecipe@d4af842",
+      "population": "production",
+      "url": "https://arecipe.app/cookbook.html"
+    },
+    {
+      "file": "dish.desktop.current.png",
+      "route": "dish",
+      "viewport": "desktop",
+      "width": 1280,
+      "height": 900,
+      "baseline": "arecipe@d4af842",
+      "population": "production",
+      "url": "https://arecipe.app/dish.html"
+    },
+    {
+      "file": "recipe.desktop.current.png",
+      "route": "recipe",
+      "viewport": "desktop",
+      "width": 1280,
+      "height": 900,
+      "baseline": "arecipe@d4af842",
+      "population": "production",
+      "url": "https://arecipe.app/recipe.html"
+    }
+  ]
+}

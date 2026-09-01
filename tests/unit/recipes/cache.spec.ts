@@ -62,4 +62,47 @@ describe('createRecipeCache', () => {
     expect(back?.value['name']).toBe(getRecordFixture.value['name']);
     expect(await cache.list()).toHaveLength(1);
   });
+
+  // Phase 3 (2026-08-06 sharding plan): hydrating a cook must not cost one DB
+  // connection per record. putMany writes a whole batch in ONE connection/
+  // transaction while keeping the per-record verified flag honest.
+  it('putMany() verifies each record and stores the whole batch', async () => {
+    const cache = createRecipeCache({ dbName: `t4-${Math.random()}` });
+    const second = {
+      uri: getRecordFixture.uri.replace(/[^/]+$/, 'other-rkey'),
+      cid: getRecordFixture.cid, // reported CID no longer matches the tampered value
+      value: { ...getRecordFixture.value, name: 'Tampered Title' },
+    };
+    const entries = await cache.putMany([getRecordFixture, second]);
+    expect(entries).toHaveLength(2);
+    expect(entries[0]?.verified).toBe(true);
+    expect(entries[1]?.verified).toBe(false);
+    // Both retrievable afterwards — the batch really was written.
+    expect((await cache.get(getRecordFixture.uri))?.verified).toBe(true);
+    expect((await cache.get(second.uri))?.verified).toBe(false);
+    expect(await cache.list()).toHaveLength(2);
+  });
+
+  it('putMany() of an empty batch is a no-op that returns []', async () => {
+    const cache = createRecipeCache({ dbName: `t5-${Math.random()}` });
+    expect(await cache.putMany([])).toEqual([]);
+    expect(await cache.list()).toHaveLength(0);
+  });
+
+  // Per-cook reads (hydration fast path): AT-URIs share the `at://<did>/`
+  // prefix, so one key-range getAll serves a single cook without scanning the
+  // whole store — a small cook must not wait on a corpus-sized getAll.
+  it('listByUriPrefix() returns only the matching cook’s records', async () => {
+    const cache = createRecipeCache({ dbName: `t6-${Math.random()}` });
+    const other = {
+      ...getRecordFixture,
+      uri: getRecordFixture.uri.replace(/did:plc:[a-z0-9]+/, 'did:plc:zzzzzzzzzzzzzzzzzzzzzzzz'),
+    };
+    await cache.putMany([getRecordFixture, other]);
+    const did = getRecordFixture.uri.split('/')[2]!;
+    const mine = await cache.listByUriPrefix(`at://${did}/`);
+    expect(mine).toHaveLength(1);
+    expect(mine[0]?.uri).toBe(getRecordFixture.uri);
+    expect(await cache.listByUriPrefix('at://did:plc:absent/')).toEqual([]);
+  });
 });

@@ -1,0 +1,177 @@
+{
+  "categories": [
+    "Recipes using red bell pepper",
+    "Recipes using green bell pepper",
+    "Rwandan recipes",
+    "Recipes for sauces and condiments",
+    "Recipes using tomato",
+    "Recipes using coriander",
+    "Recipes using ground cumin",
+    "Recipes using vegetable oil"
+  ],
+  "ingredients": [
+    {
+      "display": "2 tablespoons vegetable oil",
+      "optional": false,
+      "raw": "2 [[Cookbook:Tablespoon|tablespoons]] [[Cookbook:Vegetable oil|vegetable oil]]",
+      "refs": [
+        "Tablespoon",
+        "Vegetable oil"
+      ]
+    },
+    {
+      "display": "1 onion, finely chopped",
+      "optional": false,
+      "raw": "1 [[Cookbook:Onion|onion]], finely [[Cookbook:Chopping|chopped]]",
+      "refs": [
+        "Onion",
+        "Chopping"
+      ]
+    },
+    {
+      "display": "2 cloves of garlic, minced",
+      "optional": false,
+      "raw": "2 cloves of [[Cookbook:Garlic|garlic]], [[Cookbook:Mince|minced]]",
+      "refs": [
+        "Garlic",
+        "Mince"
+      ]
+    },
+    {
+      "display": "1 green bell pepper, diced",
+      "optional": false,
+      "raw": "1 [[Cookbook:Pepper|green bell pepper]], [[Cookbook:Dice|diced]]",
+      "refs": [
+        "Pepper",
+        "Dice"
+      ]
+    },
+    {
+      "display": "1 red bell pepper, diced",
+      "optional": false,
+      "raw": "1 [[Cookbook:Pepper|red bell pepper]], diced",
+      "refs": [
+        "Pepper"
+      ]
+    },
+    {
+      "display": "6 large ripe tomatoes, diced",
+      "optional": false,
+      "raw": "6 large ripe [[Cookbook:Tomato|tomatoes]], diced",
+      "refs": [
+        "Tomato"
+      ]
+    },
+    {
+      "display": "1 teaspoon ground paprika",
+      "optional": false,
+      "raw": "1 [[Cookbook:Teaspoon|teaspoon]] [[Cookbook:Paprika|ground paprika]]",
+      "refs": [
+        "Teaspoon",
+        "Paprika"
+      ]
+    },
+    {
+      "display": "½ teaspoon ground cumin",
+      "optional": false,
+      "raw": "½ [[Cookbook: Teaspoon|teaspoon]] [[Cookbook:Cumin|ground cumin]]",
+      "refs": [
+        "Teaspoon",
+        "Cumin"
+      ]
+    },
+    {
+      "display": "½ teaspoon ground coriander",
+      "optional": false,
+      "raw": "½ teaspoon [[Cookbook:Coriander|ground coriander]]",
+      "refs": [
+        "Coriander"
+      ]
+    },
+    {
+      "display": "¼ teaspoon ground black pepper",
+      "optional": false,
+      "raw": "¼ teaspoon [[Cookbook:Pepper|ground black pepper]]",
+      "refs": [
+        "Pepper"
+      ]
+    },
+    {
+      "display": "Salt, to taste",
+      "optional": false,
+      "raw": "[[Cookbook:Salt|Salt]], to taste",
+      "refs": [
+        "Salt"
+      ]
+    },
+    {
+      "display": "1 cup water",
+      "optional": false,
+      "raw": "1 [[Cookbook:Cup|cup]] [[Cookbook:Water|water]]",
+      "refs": [
+        "Cup",
+        "Water"
+      ]
+    }
+  ],
+  "lead": "Akarange is a flavorful and versatile Rwandan tomato sauce that can be used as a base for many dishes. Made with ripe tomatoes and aromatic spices, this sauce adds a burst of flavor to various meals.",
+  "parseFlags": [],
+  "procedure": [
+    {
+      "refs": [],
+      "text": "Heat the vegetable oil in a large saucepan over medium heat."
+    },
+    {
+      "refs": [
+        "Sautéing"
+      ],
+      "text": "Add the chopped onion and minced garlic to the pan. Sauté until the onion becomes translucent and fragrant."
+    },
+    {
+      "refs": [],
+      "text": "Stir in the diced green and red bell peppers. Cook for a few minutes until they begin to soften."
+    },
+    {
+      "refs": [],
+      "text": "Add the diced tomatoes to the pan, along with the ground paprika, ground cumin, ground coriander, and ground black pepper. Stir well to combine the ingredients."
+    },
+    {
+      "refs": [],
+      "text": "Pour in the water and season with salt to taste. Stir again to ensure the spices are evenly distributed."
+    },
+    {
+      "refs": [
+        "Simmering"
+      ],
+      "text": "Bring the mixture to a simmer, then reduce the heat to low. Cover the saucepan and let the akarange cook for about 15–20 minutes, or until the tomatoes have softened and the flavors have melded together."
+    },
+    {
+      "refs": [],
+      "text": "Taste the sauce and adjust the seasoning if needed, adding more salt or spices according to your preference."
+    },
+    {
+      "refs": [],
+      "text": "Once the akarange is cooked to your liking, remove the saucepan from the heat."
+    }
+  ],
+  "publishable": true,
+  "sections": [
+    {
+      "heading": "Equipment",
+      "text": "* Cutting board\n* Knife\n* Large saucepan\n* Wooden spoon"
+    },
+    {
+      "heading": "Notes, tips, and variations",
+      "text": "* For a spicier version, you can add a pinch of cayenne pepper or a finely chopped Scotch bonnet pepper to the sauce.\n* Akarange can be used as a base for various dishes such as stews, soups, and curries. It also pairs well with grilled meats and vegetables."
+    },
+    {
+      "heading": "Nutrition",
+      "text": "* Tomatoes are rich in vitamins A and C, as well as antioxidants like lycopene.\n* This sauce is low in calories and fat."
+    }
+  ],
+  "summary": {
+    "category": "African recipes",
+    "difficulty": 2
+  },
+  "title": "Akarange (Rwandan Tomato Sauce)"
+}

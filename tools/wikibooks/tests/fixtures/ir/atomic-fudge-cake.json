@@ -1,0 +1,250 @@
+{
+  "categories": [
+    "Recipes for cake",
+    "Recipes using dark chocolate",
+    "Baking recipes",
+    "Recipes with metric units",
+    "Recipes with images",
+    "Recipes using egg",
+    "Recipes for dessert",
+    "Recipes using baking powder",
+    "Recipes using baking soda",
+    "Recipes using white sugar",
+    "Recipes using powdered sugar",
+    "Recipes using cocoa powder",
+    "Recipes using whipping cream",
+    "Recipes using wheat flour",
+    "Recipes using cow milk"
+  ],
+  "ingredients": [
+    {
+      "display": "2 cups (470 ml) white sugar",
+      "optional": false,
+      "raw": "2 [[Cookbook:Cup|cups]] (470 [[Cookbook:Milliliter|ml]]) white [[cookbook:sugar|sugar]]",
+      "refs": [
+        "Cup",
+        "Milliliter",
+        "sugar"
+      ]
+    },
+    {
+      "display": "1 ¾ cup (415 ml) flour",
+      "optional": false,
+      "raw": "1 ¾ cup (415 ml) [[cookbook:flour|flour]]",
+      "refs": [
+        "flour"
+      ]
+    },
+    {
+      "display": "1 ¾ cups (415 ml) baking cocoa powder",
+      "optional": false,
+      "raw": "1 ¾ cups (415 ml) baking [[cookbook:cocoa|cocoa]] powder",
+      "refs": [
+        "cocoa"
+      ]
+    },
+    {
+      "display": "1 ½ teaspoon (7 ml) baking soda",
+      "optional": false,
+      "raw": "1 ½ [[Cookbook:Teaspoon|teaspoon]] (7 ml) [[cookbook:Baking Soda|baking soda]]",
+      "refs": [
+        "Teaspoon",
+        "Baking Soda"
+      ]
+    },
+    {
+      "display": "1 ½ teaspoon (7 ml) baking powder",
+      "optional": false,
+      "raw": "1 ½ teaspoon (7 ml) [[cookbook:Baking Powder|baking powder]]",
+      "refs": [
+        "Baking Powder"
+      ]
+    },
+    {
+      "display": "1 teaspoon salt (5ml)",
+      "optional": false,
+      "raw": "1 teaspoon [[cookbook:salt|salt]] (5ml)",
+      "refs": [
+        "salt"
+      ]
+    },
+    {
+      "display": "2 eggs",
+      "optional": false,
+      "raw": "2 [[cookbook:egg|eggs]]",
+      "refs": [
+        "egg"
+      ]
+    },
+    {
+      "display": "1 cup (235 ml) milk",
+      "optional": false,
+      "raw": "1 cup (235 ml) [[cookbook:milk|milk]]",
+      "refs": [
+        "milk"
+      ]
+    },
+    {
+      "display": "½ cup (120 ml) vegetable oil",
+      "optional": false,
+      "raw": "½ cup (120 ml) [[cookbook:Vegetable Oil|vegetable oil]]",
+      "refs": [
+        "Vegetable Oil"
+      ]
+    },
+    {
+      "display": "2 teaspoons (10 ml) vanilla extract",
+      "optional": false,
+      "raw": "2 teaspoons (10 ml) [[cookbook:Vanilla Extract|vanilla extract]]",
+      "refs": [
+        "Vanilla Extract"
+      ]
+    },
+    {
+      "display": "1 cup (235 ml) boiling water",
+      "optional": false,
+      "raw": "1 cup (235 ml) boiling [[cookbook:water|water]]",
+      "refs": [
+        "water"
+      ]
+    },
+    {
+      "display": "⅛ cup (30 ml) cocoa",
+      "optional": false,
+      "raw": "⅛ cup (30 ml) [[cookbook:cocoa|cocoa]]",
+      "refs": [
+        "cocoa"
+      ]
+    },
+    {
+      "display": "7 oz (200 g) dark chocolate",
+      "optional": false,
+      "raw": "7 [[Cookbook:Ounce|oz]] (200 [[Cookbook:Gram|g]]) [[cookbook:Dark chocolate|dark chocolate]]",
+      "refs": [
+        "Ounce",
+        "Gram",
+        "Dark chocolate"
+      ]
+    },
+    {
+      "display": "⅛ cup (30 ml) boiling water",
+      "optional": false,
+      "raw": "⅛ cup (30 ml) boiling [[cookbook:water|water]]",
+      "refs": [
+        "water"
+      ]
+    },
+    {
+      "display": "1/16 cup (15 ml) powdered sugar",
+      "optional": false,
+      "raw": "1/16 cup (15 ml) [[cookbook:Powdered Sugar|powdered sugar]]",
+      "refs": [
+        "Powdered Sugar"
+      ]
+    },
+    {
+      "display": "⅔ cup (156 ml) whipping cream",
+      "optional": false,
+      "raw": "⅔ cup (156 ml) [[cookbook:Cream|whipping cream]]",
+      "refs": [
+        "Cream"
+      ]
+    }
+  ],
+  "parseFlags": [
+    {
+      "code": "image-unresolved",
+      "detail": "Atomicfudge1.JPG"
+    },
+    {
+      "code": "ingredients-prose",
+      "detail": "Cake"
+    },
+    {
+      "code": "ingredients-prose",
+      "detail": "Frosting"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "Cake"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "Frosting"
+    },
+    {
+      "code": "template-stripped",
+      "detail": "PAGENAME"
+    }
+  ],
+  "procedure": [
+    {
+      "refs": [],
+      "text": "Mix the dry ingredients well in a large bowl. For better texture, sift the dry ingredients together with a sieve or sifter."
+    },
+    {
+      "refs": [],
+      "text": "Add the eggs, milk, vanilla, and vegetable oil, and mix well. Add the water, and mix it until it has a lot of little bubbles. This batter will be very thin."
+    },
+    {
+      "refs": [
+        "Cake Pan"
+      ],
+      "text": "Pour into two greased 9-inch round baking pans."
+    },
+    {
+      "refs": [
+        "Bake",
+        "Oven"
+      ],
+      "text": "Bake in a preheated oven at 180°C for 30 minutes (about 20 minutes for a convection oven), or until a cake tester comes out clean. Remember not to over-bake the cake, as it may become really dry and lose all its moisture."
+    },
+    {
+      "refs": [],
+      "text": "Cool the cakes completely, then unmold them."
+    },
+    {
+      "refs": [
+        "Double Boiler"
+      ],
+      "text": "Melt the chocolate by placing it in a double boiler."
+    },
+    {
+      "refs": [],
+      "text": "Mix the sugar and cocoa together in a small bowl, then mix in the water."
+    },
+    {
+      "refs": [],
+      "text": "Stir the sugar/cocoa/water mix into the melted chocolate."
+    },
+    {
+      "refs": [],
+      "text": "Quickly stir in the cream and mix until it has a smooth consistency."
+    },
+    {
+      "refs": [],
+      "text": "Immediately 'frost' the cake with this, making sure that there is quite a bit between the two layers of cake. The cake will need to be refrigerated to harden the fudge, so don't worry about its relatively liquid nature."
+    },
+    {
+      "refs": [],
+      "text": "Refrigerate cake."
+    },
+    {
+      "refs": [],
+      "text": "Serve warm after refrigeration. To serve, slice a piece and microwave it for about 20 seconds. The fudge will melt and soak into the cake. Serve with ice cream if you so desire."
+    }
+  ],
+  "publishable": true,
+  "sections": [
+    {
+      "heading": "Notes, tips, and variations",
+      "text": "* Higher quality chocolate and baking cocoa will make a noticeable difference in the cake's overall quality.\n* A hot fudge sauce to go over top of the cake can be a nice extra touch.\n* Don't try and substitute unsweetened chocolate for the dark chocolate.\n* Spices such as cinnamon can be added to the frosting if desired."
+    }
+  ],
+  "summary": {
+    "category": "Cake recipes",
+    "difficulty": 3,
+    "image": "Atomicfudge1.JPG"
+  },
+  "title": "Atomic Fudge Cake"
+}

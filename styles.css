@@ -255,7 +255,9 @@ a {
   padding: var(--s-2) var(--s-3);
   cursor: pointer;
   color: var(--ink);
-  opacity: 0.62;
+  /* 0.68, not lower: dimmed --ink over --tile must clear WCAG AA 4.5:1
+     (5.05:1 light / 7.23:1 dark). tests/e2e/a11y.spec.ts guards this. */
+  opacity: 0.68;
   border-bottom: 3px solid transparent;
   margin-bottom: -2px;
 }
@@ -398,6 +400,39 @@ a {
   color: var(--ink);
   opacity: 0.45;
 }
+
+/* ---- sign-in page: the workspace sign-in pattern (croft-pwa/docs/DESIGN.md
+   § Flows › Sign in) in a page container. Rows: label left, actions right
+   (flex: none, so the label wraps and the buttons do not); a missing action
+   leaves its words in the slot so the Sign in column stays aligned. ---- */
+.signin-list { margin: 0 0 var(--s-3); }
+.signin-row {
+  display: flex;
+  flex-wrap: wrap; /* 320px: the two buttons drop under the label rather than past the edge */
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--s-2) var(--s-3);
+  padding: var(--s-2) 0;
+}
+.signin-row + .signin-row { border-top: var(--stroke) solid var(--line); }
+.signin-provider { font-weight: 700; }
+.signin-actions { display: flex; align-items: center; gap: var(--s-2); flex: none; margin-left: auto; }
+.signin-actions .button { min-height: 44px; padding: var(--s-2) var(--s-3); }
+.signin-invite {
+  min-width: 6.5rem;
+  text-align: center;
+  font-style: italic;
+  font-size: var(--t-caption);
+  opacity: 0.75;
+}
+.signin-more { width: 100%; min-height: 44px; margin: 0 0 var(--s-3); }
+.signin-other { margin-top: var(--s-2); }
+.signin-label { display: block; font-size: var(--t-caption); opacity: 0.75; margin-bottom: var(--s-1); }
+.signin-intro { font-family: var(--body); font-size: 0.95rem; opacity: 0.85; }
+/* The gloss keeps the UA's dotted underline as the "there is more here" cue. */
+.signin-gloss { text-decoration: underline dotted; text-underline-offset: 3px; cursor: help; }
+[data-signin-page] .lookup input,
+[data-signin-page] .lookup .button { min-height: 44px; }
 
 /* Export button (↑ export glyph) beside "Find recipes": square, secondary. */
 .export-recipes {
@@ -1326,27 +1361,14 @@ a {
   flex-wrap: wrap;
 }
 
-/* Meals title-row actions: calendar chip + "Published", grouped at the right. */
+/* Menu header actions: the calendar chip, pinned to the right edge even when
+   it's the row's only child (the Archive link fills in after plans load). */
 .meals-actions {
   display: flex;
   align-items: center;
   gap: var(--s-2);
   flex-wrap: wrap;
-}
-/* "Menu ↗" link in the Meals title row: a filled delft (blue) chip — white
-   text on a blue fill — to set it apart from the enamel actions AND from the
-   rust Publish commit below; no underline (it's a button, not body copy). The
-   ↗ signals it opens another page. --delft is theme-tuned, so it reads in
-   light and dark. */
-.meals-plans {
-  text-decoration: none;
-  background: var(--delft);
-  color: var(--card);
-  border-color: var(--delft);
-}
-.meals-plans:hover {
-  background: var(--delft-deep);
-  border-color: var(--delft-deep);
+  margin-left: auto;
 }
 /* Controls row below the title: the "Recipes per day" cap. (The Reset control
    now rides the week-actions row, right-aligned opposite Add/Repeat.) */
@@ -1584,6 +1606,53 @@ a.card {
   place-items: center;
 }
 
+/* ---- pictureless tile: inline chip (single column only) ----
+   RUN-EMPTY-TILE-CHIP. On single-column (mobile) layouts a pictureless tile
+   drops its 3:2 media band for an inline chip: the same placeholder glyph in a
+   small rounded square beside the title. The variant is chosen in JS
+   (tileMediaVariant, gated on SINGLE_COLUMN_MEDIA), so this DOM exists only at
+   single-column widths — no media query is needed here to hide it elsewhere.
+   Reuses existing tokens only: --enamel-soft (the placeholder tint), --r-m (a
+   smaller sibling of the card's --r-l radius), and the --s-* padding scale. */
+.tile-chip-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3);
+}
+
+.tile-chip {
+  flex: 0 0 auto;
+  /* ≥44px touch-target floor (reset-icon work); glyph ~26px inside a 46px box. */
+  width: 2.875rem;
+  height: 2.875rem;
+  min-width: 44px;
+  min-height: 44px;
+  display: grid;
+  place-items: center;
+  background: var(--enamel-soft);
+  border-radius: var(--r-m);
+  overflow: hidden;
+}
+
+.tile-chip .placeholder-mark {
+  height: 1.625rem;
+  width: auto;
+  opacity: 0.45;
+}
+
+/* The chip-row title carries the block padding the media-band title had, and
+   clamps to 3 lines — full text stays in the DOM (assistive tech reads it), the
+   clamp is purely visual. Font family/weight/size are unchanged (.card-title). */
+.card--chip .card-title {
+  padding: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .placeholder-mark {
   height: 4rem;
   width: auto;
@@ -1794,7 +1863,8 @@ a.card {
   margin-top: var(--s-7);
   font-family: var(--mono);
   font-size: var(--t-caption);
-  opacity: 0.55;
+  /* 0.68: dimmed --ink over --tile clears AA 4.5:1 (a11y.spec.ts). */
+  opacity: 0.68;
   text-align: center;
   display: grid;
   gap: var(--s-1);
@@ -2291,7 +2361,8 @@ table.ref.pairs td.eq {
 .ref-foot {
   text-align: center;
   font-size: var(--t-stamp);
-  opacity: 0.55;
+  /* 0.68: dimmed --ink over --tile clears AA 4.5:1 (a11y.spec.ts). */
+  opacity: 0.68;
   margin-top: var(--s-6);
 }
 
@@ -2349,8 +2420,34 @@ table.ref.pairs td.eq {
   justify-content: space-between;
   margin-bottom: var(--s-2);
 }
+/* The head's left cluster: the day-layout toggle then the "Week N" name, held
+   together on the left edge (Remove sits opposite, right). */
+.week-head-left {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-width: 0;
+}
 .week-name {
   font-weight: 700;
+}
+/* Per-week day-layout toggle (☰ stacked / ▥ columns): a small quiet control on
+   the week head's left edge; the glyph shows the current mode, tapping swaps it. */
+.week-layout-toggle {
+  appearance: none;
+  flex: none;
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-s);
+  background: var(--card);
+  color: inherit;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0.2rem 0.4rem;
+  cursor: pointer;
+}
+.week-layout-toggle:hover {
+  border-color: var(--enamel);
+  color: var(--enamel);
 }
 .week-days {
   display: grid;
@@ -2359,6 +2456,11 @@ table.ref.pairs td.eq {
      the viewport on a narrow phone. */
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: var(--s-1);
+}
+/* Stacked (vertical) mode: the 7 days become full-width rows, one per line —
+   each day's header (label left, count right) already reads as a row. */
+.week-days--stacked {
+  grid-template-columns: 1fr;
 }
 .day {
   display: flex;
@@ -2395,6 +2497,23 @@ table.ref.pairs td.eq {
 .day-label {
   font-weight: 700;
   opacity: 0.6;
+}
+/* The grounded date beside the day name ("Mon 8/10"): lighter than the name,
+   kept whole (no mid-token break) — the space before it is the wrap point on a
+   narrow column. */
+.day-date {
+  font-weight: 400;
+  white-space: nowrap;
+}
+/* Today's card: an enamel ring + a full-strength label so the current day
+   stands out from the grid at a glance. */
+.day.is-today {
+  border-color: var(--enamel);
+  box-shadow: inset 0 0 0 1px var(--enamel);
+}
+.day.is-today .day-label {
+  opacity: 1;
+  color: var(--enamel);
 }
 .day-count {
   font-size: 0.65rem;
@@ -2452,10 +2571,12 @@ table.ref.pairs td.eq {
 .day-clear {
   align-self: flex-start;
 }
-/* "Recipes per day" cap control in the Meals controls row. */
+/* "Per Day" cap control — the label stacks ABOVE its dropdown, and the whole
+   field sits beside the "Starts" picker in the start row. */
 .meals-perday {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   gap: var(--s-1);
   font-size: var(--t-caption);
 }
@@ -2488,28 +2609,40 @@ table.ref.pairs td.eq {
   gap: var(--s-2);
   margin-top: var(--s-3);
 }
-/* Add + Repeat grouped on the left, keeping their own gap when the row wraps. */
-.week-actions-left {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--s-2);
-}
-/* Reset keeps its shared, normal-sized glyph (~18px) in this row rather than
-   being scaled up — the ≥44px hit area (tap-first) stays, and align-items above
-   centres it on the buttons' line. */
+/* Add hugs the left edge, Repeat the right (space-between above). */
+/* Shared read-only plan view's calendar (buildCalendarRows). */
 .calendar {
   margin-top: var(--s-5);
 }
-/* Start-date control: label + date input on one row above the calendar. */
-.cal-start {
+/* Start row (top of the builder, above the Week 1 block): the "Starts" date
+   picker and the "Per Day" cap grouped on the left, the plan Reset control (icon
+   button, or its inline confirm) right-aligned on the same line. Fields align on
+   their controls' baseline (flex-end) so the stacked labels sit above them. */
+.plan-start {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
+  justify-content: space-between;
   gap: var(--s-2);
   flex-wrap: wrap;
-  margin-bottom: var(--s-3);
+}
+.plan-start-fields {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+/* "Starts": the label stacks ABOVE the date input, left-justified over it. */
+.plan-start-field {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-1);
   font-size: var(--t-caption);
 }
-.cal-start-input {
+.plan-start-label {
+  opacity: 0.8;
+}
+.plan-start-input {
   font: inherit;
   padding: var(--s-1) var(--s-2);
   border: var(--stroke) solid var(--line);
@@ -2550,10 +2683,21 @@ table.ref.pairs td.eq {
   margin-top: var(--s-4);
 }
 /* Icon-only trigger (🛒): square-ish, emoji carries the meaning. */
+/* The cart mirrors "+ Add" (the button directly above it) for symmetry: the
+   two share one explicit box — same min-width/height, centred content. The
+   min-height also clears the 44px tap-first floor. */
+.button.add-week,
+.button.shopping-open {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--s-2) var(--s-4);
+  min-width: 7rem;
+  min-height: 2.75rem;
+}
 .shopping-open {
   font-size: 1.15rem;
   line-height: 1;
-  padding: var(--s-2) var(--s-3);
 }
 /* The detail toggle reads as "on" when pressed (enamel fill, like the tabs). */
 .shopping-detail.is-active {
@@ -2641,9 +2785,115 @@ table.ref.pairs td.eq {
 .shopping-download-slot:empty {
   display: none;
 }
-.cal-body {
-  display: grid;
-  gap: var(--s-3);
+/* Check-off list: the checkbox is the marker, so drop the bullet. Each row is a
+   full-width tap target (label wraps the box + text). */
+.shopping-checklist,
+.shopping-onhand {
+  list-style: none;
+  padding-left: 0;
+}
+.shopping-check {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-2);
+  cursor: pointer;
+  padding: var(--s-1) 0;
+}
+.shopping-check-box {
+  flex: 0 0 auto;
+  width: 1.1rem;
+  height: 1.1rem;
+  min-width: 1.1rem;
+  align-self: center;
+}
+.shopping-check-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+/* "I already have this" — struck through, de-emphasized, but still visible. */
+.shopping-line.is-checked .shopping-check-text {
+  text-decoration: line-through;
+  opacity: 0.55;
+}
+/* "Be sure to double check": staples, pre-checked (assumed on hand). Set off
+   from the shop list with a rule + muted heading; un-tick one to shop it. */
+.shopping-doublecheck-head {
+  opacity: 0.75;
+  margin-top: var(--s-3);
+  padding-top: var(--s-3);
+  border-top: var(--stroke) solid var(--line);
+}
+/* Discoverability hint when no staple matched the menu. */
+.shopping-staple-hint {
+  margin-top: var(--s-3);
+  padding-top: var(--s-3);
+  border-top: var(--stroke) solid var(--line);
+}
+/* The AI-shopper copy button reads as a secondary action beside Copy. */
+.shopping-ai {
+  white-space: nowrap;
+}
+
+/* Account → Shopping list: staple chips + AI-instructions controls. */
+.shopping-staples-block,
+.shopping-ai-block {
+  margin-top: var(--s-3);
+}
+.staples-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  margin: var(--s-2) 0;
+}
+.staples-chips:empty {
+  display: none;
+}
+.staple-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  padding: var(--s-1) var(--s-2);
+  background: var(--enamel-soft);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-l);
+  font-size: var(--t-caption);
+}
+.staple-chip-remove {
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0 var(--s-1);
+  min-width: 1.75rem;
+  min-height: 1.75rem;
+}
+.staples-add-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  align-items: center;
+}
+.staples-input,
+.ai-instructions {
+  font: inherit;
+  padding: var(--s-2);
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--r-s);
+  background: var(--card);
+  color: inherit;
+}
+.staples-input {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+.ai-instructions {
+  display: block;
+  width: 100%;
+  margin-top: var(--s-2);
+  resize: vertical;
 }
 .cal-week {
   border: var(--stroke) solid var(--line);
@@ -2762,6 +3012,7 @@ table.ref.pairs td.eq {
   .chip,
   .facet-dd-summary,
   .palette-page-btn,
+  .week-layout-toggle,
   .nav-gear,
   .nav-auth,
   .fun-fact-next,
@@ -2872,8 +3123,8 @@ table.ref.pairs td.eq {
   min-height: 0;
 }
 
-/* Publish row: the Publish button + the icon-only "Reset on publish" toggle on
-   one line, right-aligned under the calendar preview (mirrors .week-actions). */
+/* Publish row: Shopping list on the left, Publish right-aligned on the same
+   line (mirrors .week-actions). */
 .plan-publish-row {
   display: flex;
   align-items: center;
@@ -2881,43 +3132,39 @@ table.ref.pairs td.eq {
   gap: var(--s-3);
   flex-wrap: wrap;
 }
-/* Publish + its reset toggle stay grouped on the right; Shopping list leads on
-   the left (the row's first child). */
-.plan-publish-right {
-  display: flex;
+
+/* Repeat ("⧉", icon-only) matches the Publish button's footprint so the two
+   read as a pair (Repeat above, Publish below): same explicit box, centred
+   glyph. Publish shares the box so their sizes are provably equal. */
+.button.repeat-weeks,
+.button.plan-publish-btn,
+.button.plan-reset-btn {
+  display: inline-flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: var(--s-3);
-  flex-wrap: wrap;
+  justify-content: center;
+  min-width: 7rem;
+  min-height: 2.75rem;
+}
+.repeat-weeks {
+  font-size: 1.15rem; /* the ⧉ glyph reads a touch larger, like the 🛒 */
+  line-height: 1;
 }
 
 /* Publish is a commit-with-consequences action (it freezes the plan and — with
    the reset toggle on — clears the canvas), so it wears rust like the reset
-   family, not the enamel primary. Doubled selector so the fill/hover beat the
-   base .button rules. */
-.button.plan-publish-btn {
+   family, not the enamel primary. Reset (which clears the canvas outright) is
+   the same destructive family, so it shares the rust fill and footprint. Doubled
+   selector so the fill/hover beat the base .button rules. */
+.button.plan-publish-btn,
+.button.plan-reset-btn {
   background: var(--rust);
   border-color: var(--rust);
   color: var(--card);
 }
-.button.plan-publish-btn:hover {
+.button.plan-publish-btn:hover,
+.button.plan-reset-btn:hover {
   background: var(--rust-deep);
   border-color: var(--rust-deep);
-}
-
-/* "Reset on publish": the shared reset glyph + a checked-by-default checkbox,
-   no text (the accessible name is the label's aria-label/title). Rust to read
-   as one family with the Publish button it sits beside. */
-.reset-on-publish-toggle {
-  background: var(--rust-soft);
-  color: var(--rust);
-}
-.reset-on-publish-toggle input {
-  accent-color: var(--rust);
-}
-.reset-on-publish-toggle svg {
-  width: 1.125rem;
-  height: 1.125rem;
 }
 
 /* Browse pager: ◀ "Showing X–Y of N" ▶ centred below the feed. Reuses the
@@ -3171,6 +3418,22 @@ details.calendar-publish > summary {
   color: inherit;
   resize: vertical;
 }
+/* Acquire hub (import.html): the 0→1 entries around the import engine. */
+.acquire-hub {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+.acquire-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+.acquire-option {
+  flex: 1 1 12rem;
+  text-align: center;
+}
+
 /* Provenance + etiquette lines in the editor for an imported draft. */
 .import-provenance,
 .import-etiquette {
@@ -3402,7 +3665,8 @@ details.calendar-publish > summary {
   gap: var(--s-2);
 }
 .timer-empty {
-  opacity: 0.6;
+  /* 0.68: dimmed --ink over --tile clears AA 4.5:1 (a11y.spec.ts). */
+  opacity: 0.68;
 }
 .timer-item {
   display: flex;

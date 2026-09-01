@@ -9,7 +9,10 @@ import { describe, expect, it } from 'vitest';
 import {
   addDays,
   dateForSlot,
+  formatDayMonth,
   formatShortDate,
+  formatWeekday,
+  mondayOf,
   nextMonday,
   weekRangeLabel,
 } from '../../../src/recipes/meal-plan-dates.js';
@@ -77,6 +80,51 @@ describe('formatShortDate', () => {
 
   it('returns null for an invalid date', () => {
     expect(formatShortDate('nope')).toBeNull();
+  });
+});
+
+describe('mondayOf', () => {
+  it('returns the same day when the date is a Monday', () => {
+    expect(mondayOf('2026-08-10')).toBe('2026-08-10'); // Mon
+  });
+  it('snaps a mid-week date BACK to that week’s Monday', () => {
+    expect(mondayOf('2026-08-12')).toBe('2026-08-10'); // Wed -> Mon
+    expect(mondayOf('2026-08-15')).toBe('2026-08-10'); // Sat -> Mon
+  });
+  it('treats Sunday as the END of the week (snaps back six days)', () => {
+    expect(mondayOf('2026-08-16')).toBe('2026-08-10'); // Sun -> previous Mon
+  });
+  it('rolls back across a month boundary', () => {
+    expect(mondayOf('2026-08-01')).toBe('2026-07-27'); // Sat -> Mon in July
+  });
+  it('returns null for an unparseable date', () => {
+    expect(mondayOf('not-a-date')).toBeNull();
+    expect(mondayOf('')).toBeNull();
+  });
+});
+
+describe('formatWeekday', () => {
+  it('names the weekday of an ISO date (locale-independent, UTC)', () => {
+    expect(formatWeekday('2026-08-10')).toBe('Mon');
+    expect(formatWeekday('2026-08-12')).toBe('Wed');
+    expect(formatWeekday('2026-08-15')).toBe('Sat');
+    expect(formatWeekday('2026-08-16')).toBe('Sun');
+  });
+  it('returns null for an unparseable date', () => {
+    expect(formatWeekday('not-a-date')).toBeNull();
+    expect(formatWeekday('')).toBeNull();
+  });
+});
+
+describe('formatDayMonth', () => {
+  it('formats an ISO date as a compact M/D label (no padding)', () => {
+    expect(formatDayMonth('2026-08-10')).toBe('8/10');
+    expect(formatDayMonth('2026-01-05')).toBe('1/5');
+    expect(formatDayMonth('2026-12-31')).toBe('12/31');
+  });
+  it('returns null for an invalid date', () => {
+    expect(formatDayMonth('nope')).toBeNull();
+    expect(formatDayMonth('2026-02-30')).toBeNull();
   });
 });
 

@@ -1,5 +1,12 @@
 # arecipe — TODO / backlog
 
+> Known work only — items whose shape is already decided, and which may therefore be
+> proposed as work. Anything still an open question (decide / verify / investigate /
+> reconcile) belongs in the backlog of record, `discovery/alpha/ROADMAP_TODO.md`,
+> however small or operational it is. Tracking scheme: `CroftC/.claude/TRACKING.md`;
+> the two piles and why: its § "Two piles". Cross-reference E-numbers where an item
+> here implements a backlog row.
+
 Actionable, not-yet-scheduled items. Feature deferrals with rationale live in
 `docs/BUILD-PLAN.md` § Deferred; this file is for tooling/QA follow-ups and
 loose ideas a later session can pick up.
@@ -26,6 +33,19 @@ loose ideas a later session can pick up.
       signin.html). _Noted 2026-07-10._
 
 ## Tooling / QA
+
+- [ ] **Mocks: the two sketches carry a version but no captured counterpart; the first
+      captured mock is owed** (`CroftC/.claude/MOCKS.md` rules 1–2 and 8). `mocks/dish.html`
+      and `mocks/recipe-flip.html` (moved from `docs/mockups/` 2026-08-30) are sketches —
+      drawings in their own CSS, not built from the app — versioned as v1 with the baseline
+      they were drawn at. Under P4 arecipe's Proposed frame is a capture of a PR preview and
+      its Current frame a capture of production: `scripts/mock-snaps.mjs --as current --url
+      https://arecipe.app/` and `--as proposed --url https://arecipe.app/pr-preview/pr-N/`.
+      Owed: the next UI change opens a PR, captures both columns with that script, and lands
+      the first `mocks/<slug>.html` whose Proposed column is real pixels with a
+      `mock-proposal` meta — at which point the two sketches are either re-captured against
+      the built version or retired. `runs/<slug>/shots/*-390.png / *-1280.png` is the same
+      act done per run since 2026-07-23; the script standardises the frames and names the sha.
 
 - [x] **Per-PR preview deploys.** Every same-repo PR gets a live, read-only
       copy of the built app at `arecipe.app/pr-preview/pr-N/`, torn down on
@@ -122,3 +142,35 @@ loose ideas a later session can pick up.
         drafts is the natural place to point cooks at attribution norms.
       Source of truth for accuracy: `plans/2026-07-18-1-plan-recipe-import.md`.
       _Noted 2026-07-18 during the recipe-import run._
+
+- [ ] **Ingredient normalization + substitution engine — plan filed, execution
+      not scheduled.** `plans/2026-08-12-1-plan-ingredient-normalization-and-substitutions.md`
+      supersedes PR #87's direct-regex matching (PR is OPEN; whether its UI
+      shell survives is deliberately a **Phase 0 decision**, don't merge or
+      close it ahead of that). Mostly-deterministic hybrid: build-time reviewed
+      `ingredientkeys.json` (the `dishKey` workflow applied to ingredients) →
+      pure matcher on `parseIngredient` output → search-by-ingredient →
+      substitution rules seeded from the reference-view pairs tables → local
+      correction overlay (`exclusions.ts` idiom) → decision GATE → optional
+      closed-set MiniLM fuzzy tier. Before execution: (a) decide the pending
+      **external-DB amendment** — USDA FDC / FoodOn / the annotated
+      ingredient-phrase datasets / FoodKG were scoped in-dialogue as Phase 1
+      seed + Phase 2 fixture inputs behind the same human review, but were
+      never folded into the plan file (licensing claims unverified); (b) the
+      Phase 2 coverage floor (90%) is a placeholder pending the Phase 0 census.
+      Cross-repo tracking: discovery ROADMAP_TODO **E119**. _Noted 2026-08-23
+      (plan dated 2026-08-12)._
+
+## Design standard gaps (croft-pwa/docs/DESIGN.md)
+
+- [x] ~~**Sign-in copy: the noun is "atmo provider", not Bluesky.**~~ DONE 2026-08-30 (signin-pattern). `src/pages/signin.ts`
+  says *Sign in with your Bluesky handle to save recipes…* and the placeholder names
+  `name.bsky.social` for a field that takes a handle on any host. Use the sheet's words
+  and the verbatim gloss (DESIGN.md § Copy). Workspace audit check 45 FLAGs this until it
+  changes.
+- [x] ~~**Adopt the sign-in flow.**~~ DONE 2026-08-30 (signin-pattern; `src/auth/providers.{json,ts}`, `tests/e2e/signin.spec.ts`, `tests/e2e/providers-live.spec.ts`). `signin.html` was handle-only with no provider registry
+  and no Create. Adopt DESIGN.md § Flows › Sign in — registry with probed posture + live
+  drift check, two panels split by posture, Create only where signups are open, the handle
+  seam; reference `croft-pwa/src/signin/`. The dedicated page is a legitimate container
+  (the sheet is the exception to "pages, not modals", not a mandate); the copy, registry
+  and both-direction Create rule are not optional. Check 45 NOTEs the missing registry.

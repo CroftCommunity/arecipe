@@ -1,0 +1,86 @@
+__NOTOC__{{recipe summary
+| category = Soup recipes
+| Cuisine = Nigerian
+| servings = 2–3
+| time = 
+| Time = 20–30 minutes
+| difficulty = 4
+| image = [[File:Amala and Abula.jpg|300px]]
+| energy = 
+| note = 
+}}
+
+{{Recipe}}
+
+'''Abula''' (literally "mixture") is a dish common amongst Yoruba people of Nigeria. It is a combination of three different soups/stews: gbegiri, ewedu, and pepper sauce.
+
+== Ingredients ==
+
+=== Gbegiri ===
+
+* 1 [[Cookbook:Cup|cup]] dried [[Cookbook:Beans|beans]]
+* 2 large pieces of [[Cookbook:Meat and Poultry|meat]], cut into pieces
+* ½ cup [[Cookbook:Palm Oil|palm oil]]
+* 1 [[Cookbook:Onion|onion]]
+* 2 [[Cookbook:Teaspoon|teaspoons]] [[Cookbook:Ground Crayfish|ground crayfish]]
+* [[Cookbook:Salt|Salt]] to taste
+* 2 [[Cookbook:Dryfish|dryfish]]
+
+=== Ewedu ===
+
+* 3 cups [[Cookbook:Jute|ewedu]] leaves
+* 1 piece of [[Cookbook:Potash|potash]]
+* ½ teaspoon [[Cookbook: Salt|salt]]
+* 1 [[Cookbook:Dehydrated Broth|stock cube]]
+* 2 nylons of [[Cookbook:Iru|fermented locust beans]]
+
+=== Pepper sauce ===
+
+* 2 red [[Cookbook:Bell Pepper|bell peppers]]
+*3 [[Cookbook:Tomato|tomatoes]]
+
+== Equipment ==
+*[[Cookbook:Blender|Blender]]
+*[[Cookbook:Cooktop|Stovetop]]
+*[[Cookbook:Pots and Pans|Pot]]
+*[[Cookbook:Knife|Knife]]
+*[[Cookbook:Mixing Bowl|Bowl]]
+*[[Cookbook:Colander|Colander]]
+
+== Procedure ==
+
+=== Gbegiri ===
+
+# [[Cookbook:Soaking Beans|Soak]] the beans in water overnight. Remove and discard the skins.
+# [[Cookbook:Boiling|Boil]] the beans in fresh water until very soft. Drain well.
+# [[Cookbook:Puréeing|Blend]] the beans to a purée using a blender. Set aside.
+# Boil the meat in a pot of water with onions and spices. Remove the meat and set aside.
+# Heat a small amount of palm oil in a pot. Add the blended beans, crayfish, salt, boiled meat, and dryfish. Cook until the fish is softened.
+
+=== Ewedu ===
+
+# Boil the ewedu for about 15 minutes.
+# Soften with potash, then add a [[Cookbook:Pinch|pinch]] of salt and stock cube.
+# Blend the ewedu mixture until smooth, and stir in the locust beans.
+# Reduce the heat, and allow to [[Cookbook:Simmering|simmer]].
+
+=== Pepper sauce ===
+
+# Blend the pepper and tomato together until smooth.
+# Heat a small amount of oil in a pot over medium heat. Add the blended mixture, and cook until it loses the raw flavor.
+# Serve the pepper sauce in one dish with the gbegiri and ewedu.
+
+[[Category:Recipes for soup]]
+[[Category:Yoruba recipes]]
+[[Category:Recipes using ground crayfish]]
+[[Category:Recipes using onion]]
+[[Category:Recipes using red bell pepper]]
+[[Category:Recipes using tomato]]
+[[Category:Recipes using salt]]
+[[Category:Recipes using iru]]
+[[Category:Recipes using pulses]]
+[[Category:Recipes using palm oil]]
+[[Category:Recipes using dryfish]]
+[[Category:Recipes using meat]]
+[[Category:Recipes using potash]]
+[[Category:Recipes using jute]]

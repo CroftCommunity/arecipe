@@ -1,0 +1,249 @@
+{
+  "categories": [
+    "Baked recipes",
+    "Algerian recipes",
+    "Vegetarian recipes",
+    "Recipes for pastries",
+    "Snacks recipes",
+    "Recipes with metric units",
+    "Recipes using all-purpose flour",
+    "Recipes using salt",
+    "Recipes using sugar",
+    "Recipes using yeast",
+    "Recipes using olive oil",
+    "Recipes using onion",
+    "Recipes using tomato",
+    "Recipes using bell pepper",
+    "Recipes using garlic",
+    "Recipes using paprika",
+    "Recipes using cumin",
+    "Recipes using olive",
+    "Recipes using pepper"
+  ],
+  "ingredients": [
+    {
+      "display": "500 g (4 cups) all-purpose flour",
+      "optional": false,
+      "raw": "500 [[Cookbook:Gram|g]] (4 [[Cookbook:Cup|cups]]) [[Cookbook:All-purpose flour|all-purpose flour]]",
+      "refs": [
+        "Gram",
+        "Cup",
+        "All-purpose flour"
+      ]
+    },
+    {
+      "display": "1 teaspoon salt",
+      "optional": false,
+      "raw": "1 [[Cookbook:Teaspoon|teaspoon]] [[Cookbook:Salt|salt]]",
+      "refs": [
+        "Teaspoon",
+        "Salt"
+      ]
+    },
+    {
+      "display": "1 tablespoon sugar",
+      "optional": false,
+      "raw": "1 [[Cookbook:Tablespoon|tablespoon]] [[Cookbook:Sugar|sugar]]",
+      "refs": [
+        "Tablespoon",
+        "Sugar"
+      ]
+    },
+    {
+      "display": "1 packet (7 g) active dry yeast",
+      "optional": false,
+      "raw": "1 packet (7 g) active dry [[Cookbook:Yeast|yeast]]",
+      "refs": [
+        "Yeast"
+      ]
+    },
+    {
+      "display": "250 ml (1 cup) warm water",
+      "optional": false,
+      "raw": "250 [[Cookbook:Milliliter|ml]] (1 cup) warm [[Cookbook: Water|water]]",
+      "refs": [
+        "Milliliter",
+        "Water"
+      ]
+    },
+    {
+      "display": "3 tablespoons olive oil",
+      "optional": false,
+      "raw": "3 tablespoons [[Cookbook:Olive Oil|olive oil]]",
+      "refs": [
+        "Olive Oil"
+      ]
+    },
+    {
+      "display": "2 large onions, thinly sliced",
+      "optional": false,
+      "raw": "2 large [[Cookbook:Onion|onions]], thinly [[Cookbook:Slicing|sliced]]",
+      "refs": [
+        "Onion",
+        "Slicing"
+      ]
+    },
+    {
+      "display": "2 large tomatoes, thinly sliced",
+      "optional": false,
+      "raw": "2 large [[Cookbook:Tomato|tomatoes]], thinly sliced",
+      "refs": [
+        "Tomato"
+      ]
+    },
+    {
+      "display": "1 bell pepper, thinly sliced",
+      "optional": false,
+      "raw": "1 [[Cookbook:Bell Pepper|bell pepper]], thinly sliced",
+      "refs": [
+        "Bell Pepper"
+      ]
+    },
+    {
+      "display": "2–3 cloves garlic, minced",
+      "optional": false,
+      "raw": "2–3 [[Cookbook:Clove|cloves]] [[Cookbook:Garlic|garlic]], [[Cookbook:Mince|minced]]",
+      "refs": [
+        "Clove",
+        "Garlic",
+        "Mince"
+      ]
+    },
+    {
+      "display": "2 tablespoons olive oil",
+      "optional": false,
+      "raw": "2 tablespoons [[Cookbook: Olive Oil|olive oil]]",
+      "refs": [
+        "Olive Oil"
+      ]
+    },
+    {
+      "display": "1 teaspoon paprika",
+      "optional": false,
+      "raw": "1 teaspoon [[Cookbook:Paprika|paprika]]",
+      "refs": [
+        "Paprika"
+      ]
+    },
+    {
+      "display": "1 teaspoon ground cumin",
+      "optional": false,
+      "raw": "1 teaspoon ground [[Cookbook:Cumin|cumin]]",
+      "refs": [
+        "Cumin"
+      ]
+    },
+    {
+      "display": "Salt and pepper to taste",
+      "optional": false,
+      "raw": "[[Cookbook:Salt|Salt]] and [[Cookbook : Pepper|pepper]] to taste",
+      "refs": [
+        "Salt",
+        "Pepper"
+      ]
+    },
+    {
+      "display": "Black olives, whole or sliced",
+      "optional": false,
+      "raw": "Black [[Cookbook:Olive|olives]], whole or sliced",
+      "refs": [
+        "Olive"
+      ]
+    },
+    {
+      "display": "Chopped fresh parsley (optional)",
+      "optional": true,
+      "raw": "Chopped fresh [[Cookbook: Parsley|parsley]] (optional)",
+      "refs": [
+        "Parsley"
+      ]
+    }
+  ],
+  "lead": "Algerian coca (كوكة) is a savory pastry that is popular in Algeria, particularly in the city of Oran. It is similar to a thin-crust pizza or a flatbread, often topped with a variety of ingredients such as onions, tomatoes, peppers, and sometimes meat or fish.",
+  "parseFlags": [
+    {
+      "code": "image-unresolved",
+      "detail": "Coca argelina.jpg"
+    },
+    {
+      "code": "ingredients-prose",
+      "detail": "Dough"
+    },
+    {
+      "code": "ingredients-prose",
+      "detail": "Garnish"
+    },
+    {
+      "code": "ingredients-prose",
+      "detail": "Topping"
+    }
+  ],
+  "procedure": [
+    {
+      "refs": [],
+      "text": "In a bowl, dissolve the sugar in warm water, then sprinkle the yeast. Let sit 10 minutes until frothy."
+    },
+    {
+      "refs": [
+        "Dough"
+      ],
+      "text": "In a large mixing bowl, combine the flour and salt. Make a well in the center and pour in the yeast mixture and olive oil. Mix until a dough forms."
+    },
+    {
+      "refs": [
+        "Knead"
+      ],
+      "text": "Turn the dough out onto a floured surface and knead for about 10 minutes until it becomes smooth and elastic."
+    },
+    {
+      "refs": [],
+      "text": "Place the dough in a lightly oiled bowl, cover with a clean kitchen towel, and let it rise in a warm place for about 1 hour or until it doubles in size."
+    },
+    {
+      "refs": [
+        "Skillet"
+      ],
+      "text": "Heat the olive oil over medium heat in a large skillet. Add the sliced onions and cook until they become soft and translucent, about 10 minutes."
+    },
+    {
+      "refs": [],
+      "text": "Add the garlic, paprika, cumin, salt, and pepper to the onions. Stir well and cook for another 2–3 minutes."
+    },
+    {
+      "refs": [],
+      "text": "Add the sliced tomatoes and bell peppers to the skillet. Cook for another 5–7 minutes until the vegetables are soft but not mushy. Remove from heat and let it cool slightly."
+    }
+  ],
+  "publishable": true,
+  "sections": [
+    {
+      "heading": "Equipment",
+      "text": "* Large mixing bowl\n* Skillet or sauté pan\n* Rolling pin\n* Baking sheet\n* Parchment paper\n* Oven"
+    },
+    {
+      "heading": "Assembly",
+      "text": "# Preheat your oven to 200°C (400°F).\n# Press the risen dough to deflate it, then divide it into two equal portions. Roll out each portion into a thin rectangle or oval shape, about ¼ inch thick.\n# Transfer the rectangles to one or more baking sheets lined with parchment paper. Spread the cooked vegetable mixture evenly over the rolled-out dough.\n# Bake in the preheated oven for about 20–25 minutes, or until the edges are golden brown and the dough is cooked through."
+    },
+    {
+      "heading": "Garnish and serve",
+      "text": "# Remove the coca from the oven and let it cool slightly. Garnish with chopped fresh parsley and olives if desired.\n# Cut into squares or slices and serve warm."
+    },
+    {
+      "heading": "Notes, Tips, and Variations",
+      "text": "* You may substitute homemade dough with store-bought puff pastry for a quicker version.\n* Traditional versions may include canned tuna, anchovies, or cooked ground meat layered under the vegetables.\n* The filling can be made ahead and stored in the refrigerator for up to 2 days.\n* Serve with a fresh salad for a complete meal."
+    }
+  ],
+  "summary": {
+    "category": "Recipes for pastries",
+    "difficulty": 3,
+    "image": "Coca argelina.jpg",
+    "servings": "4–6",
+    "servingsHint": {
+      "max": 6,
+      "min": 4
+    },
+    "time": "2 hours (including resting and baking)",
+    "timeMinutesHint": 120
+  },
+  "title": "Algerian Coca"
+}

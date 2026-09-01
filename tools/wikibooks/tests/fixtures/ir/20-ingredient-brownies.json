@@ -1,0 +1,313 @@
+{
+  "categories": [
+    "Recipes for brownies",
+    "Recipes using dark chocolate",
+    "Recipes using butter",
+    "Recipes using egg",
+    "Recipes for dessert",
+    "Recipes for bars",
+    "Recipes using brown sugar",
+    "Recipes using granulated sugar",
+    "Recipes using cream cheese",
+    "Recipes using mascarpone",
+    "Recipes using cocoa powder",
+    "Recipes using all-purpose flour",
+    "Recipes using cow milk"
+  ],
+  "ingredients": [
+    {
+      "display": "1½ cups (275 g / 10 oz) brown sugar",
+      "optional": false,
+      "raw": "1½ [[Cookbook:Cup|cups]] (275 [[Cookbook:Gram|g]] / 10 [[Cookbook:Ounce|oz]]) [[Cookbook:Brown Sugar|brown sugar]]",
+      "refs": [
+        "Cup",
+        "Gram",
+        "Ounce",
+        "Brown Sugar"
+      ]
+    },
+    {
+      "display": "1 cup (200 g / 7 oz) white granulated sugar",
+      "optional": false,
+      "raw": "1 cup (200 g / 7 oz) white [[Cookbook:Granulated Sugar|granulated sugar]]",
+      "refs": [
+        "Granulated Sugar"
+      ]
+    },
+    {
+      "display": "3 sticks (375 g / 13 oz) butter, melted",
+      "optional": false,
+      "raw": "3 sticks (375 g / 13 oz) [[Cookbook:Butter|butter]], melted",
+      "refs": [
+        "Butter"
+      ]
+    },
+    {
+      "display": "4 ea. (200 g) eggs",
+      "optional": false,
+      "raw": "4 [[Cookbook:Each|ea]]. (200 g) [[Cookbook:Egg|eggs]]",
+      "refs": [
+        "Each",
+        "Egg"
+      ]
+    },
+    {
+      "display": "2 teaspoons salt",
+      "optional": false,
+      "raw": "2 [[Cookbook:Teaspoon|teaspoons]] [[Cookbook:Salt|salt]]",
+      "refs": [
+        "Teaspoon",
+        "Salt"
+      ]
+    },
+    {
+      "display": "1 tablespoon vanilla extract",
+      "optional": false,
+      "raw": "1 [[Cookbook:Tablespoon|tablespoon]] [[Cookbook:Vanilla|vanilla]] extract",
+      "refs": [
+        "Tablespoon",
+        "Vanilla"
+      ]
+    },
+    {
+      "display": "8 oz (227 g) dark chocolate",
+      "optional": false,
+      "raw": "8 oz (227 g) dark [[Cookbook:Chocolate|chocolate]]",
+      "refs": [
+        "Chocolate"
+      ]
+    },
+    {
+      "display": "1½ cups (200 g / 7 oz) all-purpose flour",
+      "optional": false,
+      "raw": "1½ cups (200 g / 7 oz) all-purpose flour",
+      "refs": []
+    },
+    {
+      "display": "½ cup (60 g / 2 oz) dutch processed cocoa powder",
+      "optional": false,
+      "raw": "½ cup (60 g / 2 oz) dutch processed cocoa powder",
+      "refs": []
+    },
+    {
+      "display": "8 oz (227 g) semisweet chocolate, chopped",
+      "optional": false,
+      "raw": "8 oz (227 g) semisweet [[Cookbook:Chocolate|chocolate]], [[Cookbook:Chopping|chopped]]",
+      "refs": [
+        "Chocolate",
+        "Chopping"
+      ]
+    },
+    {
+      "display": "16 oz (450 g) cream cheese",
+      "optional": false,
+      "raw": "16 [[Cookbook:Ounce|oz]] (450 g) [[Cookbook:Cream Cheese|cream cheese]]",
+      "refs": [
+        "Ounce",
+        "Cream Cheese"
+      ]
+    },
+    {
+      "display": "1 cup (300 g / 10.5 oz) mascarpone cheese",
+      "optional": false,
+      "raw": "1 cup (300 g / 10.5 oz) [[Cookbook:Mascarpone Cheese|mascarpone cheese]]",
+      "refs": [
+        "Mascarpone Cheese"
+      ]
+    },
+    {
+      "display": "½ cup (110 g / 4 oz) white granulated sugar",
+      "optional": false,
+      "raw": "½ cup (110 g / 4 oz) white granulated [[Cookbook:Sugar|sugar]]",
+      "refs": [
+        "Sugar"
+      ]
+    },
+    {
+      "display": "1 teaspoon vanilla extract",
+      "optional": false,
+      "raw": "1 teaspoon vanilla extract",
+      "refs": []
+    },
+    {
+      "display": "1 ea. (50 g) egg",
+      "optional": false,
+      "raw": "1 [[Cookbook:Each|ea]]. (50 g) [[Cookbook:Egg|egg]]",
+      "refs": [
+        "Each",
+        "Egg"
+      ]
+    },
+    {
+      "display": "2 tablespoons milk",
+      "optional": false,
+      "raw": "2 tablespoons [[Cookbook:Milk|milk]]",
+      "refs": [
+        "Milk"
+      ]
+    },
+    {
+      "display": "11 oz (310 g) chocolate",
+      "optional": false,
+      "raw": "11 oz (310 g) chocolate",
+      "refs": []
+    },
+    {
+      "display": "11 oz (330 ml / 1⅓ cups) heavy cream, heated",
+      "optional": false,
+      "raw": "11 oz (330 [[Cookbook:Milliliter|ml]] / 1⅓ cups) heavy [[Cookbook:Cream|cream]], heated",
+      "refs": [
+        "Milliliter",
+        "Cream"
+      ]
+    },
+    {
+      "display": "1 teaspoon salt",
+      "optional": false,
+      "raw": "1 teaspoon [[Cookbook: Salt|salt]]",
+      "refs": [
+        "Salt"
+      ]
+    },
+    {
+      "display": "Flaky salt to garnish",
+      "optional": false,
+      "raw": "Flaky salt to garnish",
+      "refs": []
+    }
+  ],
+  "lead": "20-ingredient brownies is a dessert containing 20 ingredients. It is adapted from recipe from the YouTube channel Tasty.",
+  "parseFlags": [
+    {
+      "code": "ingredients-prose",
+      "detail": "Brownie"
+    },
+    {
+      "code": "ingredients-prose",
+      "detail": "Frosting"
+    },
+    {
+      "code": "ingredients-prose",
+      "detail": "Topping"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "Brownie"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "Frosting"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "Topping"
+    },
+    {
+      "code": "template-stripped",
+      "detail": "DEFAULTSORT:Brownies, 20-ingredient"
+    },
+    {
+      "code": "template-stripped",
+      "detail": "Nutritionsummary"
+    },
+    {
+      "code": "template-stripped",
+      "detail": "reflist"
+    }
+  ],
+  "procedure": [
+    {
+      "refs": [
+        "Oven",
+        "Oven Temperatures",
+        "Centimetre (cm)",
+        "Inch",
+        "Parchment Paper"
+      ],
+      "text": "Preheat the oven to 180°C (356°F). Line a 33 x 23 cm (13 x 9-inch) baking pan with parchment."
+    },
+    {
+      "refs": [
+        "Microwave"
+      ],
+      "text": "Melt dark chocolate in microwave using 30-second bursts. Leave it to cool."
+    },
+    {
+      "refs": [
+        "Beat"
+      ],
+      "text": "Beat the butter and sugars in a large bowl until combined."
+    },
+    {
+      "refs": [],
+      "text": "Beat in the eggs, salt and vanilla, then beat in the melted chocolate."
+    },
+    {
+      "refs": [
+        "Folding"
+      ],
+      "text": "Fold in the flour and cocoa, then the chopped chocolate."
+    },
+    {
+      "refs": [],
+      "text": "Pour the mixture into the lined baking pan."
+    },
+    {
+      "refs": [
+        "Baking"
+      ],
+      "text": "Bake for 25 minutes."
+    },
+    {
+      "refs": [],
+      "text": "Meanwhile, make the topping by beating the cheeses in a medium-sized bowl until soft."
+    },
+    {
+      "refs": [],
+      "text": "Beat in the sugar and vanilla, then beat in the egg and milk."
+    },
+    {
+      "refs": [],
+      "text": "Take the brownie out of the oven after the 25 minutes of baking."
+    },
+    {
+      "refs": [],
+      "text": "Pour the mixture over the brownie and bake for a further 30 minutes."
+    },
+    {
+      "refs": [],
+      "text": "Take the brownie out of the oven and leave it to cool."
+    },
+    {
+      "refs": [
+        "Ganache"
+      ],
+      "text": "Make the ganache by mixing together the chocolate, hot cream and salt in a bowl until melted."
+    },
+    {
+      "refs": [],
+      "text": "Pour the ganache over the brownie and chill in the fridge for at least a few hours until set."
+    },
+    {
+      "refs": [],
+      "text": "Sprinkle the brownie with a light sprinkle of salt."
+    },
+    {
+      "refs": [],
+      "text": "Trim the brownie and cut into 15 squares."
+    }
+  ],
+  "publishable": true,
+  "sections": [],
+  "summary": {
+    "category": "Recipes for dessert",
+    "difficulty": 3,
+    "servings": "15",
+    "servingsHint": {
+      "min": 15
+    },
+    "time": "1 hour 30 minutes",
+    "timeMinutesHint": 90
+  },
+  "title": "20-Ingredient Brownies"
+}

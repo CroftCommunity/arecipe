@@ -1,0 +1,87 @@
+__notoc__
+{{recipesummary
+| category = Couscous recipes
+| servings = 6–8
+| time = 3 hours (including simmering and double steaming)
+| difficulty = 4
+| image = [[File:Couscous (Algérie, lieu exact non précisé).jpg|300px|cuisine = Algerian]]
+}}
+
+{{recipe}} | [[Cookbook:Cuisine of Algeria|Algerian recipes]]
+
+'''Algerian couscous''' (Arabic: كسكس, Berber: ⵙⴽⵙⵓ) is a traditional Algerian dish that holds a central place in Algerian cuisine. It is a staple food in Algeria, often served during family gatherings, religious celebrations and special occasions. Algerian couscous is characterized by its light, fluffy texture, aromatic spices and a rich stew of meat, vegetables and legumes.
+
+==Ingredients==
+
+=== Couscous ===
+* 500 [[Cookbook:Gram|g]] (about 2½ [[Cookbook:Cup|cups]]) fine or medium [[Cookbook:Couscous|couscous]]
+* 2 [[Cookbook:Tablespoon|tablespoons]] [[Cookbook:Olive Oil|olive oil]]
+* 500 [[Cookbook:Milliliter|ml]] (2 cups) warm water
+* 250 ml (1 cup) water mixed with 1 [[Cookbook:Teaspoon|teaspoon]] [[Cookbook:Salt|salt]]
+
+=== Stew ===
+* 500 g (1 [[Cookbook:Pound|lb]]) [[Cookbook:Lamb and Mutton|lamb]], [[Cookbook:Chicken|chicken]], or [[Cookbook:Beef|beef]], cut into chunks
+* 2 large [[Cookbook:Onion|onions]], finely [[Cookbook:Chopping|chopped]]
+* 3 cloves [[Cookbook:Garlic|garlic]], [[Cookbook:Mince|minced]]
+* 2 tablespoons [[Cookbook:Tomato Paste|tomato paste]]
+* 2 tablespoons olive oil
+* 1 teaspoon ground [[Cookbook:Cumin|cumin]]
+* 1 teaspoon ground [[Cookbook:Coriander|coriander]]
+* 1 teaspoon [[Cookbook:Paprika|paprika]]
+* ½ teaspoon ground [[Cookbook:Turmeric|turmeric]]
+* ½ teaspoon [[Cookbook:Cinnamon|cinnamon]] (optional, for a hint of sweetness)
+* 1.5 liters (6 cups) water or [[Cookbook:Broth and Stock|broth]]
+* Salt and [[Cookbook:Pepper|pepper]] to taste
+* 2 [[Cookbook:Carrot|carrots]], peeled and cut into chunks
+* 2 [[Cookbook:Zucchini|zucchini]], cut into chunks
+* 2 [[Cookbook:Potato|potatoes]], peeled and cut into chunks
+* 1 [[Cookbook:Turnip|turnip]], peeled and cut into chunks
+* 1 cup [[Cookbook:Pumpkin|pumpkin]] or other hard [[Cookbook:Squash|squash]], cut into chunks
+* 1 cup cooked [[Cookbook:Chickpea|chickpeas]] (canned or pre-cooked)
+* 1 green [[Cookbook:Bell Pepper|bell pepper]], cut into chunks
+
+==Procedure==
+# To hydrate the couscous, mix the couscous with olive oil and a little salt in a large bowl. Rub the grains between your hands to coat them evenly with oil. Gradually add the warm water while stirring to moisten the couscous. Let it sit for 10 minutes to absorb the water.
+# Transfer the couscous to a couscoussier (a traditional steamer) or a fine-mesh [[Cookbook:Steamer|steamer]] basket. [[Cookbook:Steaming|Steam]] over [[Cookbook:Simmering|simmering]] water for 20 minutes, fluffing the couscous with a fork every 10 minutes to prevent clumping. If you don’t have a steamer, you can use a [[Cookbook:Colander|colander]] placed over a pot of boiling water, covered with a lid.
+# After the first steam, transfer the couscous back to a large bowl.
+# Gradually sprinkle the salted water over the couscous while using your hands or a fork to break up any clumps. This step ensures the couscous is evenly seasoned and moist.
+# Let the couscous cool for 10–15 minutes. This allows the grains to absorb the salted water and prepares them for the second steam.
+# In a large pot, heat the olive oil over medium heat. Add the meat and brown it on all sides. Remove and set aside.
+# In the same pot, add the chopped onions and garlic. [[Cookbook:Sautéing|Sauté]] until softened and golden.
+# Stir in the tomato paste, cumin, coriander, paprika, turmeric, and cinnamon (if using). Cook for 2–3 minutes to release the flavors.
+# Return the meat to the pot and add the water or broth. Season with salt and pepper. Bring to a [[Cookbook:Boiling|boil]], then reduce the heat to low, cover and simmer for about 1 hour or until the meat is tender.
+# Return the couscous to the steamer. Steam for another 20 minutes, fluffing with a fork every 10 minutes. This second steam ensures the couscous is light, fluffy and fully cooked.
+# After the meat has simmered for 30 minutes, add the carrots, turnip and potatoes. Continue simmering for another 15 minutes.
+# Add the zucchini, pumpkin and chickpeas. Cook until all the vegetables are tender but not mushy (about 15–20 minutes).
+# Once the couscous is steamed for the second time, transfer it to a large serving dish. Drizzle a ladle of broth from the stew over the couscous, and fluff it with a fork to separate the grains.
+# Place the couscous on a large platter, arrange the meat and vegetables on top, and pour some of the broth over everything.
+
+== Notes, tips, and variations ==
+* This is the most basic and common Algerian couscous recipe, and there are multiple recipes and variations available all across Algeria.
+
+[[Category:Recipes using couscous]]
+[[Category:Algerian recipes]]
+[[Category:Recipes using coriander]]
+[[Category:Recipes using ground cumin]]
+[[Category:Recipes using olive oil]]
+[[Category:Recipes using salt]]
+[[Category:Recipes using lamb and mutton]]
+[[Category:Recipes using chicken]]
+[[Category:Recipes using beef]]
+[[Category:Recipes using onion]]
+[[Category:Recipes using garlic]]
+[[Category:Recipes using tomato paste]]
+[[Category:Recipes using cumin]]
+[[Category:Recipes using paprika]]
+[[Category:Recipes using turmeric]]
+[[Category:Recipes using cinnamon]]
+[[Category:Recipes using broth and stock]]
+[[Category:Recipes using pepper]]
+[[Category:Recipes using carrot]]
+[[Category:Recipes using zucchini]]
+[[Category:Recipes using potato]]
+[[Category:Recipes using turnip]]
+[[Category:Recipes using pumpkin]]
+[[Category:Recipes using squash]]
+[[Category:Recipes using chickpea]]
+[[Category:Recipes using green bell pepper]]

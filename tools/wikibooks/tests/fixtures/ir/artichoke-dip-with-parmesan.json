@@ -1,0 +1,70 @@
+{
+  "categories": [
+    "Appetizer recipes",
+    "United States recipes",
+    "Recipes using artichoke",
+    "Naturally gluten-free recipes",
+    "Vegetarian recipes",
+    "Recipes for dip",
+    "Kosher recipes",
+    "Halal recipes",
+    "Kosher for Passover recipes"
+  ],
+  "ingredients": [
+    {
+      "display": "Artichoke hearts, drained and chopped or squeezed",
+      "optional": false,
+      "raw": "[[Cookbook:Artichoke|Artichoke]] hearts, drained and [[Cookbook:Chopping|chopped]] or squeezed",
+      "refs": [
+        "Artichoke",
+        "Chopping"
+      ]
+    },
+    {
+      "display": "Mayonnaise",
+      "optional": false,
+      "raw": "[[Cookbook:Mayonnaise|Mayonnaise]]",
+      "refs": [
+        "Mayonnaise"
+      ]
+    },
+    {
+      "display": "Parmesan or Romano cheese",
+      "optional": false,
+      "raw": "[[Cookbook:Parmesan Cheese|Parmesan]] or [[Cookbook:Pecorino Romano Cheese|Romano cheese]]",
+      "refs": [
+        "Parmesan Cheese",
+        "Pecorino Romano Cheese"
+      ]
+    }
+  ],
+  "lead": "Artichoke hearts are readily available in cans and jars in many countries, and are increasingly used in the making of snack dips. Many national chain restaurants in the USA have some variety of artichoke dip, which is usually mayonnaise-based. One easy variation on the creamy artichoke dip is jokingly called the Artichoke Heart Attack, owing to the amount of mayonnaise and Parmesan cheese it contains.",
+  "parseFlags": [
+    {
+      "code": "ingredients-prose",
+      "detail": "Equal parts:"
+    }
+  ],
+  "procedure": [
+    {
+      "refs": [],
+      "text": "Combine all ingredients to make dip."
+    }
+  ],
+  "publishable": true,
+  "sections": [
+    {
+      "heading": "Serving",
+      "text": "* At room temperature, it is perfect for the savory dipping of vegetables, potato chips, and all other common party snacks. It becomes even better, however, as a warmed-up dip. Simply place it into a small, shallow, heat-resistant dish and broil it for just a little while, until the top turns slightly tan. It can also work well as a continuously warmed dip in a fondue pot, although it does need to be stirred every once in a while to prevent burning.\n* This dip can also be used as the base for a sandwich. Spread the dip onto a good Italian roll, then broil it. When the dip turns a nice tan color, take it out of the broiler and finish the sandwich with lettuce and tomato."
+    },
+    {
+      "heading": "Notes, tips, and variations",
+      "text": "* There are many who increase the amount of artichokes used, for health-conscious reasons. There are also versions that replace the mayonnaise with soft tofu.\n\n* Various items that are often added to the base artichoke dip, (to taste):\n** Salt and pepper.\n** Chopped scallions, (green onions)\n** Dill weed\n** Finely-chopped olives, (often with pimento)\n** Chopped tomatoes (an especially common addition)\n** Any number of very finely chopped vegetables (sometimes pre-cooked but raw is fine)\n** Chopped spinach, cooked\n** ½ cup sour cream\n** ½ cup cream cheese\n** Minced garlic\n** Small can chopped green chilis\n** Dijon Mustard (to taste)"
+    }
+  ],
+  "summary": {
+    "category": "Dip recipes",
+    "difficulty": 1
+  },
+  "title": "Artichoke Dip with Parmesan"
+}

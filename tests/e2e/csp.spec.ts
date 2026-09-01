@@ -76,7 +76,7 @@ test.describe('CSP: enforcing policy admits every document (Phase 2)', () => {
       // Exercise a real render: signin mounts its form; other shells render
       // their app root. Either way the entry module has executed by now.
       if (doc === 'signin.html') {
-        await expect(page.getByTestId('handle-input')).toBeVisible();
+        await expect(page.getByTestId('provider-other')).toBeVisible();
       } else {
         await expect(page.locator('#app')).toBeAttached();
       }
@@ -171,7 +171,7 @@ test.describe('SRI: entry module + both stylesheets (Phase 3)', () => {
       // Render proof for the entry module: a wrong entry digest blocks the
       // module, so a live render means its integrity is correct, not just present.
       if (doc === 'signin.html') {
-        await expect(page.getByTestId('handle-input')).toBeVisible();
+        await expect(page.getByTestId('provider-other')).toBeVisible();
       } else {
         await expect(page.locator('#app')).toBeAttached();
       }
@@ -234,10 +234,12 @@ test.describe('Zero third-party scripts (Phase 4)', () => {
         .map((s) => s.trim())
         .find((s) => s.startsWith('script-src '));
       expect(scriptSrc, `${doc}: has a script-src directive`).toBeTruthy();
+      // Every page is strict: script-src is 'self' + sha256 hashes only — no
+      // eval, no wasm, no host/scheme/wildcard.
       const tokens = (scriptSrc ?? '').replace('script-src ', '').trim().split(/\s+/);
       for (const tok of tokens) {
         const ok = tok === "'self'" || /^'sha256-[A-Za-z0-9+/=]+'$/.test(tok);
-        expect(ok, `${doc}: script-src token "${tok}" must be 'self' or a sha256 hash`).toBe(true);
+        expect(ok, `${doc}: script-src token "${tok}" must be 'self'/sha256`).toBe(true);
       }
       expect(tokens, `${doc}: script-src includes 'self'`).toContain("'self'");
       expect(scriptSrc, `${doc}: script-src has no unsafe/host/scheme/wildcard`).not.toMatch(

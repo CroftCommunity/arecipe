@@ -1,5 +1,13 @@
 # CLAUDE.md — notes for agents working in this repo
 
+## Identity (workspace architecture)
+
+**Scope:** Zero-backend recipe PWA on atproto (`app.arecipe.*` lexicons, PDS-resident data) + Wikibooks corpus tooling.
+**Not this repo:** the marketing/treatise page (arecipe_treatise); generic atproto auth patterns (workspace prior art — DECISIONS.md).
+**Provides:** the arecipe.app PWA. **Consumes:** `@atproto/oauth-client-browser`, user PDSes.
+Card + altitudes: `CroftC/.claude/ARCHITECTURE.md`. (`ui-lab/` = mock-data-only UI
+explorations, Phase 9c/9d — never live data.)
+
 arecipe is a zero-backend recipe-sharing **SPA/PWA on the AT Protocol** (atproto).
 No server: all data lives in the user's PDS repo or in the browser. Vanilla
 TypeScript + esbuild, one static HTML shell per destination, no framework.
@@ -14,6 +22,23 @@ npm run test          # lint · typecheck (src + tests) · unit (vitest) · buil
 
 Sub-parts: `npm run lint`, `npm run typecheck`, `npm run test:unit`, `npm run build`,
 `npm run test:e2e`. `@live` e2e (real PDS, credentials) run only via `npm run test:live`.
+
+**Node version — run `nvm use` first.** `.nvmrc` pins Node to the same major CI
+uses; `tests/unit/toolchain-pin.spec.ts` fails if the two ever drift, so bumping
+one means bumping the other. Running the suite on a newer Node produces failures
+that have nothing to do with your change: on Node 25,
+`tests/unit/social/cookbook-members-view.spec.ts` fails 7 tests with
+`localStorage.clear is not a function`, because Node 25 ships a global
+`localStorage` that shadows happy-dom's and is a stub without `--localstorage-file`.
+**If a spec fails on a DOM global you never touched, check `node --version`
+before debugging the test.**
+
+**When CI is red, the deploy seems stale, or images look broken:** read
+`docs/CI-TROUBLESHOOTING.md` before debugging code. It covers telling a GitHub
+outage from a real failure (a cancelled job reports as `fail` in
+`gh pr checks` — check the job `conclusion`), verifying a deploy actually landed,
+the snapshot-rev freshness check that silently costs every client a full
+refetch, and why images can fail while the rest of the app works offline.
 
 **Playwright browser — do this BEFORE your first e2e run.** This environment
 ships Chromium under `/opt/pw-browsers`, but the npm-pinned Playwright usually
@@ -66,6 +91,36 @@ run the other sub-gates directly and use the config above for e2e.
   `app.arecipe.*`. Update that doc when a record shape changes.
 - **Plans.** Non-trivial features get a dated plan doc in `plans/` (see existing
   ones); record the outcome when done.
+- **Do not delete the `wbsync` worktree.** `git worktree list` shows a detached,
+  branchless worktree at `CroftC/worktrees/arecipe/wbsync` — it reads like
+  leftover cruft and is not. It holds the only populated copy of the Wikibooks
+  corpus state (270 MB: ledger, 3,824 raw pages, 751 cached images with their
+  uploaded blob CIDs), all gitignored. Removing it costs a full re-crawl of
+  ~4,500 rate-limited upstream requests before the next incremental sync can run.
+  It is detached rather than on a branch because its branch merged in #74 and git
+  will not check out `main` in two worktrees at once. Full rationale:
+  `tools/wikibooks/README.md` § "Local state".
+- **Changelog trailers.** The `/changelog` page is generated at build time from
+  opt-in `Changelog:` commit trailers (`scripts/build.mjs` → `dist/changelog.json`;
+  pure logic in `scripts/changelog.mjs`). **If a commit changes what a cook sees
+  or can do, add a trailer**; internal-only commits (refactors, tests, deps, CI,
+  docs) omit it — absence is normal.
+  - Form: `Changelog(added|changed|fixed|removed): <one line>`. A bare
+    `Changelog: …` defaults to `changed`. Repeat the trailer for multiple
+    user-facing changes in one commit.
+  - **Write it in the user's voice** — present tense, benefit-first, no jargon,
+    one line. Good: `Changelog(added): Added a shopping list you can check off as
+    you cook`. Bad (dev-voice, don't): `Changelog: impl ShoppingListStore redb
+    projection`.
+  - **Squash caveat:** PRs squash-merge to `main`, so the trailer must be in the
+    **final squash commit message** (edit the PR's squash body), not only in an
+    intermediate commit — otherwise it won't reach `main`'s history.
+  - **Backlog / durability:** entries that aren't derivable from a trailer
+    (pre-convention history) live in `changelog.seed.json` (hand-authored); the
+    build unions + dedupes it with the git-derived entries. `npm run changelog:bake`
+    folds the current derived entries into that seed to make them permanent (they
+    survive a history rewrite). Prefer a trailer for new changes; use the seed for
+    backlog.
 
 ## Previews on a PR — and the agent gotcha
 
@@ -141,3 +196,11 @@ deployed a preview for, confirm the preview is gone and remove it if it isn't:
 **Confirm** the teardown: `curl -sI https://arecipe.app/pr-preview/pr-<N>/` →
 `404` (and the base site still `200`). A `--remove` that reports "no changes to
 publish" means it was already gone — that's success, not an error.
+
+## Concurrent sessions (workspace norm)
+
+Multiple agent sessions share the `CroftC/` workspace. Do multi-turn work in a dedicated
+worktree — `git -C arecipe worktree add ../worktrees/arecipe/<slug> -b claude/<slug>` — never in
+this checkout (peer sessions stage with `git add -A`; loose files get swept into unrelated
+commits). Contested surfaces here — claim in `CroftC/.coordination/claims/` before
+touching: **landing on `main`**. Note: `worktrees/arecipe/wbsync` is a registered exception (deliberately detached, holds the sole gitignored corpus copy — never remove it). Full protocol and the reasons behind it: `CroftC/.claude/COORDINATION.md`.

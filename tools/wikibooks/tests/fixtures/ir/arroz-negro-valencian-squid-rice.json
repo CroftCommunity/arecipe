@@ -1,0 +1,278 @@
+{
+  "categories": [
+    "Recipes using rice",
+    "Mediterranean recipes",
+    "Main course recipes",
+    "Spanish recipes",
+    "Boiled recipes",
+    "Recipes with metric units",
+    "Recipes using red bell pepper",
+    "Recipes using fish",
+    "Recipes using garlic",
+    "Recipes using squid",
+    "Recipes using crab",
+    "Pescatarian recipes",
+    "Halal recipes"
+  ],
+  "ingredients": [
+    {
+      "display": "3 pounds diced squid",
+      "optional": false,
+      "raw": "3 [[Cookbook:Pound|pounds]] [[Cookbook:Dice|diced]] [[Cookbook:Squid|squid]]",
+      "refs": [
+        "Pound",
+        "Dice",
+        "Squid"
+      ]
+    },
+    {
+      "display": "1 pounds green cubanelle peppers",
+      "optional": false,
+      "raw": "1 pounds green [[Cookbook:Cubanelle Pepper|cubanelle peppers]]",
+      "refs": [
+        "Cubanelle Pepper"
+      ]
+    },
+    {
+      "display": "6 cloves garlic, minced",
+      "optional": false,
+      "raw": "6 cloves [[Cookbook:Garlic|garlic]], [[Cookbook:Mince|minced]]",
+      "refs": [
+        "Garlic",
+        "Mince"
+      ]
+    },
+    {
+      "display": "2 cups Valencian rice",
+      "optional": false,
+      "raw": "2 [[Cookbook:Cup|cups]] Valencian [[Cookbook:Rice|rice]]",
+      "refs": [
+        "Cup",
+        "Rice"
+      ]
+    },
+    {
+      "display": "3 teaspoons squid ink",
+      "optional": false,
+      "raw": "3 [[Cookbook:Teaspoon|teaspoons]] [[Cookbook:Squid Ink|squid ink]]",
+      "refs": [
+        "Teaspoon",
+        "Squid Ink"
+      ]
+    },
+    {
+      "display": "1 tablespoon sweet paprika",
+      "optional": false,
+      "raw": "1 [[Cookbook:Tablespoon|tablespoon]] sweet [[Cookbook:Paprika|paprika]]",
+      "refs": [
+        "Tablespoon",
+        "Paprika"
+      ]
+    },
+    {
+      "display": "1 tablespoon sea salt",
+      "optional": false,
+      "raw": "1 tablespoon sea [[Cookbook:Salt|salt]]",
+      "refs": [
+        "Salt"
+      ]
+    },
+    {
+      "display": "Olive oil",
+      "optional": false,
+      "raw": "[[Cookbook:Olive Oil|Olive oil]]",
+      "refs": [
+        "Olive Oil"
+      ]
+    },
+    {
+      "display": "8 oz crab",
+      "optional": false,
+      "raw": "8 [[Cookbook:Ounce|oz]] [[Cookbook:Crab|crab]]",
+      "refs": [
+        "Ounce",
+        "Crab"
+      ]
+    },
+    {
+      "display": "8 oz smelt or fish heads",
+      "optional": false,
+      "raw": "8 oz [[Cookbook:Smelt|smelt]] or fish heads",
+      "refs": [
+        "Smelt"
+      ]
+    },
+    {
+      "display": "1 medium onion",
+      "optional": false,
+      "raw": "1 medium [[cookbook:onion|onion]]",
+      "refs": [
+        "onion"
+      ]
+    },
+    {
+      "display": "1 medium green or red bell pepper",
+      "optional": false,
+      "raw": "1 medium green or red [[wikipedia:bell pepper|bell pepper]]",
+      "refs": []
+    },
+    {
+      "display": "3 cloves of garlic",
+      "optional": false,
+      "raw": "3 cloves of garlic",
+      "refs": []
+    },
+    {
+      "display": "2 bay leaves",
+      "optional": false,
+      "raw": "2 [[Cookbook:Bay Leaf|bay leaves]]",
+      "refs": [
+        "Bay Leaf"
+      ]
+    },
+    {
+      "display": "1 gallon of water",
+      "optional": false,
+      "raw": "1 [[Cookbook:Gallon|gallon]] of water",
+      "refs": [
+        "Gallon"
+      ]
+    }
+  ],
+  "lead": "Arroz negro or arròs negre (\"black rice\" in Spanish and Catalan respectively) is a Valencian dish of cuttlefish (or squid) and rice which is very similar to seafood paella. In fact, some call it paella negra (black paella in Spanish).",
+  "parseFlags": [
+    {
+      "code": "image-unresolved",
+      "detail": "Arroz negro 02.JPG"
+    },
+    {
+      "code": "ingredients-prose",
+      "detail": "Broth"
+    },
+    {
+      "code": "ingredients-prose",
+      "detail": "Paella"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "Broth"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "Paella"
+    },
+    {
+      "code": "procedure-prose",
+      "detail": "Please read Paella cooking techniques before attempting this recipe."
+    },
+    {
+      "code": "template-stripped",
+      "detail": "reflist"
+    }
+  ],
+  "procedure": [
+    {
+      "refs": [],
+      "text": "Cut one onion and one bell pepper into quarters and place in a large pot with the rest of the broth ingredients."
+    },
+    {
+      "refs": [
+        "Boiling"
+      ],
+      "text": "Boil for about 30 minutes. Occasionally press the ingredients against the bottom of the pot with a potato masher or ladle to squeeze out their flavors."
+    },
+    {
+      "refs": [
+        "Sieve"
+      ],
+      "text": "Strain the broth and set aside. Discard the boiled seafood."
+    },
+    {
+      "refs": [],
+      "text": "Pour enough oil into a paellera to cover the bottom and heat over a medium flame."
+    },
+    {
+      "refs": [
+        "sautéing"
+      ],
+      "text": "Add 1 teaspoon of salt to cubanelles and sauté until soft."
+    },
+    {
+      "refs": [],
+      "text": "Add squid and sauté for 2 minutes."
+    },
+    {
+      "refs": [],
+      "text": "Add garlic and sauté until brown (be careful not to burn)."
+    },
+    {
+      "refs": [],
+      "text": "Add rice and braise until coated with oil."
+    },
+    {
+      "refs": [],
+      "text": "Add paprika and sauté for no more than 15 seconds then quickly add four cups of broth to prevent the paprika from burning."
+    },
+    {
+      "refs": [],
+      "text": "Add squid ink and mix well."
+    },
+    {
+      "refs": [],
+      "text": "Bring broth to a boil and then simmer for 2 minutes."
+    },
+    {
+      "refs": [],
+      "text": "Taste the broth and invite your dinner guests to do so as well. If it tastes bland, add 1 teaspoon of salt at a time until everybody approves."
+    },
+    {
+      "refs": [],
+      "text": "Add the rice."
+    },
+    {
+      "refs": [],
+      "text": "Begin tasting the rice after it's been simmering for about 20 minute and reduce the heat a bit. Make sure the rice doesn't get too soft. Check the rice again every 10 minutes and reduce the heat slightly after each taste. Your goal is to wind up with rice that has a slightly underdone center. The time it takes to reach this point can vary from 30 minutes to an hour depending on your cooking gear."
+    },
+    {
+      "refs": [
+        "al dente"
+      ],
+      "text": "Your paella is done once you've accomplished the following three things: 1) The rice should be slightly firm to the bite. Italians use the same approach when cooking pasta. They call this texture al dente, 2) The paella should be a little moist but not soupy, 3) You should have a bit of toasted rice on the bottom of the paellera. This is considered a delicacy throughout the Spanish-speaking world."
+    },
+    {
+      "refs": [],
+      "text": "Remove the paellera from the heat and cover it with a white towel (NOT ALUMINUM FOIL). Allow it to sit for 5 minutes before serving."
+    }
+  ],
+  "publishable": true,
+  "sections": [
+    {
+      "heading": "Equipment",
+      "text": "*15-inch (38-centimeter) paellera\n*2-gallon pot\n*Rice skimmer\n*Sharp chopping knife\n*Large serving spoon\n*Potato masher\n*A clean, white towel large enough to cover the paellera\n*A wide heating source such as:\n**A stove large enough to accommodate the size of the paellera (you'll have to straddle two burners at once and rotate the paellera periodically for even cooking.)\n**A gas burner designed specifically for paelleras\n**A charcoal barbecue\n**A low, forged steel to support the paellera"
+    },
+    {
+      "heading": "Notes, tips, and variations",
+      "text": "* To save time, start preparing the paella once the broth starts boiling."
+    },
+    {
+      "heading": "See also",
+      "text": "*Mastering the art of cooking paellas"
+    },
+    {
+      "heading": "External links",
+      "text": "*Mixed paella recipe presented by the Food Network\n*Traditional paella recipes by a Spanish amateur cook\n*Paella recipes presented by Spain-recipes.com\n*Paella recipes from Sarah Jay"
+    }
+  ],
+  "summary": {
+    "category": "Spanish recipes",
+    "difficulty": 3,
+    "image": "Arroz negro 02.JPG",
+    "servings": "6",
+    "servingsHint": {
+      "min": 6
+    },
+    "time": "90 minutes",
+    "timeMinutesHint": 90
+  },
+  "title": "Arroz Negro (Valencian Squid Rice)"
+}

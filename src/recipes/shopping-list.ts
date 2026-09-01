@@ -139,6 +139,10 @@ const normalizeName = (raw: string): string => {
   return words.join(' ');
 };
 
+/** Public alias for the internal name normalizer, so staple matching and line
+ * keys fold names the same way the parser does. */
+export const normalizeIngredientName = (raw: string): string => normalizeName(raw);
+
 // --- parse -----------------------------------------------------------------
 
 const unparsed = (raw: string, qty?: QuantityValue, unit?: CanonicalUnit): ParsedIngredient => ({
@@ -209,8 +213,9 @@ export type ScheduledRecipe = {
 };
 
 /** One verbatim line in the By-recipe view; `flagged` when it did NOT roll up
- * into a combined aggregate (an unparseable line). */
-export type ByRecipeLine = { raw: string; flagged: boolean };
+ * into a combined aggregate (an unparseable line). `staple` when the cook has
+ * marked its ingredient as always-on-hand (annotated, excluded from payloads). */
+export type ByRecipeLine = { raw: string; flagged: boolean; staple?: boolean };
 
 /** One recipe's section in the By-recipe view (shown once, ×count). */
 export type ByRecipeSection = {
@@ -222,11 +227,13 @@ export type ByRecipeSection = {
 
 /** One aggregated line in the Combined view: a normalized name, one quantity
  * "part" per family (cross-family parts are listed, never converted), and the
- * recipes it was drawn from (for the optional source-attribution mode). */
-export type CombinedLine = { name: string; parts: string[]; recipes: string[] };
+ * recipes it was drawn from (for the optional source-attribution mode).
+ * `staple` when its ingredient is marked always-on-hand. */
+export type CombinedLine = { name: string; parts: string[]; recipes: string[]; staple?: boolean };
 
-/** An unparseable line preserved verbatim, attributed to its source recipes. */
-export type AsListedLine = { raw: string; recipes: string[] };
+/** An unparseable line preserved verbatim, attributed to its source recipes.
+ * `staple` when its ingredient is marked always-on-hand. */
+export type AsListedLine = { raw: string; recipes: string[]; staple?: boolean };
 
 export type CombinedView = {
   lines: CombinedLine[];
@@ -313,6 +320,127 @@ export const combinedLineText = (line: CombinedLine, opts: { sources?: boolean }
   return opts.sources === true && line.recipes.length > 0
     ? `${base} (from ${line.recipes.join(', ')})`
     : base;
+};
+
+// --- staples + check-off (assumed on hand) ---------------------------------
+
+/** True when `hay` (a normalized, single-spaced name) contains `needle` (also
+ * normalized) as a whole-word phrase — the space-padding trick makes "salt"
+ * match "sea salt" but not "salted butter". */
+const wholeWordIncludes = (hay: string, needle: string): boolean =>
+  ` ${hay} `.includes(` ${needle} `);
+
+/** A predicate: does an ingredient name count as a staple (assumed on hand)?
+ * Both sides are name-normalized; a staple matches when it equals the name or
+ * appears within it as a whole-word phrase ("salt" ⊇ "sea salt", "olive oil" ⊇
+ * "extra virgin olive oil"). An empty staple list matches nothing. Pure. */
+export const makeStapleMatcher = (staples: string[]): ((name: string) => boolean) => {
+  const norm = [...new Set(staples.map(normalizeName))].filter((s) => s !== '');
+  if (norm.length === 0) return () => false;
+  return (rawName: string): boolean => {
+    const name = normalizeName(rawName);
+    if (name === '') return false;
+    return norm.some((s) => name === s || wholeWordIncludes(name, s));
+  };
+};
+
+/** The staple-matching name for a raw ingredient line: the parsed name when the
+ * line parses, else the whole line normalized (so a bare "salt to taste" still
+ * matches the "salt" staple). */
+const stapleNameOf = (raw: string): string => {
+  const parsed = parseIngredient(raw);
+  return parsed.unparsed === true || parsed.name === '' ? normalizeName(raw) : parsed.name;
+};
+
+/** Flag every combined line, as-listed line, and by-recipe line whose ingredient
+ * is a staple. Non-mutating — returns a new list; the panel uses the flags to
+ * annotate ("assumed on hand") and to drop staples from copy/download/AI. */
+export const applyStaples = (list: ShoppingList, staples: string[]): ShoppingList => {
+  const isStaple = makeStapleMatcher(staples);
+  const setFlag = <T extends { staple?: boolean }>(item: T, on: boolean): T =>
+    on ? { ...item, staple: true } : item;
+  return {
+    byRecipe: list.byRecipe.map((s) => ({
+      ...s,
+      lines: s.lines.map((l) => setFlag(l, isStaple(stapleNameOf(l.raw)))),
+    })),
+    combined: {
+      ...list.combined,
+      lines: list.combined.lines.map((l) => setFlag(l, isStaple(l.name))),
+      asListed: list.combined.asListed.map((l) => setFlag(l, isStaple(normalizeName(l.raw)))),
+    },
+  };
+};
+
+/** A stable check-off key for a combined line — by normalized name, so it lines
+ * up with the same ingredient in the By-recipe view. */
+export const combinedLineKey = (line: CombinedLine): string => `n:${normalizeName(line.name)}`;
+
+/** A stable check-off key for a raw (by-recipe / as-listed) line: the normalized
+ * name when it parses (shared with the combined key), else the raw text (so
+ * unparseable stragglers still toggle independently). */
+export const rawLineKey = (raw: string): string => {
+  const parsed = parseIngredient(raw);
+  return parsed.unparsed === true || parsed.name === ''
+    ? `r:${raw.trim().toLowerCase()}`
+    : `n:${parsed.name}`;
+};
+
+/** Every check-off key belonging to a staple line (combined, as-listed, and
+ * by-recipe), de-duped. The panel seeds these into its "checked" set so staples
+ * start ticked (assumed on hand) in the "Be sure to double check" section — and
+ * un-ticking one there brings it back into the shopping payload. Pure. */
+export const stapleLineKeys = (list: ShoppingList): string[] => {
+  const keys = new Set<string>();
+  for (const l of list.combined.lines) if (l.staple === true) keys.add(combinedLineKey(l));
+  for (const l of list.combined.asListed) if (l.staple === true) keys.add(rawLineKey(l.raw));
+  for (const s of list.byRecipe) for (const l of s.lines) if (l.staple === true) keys.add(rawLineKey(l.raw));
+  return [...keys];
+};
+
+/** Produce a NEW list carrying only what still needs shopping: every line whose
+ * key the caller marks excluded (checked off as "already have" — staples included,
+ * since the panel seeds them checked) is dropped from combined lines, as-listed,
+ * and every by-recipe section. The existing markdown/document renderers then
+ * render the honest shopping payload. Unavailable recipes are kept (their absence
+ * is itself worth copying). Pure. */
+export const filterForShopping = (
+  list: ShoppingList,
+  isExcluded: (key: string) => boolean = () => false,
+): ShoppingList => {
+  const keepCombined = (l: CombinedLine): boolean => !isExcluded(combinedLineKey(l));
+  const keepRaw = (l: { raw: string; staple?: boolean }): boolean => !isExcluded(rawLineKey(l.raw));
+  return {
+    byRecipe: list.byRecipe.map((s) => ({ ...s, lines: s.lines.filter(keepRaw) })),
+    combined: {
+      ...list.combined,
+      lines: list.combined.lines.filter(keepCombined),
+      asListed: list.combined.asListed.filter(keepRaw),
+    },
+  };
+};
+
+/** The "AI shopper" payload: terse cart instructions for a shopping agent, built
+ * from an ALREADY-filtered list (staples + checked-off lines removed upstream).
+ * Deliberately free of any arecipe / recipe framing — agents carry their own
+ * notion of a "recipe"; this just names items to add to a cart. `instructions`
+ * (the cook's standing preference, e.g. "prefer versions we've bought before")
+ * is folded in verbatim. Pure. */
+export const renderAiShopperText = (
+  list: ShoppingList,
+  opts: { instructions?: string } = {},
+): string => {
+  const items: string[] = [
+    ...list.combined.lines.map((line) => combinedLineText(line)),
+    ...list.combined.asListed.map((item) => item.raw),
+  ];
+  const out: string[] = ['Add these grocery items to my shopping cart:'];
+  const instr = (opts.instructions ?? '').trim();
+  if (instr !== '') out.push('', instr);
+  out.push('');
+  if (items.length === 0) out.push('(nothing left to buy)');
+  else for (const item of items) out.push(`- ${item}`);
+  return out.join('\n');
 };
 
 /** Multiply one ingredient line by a recipe's occurrence count for the

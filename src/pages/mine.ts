@@ -8,10 +8,6 @@ import { referenceIconLink } from '../icons.js';
 import { resolveDidDoc } from '../identity/did.js';
 import { log } from '../log.js';
 import { mountShell } from '../nav.js';
-import { acquireFromPaste, acquireFromUrl } from '../import/acquire.js';
-import { renderImportPanel } from '../import/panel.js';
-import { interpretShare } from '../import/share-target.js';
-import { mapImportedToFields } from '../import/to-fields.js';
 import { createDraftStore, type DraftStatus } from '../recipes/drafts-local.js';
 import { listPdsDrafts } from '../recipes/drafts-sync.js';
 import { retryOnce } from '../retry.js';
@@ -43,7 +39,7 @@ const main = async (): Promise<void> => {
   // Authoring entry + local drafts are for everyone — drafting needs no
   // account; publishing (in the editor) does. "New" rides the Recipe Drafts
   // heading line (the drafts list is what it feeds), short because the
-  // heading already says "Recipe".
+  // heading already says "Recipe". It is the from-scratch builder → editor.
   const newRecipe = el('a', 'button button--primary', 'New') as HTMLAnchorElement;
   newRecipe.href = './editor.html';
   newRecipe.dataset['testid'] = 'new-recipe';
@@ -89,37 +85,6 @@ const main = async (): Promise<void> => {
   draftsSection.append(draftsList);
   content.append(draftsSection);
   const drafts = createDraftStore();
-
-  // Recipe import is SHARE-ONLY (recipe-import): there is no manual import button
-  // on Alchemy. The manifest registers mine.html as a GET Web Share Target, so a
-  // share from the phone browser lands here as ?title=&text=&url=. Only then do
-  // we mount the import panel and act on the share — shared text imports with no
-  // fetch (sidesteps CORS); a bare link is attempted and falls back to paste.
-  // Nothing publishes without the normal editor flow.
-  const shareParams = new URLSearchParams(window.location.search);
-  const shared = interpretShare({
-    title: shareParams.get('title') ?? undefined,
-    text: shareParams.get('text') ?? undefined,
-    url: shareParams.get('url') ?? undefined,
-  });
-  if (shared.url !== '' || shared.pasteText !== undefined) {
-    // Strip the share query so a reload doesn't re-trigger the import.
-    try {
-      window.history.replaceState(null, '', './mine.html');
-    } catch {
-      /* replaceState can throw in exotic embeddings — the import still runs */
-    }
-    const importPanel = renderImportPanel({
-      acquireFromUrl: (url) => acquireFromUrl(url),
-      acquireFromPaste: (pasted, sourceUrl) => acquireFromPaste(pasted, sourceUrl),
-      onImported: async (result) => {
-        const draft = await drafts.save(mapImportedToFields(result.recipe, result.sourceUrl), undefined, 'draft');
-        window.location.href = `./editor.html?draft=${encodeURIComponent(draft.id)}`;
-      },
-      shared,
-    });
-    draftsHeader.after(importPanel);
-  }
 
   const renderDrafts = async (): Promise<void> => {
     const all = await drafts.list();

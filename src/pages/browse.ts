@@ -13,6 +13,11 @@ import { createRecipeCache, type CachedRecipe } from '../recipes/cache.js';
 import { createExclusions } from '../recipes/exclusions.js';
 import { collapseVersions } from '../recipes/model.js';
 import { createStarterPrefs, loadStarterFeed } from '../recipes/starter.js';
+import { loadSnapshotFeed, loadSnapshotManifest } from '../snapshot/load.js';
+import { createSnapshotStore } from '../snapshot/store.js';
+import { snapshotBuildId } from '../snapshot/paths.js';
+import { revalidateCooks } from '../snapshot/revalidate.js';
+import { resolveDidDoc } from '../identity/did.js';
 import { createCookFollowsLocal } from '../social/cook-follows-local.js';
 import { mergeCookAuthors } from '../social/default-feed.js';
 import { createRecipeReader } from '../recipes/read.js';
@@ -618,7 +623,7 @@ const main = async (): Promise<void> => {
     void (async () => {
       const identity: ResolvedIdentity = await resolve(handle);
       const records = await readRecipes({ pds: identity.pds, did: identity.did });
-      const entries = await Promise.all(records.map((r) => cache.put(r)));
+      const entries = await cache.putMany(records);
       saveLastFind({ handle: identity.handle, did: identity.did, uris: entries.map((e) => e.uri) });
       if (gen !== generation) return; // superseded
       showEntries(entries, identity.handle, identity.did);
@@ -643,7 +648,111 @@ const main = async (): Promise<void> => {
       toolbar.setStatus('starter pack is off — search a cook above');
       return;
     }
-    toolbar.setStatus('loading your starter pack…');
+    // Entries accumulate per cook so revalidation can replace/remove one cook's
+    // records in place (live wins, D4) without disturbing the others.
+    const authorDids = new Set(authors.map((a) => a.did));
+    const entriesByDid = new Map<string, CachedRecipe[]>();
+    const authorsByDid: Record<string, string> = {};
+    const didOf = (e: CachedRecipe): string => e.uri.split('/')[2] ?? '';
+    const applyEntries = (statusSuffix = ''): void => {
+      current = { entries: [...entriesByDid.values()].flat(), kind: 'starter', authorsByDid, statusSuffix };
+      browseOffset = 0;
+      showCurrent();
+    };
+
+    // D2: paint from the precached build-time snapshot FIRST — index + shards
+    // are same-origin, immutable, and precached, so first paint costs zero PDS
+    // network. Seeding the cache here also lets the live path degrade to these
+    // copies if the network is down, so the feed never blanks.
+    //
+    // Perf (recipe-loading perf run): cooks land PROGRESSIVELY — small cooks
+    // paint the moment their shard (or the hydration fast path) resolves, so
+    // first cards never wait on the corpus-sized shard. The store's hydration
+    // marker lets every later boot on this build serve straight from IndexedDB.
+    const store = createSnapshotStore({ buildId: snapshotBuildId() });
+    const snap = await loadSnapshotFeed({
+      cache,
+      store,
+      onCookLoaded: (cook, entries) => {
+        if (gen !== generation || !authorDids.has(cook.did)) return;
+        authorsByDid[cook.did] = cook.handle;
+        entriesByDid.set(cook.did, entries);
+        applyEntries();
+      },
+    }).catch((err: unknown) => {
+      log.warn('snapshot', 'snapshot feed failed — live only', { error: String(err) });
+      return null;
+    });
+    if (gen !== generation) return;
+    if (snap !== null) {
+      Object.assign(authorsByDid, snap.authorsByDid);
+      // Re-derive per-cook lists with SET semantics — the progressive callback
+      // may already have applied some cooks, and a second pass must not double
+      // their entries.
+      const byDid = new Map<string, CachedRecipe[]>();
+      for (const e of snap.entries) {
+        const did = didOf(e);
+        if (!authorDids.has(did)) continue;
+        (byDid.get(did) ?? byDid.set(did, []).get(did)!).push(e);
+      }
+      for (const [did, list] of byDid) entriesByDid.set(did, list);
+      if (entriesByDid.size > 0) applyEntries();
+    }
+
+    // Revalidation, off the critical path.
+    const manifest = snap === null ? null : await loadSnapshotManifest().catch(() => null);
+    if (snap !== null && manifest !== null) {
+      const covered = manifest.cooks.filter((c) => authorDids.has(c.did));
+      const coveredDids = new Set(covered.map((c) => c.did));
+
+      // Rev-revalidate snapshot cooks: ONE getLatestCommit each; unchanged cooks
+      // fetch no records. Changed/gone/renamed all update in place (D3/D4).
+      void revalidateCooks(
+        covered.map((c) => ({ did: c.did, handle: c.handle, displayName: c.displayName, pds: c.pds, rev: c.rev })),
+        {
+          store,
+          debounceMs: 60 * 60 * 1000, // O2: 60 minutes
+          readRecords: (t) => readRecipes(t),
+          resolveIdentity: async (did) => {
+            const doc = await resolveDidDoc(did);
+            return { handle: doc.handle ?? '' };
+          },
+          onChanged: async (did, records) => {
+            if (gen !== generation) return;
+            // Batched: a rev change re-writes a whole cook — per-record
+            // connections here are the path that hurts most (plan Phase 3).
+            entriesByDid.set(did, await cache.putMany(records));
+            applyEntries();
+          },
+          onGone: (did) => {
+            if (gen !== generation) return;
+            entriesByDid.delete(did); // a dead cook is not rendered because the bundle says they exist (D4)
+            applyEntries();
+          },
+          onIdentity: (did, id) => {
+            if (gen !== generation || id.handle === '') return;
+            authorsByDid[did] = id.handle; // provisional snapshot identity yields to live (D4)
+            applyEntries();
+          },
+        },
+      ).catch((err: unknown) => log.warn('snapshot', 'revalidation failed', { error: String(err) }));
+
+      // Followed cooks not covered by the snapshot still load live.
+      const uncovered = authors.filter((a) => !coveredDids.has(a.did));
+      if (uncovered.length > 0) {
+        const feed = await loadStarterFeed(uncovered);
+        if (gen !== generation) return;
+        Object.assign(authorsByDid, feed.authorsByDid);
+        const byDid = new Map<string, CachedRecipe[]>();
+        for (const e of feed.entries) (byDid.get(didOf(e)) ?? byDid.set(didOf(e), []).get(didOf(e))!).push(e);
+        for (const [did, list] of byDid) entriesByDid.set(did, list);
+        applyEntries();
+      }
+      return;
+    }
+
+    // No snapshot (or no manifest): the existing full live path.
+    if (snap === null) toolbar.setStatus('loading your starter pack…');
     const feed = await loadStarterFeed(authors);
     if (gen !== generation) return; // the user searched while we loaded
     const failed =

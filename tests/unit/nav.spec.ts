@@ -61,7 +61,7 @@ describe('renderTopbar', () => {
 });
 
 describe('renderTabs', () => {
-  it('renders Browse, Cookbook, Alchemy, Meals, and Reference as links', () => {
+  it('renders Browse, Cookbook, Plan, Menu, and Reference as links', () => {
     const tabs = renderTabs('/index.html');
     expect(tabs.querySelector('[data-testid=tab-browse]')?.getAttribute('href')).toBe(
       './index.html',
@@ -69,7 +69,7 @@ describe('renderTabs', () => {
     expect(tabs.querySelector('[data-testid=tab-cookbook]')?.getAttribute('href')).toBe(
       './cookbook.html',
     );
-    expect(tabs.querySelector('[data-testid=tab-mine]')?.getAttribute('href')).toBe('./mine.html');
+    expect(tabs.querySelector('[data-testid=tab-plan]')?.getAttribute('href')).toBe('./plan.html');
     expect(tabs.querySelector('[data-testid=tab-meals]')?.getAttribute('href')).toBe(
       './meals.html',
     );
@@ -78,13 +78,23 @@ describe('renderTabs', () => {
     );
   });
 
-  it('orders the tabs Browse · Cookbook · Alchemy · Meals · Reference · Timers (confirmed Q1)', () => {
+  it('labels Plan and Menu; Alchemy is no longer a top-level tab', () => {
+    // Plan (builder) + Menu (published) are peer tabs, both served by meals.js.
+    // Menu keeps the meals.html page + tab-meals testid; only its label changed.
+    // Alchemy (mine.html) is reached from the Cookbook page now.
+    const tabs = renderTabs('/index.html');
+    expect(tabs.querySelector('[data-testid=tab-plan]')?.textContent).toBe('Plan');
+    expect(tabs.querySelector('[data-testid=tab-meals]')?.textContent).toBe('Menu');
+    expect(tabs.querySelector('[data-testid=tab-mine]')).toBeNull();
+  });
+
+  it('orders the tabs Browse · Cookbook · Plan · Menu · Reference · Timers', () => {
     const tabs = renderTabs('/index.html');
     const order = [...tabs.querySelectorAll('a.tab')].map((a) => a.getAttribute('data-testid'));
     expect(order).toEqual([
       'tab-browse',
       'tab-cookbook',
-      'tab-mine',
+      'tab-plan',
       'tab-meals',
       'tab-reference',
       // Timers joins as a desktop tab (Feature A), off the mobile thumb row.
@@ -103,7 +113,7 @@ describe('renderTabs', () => {
       ).toBe(true);
     }
     // The four primary destinations stay in the mobile bottom bar.
-    for (const id of ['tab-browse', 'tab-cookbook', 'tab-mine', 'tab-meals']) {
+    for (const id of ['tab-browse', 'tab-cookbook', 'tab-plan', 'tab-meals']) {
       expect(
         tabs.querySelector(`[data-testid=${id}]`)?.classList.contains('tab--desktop-only'),
       ).toBe(false);
@@ -116,8 +126,8 @@ describe('renderTabs', () => {
     ['/arecipe/', 'tab-browse'],
     ['/cookbook.html', 'tab-cookbook'],
     ['/arecipe/cookbook.html', 'tab-cookbook'],
-    ['/mine.html', 'tab-mine'],
-    ['/arecipe/mine.html', 'tab-mine'],
+    ['/plan.html', 'tab-plan'],
+    ['/arecipe/plan.html', 'tab-plan'],
     ['/meals.html', 'tab-meals'],
     ['/arecipe/meals.html', 'tab-meals'],
     ['/reference.html', 'tab-reference'],

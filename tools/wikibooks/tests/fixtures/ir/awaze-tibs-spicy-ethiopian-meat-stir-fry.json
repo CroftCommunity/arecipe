@@ -1,0 +1,186 @@
+{
+  "categories": [
+    "Ethiopian recipes",
+    "Recipes using beef",
+    "Recipes using lamb",
+    "Recipes using cilantro",
+    "Recipes using cayenne",
+    "Recipes using vegetable oil"
+  ],
+  "ingredients": [
+    {
+      "display": "2 tablespoons vegetable oil",
+      "optional": false,
+      "raw": "2 [[Cookbook:Tablespoon|tablespoons]] [[Cookbook:vegetable oil|vegetable oil]]",
+      "refs": [
+        "Tablespoon",
+        "vegetable oil"
+      ]
+    },
+    {
+      "display": "1.5 pounds beef or lamb, thinly sliced",
+      "optional": false,
+      "raw": "1.5 pounds [[Cookbook:Beef|beef]] or [[Cookbook:Lamb|lamb]], thinly [[Cookbook:Slicing|sliced]]",
+      "refs": [
+        "Beef",
+        "Lamb",
+        "Slicing"
+      ]
+    },
+    {
+      "display": "1 large onion, thinly sliced",
+      "optional": false,
+      "raw": "1 large [[Cookbook:Onion|onion]], thinly sliced",
+      "refs": [
+        "Onion"
+      ]
+    },
+    {
+      "display": "3 cloves of garlic, minced",
+      "optional": false,
+      "raw": "3 cloves of [[Cookbook:Garlic|garlic]], [[Cookbook:Mince|minced]]",
+      "refs": [
+        "Garlic",
+        "Mince"
+      ]
+    },
+    {
+      "display": "2 tablespoons berbere spice",
+      "optional": false,
+      "raw": "2 tablespoons [[Cookbook:berbere|berbere spice]]",
+      "refs": [
+        "berbere"
+      ]
+    },
+    {
+      "display": "1 tablespoon tomato paste",
+      "optional": false,
+      "raw": "1 tablespoon [[Cookbook:Tomato Paste|tomato paste]]",
+      "refs": [
+        "Tomato Paste"
+      ]
+    },
+    {
+      "display": "1 tablespoon paprika",
+      "optional": false,
+      "raw": "1 tablespoon [[Cookbook:paprika|paprika]]",
+      "refs": [
+        "paprika"
+      ]
+    },
+    {
+      "display": "1 tablespoon cayenne pepper, or to taste",
+      "optional": false,
+      "raw": "1 tablespoon [[Cookbook:cayenne pepper|cayenne pepper]], or to taste",
+      "refs": [
+        "cayenne pepper"
+      ]
+    },
+    {
+      "display": "1 tablespoon awaze sauce",
+      "optional": false,
+      "raw": "1 tablespoon awaze sauce",
+      "refs": []
+    },
+    {
+      "display": "1 tablespoon soy sauce",
+      "optional": false,
+      "raw": "1 tablespoon [[Cookbook:soy sauce|soy sauce]]",
+      "refs": [
+        "soy sauce"
+      ]
+    },
+    {
+      "display": "1 tablespoon vinegar",
+      "optional": false,
+      "raw": "1 tablespoon [[Cookbook:vinegar|vinegar]]",
+      "refs": [
+        "vinegar"
+      ]
+    },
+    {
+      "display": "1 teaspoon salt, or to taste",
+      "optional": false,
+      "raw": "1 teaspoon [[Cookbook:salt|salt]], or to taste",
+      "refs": [
+        "salt"
+      ]
+    },
+    {
+      "display": "Fresh cilantro, chopped, for garnish",
+      "optional": false,
+      "raw": "Fresh [[Cookbook:cilantro|cilantro]], [[Cookbook:Chopping|chopped]], for [[Cookbook:Garnish|garnish]]",
+      "refs": [
+        "cilantro",
+        "Chopping",
+        "Garnish"
+      ]
+    }
+  ],
+  "lead": "Awaze tibs is a flavorful and aromatic dish that showcases the vibrant spices of Ethiopian cuisine. This dish is made with tender pieces of meat, such as beef or lamb, stir-fried with a rich and spicy sauce known as awaze.",
+  "parseFlags": [
+    {
+      "code": "image-unresolved",
+      "detail": "Meat stir-fry dish at a Tibetan restaurant.jpg"
+    }
+  ],
+  "procedure": [
+    {
+      "refs": [],
+      "text": "Heat the vegetable oil in a large skillet or wok over medium-high heat."
+    },
+    {
+      "refs": [
+        "Stir-frying"
+      ],
+      "text": "Add the thinly sliced meat to the hot skillet and stir-fry for 3–4 minutes until browned and cooked through. Remove the cooked meat from the skillet and set it aside."
+    },
+    {
+      "refs": [],
+      "text": "In the same skillet, add the sliced onion and minced garlic. Stir-fry for about 2–3 minutes until the onion becomes translucent and fragrant."
+    },
+    {
+      "refs": [],
+      "text": "Add the berbere spice, tomato paste, paprika, and cayenne pepper to the skillet. Stir well to coat the onions and garlic with the spices."
+    },
+    {
+      "refs": [],
+      "text": "Return the cooked meat to the skillet and toss it with the spiced onion mixture."
+    },
+    {
+      "refs": [],
+      "text": "Add the awaze sauce, soy sauce, vinegar, and salt to the skillet. Stir everything together to combine the flavors and coat the meat evenly."
+    },
+    {
+      "refs": [],
+      "text": "Continue to stir-fry for another 2–3 minutes until the sauce thickens and coats the meat."
+    },
+    {
+      "refs": [],
+      "text": "Taste the dish and adjust the seasoning with salt or additional spices according to your preference."
+    },
+    {
+      "refs": [
+        "Garnish"
+      ],
+      "text": "Remove the skillet from the heat and garnish the with freshly chopped cilantro."
+    }
+  ],
+  "publishable": true,
+  "sections": [
+    {
+      "heading": "Equipment",
+      "text": "* Large skillet\n* Wooden spoon or spatula\n* Cutting board\n* Chef's knife"
+    },
+    {
+      "heading": "Notes, tips, and variations",
+      "text": "* Adjust the spiciness of the dish by adding more or less cayenne pepper and berbere spice, according to your taste preferences.\n* Awaze sauce can be found in Ethiopian grocery stores or made at home using a combination of spices and peppers.\n* Awaze tibs is traditionally served with injera, a sourdough flatbread that complements the spicy flavors of the dish. You can also serve it with rice or bread.\n* Serve the stir-fry with a side of fresh salad or steamed vegetables for a complete and balanced meal.\n* For a tender and flavorful meat, marinate it in the awaze sauce for at least 30 minutes before cooking.\n* Stir-fry the ingredients on high heat for a shorter duration to retain the juiciness of the meat.\n* Add diced bell peppers, carrots, or other vegetables to the stir-fry for added color and texture.\n* Experiment with different protein options like chicken or tofu for a variation in flavors and dietary preferences."
+    }
+  ],
+  "summary": {
+    "category": "Ethiopian recipes",
+    "difficulty": 3,
+    "image": "Meat stir-fry dish at a Tibetan restaurant.jpg"
+  },
+  "title": "Awaze Tibs (Spicy Ethiopian Meat Stir-Fry)"
+}

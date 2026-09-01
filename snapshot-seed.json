@@ -1,0 +1,11 @@
+{
+  "$comment": "O1: canonical input to the build-time snapshot generator (scripts/snapshot.mjs). Mirrors STARTER_AUTHORS in src/recipes/starter.ts. The `corpus` block is the future Wikibooks tenant (RUN-WIKIBOOKS-CORPUS); when it publishes, add its DID here with maxRecordsPerShard set so first paint never loads the whole corpus. See plans/2026-07-23-2-plan-bundle-precache.md.",
+  "recipeCollection": "exchange.recipe.recipe",
+  "cooks": [
+    { "did": "did:plc:spfl4xaktvvchr2cqp2r2xvp", "handle": "arecipe.bsky.social" },
+    { "did": "did:plc:26tsx5juuss4yealylyfbj4h", "handle": "rdur.dev" },
+    { "did": "did:plc:4cx7ts7lqgjtsfquo53qo3sz", "handle": "recipe.exchange" },
+    { "did": "did:plc:vspq46f5zmrlesaszlyfliy2", "handle": "daffl.xyz" }
+  ],
+  "corpus": null
+}

@@ -69,6 +69,14 @@ const main = async (): Promise<void> => {
     build.append(el('p', 'status', 'build info unavailable'));
     log.warn('build', 'build-info.json missing or invalid', { error: String(err) });
   }
+  // Discoverable pointer to the changelog, in context with the version (the footer
+  // link is global; this is where someone reading "which build am I on" looks next).
+  const changelogP = el('p');
+  const changelogLink = el('a', 'friend-link', "See what's changed") as HTMLAnchorElement;
+  changelogLink.href = './changelog.html';
+  changelogLink.dataset['testid'] = 'settings-changelog';
+  changelogP.append(changelogLink, document.createTextNode(' — a timeline of updates.'));
+  build.append(changelogP);
 
   const updates = section('Updates & storage', 'updates');
   const checkButton = el('button', 'button', 'Check for updates') as HTMLButtonElement;

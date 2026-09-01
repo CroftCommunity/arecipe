@@ -27,16 +27,6 @@ type GuideEntry = {
   build: (entry: HTMLElement) => void;
 };
 
-const ol = (items: (string | Node)[]): HTMLElement => {
-  const list = el('ol', 'guide-steps');
-  for (const item of items) {
-    const li = el('li');
-    if (typeof item === 'string') li.textContent = item;
-    else li.append(item);
-    list.append(li);
-  }
-  return list;
-};
 
 const strong = (lead: string, rest: string): DocumentFragment => {
   const frag = document.createDocumentFragment();
@@ -77,10 +67,10 @@ const blueskyEntry: GuideEntry = {
   build: (entry) => {
     entry.append(
       p(
-        'arecipe has no server of its own. When you sign in, you sign in with a ',
-        'Bluesky account — because Bluesky is built on an open network (the AT ',
-        'Protocol) where every account comes with its own small, public data ',
-        'store. Everything you publish through arecipe — recipes, likes, ',
+        'arecipe has no server of its own. When you sign in, you sign in with an ',
+        'account from an atmo provider — a Personal Data Server provider in the ',
+        'open social Atmosphere; Bluesky is one of many — because the network ',
+        '(the AT Protocol) gives every account its own small, public data store. Everything you publish through arecipe — recipes, likes, ',
         'comments, published meal plans — is saved there, in your account, not ',
         'on some arecipe database. That has three consequences worth knowing.',
       ),
@@ -400,59 +390,6 @@ const commentsEntry: GuideEntry = {
   },
 };
 
-const shareEntry: GuideEntry = {
-  testid: 'guide-entry-share',
-  title: 'Import a recipe by sharing it to arecipe',
-  toc: 'Import by sharing',
-  build: (entry) => {
-    entry.append(
-      el(
-        'p',
-        undefined,
-        'On your phone, send a recipe you found on the web into arecipe from your ' +
-          'browser’s Share button. arecipe turns it into a draft you can review, ' +
-          'tidy up, and publish. This is a phone feature — because there’s no ' +
-          'server, arecipe can only read a recipe two ways, and both start with Share.',
-      ),
-      ol([
-        strong(
-          'Install arecipe first. ',
-          'Add arecipe to your home screen (“Add to Home Screen” / “Install app”). ' +
-            'The share option only appears for the installed app, on Android/Chromium ' +
-            'browsers. (iPhone Safari doesn’t support this yet.)',
-        ),
-        strong(
-          'Best result — share the recipe text. ',
-          'On the recipe page, select the ingredients and steps, then tap Share and ' +
-            'choose arecipe. Selected text is read directly on your device — arecipe ' +
-            'never fetches the site — so it works even on sites that block apps from ' +
-            'reading them.',
-        ),
-        strong(
-          'Or share the whole page. ',
-          'Use the page’s Share button and pick arecipe. arecipe tries to read the ' +
-            'link, but most recipe sites block that, so you’ll get a box to paste the ' +
-            'page or the recipe text instead — same result, one extra step.',
-        ),
-        strong(
-          'Review, then publish. ',
-          'arecipe opens the draft in the editor, already filled in, with the source ' +
-            'link attached. Nothing is published until you tap Publish — it’s yours to ' +
-            'edit first. If a part couldn’t be read it’s left blank rather than guessed.',
-        ),
-      ]),
-    );
-    const etiquette = el(
-      'p',
-      'status',
-      'A note on etiquette: an imported recipe is a starting point. Before you ' +
-        'publish, consider rewriting the steps in your own words and crediting the ' +
-        'source (the link is kept for you).',
-    );
-    entry.append(etiquette);
-  },
-};
-
 const mealsEntry: GuideEntry = {
   testid: 'guide-entry-meals',
   title: 'Meals: planning your weeks',
@@ -480,7 +417,8 @@ const mealsEntry: GuideEntry = {
         strong('Weeks are the working unit. ', '+ Add appends a blank week (up to six), and '),
         '⧉ Repeat doubles the plan — every planned week, meals included — which ',
         'is how a fortnight’s rotation becomes a month in one tap. Set ',
-        '“Starts (first Monday)” and the whole plan snaps to real dates, with a ',
+        '“Starts” and the whole plan snaps to real dates (any picked date ',
+        'snaps to its week’s Monday), with a ',
         'calendar underneath showing it day by day.',
       ),
       p(
@@ -634,12 +572,6 @@ export const GUIDE_PHRASINGS: Record<string, string[]> = {
     'why can I not see every comment on a recipe',
     'how do I turn comments off',
   ],
-  'guide-entry-share': [
-    'how do I save a recipe I found online',
-    'how do I send a web recipe into arecipe',
-    'why does share not work on my iphone',
-    'how do I import from a site that blocks apps',
-  ],
   'guide-entry-meals': [
     'how do I build a weekly menu',
     'how do I place a recipe onto a day',
@@ -673,7 +605,6 @@ export const GUIDE_ENTRIES: GuideEntry[] = [
   funFactsEntry,
   hideEntry,
   commentsEntry,
-  shareEntry,
   mealsEntry,
   mealPublishEntry,
   shoppingEntry,

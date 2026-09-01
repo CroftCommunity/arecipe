@@ -45,6 +45,23 @@ type CreditShape = { embed?: { images?: { credit?: ImageCredit }[] } };
 export const firstImageCredit = (value: Record<string, unknown>): ImageCredit | null =>
   (value as CreditShape).embed?.images?.[0]?.credit ?? null;
 
+export type Nutrition = { calories?: number; fatContent?: number; proteinContent?: number; carbohydrateContent?: number };
+
+/** The record's `nutrition` object, read defensively (D15). Only finite numbers
+ * survive; an absent/empty/garbage object yields null so the view hides the
+ * section. The Wikibooks corpus populates only `calories`. */
+export const nutritionOf = (value: Record<string, unknown>): Nutrition | null => {
+  const raw = (value as { nutrition?: unknown }).nutrition;
+  if (typeof raw !== 'object' || raw === null) return null;
+  const src = raw as Record<string, unknown>;
+  const out: Nutrition = {};
+  for (const key of ['calories', 'fatContent', 'proteinContent', 'carbohydrateContent'] as const) {
+    const v = src[key];
+    if (typeof v === 'number' && Number.isFinite(v)) out[key] = v;
+  }
+  return Object.keys(out).length > 0 ? out : null;
+};
+
 /**
  * Blob thumbnail via the Bluesky CDN. A recorded third-party dependency
  * (like the handle resolver): direct `sync.getBlob` serves the full-size

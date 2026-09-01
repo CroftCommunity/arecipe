@@ -1,0 +1,57 @@
+{{recipesummary
+| Cuisine = Peruvian
+| servings = 8
+| time = About 45 minutes
+| difficulty = 2
+| Image = [[Image:Ají de gallina (gourmet)-b.jpg|300px]]
+}}{{recipe}} | [[Cookbook:Cuisine of Peru|Cuisine of Peru]]
+
+'''''{{lang|es|Ají de Gallina}}''''' (Spanish for chili pepper chicken) is a traditional Peruvian dish which has its roots in the social upheaval of the French Revolution in 1789.<ref>[http://friendseat.com/Aji-de-Gallina-Recipe Info on ''ají de gallina'' recipe on the Friends Eat website]</ref> 
+
+Chefs working for wealthy families lost their jobs after French aristocrats were imprisoned and executed. Some of these chefs travelled to the New World, including Peru, bringing with them French culinary expertise. Wealthy Peruvian creole families hired them to demonstrate their wealth to the ruling Spaniards.<ref>{{cite web |last1=Gill |first1=Nicholas |title=Aji de gallina |url=http://newworldreview.com/tag/aji-de-gallina/ |website= newworldreview.com |access-date=9 January 2021}}</ref> The fusion of local cuisines with French cooking traditions led to many new recipes, including ''ají de gallina''. 
+
+This is a shredded chicken dish in a spicy sauce flavored with cheese, garlic, nuts and Peruvian chili peppers.<ref>[http://www.grouprecipes.com/29399/aji-de-gallina.html Info on ''ají de gallina'' recipe on the Group Recipes website]</ref> Peruvians love eating this dish on cold days.
+
+The dish is often referred to as ''ají de pollo'' when it is prepared with frayed chicken breasts — especially nowadays in which, unlike egg hens raised traditionally on farm lots, the poultry industry breeds caged birds for meat within three months.<ref>[http://recetasdecomidaperuana.org/aji-de-gallina-para-10-porciones.html Info on ''ají de gallina'' recipe on Peruvian recipes website]</ref>
+
+==Ingredients==
+* 1300 g (4 [[Cookbook:Pound|lb]]) [[cookbook:chicken|chicken]]
+* 120 ml (½ [[Cookbook:Cup|cup]]) of [[cookbook:olive oil|olive oil]]
+* 1 large finely chopped [[cookbook:onion|onion]] 
+* 8 cloves of minced [[cookbook:garlic|garlic]]
+* 3 hot [[cookbook: Aji amarillo|yellow South American chilis]] (seeds and filaments removed): Adjust quantity for individual taste.
+* [[cookbook:Salt|Salt]] and [[cookbook:pepper|pepper]] to taste 
+* 1 [[cookbook:Stock|chicken stock]] cube
+* ¼ loaf of [[cookbook:bread|bread]]
+* 110 g (¼ lb) of chopped [[cookbook:pecan|pecans]]
+* 110 g (4 [[Cookbook:Ounce|ounces]])  grated [[cookbook:Parmesan Cheese|Parmesan cheese]]
+* 1 can of [[cookbook:evaporated milk|evaporated milk]] 
+* 1.6 kg (3.5 lbs) boiled [[cookbook:rice|rice]] (flavored with chopped garlic and salt)
+* 4 hard boiled [[cookbook:egg|eggs]]
+* 6 [[cookbook:Potato|potatoes]] 
+* 120 g (½ cup) [[cookbook:Olive|black olives]]
+
+==Preparation==
+#[[cookbook:Boil|Boil]] chicken in salted water together with the stock cube. Remove bones and break into bite size pieces, keeping the resulting chicken stock. 
+#In a [[cookbook:saucepan|saucepan]], heat oil and [[cookbook:sauté|sauté]] the onion, garlic, and finely chopped chili peppers and add salt and pepper. Fry this until the onions are cooked and golden.
+#Soak the bread in two cups of the stock from the boiled chicken and place in a [[cookbook:blender|blender]] for a couple of minutes and then add the resulting liquid to the saucepan. 
+#Cook slowly for ten minutes. Cook slowly, stirring to thicken.
+#While the Ají de Gallina is cooking slowly, boil the rice: first fry the garlic for a couple of seconds, then add the rice and the salt, then add the water. When the water starts to boil, let the rice cook in a closed pot very slowly for about 20 minutes or until the water has completely evaporated (hint: to cook "peruvian" rice: cook a cup of rice in two cups of water).
+#Back to the Ají de Gallina: add the chopped pecans, grated cheese, and chicken pieces. Cook until it has a thick creamy texture. About five minutes before serving, add the evaporated milk and continue cooking on low heat.
+#Serve over the boiled rice and garnish with halved potatoes, eggs quartered lengthwise, and olives.
+
+==References==
+{{reflist}}
+[[Category:Featured recipes]]
+[[Category:Peruvian recipes]]
+[[Category:Recipes using chicken]]
+[[Category:Recipes using rice]]
+[[Category:Recipes_with_metric_units]]
+[[Category:Boiled recipes]]
+[[Category:Recipes with images]]
+[[es:Artes culinarias/Recetas/Ají de gallina]]
+[[Category:Recipes using parmesan]]
+[[Category:Recipes using evaporated milk]]
+[[Category:Recipes using dehydrated broth]]
+[[Category:Recipes using bread]]
+[[Category:Recipes using garlic]]

@@ -1,0 +1,21 @@
+{
+  "name": "wikibooks-cookbook-sync",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Local CLI that pulls the en.wikibooks Cookbook recipe corpus into a structured local representation, computes deltas across long gaps, and publishes arecipe-consumable recipe records into a PDS. Zero runtime dependencies — Node builtins only.",
+  "bin": {
+    "wbsync": "bin/wbsync.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "node --test --experimental-strip-types 'tests/**/*.test.ts'",
+    "test:live": "WIKIBOOKS_LIVE=1 node --test --experimental-strip-types 'tests/**/*.test.ts'",
+    "wbsync": "node --experimental-strip-types bin/wbsync.ts"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^6.0.3",
+    "@types/node": "^26.1.0"
+  }
+}

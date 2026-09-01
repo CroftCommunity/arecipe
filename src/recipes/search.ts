@@ -90,26 +90,38 @@ export type RecipeSearch = {
 };
 
 export const createRecipeSearch = (entries: readonly CachedRecipe[]): RecipeSearch => {
-  const mini = new MiniSearch<SearchDoc>({
-    idField: 'uri',
-    fields: [...FIELDS],
-    // Meta hints are STORED, not indexed — present for a future sort/filter run,
-    // absent from FIELDS so they never affect ranking (D4).
-    storeFields: ['servesHint', 'timeHintMinutes', 'difficulty'],
-  });
-  const byUri = new Map<string, CachedRecipe>();
-  const docs: SearchDoc[] = [];
-  for (const entry of entries) {
-    // Last write wins on a duplicate uri (feeds shouldn't carry them, but never
-    // let MiniSearch's unique-id invariant throw on a wild repo).
-    if (!byUri.has(entry.uri)) docs.push(searchDocOf(entry));
-    byUri.set(entry.uri, entry);
-  }
-  mini.addAll(docs);
+  // Recipe-loading perf: the index build is DEFERRED to the first non-empty
+  // query. At corpus size (thousands of records) an eager build costs real time,
+  // and browse constructs a fresh searcher on every feed change — progressive
+  // snapshot loads and revalidation updates included — while most sessions never
+  // type a query at all. The empty-query identity path stays index-free.
+  let indexed: { mini: MiniSearch<SearchDoc>; byUri: Map<string, CachedRecipe> } | null = null;
+  const ensureIndex = (): { mini: MiniSearch<SearchDoc>; byUri: Map<string, CachedRecipe> } => {
+    if (indexed !== null) return indexed;
+    const mini = new MiniSearch<SearchDoc>({
+      idField: 'uri',
+      fields: [...FIELDS],
+      // Meta hints are STORED, not indexed — present for a future sort/filter run,
+      // absent from FIELDS so they never affect ranking (D4).
+      storeFields: ['servesHint', 'timeHintMinutes', 'difficulty'],
+    });
+    const byUri = new Map<string, CachedRecipe>();
+    const docs: SearchDoc[] = [];
+    for (const entry of entries) {
+      // Last write wins on a duplicate uri (feeds shouldn't carry them, but never
+      // let MiniSearch's unique-id invariant throw on a wild repo).
+      if (!byUri.has(entry.uri)) docs.push(searchDocOf(entry));
+      byUri.set(entry.uri, entry);
+    }
+    mini.addAll(docs);
+    indexed = { mini, byUri };
+    return indexed;
+  };
 
   return {
     query: (q) => {
       if (q.trim() === '') return [...entries];
+      const { mini, byUri } = ensureIndex();
       const results = mini.search(q, {
         combineWith: 'AND',
         prefix: true,

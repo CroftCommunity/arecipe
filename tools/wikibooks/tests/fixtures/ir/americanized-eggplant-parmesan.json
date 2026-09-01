@@ -1,0 +1,239 @@
+{
+  "categories": [
+    "Air fried recipes",
+    "Italian-American recipes",
+    "Recipes using eggplant",
+    "Recipes using mozzarella",
+    "Recipes using parmesan",
+    "Recipes with metric units",
+    "Vegetarian recipes"
+  ],
+  "ingredients": [
+    {
+      "display": "1 small eggplant, approx. 300–400 g",
+      "optional": false,
+      "raw": "1 small [[Cookbook:eggplant|eggplant]], approx. 300–400 [[Cookbook:gram|g]]",
+      "refs": [
+        "eggplant",
+        "gram"
+      ]
+    },
+    {
+      "display": "Salt",
+      "optional": false,
+      "raw": "[[Cookbook:Salt|Salt]]",
+      "refs": [
+        "Salt"
+      ]
+    },
+    {
+      "display": "1 mozzarella roll, approx. 300 g",
+      "optional": false,
+      "raw": "1 [[Cookbook:mozzarella|mozzarella]] roll, approx. 300 g",
+      "refs": [
+        "mozzarella"
+      ]
+    },
+    {
+      "display": "100 g flour",
+      "optional": false,
+      "raw": "100 g [[Cookbook:flour|flour]]",
+      "refs": [
+        "flour"
+      ]
+    },
+    {
+      "display": "1 egg",
+      "optional": false,
+      "raw": "1 [[Cookbook:egg|egg]]",
+      "refs": [
+        "egg"
+      ]
+    },
+    {
+      "display": "25 ml milk",
+      "optional": false,
+      "raw": "25 [[Cookbook:milliliter|ml]] [[Cookbook:milk|milk]]",
+      "refs": [
+        "milliliter",
+        "milk"
+      ]
+    },
+    {
+      "display": "100 g panko",
+      "optional": false,
+      "raw": "100 g [[Cookbook:Bread Crumbs|panko]]",
+      "refs": [
+        "Bread Crumbs"
+      ]
+    },
+    {
+      "display": "½ tsp garlic powder",
+      "optional": false,
+      "raw": "½ [[Cookbook:teaspoon|tsp]] [[Cookbook:Garlic Powder|garlic powder]]",
+      "refs": [
+        "teaspoon",
+        "Garlic Powder"
+      ]
+    },
+    {
+      "display": "½ tsp black pepper",
+      "optional": false,
+      "raw": "½ tsp [[Cookbook:Black Pepper|black pepper]]",
+      "refs": [
+        "Black Pepper"
+      ]
+    },
+    {
+      "display": "½ tsp dried oregano",
+      "optional": false,
+      "raw": "½ tsp dried [[Cookbook:oregano|oregano]]",
+      "refs": [
+        "oregano"
+      ]
+    },
+    {
+      "display": "20 g + 20 g Parmigiano Reggiano, grated",
+      "optional": false,
+      "raw": "20 g + 20 g [[Cookbook:Parmigiano Reggiano|Parmigiano Reggiano]], grated",
+      "refs": [
+        "Parmigiano Reggiano"
+      ]
+    },
+    {
+      "display": "Canola or olive oil in a sprayer",
+      "optional": false,
+      "raw": "[[Cookbook:Canola Oil|Canola]] or [[Cookbook:Olive Oil|olive oil]] in a sprayer",
+      "refs": [
+        "Canola Oil",
+        "Olive Oil"
+      ]
+    },
+    {
+      "display": "1 jar pasta sauce, approximately 300–400 g",
+      "optional": false,
+      "raw": "1 jar pasta sauce, approximately 300–400 g",
+      "refs": []
+    },
+    {
+      "display": "15 g fresh basil leaves",
+      "optional": false,
+      "raw": "15 g fresh [[Cookbook:basil|basil]] leaves",
+      "refs": [
+        "basil"
+      ]
+    }
+  ],
+  "lead": "Unlike traditional Italian Melanzane alla Parmigiana (see Eggplant Parmesan (Melanzane alla Parmigiana) I or Eggplant Parmesan (Melanzane alla Parmigiana) II), which is intended as a starter and thus not particularly filling, this Americanized recipe is served on top of pasta and has a higher cheese to eggplant ratio for more protein. It is thus a delicious vegetarian main dish.",
+  "parseFlags": [],
+  "procedure": [
+    {
+      "refs": [
+        "Slicing"
+      ],
+      "text": "Cut off the top and bottom of the eggplant and slice it into six slices of equal thickness."
+    },
+    {
+      "refs": [
+        "Paper Towel"
+      ],
+      "text": "Salt both sides of each eggplant slice generously and place the slices between several layers of paper towel."
+    },
+    {
+      "refs": [
+        "Frying Pan"
+      ],
+      "text": "Weight the eggplant slices down with something heavy, such as a cast-iron frying pan, an encyclopedia, or an obese cat."
+    },
+    {
+      "refs": [],
+      "text": "Let the eggplant slices rest under weight for at least an hour, until they have released a substantial amount of moisture."
+    },
+    {
+      "refs": [],
+      "text": "Preheat the oven to 180°C."
+    },
+    {
+      "refs": [],
+      "text": "Slice the mozzarella roll into six slices of equal thickness and arrange on fresh paper towels and let stand for about 20 minutes while you prepare the following steps."
+    },
+    {
+      "refs": [],
+      "text": "Put the flour in a wide, flat bowl."
+    },
+    {
+      "refs": [],
+      "text": "Whisk the egg and milk together in a second wide, flat bowl."
+    },
+    {
+      "refs": [],
+      "text": "In a third wide, flat bowl, combine the panko, garlic powder, pepper, oregano and 20 g of Parmigiano."
+    },
+    {
+      "refs": [],
+      "text": "Dredge the eggplant slices first in flour, then in the egg/milk mixture, then in the panko."
+    },
+    {
+      "refs": [
+        "Air Fryer"
+      ],
+      "text": "Spray oil on the inside of the air fryer and on one side of each eggplant slice."
+    },
+    {
+      "refs": [],
+      "text": "Lay eggplant slices in the air fryer basket, oiled side down, then spray the top side with additional oil. You may need to work in batches, since probably not all slices will fit in the basket at once."
+    },
+    {
+      "refs": [],
+      "text": "Cook in the air fryer at 180°C for 10–12 minutes, turning halfway through."
+    },
+    {
+      "refs": [],
+      "text": "While the eggplant is cooking, spread a thin layer of pasta sauce on the bottom of a rectangular baking pan."
+    },
+    {
+      "refs": [],
+      "text": "When the eggplant is done, place the slices on top of the pasta sauce in the baking pan."
+    },
+    {
+      "refs": [],
+      "text": "Lay one slice of mozzarella on top of each slice of eggplant."
+    },
+    {
+      "refs": [],
+      "text": "Pour one large spoonful of pasta sauce over each slice."
+    },
+    {
+      "refs": [],
+      "text": "Sprinkle the remaining 20 g of Parmigiano evenly over all slices."
+    },
+    {
+      "refs": [],
+      "text": "Bake for 20–30 minutes or until the sauce is bubbling."
+    },
+    {
+      "refs": [
+        "Broil"
+      ],
+      "text": "Turn the oven to Broil and brown the cheese on top for 2–3 minutes."
+    },
+    {
+      "refs": [],
+      "text": "Remove from oven and arrange fresh basil leaves on top."
+    },
+    {
+      "refs": [
+        "Aluminium Foil",
+        "pasta"
+      ],
+      "text": "Cover with aluminum foil and allow to stand while you boil fusilli or penne pasta, which the eggplant parmigiana will be served on top of."
+    }
+  ],
+  "publishable": true,
+  "sections": [],
+  "summary": {
+    "category": "Italian-American recipes",
+    "difficulty": 3
+  },
+  "title": "Americanized Eggplant Parmesan"
+}

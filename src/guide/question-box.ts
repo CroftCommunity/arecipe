@@ -87,6 +87,13 @@ export const mountGuideHelper = (
   form.append(label, row, results);
   container.append(form);
 
+  // Clearing the box — typing it empty, or the search field's native clear
+  // control — resets the helper to its default, resultless state rather than
+  // leaving stale results (or a no-match note) stranded on the page.
+  input.addEventListener('input', () => {
+    if (input.value.trim() === '') results.replaceChildren();
+  });
+
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     results.replaceChildren();

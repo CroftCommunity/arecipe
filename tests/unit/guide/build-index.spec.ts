@@ -9,7 +9,7 @@ import { generateGuideIndex } from '../../../scripts/build-guide-index.mjs';
 describe('generateGuideIndex — build-time generation + D2 gate', () => {
   it('renders the guide and emits a valid, non-empty, well-formed index', async () => {
     const { sections, serialized } = await generateGuideIndex();
-    expect(sections.length).toBeGreaterThanOrEqual(15);
+    expect(sections.length).toBeGreaterThanOrEqual(14);
     expect(sections.every((s) => String(s.anchor).startsWith('guide-entry-'))).toBe(true);
     expect(sections.every((s) => s.title.length > 0 && s.text.length > 0)).toBe(true);
     expect(JSON.parse(serialized)).toHaveLength(sections.length);

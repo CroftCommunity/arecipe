@@ -63,7 +63,6 @@ describe('renderUserGuide', () => {
       'guide-entry-funfacts',
       'guide-entry-hide',
       'guide-entry-comments',
-      'guide-entry-share',
       'guide-entry-meals',
       'guide-entry-meal-publish',
       'guide-entry-shopping',
@@ -190,15 +189,5 @@ describe('renderUserGuide', () => {
     expect(body).toContain('By recipe');
     expect(body).toContain('Combined');
     expect(body.toLowerCase()).toMatch(/never (guesses|converts|invents)/);
-  });
-
-  // The original share-to-import walkthrough survives the rewrite untouched.
-  it('keeps the share-to-import walkthrough with its honest constraints', () => {
-    const body = text(guide, 'guide-entry-share').toLowerCase();
-    expect(body).toMatch(/android|chromium/);
-    expect(body).toContain('select');
-    expect(body).toMatch(/paste/);
-    expect(body).toMatch(/publish/);
-    expect(body).toMatch(/your own words/);
   });
 });

@@ -1,0 +1,70 @@
+__NOTOC__
+{{Recipe summary
+| Category = Cake recipes
+| Difficulty = 3
+| Image = [[File:Atomicfudge1.JPG|300px]]
+}}
+
+{{recipe}} | [[Cookbook:Desserts|Desserts]]
+
+A rich chocolate [[Cookbook:Cake|cake]] recipe.
+
+==Ingredients==
+=== Cake ===
+*2 [[Cookbook:Cup|cups]] (470 [[Cookbook:Milliliter|ml]]) white [[cookbook:sugar|sugar]]
+*1 ¾ cup (415 ml) [[cookbook:flour|flour]]
+*1 ¾ cups (415 ml) baking [[cookbook:cocoa|cocoa]] powder
+*1 ½ [[Cookbook:Teaspoon|teaspoon]] (7 ml) [[cookbook:Baking Soda|baking soda]]
+*1 ½ teaspoon (7 ml) [[cookbook:Baking Powder|baking powder]]
+*1 teaspoon [[cookbook:salt|salt]] (5ml)
+*2 [[cookbook:egg|eggs]]
+*1 cup (235 ml) [[cookbook:milk|milk]]
+*½ cup (120 ml) [[cookbook:Vegetable Oil|vegetable oil]]
+*2 teaspoons (10 ml) [[cookbook:Vanilla Extract|vanilla extract]]
+*1 cup (235 ml) boiling [[cookbook:water|water]]
+
+=== Frosting ===
+*⅛ cup (30 ml) [[cookbook:cocoa|cocoa]]
+*7 [[Cookbook:Ounce|oz]] (200 [[Cookbook:Gram|g]]) [[cookbook:Dark chocolate|dark chocolate]]
+*⅛ cup (30 ml) boiling [[cookbook:water|water]]
+*1/16 cup (15 ml) [[cookbook:Powdered Sugar|powdered sugar]]
+*⅔ cup (156 ml) [[cookbook:Cream|whipping cream]]
+== Procedure ==
+
+=== Cake ===
+#Mix the dry ingredients well in a large bowl. For better texture, sift the dry ingredients together with a sieve or sifter.
+#Add the eggs, milk, vanilla, and vegetable oil, and mix well. Add the water, and mix it until it has a lot of little bubbles. This batter will be very thin.
+#Pour into two greased 9-inch round [[Cookbook:Cake Pan|baking pans]].
+#[[cookbook:Bake|Bake]] in a preheated [[Cookbook:Oven|oven]] at 180°C for 30 minutes (about 20 minutes for a convection oven), or until a cake tester comes out clean. Remember not to over-bake the cake, as it may become really dry and lose all its moisture.
+#Cool the cakes completely, then unmold them.
+=== Frosting ===
+#Melt the chocolate by placing it in a [[Cookbook:Double Boiler|double boiler]].
+#Mix the sugar and cocoa together in a small bowl, then mix in the water.
+#Stir the sugar/cocoa/water mix into the melted chocolate.
+#Quickly stir in the cream and mix until it has a smooth consistency.
+#Immediately 'frost' the cake with this, making sure that there is quite a bit between the two layers of cake. The cake will need to be refrigerated to harden the fudge, so don't worry about its relatively liquid nature.
+#Refrigerate cake.
+#Serve warm after refrigeration. To serve, slice a piece and microwave it for about 20 seconds. The fudge will melt and soak into the cake. Serve with ice cream if you so desire.
+
+== Notes, tips, and variations ==
+
+* Higher quality chocolate and baking cocoa will make a noticeable difference in the cake's overall quality.
+* A hot fudge sauce to go over top of the cake can be a nice extra touch.
+* Don't try and substitute unsweetened chocolate for the dark chocolate.
+* Spices such as [[cookbook:cinnamon|cinnamon]] can be added to the frosting if desired.
+
+[[Category:Recipes for cake|{{PAGENAME}}]]
+[[Category:Recipes using dark chocolate]]
+[[Category:Baking recipes|{{PAGENAME}}]]
+[[Category:Recipes with metric units]]
+[[Category:Recipes with images]]
+[[Category:Recipes using egg]]
+[[Category:Recipes for dessert]]
+[[Category:Recipes using baking powder]]
+[[Category:Recipes using baking soda]]
+[[Category:Recipes using white sugar]]
+[[Category:Recipes using powdered sugar]]
+[[Category:Recipes using cocoa powder]]
+[[Category:Recipes using whipping cream]]
+[[Category:Recipes using wheat flour]]
+[[Category:Recipes using cow milk]]

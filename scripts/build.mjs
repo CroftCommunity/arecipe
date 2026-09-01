@@ -8,6 +8,7 @@ import { createHash } from 'node:crypto';
 import {
   copyFileSync,
   cpSync,
+  existsSync,
   mkdirSync,
   readFileSync,
   readdirSync,
@@ -18,6 +19,15 @@ import { gzipSync } from 'node:zlib';
 import { buildSync } from 'esbuild';
 import { generateGuideIndex } from './build-guide-index.mjs';
 import { htmlShell, mdToHtml } from './md-to-html.mjs';
+import { collectCommits, mergeChangelog, parseChangelog, repoUrlFromGit } from './changelog.mjs';
+
+// Gzipped ceiling for the snapshot index.json (RUN-BUNDLE-PRECACHE, D1). Set
+// from D6 measurement: the seed index.json gzips to well under a KB; the corpus
+// (titles + rkeys only, thousands of records) is the design's growth case. 96 KB
+// gzipped leaves generous headroom for the corpus tenant while still failing the
+// build long before the file could defeat its own instant-first-paint purpose.
+// Override per build with SNAPSHOT_INDEX_GZIP_CEILING (used by the gate test).
+const SNAPSHOT_INDEX_GZIP_CEILING = 96 * 1024;
 
 const PAGES = [
   'browse',
@@ -34,12 +44,15 @@ const PAGES = [
   'editor',
   'signin',
   'user-guide',
+  'changelog',
 ];
 const HTML = {
   'index.html': 'browse',
   'mine.html': 'mine',
   'cookbook.html': 'cookbook',
   'meals.html': 'meals',
+  // Plan (the builder) shares the meals bundle; meals.ts routes on pathname.
+  'plan.html': 'meals',
   'archive.html': 'archive',
   'reference.html': 'reference',
   'timers.html': 'timers',
@@ -50,10 +63,20 @@ const HTML = {
   'editor.html': 'editor',
   'signin.html': 'signin',
   'user-guide.html': 'user-guide',
+  'changelog.html': 'changelog',
 };
 
 rmSync('dist', { recursive: true, force: true }); // no stale artifacts
 mkdirSync('dist', { recursive: true });
+
+// Version string (buildId). Computed up front because the snapshot path
+// (assets/snapshot/<buildId>/) is immutable + versioned, and the page bundles
+// bake it in via __SNAPSHOT_BUILD__ so the boot path knows the exact, precached
+// index.json URL with zero runtime lookup.
+const sha = execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim();
+const now = new Date();
+const date = now.toISOString().slice(0, 10).replaceAll('-', '.');
+const version = `${date}-${sha}`;
 
 // Page bundles with content hashes.
 const result = buildSync({
@@ -69,6 +92,7 @@ const result = buildSync({
   entryNames: '[name]-[hash]',
   outdir: 'dist',
   metafile: true,
+  define: { __SNAPSHOT_BUILD__: JSON.stringify(version) },
 });
 const bundleOf = {};
 for (const [outPath, meta] of Object.entries(result.metafile.outputs)) {
@@ -94,13 +118,17 @@ writeFileSync(`dist/${cssName}`, cssBytes);
 // built output contains no eval/new Function/WebAssembly (D1).
 const INLINE_SCRIPT = /<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi;
 
+// Every page keeps the same strict no-eval/no-wasm policy: script-src is 'self'
+// plus the sha256 of each inline script, nothing else. Documented in
+// docs/SECURITY.md.
 const cspFor = (html) => {
   const hashes = [...html.matchAll(INLINE_SCRIPT)].map(
     (m) => `'sha256-${createHash('sha256').update(m[1], 'utf8').digest('base64')}'`,
   );
+  const scriptSrc = ["'self'", ...hashes];
   return [
     "default-src 'none'",
-    `script-src ${["'self'", ...hashes].join(' ')}`,
+    `script-src ${scriptSrc.join(' ')}`,
     "style-src 'self'",
     "img-src 'self' data: blob: https:",
     "font-src 'self'",
@@ -209,17 +237,98 @@ writeFileSync('dist/.nojekyll', '');
 copyFileSync('client-metadata.json', 'dist/client-metadata.json'); // hosted OAuth client id (8c)
 cpSync('assets', 'dist/assets', { recursive: true });
 
+// Guard: asset/nav paths must be RELATIVE, never absolute-root. arecipe deploys
+// to a domain root (arecipe.app) AND serves per-PR previews under
+// gh-pages:/pr-preview/pr-N/ (docs/PREVIEWS.md). An absolute-root href/src like
+// `/assets/x.js` resolves to the domain root and 404s under the preview subpath —
+// a silently-blank preview. The hermetic gate serves at a root, so it cannot
+// catch this; fail the build instead. (scheme-absolute URLs like https://… are
+// fine and not matched.)
+const absoluteOffenders = readdirSync('dist')
+  .filter((f) => f.endsWith('.html'))
+  .map((f) => ({ file: f, hits: readFileSync(`dist/${f}`, 'utf8').match(/(?:href|src)="\/[^"]*"/g) }))
+  .filter((o) => o.hits);
+if (absoluteOffenders.length > 0) {
+  const detail = absoluteOffenders
+    .map((o) => `  ${o.file}: ${o.hits.join(', ')}`)
+    .join('\n');
+  throw new Error(
+    `build: absolute-root asset path(s) found — these break the /pr-preview/ subpath.\n${detail}\n` +
+      `Use relative paths (e.g. "assets/x.js", not "/assets/x.js").`,
+  );
+}
+
+// --- Build-time snapshot (RUN-BUNDLE-PRECACHE, D1) --------------------------
+// scripts/snapshot.mjs (run in CI before this build) captures each seed cook's
+// repo torn-shard-safely into `.snapshot-staging/`. Here we STAMP it with the
+// build id and place it at the immutable versioned path dist/assets/snapshot/
+// <buildId>/, enforce the gzipped index.json ceiling, and return the file list
+// for precache. If staging is absent (local build with no network step), we emit
+// a valid empty skeleton so the build never breaks and the app degrades to live
+// loading. build.mjs itself stays hermetic — no network here.
+const emitSnapshot = () => {
+  const staging = '.snapshot-staging';
+  const outDir = `dist/assets/snapshot/${version}`;
+  mkdirSync(`${outDir}/cooks`, { recursive: true });
+  const files = [`./assets/snapshot/${version}/index.json`, `./assets/snapshot/${version}/manifest.json`];
+
+  const have = existsSync(staging);
+  const index = have
+    ? JSON.parse(readFileSync(`${staging}/index.json`, 'utf8'))
+    : { cooks: [] };
+  const manifest = have
+    ? JSON.parse(readFileSync(`${staging}/manifest.json`, 'utf8'))
+    : { capturedAt: now.toISOString(), cooks: [], omitted: [] };
+  index.buildId = version;
+  manifest.buildId = version;
+
+  if (have && existsSync(`${staging}/cooks`)) {
+    for (const f of readdirSync(`${staging}/cooks`)) {
+      cpSync(`${staging}/cooks/${f}`, `${outDir}/cooks/${f}`);
+      files.push(`./assets/snapshot/${version}/cooks/${f}`);
+    }
+  }
+  const indexBytes = Buffer.from(JSON.stringify(index));
+  writeFileSync(`${outDir}/index.json`, indexBytes);
+  writeFileSync(`${outDir}/manifest.json`, JSON.stringify(manifest));
+
+  // Size gate: gzipped index.json must stay under the declared ceiling. The
+  // number is set from D6 measurement (see RUN-BUNDLE-PRECACHE-SUMMARY.md); the
+  // env override exists so the gate itself is testable.
+  const CEILING = Number(process.env.SNAPSHOT_INDEX_GZIP_CEILING ?? SNAPSHOT_INDEX_GZIP_CEILING);
+  const gz = gzipSync(indexBytes).length;
+  if (gz > CEILING) {
+    throw new Error(
+      `snapshot index.json is ${gz} B gzipped, over the ${CEILING} B ceiling — ` +
+        `trim the index (titles + rkeys only) or raise SNAPSHOT_INDEX_GZIP_CEILING deliberately`,
+    );
+  }
+  console.log(`snapshot: ${index.cooks.length} cook(s), index.json ${indexBytes.length}B raw / ${gz}B gz (ceiling ${CEILING}B)`);
+  return files;
+};
+const snapshotFiles = emitSnapshot();
+
 // Version + per-page sizes.
-const sha = execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim();
-const now = new Date();
-const date = now.toISOString().slice(0, 10).replaceAll('-', '.');
-const version = `${date}-${sha}`;
 const pages = Object.fromEntries(
   PAGES.map((p) => {
     const bytes = readFileSync(`dist/${bundleOf[p]}`);
     return [p, { bytes: bytes.length, gzipBytes: gzipSync(bytes).length, file: bundleOf[p] }];
   }),
 );
+
+// Bundle-size budget (adopted from croft-pwa): each PAGE ENTRY's gzipped size is
+// capped — a tripwire against accidental entry bloat. Shared chunks (incl. the
+// ~176K gz @atproto/api client, lazy-loaded via recipe.ts and runtime-cached) are
+// intentionally excluded, since they are not a page's up-front cost. Raise it
+// deliberately rather than letting it drift.
+const PAGE_ENTRY_GZ_BUDGET = 24 * 1024;
+const overBudget = Object.entries(pages).filter(([, s]) => s.gzipBytes > PAGE_ENTRY_GZ_BUDGET);
+if (overBudget.length > 0) {
+  throw new Error(
+    `build: page bundle budget exceeded (${(PAGE_ENTRY_GZ_BUDGET / 1024).toFixed(0)}K gz/entry):\n` +
+      overBudget.map(([p, s]) => `  ${p}: ${(s.gzipBytes / 1024).toFixed(1)}K gz`).join('\n'),
+  );
+}
 
 // Service worker: version + stable-shell precache baked in. Stable names
 // only — hashed assets cache on first fetch.
@@ -252,6 +361,7 @@ const precache = [
   './friends.html', // legacy redirect stub (offline-resolvable)
   './calendar-setup.html', // calendar-publish setup guide (offline-resolvable)
   './agents.html', // agent guide mirror (offline-resolvable, footer-linked)
+  './changelog.json', // generated changelog data (offline-resolvable; the page fetches it)
   './manifest.webmanifest',
   './assets/fonts/fonts.css',
   ...readdirSync('assets/fonts')
@@ -262,6 +372,10 @@ const precache = [
   './assets/logo-dark.png',
   './assets/no-meal-light.png',
   './assets/no-meal-dark.png',
+  // Build-time snapshot (D5): precached at install so first paint reads it from
+  // the Cache API with zero network. Versioned + immutable — an old build's
+  // snapshot vanishes with its version-named cache on activate.
+  ...snapshotFiles,
 ];
 buildSync({
   entryPoints: ['src/sw.ts'],
@@ -283,6 +397,26 @@ const info = {
   pages,
 };
 writeFileSync('dist/build-info.json', JSON.stringify(info));
+
+// Changelog: opt-in `Changelog:` commit trailers (collected from `git log`, parsed
+// by scripts/changelog.mjs — unit-tested) unioned with the hand-authored backlog
+// seed. Needs git history — CI checks out fetch-depth:0 for this reason; a shallow
+// clone just yields fewer derived entries (the seed is unaffected), never a failure.
+const commits = collectCommits();
+const derivedEntries = parseChangelog(commits, { repoUrl: repoUrlFromGit() });
+// Backlog seed: hand-authored pre-convention history (changelog.seed.json), unioned +
+// deduped with the git-derived entries so the timeline is complete and only grows.
+let seedEntries = [];
+try {
+  seedEntries = JSON.parse(readFileSync('changelog.seed.json', 'utf8')).entries ?? [];
+} catch {
+  /* no seed committed — derived entries only */
+}
+const changelog = { generatedAt: now.toISOString(), entries: mergeChangelog(seedEntries, derivedEntries) };
+writeFileSync('dist/changelog.json', JSON.stringify(changelog));
+console.log(
+  `changelog: ${changelog.entries.length} entries (${seedEntries.length} seed + ${derivedEntries.length} derived) from ${commits.length} commits`,
+);
 console.log(
   `built ${version}: ` +
     PAGES.map(

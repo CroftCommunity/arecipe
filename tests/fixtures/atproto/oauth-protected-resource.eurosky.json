@@ -1,0 +1,11 @@
+{
+    "resource": "https://eurosky.social",
+    "authorization_servers": [
+        "https://eurosky.social"
+    ],
+    "scopes_supported": [],
+    "bearer_methods_supported": [
+        "header"
+    ],
+    "resource_documentation": "https://atproto.com"
+}
