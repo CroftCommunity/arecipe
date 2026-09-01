@@ -1,0 +1,132 @@
+{
+  "counterNames": [
+    "page_home",
+    "page_browse",
+    "page_recipe",
+    "page_cookbook",
+    "page_meals",
+    "page_timers",
+    "page_mine",
+    "page_editor",
+    "page_guide",
+    "page_settings",
+    "feat_search",
+    "feat_filter",
+    "feat_cook_focus",
+    "feat_share",
+    "feat_plan_add",
+    "feat_timer_start",
+    "feat_open_recipe",
+    "feat_save",
+    "feat_guide_jump",
+    "feat_theme_toggle",
+    "time_home_load",
+    "time_browse_load",
+    "time_browse_first_result",
+    "time_recipe_load",
+    "time_cookbook_load",
+    "time_meals_load",
+    "time_mine_load",
+    "nav_home__to__browse",
+    "nav_home__to__recipe",
+    "nav_home__to__cookbook",
+    "nav_browse__to__recipe",
+    "nav_recipe__to__timers",
+    "nav_recipe__to__meals",
+    "nav_recipe__to__browse",
+    "nav_cookbook__to__recipe",
+    "nav_meals__to__recipe",
+    "nav_timers__to__recipe"
+  ],
+  "edges": [
+    {
+      "name": "nav_home__to__browse",
+      "from": "home",
+      "to": "browse"
+    },
+    {
+      "name": "nav_home__to__recipe",
+      "from": "home",
+      "to": "recipe"
+    },
+    {
+      "name": "nav_home__to__cookbook",
+      "from": "home",
+      "to": "cookbook"
+    },
+    {
+      "name": "nav_browse__to__recipe",
+      "from": "browse",
+      "to": "recipe"
+    },
+    {
+      "name": "nav_recipe__to__timers",
+      "from": "recipe",
+      "to": "timers"
+    },
+    {
+      "name": "nav_recipe__to__meals",
+      "from": "recipe",
+      "to": "meals"
+    },
+    {
+      "name": "nav_recipe__to__browse",
+      "from": "recipe",
+      "to": "browse"
+    },
+    {
+      "name": "nav_cookbook__to__recipe",
+      "from": "cookbook",
+      "to": "recipe"
+    },
+    {
+      "name": "nav_meals__to__recipe",
+      "from": "meals",
+      "to": "recipe"
+    },
+    {
+      "name": "nav_timers__to__recipe",
+      "from": "timers",
+      "to": "recipe"
+    }
+  ],
+  "zeroBag": {
+    "page_home": 0,
+    "page_browse": 0,
+    "page_recipe": 0,
+    "page_cookbook": 0,
+    "page_meals": 0,
+    "page_timers": 0,
+    "page_mine": 0,
+    "page_editor": 0,
+    "page_guide": 0,
+    "page_settings": 0,
+    "feat_search": 0,
+    "feat_filter": 0,
+    "feat_cook_focus": 0,
+    "feat_share": 0,
+    "feat_plan_add": 0,
+    "feat_timer_start": 0,
+    "feat_open_recipe": 0,
+    "feat_save": 0,
+    "feat_guide_jump": 0,
+    "feat_theme_toggle": 0,
+    "time_home_load": 0,
+    "time_browse_load": 0,
+    "time_browse_first_result": 0,
+    "time_recipe_load": 0,
+    "time_cookbook_load": 0,
+    "time_meals_load": 0,
+    "time_mine_load": 0,
+    "nav_home__to__browse": 0,
+    "nav_home__to__recipe": 0,
+    "nav_home__to__cookbook": 0,
+    "nav_browse__to__recipe": 0,
+    "nav_recipe__to__timers": 0,
+    "nav_recipe__to__meals": 0,
+    "nav_recipe__to__browse": 0,
+    "nav_cookbook__to__recipe": 0,
+    "nav_meals__to__recipe": 0,
+    "nav_timers__to__recipe": 0
+  }
+}

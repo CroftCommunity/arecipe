@@ -1,0 +1,22 @@
+{
+  "_note": "E5 observed values. Browser: headless Chromium (build 1194) via Playwright, real service worker, localhost same-origin receiver. Visibility/pagehide were dispatched SYNTHETICALLY (not real OS backgrounding), so landing rates are an UPPER BOUND on the sendBeacon delivery path, NOT the field rate. Compare to published field rates (~95.8% sendBeacon on unload-family events; ~82.9% for all four unload events) as expectations, not equivalents.",
+  "browser": "chromium-1194 (headless)",
+  "landing": {
+    "visibilitychange_hidden": { "attempts": 20, "landed": 20, "rate": 1.0 },
+    "pagehide": { "attempts": 20, "landed": 20, "rate": 1.0 },
+    "real_navigation": { "attempts": 1, "landed": 0, "note": "single-trial, inconclusive; a real cross-page navigation did not land a beacon within a 5s poll window in this harness — flagged for follow-up, not a field measurement" }
+  },
+  "offline": {
+    "counters_survived_offline": true,
+    "page_home_count_offline": 2,
+    "flushed_on_reconnect": true,
+    "landed_after_reconnect": 1
+  },
+  "no_unload_listeners": "asserted by tests/unit/e5-lifecycle.test.ts across harness/client.js, harness/sw.js, and the generated client",
+  "payload_64kib": "chunked (chosen behaviour); a registry-sized bag (~40 counters) is <2KB, far under the 64KiB cap — see tests/unit/e5-lifecycle.test.ts",
+  "stand_ins": [
+    "Synthetic visibility/pagehide events, not real OS backgrounding (iOS PWA backgrounding, ledger Q1, not reproducible here).",
+    "Storage eviction not induced: headless Chromium does not reproduce real iOS localStorage/IndexedDB eviction (ledger Q2). localStorage-vs-IndexedDB durability under eviction pressure could NOT be determined in this harness.",
+    "Beacon coalescing under rapid visibility flapping (ledger Q5) not isolated: synthetic dispatch landed 1:1, but this does not measure real browser coalescing."
+  ]
+}

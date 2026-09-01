@@ -1,0 +1,21 @@
+{
+  "_note": "E0 ground-truth corpus fingerprints. Same seed => byte-identical corpus (asserted in tests/unit/e0-corpus.test.ts and pinned here). generatedWith measure-proof/corpus@E0.",
+  "corpora": [
+    {
+      "seed": 42,
+      "profile": "small",
+      "sessions": 641,
+      "devices": 233,
+      "bytes": 343411,
+      "sha256_16": "8a7b1c382b286fed"
+    },
+    {
+      "seed": 42,
+      "profile": "medium",
+      "sessions": 52022,
+      "devices": 19116,
+      "bytes": 28573479,
+      "sha256_16": "84e890293ccc2ee4"
+    }
+  ]
+}
