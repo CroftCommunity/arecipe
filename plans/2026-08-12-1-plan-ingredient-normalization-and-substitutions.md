@@ -15,8 +15,8 @@ descriptor-aware substitutions.
 | Phase | Outcome | Commit | Note |
 |-------|---------|--------|------|
 | 0 Discovery | ✅ 2026-09-09 | | `runs/ingredient-normalization/PHASE0-FINDINGS.md` — corpus is 4,113 records / 35,274 lines (14× the plan's premise); #87: reuse shell, discard engine — **owner decision pending** |
-| 1 Vocabulary build tool (M1) | ⏳ | | `build-ingredientkeys.mjs` + human review |
-| 2 Matcher pure core (M1 exit) | ⏳ | | `ingredient-key.ts`: descriptor split + alias lookup |
+| 1 Vocabulary build tool (M1) | ✅ 2026-09-09 (review open) | | `scripts/build-ingredientkeys.mjs` over the census fixture → `src/recipes/ingredientkeys.json` (1,052 keys) + `runs/ingredient-normalization/REVIEW.md`; `_meta.reviewed` flips true when the owner has read the report |
+| 2 Matcher pure core (M1 exit) | ✅ 2026-09-09 | | `src/recipes/ingredient-key.ts`: head-phrase split → count-unit strip → descriptor peel → most-specific-first lookup; coverage **82.4%** by line weight, floor 75% pinned in `ingredient-key-coverage.spec.ts` |
 | 3 Search by ingredient (M2) | ⏳ | | Canonical field in MiniSearch |
 | 4 Substitution engine (M2 exit) | ⏳ | | Rules keyed on `key`, variety overrides |
 | 5 Compound-line split | ⏳ | | "salt and pepper", "juice of 1 lemon" |
@@ -141,14 +141,16 @@ What it changes in this plan:
   from free-text `{from, to}` to key-based *before* it lands, so no migration
   follows. Plan: Phase 4 cherry-picks the shell from
   `claude/recipe-substitutions-ie4xd5`, drops the engine and its tests, then
-  closes #87 with a pointer. **Decision: pending owner** (recorded here when made).
+  closes #87 with a pointer. **Decision 2026-09-09 (owner): build the vocabulary
+  approach up front and land the best version; reuse #87's shell in Phase 4,
+  discard its engine.**
 
 ## Milestone M1 — Canonical vocabulary exists
 
 **Exit:** a reviewed `ingredientkeys.json` ships as a static asset, and a pure
 matcher module resolves corpus ingredient lines to keys with measured coverage.
 
-### Phase 1 — `spike/import/build-ingredientkeys.mjs`
+### Phase 1 — `scripts/build-ingredientkeys.mjs` (was planned for `spike/import/`)
 
 Sibling of `build-dishkeys.mjs`, same workflow: auto-propose, human review,
 commit the reviewed map.
@@ -164,6 +166,24 @@ commit the reviewed map.
 - TDD on the proposal logic (grouping, alias folding) with census fixtures.
 - **Human review checkpoint before commit** — the single quality gate, as with
   dishkeys. Groups reviewed, not rubber-stamped.
+
+**As built (2026-09-09).** The tool lives in `scripts/`, not `spike/import/`,
+because its grouping logic IS the runtime resolver's `canonicalHead`
+(`src/recipes/ingredient-vocab-build.ts` → `ingredient-key.ts`, bundled with
+esbuild at run time): `spike/` is non-production and cannot import the TS core,
+and a proposal grouped by a second implementation of the split would drift from
+how the app reads a line. The seed is data (`scripts/ingredient-vocab-seed.json`):
+the descriptor taxonomy, `seedAliases` (synonyms the census cannot discover —
+scallion ← green onion), and `seedKeys` (descriptor-bearing forms that are their
+own ingredient — sweet potato is not a potato variety). Seeds claim lines through
+the resolver itself, most-specific-first; the first draft folded an alias by its
+stripped head and "sweet pepper" swallowed every plain pepper line — caught by the
+review report, pinned by a test. Input is the committed census fixture
+(`tests/fixtures/ingredients/census-lines.json`, every distinct raw line with its
+count); `--snapshot <dir>` rebuilds it from a fresh capture. Line floor 3 → 1,052
+keys, 82.4% coverage; floor 2 would add ~600 keys for +3.4 points. Output ships
+with `_meta.reviewed: false` until the owner has read `REVIEW.md` (promotion
+candidates, alias merges, tail).
 
 ### Phase 2 — `src/recipes/ingredient-key.ts` (pure core)
 
