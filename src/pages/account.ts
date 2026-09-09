@@ -16,7 +16,14 @@ import { createCalendarClient } from '../publish/client.js';
 import { listPdsPlans } from '../recipes/meal-plan-sync.js';
 import type { LocalPlan } from '../recipes/meal-plan-local.js';
 import { createDietPreference, DIET_OPTIONS } from '../recipes/diet-preference.js';
-import { createShoppingPrefs, normalizeStaples, type ShoppingPrefs } from '../recipes/shopping-prefs.js';
+import {
+  createShoppingPrefs,
+  normalizeStaples,
+  normalizeSubstitutions,
+  type ShoppingPrefs,
+} from '../recipes/shopping-prefs.js';
+import { INGREDIENT_VOCABULARY } from '../recipes/ingredient-vocabulary.js';
+import { keyCookSubstitution } from '../recipes/substitutions.js';
 import { createReachPrefs } from '../social/reach.js';
 import {
   CUISINE_OPTIONS,
@@ -269,6 +276,115 @@ const renderShoppingPrefs = (): HTMLElement => {
   staplesBlock.append(chips, addRow);
   section.append(staplesBlock);
   renderChips();
+
+  // --- Substitutions (⇄ swap an ingredient for a preferred one) ---
+  const subsBlock = el('div', 'shopping-subs-block');
+  subsBlock.append(el('h4', 'taste-bucket-title', 'Substitutions ⇄'));
+  subsBlock.append(
+    el(
+      'p',
+      'status',
+      'Swap an ingredient for one you prefer (e.g. ground hamburger → ground turkey, milk → lactaid milk). A swap follows the ingredient, not the spelling: “flour” swaps “2 cups flour” but leaves “bread flour” alone, and “smoked paprika” swaps only the smoked kind. On a recipe page tap “Apply ⇄” to see them; on the shopping list they’re swapped in for you.',
+    ),
+  );
+
+  const subsList = el('div', 'subs-list');
+  subsList.dataset['testid'] = 'substitutions-list';
+  const renderSubs = (): void => {
+    subsList.replaceChildren();
+    for (const sub of prefs.substitutions) {
+      const row = el('span', 'sub-chip');
+      row.dataset['testid'] = 'substitution-chip';
+      row.append(
+        el('span', 'sub-chip-from', sub.from),
+        el('span', 'sub-chip-arrow', ' ⇄ '),
+        el('span', 'sub-chip-to', sub.to),
+      );
+      const remove = el('button', 'staple-chip-remove', '✕') as HTMLButtonElement;
+      remove.type = 'button';
+      remove.setAttribute('aria-label', `Remove ${sub.from} → ${sub.to}`);
+      remove.addEventListener('click', () => {
+        prefs = { ...prefs, substitutions: prefs.substitutions.filter((s) => s !== sub) };
+        persist();
+        renderSubs();
+      });
+      row.append(remove);
+      subsList.append(row);
+    }
+  };
+
+  const subsAddRow = el('div', 'subs-add-row');
+  const fromInput = document.createElement('input');
+  fromInput.type = 'text';
+  fromInput.className = 'staples-input';
+  fromInput.placeholder = 'e.g. ground hamburger';
+  fromInput.dataset['testid'] = 'substitution-from';
+  fromInput.setAttribute('aria-label', 'Ingredient to replace');
+  const toInput = document.createElement('input');
+  toInput.type = 'text';
+  toInput.className = 'staples-input';
+  toInput.placeholder = 'e.g. ground turkey';
+  toInput.dataset['testid'] = 'substitution-to';
+  toInput.setAttribute('aria-label', 'Replace it with');
+  const subsAddBtn = el('button', 'button staples-add', 'Add') as HTMLButtonElement;
+  subsAddBtn.type = 'button';
+  subsAddBtn.dataset['testid'] = 'substitution-add';
+  // A rule is stored by canonical KEY, so the typed ingredient must be one the
+  // app knows — a rule that could never match is refused with words, not
+  // silently stored (never a no-op control).
+  const unknown = el('p', 'status sub-unknown');
+  unknown.dataset['testid'] = 'substitution-unknown';
+  unknown.hidden = true;
+  const commitSub = (): void => {
+    const from = fromInput.value.trim();
+    const to = toInput.value.trim();
+    if (from === '' || to === '') {
+      fromInput.value = '';
+      toInput.value = '';
+      fromInput.focus();
+      return;
+    }
+    const keyed = keyCookSubstitution(from, to, INGREDIENT_VOCABULARY);
+    if (keyed === null) {
+      unknown.textContent = `arecipe doesn’t know “${from}” as an ingredient yet — try the name the way a recipe would list it (e.g. “ground beef”, “milk”).`;
+      unknown.hidden = false;
+      fromInput.focus();
+      return;
+    }
+    unknown.hidden = true;
+    const merged = normalizeSubstitutions([...prefs.substitutions, keyed]);
+    if (merged.length !== prefs.substitutions.length) {
+      prefs = { ...prefs, substitutions: merged };
+      persist();
+      renderSubs();
+    }
+    fromInput.value = '';
+    toInput.value = '';
+    fromInput.focus();
+  };
+  subsAddBtn.addEventListener('click', commitSub);
+  toInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      commitSub();
+    }
+  });
+  subsAddRow.append(fromInput, el('span', 'sub-chip-arrow', '⇄'), toInput, subsAddBtn);
+
+  const alwaysRow = el('label', 'subs-always-row');
+  const alwaysCb = document.createElement('input');
+  alwaysCb.type = 'checkbox';
+  alwaysCb.checked = prefs.alwaysApplySubstitutions;
+  alwaysCb.dataset['testid'] = 'substitutions-always';
+  alwaysCb.addEventListener('change', () => {
+    prefs = { ...prefs, alwaysApplySubstitutions: alwaysCb.checked };
+    persist();
+  });
+  alwaysRow.append(alwaysCb, document.createTextNode(' Always apply substitutions on recipe pages'));
+
+  subsBlock.append(subsList, subsAddRow, unknown, alwaysRow);
+  section.append(subsBlock);
+  renderSubs();
 
   // --- AI shopper instructions ---
   const aiBlock = el('div', 'shopping-ai-block');

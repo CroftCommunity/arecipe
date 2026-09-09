@@ -1,19 +1,29 @@
 // Shopping preferences (Account page): device-local settings the shopping-list
-// panel reads. Two axes, one store:
+// panel and recipe pages read. Axes, one store:
 //   - `staples`  — ingredients ALWAYS assumed on hand (salt, pepper, water, …).
 //                  Shown in the panel as a muted annotation, but excluded from
 //                  every copy / download / AI payload.
 //   - `aiInstructions` — free text folded into the "AI shopper" copy (e.g.
 //                  "prefer versions we've bought before").
-// Empty = "no staples / no extra instructions". Storage is defensive (private
-// mode degrades to empty), matching taste-preference / diet-preference /
-// exclusions.
+//   - `substitutions` — ingredient swaps keyed on the canonical vocabulary
+//                  (ground hamburger → ground turkey is stored as fromKey
+//                  `ground beef`; smoked paprika → chipotle is scoped to the
+//                  variety `smoked`). Opt-in on a recipe page (⇄ toggle),
+//                  applied by default on the shopping list. A row with no key
+//                  could never match and is dropped.
+//   - `alwaysApplySubstitutions` — when set, the recipe-page ⇄ toggle starts on.
+// Empty = "no staples / no substitutions / no extra instructions". Storage is
+// defensive (private mode degrades to empty), matching taste-preference /
+// diet-preference / exclusions.
 
 import { log } from '../log.js';
+import type { CookSubstitution } from './substitutions.js';
 
 type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
 const STORAGE_KEY = 'shopping-prefs';
+
+export type Substitution = CookSubstitution;
 
 export type ShoppingPrefs = {
   /** Ingredient names assumed on hand (verbatim as typed; matched case- and
@@ -21,9 +31,18 @@ export type ShoppingPrefs = {
   staples: string[];
   /** Custom instructions appended to the AI-shopper copy payload. */
   aiInstructions: string;
+  /** Ingredient swaps (from→to). Order-preserving, de-duped by `from`. */
+  substitutions: Substitution[];
+  /** When true, a recipe page opens with substitutions already applied. */
+  alwaysApplySubstitutions: boolean;
 };
 
-export const emptyShoppingPrefs = (): ShoppingPrefs => ({ staples: [], aiInstructions: '' });
+export const emptyShoppingPrefs = (): ShoppingPrefs => ({
+  staples: [],
+  aiInstructions: '',
+  substitutions: [],
+  alwaysApplySubstitutions: false,
+});
 
 /** Trim, drop blanks, de-dupe case-insensitively (first spelling wins). */
 export const normalizeStaples = (raw: string[]): string[] => {
@@ -40,11 +59,50 @@ export const normalizeStaples = (raw: string[]): string[] => {
   return out;
 };
 
+/** Trim, drop rows missing a key or a replacement (an unkeyed rule can never
+ *  match), de-dupe by key + variety scope (first mapping wins). */
+export const normalizeSubstitutions = (raw: Substitution[]): Substitution[] => {
+  const seen = new Set<string>();
+  const out: Substitution[] = [];
+  for (const s of raw) {
+    const from = (s.from ?? '').trim();
+    const fromKey = (s.fromKey ?? '').trim();
+    const to = (s.to ?? '').trim();
+    const variety = s.variety?.trim();
+    if (from === '' || fromKey === '' || to === '') continue;
+    const scope = `${fromKey}|${variety ?? ''}`;
+    if (seen.has(scope)) continue;
+    seen.add(scope);
+    out.push({ from, fromKey, ...(variety !== undefined && variety !== '' ? { variety } : {}), to });
+  }
+  return out;
+};
+
 const isEmpty = (prefs: ShoppingPrefs): boolean =>
-  prefs.staples.length === 0 && prefs.aiInstructions.trim() === '';
+  prefs.staples.length === 0 &&
+  prefs.aiInstructions.trim() === '' &&
+  prefs.substitutions.length === 0 &&
+  !prefs.alwaysApplySubstitutions;
 
 const toStringArray = (v: unknown): string[] =>
   Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : [];
+
+/** Read a stored substitution array defensively: only objects with string
+ *  from/fromKey/to survive (the pre-vocabulary free-text shape had no key and is
+ *  dropped — it could never match); normalization drops the incomplete ones. */
+const toSubstitutions = (v: unknown): Substitution[] => {
+  if (!Array.isArray(v)) return [];
+  const out: Substitution[] = [];
+  for (const x of v) {
+    if (typeof x !== 'object' || x === null) continue;
+    const rec = x as Record<string, unknown>;
+    if (typeof rec['from'] === 'string' && typeof rec['fromKey'] === 'string' && typeof rec['to'] === 'string') {
+      const variety = typeof rec['variety'] === 'string' ? rec['variety'] : undefined;
+      out.push({ from: rec['from'], fromKey: rec['fromKey'], ...(variety !== undefined ? { variety } : {}), to: rec['to'] });
+    }
+  }
+  return out;
+};
 
 export type ShoppingPrefsStore = {
   load: () => ShoppingPrefs;
@@ -62,6 +120,8 @@ export const createShoppingPrefs = (opts: { storage?: StorageLike } = {}): Shopp
         return {
           staples: normalizeStaples(toStringArray(parsed['staples'])),
           aiInstructions: typeof parsed['aiInstructions'] === 'string' ? parsed['aiInstructions'] : '',
+          substitutions: normalizeSubstitutions(toSubstitutions(parsed['substitutions'])),
+          alwaysApplySubstitutions: parsed['alwaysApplySubstitutions'] === true,
         };
       } catch (err) {
         log.warn('shopping', 'prefs load failed', { error: String(err) });
@@ -72,6 +132,8 @@ export const createShoppingPrefs = (opts: { storage?: StorageLike } = {}): Shopp
       const clean: ShoppingPrefs = {
         staples: normalizeStaples(prefs.staples),
         aiInstructions: prefs.aiInstructions,
+        substitutions: normalizeSubstitutions(prefs.substitutions),
+        alwaysApplySubstitutions: prefs.alwaysApplySubstitutions === true,
       };
       try {
         if (isEmpty(clean)) storage.removeItem(STORAGE_KEY);

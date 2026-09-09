@@ -662,13 +662,22 @@ export const resolveShoppingList = async (
   plan: ShoppingPlan,
   range: ShoppingRange,
   fetchIngredients: IngredientFetcher,
+  opts: {
+    /** Ingredient substitutions (Phase 4 of the ingredient-normalization plan)
+     * live OUTSIDE this core: a pure lines→lines transform applied to each
+     * recipe's lines BEFORE aggregation, so two recipes that both swap to the
+     * same ingredient roll up into one combined line. */
+    substitute?: (lines: string[]) => string[];
+  } = {},
 ): Promise<ShoppingList> => {
   const refs = collectScheduledRefs(plan, range);
+  const substitute = opts.substitute ?? ((lines: string[]): string[] => lines);
   const scheduled = await Promise.all(
     refs.map(async (ref): Promise<ScheduledRecipe> => {
       let ingredients: string[] | undefined;
       try {
-        ingredients = (await fetchIngredients({ uri: ref.uri, cid: ref.cid })) ?? undefined;
+        const fetched = await fetchIngredients({ uri: ref.uri, cid: ref.cid });
+        ingredients = fetched === null ? undefined : substitute(fetched);
       } catch {
         ingredients = undefined;
       }

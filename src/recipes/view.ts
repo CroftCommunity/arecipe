@@ -12,8 +12,14 @@ import type { CachedRecipe } from './cache.js';
 import { recipeMetaOf, type Difficulty, type RecipeMeta } from './meta.js';
 import { dishKeyOf, funFactsOf, versionLabelOf, type FunFact } from './model.js';
 import { firstImageCid, firstImageCredit, formatDuration, formatPublishedDate, nutritionOf, thumbUrl } from './present.js';
+import { INGREDIENT_VOCABULARY } from './ingredient-vocabulary.js';
+import { curatedSubstitutions, lineSubstitution, type CookSubstitution, type LineSubstitution } from './substitutions.js';
 import { initStepState, stepReducer, stepStatusAt, type StepState } from './step-state.js';
 import { tileMediaVariant } from './tile-variant.js';
+
+/** The substitution affordance glyph — the swap arrows, matching the app's
+ *  monochrome control glyphs (⧉ copy, ⚑ flag, ⛶ focus). */
+export const SUBSTITUTION_GLYPH = '⇄';
 
 const el = (tag: string, className?: string, text?: string): HTMLElement => {
   const node = document.createElement(tag);
@@ -26,6 +32,41 @@ const listEl = (tag: 'ul' | 'ol', testid: string, items: string[]): HTMLElement 
   const list = el(tag);
   list.dataset['testid'] = testid;
   for (const item of items) list.append(el('li', undefined, item));
+  return list;
+};
+
+/** What substitutions say about each ingredient line (Phase 4 of the
+ *  ingredient-normalization plan): a cook rule that applies is a SWAP (the
+ *  original struck, the preferred line beside it), a curated reference row is
+ *  a SUGGESTION beside the line ("or: …", never struck), most lines are null. */
+const lineSubstitutions = (lines: string[], rules: CookSubstitution[]): (LineSubstitution | null)[] => {
+  const curated = curatedSubstitutions(INGREDIENT_VOCABULARY);
+  return lines.map((raw) => lineSubstitution(raw, { rules, curated, vocab: INGREDIENT_VOCABULARY }));
+};
+
+/** The Ingredients list, with substitutions optionally applied. With `subs`
+ *  null this is just a plain ingredient list. */
+const ingredientListEl = (lines: string[], subs: (LineSubstitution | null)[] | null): HTMLElement => {
+  const list = el('ul');
+  list.dataset['testid'] = 'recipe-ingredients';
+  lines.forEach((raw, i) => {
+    const li = el('li');
+    const sub = subs?.[i] ?? null;
+    if (sub === null) {
+      li.textContent = raw;
+    } else if (sub.kind === 'swap') {
+      li.classList.add('ingredient-substituted');
+      const del = el('del', 'ingredient-original', sub.original);
+      const swap = el('span', 'ingredient-sub', `${SUBSTITUTION_GLYPH} ${sub.substituted}`);
+      li.append(del, document.createTextNode(' '), swap);
+    } else {
+      li.classList.add('ingredient-suggested');
+      const hint = el('span', 'ingredient-sub', `${SUBSTITUTION_GLYPH} or: ${sub.use}`);
+      hint.title = `For ${sub.forAmount}`;
+      li.append(document.createTextNode(raw), document.createTextNode(' '), hint);
+    }
+    list.append(li);
+  });
   return list;
 };
 
@@ -297,6 +338,13 @@ export type RenderOptions = {
    *  via matchMedia at render time. Drives the pictureless-tile chip variant
    *  (chip at 1 column, media band otherwise); tests pass it explicitly. */
   columns?: number;
+  /** Recipe detail only: the cook's ingredient substitutions (keyed rules from
+   *  the Account page). The "Apply ⇄" toggle appears above Ingredients when a
+   *  rule swaps a line OR a curated reference row suggests for one. */
+  substitutions?: CookSubstitution[];
+  /** Recipe detail only: start with substitutions applied (the ⇄ toggle checked).
+   *  Set from the Account "Always apply substitutions" preference. Default off. */
+  applySubstitutions?: boolean;
 };
 
 const recipePageHref = (entry: CachedRecipe, options: RenderOptions): string => {
@@ -854,7 +902,34 @@ export const renderRecipeDetail = (
   const instructionLines = value.instructions ?? [];
   const ingredients = el('section');
   ingredients.append(sectionHead('Ingredients', ingredientLines, 'copy-ingredients'));
-  ingredients.append(listEl('ul', 'recipe-ingredients', ingredientLines));
+  // Substitutions (⇄): opt-in on the recipe page. The toggle only appears when a
+  // configured substitution actually matches a line here (never a no-op control);
+  // checking it re-renders the list with matched lines struck through and the
+  // preferred swap shown beside them. `applySubstitutions` (the Account "always
+  // apply" preference) sets the initial state.
+  const perLine = lineSubstitutions(ingredientLines, options.substitutions ?? []);
+  const anyMatch = perLine.some((s) => s !== null);
+  let applying = anyMatch && options.applySubstitutions === true;
+  const listHost = el('div', 'ingredient-list-host');
+  const paintIngredients = (): void => {
+    listHost.replaceChildren(ingredientListEl(ingredientLines, applying ? perLine : null));
+  };
+  if (anyMatch) {
+    const toggle = el('label', 'sub-toggle') as HTMLLabelElement;
+    toggle.title = 'Show your ingredient substitutions';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = applying;
+    cb.dataset['testid'] = 'apply-substitutions';
+    cb.addEventListener('change', () => {
+      applying = cb.checked;
+      paintIngredients();
+    });
+    toggle.append(cb, document.createTextNode(` Apply ${SUBSTITUTION_GLYPH}`));
+    ingredients.append(toggle);
+  }
+  paintIngredients();
+  ingredients.append(listHost);
   const instructions = el('section');
   instructions.append(sectionHead('Instructions', instructionLines, 'copy-instructions'));
   instructions.append(listEl('ol', 'recipe-instructions', instructionLines));
