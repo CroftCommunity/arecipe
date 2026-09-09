@@ -2941,6 +2941,28 @@ table.ref.pairs td.eq {
   font-size: var(--t-caption);
   cursor: pointer;
 }
+.ingredient-correct {
+  min-width: 44px;
+  min-height: 44px;
+  margin-left: 0.25rem;
+  padding: 0;
+  border: 1px solid var(--line, #ccc);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  opacity: 0.7;
+  cursor: pointer;
+}
+.ingredient-correct-form {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+.ingredient-correct-form .staples-input {
+  min-width: 12rem;
+}
 .ingredient-suggested .ingredient-sub {
   font-weight: 500;
   opacity: 0.85;

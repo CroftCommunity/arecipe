@@ -14,7 +14,7 @@ import type { CachedRecipe } from './cache.js';
 import { recipeMetaOf } from './meta.js';
 import { dishKeyOf, funFactsOf, versionLabelOf } from './model.js';
 import { recipeFacets } from '../pages/browse-state.js';
-import { resolveIngredient } from './ingredient-key.js';
+import { resolveIngredient, type OverlayLookup } from './ingredient-key.js';
 import { INGREDIENT_VOCABULARY } from './ingredient-vocabulary.js';
 
 /** A trimmed string, or '' for anything non-string. Never throws. */
@@ -66,12 +66,12 @@ const auxOf = (value: Record<string, unknown>): string => {
 
 /** The canonical keys of a record's ingredient lines, resolved through the
  *  shipped vocabulary. Defensive: a mistyped field yields ''. */
-const ingredientKeysOf = (v: unknown): string => {
+const ingredientKeysOf = (v: unknown, overlay: OverlayLookup | undefined): string => {
   if (!Array.isArray(v)) return '';
   const keys: string[] = [];
   for (const line of v) {
     if (typeof line !== 'string') continue;
-    const r = resolveIngredient(line, INGREDIENT_VOCABULARY);
+    const r = resolveIngredient(line, INGREDIENT_VOCABULARY, { overlay });
     if (r.method !== 'unmatched' && !keys.includes(r.key)) keys.push(r.key);
   }
   return keys.join(' ');
@@ -79,13 +79,17 @@ const ingredientKeysOf = (v: unknown): string => {
 
 /** Build the indexed document for one recipe (exported for D4 coverage — the
  *  stored meta hints must be present on the doc shape). */
-export const searchDocOf = (entry: CachedRecipe): SearchDoc => {
+/** Phase 6: the device-local corrections overlay, threaded in by the page so
+ *  a line the cook confirmed contributes its key like any other. */
+export type SearchOptions = { overlay?: OverlayLookup };
+
+export const searchDocOf = (entry: CachedRecipe, opts: SearchOptions = {}): SearchDoc => {
   const meta = recipeMetaOf(entry.value);
   return {
     uri: entry.uri,
     name: str(entry.value['name']),
     ingredients: joinLines(entry.value['ingredients']),
-    ingredientKeys: ingredientKeysOf(entry.value['ingredients']),
+    ingredientKeys: ingredientKeysOf(entry.value['ingredients'], opts.overlay),
     text: str(entry.value['text']),
     instructions: joinLines(entry.value['instructions']),
     aux: auxOf(entry.value),
@@ -111,8 +115,8 @@ const BOOST = { name: 4, ingredients: 3, ingredientKeys: 1, text: 2, instruction
  *  branch (no prefix, no fuzzy): the key is already the canonical spelling. A
  *  query that does not resolve, or resolves to its own words, searches as-is,
  *  so multi-term AND semantics are untouched. */
-const canonicalKeyOf = (q: string): string | null => {
-  const r = resolveIngredient(q, INGREDIENT_VOCABULARY);
+const canonicalKeyOf = (q: string, overlay: OverlayLookup | undefined): string | null => {
+  const r = resolveIngredient(q, INGREDIENT_VOCABULARY, { overlay });
   if (r.method === 'unmatched') return null;
   return r.key === q.trim().toLowerCase() ? null : r.key;
 };
@@ -125,7 +129,7 @@ export type RecipeSearch = {
   query: (q: string) => CachedRecipe[];
 };
 
-export const createRecipeSearch = (entries: readonly CachedRecipe[]): RecipeSearch => {
+export const createRecipeSearch = (entries: readonly CachedRecipe[], opts: SearchOptions = {}): RecipeSearch => {
   // Recipe-loading perf: the index build is DEFERRED to the first non-empty
   // query. At corpus size (thousands of records) an eager build costs real time,
   // and browse constructs a fresh searcher on every feed change — progressive
@@ -146,7 +150,7 @@ export const createRecipeSearch = (entries: readonly CachedRecipe[]): RecipeSear
     for (const entry of entries) {
       // Last write wins on a duplicate uri (feeds shouldn't carry them, but never
       // let MiniSearch's unique-id invariant throw on a wild repo).
-      if (!byUri.has(entry.uri)) docs.push(searchDocOf(entry));
+      if (!byUri.has(entry.uri)) docs.push(searchDocOf(entry, opts));
       byUri.set(entry.uri, entry);
     }
     mini.addAll(docs);
@@ -158,7 +162,7 @@ export const createRecipeSearch = (entries: readonly CachedRecipe[]): RecipeSear
     query: (q) => {
       if (q.trim() === '') return [...entries];
       const { mini, byUri } = ensureIndex();
-      const key = canonicalKeyOf(q);
+      const key = canonicalKeyOf(q, opts.overlay);
       const literal = { queries: [q], combineWith: 'AND' as const };
       const results = mini.search(
         key === null

@@ -12,7 +12,7 @@
 // a variety-scoped rule ({paprika, smoked}) wins over a bare one and touches
 // only that variety, and an unmatched line is left alone. Surfaced, never
 // invented.
-import { canonicalHead, resolveIngredient, type Resolution, type Vocabulary } from './ingredient-key.js';
+import { canonicalHead, resolveIngredient, type OverlayLookup, type Resolution, type Vocabulary } from './ingredient-key.js';
 import { REFERENCE_SECTIONS } from '../pages/reference-view.js';
 
 /** A cook's stored rule. `from` is what they typed (for display); the match is
@@ -38,22 +38,37 @@ export const keyCookSubstitution = (from: string, to: string, vocab: Vocabulary)
   return { from: f, fromKey: r.key, ...(variety !== undefined ? { variety } : {}), to: t };
 };
 
-const matchesScope = (r: Resolution & { method: 'exact' | 'alias' }, key: string, variety: string | undefined): boolean =>
+type Matched = Resolution & { method: 'exact' | 'alias' | 'overlay' };
+
+const matchesScope = (r: Matched, key: string, variety: string | undefined): boolean =>
   r.key === key && (variety === undefined || r.variety.includes(variety));
 
 /** The rule for a resolution: a variety-scoped rule first, then a bare one. */
-const findCookRule = (r: Resolution & { method: 'exact' | 'alias' }, rules: readonly CookSubstitution[]): CookSubstitution | undefined =>
+const findCookRule = (r: Matched, rules: readonly CookSubstitution[]): CookSubstitution | undefined =>
   rules.find((s) => s.variety !== undefined && matchesScope(r, s.fromKey, s.variety)) ??
   rules.find((s) => s.variety === undefined && matchesScope(r, s.fromKey, undefined));
 
 const escapeRegExp = (s: string): string => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/** A head word as it may appear in the line: singular or a regular plural
+ * ("strawberry" → strawberr(?:y|ies), "onion" → onion(?:e?s)?). */
+const pluralForms = (w: string): string =>
+  /[^aeiou]y$/.test(w) ? `${escapeRegExp(w.slice(0, -1))}(?:y|ies)` : `${escapeRegExp(w)}(?:e?s)?`;
+
+/** Follow the line's plural onto the replacement: raspberry → raspberries. */
+const pluralize = (to: string): string => {
+  const words = to.split(' ');
+  const last = words[words.length - 1] ?? '';
+  const plural = /[^aeiou]y$/.test(last) ? `${last.slice(0, -1)}ies` : /(s|x|z|ch|sh)$/.test(last) ? `${last}es` : `${last}s`;
+  return [...words.slice(0, -1), plural].join(' ');
+};
 
 /** The words of the raw line a swap replaces: the matched head plus, walking
  * back from it, the contiguous peeled words that belong to the swap — a word
  * the key itself carries ("ground" of `ground beef`) or the rule's variety
  * scope ("smoked" for a {paprika, smoked} rule). A variety the rule does NOT
  * scope ("smoked" for a bare paprika rule) stays in the line. */
-const spanWords = (raw: string, r: Resolution & { method: 'exact' | 'alias' }, rule: CookSubstitution, vocab: Vocabulary): string[] => {
+const spanWords = (raw: string, r: Matched, rule: CookSubstitution, vocab: Vocabulary): string[] => {
   const split = canonicalHead(raw, vocab.descriptors);
   const idx = split?.layers.indexOf(r.head) ?? -1;
   if (split === null || idx < 0) return r.head.split(' ');
@@ -69,23 +84,25 @@ const spanWords = (raw: string, r: Resolution & { method: 'exact' | 'alias' }, r
 };
 
 /** Apply the first matching cook rule to one line. Null when none applies. */
-export const substituteLine = (raw: string, rules: readonly CookSubstitution[], vocab: Vocabulary): (LineSubstitution & { kind: 'swap' }) | null => {
+export const substituteLine = (
+  raw: string,
+  rules: readonly CookSubstitution[],
+  vocab: Vocabulary,
+  opts: { overlay?: OverlayLookup } = {},
+): (LineSubstitution & { kind: 'swap' }) | null => {
   if (rules.length === 0) return null;
-  const r = resolveIngredient(raw, vocab);
+  const r = resolveIngredient(raw, vocab, opts);
   if (r.method === 'unmatched') return null;
   const rule = findCookRule(r, rules);
   if (rule === undefined) return null;
   const words = spanWords(raw, r, rule, vocab);
-  const pattern = new RegExp(
-    `\\b${words.map((w, i) => escapeRegExp(w) + (i === words.length - 1 ? '(?:e?s)?' : '')).join('\\s+')}\\b`,
-    'i',
-  );
+  const pattern = new RegExp(`\\b${words.map((w, i) => (i === words.length - 1 ? pluralForms(w) : escapeRegExp(w))).join('\\s+')}\\b`, 'i');
   const m = pattern.exec(raw);
   let to = rule.to;
   if (m !== null) {
     const spanLast = m[0].split(/\s+/).pop() ?? '';
     const headLast = words[words.length - 1] ?? '';
-    if (spanLast.toLowerCase() !== headLast && /s$/i.test(spanLast) && !/s$/i.test(to)) to = `${to}s`;
+    if (spanLast.toLowerCase() !== headLast && /s$/i.test(spanLast) && !/s$/i.test(to)) to = pluralize(to);
   }
   // Function replacement so a `to` containing `$` is inserted literally.
   const substituted = m === null ? to : raw.replace(pattern, () => to);
@@ -94,8 +111,12 @@ export const substituteLine = (raw: string, rules: readonly CookSubstitution[], 
 
 /** Map raw lines through cook swaps (the shopping list's transform). Identity
  * — the same array — with no rules. */
-export const substituteLines = (lines: string[], rules: readonly CookSubstitution[], vocab: Vocabulary): string[] =>
-  rules.length === 0 ? lines : lines.map((raw) => substituteLine(raw, rules, vocab)?.substituted ?? raw);
+export const substituteLines = (
+  lines: string[],
+  rules: readonly CookSubstitution[],
+  vocab: Vocabulary,
+  opts: { overlay?: OverlayLookup } = {},
+): string[] => (rules.length === 0 ? lines : lines.map((raw) => substituteLine(raw, rules, vocab, opts)?.substituted ?? raw));
 
 const curatedCache = new WeakMap<Vocabulary, CuratedSubstitution[]>();
 
@@ -125,12 +146,12 @@ export const curatedSubstitutions = (vocab: Vocabulary): CuratedSubstitution[] =
  * else a curated suggestion when one resolves, else nothing. */
 export const lineSubstitution = (
   raw: string,
-  opts: { rules: readonly CookSubstitution[]; curated: readonly CuratedSubstitution[]; vocab: Vocabulary },
+  opts: { rules: readonly CookSubstitution[]; curated: readonly CuratedSubstitution[]; vocab: Vocabulary; overlay?: OverlayLookup },
 ): LineSubstitution | null => {
-  const swap = substituteLine(raw, opts.rules, opts.vocab);
+  const swap = substituteLine(raw, opts.rules, opts.vocab, { overlay: opts.overlay });
   if (swap !== null) return swap;
   if (opts.curated.length === 0) return null;
-  const r = resolveIngredient(raw, opts.vocab);
+  const r = resolveIngredient(raw, opts.vocab, { overlay: opts.overlay });
   if (r.method === 'unmatched') return null;
   const c =
     opts.curated.find((x) => x.from.variety !== undefined && matchesScope(r, x.from.key, x.from.variety)) ??

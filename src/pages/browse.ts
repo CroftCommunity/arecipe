@@ -22,7 +22,8 @@ import { createCookFollowsLocal } from '../social/cook-follows-local.js';
 import { mergeCookAuthors } from '../social/default-feed.js';
 import { createRecipeReader } from '../recipes/read.js';
 import { createDietPreference } from '../recipes/diet-preference.js';
-import { createSearchMemo, queryEntries } from '../recipes/search.js';
+import { createRecipeSearch, createSearchMemo, queryEntries } from '../recipes/search.js';
+import { createIngredientCorrections } from '../recipes/ingredient-aliases-local.js';
 import {
   isPlannedSort,
   partitionByPlanned,
@@ -143,7 +144,9 @@ const main = async (): Promise<void> => {
   // The MiniSearch index is memoized on the feed's array identity (D6), so facet
   // toggles reuse it and only a feed change rebuilds.
   let query = '';
-  const searchMemo = createSearchMemo();
+  // Phase 6: search reaches lines the cook confirmed on this device.
+  const corrections = createIngredientCorrections();
+  const searchMemo = createSearchMemo((entries) => createRecipeSearch(entries, { overlay: (name) => corrections.lookup(name) }));
 
   // Only the newest action may render: slow async loads (the starter feed) must
   // never clobber a faster user search that superseded them.

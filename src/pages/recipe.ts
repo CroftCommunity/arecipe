@@ -35,6 +35,7 @@ import {
   type InteractionRepo,
 } from '../social/interactions.js';
 import { createShoppingPrefs } from '../recipes/shopping-prefs.js';
+import { createIngredientCorrections } from '../recipes/ingredient-aliases-local.js';
 import { createSocialPrefs } from '../social/prefs.js';
 import { renderShareButton, shareOrigin } from '../share/button.js';
 import { buildRecipeShareUrl } from '../share/urls.js';
@@ -487,6 +488,8 @@ const paintVersion = (
       // "Always apply substitutions" on the Account page.
       substitutions: shoppingPrefs.substitutions,
       applySubstitutions: shoppingPrefs.alwaysApplySubstitutions,
+      // Phase 6: lines the app does not know get an "is this…?" affordance.
+      corrections: createIngredientCorrections(),
     }),
   );
   // Share affordance: a one-tap share ICON beside the title — the same icon-only

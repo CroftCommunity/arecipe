@@ -91,3 +91,27 @@ test('settings: expanding Hidden recipes resolves entries to recipe names', asyn
   // The full URI stays reachable via the link.
   await expect(firstRow.locator('a')).toHaveAttribute('title', HIDDEN_URI);
 });
+
+// Ingredient corrections (ingredient-normalization plan, Phase 6): what this
+// device confirmed, with the seed-alias export for the shared vocabulary.
+test('settings: Ingredient corrections lists confirmations with a count and exports the seed block', async ({ page }) => {
+  await page.addInitScript(() => {
+    try {
+      localStorage.setItem(
+        'ingredient-corrections',
+        JSON.stringify([{ name: 'freeze-dried strawberry', key: 'strawberry', confirmedAt: '2026-09-09T00:00:00Z' }]),
+      );
+    } catch {
+      /* private mode */
+    }
+  });
+  await page.goto('/settings.html');
+  const section = page.getByTestId('ingredient-corrections');
+  await expect(section.locator('summary').first()).toContainText('Ingredient corrections (1)');
+  await section.locator('summary').first().click();
+  await expect(section.getByTestId('correction-row')).toContainText('freeze-dried strawberry → strawberry');
+  await expect(section.getByTestId('corrections-copy')).toHaveAttribute('data-copy', /"strawberry": \[\s*"freeze-dried strawberry"/);
+  await section.getByTestId('correction-remove').click();
+  await expect(section.locator('summary').first()).toContainText('Ingredient corrections (0)');
+  await expect(section.getByTestId('correction-row')).toHaveCount(0);
+});

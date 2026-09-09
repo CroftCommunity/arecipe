@@ -135,3 +135,28 @@ describe('resolveIngredient — most-specific head first, then descriptors peel 
     expect(resolveIngredient('500 g bread flour', vocab)).toMatchObject({ method: 'unmatched', head: 'bread flour' });
   });
 });
+
+describe('resolveIngredient — the device-local overlay (Phase 6) comes first', () => {
+  const overlay = (name: string): string | undefined =>
+    ({ 'dashi stock': 'dashi', 'brown sugar': 'muscovado', 'freeze-dried strawberry': 'strawberry' })[name];
+  const v: Vocabulary = { ...vocab, keys: { ...vocab.keys, dashi: { aliases: [] }, muscovado: { aliases: [] }, strawberry: { aliases: [] } } };
+
+  it('an unmatched name the cook confirmed resolves through the overlay, labeled as such', () => {
+    expect(resolveIngredient('4 cups dashi stock', v, { overlay })).toEqual({
+      method: 'overlay', key: 'dashi', head: 'dashi stock', variety: [], prep: [], quality: [],
+    });
+  });
+
+  it('the overlay is consulted by the identity-bearing name (variety kept), so prep and quantity never matter', () => {
+    expect(resolveIngredient('30 g freeze-dried strawberries, crushed', v, { overlay })).toMatchObject({ method: 'overlay', key: 'strawberry' });
+  });
+
+  it('an overlay entry corrects the shipped baseline — overlay > baseline > unmatched', () => {
+    expect(resolveIngredient('1 cup brown sugar', v)).toMatchObject({ method: 'exact', key: 'sugar', variety: ['brown'] });
+    expect(resolveIngredient('1 cup brown sugar', v, { overlay })).toMatchObject({ method: 'overlay', key: 'muscovado' });
+  });
+
+  it('without an overlay nothing changes', () => {
+    expect(resolveIngredient('4 cups dashi stock', v)).toMatchObject({ method: 'unmatched' });
+  });
+});

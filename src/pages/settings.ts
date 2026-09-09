@@ -8,6 +8,7 @@ import { log } from '../log.js';
 import { mountShell } from '../nav.js';
 import { createRecipeCache } from '../recipes/cache.js';
 import { createExclusions } from '../recipes/exclusions.js';
+import { createIngredientCorrections } from '../recipes/ingredient-aliases-local.js';
 import { abbreviateId } from '../recipes/present.js';
 import { createRecordReader } from '../recipes/read.js';
 import { createStarterPrefs, STARTER_AUTHORS } from '../recipes/starter.js';
@@ -260,6 +261,75 @@ const main = async (): Promise<void> => {
   syncRegionEnabled();
   seasonality.append(seasonEnabledRow, regionRow);
 
+  // Ingredient corrections (ingredient-normalization plan, Phase 6): what this
+  // device has confirmed unknown ingredient lines to be. Exported as the seed's
+  // alias block so a build review can promote them into the shipped vocabulary.
+  const correctionsSection = el('details', 'settings-section ingredient-corrections') as HTMLDetailsElement;
+  correctionsSection.dataset['testid'] = 'ingredient-corrections';
+  const correctionsSummary = el('summary', 'hidden-summary');
+  correctionsSection.append(correctionsSummary);
+  correctionsSection.append(
+    el(
+      'p',
+      'status',
+      'Ingredients you told arecipe about on a recipe page (the “?” beside a line it didn’t know). They stay on this device. Copy them to send in for the shared vocabulary.',
+    ),
+  );
+  const corrections = createIngredientCorrections();
+  const correctionsList = el('div');
+  const correctionsActions = el('div', 'settings-row');
+  const copyCorrections = el('button', 'button', 'Copy for the vocabulary') as HTMLButtonElement;
+  copyCorrections.type = 'button';
+  copyCorrections.dataset['testid'] = 'corrections-copy';
+  const clearCorrections = el('button', 'button', 'Clear all') as HTMLButtonElement;
+  clearCorrections.type = 'button';
+  clearCorrections.dataset['testid'] = 'corrections-clear';
+  correctionsActions.append(copyCorrections, clearCorrections);
+  correctionsSection.append(correctionsList, correctionsActions);
+  const renderCorrections = (): void => {
+    const all = corrections.all();
+    correctionsSummary.textContent = `Ingredient corrections (${all.length})`;
+    correctionsList.replaceChildren();
+    copyCorrections.dataset['copy'] = JSON.stringify({ seedAliases: corrections.exportSeedAliases() }, null, 2);
+    correctionsActions.hidden = all.length === 0;
+    if (all.length === 0) {
+      correctionsList.append(el('p', 'status', 'nothing confirmed yet'));
+      return;
+    }
+    for (const c of all) {
+      const row = el('div', 'draft-row');
+      row.dataset['testid'] = 'correction-row';
+      row.append(el('span', 'draft-link', `${c.name} → ${c.key}`));
+      const remove = el('button', 'button', 'Remove') as HTMLButtonElement;
+      remove.type = 'button';
+      remove.dataset['testid'] = 'correction-remove';
+      remove.addEventListener('click', () => {
+        corrections.remove(c.name);
+        renderCorrections();
+      });
+      row.append(remove);
+      correctionsList.append(row);
+    }
+  };
+  copyCorrections.addEventListener('click', () => {
+    const payload = copyCorrections.dataset['copy'] ?? '';
+    const done = navigator.clipboard?.writeText(payload);
+    const original = copyCorrections.textContent;
+    const flash = (text: string): void => {
+      copyCorrections.textContent = text;
+      window.setTimeout(() => {
+        copyCorrections.textContent = original;
+      }, 1500);
+    };
+    if (done === undefined) flash('Copy unavailable');
+    else done.then(() => flash('Copied'), () => flash('Copy failed'));
+  });
+  clearCorrections.addEventListener('click', () => {
+    corrections.clear();
+    renderCorrections();
+  });
+  renderCorrections();
+
   // Collapsed by default (it can hold many baseline entries): a <details> whose
   // summary carries the live count; the list is revealed only when expanded.
   const hiddenSection = el('details', 'settings-section hidden-recipes') as HTMLDetailsElement;
@@ -364,6 +434,7 @@ const main = async (): Promise<void> => {
     social,
     cookbook,
     seasonality,
+    correctionsSection,
     hiddenSection,
     integrity,
     about,
