@@ -100,7 +100,7 @@ Final gate (this environment runs e2e via a throwaway local Playwright config pe
 
 ## 6. Screenshots (§ acceptance 3, 5)
 
-All in `runs/recipe-meta-strip/shots/`. Every one of the **eight presence combinations** at
+All in `runs/recipe-meta-strip/shots/`. (Captured by `tests/e2e/meta-strip.spec.ts`, which writes to gitignored `test-results/meta-strip-shots/`; the committed set is refreshed by copy when the strip changes on purpose — 2026-09-08.) Every one of the **eight presence combinations** at
 **390px and 1280px** (`{0-none … 7-all}-{390,1280}.png`), plus the two §5 cases.
 
 All three (390px) — attached under the image, reads as one object:
