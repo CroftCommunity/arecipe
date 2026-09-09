@@ -9,18 +9,18 @@ Review = read the promotion candidates and the alias merges below; edit
 
 | Measure | Value |
 |---|---|
-| Keys proposed | 1052 |
-| Coverage by line weight (resolver over the census) | **82.4%** (29070 / 35274) |
-| Tail (heads under the floor) | 5518 heads, 6111 lines (17.3%) |
-| Keys carrying aliases | 113 |
+| Keys proposed | 1003 |
+| Coverage by line weight (resolver over the census) | **82.4%** (29073 / 35274) |
+| Tail (heads under the floor) | 5509 heads, 6105 lines (17.3%) |
+| Keys carrying aliases | 114 |
 
 ## Top keys by line weight
 
 | key | lines | top variants (descriptor forms folded in) |
 |---|---:|---|
 | salt | 2347 | kosher salt (67) · fine sea salt (23) · sea salt (21) · table salt (14) |
+| onion | 1046 | red onion (64) · yellow onion (49) · white onion (30) · sweet onion (9) |
 | sugar | 1045 | white granulated sugar (339) · granulated sugar (161) · white sugar (101) · caster sugar (35) |
-| onion | 892 | dried onion (5) · spanish onion (4) · whole onion (4) · cooked onion (1) |
 | butter | 879 | unsalted butter (224) · salted butter (5) · sweet butter (2) · low-fat butter (1) |
 | water | 856 | hot water (22) · jasmine water (2) |
 | garlic | 833 | granulated garlic (12) · whole garlic (3) · ground garlic (2) · green garlic (1) |
@@ -28,36 +28,36 @@ Review = read the promotion candidates and the alias merges below; edit
 | egg | 764 | whole egg (19) · cooked egg (1) |
 | olive oil | 592 | extra-virgin olive oil (72) · extra virgin olive oil (13) · virgin olive oil (6) · greek olive oil (1) |
 | black pepper | 584 | ground black pepper (149) · coarse black pepper (2) · heavy black pepper (2) · coarse ground black pepper (1) |
-| pepper | 511 | ground pepper (36) · hot pepper (10) · dried pepper (1) · dry pepper (1) |
+| pepper | 566 | ground pepper (36) · red pepper (22) · green pepper (19) · hot pepper (10) |
+| milk | 419 | whole milk (42) · full-fat milk (4) · powdered milk (4) · skim milk (3) |
 | tomato | 380 | canned tomato (9) · red tomato (8) · whole tomato (4) · green tomato (2) |
-| milk | 371 | full-fat milk (4) · powdered milk (4) · baby milk (1) |
 | vegetable oil | 349 |  |
+| cinnamon | 313 | ground cinnamon (132) · powdered cinnamon (7) · mexican cinnamon (1) · whole cinnamon (1) |
+| paprika | 272 | smoked paprika (52) · ground paprika (43) · sweet paprika (16) · hot paprika (5) |
 | carrot | 246 | baby carrot (2) · frozen carrot (2) · whole carrot (2) · cooked carrot (1) |
 | bell pepper | 237 | green bell pepper (94) · red bell pepper (70) · capsicum (3) · red capsicum (3) |
 | baking powder | 228 | kosher baking powder (1) |
+| parsley | 228 | flat-leaf parsley (17) · dried parsley (8) · italian parsley (3) · curly parsley (2) |
+| brown sugar | 227 | light brown sugar (37) · dark brown sugar (30) · fine brown sugar (1) |
+| cumin | 219 | ground cumin (123) · black cumin (4) · powdered cumin (1) · white cumin (1) |
 | lemon juice | 218 |  |
 | oil | 218 | hot oil (2) · red oil (2) |
 | potato | 216 | white potato (7) · red potato (5) · baby potato (4) · cooked potato (4) |
-| rice | 200 | cooked rice (31) · uncooked rice (26) · basmati rice (16) · long-grain rice (15) |
+| rice | 214 | cooked rice (31) · uncooked rice (26) · basmati rice (16) · long-grain rice (15) |
 | cayenne pepper | 198 | ground cayenne pepper (39) · powdered cayenne pepper (3) · ground red cayenne pepper (2) · dried ground cayenne pepper (1) |
-| paprika | 193 | ground paprika (43) · dried paprika (1) · powdered paprika (1) · spanish paprika (1) |
+| ginger | 184 | ground ginger (47) · powdered ginger (9) · dried ginger (2) · pickled ginger (1) |
 | vanilla extract | 184 |  |
-| cinnamon | 181 | powdered cinnamon (7) · mexican cinnamon (1) · whole cinnamon (1) |
 | soy sauce | 172 | light soy sauce (17) · dark soy sauce (12) · black soy sauce (2) · dark chinese soy sauce (1) |
 | bay leaf | 170 | dried bay leaf (2) · whole dried bay leaf (2) |
-| parsley | 162 | flat-leaf parsley (17) · italian parsley (3) · curly parsley (2) · flat-leaf curly parsley (1) |
-| brown sugar | 160 | fine brown sugar (1) |
+| thyme | 159 | dried thyme (42) · ground dried thyme (1) |
+| nutmeg | 153 | ground nutmeg (57) · powdered nutmeg (2) · dried nutmeg (1) · whole nutmeg (1) |
 | tomato paste | 152 | tomato purée (14) · tomato puree (5) · canned tomato paste (2) · unsalted tomato paste (1) |
 | baking soda | 144 | bicarbonate of soda (14) · kosher baking soda (1) |
+| cilantro | 144 | coriander leaf (37) · fresh coriander (18) · dried cilantro (1) |
 | heavy cream | 142 | heavy whipping cream (19) · whipping cream (16) · double cream (6) |
-| ground cinnamon | 132 |  |
+| scallion | 135 | green onion (69) · spring onion (22) · salad onion (1) · whole scallion (1) |
 | lemon | 131 | whole lemon (4) |
 | celery | 130 | green celery (1) · young celery (1) |
-| ground cumin | 123 |  |
-| chicken broth | 120 | chicken stock (28) · canned chicken broth (1) |
-| garlic powder | 118 |  |
-| honey | 117 | dark honey (2) · light honey (1) |
-| egg yolk | 113 | raw egg yolk (1) |
 
 ## Promotion candidates — variants with ≥ 20 lines
 
@@ -73,27 +73,48 @@ word from the taxonomy if it never modifies.
 | unsalted butter | butter | 224 |
 | granulated sugar | sugar | 161 |
 | ground black pepper | black pepper | 149 |
+| ground cinnamon | cinnamon | 132 |
+| ground cumin | cumin | 123 |
 | white sugar | sugar | 101 |
 | parmesan cheese | parmesan | 96 |
 | green bell pepper | bell pepper | 94 |
 | extra-virgin olive oil | olive oil | 72 |
+| powdered sugar | confectioners sugar | 72 |
+| ground coriander | coriander | 71 |
 | red bell pepper | bell pepper | 70 |
+| green onion | scallion | 69 |
 | kosher salt | salt | 67 |
+| red onion | onion | 64 |
+| ground nutmeg | nutmeg | 57 |
+| smoked paprika | paprika | 52 |
+| yellow onion | onion | 49 |
+| dried oregano | oregano | 49 |
+| ground ginger | ginger | 47 |
 | ground crayfish | crayfish | 47 |
 | cheddar cheese | cheddar | 46 |
 | plain flour | flour | 44 |
 | mozzarella cheese | mozzarella | 44 |
 | ground paprika | paprika | 43 |
+| whole milk | milk | 42 |
+| dried thyme | thyme | 42 |
 | black peppercorn | peppercorn | 40 |
 | ground cayenne pepper | cayenne pepper | 39 |
+| red pepper flake | pepper flake | 39 |
+| light brown sugar | brown sugar | 37 |
 | coriander leaf | cilantro | 37 |
+| green chile | chile | 37 |
 | ground pepper | pepper | 36 |
+| dried rosemary | rosemary | 36 |
 | caster sugar | sugar | 35 |
+| ground turmeric | turmeric | 33 |
 | red chile powder | chile powder | 32 |
 | rolled oats | oats | 32 |
 | cooked rice | rice | 31 |
-| boneless skinless chicken breast | chicken breast | 30 |
+| sweetened condensed milk | condensed milk | 31 |
+| white onion | onion | 30 |
+| dark brown sugar | brown sugar | 30 |
 | icing sugar | confectioners sugar | 30 |
+| boneless skinless chicken breast | chicken breast | 30 |
 | superfine sugar | sugar | 29 |
 | self-raising flour | flour | 28 |
 | chicken stock | chicken broth | 28 |
@@ -102,7 +123,10 @@ word from the taxonomy if it never modifies.
 | unsweetened cocoa powder | cocoa powder | 25 |
 | fine sea salt | salt | 23 |
 | beef stock | beef broth | 23 |
+| black olive | olive | 23 |
 | hot water | water | 22 |
+| red pepper | pepper | 22 |
+| spring onion | scallion | 22 |
 | sea salt | salt | 21 |
 | cooked chicken | chicken | 20 |
 
@@ -117,23 +141,26 @@ word from the taxonomy if it never modifies.
 - **pepper** ← fresh-ground pepper, finely-crushed black pepper, fresh-ground black pepper
 - **milk** ← room temperature milk
 - **vegetable oil** ← 500 ml vegetable oil for deep frying, vegetable oil for deep frying
+- **paprika** ← finely-ground hot paprika
 - **carrot** ← thinly-sliced fresh carrot, finely-shredded carrot
 - **bell pepper** ← capsicum, sweet pepper
+- **parsley** ← freshly-chopped parsley, roughly-chopped parsley
 - **oil** ← oil for deep frying
 - **potato** ← thinly-sliced potato
 - **rice** ← short grain rice, long grain brown rice, long grain rice, long grain white rice
-- **paprika** ← finely-ground hot paprika
+- **ginger** ← fine-ground ginger
 - **bay leaf** ← bay leave
-- **parsley** ← freshly-chopped parsley, roughly-chopped parsley
+- **nutmeg** ← fresh-ground nutmeg
 - **tomato paste** ← tomato puree, tomato purée
 - **baking soda** ← bicarbonate of soda, bicarb, sodium bicarbonate
+- **cilantro** ← coriander leaf, fresh coriander, coriander leaves
 - **heavy cream** ← heavy whipping cream, double cream, whipping cream
+- **scallion** ← green onion, spring onion, salad onion
 - **celery** ← coarsely-chopped celery, finely-diced celery
 - **chicken broth** ← chicken stock
-- **cilantro** ← coriander leaf, fresh coriander, coriander leaves
 - **parmesan** ← parmesan cheese, parmigiano-reggiano, parmigiano reggiano, grated parmesan
-- **ginger** ← fine-ground ginger
-- **nutmeg** ← fresh-ground nutmeg
+- **coriander** ← freshly-chopped green coriander
+- **confectioners sugar** ← powdered sugar, icing sugar
 - **cornstarch** ← corn starch, cornflour, corn flour
 - **bacon** ← thinly-sliced bacon
 - **peppercorn** ← black peppercorn, whole peppercorn
@@ -151,17 +178,17 @@ word from the taxonomy if it never modifies.
 - **walnut** ← coarsely-chopped walnut
 - **shrimp** ← prawn
 - **hard-boiled egg** ← hard boiled egg
-- **scallion** ← green onion, spring onion, salad onion
 - **cornmeal** ← finely-ground cornmeal
 - **meat** ← coarse-ground meat
+- **pepper flake** ← hot-pepper flake
 - **cooking oil** ← cooking oil for deep frying
 - **eggplant** ← aubergine, medium-large eggplant
 - **sesame seed** ← lightly-roasted black sesame seed
 - **leek** ← coarsely-chopped leek
 - **molasses** ← treacle, black treacle
+- **chocolate** ← extra-dark chocolate
 - **orange** ← medium-large orange
-- **coriander** ← freshly-chopped green coriander
-- **confectioners sugar** ← powdered sugar, icing sugar
+- **wine vinegar** ← white-wine vinegar
 - **curry leaf** ← coarsely-chopped curry leaf
 - **chive** ← thinly-sliced chive
 - **chickpea** ← garbanzo bean, garbanzo
@@ -172,7 +199,6 @@ word from the taxonomy if it never modifies.
 - **rice flour** ← finely-ground rice flour
 - **ricotta** ← ricotta cheese
 - **zucchini** ← courgette, thinly-sliced zucchini
-- **chocolate** ← extra-dark chocolate
 - **tofu** ← extra-firm tofu
 - **vegetable broth** ← vegetable stock
 - **feta** ← feta cheese
@@ -213,7 +239,6 @@ word from the taxonomy if it never modifies.
 - **thick-cut bone-in pork rib chop** ← thick cut bone-in pork rib chop
 - **thick-cut pork rib chop** ← thick cut pork rib chop
 - **vermouth** ← extra-dry white vermouth
-- **wine vinegar** ← white-wine vinegar
 - **angel hair pasta** ← angel-hair pasta
 - **cinnamon sugar** ← cinnamon-sugar
 - **dutch-processed cocoa powder** ← dutch processed cocoa powder

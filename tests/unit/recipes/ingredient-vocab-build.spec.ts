@@ -4,6 +4,7 @@
 // one canonicalHead, two callers. Auto-propose → human review → commit: the
 // output here is a candidate, and every number it reports is by LINE WEIGHT.
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { proposeVocabulary } from '../../../src/recipes/ingredient-vocab-build.js';
 import { resolveIngredient } from '../../../src/recipes/ingredient-key.js';
 
@@ -92,5 +93,22 @@ describe('proposeVocabulary', () => {
     const p = proposeVocabulary(rows, { taxonomy, minLines: 1 });
     expect(p.vocabulary.descriptors).toEqual(taxonomy);
     expect(Object.keys(p.vocabulary.keys).slice(0, 2)).toEqual(['salt', 'sugar']);
+  });
+});
+
+describe('the shipped seed (scripts/ingredient-vocab-seed.json)', () => {
+  const seed = JSON.parse(readFileSync(new URL('../../../scripts/ingredient-vocab-seed.json', import.meta.url), 'utf8')) as {
+    seedKeys: string[];
+    seedAliases: Record<string, string[]>;
+  };
+
+  it('never lists a seed key that is also a seed alias — the key would win and the synonym would die', () => {
+    const aliases = new Set(Object.values(seed.seedAliases).flat());
+    expect(seed.seedKeys.filter((k) => aliases.has(k))).toEqual([]);
+  });
+
+  it('never seeds a plain "ground/dried/fresh/smoked + spice" form as a key — those are key + variety by design', () => {
+    const offenders = seed.seedKeys.filter((k) => /^(dried|fresh|smoked|ground) (cinnamon|cumin|coriander|ginger|nutmeg|turmeric|paprika|oregano|thyme|basil|rosemary|dill|parsley|mint|cilantro|clove|cloves|allspice|cardamom)$/.test(k));
+    expect(offenders).toEqual([]);
   });
 });
