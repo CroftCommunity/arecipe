@@ -34,6 +34,7 @@ import {
   type Interaction,
   type InteractionRepo,
 } from '../social/interactions.js';
+import { createShoppingPrefs } from '../recipes/shopping-prefs.js';
 import { createSocialPrefs } from '../social/prefs.js';
 import { renderShareButton, shareOrigin } from '../share/button.js';
 import { buildRecipeShareUrl } from '../share/urls.js';
@@ -476,11 +477,16 @@ const paintVersion = (
   getAgent: AgentLoader,
   opts: { checkStale: boolean },
 ): void => {
+  const shoppingPrefs = createShoppingPrefs().load();
   host.replaceChildren(
     renderRecipeDetail(entry, {
       author,
       onFocus: () => mountFocus(entry),
       showFunFacts: createSocialPrefs().includeFunFacts(),
+      // Ingredient substitutions (⇄): opt-in here, seeded on when the cook set
+      // "Always apply substitutions" on the Account page.
+      substitutions: shoppingPrefs.substitutions,
+      applySubstitutions: shoppingPrefs.alwaysApplySubstitutions,
     }),
   );
   // Share affordance: a one-tap share ICON beside the title — the same icon-only

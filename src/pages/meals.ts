@@ -86,7 +86,9 @@ import {
   type ShoppingPlan,
   type ShoppingRange,
 } from '../recipes/shopping-list.js';
-import { createShoppingPrefs } from '../recipes/shopping-prefs.js';
+import { createShoppingPrefs, type Substitution } from '../recipes/shopping-prefs.js';
+import { INGREDIENT_VOCABULARY } from '../recipes/ingredient-vocabulary.js';
+import { substituteLines } from '../recipes/substitutions.js';
 import { registerServiceWorker } from '../sw-register.js';
 
 export type PaletteProvider = () => Promise<PaletteItem[]>;
@@ -284,6 +286,10 @@ const buildShoppingListSection = (
   const prefs = createShoppingPrefs();
   let staples: string[] = [];
   let aiInstructions = '';
+  // Substitutions are applied by DEFAULT on the shopping list (swap the
+  // ingredient out) — the copy/download/AI payloads then carry the preferred
+  // item, so you shop for what you actually want.
+  let substitutions: Substitution[] = [];
   // In-panel "I already have this" check-off, keyed by the shared line key (so a
   // name checked in one tab is excluded in the other). Kept for the panel's life;
   // keys that still exist after a range change stay checked.
@@ -469,7 +475,9 @@ const buildShoppingListSection = (
     list = null;
     renderContent();
     try {
-      const built = await resolveShoppingList(getPlan(), currentRange(), fetchIngredients);
+      const built = await resolveShoppingList(getPlan(), currentRange(), fetchIngredients, {
+        substitute: (lines) => substituteLines(lines, substitutions, INGREDIENT_VOCABULARY),
+      });
       // Flag staples so they drop to the "Be sure to double check" section, and
       // seed them CHECKED (assumed on hand) — so they start excluded from
       // copy/download/AI, but the cook can un-tick one they're actually out of.
@@ -530,6 +538,7 @@ const buildShoppingListSection = (
     const loaded = prefs.load();
     staples = loaded.staples;
     aiInstructions = loaded.aiInstructions;
+    substitutions = loaded.substitutions;
     buildRangeControls();
     void regenerate();
   });

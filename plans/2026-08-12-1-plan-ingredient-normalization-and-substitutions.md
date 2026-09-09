@@ -18,7 +18,7 @@ descriptor-aware substitutions.
 | 1 Vocabulary build tool (M1) | ✅ 2026-09-09 (review open) | | `scripts/build-ingredientkeys.mjs` over the census fixture → `src/recipes/ingredientkeys.json` (1,052 keys) + `runs/ingredient-normalization/REVIEW.md`; `_meta.reviewed` flips true when the owner has read the report |
 | 2 Matcher pure core (M1 exit) | ✅ 2026-09-09 | | `src/recipes/ingredient-key.ts`: head-phrase split → count-unit strip → descriptor peel → most-specific-first lookup; coverage **82.4%** by line weight, floor 75% pinned in `ingredient-key-coverage.spec.ts` |
 | 3 Search by ingredient (M2) | ✅ 2026-09-09 | | `ingredientKeys` indexed beside raw text (boost 3) + whole-query canonicalization as an OR branch, so both directions reach; build-cost band pinned (< 3 s at 4k, measured ~0.4 s) |
-| 4 Substitution engine (M2 exit) | ⏳ | | Rules keyed on `key`, variety overrides |
+| 4 Substitution engine (M2 exit) | ✅ 2026-09-09 | | `src/recipes/substitutions.ts`: cook rules keyed (+variety scope) rewrite lines; the 7 reference rows are suggestions; #87's shell reused, its regex engine discarded |
 | 5 Compound-line split | ⏳ | | "salt and pepper", "juice of 1 lemon" |
 | 6 Correction overlay (M3 exit) | ⏳ | | Local KB: confirm/correct + export for promotion |
 | GATE | ⏳ | | Proceed to M4 only if overlay telemetry demands it |
@@ -236,6 +236,34 @@ entries; page budget is 24 KB gz per entry.
   suggestion. Never generate a ratio.
 - UI (per Phase 0's PR #87 disposition): substitution affordance on the recipe
   page's ingredient lines, only where a rule resolves. e2e on a fixture recipe.
+
+**As built (2026-09-09).** `src/recipes/substitutions.ts` (pure, 12 cases RED
+first). Two kinds of rule, one lookup through the resolver:
+
+- A **cook rule** is typed as text on the Account page and stored by canonical
+  KEY — `keyCookSubstitution` resolves "ground hamburger" to `ground beef`, and
+  "smoked paprika" to `paprika` scoped to variety `smoked`. Text the vocabulary
+  does not know is **refused with words** (a rule keyed on nothing could never
+  match; never a no-op control). A rule REWRITES a matching line in place — the
+  span replaced is the matched head plus the contiguous peeled words the key
+  itself carries or the rule scopes, so a bare `paprika` rule keeps "smoked" and
+  a `{paprika, smoked}` rule replaces both; quantity, unit and prep stay; the
+  line's plural is followed ("2 green onions" → "2 leeks"). A variety-scoped
+  rule wins over a bare one. "flour" never touches "bread flour" (its own key).
+- The **reference chart's 7 rows** are extracted mechanically (`REFERENCE_
+  SECTIONS`, one source, two surfaces) and keyed through the vocabulary — a test
+  says every row resolves. They are **suggestions** beside a line ("⇄ or: 2
+  tablespoons flour", title "For 1 tablespoon cornstarch"), never a rewrite, and
+  a cook swap wins over a suggestion. Nobody scales a ratio.
+- The shopping list applies cook swaps only, through a pure `substitute`
+  transform injected into `resolveShoppingList` (the core stays vocabulary-free).
+- Store shape (`shopping-prefs`): `{ from, fromKey, variety?, to }`, de-duped by
+  key + scope; a stored row with no key (the never-shipped free-text shape) is
+  dropped on load. #87's Account block, recipe-page "Apply ⇄" toggle and
+  `<del>`/`<span>` render, meals default-on wiring, CSS and three e2e flows were
+  cherry-picked and re-pointed; `applyLineSubstitution` / `substituteLines`
+  (raw regex) and their tests were discarded. Default-on shopping list, opt-in
+  recipe page: kept as the product decision.
 
 ### Phase 5 — Compound-line split
 

@@ -246,6 +246,70 @@ describe('renderRecipeDetail', () => {
     );
   });
 
+  const subEntry = (): CachedRecipe =>
+    entry({ value: { ...fixture.value, ingredients: ['1 lb ground hamburger', '2 cups quuxwater'] } });
+  const subs = [{ from: 'ground hamburger', fromKey: 'ground beef', to: 'ground turkey' }];
+
+  it('shows no ⇄ substitution toggle when no configured substitution matches', () => {
+    expect(renderRecipeDetail(subEntry()).querySelector('[data-testid=apply-substitutions]')).toBeNull();
+    // configured but non-matching → still no toggle (never a no-op control)
+    const el = renderRecipeDetail(subEntry(), { substitutions: [{ from: 'saffron', fromKey: 'saffron', to: 'turmeric' }] });
+    expect(el.querySelector('[data-testid=apply-substitutions]')).toBeNull();
+  });
+
+  it('renders an unchecked ⇄ toggle and the ORIGINAL ingredients by default', () => {
+    const el = renderRecipeDetail(subEntry(), { substitutions: subs });
+    const toggle = el.querySelector<HTMLInputElement>('[data-testid=apply-substitutions]');
+    expect(toggle).not.toBeNull();
+    expect(toggle?.checked).toBe(false);
+    const ing = el.querySelector('[data-testid=recipe-ingredients]');
+    expect(ing?.textContent).toContain('1 lb ground hamburger');
+    expect(ing?.textContent).not.toContain('ground turkey');
+    expect(ing?.querySelector('del')).toBeNull();
+  });
+
+  it('applySubstitutions default checks the toggle and swaps matched lines (struck original + substitute)', () => {
+    const el = renderRecipeDetail(subEntry(), { substitutions: subs, applySubstitutions: true });
+    const toggle = el.querySelector<HTMLInputElement>('[data-testid=apply-substitutions]');
+    expect(toggle?.checked).toBe(true);
+    const ing = el.querySelector('[data-testid=recipe-ingredients]');
+    expect(ing?.querySelector('del')?.textContent).toBe('1 lb ground hamburger');
+    expect(ing?.textContent).toContain('1 lb ground turkey');
+    // the unmatched line is untouched (no strike-through)
+    expect(ing?.textContent).toContain('2 cups quuxwater');
+  });
+
+  it('a curated reference row is a SUGGESTION beside the line — shown with Apply on, never struck, and enough for the toggle to exist', () => {
+    const e = entry({ value: { ...fixture.value, ingredients: ['1 tablespoon cornstarch', '2 cups quuxwater'] } });
+    const off = renderRecipeDetail(e);
+    expect(off.querySelector('[data-testid=apply-substitutions]')).not.toBeNull();
+    expect(off.querySelector('[data-testid=recipe-ingredients]')?.textContent).not.toContain('2 tablespoons flour');
+    const on = renderRecipeDetail(e, { applySubstitutions: true });
+    const ing = on.querySelector('[data-testid=recipe-ingredients]');
+    expect(ing?.querySelector('del')).toBeNull();
+    expect(ing?.querySelector('.ingredient-suggested')?.textContent).toContain('1 tablespoon cornstarch');
+    expect(ing?.querySelector('.ingredient-suggested')?.textContent).toContain('2 tablespoons flour');
+  });
+
+  it('a cook rule never matches by substring: a flour rule leaves "500 g bread flour" alone', () => {
+    const e = entry({ value: { ...fixture.value, ingredients: ['500 g bread flour'] } });
+    const el = renderRecipeDetail(e, { substitutions: [{ from: 'flour', fromKey: 'flour', to: 'almond flour' }], applySubstitutions: true });
+    expect(el.querySelector('[data-testid=recipe-ingredients]')?.querySelector('del')).toBeNull();
+  });
+
+  it('toggling the ⇄ control swaps the ingredient list in place', () => {
+    const el = renderRecipeDetail(subEntry(), { substitutions: subs });
+    const toggle = el.querySelector<HTMLInputElement>('[data-testid=apply-substitutions]')!;
+    toggle.checked = true;
+    toggle.dispatchEvent(new Event('change'));
+    const ing = el.querySelector('[data-testid=recipe-ingredients]');
+    expect(ing?.textContent).toContain('1 lb ground turkey');
+    expect(ing?.querySelector('del')).not.toBeNull();
+    toggle.checked = false;
+    toggle.dispatchEvent(new Event('change'));
+    expect(el.querySelector('[data-testid=recipe-ingredients]')?.querySelector('del')).toBeNull();
+  });
+
   it('an intact detail ends with the human provenance line', () => {
     const el = renderRecipeDetail(entry(), { author: 'rdur.dev' });
     const provenance = el.querySelector('[data-testid=provenance]');

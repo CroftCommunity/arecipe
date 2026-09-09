@@ -342,6 +342,20 @@ describe('resolveShoppingList — resolution with an injected fetcher', () => {
     expect(combinedLineText(list.combined.lines.find((l) => l.name === 'flour')!)).toBe('flour — 3 cups');
   });
 
+  it('applies an injected substitute transform to each recipe’s lines BEFORE aggregation', async () => {
+    // Substitutions (Phase 4) live outside this core: the caller hands in a
+    // pure lines→lines transform, so two recipes that both swap to the same
+    // ingredient roll up into ONE combined line.
+    const list = await resolveShoppingList(
+      plan,
+      { kind: 'all' },
+      async (ref) => (ref.uri === LASAGNA ? ['2 cups flour'] : ['1 cup flour']),
+      { substitute: (lines) => lines.map((l) => l.replace('flour', 'almond flour')) },
+    );
+    expect(combinedLineText(list.combined.lines.find((l) => l.name === 'almond flour')!)).toBe('almond flour — 3 cups');
+    expect(list.combined.lines.find((l) => l.name === 'flour')).toBeUndefined();
+  });
+
   it('degrades an unresolvable recipe (null) to a named, flagged entry', async () => {
     const list = await resolveShoppingList(plan, { kind: 'all' }, async (ref) =>
       ref.uri === LASAGNA ? null : ['1 cup flour'],
