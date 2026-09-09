@@ -1,0 +1,353 @@
+{
+  "_why": "Reviewed DATA for scripts/build-ingredientkeys.mjs: the descriptor taxonomy the resolver peels (variety changes identity and substitution behavior; prep and quality do not) and hand-curated synonyms the census cannot discover on its own. Seeded from the Phase 0 census word lists (runs/ingredient-normalization/PHASE0-FINDINGS.md). Edit here, re-run the tool, review the report, commit the regenerated src/recipes/ingredientkeys.json. `seedKeys` lists ONLY descriptor-bearing forms whose head word alone would name the WRONG ingredient (\"sweet potato\" is not a potato; \"ground beef\" is a product, not beef + ground) — the resolver claims them whole before a descriptor could peel. Everything else descriptor-bearing (\"smoked paprika\", \"ground cumin\", \"red onion\") is key + variety by design, and a seedKey must never repeat a seedAlias (the key would silently win and the synonym would die).",
+  "descriptors": {
+    "variety": [
+      "ground",
+      "white",
+      "black",
+      "brown",
+      "red",
+      "green",
+      "yellow",
+      "golden",
+      "dried",
+      "dry",
+      "whole",
+      "all-purpose",
+      "plain",
+      "self-rising",
+      "self-raising",
+      "whole-wheat",
+      "wholemeal",
+      "unsalted",
+      "salted",
+      "granulated",
+      "powdered",
+      "confectioners",
+      "icing",
+      "caster",
+      "superfine",
+      "raw",
+      "smoked",
+      "sweet",
+      "hot",
+      "mild",
+      "spicy",
+      "kosher",
+      "sea",
+      "table",
+      "coarse",
+      "fine",
+      "extra-virgin",
+      "virgin",
+      "light",
+      "dark",
+      "heavy",
+      "skim",
+      "low-fat",
+      "nonfat",
+      "fat-free",
+      "reduced-fat",
+      "full-fat",
+      "unsweetened",
+      "sweetened",
+      "condensed",
+      "evaporated",
+      "instant",
+      "quick",
+      "quick-cooking",
+      "rolled",
+      "old-fashioned",
+      "boneless",
+      "skinless",
+      "bone-in",
+      "skin-on",
+      "lean",
+      "toasted",
+      "roasted",
+      "cooked",
+      "uncooked",
+      "frozen",
+      "canned",
+      "jarred",
+      "pickled",
+      "cured",
+      "aged",
+      "sharp",
+      "mature",
+      "extra-sharp",
+      "unbleached",
+      "bleached",
+      "long-grain",
+      "short-grain",
+      "basmati",
+      "jasmine",
+      "arborio",
+      "wild",
+      "baby",
+      "young",
+      "flat-leaf",
+      "curly",
+      "italian",
+      "french",
+      "greek",
+      "mexican",
+      "thai",
+      "japanese",
+      "chinese",
+      "indian",
+      "english",
+      "spanish"
+    ],
+    "prep": [
+      "chopped",
+      "minced",
+      "diced",
+      "sliced",
+      "grated",
+      "shredded",
+      "crushed",
+      "beaten",
+      "sifted",
+      "melted",
+      "softened",
+      "peeled",
+      "seeded",
+      "deseeded",
+      "cored",
+      "pitted",
+      "halved",
+      "quartered",
+      "cubed",
+      "julienned",
+      "mashed",
+      "crumbled",
+      "freshly-ground",
+      "freshly",
+      "finely",
+      "coarsely",
+      "thinly",
+      "thickly",
+      "roughly",
+      "lightly",
+      "juiced",
+      "zested",
+      "trimmed",
+      "rinsed",
+      "drained",
+      "boiled",
+      "packed",
+      "firmly",
+      "prepared",
+      "warmed",
+      "warm",
+      "chilled",
+      "cold",
+      "hot-water",
+      "room-temperature",
+      "divided",
+      "cut",
+      "torn",
+      "broken",
+      "separated",
+      "scrubbed",
+      "washed",
+      "dissolved",
+      "steamed",
+      "blanched",
+      "thawed",
+      "defrosted",
+      "coarsely-ground",
+      "finely-chopped",
+      "finely-grated",
+      "freshly-grated",
+      "freshly-squeezed",
+      "grated-zest"
+    ],
+    "quality": [
+      "large",
+      "medium",
+      "small",
+      "fresh",
+      "ripe",
+      "good",
+      "good-quality",
+      "high-quality",
+      "best",
+      "organic",
+      "extra-large",
+      "jumbo",
+      "firm",
+      "soft",
+      "tender",
+      "very",
+      "extra",
+      "premium",
+      "nice",
+      "big",
+      "little",
+      "approximately",
+      "about",
+      "roughly",
+      "heaping",
+      "heaped",
+      "level",
+      "scant",
+      "generous",
+      "rounded"
+    ]
+  },
+  "seedAliases": {
+    "scallion": [
+      "green onion",
+      "spring onion",
+      "salad onion"
+    ],
+    "cilantro": [
+      "coriander leaf",
+      "fresh coriander",
+      "coriander leaves"
+    ],
+    "eggplant": [
+      "aubergine"
+    ],
+    "zucchini": [
+      "courgette"
+    ],
+    "bell pepper": [
+      "capsicum",
+      "sweet pepper"
+    ],
+    "confectioners sugar": [
+      "powdered sugar",
+      "icing sugar"
+    ],
+    "cornstarch": [
+      "corn starch",
+      "cornflour",
+      "corn flour"
+    ],
+    "chickpea": [
+      "garbanzo bean",
+      "garbanzo"
+    ],
+    "shrimp": [
+      "prawn"
+    ],
+    "ground beef": [
+      "minced beef",
+      "beef mince",
+      "hamburger"
+    ],
+    "heavy cream": [
+      "heavy whipping cream",
+      "double cream",
+      "whipping cream"
+    ],
+    "half-and-half": [
+      "half and half"
+    ],
+    "arugula": [
+      "rocket"
+    ],
+    "beet": [
+      "beetroot"
+    ],
+    "rutabaga": [
+      "swede"
+    ],
+    "snow pea": [
+      "mangetout"
+    ],
+    "baking soda": [
+      "bicarbonate of soda",
+      "bicarb",
+      "sodium bicarbonate"
+    ],
+    "molasses": [
+      "treacle",
+      "black treacle"
+    ],
+    "golden syrup": [
+      "light corn syrup"
+    ],
+    "sour cream": [
+      "soured cream"
+    ],
+    "tomato paste": [
+      "tomato puree",
+      "tomato purée"
+    ],
+    "vegetable broth": [
+      "vegetable stock"
+    ],
+    "chicken broth": [
+      "chicken stock"
+    ],
+    "beef broth": [
+      "beef stock"
+    ],
+    "peppercorn": [
+      "black peppercorn",
+      "whole peppercorn"
+    ],
+    "bay leaf": [
+      "bay leave"
+    ],
+    "olive oil": [
+      "evoo",
+      "extra virgin olive oil"
+    ],
+    "parmesan": [
+      "parmesan cheese",
+      "parmigiano-reggiano",
+      "parmigiano reggiano",
+      "grated parmesan"
+    ],
+    "mozzarella": [
+      "mozzarella cheese"
+    ],
+    "cheddar": [
+      "cheddar cheese"
+    ],
+    "feta": [
+      "feta cheese"
+    ],
+    "ricotta": [
+      "ricotta cheese"
+    ],
+    "cream cheese": [
+      "neufchatel"
+    ],
+    "monterey jack": [
+      "monterey jack cheese",
+      "jack cheese"
+    ]
+  },
+  "seedKeys": [
+    "sweet potato",
+    "black pepper",
+    "white pepper",
+    "green bean",
+    "black bean",
+    "ground beef",
+    "ground pork",
+    "ground turkey",
+    "ground chicken",
+    "ground lamb",
+    "heavy cream",
+    "brown sugar",
+    "evaporated milk",
+    "condensed milk",
+    "active dry yeast",
+    "instant yeast",
+    "white chocolate",
+    "hot sauce",
+    "whole wheat flour",
+    "red wine",
+    "white wine",
+    "white vinegar",
+    "sour milk",
+    "sweet milk"
+  ]
+}
