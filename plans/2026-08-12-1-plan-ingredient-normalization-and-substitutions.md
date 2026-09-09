@@ -17,7 +17,7 @@ descriptor-aware substitutions.
 | 0 Discovery | ✅ 2026-09-09 | | `runs/ingredient-normalization/PHASE0-FINDINGS.md` — corpus is 4,113 records / 35,274 lines (14× the plan's premise); #87: reuse shell, discard engine — **owner decision pending** |
 | 1 Vocabulary build tool (M1) | ✅ 2026-09-09 (review open) | | `scripts/build-ingredientkeys.mjs` over the census fixture → `src/recipes/ingredientkeys.json` (1,052 keys) + `runs/ingredient-normalization/REVIEW.md`; `_meta.reviewed` flips true when the owner has read the report |
 | 2 Matcher pure core (M1 exit) | ✅ 2026-09-09 | | `src/recipes/ingredient-key.ts`: head-phrase split → count-unit strip → descriptor peel → most-specific-first lookup; coverage **82.4%** by line weight, floor 75% pinned in `ingredient-key-coverage.spec.ts` |
-| 3 Search by ingredient (M2) | ⏳ | | Canonical field in MiniSearch |
+| 3 Search by ingredient (M2) | ✅ 2026-09-09 | | `ingredientKeys` indexed beside raw text (boost 3) + whole-query canonicalization as an OR branch, so both directions reach; build-cost band pinned (< 3 s at 4k, measured ~0.4 s) |
 | 4 Substitution engine (M2 exit) | ⏳ | | Rules keyed on `key`, variety overrides |
 | 5 Compound-line split | ⏳ | | "salt and pepper", "juice of 1 lemon" |
 | 6 Correction overlay (M3 exit) | ⏳ | | Local KB: confirm/correct + export for promotion |
@@ -213,6 +213,17 @@ the recipe page offers descriptor-aware substitutions from the curated table.
   field adds recall, never replaces.
 - e2e: recipe listing "smoked paprika" is found by query "paprika"; "green
   onion" recipe found by "scallion" (alias path).
+
+**As built (2026-09-09).** `searchDocOf` adds `ingredientKeys` (first-seen,
+de-duplicated canonical keys of the record's lines; unmatched lines add nothing),
+indexed at the `ingredients` boost. Query side: when the WHOLE query resolves to
+a key that is not its own words ("green onion" → `scallion`, "garbanzo beans" →
+`chickpea`), the key is searched exactly in the keys field as an OR-alternative
+to the literal AND query — a recipe that says "scallions" is found by "green
+onion". Multi-term queries are untouched. Unit: 9 cases (`search-ingredient-
+keys.spec.ts`), e2e: "garbanzo" finds the fixture recipe that only says
+"chickpeas". Cost: the vocabulary (9 KB gz) now rides the browse and cookbook
+entries; page budget is 24 KB gz per entry.
 
 ### Phase 4 — Substitution engine + surface
 
