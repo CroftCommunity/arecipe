@@ -1,1 +1,0 @@
-import{b as t}from"./chunk-4ZYY5GXP.js";import{b as o,c as m,d as i}from"./chunk-V7GODKU4.js";import{e as r}from"./chunk-SXJDF6WS.js";var n=()=>{let e=document.getElementById("app");e!==null&&(m(e,t()),o(e),r.debug("shell","mounted",{page:"reference"}),i())};n();
