@@ -17,7 +17,12 @@ const base = JSON.parse(
 const AUTHOR_DID = 'did:plc:26tsx5juuss4yealylyfbj4h';
 const AUTHOR_PDS = 'https://morel.us-east.host.bsky.network';
 const RECIPE_URI = base.uri;
-const SHOTS = new URL('../../runs/recipe-meta-strip/shots/', import.meta.url).pathname;
+// Screenshots go to gitignored test-results/, never into the tracked run record
+// (tests/unit/e2e-artifacts.spec.ts guards this). The committed captures in
+// runs/recipe-meta-strip/shots/ are the mock record for the run summary; when
+// the strip's look changes on purpose, refresh them by copying from here in the
+// same landing: `cp test-results/meta-strip-shots/*.png runs/recipe-meta-strip/shots/`.
+const SHOTS = new URL('../../test-results/meta-strip-shots/', import.meta.url).pathname;
 
 // A 1×1 PNG so the image region shows a solid block (object-fit: cover) rather
 // than the placeholder — keeps the attached-strip screenshots faithful.
