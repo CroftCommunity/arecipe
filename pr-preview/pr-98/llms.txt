@@ -1,0 +1,27 @@
+# arecipe
+
+> A free family recipe box and sharing app built on the AT Protocol. There is
+> no backend: every recipe is a public record owned by its author, and arecipe
+> is one client among many that reads and writes them.
+
+For AI agents: read the agent guide before extracting anything. It explains
+how to read arecipe's data as public AT Protocol records instead of scraping
+HTML, reports what the primary United States sources say about recipes and
+copyright (quoted and linked — arecipe adds no legal conclusions of its own),
+and describes the extraction practices this project follows itself.
+
+## Docs
+
+- [Agent guide (canonical)](https://arecipe.app/agents.md): how to extract, normalize, attribute, and share recipes properly, and how to read arecipe's public records the way the protocol intends.
+- [Agent guide (HTML mirror)](https://arecipe.app/agents.html): the same guide, generated from the canonical Markdown for human readers.
+- [Lexicon and NSID registry](https://github.com/CroftCommunity/arecipe/blob/main/docs/LEXICONS.md): every AT Protocol record type arecipe creates or consumes, with field-level notes.
+
+## Data access
+
+- [Read the records, not the pages](https://arecipe.app/agents.html#part-c-read-the-records-not-the-pages): recipes are exchange.recipe.recipe records in each author's PDS repository; resolve handle to DID to PDS, then use com.atproto.repo.listRecords and getRecord. No key, no scraping.
+
+## Reading order
+
+- [What the sources say](https://arecipe.app/agents.html#part-a-what-the-sources-say): the primary U.S. sources on recipes and copyright, quoted and linked.
+- [Best practices for extraction](https://arecipe.app/agents.html#part-b-best-practices-for-extracting-recipes): prefer structured data, take the facts, re-express instructions, attribute, source accurate freely-licensed images from Wikimedia Commons, be a polite client.
+- [Plain notice](https://arecipe.app/agents.html#part-d-plain-notice): informational only; all cited sources are U.S. sources.
