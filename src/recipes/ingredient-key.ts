@@ -215,7 +215,10 @@ export const resolveIngredient = (raw: string, vocab: Vocabulary): Resolution =>
   for (const [i, layer] of split.layers.entries()) {
     const hit = index.get(layer);
     if (hit === undefined) continue;
-    const used = split.peeled.slice(0, i);
+    // A descriptor the key itself carries ("ground" in `ground beef`, reached
+    // via alias "hamburger") is part of the identity, not a variety of it.
+    const keyWords = new Set(hit.key.split(' '));
+    const used = split.peeled.slice(0, i).filter((p) => !keyWords.has(p.word));
     const byClass = (cls: DescriptorClass): string[] => used.filter((p) => p.cls === cls).map((p) => p.word);
     return {
       method: hit.via,

@@ -113,6 +113,11 @@ describe('resolveIngredient — most-specific head first, then descriptors peel 
     expect(resolveIngredient('1 tbsp peppercorns', vocab)).toMatchObject({ method: 'alias', key: 'black pepper' });
   });
 
+  it('a peeled descriptor that is part of the matched key is not reported as a variety', () => {
+    const v: Vocabulary = { ...vocab, keys: { ...vocab.keys, 'ground beef': { aliases: ['hamburger'] } } };
+    expect(resolveIngredient('1 lb ground hamburger', v)).toMatchObject({ method: 'alias', key: 'ground beef', variety: [] });
+  });
+
   it('count units never block a match', () => {
     expect(resolveIngredient('2 cloves garlic, minced', vocab)).toMatchObject({ method: 'exact', key: 'garlic', countUnit: 'clove', prep: [] });
   });
