@@ -14,6 +14,8 @@ import type { CachedRecipe } from './cache.js';
 import { recipeMetaOf } from './meta.js';
 import { dishKeyOf, funFactsOf, versionLabelOf } from './model.js';
 import { recipeFacets } from '../pages/browse-state.js';
+import { resolveIngredient } from './ingredient-key.js';
+import { INGREDIENT_VOCABULARY } from './ingredient-vocabulary.js';
 
 /** A trimmed string, or '' for anything non-string. Never throws. */
 const str = (v: unknown): string => (typeof v === 'string' ? v : '');
@@ -31,10 +33,15 @@ const joinLines = (v: unknown): string =>
  *  `difficulty` — so a later run can sort by time or filter by difficulty
  *  without re-parsing. They are absent from FIELDS, so ranking is unchanged. No
  *  filter UI is added in this run. */
-type SearchDoc = {
+export type SearchDoc = {
   uri: string;
   name: string;
   ingredients: string;
+  /** Ingredient normalization Phase 3: the canonical KEYS the ingredient lines
+   *  resolve to (space-joined, first-seen order, de-duplicated). Indexed beside
+   *  the raw `ingredients` text, never instead of it — the canonical field adds
+   *  recall ("scallion" finds "green onions"); unmatched lines add nothing. */
+  ingredientKeys: string;
   text: string;
   instructions: string;
   aux: string;
@@ -57,6 +64,19 @@ const auxOf = (value: Record<string, unknown>): string => {
   return parts.filter((p) => p !== '').join('\n');
 };
 
+/** The canonical keys of a record's ingredient lines, resolved through the
+ *  shipped vocabulary. Defensive: a mistyped field yields ''. */
+const ingredientKeysOf = (v: unknown): string => {
+  if (!Array.isArray(v)) return '';
+  const keys: string[] = [];
+  for (const line of v) {
+    if (typeof line !== 'string') continue;
+    const r = resolveIngredient(line, INGREDIENT_VOCABULARY);
+    if (r.method !== 'unmatched' && !keys.includes(r.key)) keys.push(r.key);
+  }
+  return keys.join(' ');
+};
+
 /** Build the indexed document for one recipe (exported for D4 coverage — the
  *  stored meta hints must be present on the doc shape). */
 export const searchDocOf = (entry: CachedRecipe): SearchDoc => {
@@ -65,6 +85,7 @@ export const searchDocOf = (entry: CachedRecipe): SearchDoc => {
     uri: entry.uri,
     name: str(entry.value['name']),
     ingredients: joinLines(entry.value['ingredients']),
+    ingredientKeys: ingredientKeysOf(entry.value['ingredients']),
     text: str(entry.value['text']),
     instructions: joinLines(entry.value['instructions']),
     aux: auxOf(entry.value),
@@ -74,12 +95,27 @@ export const searchDocOf = (entry: CachedRecipe): SearchDoc => {
   };
 };
 
-const FIELDS = ['name', 'ingredients', 'text', 'instructions', 'aux'] as const;
+const FIELDS = ['name', 'ingredients', 'ingredientKeys', 'text', 'instructions', 'aux'] as const;
 
 // Per-field boosts (D2): a name hit outranks an ingredient hit outranks body
 // prose outranks a bare instruction step; cuisine/category/labels ride at the
 // floor so they broaden reach without dominating.
-const BOOST = { name: 4, ingredients: 3, text: 2, instructions: 1, aux: 1 } as const;
+// The keys field is for REACH, not rank: at the ingredients boost a recipe that
+// lists the ingredient would score it twice (raw + key) and outrank a name hit.
+const BOOST = { name: 4, ingredients: 3, ingredientKeys: 1, text: 2, instructions: 1, aux: 1 } as const;
+
+/** Phase 3, the query side: when the WHOLE query reads as one ingredient the
+ *  vocabulary knows ("green onion", "garbanzo beans"), its canonical key is
+ *  searched in the keys field as an OR-alternative to the literal query — so a
+ *  recipe that says "scallions" is found by "green onion". Exact on that
+ *  branch (no prefix, no fuzzy): the key is already the canonical spelling. A
+ *  query that does not resolve, or resolves to its own words, searches as-is,
+ *  so multi-term AND semantics are untouched. */
+const canonicalKeyOf = (q: string): string | null => {
+  const r = resolveIngredient(q, INGREDIENT_VOCABULARY);
+  if (r.method === 'unmatched') return null;
+  return r.key === q.trim().toLowerCase() ? null : r.key;
+};
 
 /** A searcher over a fixed set of entries. `query('')` (or whitespace) is the
  *  identity: the input entries in unchanged order, zero MiniSearch involvement
@@ -122,12 +158,17 @@ export const createRecipeSearch = (entries: readonly CachedRecipe[]): RecipeSear
     query: (q) => {
       if (q.trim() === '') return [...entries];
       const { mini, byUri } = ensureIndex();
-      const results = mini.search(q, {
-        combineWith: 'AND',
-        prefix: true,
-        fuzzy: 0.2,
-        boost: { ...BOOST },
-      });
+      const key = canonicalKeyOf(q);
+      const literal = { queries: [q], combineWith: 'AND' as const };
+      const results = mini.search(
+        key === null
+          ? literal
+          : {
+              combineWith: 'OR',
+              queries: [literal, { queries: [key], combineWith: 'AND', fields: ['ingredientKeys'], prefix: false, fuzzy: false }],
+            },
+        { prefix: true, fuzzy: 0.2, boost: { ...BOOST } },
+      );
       const out: CachedRecipe[] = [];
       for (const r of results) {
         const entry = byUri.get(r.id as string);

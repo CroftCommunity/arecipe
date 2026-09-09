@@ -441,6 +441,19 @@ test('search: a term in two recipes’ ingredients (tomato) returns both', async
   await expect(page.getByTestId('recipes-status')).toContainText('2 of 4 recipes');
 });
 
+// Ingredient normalization Phase 3: search reaches through the canonical
+// vocabulary in both directions. The mixed fixture's Vegan Lunch Bowl lists
+// "chickpeas" and nothing else says garbanzo anywhere.
+test('search: an alias phrase (garbanzo) finds the recipe that only says chickpeas', async ({ page }) => {
+  await routeMixedFeed(page);
+  await page.goto('/');
+  await expect(page.getByTestId('recipe-item')).toHaveCount(4);
+  await page.getByTestId('recipe-search').fill('garbanzo');
+  await expect(page.getByTestId('recipe-item')).toHaveCount(1);
+  await expect(page.getByText('Greek Vegan Lunch Bowl')).toBeVisible();
+  await expect(page.getByTestId('recipes-status')).toContainText('1 of 4 recipes');
+});
+
 test('search: a one-edit typo (pancaks) still finds Pancakes (fuzzy)', async ({ page }) => {
   await routeMixedFeed(page);
   await page.goto('/');
