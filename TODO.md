@@ -32,6 +32,15 @@ loose ideas a later session can pick up.
       un-`fixme`'d and force the refresh on `mine.html` (a different page than
       signin.html). _Noted 2026-07-10._
 
+## Shared code (`CroftC/.claude/SHARED-CODE.md`)
+
+- [ ] `src/auth/providers.ts` is a copy of croft-pwa's `src/signin/providers.ts` (the
+      sign-in provider registry; header says so). Registered in SHARED-CODE.md § Register of
+      copies (rule 4: a copy is debt with a name), so audit check 47b NOTEs it until this
+      closes: consume the registry from the `croft-pwa` package once it exports it
+      (croft-pwa is a package since 2026-09-08; pin `github:CroftCommunity/croft-pwa#<sha>`,
+      rule 1), then delete the file and the register row in the same landing.
+
 ## Tooling / QA
 
 - [ ] **Mocks: the two sketches carry a version but no captured counterpart; the first
