@@ -104,7 +104,8 @@ export const proposeVocabulary = (rows: readonly (readonly [string, number])[], 
   const vocabKeys: Record<string, { aliases: string[] }> = {};
   const tail: { head: string; lines: number }[] = [];
   for (const [head, g] of sorted) {
-    if (g.lines < opts.minLines) {
+    // Seeded keys are hand-curated: the floor is for the census, not for them.
+    if (g.lines < opts.minLines && seedKeys[head] === undefined) {
       tail.push({ head, lines: g.lines });
       continue;
     }

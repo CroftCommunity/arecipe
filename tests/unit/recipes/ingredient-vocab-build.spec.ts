@@ -78,6 +78,12 @@ describe('proposeVocabulary', () => {
     expect(p.tail).toEqual([{ head: 'dashi', lines: 1 }]);
   });
 
+  it('a seeded key is hand-curated: it survives the line floor', () => {
+    const p = proposeVocabulary(rows, { taxonomy, minLines: 5, seedKeys: ['dashi'] });
+    expect(p.keys['dashi']).toMatchObject({ lines: 1 });
+    expect(p.tail.find((t) => t.head === 'dashi')).toBeUndefined();
+  });
+
   it('measures its own coverage with the runtime resolver, by line weight, unparseable lines counted as misses', () => {
     const p = proposeVocabulary(rows, { taxonomy, minLines: 2 });
     const total = rows.reduce((n, [, c]) => n + c, 0);

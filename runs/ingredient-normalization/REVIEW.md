@@ -9,10 +9,10 @@ Review = read the promotion candidates and the alias merges below; edit
 
 | Measure | Value |
 |---|---|
-| Keys proposed | 1003 |
-| Coverage by line weight (resolver over the census) | **82.4%** (29073 / 35274) |
-| Tail (heads under the floor) | 5509 heads, 6105 lines (17.3%) |
-| Keys carrying aliases | 114 |
+| Keys proposed | 1009 |
+| Coverage by line weight (resolver over the census) | **82.5%** (29089 / 35274) |
+| Tail (heads under the floor) | 5488 heads, 6086 lines (17.3%) |
+| Keys carrying aliases | 116 |
 
 ## Top keys by line weight
 
@@ -43,7 +43,7 @@ Review = read the promotion candidates and the alias merges below; edit
 | lemon juice | 218 |  |
 | oil | 218 | hot oil (2) · red oil (2) |
 | potato | 216 | white potato (7) · red potato (5) · baby potato (4) · cooked potato (4) |
-| rice | 214 | cooked rice (31) · uncooked rice (26) · basmati rice (16) · long-grain rice (15) |
+| rice | 215 | cooked rice (31) · uncooked rice (26) · basmati rice (16) · long-grain rice (15) |
 | cayenne pepper | 198 | ground cayenne pepper (39) · powdered cayenne pepper (3) · ground red cayenne pepper (2) · dried ground cayenne pepper (1) |
 | ginger | 184 | ground ginger (47) · powdered ginger (9) · dried ginger (2) · pickled ginger (1) |
 | vanilla extract | 184 |  |
@@ -182,11 +182,11 @@ word from the taxonomy if it never modifies.
 - **meat** ← coarse-ground meat
 - **pepper flake** ← hot-pepper flake
 - **cooking oil** ← cooking oil for deep frying
+- **chocolate** ← extra-dark chocolate
 - **eggplant** ← aubergine, medium-large eggplant
 - **sesame seed** ← lightly-roasted black sesame seed
 - **leek** ← coarsely-chopped leek
 - **molasses** ← treacle, black treacle
-- **chocolate** ← extra-dark chocolate
 - **orange** ← medium-large orange
 - **wine vinegar** ← white-wine vinegar
 - **curry leaf** ← coarsely-chopped curry leaf
@@ -228,11 +228,11 @@ word from the taxonomy if it never modifies.
 - **olive oil or vegetable oil** ← extra-light olive oil or vegetable oil
 - **squeezed lime juice** ← fresh-squeezed lime juice
 - **suet** ← finely-shredded suet
+- **grain rice** ← medium-grain rice, round-grain rice
 - **matzo meal** ← fine-ground matzo meal
 - **thick coconut milk** ← medium-thick coconut milk
 - **cream or half and half** ← cream or half-and-half
 - **daikon radish** ← thinly-julienned daikon radish
-- **grain rice** ← medium-grain rice
 - **hominy** ← freshly-bleached hominy
 - **parmigiano-reggiano cheese** ← parmigiano reggiano cheese
 - **thick-cut bacon** ← thick cut bacon
@@ -246,6 +246,8 @@ word from the taxonomy if it never modifies.
 - **reduced-sodium soy sauce** ← reduced sodium soy sauce
 - **size carrot** ← medium-size carrot
 - **wheat** ← whole-wheat
+- **rutabaga** ← swede
+- **snow pea** ← mangetout
 
 ## Tail — first 100 heads under the floor
 

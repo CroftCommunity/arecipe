@@ -90,7 +90,7 @@ const COUNT_UNITS: Readonly<Record<string, string>> = (() => {
     'clove', 'can', 'slice', 'stick', 'sprig', 'bunch', 'package', 'pkg', 'packet', 'head', 'piece',
     'dash', 'stalk', 'rib', 'ear', 'jar', 'bottle', 'box', 'bag', 'cube', 'drop', 'handful', 'sheet',
     'strip', 'envelope', 'container', 'scoop', 'knob', 'splash', 'sprinkle', 'loaf', 'wedge', 'chunk',
-    'block', 'tin', 'tub', 'carton', 'pod', 'bulb',
+    'block', 'tin', 'tub', 'carton', 'pod', 'bulb', 'square', 'bar', 'link', 'round',
   ];
   const map: Record<string, string> = { ea: 'each', each: 'each' };
   for (const w of singular) {

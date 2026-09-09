@@ -62,6 +62,7 @@ describe('canonicalHead — count units and descriptors come off, plurals fold',
     expect(canonicalHead('2 cloves garlic, minced', taxonomy)).toMatchObject({ head: 'garlic', countUnit: 'clove', prep: [] });
     expect(canonicalHead('3 cloves of garlic', taxonomy)).toMatchObject({ head: 'garlic', countUnit: 'clove' });
     expect(canonicalHead('1 (15 oz) can black beans, drained', taxonomy)).toMatchObject({ head: 'bean', countUnit: 'can', variety: ['black'] });
+    expect(canonicalHead('1 square chocolate (1 ounce)', taxonomy)).toMatchObject({ head: 'chocolate', countUnit: 'square' });
   });
 
   it('strips a trailing count unit when a head word precedes it', () => {

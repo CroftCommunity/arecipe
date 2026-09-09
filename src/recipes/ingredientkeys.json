@@ -8,8 +8,8 @@
    "lines": 35274
   },
   "minLines": 3,
-  "keys": 1003,
-  "coverage": 0.8242,
+  "keys": 1009,
+  "coverage": 0.8247,
   "reviewed": false
  },
  "descriptors": {
@@ -548,6 +548,12 @@
   "chile pepper": {
    "aliases": []
   },
+  "beef": {
+   "aliases": [
+    "thinly-sliced beef",
+    "coarse-ground beef"
+   ]
+  },
   "mushroom": {
    "aliases": []
   },
@@ -562,12 +568,6 @@
   },
   "shallot": {
    "aliases": []
-  },
-  "beef": {
-   "aliases": [
-    "thinly-sliced beef",
-    "coarse-ground beef"
-   ]
   },
   "seasoning": {
    "aliases": []
@@ -728,6 +728,11 @@
   "apple cider vinegar": {
    "aliases": []
   },
+  "chocolate": {
+   "aliases": [
+    "extra-dark chocolate"
+   ]
+  },
   "eggplant": {
    "aliases": [
     "aubergine",
@@ -782,11 +787,6 @@
   },
   "yeast": {
    "aliases": []
-  },
-  "chocolate": {
-   "aliases": [
-    "extra-dark chocolate"
-   ]
   },
   "orange": {
    "aliases": [
@@ -871,6 +871,9 @@
   "pork": {
    "aliases": []
   },
+  "sausage": {
+   "aliases": []
+  },
   "shortening": {
    "aliases": []
   },
@@ -898,9 +901,6 @@
    "aliases": []
   },
   "okra": {
-   "aliases": []
-  },
-  "sausage": {
    "aliases": []
   },
   "kidney bean": {
@@ -1359,6 +1359,9 @@
   "salsa": {
    "aliases": []
   },
+  "semisweet chocolate": {
+   "aliases": []
+  },
   "zest of 1 lemon": {
    "aliases": []
   },
@@ -1438,6 +1441,9 @@
    "aliases": []
   },
   "pure maple syrup": {
+   "aliases": []
+  },
+  "semi-sweet chocolate": {
    "aliases": []
   },
   "semolina flour": {
@@ -1760,12 +1766,6 @@
    "aliases": []
   },
   "scallop": {
-   "aliases": []
-  },
-  "semi-sweet chocolate": {
-   "aliases": []
-  },
-  "semisweet chocolate": {
    "aliases": []
   },
   "sized onion": {
@@ -2101,6 +2101,12 @@
   "ghee or butter": {
    "aliases": []
   },
+  "grain rice": {
+   "aliases": [
+    "medium-grain rice",
+    "round-grain rice"
+   ]
+  },
   "gruyère cheese": {
    "aliases": []
   },
@@ -2156,6 +2162,9 @@
    "aliases": [
     "fine-ground matzo meal"
    ]
+  },
+  "milk chocolate": {
+   "aliases": []
   },
   "mini marshmallow": {
    "aliases": []
@@ -2466,11 +2475,6 @@
   "graham cracker": {
    "aliases": []
   },
-  "grain rice": {
-   "aliases": [
-    "medium-grain rice"
-   ]
-  },
   "grape": {
    "aliases": []
   },
@@ -2534,9 +2538,6 @@
    "aliases": []
   },
   "mesquite": {
-   "aliases": []
-  },
-  "milk chocolate": {
    "aliases": []
   },
   "milk or water": {
@@ -3351,9 +3352,6 @@
   "salam leaf": {
    "aliases": []
   },
-  "sausage link": {
-   "aliases": []
-  },
   "sausage meat": {
    "aliases": []
   },
@@ -3497,6 +3495,31 @@
    "aliases": []
   },
   "zest of 1 orange": {
+   "aliases": []
+  },
+  "ground chicken": {
+   "aliases": []
+  },
+  "ground lamb": {
+   "aliases": []
+  },
+  "ground turkey": {
+   "aliases": []
+  },
+  "rutabaga": {
+   "aliases": [
+    "swede"
+   ]
+  },
+  "snow pea": {
+   "aliases": [
+    "mangetout"
+   ]
+  },
+  "sour milk": {
+   "aliases": []
+  },
+  "sweet milk": {
    "aliases": []
   }
  }
