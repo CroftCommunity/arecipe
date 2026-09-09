@@ -61,6 +61,42 @@ describe('revalidateCooks', () => {
     expect(out.filter((o) => o.status === 'changed').map((o) => o.did)).toEqual([changed]);
   });
 
+  // Cross-session freshness (recipe-count discrepancy, 2026-08-01 plan, Part 1
+  // as reworked onto the hydration marker): a returning visitor must see the
+  // last-known-live set, not the bundle's. The marker is what the next boot's
+  // fast path serves from, so a changed cook must re-point it at the refetched
+  // uris — after onChanged has stored them, never before.
+  it('a changed cook re-points its hydration marker at the refetched uris, after onChanged stored them', async () => {
+    const store = newStore();
+    const c = cook(1);
+    const stale = `at://${c.did}/exchange.recipe.recipe/stale`;
+    await store.setHydratedUris(c.did, [stale]);
+    const fresh = ['a', 'b'].map((k) => ({ uri: `at://${c.did}/exchange.recipe.recipe/${k}`, cid: 'c', value: { name: k } }));
+    const { fetchFn } = transport({ liveRev: () => 'MOVED' });
+    const seenInsideOnChanged: (string[] | null)[] = [];
+    await revalidateCooks([c], {
+      fetchFn,
+      store,
+      readRecords: async () => fresh,
+      debounceMs: 0,
+      onChanged: async () => {
+        seenInsideOnChanged.push(await store.getHydratedUris(c.did));
+      },
+    });
+    expect(seenInsideOnChanged).toEqual([[stale]]); // marker untouched until the cache write ran
+    expect(await store.getHydratedUris(c.did)).toEqual(fresh.map((r) => r.uri));
+  });
+
+  it('an unchanged cook leaves its hydration marker alone', async () => {
+    const store = newStore();
+    const c = cook(1);
+    const kept = [`at://${c.did}/exchange.recipe.recipe/k`];
+    await store.setHydratedUris(c.did, kept);
+    const { fetchFn } = transport({ liveRev: () => 'rev' });
+    await revalidateCooks([c], { fetchFn, store, readRecords: async () => [], debounceMs: 0 });
+    expect(await store.getHydratedUris(c.did)).toEqual(kept);
+  });
+
   it('never exceeds concurrency 4, proven by instrumenting the transport', async () => {
     const cooks = Array.from({ length: 20 }, (_, i) => cook(i));
     const { fetchFn, state } = transport({ liveRev: () => 'rev', delayMs: 5 });

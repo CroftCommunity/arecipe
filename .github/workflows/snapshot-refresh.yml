@@ -1,0 +1,64 @@
+# Scheduled snapshot refresh. The build-time snapshot (RUN-BUNDLE-PRECACHE) is
+# only regenerated on a `main` deploy (ci.yml), so it drifts stale whenever a
+# seed cook publishes recipes between code deploys — e.g. the Wikibooks corpus
+# import to arecipe.bsky.social, which left Browse first-painting a count of ~400
+# while the repo was really ~2900 (plans/2026-08-01-recipe-count-discrepancy.md).
+#
+# This job re-captures the seed cooks daily and redeploys the SAME built site
+# ONLY when a seed repo actually moved. The guard matters: a rebuild carries a
+# new version string, and a new version makes every client refetch the whole
+# snapshot (docs/CI-TROUBLESHOOTING.md) — so an unconditional daily deploy would
+# cost every visitor a full refetch on days nothing changed. Runtime
+# revalidation still corrects residual drift per session; this keeps first paint
+# honest at most ~1 day behind live.
+name: snapshot-refresh
+
+on:
+  schedule:
+    - cron: '0 9 * * *' # daily, 09:00 UTC
+  workflow_dispatch: {} # on-demand: the immediate fix when the corpus jumps
+
+permissions:
+  contents: read
+
+jobs:
+  refresh:
+    # Never run on forks (no gh-pages write, no reason to burn minutes).
+    if: github.repository == 'CroftCommunity/arecipe'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # push the rebuilt site to the gh-pages branch
+    # Share the writer lock with ci.yml's deploy + preview.yml so concurrent
+    # pushes to gh-pages can't race.
+    concurrency:
+      group: gh-pages
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main # always refresh the live build, whatever triggered us
+          fetch-depth: 0 # full history: scripts/build.mjs derives changelog.json from `git log`
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # The one networked step (reads plc.directory + each PDS). Unlike ci.yml's
+      # deploy — where an empty snapshot is a tolerable side effect of shipping
+      # code — a refresh run must NOT deploy on capture failure: build.mjs would
+      # emit an empty skeleton and we'd overwrite the good live snapshot with
+      # nothing. So let a failure fail the job; the last good snapshot stays live
+      # and tomorrow's run retries.
+      - run: node scripts/snapshot.mjs
+      # Deploy only when a seed repo moved since the live capture. Also refuses
+      # (exit 2) a capture that LOST a cook the live site serves — including the
+      # 0-cook case — since deploying it would drop them in the name of
+      # freshness. A live-side read failure fails the job the same way: the last
+      # good snapshot stays live, tomorrow retries.
+      - name: Compare the capture with the live snapshot
+        id: drift
+        run: node scripts/snapshot-drift.mjs .snapshot-staging/manifest.json https://arecipe.app
+      - run: npm run build
+        if: steps.drift.outputs.deploy == 'true'
+      - run: bash scripts/pages-deploy.sh root dist "snapshot refresh ${{ github.sha }}"
+        if: steps.drift.outputs.deploy == 'true'
