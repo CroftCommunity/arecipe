@@ -118,6 +118,13 @@ export const revalidateCooks = async (
       const records = await deps.readRecords({ pds: cook.pds, did: cook.did });
       await deps.store.putDelta(cook.did, live.rev, records);
       await deps.onChanged?.(cook.did, records);
+      // The hydration marker is what the next boot's fast path (load.ts) serves
+      // from. Left alone, it still names the bundle's uris, so a returning
+      // visitor regresses to the stale set (and count) until the debounce
+      // expires — the 2026-08-01 recipe-count discrepancy. onChanged has stored
+      // the records by now; a marker that ever outruns the cache self-heals
+      // via the shard.
+      await deps.store.setHydratedUris(cook.did, records.map((r) => r.uri));
       return { did: cook.did, status: 'changed', records };
     } catch (err) {
       logger.warn('snapshot', 'refetch failed — keeping snapshot', { did: cook.did, error: String(err) });

@@ -1,7 +1,7 @@
 # Recipe-count discrepancy: Browse (417) vs Plan palette (2918)
 
 Date: 2026-08-01
-Status: proposed
+Status: done (reworked 2026-09-08, see Outcome)
 
 ## Problem statement
 
@@ -87,35 +87,78 @@ hidden set (and any Browse-only diet/taste filter, by design).
 
 ## Tests (TDD)
 
-- `tests/unit/snapshot/store.spec.ts` — `getLatestDelta` returns the newest
-  stored delta; absent → null; build-scoped isolation. (RED first.)
+- `tests/unit/snapshot/revalidate.spec.ts` — a changed cook re-points its
+  hydration marker at the refetched uris, after `onChanged` stored them; an
+  unchanged cook leaves it alone. (RED first — replaced the `getLatestDelta`
+  store tests in the 2026-09-08 rework, see Outcome.)
+- `tests/unit/snapshot/drift.spec.ts` — `snapshotDrift` (the refresh guard):
+  unchanged → no deploy; a moved rev → deploy; a cook new to the seed → deploy;
+  a cook the capture lost → named, so the workflow refuses. (RED first.)
 - `tests/unit/recipes/meal-plan-palette.spec.ts` — hidden URIs are excluded
   from `loadStarterPalette`. (RED first.)
-- e2e (`tests/e2e/snapshot-revalidate.spec.ts`) — a stored delta from a prior
-  session survives a reload while debounced (count reflects the delta, not the
-  bundle).
+- e2e (`tests/e2e/snapshot-revalidate.spec.ts`) — the refetched set from a
+  prior session survives a reload while debounced, with zero network (count
+  reflects the refetched set, not the bundle). This is the behavior pin; it
+  went RED against main's hydration path and green with the marker re-point.
 
 ## Outcome
 
-Done 2026-08-01, all three parts landed together.
+Landed 2026-08-01 on the branch; **reworked 2026-09-08** before merging, because
+the branch had been written against a `main` with no hydration path and PR #86
+(recipe-loading perf) landed one in between. Rebased onto `main` (55 commits;
+conflicts only in `store.ts`/`store.spec.ts`, both purely additive).
 
-- **Part 1** — `src/snapshot/store.ts` gained `getLatestDelta` (a per-cook
-  latest-rev pointer written by `putDelta`); `src/pages/browse.ts` overlays the
-  newest stored delta over the bundle on boot, before revalidation. The
-  write-only delta cache is now read on boot, so a returning visitor sees the
-  last-known-live count immediately instead of the stale bundle count.
-- **Part 2** — `.github/workflows/snapshot-refresh.yml` re-captures + redeploys
-  daily (and on `workflow_dispatch`), with a guard that aborts rather than
-  deploy an empty capture over the good live snapshot.
-- **Part 3** — `loadStarterPalette` / `loadCookbookPalette` / `loadHandlePalette`
-  now take an `isHidden` predicate (wired to `createExclusions().isHidden` in
-  `meals.ts`), so a recipe hidden in Browse is no longer offered as a plannable
-  chip. Diet/taste stay Browse-only, by design (documented at the call site).
+### Why Part 1 was rewritten, not just rebased
 
-Tests: `getLatestDelta` unit tests + a palette-exclusion unit test + an e2e
-proving a stored delta survives a debounced reload. Full gate green (lint,
-typecheck, 989 unit, build, 284 e2e).
+- A "delta" is not a delta: `revalidateCooks` refetches and **replaces the whole
+  cook**, so for `arecipe.bsky.social` the stored delta is the full corpus
+  (~2,850 records).
+- The original overlay replayed that on **every boot** through per-record
+  `cache.put` (a CID verification + an IndexedDB write each, serially, on the
+  boot path). PR #86 built the hydration marker precisely to stop re-verifying
+  the corpus on boot; the overlay would have undone it.
+- `main`'s `onChanged` already writes the refetched cook into the recipe cache
+  in one batched `putMany`. The fresh records were already there; the only gap
+  was that the **hydration marker still named the stale shard's uris**, so the
+  next boot's fast path served the old set.
 
-**Follow-up (operational, off this branch):** production still serves the
-2026-07-23 snapshot until a `main` deploy or a manual `snapshot-refresh` run
-regenerates it — either fixes the live count immediately.
+So Part 1 is now one line of lifecycle in `src/snapshot/revalidate.ts`: after
+`onChanged` has stored the records, `setHydratedUris(did, refetched uris)`. The
+next boot serves the fresh set through the fast path that already exists — no
+readback loop, no new store method. `getLatestDelta` is gone; `putDelta` stays
+write-only (a separate question whether the deltas store earns its keep).
+
+### Part 2 as landed
+
+`.github/workflows/snapshot-refresh.yml`, daily + `workflow_dispatch`, with two
+changes from the original:
+
+- Actions are **SHA-pinned** (the convention `main` adopted 2026-08-29; the
+  original used floating `@v7` tags).
+- A **no-change guard** (`scripts/snapshot-drift.mjs`, pure logic unit-tested):
+  the capture's manifest is compared with the one the live site serves, and
+  the rebuild + deploy run **only when a seed repo's rev moved**. Why: a rebuild
+  carries a new version string, and a new version makes every client refetch
+  the whole snapshot (`docs/CI-TROUBLESHOOTING.md`), so an unconditional daily
+  deploy would cost every visitor a full refetch on days nothing changed. The
+  guard also refuses (exit 2) a capture that **lost** a cook the live site
+  serves — including the 0-cook case the original guarded — since deploying it
+  would drop them in the name of freshness. A live-side read failure fails the
+  job the same way; the last good snapshot stays live and tomorrow retries.
+
+The alternative — drop the workflow and make "deploy after a sync" an operator
+step — was rejected because three of the four seed cooks publish on their own
+schedule; with the guard, the daily run is nearly free.
+
+### Part 3 as landed
+
+Unchanged from the original: `loadStarterPalette` / `loadCookbookPalette` /
+`loadHandlePalette` take an `isHidden` predicate (wired to
+`createExclusions().isHidden` in `meals.ts`), so a recipe hidden in Browse is
+no longer offered as a plannable chip. Diet/taste stay Browse-only, by design.
+
+### Status of the original symptom
+
+Resolved by deploys since: the live build `2026.09.09-db666a7` carries every
+seed cook at its live rev (checked 2026-09-08 via `getLatestCommit` on each
+PDS). What this plan now guards against is the recurrence.

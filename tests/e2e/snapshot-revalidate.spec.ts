@@ -125,7 +125,7 @@ test('one changed cook triggers exactly one refetch and updates in place', async
     .toBe(1); // only the changed cook
 });
 
-test('a stored delta from a prior session survives a debounced reload (count reflects the delta, not the stale bundle)', async ({ page }) => {
+test('a stored delta from a prior session survives a debounced reload (count reflects the refetched set, not the stale bundle)', async ({ page }) => {
   await routeSnapshot(page);
   // The changed cook moved AND now has two recipes; the bundle shipped one.
   await page.route('**/xrpc/com.atproto.sync.getLatestCommit**', (r) => {
@@ -152,9 +152,9 @@ test('a stored delta from a prior session survives a debounced reload (count ref
 
   // Session 2: reload. Every cook is now within the 60-minute debounce window,
   // so revalidation makes NO network calls — the only way the fresh pair can
-  // still show (and "Snap 1" stay gone) is the boot overlay applying the stored
-  // delta over the stale one-record bundle. Without that overlay the reload
-  // would regress to the bundle's "Snap 1".
+  // still show (and "Snap 1" stay gone) is the hydration marker now naming the
+  // refetched uris, so the boot fast path serves them from the recipe cache.
+  // Without that re-point the reload would regress to the bundle's "Snap 1".
   const reqs: string[] = [];
   page.on('request', (r) => reqs.push(r.url()));
   await page.reload();
