@@ -91,7 +91,13 @@ loose ideas a later session can pick up.
       read-time join. serves (`recipeYield`) and time (`prepTime`/`totalTime`) are
       already upstream (Path A) and need none of this. _Noted 2026-07-23._
 
-- [ ] **Give Browse the Cookbook cache-first SWR paint.** Cookbook paints from
+- [x] **Give Browse the Cookbook cache-first SWR paint.** _Superseded 2026-09-08:
+      Browse now paints first from the precached build-time snapshot (D2,
+      `plans/2026-07-23-2-plan-bundle-precache.md`), serves later boots from
+      IndexedDB via the hydration marker (#86), keeps a refetched cook across a
+      debounced reload (#72), and revalidates by repo rev off the critical
+      path — a cold Browse load no longer waits on the network._ Original
+      note: Cookbook paints from
       the IndexedDB cache instantly, then revalidates in the background (see
       `src/pages/cookbook.ts` `showFeed` + `readFeedMeta`/`writeFeedMeta`). Browse
       caches records to IndexedDB with offline fallback + a sessionStorage

@@ -7,6 +7,17 @@ Related in-repo docs: `docs/LEXICONS.md` (NSID/lexicon registry), the recipe-mod
 `plans/2026-07-09-*-plan-recipe-model-extensions.md`, and `tests/fixtures/lexicons/PROBE-NOTES.md`
 (recipe.exchange lexicon capture).
 
+## Where the source files went (2026-09-08)
+
+The local `import/` working directory referenced below (`recipebox.zip`, `References.zip`, the
+cookbook PDFs, `north_america_top_100.md`, the spreadsheet, `apple_pie.jpg`) was moved **out of
+the repo** to `~/Archive/arecipe-import-sources-2026-07/` during the post-bulk-add cleanup. The two
+image-picker directories (`import/picker-master-pot/`, `import/picker-na100/`) were deleted: their
+picks were already merged into `image-choices-corpus.json`, and both are regenerable via
+`fetch-images.mjs` → `build-picker.mjs`. Read every `import/…` path below as living in the archive.
+The two held recipebox recipes (see the last section) still need scan pages that were never in the
+zip, so the archive is not what blocks them.
+
 ## Account & deploy facts
 
 - **Publishing account:** `arecipe.bsky.social` = `did:plc:spfl4xaktvvchr2cqp2r2xvp` — the first
@@ -79,7 +90,7 @@ from `import/The_Master_Pot_Collection.pdf`).
 - **PUBLISHED 2026-07-09 (Phase 6).** The recipe-model extensions (versions/fun-facts/Focus)
   shipped and the corpus went live: 41 live records migrated (dishKey + fun fact), 158 new records
   published (dessert methods split into sibling versions), pooled to **one best fun fact per
-  dish**. Tooling (on branch `recipe-import-batch`, commit 6662536 — **merge to main pending**):
+  dish**. Tooling (branch `recipe-import-batch`, commit 6662536 — never merged; archived as tag `archive/recipe-import-batch`; everything but the one-shot `migrate-live.mjs` reached `main` via 9c3b42f):
   `migrate-live.mjs`, `publish-corpus.mjs`, `attach-corpus-images.mjs`, `publish-plan.mjs`. Code
   deployed to arecipe.app. Remaining: the 8 image-less dishes render on the no-meal standin until
   images are sourced (task #22).
