@@ -1,0 +1,201 @@
+rank,name,count,cum_share_of_parsed_lines
+1,salt,1460,4.14%
+2,water,536,5.66%
+3,olive oil,447,6.93%
+4,egg,427,8.14%
+5,salt to taste,346,9.12%
+6,butter,302,9.97%
+7,sugar,275,10.75%
+8,pepper,262,11.50%
+9,vegetable oil,248,12.20%
+10,white granulated sugar,227,12.84%
+11,milk,214,13.45%
+12,all-purpose flour,213,14.05%
+13,black pepper,213,14.66%
+14,flour,213,15.26%
+15,baking powder,200,15.83%
+16,vanilla extract,155,16.27%
+17,"cloves garlic, minced",138,16.66%
+18,oil,135,17.04%
+19,lemon juice,133,17.42%
+20,freshly-ground black pepper,131,17.79%
+21,paprika,128,18.15%
+22,soy sauce,125,18.51%
+23,baking soda,120,18.85%
+24,granulated sugar,119,19.19%
+25,"salt, to taste",115,19.51%
+26,cayenne pepper,112,19.83%
+27,ground cumin,111,20.14%
+28,ground cinnamon,109,20.45%
+29,pepper to taste,108,20.76%
+30,garlic powder,107,21.06%
+31,"cloves of garlic, minced",105,21.36%
+32,tomato paste,103,21.65%
+33,brown sugar,97,21.93%
+34,cinnamon,91,22.19%
+35,honey,91,22.44%
+36,of salt,86,22.69%
+37,large egg,84,22.93%
+38,minced garlic,78,23.15%
+39,bay leave,77,23.37%
+40,worcestershire sauce,77,23.58%
+41,chicken broth,75,23.80%
+42,bay leaf,74,24.01%
+43,egg yolk,74,24.22%
+44,vanilla,70,24.41%
+45,cumin,68,24.61%
+46,ground coriander,66,24.79%
+47,onion,66,24.98%
+48,unsalted butter,63,25.16%
+49,"onion, chopped",62,25.34%
+50,heavy cream,61,25.51%
+51,cloves garlic,60,25.68%
+52,ground black pepper,60,25.85%
+53,extra-virgin olive oil,59,26.02%
+54,"onion, finely chopped",59,26.18%
+55,palm oil,59,26.35%
+56,cornstarch,58,26.52%
+57,nutmeg,58,26.68%
+58,white sugar,58,26.84%
+59,chili powder,57,27.01%
+60,mayonnaise,56,27.16%
+61,clove,52,27.31%
+62,kosher salt,52,27.46%
+63,turmeric,51,27.60%
+64,dijon mustard,50,27.75%
+65,smoked paprika,49,27.88%
+66,vinegar,47,28.02%
+67,dried oregano,45,28.15%
+68,powdered sugar,45,28.27%
+69,ground nutmeg,44,28.40%
+70,turmeric powder,44,28.52%
+71,freshly ground black pepper,43,28.64%
+72,egg white,42,28.76%
+73,pure vanilla extract,42,28.88%
+74,warm water,42,29.00%
+75,ground paprika,41,29.12%
+76,thyme,41,29.23%
+77,curry powder,39,29.35%
+78,dried thyme,39,29.46%
+79,ground ginger,39,29.57%
+80,sour cream,39,29.68%
+81,"egg, beaten",38,29.78%
+82,"eggs, beaten",38,29.89%
+83,raisin,38,30.00%
+84,"pepper, to taste",37,30.10%
+85,"butter, melted",36,30.21%
+86,"large onion, chopped",36,30.31%
+87,butter or margarine,35,30.41%
+88,grated parmesan cheese,35,30.51%
+89,ground crayfish,35,30.61%
+90,melted butter,35,30.71%
+91,chopped onion,34,30.80%
+92,cold water,34,30.90%
+93,dried rosemary,34,31.00%
+94,"large onion, finely chopped",34,31.09%
+95,oregano,33,31.19%
+96,cooking oil,32,31.28%
+97,"medium onion, chopped",32,31.37%
+98,parsley,32,31.46%
+99,sesame oil,32,31.55%
+100,tomato,32,31.64%
+101,apple cider vinegar,31,31.73%
+102,beef broth,31,31.81%
+103,"garlic cloves, minced",31,31.90%
+104,ground beef,31,31.99%
+105,mustard seed,31,32.08%
+106,"unsalted butter, melted",31,32.17%
+107,whole milk,31,32.25%
+108,black pepper to taste,30,32.34%
+109,garam masala,30,32.42%
+110,ground clove,30,32.51%
+111,coconut milk,29,32.59%
+112,ghee,29,32.67%
+113,"tomatoes, diced",29,32.76%
+114,buttermilk,28,32.84%
+115,canola oil,28,32.91%
+116,cider vinegar,28,32.99%
+117,ground turmeric,28,33.07%
+118,cinnamon stick,27,33.15%
+119,cloves of garlic,27,33.23%
+120,onion powder,27,33.30%
+121,cocoa powder,26,33.38%
+122,cream,26,33.45%
+123,cumin seed,26,33.52%
+124,molasses,26,33.60%
+125,peanut butter,26,33.67%
+126,"eggs, separated",25,33.74%
+127,garlic clove,25,33.81%
+128,potato,25,33.88%
+129,red chile powder,25,33.96%
+130,red wine,25,34.03%
+131,black peppercorn,24,34.09%
+132,breadcrumb,24,34.16%
+133,carrot,24,34.23%
+134,chopped parsley,24,34.30%
+135,fresh lemon juice,24,34.37%
+136,margarine,24,34.43%
+137,"onions, chopped",24,34.50%
+138,red pepper flake,24,34.57%
+139,fine sea salt,23,34.64%
+140,freshly-squeezed lemon juice,23,34.70%
+141,ground pepper,23,34.77%
+142,white wine,23,34.83%
+143,cooked rice,22,34.89%
+144,cornmeal,22,34.96%
+145,dark brown sugar,22,35.02%
+146,dry white wine,22,35.08%
+147,ketchup,22,35.14%
+148,"lemon, juiced",22,35.21%
+149,minced ginger,22,35.27%
+150,"salt, or to taste",22,35.33%
+151,seasoning cube,22,35.39%
+152,(240 ml) water,21,35.45%
+153,boiling water,21,35.51%
+154,cumin powder,21,35.57%
+155,curry leave,21,35.63%
+156,"green bell pepper, diced",21,35.69%
+157,lemon,21,35.75%
+158,"medium onion, finely chopped",21,35.81%
+159,salt (optional) (optional),21,35.87%
+160,wheat flour,21,35.93%
+161,white vinegar,21,35.99%
+162,active dry yeast,20,36.04%
+163,berbere spice blend,20,36.10%
+164,coriander,20,36.16%
+165,oil for deep frying,20,36.21%
+166,boneless skinless chicken breast,19,36.27%
+167,chicken stock,19,36.32%
+168,coriander powder,19,36.38%
+169,cream cheese,19,36.43%
+170,cream of tartar,19,36.48%
+171,icing sugar,19,36.54%
+172,"onion, diced",19,36.59%
+173,rice flour,19,36.65%
+174,standard egg,19,36.70%
+175,tomato sauce,19,36.75%
+176,white pepper,19,36.81%
+177,yogurt,19,36.86%
+178,allspice,18,36.91%
+179,caster sugar,18,36.96%
+180,chile powder,18,37.01%
+181,ginger,18,37.07%
+182,oil for frying,18,37.12%
+183,rice,18,37.17%
+184,stock cube,18,37.22%
+185,whole clove,18,37.27%
+186,dry mustard,17,37.32%
+187,instant yeast,17,37.37%
+188,peppercorn,17,37.41%
+189,plain flour,17,37.46%
+190,red wine vinegar,17,37.51%
+191,sesame seed,17,37.56%
+192,unsweetened cocoa powder,17,37.61%
+193,vegetable oil for frying,17,37.66%
+194,bread crumb,16,37.70%
+195,"butter, softened",16,37.75%
+196,chopped cilantro,16,37.79%
+197,coriander seed,16,37.84%
+198,"fresh cilantro or parsley, chopped, for garnish",16,37.88%
+199,ginger paste,16,37.93%
+200,grated ginger,16,37.97%

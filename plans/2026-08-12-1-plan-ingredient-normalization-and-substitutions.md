@@ -14,7 +14,7 @@ descriptor-aware substitutions.
 
 | Phase | Outcome | Commit | Note |
 |-------|---------|--------|------|
-| 0 Discovery | ⏳ | | Census + PR #87 disposition + seam checks |
+| 0 Discovery | ✅ 2026-09-09 | | `runs/ingredient-normalization/PHASE0-FINDINGS.md` — corpus is 4,113 records / 35,274 lines (14× the plan's premise); #87: reuse shell, discard engine — **owner decision pending** |
 | 1 Vocabulary build tool (M1) | ⏳ | | `build-ingredientkeys.mjs` + human review |
 | 2 Matcher pure core (M1 exit) | ⏳ | | `ingredient-key.ts`: descriptor split + alias lookup |
 | 3 Search by ingredient (M2) | ⏳ | | Canonical field in MiniSearch |
@@ -34,7 +34,8 @@ naive: it re-solves parsing badly and cannot handle descriptor semantics
 search-by-ingredient. Both need the same missing layer: canonical ingredient
 identity across recipes.
 
-The corpus (~289 records, low-thousands ceiling per `search.ts`) is small
+The corpus (~289 records when this was written; **4,113 records / 35,274 ingredient
+lines by the 2026-09-09 census** — see Phase 0 findings) is small
 enough to normalize at build time with human review — the proven
 `build-dishkeys.mjs` workflow. But arecipe is open-world AT Protocol: recipes
 arrive from other cooks' PDSs at runtime, so a runtime matcher over the shipped
@@ -85,6 +86,63 @@ shipped baseline at build review.
 - **Reference chart extraction.** Confirm the `kind: 'pairs'` tables in
   `reference-view.ts` are mechanically extractable as substitution seed rows.
 
+### Phase 0 findings (2026-09-09)
+
+Full report with method and tables: `runs/ingredient-normalization/PHASE0-FINDINGS.md`.
+What it changes in this plan:
+
+- **Sizing.** The live snapshot holds **4,113 records / 35,274 ingredient
+  lines** (4,041 are the Wikibooks cook), not ~289. `spike/import` and the
+  starter fixtures are subsets of it (27 spike-only names, all entity noise);
+  **Phase 1's census source is the live snapshot**, not the spike batches.
+- **Census.** 16,321 distinct `parseIngredient(...).name` values, 13,907
+  singletons. Top-200 covers **38.0%** of lines, top-500 **46.0%**. The raw
+  `name` is a normalized *tail*, not a head noun: `normalizeName` folds only the
+  last word and keeps everything after commas/parentheses, so `salt to taste`,
+  `salt, to taste`, `of salt` are three names. A naive head-phrase split (before
+  the first comma, strip parentheticals, leading `of`, trailing `to taste`)
+  lifts top-200/500 to **51.4% / 62.2%** and cuts names to 9,882.
+- **Phase 2 pipeline gains two mandatory steps** before the descriptor split:
+  a **head-phrase split** (comma / parenthetical / leading `of` / trailing
+  phrase) and a **count-unit strip** (`clove(s)` 480 lines, `can` 282, `ea.`
+  243, `slice(s)` 127, plus ~670 Wikibooks-style `(240 ml)` conversions). The
+  irregular-plural fold (`bay leaves` → `bay leave` 77 vs `bay leaf` 74) is
+  handled by vocabulary aliases, not a parser change.
+- **Coverage floor.** ≥90% is not reachable by alias lookup over `.name`. State
+  the floor as coverage of *lines by weight*; propose **75–80% for M1**, with
+  90% moved to the GATE and re-measured once Phase 2's split exists.
+- **Compound lines.** ` or ` 2,597 (7.4%) — mostly author-supplied
+  alternatives, i.e. **Phase 4 seed data**, not a split problem; ` and ` 1,289
+  (3.7%) — mostly prep phrases after a comma; `juice of` 72 and `zest of` 26.
+  **Phase 5 stays last**; the split that matters is the comma/parenthetical one
+  (21% of lines each) and it belongs in Phase 2.
+- **Parser seam.** `name` and `normalizeIngredientName` are exposed cleanly.
+  Missing for a matcher: the head/descriptor boundary, count units, irregular
+  plurals — all owned by the matcher (or aliases), keeping the parser's
+  shopping-list contract untouched.
+- **MiniSearch.** No numeric rebuild band is recorded anywhere; the "milliseconds"
+  header predates the 4k corpus and the perf plan already made the build lazy.
+  Measured at 4,113 records: **332 ms** as-is, **394 ms** with one extra
+  stored+indexed field (+19%; 20.8 → 26.2 ms at 289). Phase 3 should carry
+  canonical *keys* (a few tokens per recipe, smaller than the measured fake)
+  and add a numeric band test.
+- **Reference charts.** 3 `pairs` tables / 26 rows import cleanly without DOM,
+  but only the `substitutions` table (**7 rows**, prose with embedded
+  quantities) is substitution seed; the rest are unit equivalences. Phase 4's
+  seed = those 7 hand-parsed + the mined ` or ` alternatives.
+- **PR #87 disposition — recommended: reuse the UI shell, discard the engine,
+  do not merge as-is.** The engine (`applyLineSubstitution`/`substituteLines`,
+  ~40 lines of raw whole-word regex that never calls `parseIngredient`) is what
+  this plan supersedes. The shell (~70% of the diff: the `shopping-prefs` store
+  extension, the Account "Substitutions ⇄" block with test ids, the recipe-page
+  "Apply ⇄" toggle and `<del>`/`<span>` render with the "never a no-op control"
+  rule, `meals.ts` default-on wiring, CSS, three hermetic e2e specs) is exactly
+  Phase 4's surface, TDD'd, and still mergeable. Change the stored rule shape
+  from free-text `{from, to}` to key-based *before* it lands, so no migration
+  follows. Plan: Phase 4 cherry-picks the shell from
+  `claude/recipe-substitutions-ie4xd5`, drops the engine and its tests, then
+  closes #87 with a pointer. **Decision: pending owner** (recorded here when made).
+
 ## Milestone M1 — Canonical vocabulary exists
 
 **Exit:** a reviewed `ingredientkeys.json` ships as a static asset, and a pure
@@ -118,7 +176,9 @@ commit the reviewed map.
   ("smoked paprika" → `{ key: 'paprika', variety: 'smoked' }`, "2 large eggs,
   beaten" → `{ key: 'egg', prep: 'beaten' }`), plurals, unit noise.
 - Coverage test: resolver over the full corpus census asserts a floor
-  (propose ≥90%; tune to Phase 0 findings). This number is the M1 metric and
+  (was "propose ≥90%"; Phase 0 measured 38% raw / 62% after a head-phrase split
+  at top-500 — see findings: state it by line weight, propose 75–80% for M1,
+  90% at the GATE). This number is the M1 metric and
   the later GATE input.
 
 ## Milestone M2 — User-visible features on the deterministic core
