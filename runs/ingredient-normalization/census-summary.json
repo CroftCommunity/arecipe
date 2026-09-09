@@ -1,0 +1,306 @@
+{
+  "live": {
+    "records": 4113,
+    "recordsNoIngredients": 0,
+    "lines": 35274,
+    "parsed": 35270,
+    "unparsed": 4,
+    "withQty": 28714,
+    "withUnit": 20238,
+    "distinctNames": 16321,
+    "singletons": 13907,
+    "multiWordNames": 15964,
+    "multiWordLineShare": 0.8279841224836972,
+    "shareTop100": 0.31638786504111144,
+    "shareTop200": 0.3797278140062376,
+    "shareTop500": 0.4603345619506663,
+    "shareTop1000": 0.5186560816557981,
+    "perCook": [
+      {
+        "handle": "rdur.dev",
+        "records": 3,
+        "lines": 22
+      },
+      {
+        "handle": "recipe.exchange",
+        "records": 32,
+        "lines": 407
+      },
+      {
+        "handle": "arecipe.bsky.social",
+        "records": 4041,
+        "lines": 34458
+      },
+      {
+        "handle": "daffl.xyz",
+        "records": 37,
+        "lines": 387
+      }
+    ]
+  },
+  "compound": {
+    " and ": {
+      "count": 1289,
+      "examples": [
+        "salt and pepper (to taste)",
+        "2 sticks butter, chilled and cubed",
+        "8 ounces white mushrooms, cleaned and thinly sliced",
+        "reserved vegetables and pasta",
+        "3/4 pound sweet Italian sausage, cut in half length wise and chopped",
+        "1 0g / 1 cup walnuts, toasted and chopped",
+        "reserved celery and onions",
+        "1 kg chicken, preferably in 16 pieces, and a couple of drumsticks"
+      ]
+    },
+    " or ": {
+      "count": 2597,
+      "examples": [
+        "1 1/2 pounds boneless cooked ham, diced (leftover or purchased thick slab, trimmed of fat)",
+        "2 1/4 teaspoons (1 packet) Red Star active dry yeast OR 1 3/4 teaspoons Instant Yeast",
+        "2 1/2 cups bread flour or all-purpose flour",
+        "2 tablespoons oil or butter",
+        "1/3 cup extra-virgin olive oil or vegetable oil",
+        "8 g / 1/4 cup honey or agave syrup",
+        "1/3 cup plain yogurt, buttermilk, or sour cream",
+        "1 cup pecans or walnuts"
+      ]
+    },
+    "juice of": {
+      "count": 72,
+      "examples": [
+        "Juice of ½ lemon",
+        "Juice of 1 lemon",
+        "Juice of 4 lemons",
+        "juice of ½ lemon or lime",
+        "Juice of 1 lime or lemon",
+        "Juice of 1 lemon or lime",
+        "Juice of 1 lemon (for glaze)",
+        "Freshly squeezed juice of 1 lemon"
+      ]
+    },
+    "zest of": {
+      "count": 26,
+      "examples": [
+        "Zest of 1 large lemon",
+        "Zest of 1 lemon",
+        "Zest of 1 clementine",
+        "6–8 kaffir lime leaves, torn into pieces (if unavailable, use the grated zest of 1 lime)",
+        "Grated zest of 1 orange",
+        "Grated zest of 1 lemon",
+        "Zest of a lemon or grated ginger",
+        "grated zest of 1 lemon"
+      ]
+    }
+  },
+  "anyCompound": 3838,
+  "commaLines": 7477,
+  "parenLines": 7358,
+  "juicedLines": 107,
+  "spike": {
+    "recipes": 284,
+    "lines": 2052,
+    "distinct": 1234,
+    "notInLive": 27,
+    "notInLiveSamples": [
+      "mayonnaise ((hellman&#039;s or s&amp;w whole egg) (note 1))",
+      "slices white bread (, 2/3&quot; / 1.5cm thick (note 4))",
+      "cos / romaine lettuce (, chopped, wash &amp; dried (1 large, 2 medium, 3 small) (note 5))",
+      "of a 5 lb bag of potatoes, peeled and diced",
+      "can white beans, rinsed",
+      "[other ingredients from the missing page 1 — usually a cream-of-something soup, mayo, cheese]",
+      "shredded cheese (topping)",
+      "croutons (optional)",
+      "to 4 lbs chicken bone-in pieces (thighs, drumsticks, breasts)",
+      "thick-cut bacon, cut into strip",
+      "cognac or brandy (optional)",
+      "dry red wine (burgundy or pinot noir)",
+      "to 15 small pearl onions, peeled",
+      "button mushrooms, halved",
+      "all-purpose flour blended with 2 tbsp softened butter (beurre manié)",
+      "dried rice noodle",
+      "firm tofu or shrimp",
+      "fresh bean sprout",
+      "garlic chives (cut into lengths)",
+      "crushed roasted peanut"
+    ]
+  },
+  "fixtures": {
+    "records": 10,
+    "lines": 46,
+    "distinct": 34,
+    "notInLive": 3,
+    "notInLiveSamples": [
+      "feta",
+      "bean",
+      "greens"
+    ]
+  },
+  "unparsedSamples": [
+    "",
+    "",
+    "½ tsp",
+    "6 Tbsp"
+  ],
+  "top40": [
+    [
+      "salt",
+      1460
+    ],
+    [
+      "water",
+      536
+    ],
+    [
+      "olive oil",
+      447
+    ],
+    [
+      "egg",
+      427
+    ],
+    [
+      "salt to taste",
+      346
+    ],
+    [
+      "butter",
+      302
+    ],
+    [
+      "sugar",
+      275
+    ],
+    [
+      "pepper",
+      262
+    ],
+    [
+      "vegetable oil",
+      248
+    ],
+    [
+      "white granulated sugar",
+      227
+    ],
+    [
+      "milk",
+      214
+    ],
+    [
+      "all-purpose flour",
+      213
+    ],
+    [
+      "black pepper",
+      213
+    ],
+    [
+      "flour",
+      213
+    ],
+    [
+      "baking powder",
+      200
+    ],
+    [
+      "vanilla extract",
+      155
+    ],
+    [
+      "cloves garlic, minced",
+      138
+    ],
+    [
+      "oil",
+      135
+    ],
+    [
+      "lemon juice",
+      133
+    ],
+    [
+      "freshly-ground black pepper",
+      131
+    ],
+    [
+      "paprika",
+      128
+    ],
+    [
+      "soy sauce",
+      125
+    ],
+    [
+      "baking soda",
+      120
+    ],
+    [
+      "granulated sugar",
+      119
+    ],
+    [
+      "salt, to taste",
+      115
+    ],
+    [
+      "cayenne pepper",
+      112
+    ],
+    [
+      "ground cumin",
+      111
+    ],
+    [
+      "ground cinnamon",
+      109
+    ],
+    [
+      "pepper to taste",
+      108
+    ],
+    [
+      "garlic powder",
+      107
+    ],
+    [
+      "cloves of garlic, minced",
+      105
+    ],
+    [
+      "tomato paste",
+      103
+    ],
+    [
+      "brown sugar",
+      97
+    ],
+    [
+      "cinnamon",
+      91
+    ],
+    [
+      "honey",
+      91
+    ],
+    [
+      "of salt",
+      86
+    ],
+    [
+      "large egg",
+      84
+    ],
+    [
+      "minced garlic",
+      78
+    ],
+    [
+      "bay leave",
+      77
+    ],
+    [
+      "worcestershire sauce",
+      77
+    ]
+  ]
+}
