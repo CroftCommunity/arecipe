@@ -89,6 +89,24 @@ run the other sub-gates directly and use the config above for e2e.
   horizontal overflow at 320/360/390px — run it after any layout change.
 - **Lexicons** are owned/tracked in `docs/LEXICONS.md`; app-owned NSIDs are
   `app.arecipe.*`. Update that doc when a record shape changes.
+- **The ingredient vocabulary is generated — edit the seed, never the JSON.**
+  `src/recipes/ingredientkeys.json` (~1,000 keys) comes from
+  `node scripts/build-ingredientkeys.mjs`, which groups the committed census
+  (`tests/fixtures/ingredients/census-lines.json`, every distinct raw line in
+  the live snapshot with its count) through the SAME resolver the app runs
+  (`src/recipes/ingredient-key.ts`), seeded by `scripts/ingredient-vocab-seed.json`
+  (the descriptor taxonomy, synonyms, and keys that are their own ingredient).
+  The human review of `runs/ingredient-normalization/REVIEW.md` is the quality
+  gate; `_meta.reviewed` says whether it happened. Two invariants tests pin:
+  coverage by line weight over the census must stay ≥ 75%
+  (`ingredient-key-coverage.spec.ts`, measured 82.5%), and a seed key must never
+  repeat a seed alias (the key silently wins and the synonym dies — observed).
+  Rules of the resolver worth knowing before touching it: lookup is
+  most-specific-first, never by substring (“flour” never claims “bread flour”);
+  descriptors peel into variety / prep / quality, and only variety changes
+  identity; the device-local overlay (`ingredient-aliases-local.ts`) is
+  consulted before the shipped baseline. Full design and every phase's as-built
+  notes: `plans/2026-08-12-1-plan-ingredient-normalization-and-substitutions.md`.
 - **Plans.** Non-trivial features get a dated plan doc in `plans/` (see existing
   ones); record the outcome when done.
 - **Do not delete the `wbsync` worktree.** `git worktree list` shows a detached,

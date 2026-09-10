@@ -75,6 +75,16 @@ The executable build plan lives at
   pull request gets a live, read-only copy of the built app at
   `arecipe.app/pr-preview/pr-N/`. Plain-git deploy, no third-party actions.
 
+- [plans/2026-08-12-1-plan-ingredient-normalization-and-substitutions.md](plans/2026-08-12-1-plan-ingredient-normalization-and-substitutions.md)
+  — the **ingredient vocabulary**: how a recipe's ingredient lines are keyed to
+  ~1,000 canonical ingredients (search by ingredient, swaps that follow the
+  ingredient rather than the spelling, the “?” that teaches the app a new one).
+  The vocabulary is generated: edit `scripts/ingredient-vocab-seed.json`, run
+  `node scripts/build-ingredientkeys.mjs`, read
+  `runs/ingredient-normalization/REVIEW.md` before committing the regenerated
+  `src/recipes/ingredientkeys.json`. The Phase 0 census that sized it is beside
+  the report.
+
 - [agents.md](agents.md) — the agent guide, published at
   [arecipe.app/agents.md](https://arecipe.app/agents.md) (HTML mirror generated
   at build time; discovered via `/llms.txt`): how AI agents should extract,
