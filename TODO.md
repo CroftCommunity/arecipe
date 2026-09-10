@@ -158,23 +158,31 @@ loose ideas a later session can pick up.
       Source of truth for accuracy: `plans/2026-07-18-1-plan-recipe-import.md`.
       _Noted 2026-07-18 during the recipe-import run._
 
-- [ ] **Ingredient normalization + substitution engine — plan filed, execution
-      not scheduled.** `plans/2026-08-12-1-plan-ingredient-normalization-and-substitutions.md`
-      supersedes PR #87's direct-regex matching (PR is OPEN; whether its UI
-      shell survives is deliberately a **Phase 0 decision**, don't merge or
-      close it ahead of that). Mostly-deterministic hybrid: build-time reviewed
-      `ingredientkeys.json` (the `dishKey` workflow applied to ingredients) →
-      pure matcher on `parseIngredient` output → search-by-ingredient →
-      substitution rules seeded from the reference-view pairs tables → local
-      correction overlay (`exclusions.ts` idiom) → decision GATE → optional
-      closed-set MiniLM fuzzy tier. Before execution: (a) decide the pending
-      **external-DB amendment** — USDA FDC / FoodOn / the annotated
-      ingredient-phrase datasets / FoodKG were scoped in-dialogue as Phase 1
-      seed + Phase 2 fixture inputs behind the same human review, but were
-      never folded into the plan file (licensing claims unverified); (b) the
-      Phase 2 coverage floor (90%) is a placeholder pending the Phase 0 census.
-      Cross-repo tracking: discovery ROADMAP_TODO **E119**. _Noted 2026-08-23
-      (plan dated 2026-08-12)._
+- [x] **Ingredient normalization + substitution engine — M1, M2 and M3 landed
+      2026-09-09/10** (PRs #97 vocabulary + resolver, #98 search by ingredient,
+      #99 substitutions on the vocabulary with PR #87's shell, #100 the “?”
+      correction overlay + Settings export). Plan, with every phase's as-built
+      notes and the Phase 0 census that re-based its sizing (corpus 4,113 records
+      / 35,274 lines, not ~289):
+      `plans/2026-08-12-1-plan-ingredient-normalization-and-substitutions.md`.
+      The external-DB amendment (USDA FDC / FoodOn / FoodKG) was **not adopted**:
+      the census showed the corpus itself is a rich enough seed, and the
+      licensing claims were never verified. Cross-repo: discovery ROADMAP_TODO
+      **E119**. _Landed 2026-09-10._
+
+- [ ] **Ingredient vocabulary — what's left after M3.** (a) **Owner review of the
+      shipped vocabulary**: `src/recipes/ingredientkeys.json` ships
+      `_meta.reviewed: false`; read `runs/ingredient-normalization/REVIEW.md`
+      (61 promotion candidates, alias merges, the tail), edit
+      `scripts/ingredient-vocab-seed.json`, re-run `node scripts/build-ingredientkeys.mjs`,
+      flip the flag. (b) **Phase 5, compound lines** — “juice of 1 lemon”, “salt
+      and pepper” resolve to nothing today; small and last by design (98 + a
+      minority of 1,289 lines). (c) **Mine the corpus's 2,597 “ or ” lines** into
+      candidate rows for the curated substitution table — seven reference rows is
+      thin, and those alternatives are real cooks' and already keyed to recipes.
+      (d) **The decision GATE**: only after the overlay has real usage — if
+      corrections stay few and coverage (82.5% today, floor 75%) holds, stop;
+      the fuzzy tier (M4) is not warranted. _Noted 2026-09-10._
 
 ## Design standard gaps (croft-pwa/docs/DESIGN.md)
 

@@ -34,7 +34,10 @@ export const FIXTURE_QUESTIONS: FixtureQuestion[] = [
   { q: 'what is focus mode', anchor: 'guide-entry-focus' },
   { q: 'how do I read a recipe with my phone propped up while cooking', anchor: 'guide-entry-focus' },
   { q: 'where do I find measurement conversions', anchor: 'guide-entry-reference' },
-  { q: 'how do I find an ingredient substitution', anchor: 'guide-entry-reference' },
+  // 2026-09-10: the answer moved. Substitutions became a feature with its own
+  // entry (swaps, suggestions, the “?”); the little open book still holds the
+  // chart, but the section that answers this question is now the Swaps one.
+  { q: 'how do I find an ingredient substitution', anchor: 'guide-entry-substitutions' },
   { q: 'how do I turn off the did you know fun facts', anchor: 'guide-entry-funfacts' },
   { q: 'how do I hide a recipe I never want to see again', anchor: 'guide-entry-hide' },
   { q: 'how do I leave a comment on a recipe', anchor: 'guide-entry-comments' },
