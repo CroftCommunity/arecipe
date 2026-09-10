@@ -12,6 +12,8 @@ import type { CachedRecipe } from './cache.js';
 import { recipeMetaOf, type Difficulty, type RecipeMeta } from './meta.js';
 import { dishKeyOf, funFactsOf, versionLabelOf, type FunFact } from './model.js';
 import { firstImageCid, firstImageCredit, formatDuration, formatPublishedDate, nutritionOf, thumbUrl } from './present.js';
+import { resolveIngredient, type OverlayLookup } from './ingredient-key.js';
+import type { IngredientCorrections } from './ingredient-aliases-local.js';
 import { INGREDIENT_VOCABULARY } from './ingredient-vocabulary.js';
 import { curatedSubstitutions, lineSubstitution, type CookSubstitution, type LineSubstitution } from './substitutions.js';
 import { initStepState, stepReducer, stepStatusAt, type StepState } from './step-state.js';
@@ -39,21 +41,104 @@ const listEl = (tag: 'ul' | 'ol', testid: string, items: string[]): HTMLElement 
  *  ingredient-normalization plan): a cook rule that applies is a SWAP (the
  *  original struck, the preferred line beside it), a curated reference row is
  *  a SUGGESTION beside the line ("or: …", never struck), most lines are null. */
-const lineSubstitutions = (lines: string[], rules: CookSubstitution[]): (LineSubstitution | null)[] => {
+const lineSubstitutions = (lines: string[], rules: CookSubstitution[], overlay: OverlayLookup | undefined): (LineSubstitution | null)[] => {
   const curated = curatedSubstitutions(INGREDIENT_VOCABULARY);
-  return lines.map((raw) => lineSubstitution(raw, { rules, curated, vocab: INGREDIENT_VOCABULARY }));
+  return lines.map((raw) => lineSubstitution(raw, { rules, curated, vocab: INGREDIENT_VOCABULARY, ...(overlay !== undefined ? { overlay } : {}) }));
+};
+
+/** Phase 6: the unmatched name of each line the app does not know (null for
+ *  known lines and unparseable ones), only when a corrections store is wired. */
+const unknownNames = (lines: string[], overlay: OverlayLookup | undefined): (string | null)[] =>
+  lines.map((raw) => {
+    const r = resolveIngredient(raw, INGREDIENT_VOCABULARY, overlay === undefined ? {} : { overlay });
+    return r.method === 'unmatched' && r.head !== '' ? r.name : null;
+  });
+
+let keysDatalist: HTMLDataListElement | null = null;
+/** One datalist of every key the app knows — the picker never takes free text. */
+const ingredientKeysDatalist = (): HTMLDataListElement => {
+  if (keysDatalist !== null && keysDatalist.isConnected) return keysDatalist;
+  const dl = document.createElement('datalist');
+  dl.id = 'ingredient-keys';
+  for (const key of Object.keys(INGREDIENT_VOCABULARY.keys).sort()) {
+    const opt = document.createElement('option');
+    opt.value = key;
+    dl.append(opt);
+  }
+  keysDatalist = dl;
+  return dl;
+};
+
+/** The "is this…?" affordance on a line the app does not know: a small button
+ *  that opens an inline picker over EXISTING keys; confirming stores the
+ *  correction on this device and the list repaints with the line now known. */
+const correctionAffordance = (name: string, onConfirm: (name: string, key: string) => void): HTMLElement => {
+  const host = el('span', 'ingredient-correct-host');
+  const btn = el('button', 'ingredient-correct', '?') as HTMLButtonElement;
+  btn.type = 'button';
+  btn.dataset['testid'] = 'ingredient-correct';
+  btn.title = `arecipe doesn’t know “${name}” — tell it what this is`;
+  btn.setAttribute('aria-label', `Tell arecipe what “${name}” is`);
+  btn.addEventListener('click', () => {
+    const form = el('span', 'ingredient-correct-form');
+    const label = el('span', 'ingredient-correct-label', `“${name}” is…`);
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'staples-input';
+    input.placeholder = 'pick an ingredient';
+    input.setAttribute('list', ingredientKeysDatalist().id);
+    input.dataset['testid'] = 'ingredient-correct-key';
+    input.setAttribute('aria-label', `What “${name}” is`);
+    const confirm = el('button', 'button', 'Confirm') as HTMLButtonElement;
+    confirm.type = 'button';
+    confirm.dataset['testid'] = 'ingredient-correct-confirm';
+    const cancel = el('button', 'button', 'Cancel') as HTMLButtonElement;
+    cancel.type = 'button';
+    const status = el('span', 'status ingredient-correct-status');
+    status.dataset['testid'] = 'ingredient-correct-status';
+    const commit = (): void => {
+      const key = input.value.trim().toLowerCase();
+      if (INGREDIENT_VOCABULARY.keys[key] === undefined) {
+        status.textContent = 'pick an ingredient the app knows (start typing to see them)';
+        input.focus();
+        return;
+      }
+      onConfirm(name, key);
+    };
+    confirm.addEventListener('click', commit);
+    input.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        commit();
+      }
+    });
+    cancel.addEventListener('click', () => host.replaceChildren(btn));
+    form.append(label, input, ingredientKeysDatalist(), confirm, cancel, status);
+    host.replaceChildren(form);
+    input.focus();
+  });
+  host.append(btn);
+  return host;
 };
 
 /** The Ingredients list, with substitutions optionally applied. With `subs`
- *  null this is just a plain ingredient list. */
-const ingredientListEl = (lines: string[], subs: (LineSubstitution | null)[] | null): HTMLElement => {
+ *  null this is just a plain ingredient list. Lines the app does not know get
+ *  the correction affordance when `unknown` names them. */
+const ingredientListEl = (
+  lines: string[],
+  subs: (LineSubstitution | null)[] | null,
+  unknown: (string | null)[] = [],
+  onConfirm?: (name: string, key: string) => void,
+): HTMLElement => {
   const list = el('ul');
   list.dataset['testid'] = 'recipe-ingredients';
   lines.forEach((raw, i) => {
     const li = el('li');
     const sub = subs?.[i] ?? null;
+    const name = unknown[i] ?? null;
     if (sub === null) {
       li.textContent = raw;
+      if (name !== null && onConfirm !== undefined) li.append(document.createTextNode(' '), correctionAffordance(name, onConfirm));
     } else if (sub.kind === 'swap') {
       li.classList.add('ingredient-substituted');
       const del = el('del', 'ingredient-original', sub.original);
@@ -345,6 +430,10 @@ export type RenderOptions = {
   /** Recipe detail only: start with substitutions applied (the ⇄ toggle checked).
    *  Set from the Account "Always apply substitutions" preference. Default off. */
   applySubstitutions?: boolean;
+  /** Recipe detail only: the device-local ingredient corrections (Phase 6).
+   *  When wired, lines the app does not know get an "is this…?" affordance and
+   *  confirmed names resolve ahead of the shipped vocabulary. */
+  corrections?: IngredientCorrections;
 };
 
 const recipePageHref = (entry: CachedRecipe, options: RenderOptions): string => {
@@ -907,29 +996,44 @@ export const renderRecipeDetail = (
   // checking it re-renders the list with matched lines struck through and the
   // preferred swap shown beside them. `applySubstitutions` (the Account "always
   // apply" preference) sets the initial state.
-  const perLine = lineSubstitutions(ingredientLines, options.substitutions ?? []);
-  const anyMatch = perLine.some((s) => s !== null);
-  let applying = anyMatch && options.applySubstitutions === true;
-  const listHost = el('div', 'ingredient-list-host');
-  const paintIngredients = (): void => {
-    listHost.replaceChildren(ingredientListEl(ingredientLines, applying ? perLine : null));
+  const corrections = options.corrections;
+  const overlay: OverlayLookup | undefined = corrections === undefined ? undefined : (name) => corrections.lookup(name);
+  let applying = options.applySubstitutions === true;
+  const ingredientsBody = el('div', 'ingredients-body');
+  // Repainted whole after a correction: a line the cook just confirmed may now
+  // swap or carry a suggestion, so the toggle's existence can change too.
+  const paintIngredientsSection = (): void => {
+    const perLine = lineSubstitutions(ingredientLines, options.substitutions ?? [], overlay);
+    const anyMatch = perLine.some((s) => s !== null);
+    const unknown = corrections === undefined ? [] : unknownNames(ingredientLines, overlay);
+    const onConfirm = corrections === undefined ? undefined : (name: string, key: string): void => {
+      corrections.confirm(name, key);
+      paintIngredientsSection();
+    };
+    const listHost = el('div', 'ingredient-list-host');
+    const paintList = (): void => {
+      listHost.replaceChildren(ingredientListEl(ingredientLines, applying && anyMatch ? perLine : null, unknown, onConfirm));
+    };
+    ingredientsBody.replaceChildren();
+    if (anyMatch) {
+      const toggle = el('label', 'sub-toggle') as HTMLLabelElement;
+      toggle.title = 'Show your ingredient substitutions';
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = applying;
+      cb.dataset['testid'] = 'apply-substitutions';
+      cb.addEventListener('change', () => {
+        applying = cb.checked;
+        paintList();
+      });
+      toggle.append(cb, document.createTextNode(` Apply ${SUBSTITUTION_GLYPH}`));
+      ingredientsBody.append(toggle);
+    }
+    paintList();
+    ingredientsBody.append(listHost);
   };
-  if (anyMatch) {
-    const toggle = el('label', 'sub-toggle') as HTMLLabelElement;
-    toggle.title = 'Show your ingredient substitutions';
-    const cb = document.createElement('input');
-    cb.type = 'checkbox';
-    cb.checked = applying;
-    cb.dataset['testid'] = 'apply-substitutions';
-    cb.addEventListener('change', () => {
-      applying = cb.checked;
-      paintIngredients();
-    });
-    toggle.append(cb, document.createTextNode(` Apply ${SUBSTITUTION_GLYPH}`));
-    ingredients.append(toggle);
-  }
-  paintIngredients();
-  ingredients.append(listHost);
+  paintIngredientsSection();
+  ingredients.append(ingredientsBody);
   const instructions = el('section');
   instructions.append(sectionHead('Instructions', instructionLines, 'copy-instructions'));
   instructions.append(listEl('ol', 'recipe-instructions', instructionLines));

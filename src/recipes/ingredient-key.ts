@@ -49,9 +49,13 @@ export type SplitHead = {
   quality: string[];
 };
 
+/** Phase 6: the device-local overlay — what a cook confirmed an unmatched
+ * name IS. Consulted first, by the identity-bearing name (`full`). */
+export type OverlayLookup = (name: string) => string | undefined;
+
 export type Resolution =
   | {
-      method: 'exact' | 'alias';
+      method: 'exact' | 'alias' | 'overlay';
       key: string;
       head: string;
       countUnit?: string;
@@ -207,10 +211,22 @@ const keyIndex = (v: Vocabulary): KeyIndex => {
   return m;
 };
 
-/** Resolve one raw ingredient line against the vocabulary. */
-export const resolveIngredient = (raw: string, vocab: Vocabulary): Resolution => {
+/** Resolve one raw ingredient line: overlay > shipped baseline > unmatched. */
+export const resolveIngredient = (raw: string, vocab: Vocabulary, opts: { overlay?: OverlayLookup } = {}): Resolution => {
   const split = canonicalHead(raw, vocab.descriptors);
   if (split === null) return { method: 'unmatched', name: raw.trim(), head: '' };
+  const confirmed = opts.overlay?.(split.full);
+  if (confirmed !== undefined) {
+    return {
+      method: 'overlay',
+      key: confirmed,
+      head: split.full,
+      ...(split.countUnit !== undefined ? { countUnit: split.countUnit } : {}),
+      variety: [],
+      prep: split.prep,
+      quality: split.quality,
+    };
+  }
   const index = keyIndex(vocab);
   for (const [i, layer] of split.layers.entries()) {
     const hit = index.get(layer);

@@ -76,3 +76,12 @@ describe('index build cost band (Phase 0: +19% for the extra field at 4k records
     expect(ms).toBeLessThan(3000); // generous: CI runners are 2–3× slower than the measured 394 ms
   });
 });
+
+describe('search reaches lines the overlay resolves (Phase 6)', () => {
+  it('"dashi" finds a recipe that only says "kombu broth" once the cook confirmed what that is', () => {
+    const feed2 = [...feed, cached('Clear Soup', ['4 cups kombu broth', '1 tsp salt'], 'e')];
+    const overlay = (name: string): string | undefined => (name === 'kombu broth' ? 'dashi' : undefined);
+    expect(names(createRecipeSearch(feed2).query('dashi'))).not.toContain('Clear Soup');
+    expect(names(createRecipeSearch(feed2, { overlay }).query('dashi'))).toContain('Clear Soup');
+  });
+});

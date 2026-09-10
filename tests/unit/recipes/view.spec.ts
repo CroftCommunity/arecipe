@@ -15,6 +15,7 @@ import {
   renderRecipeList,
   renderVersionBar,
 } from '../../../src/recipes/view.js';
+import { createIngredientCorrections } from '../../../src/recipes/ingredient-aliases-local.js';
 import type { CachedRecipe } from '../../../src/recipes/cache.js';
 import type { RecipeMeta } from '../../../src/recipes/meta.js';
 
@@ -295,6 +296,41 @@ describe('renderRecipeDetail', () => {
     const e = entry({ value: { ...fixture.value, ingredients: ['500 g bread flour'] } });
     const el = renderRecipeDetail(e, { substitutions: [{ from: 'flour', fromKey: 'flour', to: 'almond flour' }], applySubstitutions: true });
     expect(el.querySelector('[data-testid=recipe-ingredients]')?.querySelector('del')).toBeNull();
+  });
+
+  const memStorage = () => {
+    const data = new Map<string, string>();
+    return { getItem: (k: string) => data.get(k) ?? null, setItem: (k: string, v: string) => void data.set(k, v), removeItem: (k: string) => void data.delete(k) };
+  };
+
+  it('an ingredient the app does not know carries an "is this…?" affordance; known lines carry none', () => {
+    const e = entry({ value: { ...fixture.value, ingredients: ['30 g freeze-dried strawberries', '2 cups flour'] } });
+    const el = renderRecipeDetail(e, { corrections: createIngredientCorrections({ storage: memStorage() }) });
+    const items = el.querySelectorAll('[data-testid=recipe-ingredients] li');
+    expect(items[0]?.querySelector('[data-testid=ingredient-correct]')).not.toBeNull();
+    expect(items[1]?.querySelector('[data-testid=ingredient-correct]')).toBeNull();
+  });
+
+  it('confirming picks an EXISTING key: the correction is stored under the unmatched name and the line repaints as known', () => {
+    const store = createIngredientCorrections({ storage: memStorage() });
+    const e = entry({ value: { ...fixture.value, ingredients: ['30 g freeze-dried strawberries'] } });
+    const el = renderRecipeDetail(e, { corrections: store });
+    el.querySelector<HTMLButtonElement>('[data-testid=ingredient-correct]')!.click();
+    const input = el.querySelector<HTMLInputElement>('[data-testid=ingredient-correct-key]')!;
+    expect(input.getAttribute('list')).toBeTruthy(); // a datalist of existing keys, never free text
+    input.value = 'not a key at all';
+    el.querySelector<HTMLButtonElement>('[data-testid=ingredient-correct-confirm]')!.click();
+    expect(store.lookup('freeze-dried strawberry')).toBeUndefined();
+    expect(el.querySelector('[data-testid=ingredient-correct-status]')?.textContent).toContain('pick an ingredient the app knows');
+    input.value = 'strawberry';
+    el.querySelector<HTMLButtonElement>('[data-testid=ingredient-correct-confirm]')!.click();
+    expect(store.lookup('freeze-dried strawberry')).toBe('strawberry');
+    expect(el.querySelector('[data-testid=ingredient-correct]')).toBeNull();
+  });
+
+  it('no corrections store, no affordance (Browse cards and tests render without one)', () => {
+    const e = entry({ value: { ...fixture.value, ingredients: ['30 g freeze-dried strawberries'] } });
+    expect(renderRecipeDetail(e).querySelector('[data-testid=ingredient-correct]')).toBeNull();
   });
 
   it('toggling the ⇄ control swaps the ingredient list in place', () => {

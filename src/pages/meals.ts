@@ -89,6 +89,7 @@ import {
 import { createShoppingPrefs, type Substitution } from '../recipes/shopping-prefs.js';
 import { INGREDIENT_VOCABULARY } from '../recipes/ingredient-vocabulary.js';
 import { substituteLines } from '../recipes/substitutions.js';
+import { createIngredientCorrections } from '../recipes/ingredient-aliases-local.js';
 import { registerServiceWorker } from '../sw-register.js';
 
 export type PaletteProvider = () => Promise<PaletteItem[]>;
@@ -290,6 +291,7 @@ const buildShoppingListSection = (
   // ingredient out) — the copy/download/AI payloads then carry the preferred
   // item, so you shop for what you actually want.
   let substitutions: Substitution[] = [];
+  const corrections = createIngredientCorrections();
   // In-panel "I already have this" check-off, keyed by the shared line key (so a
   // name checked in one tab is excluded in the other). Kept for the panel's life;
   // keys that still exist after a range change stay checked.
@@ -476,7 +478,7 @@ const buildShoppingListSection = (
     renderContent();
     try {
       const built = await resolveShoppingList(getPlan(), currentRange(), fetchIngredients, {
-        substitute: (lines) => substituteLines(lines, substitutions, INGREDIENT_VOCABULARY),
+        substitute: (lines) => substituteLines(lines, substitutions, INGREDIENT_VOCABULARY, { overlay: (name) => corrections.lookup(name) }),
       });
       // Flag staples so they drop to the "Be sure to double check" section, and
       // seed them CHECKED (assumed on hand) — so they start excluded from

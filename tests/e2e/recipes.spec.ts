@@ -212,6 +212,31 @@ test('recipe page: Apply ⇄ toggle swaps a matching ingredient (opt-in)', async
   await expect(ing.locator('del')).toHaveCount(0);
 });
 
+// Ingredient corrections (ingredient-normalization plan, Phase 6): a line the
+// app does not know carries a "?"; confirming what it is (an EXISTING key) makes
+// it known on this device, and it stays known across a reload. The fixture
+// recipe has three such lines; "freeze-dried strawberries" is one.
+test('recipe page: "?" on an unknown ingredient → confirm what it is → the line is known and persists', async ({ page }) => {
+  await routeFixtures(page);
+  const uri = `at://${AUTHOR_DID}/exchange.recipe.recipe/01JQJ5RW51ZVEW72XN6GSRWC8D`;
+  await page.goto(`/recipe.html?u=${encodeURIComponent(uri)}&by=somechef.example.com`);
+  await expect(page.locator('h2')).toContainText('White Chocolate', { timeout: 15_000 });
+  const ing = page.getByTestId('recipe-ingredients');
+  await expect(ing.getByTestId('ingredient-correct')).toHaveCount(3);
+  const strawberries = ing.locator('li', { hasText: 'freeze-dried strawberries' });
+  await strawberries.getByTestId('ingredient-correct').click();
+  // Free text is refused: the picker only takes an ingredient the app knows.
+  await strawberries.getByTestId('ingredient-correct-key').fill('not an ingredient');
+  await strawberries.getByTestId('ingredient-correct-confirm').click();
+  await expect(strawberries.getByTestId('ingredient-correct-status')).toContainText('pick an ingredient the app knows');
+  await strawberries.getByTestId('ingredient-correct-key').fill('strawberry');
+  await strawberries.getByTestId('ingredient-correct-confirm').click();
+  await expect(ing.getByTestId('ingredient-correct')).toHaveCount(2);
+  await page.reload();
+  await expect(page.locator('h2')).toContainText('White Chocolate', { timeout: 15_000 });
+  await expect(page.getByTestId('recipe-ingredients').getByTestId('ingredient-correct')).toHaveCount(2);
+});
+
 test('recipe page: "always apply substitutions" opens with the ⇄ toggle already on', async ({
   page,
 }) => {

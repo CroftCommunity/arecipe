@@ -33,7 +33,8 @@ import { loadLikedFeed } from '../social/liked-feed.js';
 import { readFeedMeta, relativeFreshness, writeFeedMeta, type FeedMeta } from '../social/cookbook-feed-cache.js';
 import { createRecipeCache, type CachedRecipe } from '../recipes/cache.js';
 import { availableFacets, createBrowsePrefs, matchesFilter, recipeFacets, type BrowseState } from './browse-state.js';
-import { createSearchMemo, queryEntries } from '../recipes/search.js';
+import { createRecipeSearch, createSearchMemo, queryEntries } from '../recipes/search.js';
+import { createIngredientCorrections } from '../recipes/ingredient-aliases-local.js';
 import {
   isPlannedSort,
   partitionByPlanned,
@@ -175,7 +176,9 @@ const renderFeedView = (
   // memoized on the active source's array identity (D6) — facet toggles reuse it;
   // a source switch or a feed update() rebuilds.
   let query = '';
-  const searchMemo = createSearchMemo();
+  // Phase 6: search reaches lines the cook confirmed on this device.
+  const corrections = createIngredientCorrections();
+  const searchMemo = createSearchMemo((entries) => createRecipeSearch(entries, { overlay: (name) => corrections.lookup(name) }));
 
   // Windowing (Phase 6 of the 2026-08-06 sharding plan): a large cookbook must
   // render ONE page of cards, not a card per record — same page size and pager

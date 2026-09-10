@@ -20,7 +20,7 @@ descriptor-aware substitutions.
 | 3 Search by ingredient (M2) | ✅ 2026-09-09 | | `ingredientKeys` indexed beside raw text (boost 3) + whole-query canonicalization as an OR branch, so both directions reach; build-cost band pinned (< 3 s at 4k, measured ~0.4 s) |
 | 4 Substitution engine (M2 exit) | ✅ 2026-09-09 | | `src/recipes/substitutions.ts`: cook rules keyed (+variety scope) rewrite lines; the 7 reference rows are suggestions; #87's shell reused, its regex engine discarded |
 | 5 Compound-line split | ⏳ | | "salt and pepper", "juice of 1 lemon" |
-| 6 Correction overlay (M3 exit) | ⏳ | | Local KB: confirm/correct + export for promotion |
+| 6 Correction overlay (M3 exit) | ✅ 2026-09-09 | | `ingredient-aliases-local.ts` (device-local, keyed on the unmatched name); resolver method `overlay` first; "?" affordance on the recipe page picks an existing key; Settings exports the seed-alias block |
 | GATE | ⏳ | | Proceed to M4 only if overlay telemetry demands it |
 | 7 Vocab embeddings asset (M4) | ⏳ | | Build-time vectors, static asset |
 | 8 Runtime fuzzy tier (M4 exit) | ⏳ | | Worker + quantized MiniLM, closed-set, labeled |
@@ -292,6 +292,26 @@ promotion.
   block to paste into `ingredientkeys.json` aliases at next build review —
   the manual promotion path. (PDS-published community aliases = Phase 9,
   roadmap.)
+
+**As built (2026-09-09).** `src/recipes/ingredient-aliases-local.ts` mirrors the
+exclusions overlay: localStorage, defensive, empty leaves no key behind. One
+deviation from the bullet above, recorded: entries are keyed on the **unmatched
+NAME** the resolver reported (`full`, the identity-bearing form: "freeze-dried
+strawberry"), not the raw line — one confirmation covers every line that reads
+the same once quantity and prep come off, and a parser change that alters the
+split leaves an entry unconsulted, never wrong (the orphaning the raw-line idea
+guarded against). `resolveIngredient(raw, vocab, { overlay })` consults the
+overlay first, by `full`, and answers `method: 'overlay'` (overlay > baseline >
+unmatched); substitutions and search take the same `overlay`, so a confirmed
+line swaps and is found like any other. Recipe page: a line the app does not
+know carries a "?" (44 px); it opens an inline picker over a datalist of EXISTING
+keys — free text is refused with words — and confirming repaints the section
+(the ⇄ toggle can appear because the line now resolves). Settings: "Ingredient
+corrections (N)", collapsed, rows with Remove, "Copy for the vocabulary"
+(clipboard, the `seedAliases` block ready to merge into the seed) and Clear.
+Unit: 6 store cases, 4 resolver, 1 substitutions, 1 search, 3 view — RED first;
+e2e: the confirm flow persists across a reload; the settings section lists,
+exports, removes.
 
 ## DECISION GATE — is M4 warranted?
 

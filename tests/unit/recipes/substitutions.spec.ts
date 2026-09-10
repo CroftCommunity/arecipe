@@ -113,3 +113,12 @@ describe('substituteLines — the shopping list applies cook swaps only', () => 
     expect(substituteLines(lines, [], vocab)).toBe(lines);
   });
 });
+
+describe('cook rules reach lines the overlay resolves (Phase 6)', () => {
+  it('swaps a line that only resolves through a confirmed correction', () => {
+    const overlay = (name: string): string | undefined => (name === 'freeze-dried strawberry' ? 'strawberry' : undefined);
+    const rules = [rule('strawberry', 'raspberry')];
+    expect(substituteLine('30 g freeze-dried strawberries', rules, vocab)).toBeNull();
+    expect(substituteLine('30 g freeze-dried strawberries', rules, vocab, { overlay })?.substituted).toBe('30 g raspberries');
+  });
+});
