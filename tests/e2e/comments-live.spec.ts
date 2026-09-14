@@ -4,7 +4,7 @@
 // on the test account (hard-scoped to TEST_DID), pre-run + teardown. Runs only
 // with BSKY_TEST_* creds in .env (never in push CI).
 import { expect, test } from '@playwright/test';
-import { purgeCollection, readEnv, signIn, TEST_DID } from './helpers/live.js';
+import { LIVE_CREDS_HINT, TEST_DID, purgeCollection, readEnv, signIn } from './helpers/live.js';
 import { COMMENT_COLLECTION } from '../../src/social/comments.js';
 
 const env = readEnv();
@@ -26,7 +26,7 @@ const purgeComments = (): Promise<void> =>
 test('@live comment → appears → reply nests (the comment write path)', async ({ page, baseURL }) => {
   test.skip(
     HANDLE === '' || PASSWORD === '' || APP_PASSWORD === '',
-    'needs BSKY_TEST_* credentials in .env',
+    LIVE_CREDS_HINT,
   );
   test.setTimeout(180_000);
   await purgeComments(); // crash-safe pre-run

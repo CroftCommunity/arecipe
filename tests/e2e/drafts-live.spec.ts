@@ -5,7 +5,7 @@
 // Cleanup is HARD-GUARDED to the test account (marker names, both
 // collections, pre-run purge + teardown).
 import { expect, test } from '@playwright/test';
-import { readEnv, signIn } from './helpers/live.js';
+import { LIVE_CREDS_HINT, readEnv, signIn } from './helpers/live.js';
 
 const env = readEnv();
 const HANDLE = env['BSKY_TEST_HANDLE'] ?? '';
@@ -63,7 +63,7 @@ test('@live drafts survive eviction; edits version; stale caches refresh', async
 }) => {
   test.skip(
     HANDLE === '' || PASSWORD === '' || APP_PASSWORD === '',
-    'needs BSKY_TEST_* credentials in .env',
+    LIVE_CREDS_HINT,
   );
   test.setTimeout(300_000);
   await purgeAll();

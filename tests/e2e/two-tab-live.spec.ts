@@ -6,7 +6,7 @@
 // loudly. Assertions are on end state (both tabs authenticated), not call
 // ordering, per the plan's flakiness note.
 import { expect, test } from '@playwright/test';
-import { readEnv, signIn } from './helpers/live.js';
+import { LIVE_CREDS_HINT, readEnv, signIn } from './helpers/live.js';
 
 const env = readEnv();
 const HANDLE = env['BSKY_TEST_HANDLE'] ?? '';
@@ -17,7 +17,7 @@ test('@live two tabs survive a forced refresh (single-use refresh token hazard)'
   page,
   baseURL,
 }) => {
-  test.skip(HANDLE === '' || PASSWORD === '', 'needs BSKY_TEST_HANDLE/PASSWORD in .env');
+  test.skip(HANDLE === '' || PASSWORD === '', LIVE_CREDS_HINT);
   // Un-fixme'd 2026-07-16 (D6): the loopback client_id is now STABLE across
   // pages — it enumerates every authed page's redirect_uri and no longer bakes
   // the initiating page's pathname in (oauth-client.ts). A token minted during

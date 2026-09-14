@@ -3,7 +3,7 @@
 // active, unlike → count drops. Guarded by a whole-collection purge of
 // app.arecipe.interaction on the test account (hard-scoped to TEST_DID).
 import { expect, test } from '@playwright/test';
-import { purgeCollection, readEnv, signIn, TEST_DID } from './helpers/live.js';
+import { LIVE_CREDS_HINT, TEST_DID, purgeCollection, readEnv, signIn } from './helpers/live.js';
 import { INTERACTION_COLLECTION } from '../../src/social/interactions.js';
 
 const env = readEnv();
@@ -20,7 +20,7 @@ const purgeInteractions = (): Promise<void> =>
 test('@live like → count reflects → unlike (the like write path)', async ({ page, baseURL }) => {
   test.skip(
     HANDLE === '' || PASSWORD === '' || APP_PASSWORD === '',
-    'needs BSKY_TEST_* credentials in .env',
+    LIVE_CREDS_HINT,
   );
   test.setTimeout(180_000);
   await purgeInteractions(); // crash-safe pre-run

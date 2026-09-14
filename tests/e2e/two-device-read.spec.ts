@@ -5,7 +5,7 @@
 // device's refresh must not disturb the other (unlike tabs, nothing is
 // shared here; each context holds its own single-use refresh token).
 import { expect, test, type Page } from '@playwright/test';
-import { readEnv, signIn } from './helpers/live.js';
+import { LIVE_CREDS_HINT, readEnv, signIn } from './helpers/live.js';
 
 const env = readEnv();
 const HANDLE = env['BSKY_TEST_HANDLE'] ?? '';
@@ -30,7 +30,7 @@ test('@live two devices: same account, independent sessions, same recipes', asyn
   page,
   baseURL,
 }) => {
-  test.skip(HANDLE === '' || PASSWORD === '', 'needs BSKY_TEST_HANDLE/PASSWORD in .env');
+  test.skip(HANDLE === '' || PASSWORD === '', LIVE_CREDS_HINT);
   // Un-fixme'd 2026-07-16 (D6): the loopback client_id is now stable across
   // pages (oauth-client.ts enumerates every authed page's redirect_uri), so a
   // token minted during sign-in refreshes on any other authed page. Production/

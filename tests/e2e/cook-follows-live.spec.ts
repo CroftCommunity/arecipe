@@ -11,7 +11,7 @@
 // it deletes — a whole-collection purge (hard-scoped to TEST_DID) runs before
 // AND after, so a crash mid-run can't leave a stray follow on the test account.
 import { expect, test } from '@playwright/test';
-import { purgeCollection, readEnv, signIn, TEST_DID } from './helpers/live.js';
+import { LIVE_CREDS_HINT, TEST_DID, purgeCollection, readEnv, signIn } from './helpers/live.js';
 import { COOK_FOLLOW_COLLECTION } from '../../src/social/cook-follows-pds.js';
 
 const env = readEnv();
@@ -52,7 +52,7 @@ test('@live cookFollow round-trip: follow writes one public record, unfollow rem
 }) => {
   test.skip(
     HANDLE === '' || PASSWORD === '' || APP_PASSWORD === '',
-    'needs BSKY_TEST_* credentials in .env',
+    LIVE_CREDS_HINT,
   );
   test.setTimeout(180_000);
   await purgeCookFollows(); // crash-safe pre-run

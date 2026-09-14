@@ -2,14 +2,14 @@
 // Cookbook opens the authoring hub (mine.html). It renders only on the own
 // cookbook (viewer-relative, like the source control), so it's exercised @live.
 import { expect, test } from '@playwright/test';
-import { readEnv, signIn, TEST_DID } from './helpers/live.js';
+import { LIVE_CREDS_HINT, TEST_DID, readEnv, signIn } from './helpers/live.js';
 
 const env = readEnv();
 const HANDLE = env['BSKY_TEST_HANDLE'] ?? '';
 const PASSWORD = env['BSKY_TEST_PASSWORD'] ?? '';
 
 test('@live Alchemy on own Cookbook opens the authoring hub', async ({ page, baseURL }) => {
-  test.skip(HANDLE === '' || PASSWORD === '', 'needs BSKY_TEST_* creds');
+  test.skip(HANDLE === '' || PASSWORD === '', LIVE_CREDS_HINT);
   test.setTimeout(180_000);
 
   await signIn(page, { handle: HANDLE, password: PASSWORD, origin: baseURL ?? 'http://127.0.0.1:4173' });
