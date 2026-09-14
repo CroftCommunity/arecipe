@@ -1,0 +1,31 @@
+{
+  "lexicon": 1,
+  "id": "app.arecipe.ingredientAlias",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "A cook's statement that an ingredient line NAME (as arecipe reports it once quantity and preparation come off — \"freeze-dried strawberry\") means the canonical ingredient KEY (\"strawberry\") in arecipe's shipped vocabulary. One record per name. Published from a device's confirmed corrections; read back by the cook's other devices, and by arecipe's vocabulary build from accounts it trusts, as alias candidates for review. Never authoritative on its own: a reader keys the name to a key it already has.",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["name", "key", "createdAt"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "The unmatched ingredient name, lower-case, whitespace-collapsed."
+          },
+          "key": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "The canonical ingredient key the name means."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime"
+          }
+        }
+      }
+    }
+  }
+}

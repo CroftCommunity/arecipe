@@ -182,8 +182,11 @@ loose ideas a later session can pick up.
       corpus battle-test exposed. (b) ~~Phase 5~~, (c) ~~mining the "or" lines~~,
       (d) ~~the GATE~~ and M4 all landed 2026-09-14 (coverage 82.5% → 86.7%
       deterministic → 89.1% with the lexical fuzzy tier; the MiniLM path declined
-      — CSP gate + 23 MB). Left: Phase 9 (community aliases as PDS records,
-      re-planned in `plans/2026-09-14-plan-community-ingredient-aliases.md`).
+      — CSP gate + 23 MB). Phase 9 landed the same day (community aliases as
+      `app.arecipe.ingredientAlias` records: `plans/2026-09-14-plan-community-ingredient-aliases.md`);
+      what remains of the whole plan is the owner's vocabulary review (a) and,
+      when there are real records, `--aliases-from` + proposing the record type to
+      lexicon.community.
       _Noted 2026-09-10, updated 2026-09-14._
 
 ## Design standard gaps (croft-pwa/docs/DESIGN.md)

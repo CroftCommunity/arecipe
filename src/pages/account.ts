@@ -24,6 +24,9 @@ import {
 } from '../recipes/shopping-prefs.js';
 import { INGREDIENT_VOCABULARY } from '../recipes/ingredient-vocabulary.js';
 import { keyCookSubstitution } from '../recipes/substitutions.js';
+import { createIngredientCorrections } from '../recipes/ingredient-aliases-local.js';
+import { mirrorIngredientAliasesDown, publishIngredientAlias } from '../recipes/ingredient-aliases-pds.js';
+import type { Agent } from '@atproto/api';
 import { createReachPrefs } from '../social/reach.js';
 import {
   CUISINE_OPTIONS,
@@ -203,6 +206,78 @@ const renderTastePrefs = (): HTMLElement => {
  *   - AI shopper instructions: free text folded into the "AI shopper" copy
  *     (e.g. "prefer versions we've bought before").
  *  Both are device-local (no account needed), so this renders for everyone. */
+/** Phase 9: the device's ingredient corrections as app.arecipe.ingredientAlias
+ *  records on the cook's own account — publish what this device confirmed, pull
+ *  what other devices did. Signed-in only (writes need the session Agent); the
+ *  Settings page keeps the device-local list, copy and clear. */
+const renderIngredientAliasSync = (agent: Agent, resolvePds: () => Promise<string>): HTMLElement => {
+  const block = el('div', 'ingredient-alias-sync');
+  block.dataset['testid'] = 'ingredient-alias-sync';
+  block.append(el('h4', 'taste-bucket-title', 'Ingredient corrections on your account'));
+  block.append(
+    el(
+      'p',
+      'status',
+      'The ingredients you taught arecipe on this device (the “?” beside a line) can live on your account too, so your other devices know them — and so arecipe can consider them for everyone.',
+    ),
+  );
+  const corrections = createIngredientCorrections();
+  const row = el('div', 'settings-row');
+  const publish = el('button', 'button', 'Publish') as HTMLButtonElement;
+  publish.type = 'button';
+  publish.dataset['testid'] = 'corrections-publish';
+  const pull = el('button', 'button', 'Pull from account') as HTMLButtonElement;
+  pull.type = 'button';
+  pull.dataset['testid'] = 'corrections-pull';
+  const status = el('p', 'status');
+  status.dataset['testid'] = 'corrections-sync-status';
+  const refresh = (): void => {
+    const all = corrections.all();
+    const pending = all.filter((c) => c.publishedRkey === undefined).length;
+    publish.textContent = pending === 0 ? 'Published' : `Publish ${pending} to your account`;
+    publish.disabled = pending === 0;
+    status.textContent = `${all.length} on this device, ${all.length - pending} on your account.`;
+  };
+  const target = async (): Promise<{ pds: string; did: string }> => {
+    const did = agent.did;
+    if (did === undefined) throw new Error('no signed-in account');
+    return { pds: await resolvePds(), did };
+  };
+  publish.addEventListener('click', async () => {
+    publish.disabled = true;
+    try {
+      const t = await target();
+      let n = 0;
+      for (const c of corrections.all()) {
+        if (c.publishedRkey !== undefined) continue;
+        await publishIngredientAlias(agent, { name: c.name, key: c.key }, corrections, t);
+        n += 1;
+      }
+      status.textContent = `Published ${n}.`;
+    } catch (err) {
+      log.warn('ingredient-aliases', 'publish failed', { error: String(err) });
+      status.textContent = `Publish failed: ${String(err)}`;
+    }
+    refresh();
+  });
+  pull.addEventListener('click', async () => {
+    pull.disabled = true;
+    try {
+      const { pulled, pruned } = await mirrorIngredientAliasesDown(corrections, await target());
+      status.textContent = `Pulled ${pulled}${pruned > 0 ? `, removed ${pruned} deleted elsewhere` : ''}.`;
+    } catch (err) {
+      log.warn('ingredient-aliases', 'pull failed', { error: String(err) });
+      status.textContent = `Pull failed: ${String(err)}`;
+    }
+    pull.disabled = false;
+    refresh();
+  });
+  row.append(publish, pull);
+  block.append(row, status);
+  refresh();
+  return block;
+};
+
 const renderShoppingPrefs = (): HTMLElement => {
   const store = createShoppingPrefs();
   let prefs: ShoppingPrefs = store.load();
@@ -502,6 +577,15 @@ const main = async (): Promise<void> => {
   // Shopping-list preferences (staples + AI-shopper instructions) are likewise
   // device-local, so they render for everyone — signed in or out.
   content.append(renderShoppingPrefs());
+  if (agent !== null) {
+    const signedInDid = agent.did;
+    content.append(
+      renderIngredientAliasSync(agent, async () => {
+        if (signedInDid === undefined) throw new Error('no signed-in account');
+        return (await retryOnce(() => resolveDidDoc(signedInDid))).pds;
+      }),
+    );
+  }
 
   // Publish-a-calendar is likewise device-local, so it renders for everyone
   // (configurable signed-out — the token/repo live in this browser). "Publish

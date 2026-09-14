@@ -25,7 +25,7 @@ descriptor-aware substitutions.
 | GATE | decision 2026-09-14 | | Owner chose to build M4 ahead of overlay telemetry; the gate's evidence question (does the alias table suffice?) stays open and is re-asked at the M4 exit — see § DECISION GATE |
 | 7 Vocab embeddings asset (M4) | ✅ 2026-09-14 (as lexical) | | No embeddings asset: the closed set is the vocabulary's keys + aliases, trigram-indexed at runtime in memory (`ingredient-fuzzy.ts`) — the MiniLM path is blocked by the CSP gate (no `wasm-unsafe-eval`) and a 23 MB model |
 | 8 Runtime fuzzy tier (M4 exit) | ✅ 2026-09-14 | | Closed-set, thresholded (0.75), labeled `fuzzy` with score; last after every deterministic path; provisional swaps; the “≈ closest match?” confirm flows to the overlay. Coverage 86.7% → **89.1%**; precision 90%/85% in the bands ≥ threshold, 55% just below — battle-tested on the corpus (`FUZZY-EVAL.md`) |
-| 9 PDS alias records | roadmap | | Community corrections; re-plan before execution |
+| 9 PDS alias records | ✅ 2026-09-14 | | Re-planned and built: `plans/2026-09-14-plan-community-ingredient-aliases.md` — `app.arecipe.ingredientAlias` records, adopt-first publish / reconciling pull on the Account page, build-time candidates from trusted accounts (`--aliases-from`) |
 
 ## Problem Statement
 

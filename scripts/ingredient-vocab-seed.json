@@ -1,5 +1,5 @@
 {
-  "_why": "Reviewed DATA for scripts/build-ingredientkeys.mjs: the descriptor taxonomy the resolver peels (variety changes identity and substitution behavior; prep and quality do not) and hand-curated synonyms the census cannot discover on its own. Seeded from the Phase 0 census word lists (runs/ingredient-normalization/PHASE0-FINDINGS.md). Edit here, re-run the tool, review the report, commit the regenerated src/recipes/ingredientkeys.json. `seedKeys` lists ONLY descriptor-bearing forms whose head word alone would name the WRONG ingredient (\"sweet potato\" is not a potato; \"ground beef\" is a product, not beef + ground) — the resolver claims them whole before a descriptor could peel. Everything else descriptor-bearing (\"smoked paprika\", \"ground cumin\", \"red onion\") is key + variety by design, and a seedKey must never repeat a seedAlias (the key would silently win and the synonym would die).",
+  "_why": "Reviewed DATA for scripts/build-ingredientkeys.mjs: the descriptor taxonomy the resolver peels (variety changes identity and substitution behavior; prep and quality do not) and hand-curated synonyms the census cannot discover on its own. Seeded from the Phase 0 census word lists (runs/ingredient-normalization/PHASE0-FINDINGS.md). Edit here, re-run the tool, review the report, commit the regenerated src/recipes/ingredientkeys.json. `seedKeys` lists ONLY descriptor-bearing forms whose head word alone would name the WRONG ingredient (\"sweet potato\" is not a potato; \"ground beef\" is a product, not beef + ground) — the resolver claims them whole before a descriptor could peel. Everything else descriptor-bearing (\"smoked paprika\", \"ground cumin\", \"red onion\") is key + variety by design, and a seedKey must never repeat a seedAlias (the key would silently win and the synonym would die). `aliasSources` lists the accounts whose published app.arecipe.ingredientAlias records the build pulls (with --aliases-from) as alias candidates — the arecipe account first; add a cook only after their corrections have been read.",
   "descriptors": {
     "variety": [
       "ground",
@@ -367,5 +367,8 @@
     "white vinegar",
     "sour milk",
     "sweet milk"
+  ],
+  "aliasSources": [
+    "did:plc:spfl4xaktvvchr2cqp2r2xvp"
   ]
 }

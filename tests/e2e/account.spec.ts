@@ -200,6 +200,14 @@ test('shopping prefs: staples add/remove and AI instructions persist (device-loc
   await expect(page.getByTestId('staple-chip')).toContainText('Pepper');
 });
 
+// Phase 9: publishing corrections to the account needs a session — signed out,
+// the block does not exist (never a dead control); the round trip is @live.
+test('ingredient corrections: the publish/pull block is absent signed out', async ({ page }) => {
+  await page.goto('/account.html');
+  await expect(page.getByTestId('shopping-prefs')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId('ingredient-alias-sync')).toHaveCount(0);
+});
+
 test('shopping prefs: substitutions add/remove, always-apply toggle persist (device-local)', async ({
   page,
 }) => {

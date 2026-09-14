@@ -85,6 +85,13 @@ describe('proposeVocabulary', () => {
     expect(p.keys['flour']?.lines).toBe(3);
   });
 
+  it('community aliases (Phase 9) attach to their key when the key exists and never create one', () => {
+    const p = proposeVocabulary(rows, { taxonomy, minLines: 1, communityAliases: [{ name: 'kombu broth', key: 'salt' }, { name: 'quux', key: 'no-such-key' }] });
+    expect(p.keys['salt']?.aliases).toContain('kombu broth');
+    expect(p.keys['no-such-key']).toBeUndefined();
+    expect(p.community).toEqual({ attached: 1, unknownKey: [{ name: 'quux', key: 'no-such-key' }] });
+  });
+
   it('a seeded key is hand-curated: it survives the line floor', () => {
     const p = proposeVocabulary(rows, { taxonomy, minLines: 5, seedKeys: ['dashi'] });
     expect(p.keys['dashi']).toMatchObject({ lines: 1 });

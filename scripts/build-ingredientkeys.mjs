@@ -12,6 +12,10 @@
 //                                                          # snapshot dir (npm run snapshot)
 //                                                          # and refresh the fixture too
 //   --min-lines N   line floor for a key (default 3)
+//   --aliases-from  pull app.arecipe.ingredientAlias records from the seed's
+//                   `aliasSources` accounts (network) into
+//                   runs/ingredient-normalization/community-aliases.json;
+//                   without the flag the cached file is used (hermetic)
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { build } from 'esbuild';
 
@@ -73,11 +77,48 @@ const census = snapshotDir ? censusFromSnapshot(snapshotDir) : JSON.parse(readFi
 if (snapshotDir && !DRY) writeFileSync(CENSUS, JSON.stringify(census));
 
 const seed = JSON.parse(readFileSync('scripts/ingredient-vocab-seed.json', 'utf8'));
+
+// Phase 9: community aliases from trusted accounts — candidates, never truth.
+// Pulled on demand (--aliases-from) into a committed cache so the build stays
+// hermetic and reproducible; the review report lists what attached and what
+// named a key the vocabulary does not have.
+const ALIAS_CACHE = 'runs/ingredient-normalization/community-aliases.json';
+const resolvePds = async (did) => {
+  const doc = await (await fetch(`https://plc.directory/${encodeURIComponent(did)}`)).json();
+  const svc = (doc.service ?? []).find((s) => s.id === '#atproto_pds' || s.type === 'AtprotoPersonalDataServer');
+  if (!svc) throw new Error(`no PDS in DID document for ${did}`);
+  return svc.serviceEndpoint;
+};
+const pullAliases = async (dids) => {
+  const out = [];
+  for (const did of dids) {
+    const pds = await resolvePds(did);
+    const body = await (await fetch(`${pds}/xrpc/com.atproto.repo.listRecords?repo=${encodeURIComponent(did)}&collection=app.arecipe.ingredientAlias&limit=100`)).json();
+    for (const r of body.records ?? []) {
+      if (typeof r.value?.name === 'string' && typeof r.value?.key === 'string') out.push({ did, name: r.value.name, key: r.value.key, createdAt: r.value.createdAt ?? null });
+    }
+  }
+  return out;
+};
+let communityAliases = [];
+if (flag('--aliases-from')) {
+  communityAliases = await pullAliases(seed.aliasSources ?? []);
+  mkdirSync('runs/ingredient-normalization', { recursive: true });
+  writeFileSync(ALIAS_CACHE, `${JSON.stringify({ _meta: { why: 'app.arecipe.ingredientAlias records pulled from the seed\'s aliasSources accounts by scripts/build-ingredientkeys.mjs --aliases-from; alias CANDIDATES for the vocabulary review, never truth. Regenerate with the flag; committed so the build stays hermetic.', pulledAt: new Date().toISOString(), sources: seed.aliasSources ?? [] }, aliases: communityAliases }, null, 1)}\n`);
+  console.log(`pulled ${communityAliases.length} community alias(es) from ${(seed.aliasSources ?? []).length} account(s) → ${ALIAS_CACHE}`);
+} else {
+  try {
+    communityAliases = JSON.parse(readFileSync(ALIAS_CACHE, 'utf8')).aliases ?? [];
+  } catch {
+    communityAliases = [];
+  }
+}
 const proposal = core.proposeVocabulary(census.rows, {
   taxonomy: seed.descriptors,
   minLines: MIN_LINES,
   seedAliases: seed.seedAliases,
   seedKeys: seed.seedKeys ?? [],
+  communityAliases: communityAliases.map((a) => ({ name: a.name, key: a.key })),
 });
 
 const keyCount = Object.keys(proposal.keys).length;
@@ -121,6 +162,10 @@ word from the taxonomy if it never modifies.
 | variant | folded under | lines |
 |---|---|---:|
 ${promotion.map((p) => `| ${p.full} | ${p.key} | ${p.lines} |`).join('\n')}
+
+## Community aliases (app.arecipe.ingredientAlias records from trusted accounts)
+
+${communityAliases.length === 0 ? 'none pulled — run with `--aliases-from` to refresh the cache' : `${communityAliases.length} pulled; ${proposal.community.attached} attached to a key they name; ${proposal.community.unknownKey.length} name a key the vocabulary does not have: ${proposal.community.unknownKey.map((u) => `${u.name} → ${u.key}`).join(', ') || '—'}`}
 
 ## Alias merges (seeded synonyms + hyphen/space near-misses)
 

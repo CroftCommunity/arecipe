@@ -16,7 +16,11 @@ type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
 const STORAGE_KEY = 'ingredient-corrections';
 
-export type IngredientCorrection = { name: string; key: string; confirmedAt: string };
+/** `publishedRkey` (Phase 9) marks that this device believes an
+ * app.arecipe.ingredientAlias record with this name → key exists on the cook's
+ * PDS under that rkey. Cleared when the name is re-confirmed to a different
+ * key (the record no longer says what this row says). */
+export type IngredientCorrection = { name: string; key: string; confirmedAt: string; publishedRkey?: string };
 
 export type IngredientCorrections = {
   /** The confirmed key for an unmatched name, or undefined. */
@@ -27,6 +31,9 @@ export type IngredientCorrections = {
   clear: () => void;
   /** Every correction, oldest first. */
   all: () => IngredientCorrection[];
+  /** Phase 9: stamp the PDS rkey a name's record lives under. No-op for an
+   * absent name (a marker never creates a correction). */
+  markPublished: (name: string, rkey: string) => void;
   /** The seed's `seedAliases` shape: key → sorted names, keys sorted. */
   exportSeedAliases: () => Record<string, string[]>;
 };
@@ -40,7 +47,8 @@ const toEntries = (v: unknown): IngredientCorrection[] => {
     if (typeof x !== 'object' || x === null) continue;
     const rec = x as Record<string, unknown>;
     if (typeof rec['name'] === 'string' && typeof rec['key'] === 'string' && typeof rec['confirmedAt'] === 'string') {
-      out.push({ name: rec['name'], key: rec['key'], confirmedAt: rec['confirmedAt'] });
+      const publishedRkey = typeof rec['publishedRkey'] === 'string' ? rec['publishedRkey'] : undefined;
+      out.push({ name: rec['name'], key: rec['key'], confirmedAt: rec['confirmedAt'], ...(publishedRkey !== undefined ? { publishedRkey } : {}) });
     }
   }
   return out;
@@ -73,7 +81,16 @@ export const createIngredientCorrections = (
       const n = normalizeName(name);
       const k = key.trim();
       if (n === '' || k === '') return;
-      write([...read().filter((e) => e.name !== n), { name: n, key: k, confirmedAt: now() }]);
+      const prior = read().find((e) => e.name === n);
+      // Same meaning again: keep the marker (the record still says this).
+      const keep = prior !== undefined && prior.key === k && prior.publishedRkey !== undefined ? { publishedRkey: prior.publishedRkey } : {};
+      write([...read().filter((e) => e.name !== n), { name: n, key: k, confirmedAt: now(), ...keep }]);
+    },
+    markPublished: (name, rkey) => {
+      const n = normalizeName(name);
+      const entries = read();
+      if (!entries.some((e) => e.name === n && e.publishedRkey !== rkey)) return;
+      write(entries.map((e) => (e.name === n ? { ...e, publishedRkey: rkey } : e)));
     },
     remove: (name) => write(read().filter((e) => e.name !== normalizeName(name))),
     clear: () => write([]),
