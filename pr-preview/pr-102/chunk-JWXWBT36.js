@@ -1,1 +1,0 @@
-import{e}from"./chunk-SXJDF6WS.js";var s=async()=>{try{if(!("storage"in navigator)||navigator.storage.persist===void 0){e.debug("storage","persistence API unavailable");return}let r=await navigator.storage.persist();e.info("storage","persistence requested",{granted:r})}catch(r){e.warn("storage","persistence request failed",{error:String(r)})}};export{s as a};
