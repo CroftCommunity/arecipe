@@ -78,6 +78,13 @@ describe('proposeVocabulary', () => {
     expect(p.tail).toEqual([{ head: 'dashi', lines: 1 }]);
   });
 
+  it('a head made only of descriptor words ("boneless", "chopped fresh") never becomes a key', () => {
+    const p = proposeVocabulary([['boneless', 9], ['chopped fresh', 4], ['2 cups flour', 3]], { taxonomy: { ...taxonomy, variety: [...taxonomy.variety, 'boneless'] }, minLines: 1 });
+    expect(p.keys['boneless']).toBeUndefined();
+    expect(p.keys['chopped fresh']).toBeUndefined();
+    expect(p.keys['flour']?.lines).toBe(3);
+  });
+
   it('a seeded key is hand-curated: it survives the line floor', () => {
     const p = proposeVocabulary(rows, { taxonomy, minLines: 5, seedKeys: ['dashi'] });
     expect(p.keys['dashi']).toMatchObject({ lines: 1 });

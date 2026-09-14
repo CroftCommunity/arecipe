@@ -41,18 +41,23 @@ const listEl = (tag: 'ul' | 'ol', testid: string, items: string[]): HTMLElement 
  *  ingredient-normalization plan): a cook rule that applies is a SWAP (the
  *  original struck, the preferred line beside it), a curated reference row is
  *  a SUGGESTION beside the line ("or: …", never struck), most lines are null. */
-const lineSubstitutions = (lines: string[], rules: CookSubstitution[], overlay: OverlayLookup | undefined): (LineSubstitution | null)[] => {
+const lineSubstitutions = (lines: string[], rules: CookSubstitution[], overlay: OverlayLookup | undefined, fuzzy: boolean): (LineSubstitution | null)[] => {
   const curated = curatedSubstitutions(INGREDIENT_VOCABULARY);
-  return lines.map((raw) => lineSubstitution(raw, { rules, curated, vocab: INGREDIENT_VOCABULARY, ...(overlay !== undefined ? { overlay } : {}) }));
+  return lines.map((raw) => lineSubstitution(raw, { rules, curated, vocab: INGREDIENT_VOCABULARY, ...(overlay !== undefined ? { overlay } : {}), fuzzy }));
 };
 
-/** Phase 6: the unmatched name of each line the app does not know (null for
- *  known lines and unparseable ones), only when a corrections store is wired. */
-const unknownNames = (lines: string[], overlay: OverlayLookup | undefined): (string | null)[] =>
+/** Phase 6 + M4: per line, what the "?" should offer — the unmatched name the
+ *  app does not know, with the fuzzy tier's closest match when it has one (the
+ *  picker opens prefilled; confirming makes the line known). Null for known and
+ *  unparseable lines; only when a corrections store is wired. */
+type Unknown = { name: string; suggested?: string } | null;
+const unknownNames = (lines: string[], overlay: OverlayLookup | undefined): Unknown[] =>
   lines.map((raw) => {
     // Phase 5: a coordinated line with any resolved part is not unknown.
-    const r = resolveLine(raw, INGREDIENT_VOCABULARY, overlay === undefined ? {} : { overlay }).parts[0]!;
-    return r.method === 'unmatched' && r.head !== '' ? r.name : null;
+    const r = resolveLine(raw, INGREDIENT_VOCABULARY, { ...(overlay === undefined ? {} : { overlay }), fuzzy: true }).parts[0]!;
+    if (r.method === 'unmatched') return r.head !== '' ? { name: r.name } : null;
+    if (r.method === 'fuzzy') return { name: r.head, suggested: r.key };
+    return null;
   });
 
 let keysDatalist: HTMLDataListElement | null = null;
@@ -73,13 +78,17 @@ const ingredientKeysDatalist = (): HTMLDataListElement => {
 /** The "is this…?" affordance on a line the app does not know: a small button
  *  that opens an inline picker over EXISTING keys; confirming stores the
  *  correction on this device and the list repaints with the line now known. */
-const correctionAffordance = (name: string, onConfirm: (name: string, key: string) => void): HTMLElement => {
+const correctionAffordance = (name: string, suggested: string | undefined, onConfirm: (name: string, key: string) => void): HTMLElement => {
   const host = el('span', 'ingredient-correct-host');
-  const btn = el('button', 'ingredient-correct', '?') as HTMLButtonElement;
+  const btn = el('button', 'ingredient-correct', suggested === undefined ? '?' : `≈ ${suggested}?`) as HTMLButtonElement;
   btn.type = 'button';
   btn.dataset['testid'] = 'ingredient-correct';
-  btn.title = `arecipe doesn’t know “${name}” — tell it what this is`;
-  btn.setAttribute('aria-label', `Tell arecipe what “${name}” is`);
+  if (suggested !== undefined) btn.dataset['suggested'] = suggested;
+  btn.title =
+    suggested === undefined
+      ? `arecipe doesn’t know “${name}” — tell it what this is`
+      : `arecipe thinks “${name}” is ${suggested} — confirm or correct it`;
+  btn.setAttribute('aria-label', suggested === undefined ? `Tell arecipe what “${name}” is` : `Confirm that “${name}” is ${suggested}`);
   btn.addEventListener('click', () => {
     const form = el('span', 'ingredient-correct-form');
     const label = el('span', 'ingredient-correct-label', `“${name}” is…`);
@@ -88,6 +97,7 @@ const correctionAffordance = (name: string, onConfirm: (name: string, key: strin
     input.className = 'staples-input';
     input.placeholder = 'pick an ingredient';
     input.setAttribute('list', ingredientKeysDatalist().id);
+    if (suggested !== undefined) input.value = suggested;
     input.dataset['testid'] = 'ingredient-correct-key';
     input.setAttribute('aria-label', `What “${name}” is`);
     const confirm = el('button', 'button', 'Confirm') as HTMLButtonElement;
@@ -128,7 +138,7 @@ const correctionAffordance = (name: string, onConfirm: (name: string, key: strin
 const ingredientListEl = (
   lines: string[],
   subs: (LineSubstitution | null)[] | null,
-  unknown: (string | null)[] = [],
+  unknown: Unknown[] = [],
   onConfirm?: (name: string, key: string) => void,
 ): HTMLElement => {
   const list = el('ul');
@@ -136,15 +146,21 @@ const ingredientListEl = (
   lines.forEach((raw, i) => {
     const li = el('li');
     const sub = subs?.[i] ?? null;
-    const name = unknown[i] ?? null;
+    const u = unknown[i] ?? null;
+    const affordance = (): void => {
+      if (u !== null && onConfirm !== undefined) li.append(document.createTextNode(' '), correctionAffordance(u.name, u.suggested, onConfirm));
+    };
     if (sub === null) {
       li.textContent = raw;
-      if (name !== null && onConfirm !== undefined) li.append(document.createTextNode(' '), correctionAffordance(name, onConfirm));
+      affordance();
     } else if (sub.kind === 'swap') {
       li.classList.add('ingredient-substituted');
+      if (sub.provisional === true) li.classList.add('ingredient-provisional');
       const del = el('del', 'ingredient-original', sub.original);
-      const swap = el('span', 'ingredient-sub', `${SUBSTITUTION_GLYPH} ${sub.substituted}`);
+      const swap = el('span', 'ingredient-sub', `${SUBSTITUTION_GLYPH}${sub.provisional === true ? ' ≈' : ''} ${sub.substituted}`);
+      if (sub.provisional === true) swap.title = 'A closest-match swap — confirm the ingredient to make it certain';
       li.append(del, document.createTextNode(' '), swap);
+      affordance();
     } else {
       li.classList.add('ingredient-suggested');
       const hint = el('span', 'ingredient-sub', `${SUBSTITUTION_GLYPH} or: ${sub.use}`);
@@ -1007,7 +1023,9 @@ export const renderRecipeDetail = (
   // Repainted whole after a correction: a line the cook just confirmed may now
   // swap or carry a suggestion, so the toggle's existence can change too.
   const paintIngredientsSection = (): void => {
-    const perLine = lineSubstitutions(ingredientLines, options.substitutions ?? [], overlay);
+    // The fuzzy tier runs only where the cook can confirm it (a corrections
+    // store is wired) — never on a surface with no way to say "no, it's X".
+    const perLine = lineSubstitutions(ingredientLines, options.substitutions ?? [], overlay, corrections !== undefined);
     const anyMatch = perLine.some((s) => s !== null);
     const unknown = corrections === undefined ? [] : unknownNames(ingredientLines, overlay);
     const onConfirm = corrections === undefined ? undefined : (name: string, key: string): void => {

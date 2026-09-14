@@ -109,6 +109,12 @@ export const proposeVocabulary = (rows: readonly (readonly [string, number])[], 
     }
   }
 
+  // A head made only of descriptor words ("boneless", "chopped fresh") names
+  // no ingredient: never a key, whatever its count.
+  const descriptorWords = new Set([...opts.taxonomy.variety, ...opts.taxonomy.prep, ...opts.taxonomy.quality].map((w) => w.toLowerCase()));
+  for (const head of [...groups.keys()]) {
+    if (head.split(' ').every((w) => descriptorWords.has(w)) && seedKeys[head] === undefined) groups.delete(head);
+  }
   const sorted = [...groups.entries()].sort((a, b) => b[1].lines - a[1].lines || a[0].localeCompare(b[0]));
   const keys: Record<string, ProposalKey> = {};
   const vocabKeys: Record<string, { aliases: string[] }> = {};

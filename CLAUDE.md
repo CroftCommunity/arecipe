@@ -99,7 +99,8 @@ run the other sub-gates directly and use the config above for e2e.
   The human review of `runs/ingredient-normalization/REVIEW.md` is the quality
   gate; `_meta.reviewed` says whether it happened. Two invariants tests pin:
   coverage by line weight over the census must stay ≥ 75%
-  (`ingredient-key-coverage.spec.ts`, measured 85.9%), and a seed key must never
+  (`ingredient-key-coverage.spec.ts`, measured 86.7% deterministic, 89.1% with the
+  fuzzy tier), and a seed key must never
   repeat a seed alias (the key silently wins and the synonym dies — observed).
   Rules of the resolver worth knowing before touching it: lookup is
   most-specific-first, never by substring (“flour” never claims “bread flour”);
@@ -109,7 +110,12 @@ run the other sub-gates directly and use the config above for e2e.
   "broth or water") resolves to PARTS via `resolveLine`, and the build tool groups
   by the same parts, so a compound head never becomes a key. The mined "X or Y"
   suggestions (`substitutions-mined.json`) are generated the same way
-  (`node scripts/mine-alternatives.mjs`). Full design and every phase's as-built
+  (`node scripts/mine-alternatives.mjs`). The closed-set fuzzy tier
+  (`ingredient-fuzzy.ts`, trigrams + word typos, threshold pinned by a judged
+  corpus sample) runs LAST and only where a cook can confirm; re-run
+  `node scripts/eval-fuzzy.mjs` after touching it or the vocabulary — the suite
+  `ingredient-fuzzy-corpus.spec.ts` pins precision-by-band and recall floors under
+  the report's numbers. Full design and every phase's as-built
   notes: `plans/2026-08-12-1-plan-ingredient-normalization-and-substitutions.md`.
 - **Plans.** Non-trivial features get a dated plan doc in `plans/` (see existing
   ones); record the outcome when done.

@@ -24,6 +24,7 @@
 // they use). The whole head is always tried first, so a known compound
 // ("sweet and sour sauce") is never split, and a line none of whose parts
 // resolve stays unmatched as a whole rather than becoming two guesses.
+import { fuzzyMatch } from './ingredient-fuzzy.js';
 import { normalizeIngredientName, parseIngredient } from './shopping-list.js';
 
 /** Descriptor words by class. Data, not code — shipped in the vocabulary. */
@@ -50,7 +51,10 @@ export type SplitHead = {
   head: string;
   full: string;
   layers: readonly string[];
+  /** Leading descriptors in order (one layer each). */
   peeled: readonly { word: string; cls: DescriptorClass }[];
+  /** Prep/quality peeled from the END ("red onion sliced"); never variety. */
+  trailing: readonly { word: string; cls: DescriptorClass }[];
   countUnit?: string;
   variety: string[];
   prep: string[];
@@ -61,17 +65,26 @@ export type SplitHead = {
  * name IS. Consulted first, by the identity-bearing name (`full`). */
 export type OverlayLookup = (name: string) => string | undefined;
 
+/** How a line was resolved: the deterministic paths, the device-local
+ * overlay, or — only when asked, only last — the closed-set fuzzy tier, which
+ * carries its cosine `score` so the UI can label it a closest match. */
 export type Resolution =
   | {
-      method: 'exact' | 'alias' | 'overlay';
+      method: 'exact' | 'alias' | 'overlay' | 'fuzzy';
       key: string;
       head: string;
       countUnit?: string;
       variety: string[];
       prep: string[];
       quality: string[];
+      score?: number;
     }
   | { method: 'unmatched'; name: string; head: string };
+
+/** Resolver options: the Phase 6 overlay, and whether the M4 fuzzy tier may
+ * answer after every deterministic path failed (off by default — the build
+ * tool and the coverage metric stay deterministic). */
+export type ResolveOptions = { overlay?: OverlayLookup; fuzzy?: boolean };
 
 // --- head phrase -----------------------------------------------------------
 
@@ -79,7 +92,9 @@ const PARENTHETICAL = /\([^)]*\)?|\[[^\]]*\]?/g;
 const CLAUSE_BREAK = /\s*[,;]\s*|\s+[-–—]\s+/;
 const TRAILING_PHRASE =
   /\s*\b(?:plus\b.*|to taste\b.*|as needed\b.*|as required\b.*|or more\b.*|or to taste\b.*|or as needed\b.*|if desired\b.*|if needed\b.*|optional\b.*|divided\b.*|for (?:garnish|garnishing|serving|frying|deep-frying|dusting|greasing|brushing|topping|drizzling|decoration|decorating|coating|the [a-z-]+)\b.*)$/;
-const LEADING_FILLER = /^(?:of|a|an|the|some)\s+/;
+const LEADING_FILLER = /^(?:of|a|an|the|some|few|several|couple|couple of|handful of)\s+/;
+const MARKUP = /<[^>]*>/g;
+const LEADING_JUNK = /^[^a-z0-9(]+/;
 
 /** "juice of 1 lemon" → "lemon juice", "grated zest of 1 orange" → "orange
  * zest": the derived form is the ingredient. Anything else passes through. */
@@ -92,7 +107,7 @@ export const derivedForm = (head: string): string => {
 
 /** Reduce a parsed name (the tail of a line) to its head phrase. */
 export const headPhrase = (name: string): string => {
-  const flat = name.toLowerCase().replace(PARENTHETICAL, ' ').replace(/\s+/g, ' ').trim();
+  const flat = name.toLowerCase().replace(MARKUP, ' ').replace(PARENTHETICAL, ' ').replace(/\s+/g, ' ').trim().replace(LEADING_JUNK, '');
   const clause = flat.split(CLAUSE_BREAK)[0] ?? '';
   let s = clause.replace(TRAILING_PHRASE, '').replace(/[.*:]+$/, '').trim();
   let prev = '';
@@ -127,6 +142,18 @@ const COUNT_UNITS: Readonly<Record<string, string>> = (() => {
 })();
 
 const countUnitOf = (word: string): string | undefined => COUNT_UNITS[word.replace(/\.$/, '')];
+
+/** Measure words that can lead a head when the quantity got lost ("tbsp tomato
+ * paste", "dl sour cream", "quarts warm water") — plus a bare number. Stripped
+ * at the FRONT only; the parser handles the normal "2 tbsp" case before us. */
+const LEADING_MEASURE = new Set([
+  'cup', 'cups', 'tbsp', 'tbsps', 'tbs', 'tbl', 'tablespoon', 'tablespoons', 'tsp', 'tsps', 'teaspoon', 'teaspoons',
+  'oz', 'ozs', 'ounce', 'ounces', 'fl', 'lb', 'lbs', 'pound', 'pounds', 'g', 'gram', 'grams', 'gr', 'kg', 'kilogram', 'kilograms',
+  'ml', 'milliliter', 'milliliters', 'millilitre', 'millilitres', 'l', 'liter', 'liters', 'litre', 'litres', 'dl', 'cl',
+  'quart', 'quarts', 'qt', 'qts', 'pint', 'pints', 'pt', 'pts', 'gallon', 'gallons', 'gal', 'cm', 'mm', 'inch', 'inches', 'in',
+  'leaf', 'leaves', 'sprig', 'sprigs', 'pinch', 'pinches', 'dash', 'dashes', 'spoon', 'spoons', 'spoonful', 'spoonfuls',
+]);
+const NUMBERISH = /^[\d½¼¾⅓⅔⅛][\d/½¼¾⅓⅔⅛.,-]*$/;
 
 // --- plural fold -----------------------------------------------------------
 
@@ -174,6 +201,13 @@ const splitHeadPhrase = (phrase: string, taxonomy: DescriptorTaxonomy): SplitHea
   let words = phrase.split(' ').filter((w) => w !== '');
   if (words.length === 0) return null;
 
+  // Front hygiene: a stray number, a measure word the parser could not pair
+  // with a quantity, then an "of" — repeatedly, but never down to nothing.
+  while (words.length > 1 && (NUMBERISH.test(words[0]!) || LEADING_MEASURE.has(words[0]!.replace(/\.$/, '')))) {
+    words = words.slice(1);
+    if (words[0] === 'of' && words.length > 1) words = words.slice(1);
+  }
+
   let countUnit: string | undefined;
   const leading = countUnitOf(words[0]!);
   if (leading !== undefined && words.length > 1) {
@@ -190,6 +224,16 @@ const splitHeadPhrase = (phrase: string, taxonomy: DescriptorTaxonomy): SplitHea
 
   const index = taxonomyIndex(taxonomy);
   const peeled: { word: string; cls: DescriptorClass }[] = [];
+  const trailing: { word: string; cls: DescriptorClass }[] = [];
+  // Trailing prep/quality without a comma ("red onion sliced"): peel from the
+  // end first — these never change identity, and a layer with them attached
+  // would only ever miss.
+  while (words.length > 1) {
+    const cls = index.get(words[words.length - 1]!);
+    if (cls === undefined || cls === 'variety') break;
+    trailing.unshift({ word: words[words.length - 1]!, cls });
+    words = words.slice(0, -1);
+  }
   const layers: string[] = [fold(words.join(' '))];
   while (words.length > 1) {
     const cls = index.get(words[0]!);
@@ -199,12 +243,13 @@ const splitHeadPhrase = (phrase: string, taxonomy: DescriptorTaxonomy): SplitHea
     layers.push(fold(words.join(' ')));
   }
 
-  const byClass = (cls: DescriptorClass): string[] => peeled.filter((p) => p.cls === cls).map((p) => p.word);
+  const byClass = (cls: DescriptorClass): string[] => [...peeled, ...trailing].filter((p) => p.cls === cls).map((p) => p.word);
   return {
     head: layers[layers.length - 1]!,
     full: fold([...byClass('variety'), ...words].join(' ')),
     layers,
     peeled,
+    trailing,
     ...(countUnit !== undefined ? { countUnit } : {}),
     variety: byClass('variety'),
     prep: byClass('prep'),
@@ -235,7 +280,7 @@ const keyIndex = (v: Vocabulary): KeyIndex => {
 };
 
 /** Resolve one canonical head: overlay > shipped baseline > unmatched. */
-const resolveSplit = (split: SplitHead, vocab: Vocabulary, opts: { overlay?: OverlayLookup }): Resolution => {
+const resolveSplit = (split: SplitHead, vocab: Vocabulary, opts: ResolveOptions): Resolution => {
   const confirmed = opts.overlay?.(split.full);
   if (confirmed !== undefined) {
     return {
@@ -255,7 +300,7 @@ const resolveSplit = (split: SplitHead, vocab: Vocabulary, opts: { overlay?: Ove
     // A descriptor the key itself carries ("ground" in `ground beef`, reached
     // via alias "hamburger") is part of the identity, not a variety of it.
     const keyWords = new Set(hit.key.split(' '));
-    const used = split.peeled.slice(0, i).filter((p) => !keyWords.has(p.word));
+    const used = [...split.peeled.slice(0, i), ...split.trailing].filter((p) => !keyWords.has(p.word));
     const byClass = (cls: DescriptorClass): string[] => used.filter((p) => p.cls === cls).map((p) => p.word);
     return {
       method: hit.via,
@@ -268,6 +313,23 @@ const resolveSplit = (split: SplitHead, vocab: Vocabulary, opts: { overlay?: Ove
     };
   }
   return { method: 'unmatched', name: split.full, head: split.full };
+};
+
+/** The fuzzy tier, last: only for an unmatched resolution, only when asked. */
+const fuzzyFallback = (r: Resolution, split: SplitHead | null, vocab: Vocabulary, opts: ResolveOptions): Resolution => {
+  if (r.method !== 'unmatched' || opts.fuzzy !== true || split === null) return r;
+  const m = fuzzyMatch(split.full, vocab);
+  if (m === null) return r;
+  return {
+    method: 'fuzzy',
+    key: m.key,
+    head: split.full,
+    ...(split.countUnit !== undefined ? { countUnit: split.countUnit } : {}),
+    variety: [],
+    prep: split.prep,
+    quality: split.quality,
+    score: m.score,
+  };
 };
 
 /** The head phrases a line is made of, BEFORE any vocabulary is consulted:
@@ -298,7 +360,7 @@ export type LineResolution = { parts: Resolution[]; joiner?: 'and' | 'or' };
 
 const COORDINATOR = /\s+(and|or)\s+/;
 
-export const resolveLine = (raw: string, vocab: Vocabulary, opts: { overlay?: OverlayLookup } = {}): LineResolution => {
+export const resolveLine = (raw: string, vocab: Vocabulary, opts: ResolveOptions = {}): LineResolution => {
   const parsed = parseIngredient(raw);
   if (parsed.unparsed === true) return { parts: [{ method: 'unmatched', name: raw.trim(), head: '' }] };
   const head = derivedForm(headPhrase(parsed.name));
@@ -309,15 +371,19 @@ export const resolveLine = (raw: string, vocab: Vocabulary, opts: { overlay?: Ov
 
   // Unknown as a whole: is it several things? "and" only without a quantity
   // (a quantity binds to ONE ingredient); "or" with or without. One joiner kind.
+  // The fuzzy tier waits until coordination has had its chance, so
+  // "vegetable broth or water" is two parts, never one fuzzy hit on the whole.
+  const wholeOrFuzzy = (): LineResolution => ({ parts: [fuzzyFallback(wholeResolution, whole, vocab, opts)] });
   const m = COORDINATOR.exec(head);
-  if (m === null) return { parts: [wholeResolution] };
+  if (m === null) return wholeOrFuzzy();
   const joiner = m[1] as 'and' | 'or';
-  if (joiner === 'and' && parsed.qty !== undefined) return { parts: [wholeResolution] };
+  if (joiner === 'and' && parsed.qty !== undefined) return wholeOrFuzzy();
   const pieces = head.split(joiner === 'and' ? /\s+and\s+/ : /\s+or\s+/).map((p) => p.trim()).filter((p) => p !== '');
-  if (pieces.length < 2 || head.includes(joiner === 'and' ? ' or ' : ' and ')) return { parts: [wholeResolution] };
+  if (pieces.length < 2 || head.includes(joiner === 'and' ? ' or ' : ' and ')) return wholeOrFuzzy();
   const resolvePiece = (piece: string): Resolution => {
     const split = splitHeadPhrase(derivedForm(piece), vocab.descriptors);
-    return split === null ? { method: 'unmatched', name: piece, head: piece } : resolveSplit(split, vocab, opts);
+    if (split === null) return { method: 'unmatched', name: piece, head: piece };
+    return fuzzyFallback(resolveSplit(split, vocab, opts), split, vocab, opts);
   };
   const parts = pieces.map(resolvePiece);
   // A shared noun: "chicken or vegetable broth" is chicken broth or vegetable
@@ -330,10 +396,10 @@ export const resolveLine = (raw: string, vocab: Vocabulary, opts: { overlay?: Ov
     const borrowed = resolvePiece(`${first} ${second.split(' ').slice(1).join(' ')}`);
     if (borrowed.method !== 'unmatched') parts[0] = borrowed;
   }
-  if (parts.every((p) => p.method === 'unmatched')) return { parts: [wholeResolution] };
+  if (parts.every((p) => p.method === 'unmatched')) return wholeOrFuzzy();
   return { parts, joiner };
 };
 
 /** Resolve one raw ingredient line to its primary ingredient. */
-export const resolveIngredient = (raw: string, vocab: Vocabulary, opts: { overlay?: OverlayLookup } = {}): Resolution =>
+export const resolveIngredient = (raw: string, vocab: Vocabulary, opts: ResolveOptions = {}): Resolution =>
   resolveLine(raw, vocab, opts).parts[0]!;

@@ -177,10 +177,14 @@ loose ideas a later session can pick up.
       `scripts/ingredient-vocab-seed.json`, re-run `node scripts/build-ingredientkeys.mjs`,
       flip the flag — the review report now also lists the 58 mined "X or Y"
       pairs (`runs/ingredient-normalization/ALTERNATIVES.md`); a wrong pair is a
-      vocabulary problem. (b) ~~Phase 5~~ and (c) ~~mining the "or" lines~~ landed
-      2026-09-14 (coverage 82.5% → 85.9%). (d) **The decision GATE** — the owner
-      chose to build M4 ahead of overlay telemetry (2026-09-14); the gate's
-      question is re-asked at the M4 exit. _Noted 2026-09-10, updated 2026-09-14._
+      vocabulary problem — and `FUZZY-EVAL.md` names generic single-word keys
+      (`powder`, `sauce`, …) and junk ones (`clove garlic`, `non-iodised salt`) the
+      corpus battle-test exposed. (b) ~~Phase 5~~, (c) ~~mining the "or" lines~~,
+      (d) ~~the GATE~~ and M4 all landed 2026-09-14 (coverage 82.5% → 86.7%
+      deterministic → 89.1% with the lexical fuzzy tier; the MiniLM path declined
+      — CSP gate + 23 MB). Left: Phase 9 (community aliases as PDS records,
+      re-planned in `plans/2026-09-14-plan-community-ingredient-aliases.md`).
+      _Noted 2026-09-10, updated 2026-09-14._
 
 ## Design standard gaps (croft-pwa/docs/DESIGN.md)
 
