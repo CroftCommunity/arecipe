@@ -3,7 +3,8 @@
 // Fill discipline (Phase 0 incident): never fill/retry an already-filled or
 // disabled field — Playwright failure logs dump element state including
 // values.
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import type { Page } from '@playwright/test';
 
 /** The ONLY repo any @live suite may write to or purge — the dedicated test
@@ -60,10 +61,25 @@ export const purgeCollection = async (
 };
 
 /** Tolerant read: .env is absent in CI, where the @live tier never runs. */
+/** The .env every @live spec reads: the repo root of THIS checkout. */
+const ENV_URL = new URL('../../../.env', import.meta.url);
+
+/**
+ * The one skip reason every @live spec uses, and it names the absolute path it looked at.
+ * Why (2026-09-14, PR #104): a session ran the suite from a worktree, read the old
+ * "needs BSKY_TEST_* in .env", and reported that the repo had no test credentials. It
+ * did — in the MAIN checkout. A worktree starts with the tracked files only, so the
+ * gitignored .env never follows it (CroftC .claude/COORDINATION.md Rule 1b). The path
+ * shows which file was read; the second clause says where the real one is.
+ */
+export const LIVE_CREDS_HINT = existsSync(ENV_URL)
+  ? `needs BSKY_TEST_* in ${fileURLToPath(ENV_URL)} (file present, names missing)`
+  : `needs BSKY_TEST_* in ${fileURLToPath(ENV_URL)} (no such file — .env lives in the MAIN checkout only and a worktree never carries it; symlink it in: CroftC COORDINATION Rule 1b)`;
+
 export const readEnv = (): Record<string, string> => {
   try {
     return Object.fromEntries(
-      readFileSync(new URL('../../../.env', import.meta.url), 'utf8')
+      readFileSync(ENV_URL, 'utf8')
         .split('\n')
         .filter(Boolean)
         .map((l) => l.split(/=(.*)/s).slice(0, 2)),

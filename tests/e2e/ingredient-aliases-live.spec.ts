@@ -7,7 +7,7 @@
 // Everything this spec creates it deletes: a whole-collection purge runs
 // before AND after, hard-scoped to TEST_DID.
 import { expect, test } from '@playwright/test';
-import { purgeCollection, readEnv, signIn, TEST_DID } from './helpers/live.js';
+import { LIVE_CREDS_HINT, TEST_DID, purgeCollection, readEnv, signIn } from './helpers/live.js';
 import { INGREDIENT_ALIAS_COLLECTION } from '../../src/recipes/ingredient-aliases-pds.js';
 
 const env = readEnv();
@@ -25,7 +25,7 @@ const listAliases = async (): Promise<{ name: string; key: string }[]> => {
 };
 
 test.describe('@live ingredient aliases', () => {
-  test.skip(HANDLE === '' || PASSWORD === '' || APP_PASSWORD === '', 'needs BSKY_TEST_* in .env');
+  test.skip(HANDLE === '' || PASSWORD === '' || APP_PASSWORD === '', LIVE_CREDS_HINT);
   test.beforeEach(async () => purgeCollection(INGREDIENT_ALIAS_COLLECTION, { handle: HANDLE, appPassword: APP_PASSWORD }));
   test.afterEach(async () => purgeCollection(INGREDIENT_ALIAS_COLLECTION, { handle: HANDLE, appPassword: APP_PASSWORD }));
 

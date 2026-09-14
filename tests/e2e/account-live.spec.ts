@@ -5,7 +5,7 @@
 // and that Cookbook no longer shows members; here we prove the signed-in mount
 // on Account end-to-end against the real PDS.
 import { expect, test } from '@playwright/test';
-import { readEnv, signIn, TEST_DID } from './helpers/live.js';
+import { LIVE_CREDS_HINT, TEST_DID, readEnv, signIn } from './helpers/live.js';
 
 const env = readEnv();
 const HANDLE = env['BSKY_TEST_HANDLE'] ?? '';
@@ -15,7 +15,7 @@ test('@live signed-in Account shows the cookbook members list (Phase 6)', async 
   page,
   baseURL,
 }) => {
-  test.skip(HANDLE === '' || PASSWORD === '', 'needs BSKY_TEST_* credentials in .env');
+  test.skip(HANDLE === '' || PASSWORD === '', LIVE_CREDS_HINT);
   test.setTimeout(180_000);
 
   await signIn(page, {
@@ -42,7 +42,7 @@ test('@live signed-in Account renders the danger zone last, with guarded sign-ou
   page,
   baseURL,
 }) => {
-  test.skip(HANDLE === '' || PASSWORD === '', 'needs BSKY_TEST_* credentials in .env');
+  test.skip(HANDLE === '' || PASSWORD === '', LIVE_CREDS_HINT);
   test.setTimeout(180_000);
 
   await signIn(page, {

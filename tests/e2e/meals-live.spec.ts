@@ -8,7 +8,7 @@
 // purge). NOTE: authored to mirror drafts-live.spec.ts but not yet executed —
 // this worktree has no test credentials (see the plan's D1 live-leg deferral).
 import { expect, test } from '@playwright/test';
-import { readEnv, signIn } from './helpers/live.js';
+import { LIVE_CREDS_HINT, readEnv, signIn } from './helpers/live.js';
 
 const env = readEnv();
 const HANDLE = env['BSKY_TEST_HANDLE'] ?? '';
@@ -81,7 +81,7 @@ const purge = async (): Promise<void> => {
 test('@live meal plan syncs to the PDS and survives eviction', async ({ page, baseURL }) => {
   test.skip(
     HANDLE === '' || PASSWORD === '' || APP_PASSWORD === '',
-    'needs BSKY_TEST_* credentials in .env',
+    LIVE_CREDS_HINT,
   );
   test.setTimeout(300_000);
   await purge();
@@ -154,7 +154,7 @@ test('@live publish a plan, then open the shared link anonymously', async ({
 }) => {
   test.skip(
     HANDLE === '' || PASSWORD === '' || APP_PASSWORD === '',
-    'needs BSKY_TEST_* credentials in .env',
+    LIVE_CREDS_HINT,
   );
   test.setTimeout(300_000);
   await purge();
@@ -217,7 +217,7 @@ test('@live publish a plan, then open the shared link anonymously', async ({
 test('@live "Published" plans subpage lists a published plan, then deletes it', async ({ page, baseURL }) => {
   test.skip(
     HANDLE === '' || PASSWORD === '' || APP_PASSWORD === '',
-    'needs BSKY_TEST_* credentials in .env',
+    LIVE_CREDS_HINT,
   );
   test.setTimeout(300_000);
   await purge();
@@ -275,7 +275,7 @@ test('@live "Published" plans subpage lists a published plan, then deletes it', 
 test('@live edit a published plan in place from the Published subpage', async ({ page, baseURL }) => {
   test.skip(
     HANDLE === '' || PASSWORD === '' || APP_PASSWORD === '',
-    'needs BSKY_TEST_* credentials in .env',
+    LIVE_CREDS_HINT,
   );
   test.setTimeout(300_000);
   await purge();

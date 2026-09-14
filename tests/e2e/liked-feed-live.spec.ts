@@ -4,7 +4,7 @@
 // `liked` records, lazy per OQ12) and appears in the feed. Guarded by a
 // whole-collection purge of app.arecipe.interaction on the test account.
 import { expect, test } from '@playwright/test';
-import { purgeCollection, readEnv, signIn, TEST_DID } from './helpers/live.js';
+import { LIVE_CREDS_HINT, TEST_DID, purgeCollection, readEnv, signIn } from './helpers/live.js';
 import { INTERACTION_COLLECTION } from '../../src/social/interactions.js';
 
 const env = readEnv();
@@ -18,7 +18,7 @@ test('@live like a recipe → it appears under the Cookbook "Liked" filter', asy
   page,
   baseURL,
 }) => {
-  test.skip(HANDLE === '' || PASSWORD === '' || APP_PASSWORD === '', 'needs BSKY_TEST_* creds');
+  test.skip(HANDLE === '' || PASSWORD === '' || APP_PASSWORD === '', LIVE_CREDS_HINT);
   test.setTimeout(180_000);
   await purgeCollection(INTERACTION_COLLECTION, { handle: HANDLE, appPassword: APP_PASSWORD });
 

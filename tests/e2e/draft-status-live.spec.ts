@@ -3,7 +3,7 @@
 // hermetic tests prove locally). Guarded by a purge of app.arecipe.draft on the
 // test account.
 import { expect, test } from '@playwright/test';
-import { purgeCollection, readEnv, signIn, TEST_DID } from './helpers/live.js';
+import { LIVE_CREDS_HINT, TEST_DID, purgeCollection, readEnv, signIn } from './helpers/live.js';
 import { DRAFT_COLLECTION } from '../../src/recipes/drafts-sync.js';
 
 const env = readEnv();
@@ -15,7 +15,7 @@ test('@live a "ready" draft status set in the editor reaches the PDS record', as
   page,
   baseURL,
 }) => {
-  test.skip(HANDLE === '' || PASSWORD === '' || APP_PASSWORD === '', 'needs BSKY_TEST_* creds');
+  test.skip(HANDLE === '' || PASSWORD === '' || APP_PASSWORD === '', LIVE_CREDS_HINT);
   test.setTimeout(180_000);
   await purgeCollection(DRAFT_COLLECTION, { handle: HANDLE, appPassword: APP_PASSWORD });
 

@@ -4,7 +4,7 @@
 // pre-run purge of prior test recipes + teardown delete, all HARD-GUARDED
 // to the dedicated test account's DID. Never runs against any other repo.
 import { expect, test } from '@playwright/test';
-import { readEnv, signIn } from './helpers/live.js';
+import { LIVE_CREDS_HINT, readEnv, signIn } from './helpers/live.js';
 
 const env = readEnv();
 const HANDLE = env['BSKY_TEST_HANDLE'] ?? '';
@@ -61,7 +61,7 @@ test('@live author → publish → appears in Alchemy (the write path)', async (
 }) => {
   test.skip(
     HANDLE === '' || PASSWORD === '' || APP_PASSWORD === '',
-    'needs BSKY_TEST_* credentials in .env',
+    LIVE_CREDS_HINT,
   );
   test.setTimeout(180_000);
   await purgeTestRecipes(); // crash-safe: clear any prior run's leftovers
