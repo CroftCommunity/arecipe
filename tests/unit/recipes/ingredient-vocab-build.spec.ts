@@ -84,6 +84,18 @@ describe('proposeVocabulary', () => {
     expect(p.tail.find((t) => t.head === 'dashi')).toBeUndefined();
   });
 
+  it('a coordinated head never becomes a key — its parts do (Phase 5)', () => {
+    const p = proposeVocabulary([['Salt and pepper to taste', 10], ['½ cup butter or margarine', 5], ['2 cups flour and sugar', 4]], { taxonomy, minLines: 1 });
+    expect(p.keys['salt and pepper']).toBeUndefined();
+    expect(p.keys['salt']?.lines).toBe(10);
+    expect(p.keys['pepper']?.lines).toBe(10);
+    expect(p.keys['butter or margarine']).toBeUndefined();
+    expect(p.keys['butter']?.lines).toBe(5);
+    expect(p.keys['margarine']?.lines).toBe(5);
+    // with a quantity, "and" binds one ingredient: the whole stays one (unknown) head
+    expect(p.keys['flour and sugar']?.lines).toBe(4);
+  });
+
   it('measures its own coverage with the runtime resolver, by line weight, unparseable lines counted as misses', () => {
     const p = proposeVocabulary(rows, { taxonomy, minLines: 2 });
     const total = rows.reduce((n, [, c]) => n + c, 0);

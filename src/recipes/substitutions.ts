@@ -14,17 +14,26 @@
 // invented.
 import { canonicalHead, resolveIngredient, type OverlayLookup, type Resolution, type Vocabulary } from './ingredient-key.js';
 import { REFERENCE_SECTIONS } from '../pages/reference-view.js';
+import mined from './substitutions-mined.json' with { type: 'json' };
 
 /** A cook's stored rule. `from` is what they typed (for display); the match is
  * by `fromKey` (+ `variety` when the typed text carried one). */
 export type CookSubstitution = { from: string; fromKey: string; variety?: string; to: string };
 
-/** A curated row: for `forAmount` of the keyed ingredient, use `use`. */
-export type CuratedSubstitution = { from: { key: string; variety?: string }; forAmount: string; use: string };
+/** A curated row: for `forAmount` of the keyed ingredient, use `use`. Two
+ * sources: the reference chart (prose rows with amounts) and the corpus (Phase
+ * 5b: "X or Y" lines authors wrote, `use` is itself a key, `lines` its weight). */
+export type CuratedSubstitution = {
+  from: { key: string; variety?: string };
+  forAmount: string;
+  use: string;
+  source: 'reference' | 'corpus';
+  lines?: number;
+};
 
 export type LineSubstitution =
   | { kind: 'swap'; original: string; substituted: string; from: string; to: string }
-  | { kind: 'suggestion'; original: string; forAmount: string; use: string };
+  | { kind: 'suggestion'; original: string; forAmount: string; use: string; source: 'reference' | 'corpus'; lines?: number };
 
 /** Key a cook's typed rule. Null when the vocabulary does not know the
  * from-text (a rule that can never match is not stored) or a side is blank. */
@@ -135,8 +144,12 @@ export const curatedSubstitutions = (vocab: Vocabulary): CuratedSubstitution[] =
       const r = resolveIngredient(forAmount, vocab);
       if (r.method === 'unmatched') continue;
       const variety = r.variety[0];
-      out.push({ from: { key: r.key, ...(variety !== undefined ? { variety } : {}) }, forAmount, use });
+      out.push({ from: { key: r.key, ...(variety !== undefined ? { variety } : {}) }, forAmount, use, source: 'reference' });
     }
+  }
+  for (const p of mined.pairs) {
+    if (vocab.keys[p.from] === undefined || vocab.keys[p.use] === undefined) continue;
+    out.push({ from: { key: p.from }, forAmount: p.from, use: p.use, source: 'corpus', lines: p.lines });
   }
   curatedCache.set(vocab, out);
   return out;
@@ -156,5 +169,7 @@ export const lineSubstitution = (
   const c =
     opts.curated.find((x) => x.from.variety !== undefined && matchesScope(r, x.from.key, x.from.variety)) ??
     opts.curated.find((x) => x.from.variety === undefined && matchesScope(r, x.from.key, undefined));
-  return c === undefined ? null : { kind: 'suggestion', original: raw, forAmount: c.forAmount, use: c.use };
+  return c === undefined
+    ? null
+    : { kind: 'suggestion', original: raw, forAmount: c.forAmount, use: c.use, source: c.source, ...(c.lines !== undefined ? { lines: c.lines } : {}) };
 };

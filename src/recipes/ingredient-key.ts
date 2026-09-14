@@ -16,6 +16,14 @@
 // "smoked paprika" resolves to `paprika` + variety `smoked`. No substring
 // matching, ever — "flour" never claims "bread flour". Unmatched stays
 // unmatched, loudly: surfaced, never invented.
+//
+// Phase 5, compound lines: a DERIVED form names an ingredient ("juice of 1
+// lemon" is lemon juice); a COORDINATED line without a quantity is several
+// ingredients ("salt and pepper"); an ALTERNATIVE line is one ingredient with
+// fallbacks the author named ("vegetable broth or water" — the first is what
+// they use). The whole head is always tried first, so a known compound
+// ("sweet and sour sauce") is never split, and a line none of whose parts
+// resolve stays unmatched as a whole rather than becoming two guesses.
 import { normalizeIngredientName, parseIngredient } from './shopping-list.js';
 
 /** Descriptor words by class. Data, not code — shipped in the vocabulary. */
@@ -72,6 +80,15 @@ const CLAUSE_BREAK = /\s*[,;]\s*|\s+[-–—]\s+/;
 const TRAILING_PHRASE =
   /\s*\b(?:plus\b.*|to taste\b.*|as needed\b.*|as required\b.*|or more\b.*|or to taste\b.*|or as needed\b.*|if desired\b.*|if needed\b.*|optional\b.*|divided\b.*|for (?:garnish|garnishing|serving|frying|deep-frying|dusting|greasing|brushing|topping|drizzling|decoration|decorating|coating|the [a-z-]+)\b.*)$/;
 const LEADING_FILLER = /^(?:of|a|an|the|some)\s+/;
+
+/** "juice of 1 lemon" → "lemon juice", "grated zest of 1 orange" → "orange
+ * zest": the derived form is the ingredient. Anything else passes through. */
+const DERIVED_FORM =
+  /^(?:(?:freshly[- ]squeezed|fresh|finely[- ]grated|grated|strained)\s+)?(juice|zest)\s+of\s+(?:(?:[\d½¼¾⅓⅔⅛][\d/½¼¾⅓⅔⅛.]*|half|one|two|three|a|an|the)\s+)*(?:(?:large|small|medium|big|whole|fresh)\s+)?([a-z-]+?)(?:e?s)?$/;
+export const derivedForm = (head: string): string => {
+  const m = DERIVED_FORM.exec(head);
+  return m === null ? head : `${m[2]} ${m[1]}`;
+};
 
 /** Reduce a parsed name (the tail of a line) to its head phrase. */
 export const headPhrase = (name: string): string => {
@@ -148,7 +165,13 @@ const taxonomyIndex = (t: DescriptorTaxonomy): TaxonomyIndex => {
 export const canonicalHead = (raw: string, taxonomy: DescriptorTaxonomy): SplitHead | null => {
   const parsed = parseIngredient(raw);
   if (parsed.unparsed === true) return null;
-  let words = headPhrase(parsed.name).split(' ').filter((w) => w !== '');
+  return splitHeadPhrase(derivedForm(headPhrase(parsed.name)), taxonomy);
+};
+
+/** The canonical head of one already-reduced head phrase (a whole line's, or
+ * one part of a coordinated line's). */
+const splitHeadPhrase = (phrase: string, taxonomy: DescriptorTaxonomy): SplitHead | null => {
+  let words = phrase.split(' ').filter((w) => w !== '');
   if (words.length === 0) return null;
 
   let countUnit: string | undefined;
@@ -211,10 +234,8 @@ const keyIndex = (v: Vocabulary): KeyIndex => {
   return m;
 };
 
-/** Resolve one raw ingredient line: overlay > shipped baseline > unmatched. */
-export const resolveIngredient = (raw: string, vocab: Vocabulary, opts: { overlay?: OverlayLookup } = {}): Resolution => {
-  const split = canonicalHead(raw, vocab.descriptors);
-  if (split === null) return { method: 'unmatched', name: raw.trim(), head: '' };
+/** Resolve one canonical head: overlay > shipped baseline > unmatched. */
+const resolveSplit = (split: SplitHead, vocab: Vocabulary, opts: { overlay?: OverlayLookup }): Resolution => {
   const confirmed = opts.overlay?.(split.full);
   if (confirmed !== undefined) {
     return {
@@ -248,3 +269,71 @@ export const resolveIngredient = (raw: string, vocab: Vocabulary, opts: { overla
   }
   return { method: 'unmatched', name: split.full, head: split.full };
 };
+
+/** The head phrases a line is made of, BEFORE any vocabulary is consulted:
+ * one, or several when a coordinator splits it ("and" only without a
+ * quantity, "or" always). What the build tool groups by, so a coordinated
+ * head can never become a key — its parts do. A real compound ingredient
+ * ("sweet and sour sauce") is seeded as a key instead. */
+export const lineHeads = (raw: string, taxonomy: DescriptorTaxonomy): { heads: SplitHead[]; joiner?: 'and' | 'or' } => {
+  const parsed = parseIngredient(raw);
+  if (parsed.unparsed === true) return { heads: [] };
+  const head = derivedForm(headPhrase(parsed.name));
+  const whole = splitHeadPhrase(head, taxonomy);
+  if (whole === null) return { heads: [] };
+  const m = COORDINATOR.exec(head);
+  if (m === null) return { heads: [whole] };
+  const joiner = m[1] as 'and' | 'or';
+  if (joiner === 'and' && parsed.qty !== undefined) return { heads: [whole] };
+  if (head.includes(joiner === 'and' ? ' or ' : ' and ')) return { heads: [whole] };
+  const pieces = head.split(joiner === 'and' ? /\s+and\s+/ : /\s+or\s+/).map((p) => p.trim()).filter((p) => p !== '');
+  const heads = pieces.map((piece) => splitHeadPhrase(derivedForm(piece), taxonomy)).filter((h): h is SplitHead => h !== null);
+  return heads.length < 2 ? { heads: [whole] } : { heads, joiner };
+};
+
+/** A whole line resolved: its parts (one, or several for a coordinated or
+ * alternative line) and how they were joined. `parts[0]` is the primary — what
+ * the author uses; for "or" the rest are their named alternatives. */
+export type LineResolution = { parts: Resolution[]; joiner?: 'and' | 'or' };
+
+const COORDINATOR = /\s+(and|or)\s+/;
+
+export const resolveLine = (raw: string, vocab: Vocabulary, opts: { overlay?: OverlayLookup } = {}): LineResolution => {
+  const parsed = parseIngredient(raw);
+  if (parsed.unparsed === true) return { parts: [{ method: 'unmatched', name: raw.trim(), head: '' }] };
+  const head = derivedForm(headPhrase(parsed.name));
+  const whole = splitHeadPhrase(head, vocab.descriptors);
+  if (whole === null) return { parts: [{ method: 'unmatched', name: raw.trim(), head: '' }] };
+  const wholeResolution = resolveSplit(whole, vocab, opts);
+  if (wholeResolution.method !== 'unmatched') return { parts: [wholeResolution] };
+
+  // Unknown as a whole: is it several things? "and" only without a quantity
+  // (a quantity binds to ONE ingredient); "or" with or without. One joiner kind.
+  const m = COORDINATOR.exec(head);
+  if (m === null) return { parts: [wholeResolution] };
+  const joiner = m[1] as 'and' | 'or';
+  if (joiner === 'and' && parsed.qty !== undefined) return { parts: [wholeResolution] };
+  const pieces = head.split(joiner === 'and' ? /\s+and\s+/ : /\s+or\s+/).map((p) => p.trim()).filter((p) => p !== '');
+  if (pieces.length < 2 || head.includes(joiner === 'and' ? ' or ' : ' and ')) return { parts: [wholeResolution] };
+  const resolvePiece = (piece: string): Resolution => {
+    const split = splitHeadPhrase(derivedForm(piece), vocab.descriptors);
+    return split === null ? { method: 'unmatched', name: piece, head: piece } : resolveSplit(split, vocab, opts);
+  };
+  const parts = pieces.map(resolvePiece);
+  // A shared noun: "chicken or vegetable broth" is chicken broth or vegetable
+  // broth. When a one-word first piece + the tail of a multi-word second piece
+  // names something the vocabulary knows, that is what the author meant;
+  // "butter or olive oil" borrows nothing because "butter oil" is not a thing.
+  const first = pieces[0]!;
+  const second = pieces[1];
+  if (joiner === 'or' && second !== undefined && !first.includes(' ') && second.includes(' ')) {
+    const borrowed = resolvePiece(`${first} ${second.split(' ').slice(1).join(' ')}`);
+    if (borrowed.method !== 'unmatched') parts[0] = borrowed;
+  }
+  if (parts.every((p) => p.method === 'unmatched')) return { parts: [wholeResolution] };
+  return { parts, joiner };
+};
+
+/** Resolve one raw ingredient line to its primary ingredient. */
+export const resolveIngredient = (raw: string, vocab: Vocabulary, opts: { overlay?: OverlayLookup } = {}): Resolution =>
+  resolveLine(raw, vocab, opts).parts[0]!;

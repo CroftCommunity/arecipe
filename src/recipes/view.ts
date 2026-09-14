@@ -12,7 +12,7 @@ import type { CachedRecipe } from './cache.js';
 import { recipeMetaOf, type Difficulty, type RecipeMeta } from './meta.js';
 import { dishKeyOf, funFactsOf, versionLabelOf, type FunFact } from './model.js';
 import { firstImageCid, firstImageCredit, formatDuration, formatPublishedDate, nutritionOf, thumbUrl } from './present.js';
-import { resolveIngredient, type OverlayLookup } from './ingredient-key.js';
+import { resolveLine, type OverlayLookup } from './ingredient-key.js';
 import type { IngredientCorrections } from './ingredient-aliases-local.js';
 import { INGREDIENT_VOCABULARY } from './ingredient-vocabulary.js';
 import { curatedSubstitutions, lineSubstitution, type CookSubstitution, type LineSubstitution } from './substitutions.js';
@@ -50,7 +50,8 @@ const lineSubstitutions = (lines: string[], rules: CookSubstitution[], overlay: 
  *  known lines and unparseable ones), only when a corrections store is wired. */
 const unknownNames = (lines: string[], overlay: OverlayLookup | undefined): (string | null)[] =>
   lines.map((raw) => {
-    const r = resolveIngredient(raw, INGREDIENT_VOCABULARY, overlay === undefined ? {} : { overlay });
+    // Phase 5: a coordinated line with any resolved part is not unknown.
+    const r = resolveLine(raw, INGREDIENT_VOCABULARY, overlay === undefined ? {} : { overlay }).parts[0]!;
     return r.method === 'unmatched' && r.head !== '' ? r.name : null;
   });
 
@@ -147,7 +148,10 @@ const ingredientListEl = (
     } else {
       li.classList.add('ingredient-suggested');
       const hint = el('span', 'ingredient-sub', `${SUBSTITUTION_GLYPH} or: ${sub.use}`);
-      hint.title = `For ${sub.forAmount}`;
+      hint.title =
+        sub.source === 'corpus'
+          ? `${sub.lines ?? 0} recipe${sub.lines === 1 ? '' : 's'} list ${sub.use} as an alternative to ${sub.forAmount}`
+          : `For ${sub.forAmount}`;
       li.append(document.createTextNode(raw), document.createTextNode(' '), hint);
     }
     list.append(li);

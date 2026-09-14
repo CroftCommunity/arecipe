@@ -175,14 +175,12 @@ loose ideas a later session can pick up.
       `_meta.reviewed: false`; read `runs/ingredient-normalization/REVIEW.md`
       (61 promotion candidates, alias merges, the tail), edit
       `scripts/ingredient-vocab-seed.json`, re-run `node scripts/build-ingredientkeys.mjs`,
-      flip the flag. (b) **Phase 5, compound lines** — “juice of 1 lemon”, “salt
-      and pepper” resolve to nothing today; small and last by design (98 + a
-      minority of 1,289 lines). (c) **Mine the corpus's 2,597 “ or ” lines** into
-      candidate rows for the curated substitution table — seven reference rows is
-      thin, and those alternatives are real cooks' and already keyed to recipes.
-      (d) **The decision GATE**: only after the overlay has real usage — if
-      corrections stay few and coverage (82.5% today, floor 75%) holds, stop;
-      the fuzzy tier (M4) is not warranted. _Noted 2026-09-10._
+      flip the flag — the review report now also lists the 58 mined "X or Y"
+      pairs (`runs/ingredient-normalization/ALTERNATIVES.md`); a wrong pair is a
+      vocabulary problem. (b) ~~Phase 5~~ and (c) ~~mining the "or" lines~~ landed
+      2026-09-14 (coverage 82.5% → 85.9%). (d) **The decision GATE** — the owner
+      chose to build M4 ahead of overlay telemetry (2026-09-14); the gate's
+      question is re-asked at the M4 exit. _Noted 2026-09-10, updated 2026-09-14._
 
 ## Design standard gaps (croft-pwa/docs/DESIGN.md)
 
