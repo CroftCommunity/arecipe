@@ -170,8 +170,10 @@ loose ideas a later session can pick up.
       licensing claims were never verified. Cross-repo: discovery ROADMAP_TODO
       **E119**. _Landed 2026-09-10._
 
-- [ ] **Ingredient vocabulary — what's left after M3.** (a) **Owner review of the
-      shipped vocabulary**: `src/recipes/ingredientkeys.json` ships
+- [ ] **Ingredient vocabulary — what's left after M3.** (a) ~~Owner review of the
+      shipped vocabulary~~ — a review pass ran 2026-09-14 (`_meta.reviewed: true`,
+      `reviewedBy` names it); the owner's spot-checks on the taste calls stay
+      open; originally: `src/recipes/ingredientkeys.json` shipped
       `_meta.reviewed: false`; read `runs/ingredient-normalization/REVIEW.md`
       (61 promotion candidates, alias merges, the tail), edit
       `scripts/ingredient-vocab-seed.json`, re-run `node scripts/build-ingredientkeys.mjs`,

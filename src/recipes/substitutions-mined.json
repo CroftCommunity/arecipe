@@ -5,17 +5,17 @@
   "census": {
    "snapshot": "2026.09.09-20eda6c",
    "lines": 35274,
-   "orLines": 1500,
-   "keyed": 934
+   "orLines": 1573,
+   "keyed": 979
   },
   "minLines": 3,
-  "pairs": 61
+  "pairs": 65
  },
  "pairs": [
   {
    "from": "butter",
    "use": "margarine",
-   "lines": 65
+   "lines": 67
   },
   {
    "from": "parsley",
@@ -48,8 +48,18 @@
    "lines": 11
   },
   {
+   "from": "olive oil",
+   "use": "vegetable oil",
+   "lines": 9
+  },
+  {
    "from": "ghee",
    "use": "butter",
+   "lines": 8
+  },
+  {
+   "from": "ground beef",
+   "use": "lamb",
    "lines": 8
   },
   {
@@ -58,18 +68,8 @@
    "lines": 8
   },
   {
-   "from": "olive oil",
-   "use": "vegetable oil",
-   "lines": 8
-  },
-  {
    "from": "butter",
    "use": "vegetable oil",
-   "lines": 7
-  },
-  {
-   "from": "ground beef",
-   "use": "lamb",
    "lines": 7
   },
   {
@@ -108,6 +108,16 @@
    "lines": 6
   },
   {
+   "from": "niter kibbeh",
+   "use": "butter",
+   "lines": 6
+  },
+  {
+   "from": "oil",
+   "use": "ghee",
+   "lines": 6
+  },
+  {
    "from": "scotch bonnet",
    "use": "habanero pepper",
    "lines": 6
@@ -123,18 +133,28 @@
    "lines": 5
   },
   {
+   "from": "beef broth",
+   "use": "chicken broth",
+   "lines": 5
+  },
+  {
    "from": "chicken broth",
    "use": "water",
    "lines": 5
   },
   {
-   "from": "oil",
-   "use": "butter",
+   "from": "flour",
+   "use": "cornstarch",
+   "lines": 5
+  },
+  {
+   "from": "lamb",
+   "use": "beef",
    "lines": 5
   },
   {
    "from": "oil",
-   "use": "ghee",
+   "use": "butter",
    "lines": 5
   },
   {
@@ -155,21 +175,6 @@
   {
    "from": "beef",
    "use": "chicken",
-   "lines": 4
-  },
-  {
-   "from": "beef broth",
-   "use": "chicken broth",
-   "lines": 4
-  },
-  {
-   "from": "flour",
-   "use": "cornstarch",
-   "lines": 4
-  },
-  {
-   "from": "lamb",
-   "use": "beef",
    "lines": 4
   },
   {
@@ -200,6 +205,11 @@
   {
    "from": "ricotta",
    "use": "cottage cheese",
+   "lines": 4
+  },
+  {
+   "from": "sour cream",
+   "use": "yogurt",
    "lines": 4
   },
   {
@@ -274,12 +284,12 @@
   },
   {
    "from": "niter kibbeh",
-   "use": "regular butter",
+   "use": "oil",
    "lines": 3
   },
   {
-   "from": "niter kibbeh",
-   "use": "regular butter/oil",
+   "from": "olive oil",
+   "use": "cooking oil",
    "lines": 3
   },
   {
@@ -293,8 +303,18 @@
    "lines": 3
   },
   {
+   "from": "seasoning",
+   "use": "stock",
+   "lines": 3
+  },
+  {
    "from": "shallot",
    "use": "onion",
+   "lines": 3
+  },
+  {
+   "from": "st. louis style",
+   "use": "pork sparerib",
    "lines": 3
   },
   {

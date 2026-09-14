@@ -97,9 +97,10 @@ run the other sub-gates directly and use the config above for e2e.
   (`src/recipes/ingredient-key.ts`), seeded by `scripts/ingredient-vocab-seed.json`
   (the descriptor taxonomy, synonyms, and keys that are their own ingredient).
   The human review of `runs/ingredient-normalization/REVIEW.md` is the quality
-  gate; `_meta.reviewed` says whether it happened. Two invariants tests pin:
+  gate; `_meta.reviewed` / `reviewedBy` say whether and by whom it happened (a
+  review pass ran 2026-09-14; the seed's `dropKeys` and merges are its verdicts). Two invariants tests pin:
   coverage by line weight over the census must stay ≥ 75%
-  (`ingredient-key-coverage.spec.ts`, measured 86.7% deterministic, 89.1% with the
+  (`ingredient-key-coverage.spec.ts`, measured 87.9% deterministic, 89.9% with the
   fuzzy tier), and a seed key must never
   repeat a seed alias (the key silently wins and the synonym dies — observed).
   Rules of the resolver worth knowing before touching it: lookup is

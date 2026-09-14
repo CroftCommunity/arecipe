@@ -7,5 +7,5 @@ import generated from './ingredientkeys.json' with { type: 'json' };
 export const INGREDIENT_VOCABULARY: Vocabulary = generated;
 
 /** Build-time facts about the shipped vocabulary, for tests and the review page. */
-export const INGREDIENT_VOCABULARY_META: { readonly keys: number; readonly coverage: number; readonly reviewed: boolean } =
+export const INGREDIENT_VOCABULARY_META: { readonly keys: number; readonly coverage: number; readonly reviewed: boolean; readonly reviewedBy: string | null; readonly reviewedOn: string | null } =
   generated._meta;

@@ -254,3 +254,29 @@ describe('Phase 5 — compound lines: derived forms, coordination, alternatives'
     expect(line.parts).toEqual([{ method: 'unmatched', name: 'quux and quuux', head: 'quux and quuux' }]);
   });
 });
+
+describe('vocabulary review pass (2026-09-14): the line shapes that grew junk keys', () => {
+  const v: Vocabulary = { ...vocab, keys: { ...vocab.keys, ginger: { aliases: [] }, saffron: { aliases: [] }, shrimp: { aliases: ['prawn'] }, chicken: { aliases: [] }, 'vegetable oil': { aliases: [] }, rice: { aliases: [] }, 'chicken breast': { aliases: [] }, cauliflower: { aliases: [] } } };
+  const t = { ...taxonomy, variety: [...taxonomy.variety, 'broiler', 'fryer'], prep: [...taxonomy.prep, 'thumb-sized', 'heaping'], quality: [...taxonomy.quality, 'other'] };
+  const vv: Vocabulary = { ...v, descriptors: t };
+
+  it.each([
+    ['&frac12; cup flour', 'flour'], // an HTML entity for ½ that leaked from a source
+    ['frac14 tsp salt', 'salt'],
+    ['1 cup lime juice )', 'lime juice'], // a stray closing paren
+    ['thumb-sized piece of ginger', 'ginger'], // a count word behind a descriptor
+    ['1 heaping teaspoon salt', 'salt'], // a measure word behind a descriptor
+    ['3 strands of saffron', 'saffron'],
+    ['2 chicken breast halves', 'chicken breast'],
+    ['1 head cauliflower florets', 'cauliflower'],
+    ['other vegetable oil', 'vegetable oil'],
+  ])('%j → %j', (raw, key) => {
+    const vvv: Vocabulary = { ...vv, keys: { ...vv.keys, 'lime juice': { aliases: [] } } };
+    expect(resolveIngredient(raw, vvv)).toMatchObject({ key });
+  });
+
+  it('a slash is an alternative: "prawns/shrimp" and "broiler/fryer chicken" resolve like "or" lines', () => {
+    expect(resolveLine('500 g prawns/shrimp', vv).parts.map((p) => (p.method === 'unmatched' ? null : p.key))).toEqual(['shrimp', 'shrimp']);
+    expect(resolveIngredient('1 broiler/fryer chicken', vv)).toMatchObject({ key: 'chicken' });
+  });
+});

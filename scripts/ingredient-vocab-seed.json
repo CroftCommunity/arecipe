@@ -1,5 +1,5 @@
 {
-  "_why": "Reviewed DATA for scripts/build-ingredientkeys.mjs: the descriptor taxonomy the resolver peels (variety changes identity and substitution behavior; prep and quality do not) and hand-curated synonyms the census cannot discover on its own. Seeded from the Phase 0 census word lists (runs/ingredient-normalization/PHASE0-FINDINGS.md). Edit here, re-run the tool, review the report, commit the regenerated src/recipes/ingredientkeys.json. `seedKeys` lists ONLY descriptor-bearing forms whose head word alone would name the WRONG ingredient (\"sweet potato\" is not a potato; \"ground beef\" is a product, not beef + ground) — the resolver claims them whole before a descriptor could peel. Everything else descriptor-bearing (\"smoked paprika\", \"ground cumin\", \"red onion\") is key + variety by design, and a seedKey must never repeat a seedAlias (the key would silently win and the synonym would die). `aliasSources` lists the accounts whose published app.arecipe.ingredientAlias records the build pulls (with --aliases-from) as alias candidates — the arecipe account first; add a cook only after their corrections have been read.",
+  "_why": "Reviewed DATA for scripts/build-ingredientkeys.mjs: the descriptor taxonomy the resolver peels (variety changes identity and substitution behavior; prep and quality do not) and hand-curated synonyms the census cannot discover on its own. Seeded from the Phase 0 census word lists (runs/ingredient-normalization/PHASE0-FINDINGS.md). Edit here, re-run the tool, review the report, commit the regenerated src/recipes/ingredientkeys.json. `seedKeys` lists ONLY descriptor-bearing forms whose head word alone would name the WRONG ingredient (\"sweet potato\" is not a potato; \"ground beef\" is a product, not beef + ground) — the resolver claims them whole before a descriptor could peel. Everything else descriptor-bearing (\"smoked paprika\", \"ground cumin\", \"red onion\") is key + variety by design, and a seedKey must never repeat a seedAlias (the key would silently win and the synonym would die). `aliasSources` lists the accounts whose published app.arecipe.ingredientAlias records the build pulls (with --aliases-from) as alias candidates — the arecipe account first; add a cook only after their corrections have been read. `dropKeys` are review verdicts (2026-09-14): heads that must never ship as keys — generic fragments a line was cut down to, not ingredients.",
   "descriptors": {
     "variety": [
       "ground",
@@ -97,7 +97,18 @@
       "chinese",
       "indian",
       "english",
-      "spanish"
+      "spanish",
+      "medium-grain",
+      "round-grain",
+      "creamy",
+      "broiler",
+      "fryer",
+      "roaster",
+      "stewing",
+      "semisweet",
+      "semi-sweet",
+      "bittersweet",
+      "cracked"
     ],
     "prep": [
       "chopped",
@@ -212,7 +223,16 @@
       "level",
       "scant",
       "generous",
-      "rounded"
+      "rounded",
+      "pure",
+      "thick",
+      "strong",
+      "mini",
+      "other",
+      "any",
+      "regular",
+      "favorite",
+      "favourite"
     ]
   },
   "seedAliases": {
@@ -238,7 +258,9 @@
     ],
     "confectioners sugar": [
       "powdered sugar",
-      "icing sugar"
+      "icing sugar",
+      "confectioners' sugar",
+      "confectioner's sugar"
     ],
     "cornstarch": [
       "corn starch",
@@ -255,7 +277,8 @@
     "ground beef": [
       "minced beef",
       "beef mince",
-      "hamburger"
+      "hamburger",
+      "hamburger meat"
     ],
     "heavy cream": [
       "heavy whipping cream",
@@ -339,7 +362,105 @@
     ],
     "monterey jack": [
       "monterey jack cheese",
-      "jack cheese"
+      "jack cheese",
+      "monterrey jack cheese"
+    ],
+    "chile": [
+      "chili",
+      "chilli",
+      "chilly",
+      "chily",
+      "chilies",
+      "chillies",
+      "chilis",
+      "chillis"
+    ],
+    "chili powder": [
+      "chile powder",
+      "chilli powder"
+    ],
+    "chile pepper": [
+      "chili pepper",
+      "chilli pepper",
+      "chilly pepper"
+    ],
+    "chili sauce": [
+      "chilli sauce"
+    ],
+    "chili garlic sauce": [
+      "garlic chili sauce"
+    ],
+    "yogurt": [
+      "yoghurt"
+    ],
+    "jalapeño": [
+      "jalapeno"
+    ],
+    "gruyère": [
+      "gruyere",
+      "gruyere cheese",
+      "gruyère cheese"
+    ],
+    "crème fraîche": [
+      "creme fraiche"
+    ],
+    "semisweet chocolate": [
+      "semi-sweet chocolate"
+    ],
+    "semisweet chocolate chip": [
+      "semi-sweet chocolate chip"
+    ],
+    "salmon fillet": [
+      "salmon filet"
+    ],
+    "corn kernel": [
+      "kernel corn"
+    ],
+    "elbow macaroni": [
+      "elbow macaroni pasta",
+      "macaroni pasta"
+    ],
+    "pecorino romano": [
+      "pecorino romano cheese"
+    ],
+    "taco seasoning": [
+      "taco seasoning mix"
+    ],
+    "apple cider vinegar": [
+      "cider vinegar"
+    ],
+    "rice vinegar": [
+      "rice wine vinegar"
+    ],
+    "flour": [
+      "wheat flour"
+    ],
+    "coriander": [
+      "coriander powder"
+    ],
+    "pistachio": [
+      "pistachio nut"
+    ],
+    "graham cracker": [
+      "graham cracker crumb"
+    ],
+    "garlic": [
+      "clove garlic",
+      "cloves garlic",
+      "clove of garlic",
+      "cloves of garlic",
+      "garlic clove"
+    ],
+    "chicken": [
+      "broiler",
+      "fryer",
+      "broiler chicken",
+      "fryer chicken",
+      "roaster",
+      "roasting chicken",
+      "stewing chicken",
+      "stewing hen",
+      "whole chicken"
     ]
   },
   "seedKeys": [
@@ -370,5 +491,25 @@
   ],
   "aliasSources": [
     "did:plc:spfl4xaktvvchr2cqp2r2xvp"
-  ]
+  ],
+  "dropKeys": [
+    "powder",
+    "filling",
+    "topping",
+    "dressing",
+    "juice",
+    "rub",
+    "can",
+    "clove",
+    "vegetable",
+    "189",
+    "frac12",
+    "frac14",
+    "frac34"
+  ],
+  "review": {
+    "reviewed": true,
+    "by": "Claude session (junk keys, duplicate spellings, descriptor-led heads, generic fragments, count/measure leaks — runs/ingredient-normalization/REVIEW.md, ALTERNATIVES.md, FUZZY-EVAL.md); owner spot-checks on the taste calls listed in PR #106 pending",
+    "on": "2026-09-14"
+  }
 }

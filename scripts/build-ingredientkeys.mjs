@@ -119,6 +119,7 @@ const proposal = core.proposeVocabulary(census.rows, {
   seedAliases: seed.seedAliases,
   seedKeys: seed.seedKeys ?? [],
   communityAliases: communityAliases.map((a) => ({ name: a.name, key: a.key })),
+  dropKeys: seed.dropKeys ?? [],
 });
 
 const keyCount = Object.keys(proposal.keys).length;
@@ -188,7 +189,9 @@ if (!DRY) {
       minLines: MIN_LINES,
       keys: keyCount,
       coverage: Number(proposal.coverage.share.toFixed(4)),
-      reviewed: false,
+      reviewed: seed.review?.reviewed === true,
+      reviewedBy: seed.review?.by ?? null,
+      reviewedOn: seed.review?.on ?? null,
     },
     descriptors: proposal.vocabulary.descriptors,
     keys: proposal.vocabulary.keys,

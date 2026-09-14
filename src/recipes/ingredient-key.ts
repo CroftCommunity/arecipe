@@ -94,6 +94,12 @@ const TRAILING_PHRASE =
   /\s*\b(?:plus\b.*|to taste\b.*|as needed\b.*|as required\b.*|or more\b.*|or to taste\b.*|or as needed\b.*|if desired\b.*|if needed\b.*|optional\b.*|divided\b.*|for (?:garnish|garnishing|serving|frying|deep-frying|dusting|greasing|brushing|topping|drizzling|decoration|decorating|coating|the [a-z-]+)\b.*)$/;
 const LEADING_FILLER = /^(?:of|a|an|the|some|few|several|couple|couple of|handful of)\s+/;
 const MARKUP = /<[^>]*>/g;
+// HTML entities that leak from sources: numeric (&#189; is ½), named fractions
+// (&frac12;, with or without the ampersand), and any other &name; — all read
+// as nothing (a quantity the parser already lost, never an ingredient).
+const ENTITY = /&#\d+;?|&?frac\d\d;?|&[a-z]+;/g;
+const STRAY_PAREN = /[()]/g;
+const SLASH_ALTERNATIVE = /([a-z])\/([a-z])/g;
 const LEADING_JUNK = /^[^a-z0-9(]+/;
 
 /** "juice of 1 lemon" → "lemon juice", "grated zest of 1 orange" → "orange
@@ -107,7 +113,17 @@ export const derivedForm = (head: string): string => {
 
 /** Reduce a parsed name (the tail of a line) to its head phrase. */
 export const headPhrase = (name: string): string => {
-  const flat = name.toLowerCase().replace(MARKUP, ' ').replace(PARENTHETICAL, ' ').replace(/\s+/g, ' ').trim().replace(LEADING_JUNK, '');
+  // "prawns/shrimp", "broiler/fryer": a slash between words is an alternative.
+  const flat = name
+    .toLowerCase()
+    .replace(MARKUP, ' ')
+    .replace(ENTITY, ' ')
+    .replace(PARENTHETICAL, ' ')
+    .replace(STRAY_PAREN, ' ')
+    .replace(SLASH_ALTERNATIVE, '$1 or $2')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(LEADING_JUNK, '');
   const clause = flat.split(CLAUSE_BREAK)[0] ?? '';
   let s = clause.replace(TRAILING_PHRASE, '').replace(/[.*:]+$/, '').trim();
   let prev = '';
@@ -126,13 +142,19 @@ const COUNT_UNITS: Readonly<Record<string, string>> = (() => {
     'clove', 'can', 'slice', 'stick', 'sprig', 'bunch', 'package', 'pkg', 'packet', 'head', 'piece',
     'dash', 'stalk', 'rib', 'ear', 'jar', 'bottle', 'box', 'bag', 'cube', 'drop', 'handful', 'sheet',
     'strip', 'envelope', 'container', 'scoop', 'knob', 'splash', 'sprinkle', 'loaf', 'wedge', 'chunk',
-    'block', 'tin', 'tub', 'carton', 'pod', 'bulb', 'square', 'bar', 'link', 'round',
+    'block', 'tin', 'tub', 'carton', 'pod', 'bulb', 'square', 'bar', 'link', 'round', 'strand', 'thread', 'floret', 'ball', 'slab',
+    'half',
   ];
   const map: Record<string, string> = { ea: 'each', each: 'each' };
   for (const w of singular) {
     map[w] = w;
     map[`${w}s`] = w;
   }
+  map.halves = 'half';
+  // The parser plural-folds a line's LAST word before we see it: "halves" arrives
+  // as "halve", "loaves" as "loave".
+  map.halve = 'half';
+  map.loave = 'loaf';
   map.boxes = 'box';
   map.bunches = 'bunch';
   map.dashes = 'dash';
@@ -201,30 +223,42 @@ const splitHeadPhrase = (phrase: string, taxonomy: DescriptorTaxonomy): SplitHea
   let words = phrase.split(' ').filter((w) => w !== '');
   if (words.length === 0) return null;
 
-  // Front hygiene: a stray number, a measure word the parser could not pair
-  // with a quantity, then an "of" — repeatedly, but never down to nothing.
-  while (words.length > 1 && (NUMBERISH.test(words[0]!) || LEADING_MEASURE.has(words[0]!.replace(/\.$/, '')))) {
-    words = words.slice(1);
-    if (words[0] === 'of' && words.length > 1) words = words.slice(1);
-  }
-
-  let countUnit: string | undefined;
-  const leading = countUnitOf(words[0]!);
-  if (leading !== undefined && words.length > 1) {
-    countUnit = leading;
-    words = words.slice(1);
-    if (words[0] === 'of' && words.length > 1) words = words.slice(1);
-  } else if (words.length > 1) {
-    const trailing = countUnitOf(words[words.length - 1]!);
-    if (trailing !== undefined) {
-      countUnit = trailing;
-      words = words.slice(0, -1);
-    }
-  }
-
   const index = taxonomyIndex(taxonomy);
   const peeled: { word: string; cls: DescriptorClass }[] = [];
   const trailing: { word: string; cls: DescriptorClass }[] = [];
+  let countUnit: string | undefined;
+
+  // Front hygiene, interleaved with the leading-descriptor peel: a stray
+  // number, a measure word the parser could not pair with a quantity, a count
+  // word — then an "of" — and a descriptor may sit in ANY order ("1 large clove
+  // garlic", "1 heaping teaspoon salt", "thumb-sized piece of ginger"), so
+  // strip and peel in a loop until the front is the head. Never down to nothing.
+  const stripFront = (): boolean => {
+    let changed = false;
+    while (words.length > 1 && (NUMBERISH.test(words[0]!) || LEADING_MEASURE.has(words[0]!.replace(/\.$/, '')))) {
+      words = words.slice(1);
+      if (words[0] === 'of' && words.length > 1) words = words.slice(1);
+      changed = true;
+    }
+    const leading = words.length > 1 ? countUnitOf(words[0]!) : undefined;
+    if (leading !== undefined) {
+      countUnit = countUnit ?? leading;
+      words = words.slice(1);
+      if (words[0] === 'of' && words.length > 1) words = words.slice(1);
+      changed = true;
+    }
+    return changed;
+  };
+  stripFront();
+  // A trailing count word regardless of a leading one: "1 head cauliflower
+  // florets" carries both; the head is cauliflower either way.
+  if (words.length > 1) {
+    const trailingUnit = countUnitOf(words[words.length - 1]!);
+    if (trailingUnit !== undefined) {
+      countUnit = countUnit ?? trailingUnit;
+      words = words.slice(0, -1);
+    }
+  }
   // Trailing prep/quality without a comma ("red onion sliced"): peel from the
   // end first — these never change identity, and a layer with them attached
   // would only ever miss.
@@ -240,6 +274,7 @@ const splitHeadPhrase = (phrase: string, taxonomy: DescriptorTaxonomy): SplitHea
     if (cls === undefined) break;
     peeled.push({ word: words[0]!, cls });
     words = words.slice(1);
+    if (stripFront()) layers.length = 0; // the front changed under us: earlier layers were not heads
     layers.push(fold(words.join(' ')));
   }
 
@@ -397,6 +432,10 @@ export const resolveLine = (raw: string, vocab: Vocabulary, opts: ResolveOptions
     if (borrowed.method !== 'unmatched') parts[0] = borrowed;
   }
   if (parts.every((p) => p.method === 'unmatched')) return wholeOrFuzzy();
+  // The primary is the first RESOLVED part: "broiler or fryer chicken" is a
+  // chicken even when its first piece names nothing on its own.
+  const firstResolved = parts.findIndex((p) => p.method !== 'unmatched');
+  if (firstResolved > 0) parts.unshift(...parts.splice(firstResolved, 1));
   return { parts, joiner };
 };
 

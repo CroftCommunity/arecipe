@@ -8,9 +8,11 @@
    "lines": 35274
   },
   "minLines": 3,
-  "keys": 1021,
-  "coverage": 0.8671,
-  "reviewed": false
+  "keys": 937,
+  "coverage": 0.879,
+  "reviewed": true,
+  "reviewedBy": "Claude session (junk keys, duplicate spellings, descriptor-led heads, generic fragments, count/measure leaks — runs/ingredient-normalization/REVIEW.md, ALTERNATIVES.md, FUZZY-EVAL.md); owner spot-checks on the taste calls listed in PR #106 pending",
+  "reviewedOn": "2026-09-14"
  },
  "descriptors": {
   "variety": [
@@ -109,7 +111,18 @@
    "chinese",
    "indian",
    "english",
-   "spanish"
+   "spanish",
+   "medium-grain",
+   "round-grain",
+   "creamy",
+   "broiler",
+   "fryer",
+   "roaster",
+   "stewing",
+   "semisweet",
+   "semi-sweet",
+   "bittersweet",
+   "cracked"
   ],
   "prep": [
    "chopped",
@@ -224,70 +237,66 @@
    "level",
    "scant",
    "generous",
-   "rounded"
+   "rounded",
+   "pure",
+   "thick",
+   "strong",
+   "mini",
+   "other",
+   "any",
+   "regular",
+   "favorite",
+   "favourite"
   ]
  },
  "keys": {
-  "189": {
-   "aliases": []
-  },
   "salt": {
-   "aliases": [
-    "1 teaspoon salt"
-   ]
+   "aliases": []
   },
   "onion": {
    "aliases": [
+    "medium-large yellow onion",
     "small-medium onion",
     "medium-large onion",
     "finely-sliced onion",
-    "3 big onion",
     "thinly-julienned onion"
    ]
   },
   "sugar": {
    "aliases": [
-    "/ 6 cup sugar",
-    "2 cups icing sugar"
+    "/ 6 cup sugar"
    ]
   },
   "butter": {
    "aliases": [
     "medium-soft butter",
+    "half-salted butter",
     "butter room temperature",
-    "room temperature butter",
-    "1 tablespoon butter",
-    "2 teaspoons butter"
+    "room temperature butter"
    ]
   },
   "water": {
+   "aliases": []
+  },
+  "flour": {
    "aliases": [
-    "2 l water",
-    "2 cups water",
-    "2 tbsp water",
-    "3.5 l water",
-    "8 ounces water",
-    "¼ cup water",
-    "1 cup water"
+    "wheat flour",
+    "0g / 1 cup white whole wheat flour",
+    "self rising flour",
+    "0g / 1 1/2 cups all-purpose flour",
+    "self raising flour",
+    "whole wheat flour",
+    "all purpose flour"
    ]
   },
   "garlic": {
    "aliases": [
+    "clove garlic",
+    "cloves garlic",
+    "clove of garlic",
+    "cloves of garlic",
+    "garlic clove",
     "freshly-minced garlic"
-   ]
-  },
-  "flour": {
-   "aliases": [
-    "self rising flour",
-    "0g / 1 1/2 cups all-purpose flour",
-    "1.6 kg flour",
-    "½ cups flour",
-    "1 cup all-purpose flour",
-    "¼ cup flour",
-    "self raising flour",
-    "cup self-raising flour",
-    "whole wheat flour",
-    "all purpose flour"
    ]
   },
   "egg": {
@@ -299,16 +308,11 @@
    "aliases": [
     "evoo",
     "extra virgin olive oil",
-    "8 oz extra virgin olive oil",
-    "⅓ cup extra virgin olive oil",
-    "¼ pint olive oil",
-    "½ cup extra virgin olive oil",
     "extra-light olive oil"
    ]
   },
   "pepper": {
    "aliases": [
-    "pinch of freshly ground pepper",
     "fresh-ground pepper",
     "finely-crushed black pepper",
     "fresh-ground black pepper"
@@ -319,11 +323,9 @@
   },
   "milk": {
    "aliases": [
-    "1% milk",
     "0g / 1 1/2 cups milk",
-    "1 cup milk",
-    "¼ cup milk",
     "room temperature milk",
+    "1% milk",
     "2% milk"
    ]
   },
@@ -334,17 +336,13 @@
   },
   "vegetable oil": {
    "aliases": [
-    "vegetable oil for deep frying",
-    "500 ml vegetable oil for deep frying"
+    "vegetable oil for deep frying"
    ]
   },
   "cinnamon": {
    "aliases": []
   },
   "lemon juice": {
-   "aliases": []
-  },
-  "parsley": {
    "aliases": []
   },
   "paprika": {
@@ -365,14 +363,13 @@
   },
   "oil": {
    "aliases": [
-    "1 liter oil",
     "oil for deep frying"
    ]
   },
-  "brown sugar": {
+  "parsley": {
    "aliases": []
   },
-  "potato": {
+  "brown sugar": {
    "aliases": []
   },
   "rice": {
@@ -383,19 +380,8 @@
     "long grain white rice"
    ]
   },
-  "baking powder": {
+  "potato": {
    "aliases": []
-  },
-  "cumin": {
-   "aliases": []
-  },
-  "cilantro": {
-   "aliases": [
-    "coriander leaf",
-    "fresh coriander",
-    "coriander leaves",
-    "4 tablespoons chopped cilantro"
-   ]
   },
   "ginger": {
    "aliases": [
@@ -403,10 +389,23 @@
     "¼ in cubes of ginger"
    ]
   },
-  "cayenne pepper": {
+  "vanilla extract": {
    "aliases": []
   },
-  "vanilla extract": {
+  "baking powder": {
+   "aliases": []
+  },
+  "cilantro": {
+   "aliases": [
+    "coriander leaf",
+    "fresh coriander",
+    "coriander leaves"
+   ]
+  },
+  "cumin": {
+   "aliases": []
+  },
+  "cayenne pepper": {
    "aliases": []
   },
   "soy sauce": {
@@ -424,6 +423,18 @@
    "aliases": [
     "tomato puree",
     "tomato purée"
+   ]
+  },
+  "chile": {
+   "aliases": [
+    "chili",
+    "chilli",
+    "chilly",
+    "chily",
+    "chilies",
+    "chillies",
+    "chilis",
+    "chillis"
    ]
   },
   "heavy cream": {
@@ -444,8 +455,12 @@
    ]
   },
   "lemon": {
+   "aliases": []
+  },
+  "chili powder": {
    "aliases": [
-    "6 medium lemon"
+    "chile powder",
+    "chilli powder"
    ]
   },
   "baking soda": {
@@ -465,19 +480,43 @@
   "honey": {
    "aliases": []
   },
-  "margarine": {
-   "aliases": [
-    "lightly-salted soft margarine"
-   ]
-  },
   "celery": {
    "aliases": [
     "3–4 celery"
    ]
   },
-  "oregano": {
+  "margarine": {
    "aliases": [
-    "½ tablespoon dried oregano"
+    "lightly-salted soft margarine"
+   ]
+  },
+  "chicken": {
+   "aliases": [
+    "broiler",
+    "fryer",
+    "broiler chicken",
+    "fryer chicken",
+    "roaster",
+    "roasting chicken",
+    "stewing chicken",
+    "stewing hen",
+    "whole chicken"
+   ]
+  },
+  "oregano": {
+   "aliases": []
+  },
+  "coriander": {
+   "aliases": [
+    "coriander powder"
+   ]
+  },
+  "confectioners sugar": {
+   "aliases": [
+    "powdered sugar",
+    "icing sugar",
+    "confectioners' sugar",
+    "confectioner's sugar"
    ]
   },
   "parmesan": {
@@ -488,22 +527,13 @@
     "grated parmesan"
    ]
   },
-  "chicken": {
-   "aliases": []
-  },
   "garlic powder": {
    "aliases": []
   },
   "egg yolk": {
    "aliases": []
   },
-  "confectioners sugar": {
-   "aliases": [
-    "powdered sugar",
-    "icing sugar"
-   ]
-  },
-  "coriander": {
+  "rosemary": {
    "aliases": []
   },
   "cornstarch": {
@@ -513,37 +543,40 @@
     "corn flour"
    ]
   },
-  "rosemary": {
+  "turmeric": {
    "aliases": []
   },
   "beef": {
    "aliases": [
     "coarse-ground beef",
     "/ ground beef",
-    "7 cups beef",
     "93% lean ground beef"
    ]
   },
-  "turmeric": {
-   "aliases": []
-  },
-  "chile": {
-   "aliases": []
-  },
-  "raisin": {
-   "aliases": []
-  },
-  "vinegar": {
-   "aliases": []
+  "bacon": {
+   "aliases": [
+    "thick-cut bacon"
+   ]
   },
   "ground beef": {
    "aliases": [
     "minced beef",
     "beef mince",
-    "hamburger"
+    "hamburger",
+    "hamburger meat"
    ]
   },
-  "worcestershire sauce": {
+  "raisin": {
+   "aliases": []
+  },
+  "peppercorn": {
+   "aliases": [
+    "black peppercorn",
+    "whole peppercorn",
+    "cracked-black peppercorn"
+   ]
+  },
+  "vinegar": {
    "aliases": []
   },
   "beef broth": {
@@ -551,17 +584,24 @@
     "beef stock"
    ]
   },
-  "sour cream": {
+  "chile pepper": {
    "aliases": [
-    "soured cream"
+    "chili pepper",
+    "chilli pepper",
+    "chilly pepper"
    ]
   },
-  "bacon": {
+  "worcestershire sauce": {
    "aliases": []
   },
   "palm oil": {
    "aliases": [
     "palm oil for deep frying"
+   ]
+  },
+  "apple cider vinegar": {
+   "aliases": [
+    "cider vinegar"
    ]
   },
   "cheddar": {
@@ -572,71 +612,45 @@
   "mayonnaise": {
    "aliases": []
   },
-  "peppercorn": {
+  "sour cream": {
    "aliases": [
-    "black peppercorn",
-    "whole peppercorn"
+    "soured cream"
    ]
+  },
+  "chicken breast": {
+   "aliases": []
   },
   "vanilla": {
    "aliases": []
   },
-  "white wine": {
-   "aliases": []
-  },
-  "chicken breast": {
+  "yogurt": {
    "aliases": [
-    "2 lbs chicken breast"
+    "yoghurt",
+    "2% plain yogurt"
    ]
   },
-  "egg white": {
-   "aliases": []
-  },
-  "mustard": {
+  "white wine": {
    "aliases": []
   },
   "bread": {
    "aliases": [
+    "thick-cut bread",
     "½-inch slices white bread"
    ]
   },
-  "chile pepper": {
+  "mustard": {
    "aliases": []
   },
-  "banana": {
-   "aliases": []
-  },
-  "shallot": {
-   "aliases": [
-    "1–2 shallot"
-   ]
-  },
-  "almond": {
-   "aliases": [
-    "finely-ground almond"
-   ]
-  },
-  "basil": {
-   "aliases": [
-    "½ tablespoon dried basil"
-   ]
-  },
-  "chili powder": {
-   "aliases": []
-  },
-  "walnut": {
-   "aliases": [
-    "0g / 1 cup walnut",
-    "5 walnut"
-   ]
-  },
-  "chile powder": {
+  "egg white": {
    "aliases": []
   },
   "lime juice": {
    "aliases": []
   },
-  "ghee": {
+  "banana": {
+   "aliases": []
+  },
+  "basil": {
    "aliases": []
   },
   "cheese": {
@@ -645,27 +659,44 @@
     "⅓–½ cups cheese"
    ]
   },
-  "seasoning": {
+  "cabbage": {
    "aliases": []
+  },
+  "coconut milk": {
+   "aliases": [
+    "medium-thick coconut milk"
+   ]
+  },
+  "ghee": {
+   "aliases": [
+    "ghee for deep frying"
+   ]
   },
   "mushroom": {
    "aliases": []
   },
-  "cabbage": {
+  "shallot": {
+   "aliases": [
+    "1–2 shallot"
+   ]
+  },
+  "seasoning": {
+   "aliases": []
+  },
+  "walnut": {
+   "aliases": [
+    "0g / 1 cup walnut"
+   ]
+  },
+  "almond": {
+   "aliases": [
+    "finely-ground almond"
+   ]
+  },
+  "stock": {
    "aliases": []
   },
   "cardamom": {
-   "aliases": []
-  },
-  "coconut milk": {
-   "aliases": []
-  },
-  "stock": {
-   "aliases": [
-    "1 litre of stock"
-   ]
-  },
-  "apple": {
    "aliases": []
   },
   "cream cheese": {
@@ -676,16 +707,7 @@
   "cucumber": {
    "aliases": []
   },
-  "clove": {
-   "aliases": []
-  },
-  "fish": {
-   "aliases": []
-  },
-  "cocoa powder": {
-   "aliases": []
-  },
-  "crayfish": {
+  "apple": {
    "aliases": []
   },
   "mozzarella": {
@@ -693,24 +715,16 @@
     "mozzarella cheese"
    ]
   },
+  "crayfish": {
+   "aliases": []
+  },
+  "cocoa powder": {
+   "aliases": []
+  },
   "cream": {
    "aliases": []
   },
-  "dijon mustard": {
-   "aliases": []
-  },
-  "lemon zest": {
-   "aliases": []
-  },
-  "pea": {
-   "aliases": []
-  },
-  "yogurt": {
-   "aliases": [
-    "2% plain yogurt"
-   ]
-  },
-  "curry powder": {
+  "fish": {
    "aliases": []
   },
   "shrimp": {
@@ -718,10 +732,35 @@
     "prawn"
    ]
   },
-  "breadcrumb": {
+  "chocolate": {
+   "aliases": [
+    "extra-dark chocolate"
+   ]
+  },
+  "dijon mustard": {
+   "aliases": []
+  },
+  "lemon zest": {
+   "aliases": []
+  },
+  "meat": {
+   "aliases": [
+    "coarse-ground meat"
+   ]
+  },
+  "pea": {
+   "aliases": []
+  },
+  "spinach": {
    "aliases": []
   },
   "coconut": {
+   "aliases": []
+  },
+  "curry powder": {
+   "aliases": []
+  },
+  "bean": {
    "aliases": []
   },
   "cumin seed": {
@@ -730,28 +769,20 @@
   "oats": {
    "aliases": []
   },
-  "lime": {
-   "aliases": [
-    "2 lime"
-   ]
-  },
-  "red wine": {
-   "aliases": []
-  },
   "vegetable broth": {
    "aliases": [
     "vegetable stock"
    ]
   },
-  "bean": {
-   "aliases": []
-  },
-  "meat": {
+  "lime": {
    "aliases": [
-    "coarse-ground meat"
+    "2 lime"
    ]
   },
-  "spinach": {
+  "breadcrumb": {
+   "aliases": []
+  },
+  "red wine": {
    "aliases": []
   },
   "turmeric powder": {
@@ -760,42 +791,27 @@
   "allspice": {
    "aliases": []
   },
+  "canola oil": {
+   "aliases": []
+  },
   "cornmeal": {
    "aliases": [
     "finely-ground cornmeal"
    ]
   },
   "tomato sauce": {
-   "aliases": [
-    "½ litre tomato sauce"
-   ]
-  },
-  "wheat flour": {
-   "aliases": [
-    "0g / 1 cup white whole wheat flour"
-   ]
-  },
-  "canola oil": {
    "aliases": []
   },
-  "chocolate": {
-   "aliases": [
-    "extra-dark chocolate"
-   ]
+  "mustard seed": {
+   "aliases": []
+  },
+  "buttermilk": {
+   "aliases": []
   },
   "cooking oil": {
    "aliases": [
     "cooking oil for deep frying"
    ]
-  },
-  "mustard seed": {
-   "aliases": []
-  },
-  "apple cider vinegar": {
-   "aliases": []
-  },
-  "buttermilk": {
-   "aliases": []
   },
   "eggplant": {
    "aliases": [
@@ -806,40 +822,39 @@
   "leek": {
    "aliases": []
   },
-  "mint": {
-   "aliases": []
-  },
-  "sesame oil": {
-   "aliases": []
-  },
-  "ketchup": {
-   "aliases": []
-  },
   "olive": {
-   "aliases": [
-    "50 large pitted green olive"
-   ]
+   "aliases": []
   },
   "pepper flake": {
    "aliases": [
     "hot-pepper flake"
    ]
   },
-  "pure vanilla extract": {
+  "sesame oil": {
    "aliases": []
   },
   "corn": {
    "aliases": []
   },
+  "ketchup": {
+   "aliases": []
+  },
+  "maple syrup": {
+   "aliases": []
+  },
+  "mint": {
+   "aliases": []
+  },
   "ice": {
-   "aliases": [
-    "2 cups ice"
-   ]
+   "aliases": []
+  },
+  "peanut butter": {
+   "aliases": []
   },
   "white pepper": {
    "aliases": []
   },
-  "pork": {
+  "yeast": {
    "aliases": []
   },
   "sesame seed": {
@@ -847,32 +862,13 @@
     "lightly-roasted black sesame seed"
    ]
   },
-  "frac12": {
-   "aliases": []
+  "chocolate chip": {
+   "aliases": [
+    "mini-chocolate chip",
+    "semi sweet chocolate chip"
+   ]
   },
   "ham": {
-   "aliases": []
-  },
-  "yeast": {
-   "aliases": []
-  },
-  "orange": {
-   "aliases": [
-    "medium-large orange"
-   ]
-  },
-  "sausage": {
-   "aliases": []
-  },
-  "wine vinegar": {
-   "aliases": [
-    "white-wine vinegar"
-   ]
-  },
-  "coriander seed": {
-   "aliases": []
-  },
-  "garam masala": {
    "aliases": []
   },
   "molasses": {
@@ -881,15 +877,25 @@
     "black treacle"
    ]
   },
-  "vegetable": {
-   "aliases": [
-    "¼ cup + 2 tbsp vegetable"
-   ]
+  "sausage": {
+   "aliases": []
   },
   "bread crumb": {
+   "aliases": []
+  },
+  "orange": {
    "aliases": [
-    "1 cup bread crumb"
+    "medium-large orange"
    ]
+  },
+  "pecan": {
+   "aliases": []
+  },
+  "garam masala": {
+   "aliases": []
+  },
+  "evaporated milk": {
+   "aliases": []
   },
   "shortening": {
    "aliases": []
@@ -897,31 +903,32 @@
   "active dry yeast": {
    "aliases": []
   },
-  "chocolate chip": {
-   "aliases": []
-  },
-  "cider vinegar": {
-   "aliases": []
-  },
   "condensed milk": {
    "aliases": []
   },
-  "evaporated milk": {
+  "coriander seed": {
    "aliases": []
   },
-  "peanut butter": {
-   "aliases": []
-  },
-  "pecan": {
-   "aliases": []
+  "peanut": {
+   "aliases": [
+    "dry-roasted peanut"
+   ]
   },
   "sweet potato": {
    "aliases": []
   },
-  "chilly": {
-   "aliases": []
+  "wine vinegar": {
+   "aliases": [
+    "white-wine vinegar"
+   ]
   },
   "boiling water": {
+   "aliases": []
+  },
+  "pork": {
+   "aliases": []
+  },
+  "saffron": {
    "aliases": []
   },
   "chickpea": {
@@ -933,8 +940,10 @@
   "curry leaf": {
    "aliases": []
   },
-  "maple syrup": {
-   "aliases": []
+  "lettuce": {
+   "aliases": [
+    "freshly-cut lettuce"
+   ]
   },
   "rum": {
    "aliases": []
@@ -947,11 +956,6 @@
   },
   "dill": {
    "aliases": []
-  },
-  "peanut": {
-   "aliases": [
-    "dry-roasted peanut"
-   ]
   },
   "onion powder": {
    "aliases": []
@@ -970,10 +974,11 @@
   "white vinegar": {
    "aliases": []
   },
-  "lettuce": {
-   "aliases": [
-    "freshly-cut lettuce"
-   ]
+  "pineapple": {
+   "aliases": []
+  },
+  "basil leaf": {
+   "aliases": []
   },
   "kidney bean": {
    "aliases": []
@@ -981,15 +986,33 @@
   "okra": {
    "aliases": []
   },
-  "zucchini": {
+  "orange juice": {
+   "aliases": []
+  },
+  "rice vinegar": {
    "aliases": [
-    "courgette"
+    "rice wine vinegar"
    ]
   },
   "strawberry": {
    "aliases": []
   },
-  "basil leaf": {
+  "zucchini": {
+   "aliases": [
+    "courgette"
+   ]
+  },
+  "jalapeño": {
+   "aliases": [
+    "jalapeno"
+   ]
+  },
+  "nut": {
+   "aliases": [
+    "finely-ground nut"
+   ]
+  },
+  "caper": {
    "aliases": []
   },
   "cream of tartar": {
@@ -998,26 +1021,7 @@
   "fish sauce": {
    "aliases": []
   },
-  "nut": {
-   "aliases": [
-    "finely-ground nut"
-   ]
-  },
-  "pineapple": {
-   "aliases": []
-  },
-  "rice flour": {
-   "aliases": [
-    "finely-ground rice flour"
-   ]
-  },
   "whipped cream": {
-   "aliases": []
-  },
-  "caper": {
-   "aliases": []
-  },
-  "orange juice": {
    "aliases": []
   },
   "feta": {
@@ -1025,16 +1029,10 @@
     "feta cheese"
    ]
   },
-  "habanero pepper": {
+  "rice flour": {
    "aliases": [
-    "10 habanero pepper"
+    "finely-ground rice flour"
    ]
-  },
-  "peach": {
-   "aliases": []
-  },
-  "russet potato": {
-   "aliases": []
   },
   "tofu": {
    "aliases": [
@@ -1042,16 +1040,38 @@
     "extra-firm tofu"
    ]
   },
+  "habanero pepper": {
+   "aliases": []
+  },
+  "peach": {
+   "aliases": []
+  },
+  "russet potato": {
+   "aliases": []
+  },
+  "semisweet chocolate": {
+   "aliases": [
+    "semi-sweet chocolate"
+   ]
+  },
+  "semisweet chocolate chip": {
+   "aliases": [
+    "semi-sweet chocolate chip"
+   ]
+  },
   "green bean": {
    "aliases": []
   },
-  "jalapeño": {
+  "herb": {
    "aliases": []
   },
-  "yoghurt": {
+  "lentil": {
    "aliases": []
   },
   "avocado": {
+   "aliases": []
+  },
+  "broccoli": {
    "aliases": []
   },
   "carbonated water": {
@@ -1074,34 +1094,14 @@
   "berbere spice blend": {
    "aliases": []
   },
-  "coriander powder": {
-   "aliases": []
-  },
   "cumin powder": {
    "aliases": []
   },
-  "herb": {
-   "aliases": []
-  },
-  "lentil": {
-   "aliases": []
-  },
-  "lukewarm water": {
+  "elbow macaroni": {
    "aliases": [
-    "2 cups lukewarm water"
+    "elbow macaroni pasta",
+    "macaroni pasta"
    ]
-  },
-  "mint leaf": {
-   "aliases": []
-  },
-  "peanut oil": {
-   "aliases": []
-  },
-  "vanilla essence": {
-   "aliases": []
-  },
-  "brandy": {
-   "aliases": []
   },
   "hot sauce": {
    "aliases": []
@@ -1109,7 +1109,41 @@
   "lard": {
    "aliases": []
   },
+  "lukewarm water": {
+   "aliases": []
+  },
+  "mint leaf": {
+   "aliases": []
+  },
+  "monterey jack": {
+   "aliases": [
+    "monterey jack cheese",
+    "jack cheese",
+    "monterrey jack cheese"
+   ]
+  },
+  "pasta": {
+   "aliases": []
+  },
+  "peanut oil": {
+   "aliases": []
+  },
+  "puff pastry": {
+   "aliases": []
+  },
+  "vanilla essence": {
+   "aliases": []
+  },
+  "vanilla ice cream": {
+   "aliases": []
+  },
+  "brandy": {
+   "aliases": []
+  },
   "mango": {
+   "aliases": []
+  },
+  "sherry": {
    "aliases": []
   },
   "beer": {
@@ -1124,9 +1158,6 @@
   "date": {
    "aliases": []
   },
-  "frac14": {
-   "aliases": []
-  },
   "hamburger bun": {
    "aliases": []
   },
@@ -1136,32 +1167,21 @@
   "plantain": {
    "aliases": []
   },
-  "puff pastry": {
-   "aliases": []
-  },
   "semolina": {
    "aliases": [
     "medium-coarse semolina"
    ]
   },
-  "sherry": {
+  "asafoetida": {
    "aliases": []
   },
-  "vanilla ice cream": {
+  "cashew": {
    "aliases": []
   },
   "jam": {
    "aliases": []
   },
-  "semi-sweet chocolate chip": {
-   "aliases": [
-    "semi sweet chocolate chip"
-   ]
-  },
-  "cashew": {
-   "aliases": []
-  },
-  "chilli powder": {
+  "broth": {
    "aliases": []
   },
   "cinnamon powder": {
@@ -1170,7 +1190,15 @@
   "cooking spray": {
    "aliases": []
   },
+  "corn kernel": {
+   "aliases": [
+    "kernel corn"
+   ]
+  },
   "currant": {
+   "aliases": []
+  },
+  "garlic paste": {
    "aliases": []
   },
   "ginger paste": {
@@ -1179,39 +1207,43 @@
   "ginger root": {
    "aliases": []
   },
+  "lamb": {
+   "aliases": []
+  },
   "mace": {
    "aliases": []
   },
-  "pasta": {
+  "pistachio": {
+   "aliases": [
+    "pistachio nut"
+   ]
+  },
+  "pumpkin": {
    "aliases": []
   },
   "sage": {
    "aliases": []
   },
+  "cauliflower": {
+   "aliases": []
+  },
   "chicken bouillon": {
    "aliases": []
   },
-  "garlic paste": {
-   "aliases": []
-  },
-  "lamb": {
+  "gruyère": {
    "aliases": [
-    "500 g lamb"
+    "gruyere",
+    "gruyere cheese",
+    "gruyère cheese"
    ]
   },
   "lemon pepper": {
-   "aliases": []
-  },
-  "mascarpone cheese": {
    "aliases": []
   },
   "pork shoulder": {
    "aliases": [
     "4 ½-pound pork shoulder"
    ]
-  },
-  "pumpkin": {
-   "aliases": []
   },
   "roma tomato": {
    "aliases": []
@@ -1222,7 +1254,7 @@
   "vanilla sugar": {
    "aliases": []
   },
-  "asafoetida": {
+  "bread flour": {
    "aliases": []
   },
   "cilantro leaf": {
@@ -1236,11 +1268,8 @@
     "ginger garlic paste"
    ]
   },
-  "monterey jack": {
-   "aliases": [
-    "monterey jack cheese",
-    "jack cheese"
-   ]
+  "mascarpone cheese": {
+   "aliases": []
   },
   "plum tomato": {
    "aliases": []
@@ -1254,13 +1283,10 @@
   "assorted meat": {
    "aliases": []
   },
-  "bread flour": {
-   "aliases": []
-  },
-  "broccoli": {
-   "aliases": []
-  },
   "button mushroom": {
+   "aliases": []
+  },
+  "chicken meat": {
    "aliases": []
   },
   "dehydrated lemon peel": {
@@ -1272,43 +1298,50 @@
   "hoisin sauce": {
    "aliases": []
   },
+  "maraschino cherry": {
+   "aliases": []
+  },
   "pine nut": {
    "aliases": []
   },
   "pork loin roast": {
    "aliases": []
   },
-  "rice vinegar": {
+  "scotch bonnet chile pepper": {
    "aliases": []
   },
-  "scotch bonnet chile pepper": {
+  "spice": {
    "aliases": []
   },
   "tabasco sauce": {
    "aliases": []
   },
-  "turnip": {
-   "aliases": []
-  },
   "caraway seed": {
    "aliases": []
   },
-  "chicken meat": {
-   "aliases": [
-    "1 kilogram cooked boneless chicken meat"
-   ]
-  },
   "chile flake": {
+   "aliases": []
+  },
+  "collard greens": {
    "aliases": []
   },
   "corn meal": {
    "aliases": []
   },
-  "cottage cheese": {
-   "aliases": []
+  "crème fraîche": {
+   "aliases": [
+    "creme fraiche",
+    "reduced fat crème fraîche"
+   ]
   },
   "fennel seed": {
    "aliases": []
+  },
+  "flour tortilla": {
+   "aliases": [
+    "6-inch round flour tortilla",
+    "10-inch flour tortilla"
+   ]
   },
   "food coloring": {
    "aliases": []
@@ -1319,25 +1352,24 @@
   "jalapeño pepper": {
    "aliases": []
   },
-  "maraschino cherry": {
-   "aliases": []
-  },
   "mustard powder": {
    "aliases": []
   },
-  "pinto bean": {
-   "aliases": []
-  },
-  "pistachio": {
+  "pork sparerib": {
    "aliases": []
   },
   "raspberry": {
    "aliases": []
   },
-  "rice wine vinegar": {
+  "salmon": {
    "aliases": []
   },
-  "spice": {
+  "salmon fillet": {
+   "aliases": [
+    "salmon filet"
+   ]
+  },
+  "soy milk": {
    "aliases": []
   },
   "squeezed lemon juice": {
@@ -1346,19 +1378,13 @@
   "star anise": {
    "aliases": []
   },
+  "turnip": {
+   "aliases": []
+  },
   "veal": {
    "aliases": []
   },
-  "yam": {
-   "aliases": []
-  },
-  "broth": {
-   "aliases": []
-  },
   "cashew nut": {
-   "aliases": []
-  },
-  "cauliflower": {
    "aliases": []
   },
   "chipotle powder": {
@@ -1370,10 +1396,7 @@
   "clam": {
    "aliases": []
   },
-  "collard greens": {
-   "aliases": []
-  },
-  "corn kernel": {
+  "coffee": {
    "aliases": []
   },
   "corn syrup": {
@@ -1382,7 +1405,7 @@
   "cream of mushroom soup": {
    "aliases": []
   },
-  "elbow macaroni": {
+  "curry paste": {
    "aliases": []
   },
   "fish fillet": {
@@ -1391,10 +1414,18 @@
   "garlic salt": {
    "aliases": []
   },
+  "graham cracker": {
+   "aliases": [
+    "graham cracker crumb"
+   ]
+  },
   "hazelnut": {
    "aliases": [
     "finely-ground hazelnut"
    ]
+  },
+  "mixed spice": {
+   "aliases": []
   },
   "orange zest": {
    "aliases": []
@@ -1402,22 +1433,16 @@
   "pickle": {
    "aliases": []
   },
-  "salmon": {
+  "pinto bean": {
    "aliases": []
   },
-  "semisweet chocolate": {
-   "aliases": []
-  },
-  "soy milk": {
+  "salsa": {
    "aliases": []
   },
   "tahini": {
    "aliases": []
   },
   "almond extract": {
-   "aliases": []
-  },
-  "apple cider": {
    "aliases": []
   },
   "banana leaf": {
@@ -1449,30 +1474,28 @@
   "citric acid": {
    "aliases": []
   },
-  "curry paste": {
+  "cocoa": {
    "aliases": []
   },
-  "flour tortilla": {
-   "aliases": [
-    "6-inch round flour tortilla",
-    "10-inch flour tortilla"
-   ]
+  "fish stock": {
+   "aliases": []
   },
   "groundnut oil": {
    "aliases": []
   },
-  "half-and-half": {
-   "aliases": [
-    "half and half"
-   ]
+  "lemongrass": {
+   "aliases": []
   },
   "malt vinegar": {
    "aliases": []
   },
-  "mixed spice": {
+  "marshmallow": {
    "aliases": []
   },
   "mixed vegetable": {
+   "aliases": []
+  },
+  "oatmeal": {
    "aliases": []
   },
   "oyster sauce": {
@@ -1483,22 +1506,19 @@
     "2 cm pieces of pandan leaf"
    ]
   },
-  "saffron": {
-   "aliases": []
-  },
-  "salsa": {
-   "aliases": []
-  },
-  "semi-sweet chocolate": {
-   "aliases": []
-  },
   "stockfish": {
    "aliases": []
   },
-  "turkey": {
+  "tamarind": {
+   "aliases": []
+  },
+  "yam": {
    "aliases": []
   },
   "anchovy": {
+   "aliases": []
+  },
+  "apple cider": {
    "aliases": []
   },
   "barbecue rub": {
@@ -1516,62 +1536,39 @@
   "cassava flour": {
    "aliases": []
   },
-  "cayenne": {
-   "aliases": []
-  },
   "cherry tomato": {
-   "aliases": []
-  },
-  "chili": {
-   "aliases": []
-  },
-  "cocoa": {
    "aliases": []
   },
   "cognac": {
    "aliases": []
-  },
-  "confectioners' sugar": {
-   "aliases": [
-    "1 cup confectioners' sugar",
-    "2 cups confectioners' sugar"
-   ]
   },
   "cornbread": {
    "aliases": [
     "finely-crumbled cornbread"
    ]
   },
-  "cracked black peppercorn": {
-   "aliases": [
-    "cracked-black peppercorn"
-   ]
+  "cottage cheese": {
+   "aliases": []
   },
   "cranberry": {
    "aliases": [
     "0g / 1 cup dried cranberry"
    ]
   },
-  "crème fraîche": {
-   "aliases": [
-    "reduced fat crème fraîche"
-   ]
-  },
   "dog": {
    "aliases": []
+  },
+  "fat": {
+   "aliases": [
+    "fat for deep frying"
+   ]
   },
   "kale": {
    "aliases": [
     "firmly-packed chopped kale"
    ]
   },
-  "lemongrass": {
-   "aliases": []
-  },
   "mirin": {
-   "aliases": []
-  },
-  "oatmeal": {
    "aliases": []
   },
   "orange peel": {
@@ -1589,9 +1586,6 @@
   "poppy seed": {
    "aliases": []
   },
-  "pure maple syrup": {
-   "aliases": []
-  },
   "rhubarb": {
    "aliases": []
   },
@@ -1601,46 +1595,37 @@
   "slivered almond": {
    "aliases": []
   },
-  "tamarind": {
-   "aliases": []
+  "steak": {
+   "aliases": [
+    "thick-cut strip steak",
+    "6–8 ounce strip steak"
+   ]
   },
   "adobo sauce": {
+   "aliases": []
+  },
+  "apricot": {
    "aliases": []
   },
   "asparagus": {
    "aliases": []
   },
-  "bittersweet chocolate": {
-   "aliases": []
-  },
   "cake mix": {
    "aliases": []
   },
+  "cayenne": {
+   "aliases": []
+  },
   "cherry": {
-   "aliases": [
-    "¼ cup cherry"
-   ]
+   "aliases": []
   },
   "chicken wing": {
    "aliases": []
   },
-  "chilli": {
-   "aliases": []
-  },
-  "chilli pepper": {
-   "aliases": []
-  },
-  "clarified butter": {
-   "aliases": []
-  },
-  "cloves garlic": {
-   "aliases": []
-  },
-  "cloves of garlic": {
-   "aliases": []
-  },
-  "fish stock": {
-   "aliases": []
+  "chili sauce": {
+   "aliases": [
+    "chilli sauce"
+   ]
   },
   "flank steak": {
    "aliases": []
@@ -1663,22 +1648,36 @@
   "pita bread": {
    "aliases": []
   },
+  "pork belly": {
+   "aliases": []
+  },
+  "potash": {
+   "aliases": []
+  },
+  "risotto rice": {
+   "aliases": []
+  },
   "salt pork": {
    "aliases": []
   },
   "savory": {
    "aliases": []
   },
-  "slab pork sparerib": {
+  "taco seasoning": {
+   "aliases": [
+    "taco seasoning mix"
+   ]
+  },
+  "turkey": {
    "aliases": []
   },
   "vegetable shortening": {
    "aliases": []
   },
-  "apple juice": {
+  "anchovy fillet": {
    "aliases": []
   },
-  "apricot": {
+  "apple juice": {
    "aliases": []
   },
   "beef chuck": {
@@ -1689,7 +1688,7 @@
     "bouquet-garni"
    ]
   },
-  "broccoli floret": {
+  "brewed coffee": {
    "aliases": []
   },
   "castor sugar": {
@@ -1698,22 +1697,28 @@
   "catfish": {
    "aliases": []
   },
+  "clarified butter": {
+   "aliases": []
+  },
   "cocoyam": {
    "aliases": []
   },
-  "coffee": {
+  "corned beef": {
    "aliases": []
   },
   "dill weed": {
    "aliases": []
   },
-  "fat": {
-   "aliases": [
-    "fat for deep frying"
-   ]
-  },
-  "habanero chile": {
+  "glutinous rice flour": {
    "aliases": []
+  },
+  "groundnut": {
+   "aliases": []
+  },
+  "half-and-half": {
+   "aliases": [
+    "half and half"
+   ]
   },
   "hickory": {
    "aliases": []
@@ -1725,9 +1730,7 @@
    "aliases": []
   },
   "linguine": {
-   "aliases": [
-    "500 g linguine"
-   ]
+   "aliases": []
   },
   "low-sodium chicken broth": {
    "aliases": [
@@ -1757,14 +1760,10 @@
   "pepperoni": {
    "aliases": []
   },
-  "pork belly": {
-   "aliases": []
-  },
-  "risotto rice": {
-   "aliases": []
-  },
-  "saffron thread": {
-   "aliases": []
+  "tea": {
+   "aliases": [
+    "3–5 tea"
+   ]
   },
   "tequila": {
    "aliases": []
@@ -1784,9 +1783,6 @@
   "ancho chile": {
    "aliases": []
   },
-  "anchovy fillet": {
-   "aliases": []
-  },
   "apple jelly": {
    "aliases": []
   },
@@ -1796,31 +1792,13 @@
   "beef stew meat": {
    "aliases": []
   },
-  "besan": {
-   "aliases": []
-  },
   "chickpea flour": {
-   "aliases": []
-  },
-  "chillis": {
-   "aliases": []
-  },
-  "cinnamon stick": {
    "aliases": []
   },
   "coconut cream": {
    "aliases": []
   },
   "coffee liqueur": {
-   "aliases": []
-  },
-  "confectioner's sugar": {
-   "aliases": []
-  },
-  "corned beef": {
-   "aliases": []
-  },
-  "cracked black pepper": {
    "aliases": []
   },
   "fermented locust bean": {
@@ -1834,19 +1812,13 @@
   "frying oil": {
    "aliases": []
   },
-  "glutinous rice flour": {
+  "glutinous rice": {
    "aliases": []
   },
   "goat meat": {
    "aliases": []
   },
-  "graham cracker crumb": {
-   "aliases": []
-  },
-  "groundnut": {
-   "aliases": []
-  },
-  "lime juice )": {
+  "habanero chile": {
    "aliases": []
   },
   "mg caffeine": {
@@ -1867,10 +1839,18 @@
   "oyster": {
    "aliases": []
   },
+  "pancetta": {
+   "aliases": []
+  },
   "panko breadcrumb": {
    "aliases": []
   },
-  "potash": {
+  "pecorino romano": {
+   "aliases": [
+    "pecorino romano cheese"
+   ]
+  },
+  "radish": {
    "aliases": []
   },
   "raspberry jam": {
@@ -1879,10 +1859,13 @@
   "refried bean": {
    "aliases": []
   },
+  "rock salt": {
+   "aliases": []
+  },
   "rose water": {
    "aliases": []
   },
-  "salmon fillet": {
+  "sake": {
    "aliases": []
   },
   "scallop": {
@@ -1900,23 +1883,12 @@
   "seasoning salt": {
    "aliases": []
   },
-  "serrano chile": {
-   "aliases": []
-  },
   "sized onion": {
    "aliases": []
   },
   "suet": {
    "aliases": [
     "finely-shredded suet"
-   ]
-  },
-  "swiss cheese": {
-   "aliases": []
-  },
-  "tea": {
-   "aliases": [
-    "3–5 tea"
    ]
   },
   "tomato juice": {
@@ -1939,10 +1911,16 @@
   "bacon fat": {
    "aliases": []
   },
+  "baguette": {
+   "aliases": []
+  },
   "bamboo shoot": {
    "aliases": []
   },
   "berry": {
+   "aliases": []
+  },
+  "besan": {
    "aliases": []
   },
   "black-eyed pea": {
@@ -1954,20 +1932,14 @@
   "celery salt": {
    "aliases": []
   },
-  "chicken breast half": {
-   "aliases": []
-  },
   "chicken egg": {
    "aliases": []
   },
-  "chili pepper": {
-   "aliases": []
-  },
-  "chili sauce": {
-   "aliases": []
-  },
-  "chily": {
-   "aliases": []
+  "chili garlic sauce": {
+   "aliases": [
+    "garlic chili sauce",
+    "chili-garlic sauce"
+   ]
   },
   "chipotle chiles in adobo": {
    "aliases": []
@@ -1978,10 +1950,10 @@
   "chop rub": {
    "aliases": []
   },
-  "chuck roast": {
+  "coffee powder": {
    "aliases": []
   },
-  "coffee powder": {
+  "cooking wine": {
    "aliases": []
   },
   "corn oil": {
@@ -2002,6 +1974,9 @@
   "distilled white vinegar": {
    "aliases": []
   },
+  "egg noodle": {
+   "aliases": []
+  },
   "fig": {
    "aliases": []
   },
@@ -2010,22 +1985,25 @@
     "five spice powder"
    ]
   },
+  "flavoring": {
+   "aliases": []
+  },
   "fried egg": {
+   "aliases": []
+  },
+  "fruit": {
    "aliases": []
   },
   "ginger powder": {
    "aliases": []
   },
-  "glutinous rice": {
-   "aliases": []
-  },
   "gravy": {
    "aliases": []
   },
-  "gruyère cheese": {
+  "guajillo chile": {
    "aliases": []
   },
-  "guajillo chile": {
+  "ham hock": {
    "aliases": []
   },
   "kaffir lime leaf": {
@@ -2037,22 +2015,13 @@
   "liquid smoke": {
    "aliases": []
   },
-  "macaroni pasta": {
-   "aliases": []
-  },
   "mixed herb": {
-   "aliases": []
-  },
-  "monterrey jack cheese": {
    "aliases": []
   },
   "nước mắm": {
    "aliases": []
   },
   "old bay seasoning": {
-   "aliases": []
-  },
-  "pancetta": {
    "aliases": []
   },
   "parsley flake": {
@@ -2067,48 +2036,45 @@
   "pepper sauce": {
    "aliases": []
   },
-  "piece of ginger": {
-   "aliases": []
-  },
   "pizza sauce": {
    "aliases": []
   },
   "plum": {
    "aliases": []
   },
-  "pork tenderloin": {
+  "pork chop": {
    "aliases": [
-    "½ lb pork tenderloin"
+    "4 cm thick boneless pork chop"
    ]
   },
-  "potato flour": {
+  "pork tenderloin": {
    "aliases": []
   },
-  "potato starch": {
+  "potato flour": {
    "aliases": []
   },
   "poultry shake": {
    "aliases": []
   },
-  "powder": {
-   "aliases": []
-  },
-  "radish": {
+  "romaine lettuce": {
    "aliases": []
   },
   "rosewater": {
    "aliases": []
   },
-  "sake": {
-   "aliases": []
-  },
-  "salmon filet": {
+  "sauerkraut": {
    "aliases": []
   },
   "scent leaf": {
    "aliases": []
   },
+  "serrano chile": {
+   "aliases": []
+  },
   "shiitake mushroom": {
+   "aliases": []
+  },
+  "single cream": {
    "aliases": []
   },
   "spinach leaf": {
@@ -2117,11 +2083,6 @@
   "squeezed lime juice": {
    "aliases": [
     "fresh-squeezed lime juice"
-   ]
-  },
-  "steak": {
-   "aliases": [
-    "6–8 ounce strip steak"
    ]
   },
   "stew beef": {
@@ -2136,13 +2097,13 @@
   "sushi rice": {
    "aliases": []
   },
-  "taco seasoning": {
-   "aliases": []
-  },
   "tamarind paste": {
    "aliases": []
   },
   "thyme leaf": {
+   "aliases": []
+  },
+  "tomato ketchup": {
    "aliases": []
   },
   "water chestnut": {
@@ -2161,9 +2122,6 @@
    "aliases": []
   },
   "bacon grease": {
-   "aliases": []
-  },
-  "baguette": {
    "aliases": []
   },
   "baking potato": {
@@ -2202,16 +2160,10 @@
   "chili paste": {
    "aliases": []
   },
-  "cider": {
-   "aliases": []
-  },
-  "clove garlic": {
+  "chuck roast": {
    "aliases": []
   },
   "cola": {
-   "aliases": []
-  },
-  "cooking wine": {
    "aliases": []
   },
   "cracker": {
@@ -2226,13 +2178,13 @@
   "curd cheese": {
    "aliases": []
   },
+  "custard": {
+   "aliases": []
+  },
   "dryfish": {
    "aliases": []
   },
   "duck breast": {
-   "aliases": []
-  },
-  "egg noodle": {
    "aliases": []
   },
   "espresso powder": {
@@ -2241,23 +2193,8 @@
   "fennel": {
    "aliases": []
   },
-  "filling": {
-   "aliases": []
-  },
-  "flavoring": {
-   "aliases": []
-  },
-  "fruit": {
-   "aliases": []
-  },
   "galangal": {
    "aliases": []
-  },
-  "grain rice": {
-   "aliases": [
-    "medium-grain rice",
-    "round-grain rice"
-   ]
   },
   "grape": {
    "aliases": []
@@ -2265,16 +2202,10 @@
   "ground chicken": {
    "aliases": []
   },
-  "ham hock": {
-   "aliases": []
-  },
   "iru": {
    "aliases": []
   },
   "jeera": {
-   "aliases": []
-  },
-  "kernel corn": {
    "aliases": []
   },
   "key lime juice": {
@@ -2301,9 +2232,6 @@
   "maize flour": {
    "aliases": []
   },
-  "marshmallow": {
-   "aliases": []
-  },
   "marzipan": {
    "aliases": []
   },
@@ -2313,9 +2241,6 @@
    ]
   },
   "milk chocolate": {
-   "aliases": []
-  },
-  "mini marshmallow": {
    "aliases": []
   },
   "miso paste": {
@@ -2333,21 +2258,10 @@
   "orange oil": {
    "aliases": []
   },
-  "paneer": {
-   "aliases": []
-  },
-  "parmigiano-reggiano cheese": {
-   "aliases": [
-    "parmigiano reggiano cheese"
-   ]
-  },
   "parsley leaf": {
    "aliases": []
   },
   "pearl onion": {
-   "aliases": []
-  },
-  "penne": {
    "aliases": []
   },
   "phyllo dough": {
@@ -2359,16 +2273,13 @@
   "pie crust": {
    "aliases": []
   },
-  "pimento": {
-   "aliases": []
-  },
   "porcini mushroom": {
    "aliases": []
   },
-  "pork chop": {
+  "portobello mushroom": {
    "aliases": []
   },
-  "portobello mushroom": {
+  "potato starch": {
    "aliases": []
   },
   "pumpkin purée": {
@@ -2386,47 +2297,33 @@
   "rice wine": {
    "aliases": []
   },
-  "rock salt": {
-   "aliases": []
-  },
-  "rub": {
-   "aliases": []
-  },
-  "sauerkraut": {
-   "aliases": []
-  },
-  "seasoned bread crumb": {
+  "sandwich bread": {
    "aliases": [
-    "2 tablespoons seasoned bread crumb"
+    "thick-sliced white sandwich bread"
    ]
   },
-  "single cream": {
+  "seasoned bread crumb": {
    "aliases": []
   },
   "smoky chipotle hot sauce": {
    "aliases": []
   },
-  "strong brewed coffee": {
+  "sweetener": {
+   "aliases": []
+  },
+  "swiss cheese": {
    "aliases": []
   },
   "tapioca starch": {
    "aliases": []
   },
-  "thick coconut milk": {
-   "aliases": [
-    "medium-thick coconut milk"
-   ]
+  "tea leaf": {
+   "aliases": []
   },
   "tomatillo": {
    "aliases": []
   },
-  "tomato ketchup": {
-   "aliases": []
-  },
   "toor dal": {
-   "aliases": []
-  },
-  "turkey breast": {
    "aliases": []
   },
   "unrefined sugar": {
@@ -2439,6 +2336,9 @@
    "aliases": []
   },
   "vanilla powder": {
+   "aliases": []
+  },
+  "venison": {
    "aliases": []
   },
   "vermouth": {
@@ -2478,6 +2378,12 @@
   "artichoke": {
    "aliases": []
   },
+  "baking chocolate": {
+   "aliases": []
+  },
+  "barley": {
+   "aliases": []
+  },
   "beef consommé": {
    "aliases": []
   },
@@ -2490,7 +2396,10 @@
   "blackstrap molasses": {
    "aliases": []
   },
-  "broiler/fryer chicken": {
+  "blue cheese": {
+   "aliases": []
+  },
+  "bouillon": {
    "aliases": []
   },
   "broth for cooking": {
@@ -2505,9 +2414,6 @@
    "aliases": []
   },
   "candlenut": {
-   "aliases": []
-  },
-  "canola": {
    "aliases": []
   },
   "celery leaf": {
@@ -2525,13 +2431,16 @@
   "chicken liver": {
    "aliases": []
   },
-  "clove of garlic": {
+  "cider": {
    "aliases": []
   },
   "coconut flake": {
    "aliases": []
   },
   "coconut meat": {
+   "aliases": []
+  },
+  "cod": {
    "aliases": []
   },
   "cooking apple": {
@@ -2549,12 +2458,6 @@
   "cream of celery soup": {
    "aliases": []
   },
-  "creamy peanut butter": {
-   "aliases": []
-  },
-  "crema": {
-   "aliases": []
-  },
   "crouton": {
    "aliases": []
   },
@@ -2562,9 +2465,6 @@
    "aliases": []
   },
   "curd": {
-   "aliases": []
-  },
-  "custard": {
    "aliases": []
   },
   "daikon radish": {
@@ -2593,7 +2493,7 @@
   "fava bean": {
    "aliases": []
   },
-  "frac34": {
+  "fenugreek leaf": {
    "aliases": []
   },
   "gelatin": {
@@ -2602,19 +2502,19 @@
   "gin": {
    "aliases": []
   },
-  "graham cracker": {
+  "goat": {
    "aliases": []
   },
   "groundnut paste": {
-   "aliases": []
-  },
-  "gruyere cheese": {
    "aliases": []
   },
   "guacamole": {
    "aliases": []
   },
   "gula jawa": {
+   "aliases": []
+  },
+  "haddock": {
    "aliases": []
   },
   "hominy": {
@@ -2629,14 +2529,9 @@
    "aliases": []
   },
   "jelly": {
-   "aliases": [
-    "2½ cups jelly"
-   ]
-  },
-  "juniper berry": {
    "aliases": []
   },
-  "kefir": {
+  "juniper berry": {
    "aliases": []
   },
   "lemon extract": {
@@ -2687,10 +2582,18 @@
   "orange marmalade": {
    "aliases": []
   },
+  "paneer": {
+   "aliases": []
+  },
+  "parmigiano-reggiano cheese": {
+   "aliases": [
+    "parmigiano reggiano cheese"
+   ]
+  },
   "peach nectar": {
    "aliases": []
   },
-  "pecorino romano cheese": {
+  "penne": {
    "aliases": []
   },
   "pepper paste": {
@@ -2699,13 +2602,10 @@
   "periwinkle": {
    "aliases": []
   },
-  "piece fresh ginger": {
+  "pimento": {
    "aliases": []
   },
   "pineapple juice": {
-   "aliases": []
-  },
-  "pistachio nut": {
    "aliases": []
   },
   "pizza dough": {
@@ -2729,28 +2629,19 @@
   "riesling wine": {
    "aliases": []
   },
-  "romaine lettuce": {
+  "salad dressing": {
    "aliases": []
   },
   "salad oil": {
    "aliases": []
   },
-  "sandwich bread": {
-   "aliases": []
-  },
   "scalded milk": {
-   "aliases": []
-  },
-  "scotch bonnet chile": {
    "aliases": []
   },
   "seasoning mix": {
    "aliases": []
   },
   "seedless raisin": {
-   "aliases": []
-  },
-  "semisweet chocolate chip": {
    "aliases": []
   },
   "shaoxing rice wine": {
@@ -2762,9 +2653,6 @@
   "sirloin": {
    "aliases": []
   },
-  "sorghum flour": {
-   "aliases": []
-  },
   "soybean": {
    "aliases": []
   },
@@ -2774,46 +2662,26 @@
   "squash": {
    "aliases": []
   },
-  "string bean": {
+  "stewed tomato": {
    "aliases": []
   },
-  "strip steak": {
+  "string bean": {
    "aliases": []
   },
   "sultana": {
    "aliases": []
   },
-  "sweetener": {
+  "tabasco": {
    "aliases": []
   },
   "tatashe": {
-   "aliases": []
-  },
-  "tea leaf": {
    "aliases": []
   },
   "terasi": {
    "aliases": []
   },
   "teriyaki sauce": {
-   "aliases": [
-    "¼ cup teriyaki sauce"
-   ]
-  },
-  "thick-cut bacon": {
-   "aliases": [
-    "thick cut bacon"
-   ]
-  },
-  "thick-cut bone-in pork rib chop": {
-   "aliases": [
-    "thick cut bone-in pork rib chop"
-   ]
-  },
-  "thick-cut pork rib chop": {
-   "aliases": [
-    "thick cut pork rib chop"
-   ]
+   "aliases": []
   },
   "tilapia fillet": {
    "aliases": []
@@ -2824,10 +2692,10 @@
   "top sirloin steak": {
    "aliases": []
   },
-  "topping": {
+  "tortilla": {
    "aliases": []
   },
-  "tortilla": {
+  "turkey breast": {
    "aliases": []
   },
   "utazi leaf": {
@@ -2836,7 +2704,18 @@
   "velveeta cheese": {
    "aliases": []
   },
+  "wheat": {
+   "aliases": [
+    "whole-wheat"
+   ]
+  },
+  "whipped topping": {
+   "aliases": []
+  },
   "wine": {
+   "aliases": []
+  },
+  "wonton wrapper": {
    "aliases": []
   },
   "xanthan gum": {
@@ -2860,7 +2739,7 @@
   "american cheese": {
    "aliases": []
   },
-  "apple cider vinegar )": {
+  "and": {
    "aliases": []
   },
   "apple ring": {
@@ -2870,9 +2749,6 @@
    "aliases": []
   },
   "apricot preserve": {
-   "aliases": []
-  },
-  "arrowroot starch": {
    "aliases": []
   },
   "bacon dripping": {
@@ -2887,16 +2763,10 @@
   "baked bean": {
    "aliases": []
   },
-  "baking chocolate": {
-   "aliases": []
-  },
   "banana blossom": {
    "aliases": []
   },
   "banana pepper": {
-   "aliases": []
-  },
-  "barley": {
    "aliases": []
   },
   "beef bone": {
@@ -2917,25 +2787,10 @@
   "bitter melon": {
    "aliases": []
   },
-  "blue cheese": {
-   "aliases": []
-  },
-  "bouillon": {
-   "aliases": []
-  },
   "breakfast sausage": {
    "aliases": []
   },
-  "brewed coffee": {
-   "aliases": []
-  },
   "brie cheese": {
-   "aliases": []
-  },
-  "broad bean": {
-   "aliases": []
-  },
-  "broth )": {
    "aliases": []
   },
   "buckwheat flour": {
@@ -2953,10 +2808,15 @@
   "cabernet sauvignon wine": {
    "aliases": []
   },
-  "can": {
+  "cane sugar": {
    "aliases": []
   },
-  "cane sugar": {
+  "cannabis": {
+   "aliases": [
+    "finely-ground pure cannabis"
+   ]
+  },
+  "canola": {
    "aliases": []
   },
   "caramel color": {
@@ -2966,9 +2826,6 @@
    "aliases": []
   },
   "cassava tuber": {
-   "aliases": []
-  },
-  "cauliflower floret": {
    "aliases": []
   },
   "celeriac": {
@@ -2983,27 +2840,13 @@
   "chana dal": {
    "aliases": []
   },
-  "cheddar cheese curd": {
-   "aliases": []
-  },
   "cheese filling": {
    "aliases": []
   },
   "chicken carcass": {
    "aliases": []
   },
-  "chicken part": {
-   "aliases": []
-  },
   "chicken powder": {
-   "aliases": []
-  },
-  "chili garlic sauce": {
-   "aliases": [
-    "chili-garlic sauce"
-   ]
-  },
-  "chilli sauce": {
    "aliases": []
   },
   "chipotle bbq rub": {
@@ -3029,13 +2872,13 @@
     "cinnamon-sugar"
    ]
   },
+  "clear honey": {
+   "aliases": []
+  },
   "coconut flesh": {
    "aliases": []
   },
   "coconut sugar": {
-   "aliases": []
-  },
-  "cod": {
    "aliases": []
   },
   "cooking spoons palm oil": {
@@ -3071,10 +2914,10 @@
   "creamed corn": {
    "aliases": []
   },
-  "creme fraiche": {
+  "crema": {
    "aliases": []
   },
-  "culantro": {
+  "crusty bread": {
    "aliases": []
   },
   "custard powder": {
@@ -3090,9 +2933,6 @@
    "aliases": []
   },
   "demerara sugar": {
-   "aliases": []
-  },
-  "dressing": {
    "aliases": []
   },
   "dutch-processed cocoa powder": {
@@ -3112,13 +2952,7 @@
   "elachi": {
    "aliases": []
   },
-  "elbow macaroni pasta": {
-   "aliases": []
-  },
   "espresso": {
-   "aliases": []
-  },
-  "fenugreek leaf": {
    "aliases": []
   },
   "fermentation starter": {
@@ -3142,21 +2976,13 @@
   "garam masala powder": {
    "aliases": []
   },
-  "garlic chili sauce": {
-   "aliases": []
-  },
   "garlic-flavored croûton": {
    "aliases": []
   },
   "glacé cherry": {
-   "aliases": [
-    "6 glacé cherry"
-   ]
-  },
-  "gluten flour": {
    "aliases": []
   },
-  "goat": {
+  "gluten flour": {
    "aliases": []
   },
   "goat cheese": {
@@ -3165,10 +2991,16 @@
   "grain mustard": {
    "aliases": []
   },
+  "grain rice": {
+   "aliases": []
+  },
   "gram": {
    "aliases": []
   },
   "granny smith apple": {
+   "aliases": []
+  },
+  "granola": {
    "aliases": []
   },
   "grapefruit": {
@@ -3180,13 +3012,10 @@
   "grill seasoning for chop": {
    "aliases": []
   },
+  "ground lamb": {
+   "aliases": []
+  },
   "ground turkey": {
-   "aliases": []
-  },
-  "gruyere": {
-   "aliases": []
-  },
-  "gruyère": {
    "aliases": []
   },
   "guanciale": {
@@ -3198,13 +3027,7 @@
   "habanero": {
    "aliases": []
   },
-  "haddock": {
-   "aliases": []
-  },
   "halibut fillet": {
-   "aliases": []
-  },
-  "hamburger meat": {
    "aliases": []
   },
   "hamburger patty": {
@@ -3214,9 +3037,6 @@
    "aliases": []
   },
   "hazelnut oil": {
-   "aliases": []
-  },
-  "head green cabbage": {
    "aliases": []
   },
   "herbes de provence": {
@@ -3236,19 +3056,16 @@
     "high protein flour"
    ]
   },
+  "hing powder": {
+   "aliases": []
+  },
   "human placenta": {
    "aliases": []
   },
   "ice water": {
    "aliases": []
   },
-  "jalapeno": {
-   "aliases": []
-  },
   "jalapeño chile": {
-   "aliases": []
-  },
-  "juice": {
    "aliases": []
   },
   "kashkaval cheese": {
@@ -3299,9 +3116,6 @@
   "moong dhal": {
    "aliases": []
   },
-  "mozzarella ball": {
-   "aliases": []
-  },
   "muffin": {
    "aliases": []
   },
@@ -3313,6 +3127,14 @@
   },
   "natural yoghurt": {
    "aliases": []
+  },
+  "navy bean": {
+   "aliases": []
+  },
+  "new york strip steak": {
+   "aliases": [
+    "1 inch-thick new york strip steak"
+   ]
   },
   "nonstick cooking spray": {
    "aliases": []
@@ -3330,12 +3152,6 @@
    "aliases": []
   },
   "orange juice concentrate": {
-   "aliases": []
-  },
-  "other meat": {
-   "aliases": []
-  },
-  "other vegetable oil": {
    "aliases": []
   },
   "pancake mix": {
@@ -3356,16 +3172,13 @@
   "parboiled rice": {
    "aliases": []
   },
-  "pecan half": {
-   "aliases": []
-  },
-  "pecorino romano": {
-   "aliases": []
-  },
   "penne pasta": {
    "aliases": []
   },
   "pesto": {
+   "aliases": []
+  },
+  "phyllo pastry": {
    "aliases": []
   },
   "pigeon pea": {
@@ -3383,6 +3196,9 @@
   "plantain leaf": {
    "aliases": []
   },
+  "ponmo": {
+   "aliases": []
+  },
   "pork broth": {
    "aliases": []
   },
@@ -3396,9 +3212,6 @@
    "aliases": []
   },
   "poultry seasoning": {
-   "aliases": []
-  },
-  "prawns/shrimp": {
    "aliases": []
   },
   "prime rib seasoning": {
@@ -3427,11 +3240,10 @@
     "reduced sodium soy sauce"
    ]
   },
-  "regular butter": {
-   "aliases": []
-  },
-  "regular butter/oil": {
-   "aliases": []
+  "ribeye steak": {
+   "aliases": [
+    "thick-cut ribeye steak"
+   ]
   },
   "rice milk": {
    "aliases": []
@@ -3448,9 +3260,6 @@
   "safflower oil": {
    "aliases": []
   },
-  "salad dressing": {
-   "aliases": []
-  },
   "salam leaf": {
    "aliases": []
   },
@@ -3462,7 +3271,13 @@
   "salsa verde": {
    "aliases": []
   },
+  "sauce": {
+   "aliases": []
+  },
   "sausage meat": {
+   "aliases": []
+  },
+  "scotch bonnet chile": {
    "aliases": []
   },
   "seafood": {
@@ -3480,10 +3295,7 @@
   "size onion": {
    "aliases": []
   },
-  "slab bacon": {
-   "aliases": []
-  },
-  "slabs st. louis style/cut pork sparerib": {
+  "smooth peanut butter": {
    "aliases": []
   },
   "snail": {
@@ -3507,43 +3319,28 @@
   "spelt": {
    "aliases": []
   },
+  "spices as desired": {
+   "aliases": []
+  },
   "sprinkle": {
    "aliases": []
   },
   "squid": {
    "aliases": []
   },
-  "stale bread": {
+  "st. louis style": {
    "aliases": []
   },
-  "stalks celery": {
+  "stale bread": {
    "aliases": []
   },
   "steak rub": {
    "aliases": []
   },
-  "stewed tomato": {
-   "aliases": []
-  },
   "sticky rice": {
    "aliases": []
   },
-  "strands of saffron": {
-   "aliases": []
-  },
-  "strands saffron": {
-   "aliases": []
-  },
-  "strong coffee": {
-   "aliases": []
-  },
   "sugar substitute": {
-   "aliases": []
-  },
-  "tabasco": {
-   "aliases": []
-  },
-  "taco seasoning mix": {
    "aliases": []
   },
   "tamari": {
@@ -3552,16 +3349,13 @@
   "tapioca flour": {
    "aliases": []
   },
-  "teaspoon salt": {
+  "thick-cut bone-in pork rib chop": {
    "aliases": []
   },
-  "tempeh": {
+  "thick-cut pork rib chop": {
    "aliases": []
   },
   "thousand island dressing": {
-   "aliases": []
-  },
-  "threads of saffron": {
    "aliases": []
   },
   "tilapia": {
@@ -3597,24 +3391,10 @@
   "valencian rice": {
    "aliases": []
   },
-  "venison": {
-   "aliases": []
-  },
-  "water )": {
-   "aliases": []
-  },
   "waxy potato": {
    "aliases": []
   },
-  "wheat": {
-   "aliases": [
-    "whole-wheat"
-   ]
-  },
   "wheat germ": {
-   "aliases": []
-  },
-  "whipped topping": {
    "aliases": []
   },
   "whiskey": {
@@ -3623,16 +3403,10 @@
   "white chocolate": {
    "aliases": []
   },
-  "wonton wrapper": {
-   "aliases": []
-  },
   "yeast extract": {
    "aliases": []
   },
   "yolk": {
-   "aliases": []
-  },
-  "ground lamb": {
    "aliases": []
   },
   "rutabaga": {
