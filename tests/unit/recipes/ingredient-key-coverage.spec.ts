@@ -33,6 +33,21 @@ describe('ingredient vocabulary coverage (M1 metric)', () => {
     expect(Math.abs(INGREDIENT_VOCABULARY_META.coverage - measured)).toBeLessThan(0.001);
   });
 
+  it('with the fuzzy tier on, coverage reaches the plan’s 90% aspiration region (floor 87%)', () => {
+    let matched = 0;
+    let fuzzy = 0;
+    for (const [raw, count] of census.rows) {
+      const r = resolveIngredient(raw, INGREDIENT_VOCABULARY, { fuzzy: true });
+      if (r.method === 'unmatched') continue;
+      matched += count;
+      if (r.method === 'fuzzy') fuzzy += count;
+    }
+    const share = matched / census.lines;
+    console.log(`[ingredient-vocab] coverage with fuzzy ${(share * 100).toFixed(1)}% (${((fuzzy / census.lines) * 100).toFixed(1)} points from fuzzy)`);
+    expect(share).toBeGreaterThanOrEqual(0.87);
+    expect(share).toBeGreaterThan(measured);
+  }, 30_000);
+
   it('never resolves a key by substring: a bread-flour line does not become flour', () => {
     const r = resolveIngredient('500 g bread flour', INGREDIENT_VOCABULARY);
     if (r.method !== 'unmatched') expect(r.key).not.toBe('flour');

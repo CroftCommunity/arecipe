@@ -137,6 +137,33 @@ describe('resolveIngredient — most-specific head first, then descriptors peel 
   });
 });
 
+describe('head hygiene the corpus battle-test exposed (2026-09-14)', () => {
+  const v: Vocabulary = { ...vocab, keys: { ...vocab.keys, 'tomato paste': { aliases: [] }, 'sour cream': { aliases: [] }, water: { aliases: [] }, basil: { aliases: [] }, thyme: { aliases: [] }, onion: { aliases: [] }, 'chicken broth': { aliases: [] } } };
+  const t = { ...taxonomy, variety: [...taxonomy.variety, 'red'], prep: [...taxonomy.prep, 'sliced', 'warm'] };
+  const vv: Vocabulary = { ...v, descriptors: t };
+
+  it.each([
+    ['/ 3 cups all-purpose flour', 'flour'], // stray punctuation + a unit with the quantity lost
+    ['tbsp tomato paste', 'tomato paste'], // a unit with no quantity before it
+    ['dl sour cream', 'sour cream'],
+    ['quarts warm water', 'water'],
+    ['leaves of fresh basil', 'basil'], // "leaves of" counts, it is not the ingredient
+    ['a few sprigs thyme', 'thyme'],
+    ['<bdi>1 cup</bdi> chicken broth', 'chicken broth'], // markup that leaked from the source
+    ['red onion sliced', 'onion'], // trailing prep without a comma
+  ])('%j → %j', (raw, key) => {
+    expect(resolveIngredient(raw, vv)).toMatchObject({ key });
+  });
+
+  it('"bay leaves" keeps its leaf — "leaves" only counts at the front', () => {
+    expect(resolveIngredient('2 bay leaves', vv)).toMatchObject({ key: 'bay leaf' });
+  });
+
+  it('trailing prep is peeled and reported', () => {
+    expect(resolveIngredient('red onion sliced', vv)).toMatchObject({ key: 'onion', variety: ['red'], prep: ['sliced'] });
+  });
+});
+
 describe('resolveIngredient — the device-local overlay (Phase 6) comes first', () => {
   const overlay = (name: string): string | undefined =>
     ({ 'dashi stock': 'dashi', 'brown sugar': 'muscovado', 'freeze-dried strawberry': 'strawberry' })[name];

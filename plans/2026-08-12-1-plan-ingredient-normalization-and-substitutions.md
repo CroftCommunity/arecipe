@@ -23,8 +23,8 @@ descriptor-aware substitutions.
 | 5b Mined alternatives | ✅ 2026-09-14 | | `scripts/mine-alternatives.mjs` → `substitutions-mined.json`: 58 "X or Y" pairs (≥3 lines) as corpus-sourced suggestions beside the 7 reference rows |
 | 6 Correction overlay (M3 exit) | ✅ 2026-09-09 | | `ingredient-aliases-local.ts` (device-local, keyed on the unmatched name); resolver method `overlay` first; "?" affordance on the recipe page picks an existing key; Settings exports the seed-alias block |
 | GATE | decision 2026-09-14 | | Owner chose to build M4 ahead of overlay telemetry; the gate's evidence question (does the alias table suffice?) stays open and is re-asked at the M4 exit — see § DECISION GATE |
-| 7 Vocab embeddings asset (M4) | ⏳ | | Build-time vectors, static asset |
-| 8 Runtime fuzzy tier (M4 exit) | ⏳ | | Worker + quantized MiniLM, closed-set, labeled |
+| 7 Vocab embeddings asset (M4) | ✅ 2026-09-14 (as lexical) | | No embeddings asset: the closed set is the vocabulary's keys + aliases, trigram-indexed at runtime in memory (`ingredient-fuzzy.ts`) — the MiniLM path is blocked by the CSP gate (no `wasm-unsafe-eval`) and a 23 MB model |
+| 8 Runtime fuzzy tier (M4 exit) | ✅ 2026-09-14 | | Closed-set, thresholded (0.75), labeled `fuzzy` with score; last after every deterministic path; provisional swaps; the “≈ closest match?” confirm flows to the overlay. Coverage 86.7% → **89.1%**; precision 90%/85% in the bands ≥ threshold, 55% just below — battle-tested on the corpus (`FUZZY-EVAL.md`) |
 | 9 PDS alias records | roadmap | | Community corrections; re-plan before execution |
 
 ## Problem Statement
@@ -349,6 +349,17 @@ exports, removes.
 
 ## DECISION GATE — is M4 warranted?
 
+**Re-asked at the M4 exit (2026-09-14), with the evidence the gate wanted:** the
+tier costs nothing (no dependency, no CSP change, ~3 KB, ~1 ms per unmatched
+line) and adds 830 lines of coverage at 90%–85% precision, every one of them
+labeled and one tap from a confirmation. Kept. The question the gate asked about
+the *embedding* tier — is a 23 MB model and a CSP relaxation warranted? — is
+answered no for now: the remaining 3859 unmatched lines are mostly
+narrative, dish names and non-ingredients (see `FUZZY-EVAL.md` § still unmatched),
+which no similarity measure should resolve. Revisit only if the overlay's
+export shows cooks correcting the same *semantic* misses repeatedly.
+
+
 After M3 has real usage: if overlay volume is low and coverage (M1 metric,
 re-measured on live feed data) holds, **stop here** — the alias table is
 keeping up and the system is fully deterministic. Proceed to M4 only if
@@ -380,6 +391,40 @@ zero impact on initial load; feeds Phase 6's confirmation loop.
 - TDD: worker protocol and threshold logic unit-tested with precomputed
   vectors (no model download in hermetic CI); one @live-style tier exercises
   the real model.
+
+**As built (2026-09-14) — lexical, not MiniLM, and why.** `docs/SECURITY.md`
+and its gated CSP test forbid `wasm-unsafe-eval`, which an ONNX runtime needs;
+the quantized model is a 23 MB download and `onnxruntime-web` a 142 MB dev
+dependency whose model must be fetched at build time (no network in CI). Before
+paying any of that, the tail was measured: a character-trigram cosine over the
+vocabulary's keys + aliases alone reached the plan's 90% aspiration region. So
+`src/recipes/ingredient-fuzzy.ts` is the tier: trigram cosine, plus a word-by-
+word typo path (same word count, every pair within one edit — two for long
+words — so "tumeric" and "chiken stock" match while "chocolate milk" vs "milk
+chocolate" and "medium-size lemon" vs "…onion" do not), plus a negation guard
+("iodised" never picks "non-iodised"). Closed-set by construction, threshold
+**0.75**, labeled `method: 'fuzzy'` with its score. The resolver runs it
+LAST — after overlay, exact, alias and coordination — and only when a page asks
+(`{ fuzzy: true }`): the recipe page, where the cook can confirm; never the
+build tool, the coverage metric, search or the shopping list. On the recipe
+page a fuzzy line's "?" reads "≈ turmeric?" with the picker prefilled, and a
+swap on such a line is visibly provisional (italic, "⇄ ≈") until confirmed.
+
+**Battle-tested on the corpus** (`scripts/eval-fuzzy.mjs` →
+`runs/ingredient-normalization/FUZZY-EVAL.md`; floors pinned in
+`tests/unit/recipes/ingredient-fuzzy-corpus.spec.ts`): coverage by line weight
+86.7% deterministic → **89.1%** with the tier; on a judged sample of 160 real
+unmatched names (`tests/fixtures/ingredients/fuzzy-judged.json`, 40 per band,
+semantic right/wrong — judged by the building session, spot-check it),
+precision is 90% at ≥0.85 and 85% at 0.75–0.85, falling to 55% in the band
+just below the threshold — the cut is earned by the data, not chosen. Recall
+over realistic perturbations of the 300 most-used known lines (a swapped letter
+pair, a dropped letter, a stray unit, trailing prep) is ≥ 80% on every kind,
+much of it through the deterministic paths the hygiene pass added the same day
+(front measure words, stray numbers, markup, trailing prep — which also raised
+deterministic coverage 85.9% → 86.7%). The suite also surfaced judged wrongs in
+the top bands that are VOCABULARY problems (junk keys like `clove garlic`,
+`non-iodised salt`, `powder`) — listed for the review, not patched in the matcher.
 
 ## Phase 9 — PDS alias records (roadmap; re-plan before execution)
 

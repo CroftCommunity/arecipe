@@ -5,11 +5,11 @@
   "census": {
    "snapshot": "2026.09.09-20eda6c",
    "lines": 35274,
-   "orLines": 1494,
-   "keyed": 917
+   "orLines": 1500,
+   "keyed": 934
   },
   "minLines": 3,
-  "pairs": 58
+  "pairs": 61
  },
  "pairs": [
   {
@@ -40,7 +40,7 @@
   {
    "from": "butter",
    "use": "olive oil",
-   "lines": 11
+   "lines": 12
   },
   {
    "from": "chicken broth",
@@ -108,6 +108,11 @@
    "lines": 6
   },
   {
+   "from": "scotch bonnet",
+   "use": "habanero pepper",
+   "lines": 6
+  },
+  {
    "from": "water",
    "use": "milk",
    "lines": 6
@@ -138,11 +143,6 @@
    "lines": 5
   },
   {
-   "from": "scotch bonnet",
-   "use": "habanero pepper",
-   "lines": 5
-  },
-  {
    "from": "water",
    "use": "chicken broth",
    "lines": 5
@@ -153,11 +153,6 @@
    "lines": 5
   },
   {
-   "from": "white",
-   "use": "onion",
-   "lines": 5
-  },
-  {
    "from": "beef",
    "use": "chicken",
    "lines": 4
@@ -165,6 +160,11 @@
   {
    "from": "beef broth",
    "use": "chicken broth",
+   "lines": 4
+  },
+  {
+   "from": "flour",
+   "use": "cornstarch",
    "lines": 4
   },
   {
@@ -183,18 +183,28 @@
    "lines": 4
   },
   {
+   "from": "onion",
+   "use": "shallot",
+   "lines": 4
+  },
+  {
+   "from": "peanut",
+   "use": "canola oil",
+   "lines": 4
+  },
+  {
    "from": "pistachio",
    "use": "almond",
    "lines": 4
   },
   {
-   "from": "quarts peanut",
-   "use": "canola oil",
+   "from": "ricotta",
+   "use": "cottage cheese",
    "lines": 4
   },
   {
-   "from": "ricotta",
-   "use": "cottage cheese",
+   "from": "tomato paste",
+   "use": "tomato",
    "lines": 4
   },
   {
@@ -248,6 +258,11 @@
    "lines": 3
   },
   {
+   "from": "heavy cream",
+   "use": "milk",
+   "lines": 3
+  },
+  {
    "from": "jaggery",
    "use": "sugar",
    "lines": 3
@@ -268,18 +283,18 @@
    "lines": 3
   },
   {
-   "from": "onion",
-   "use": "shallot",
-   "lines": 3
-  },
-  {
-   "from": "red",
-   "use": "black pepper",
-   "lines": 3
-  },
-  {
    "from": "russet",
    "use": "yukon gold potato",
+   "lines": 3
+  },
+  {
+   "from": "scallion",
+   "use": "onion",
+   "lines": 3
+  },
+  {
+   "from": "shallot",
+   "use": "onion",
    "lines": 3
   },
   {

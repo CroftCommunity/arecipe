@@ -12,7 +12,7 @@
 // a variety-scoped rule ({paprika, smoked}) wins over a bare one and touches
 // only that variety, and an unmatched line is left alone. Surfaced, never
 // invented.
-import { canonicalHead, resolveIngredient, type OverlayLookup, type Resolution, type Vocabulary } from './ingredient-key.js';
+import { canonicalHead, resolveIngredient, type ResolveOptions, type Resolution, type Vocabulary } from './ingredient-key.js';
 import { REFERENCE_SECTIONS } from '../pages/reference-view.js';
 import mined from './substitutions-mined.json' with { type: 'json' };
 
@@ -32,7 +32,7 @@ export type CuratedSubstitution = {
 };
 
 export type LineSubstitution =
-  | { kind: 'swap'; original: string; substituted: string; from: string; to: string }
+  | { kind: 'swap'; original: string; substituted: string; from: string; to: string; provisional?: true }
   | { kind: 'suggestion'; original: string; forAmount: string; use: string; source: 'reference' | 'corpus'; lines?: number };
 
 /** Key a cook's typed rule. Null when the vocabulary does not know the
@@ -47,7 +47,7 @@ export const keyCookSubstitution = (from: string, to: string, vocab: Vocabulary)
   return { from: f, fromKey: r.key, ...(variety !== undefined ? { variety } : {}), to: t };
 };
 
-type Matched = Resolution & { method: 'exact' | 'alias' | 'overlay' };
+type Matched = Resolution & { method: 'exact' | 'alias' | 'overlay' | 'fuzzy' };
 
 const matchesScope = (r: Matched, key: string, variety: string | undefined): boolean =>
   r.key === key && (variety === undefined || r.variety.includes(variety));
@@ -97,7 +97,7 @@ export const substituteLine = (
   raw: string,
   rules: readonly CookSubstitution[],
   vocab: Vocabulary,
-  opts: { overlay?: OverlayLookup } = {},
+  opts: ResolveOptions = {},
 ): (LineSubstitution & { kind: 'swap' }) | null => {
   if (rules.length === 0) return null;
   const r = resolveIngredient(raw, vocab, opts);
@@ -115,7 +115,9 @@ export const substituteLine = (
   }
   // Function replacement so a `to` containing `$` is inserted literally.
   const substituted = m === null ? to : raw.replace(pattern, () => to);
-  return { kind: 'swap', original: raw, substituted, from: rule.from, to: rule.to };
+  // A swap on a fuzzy-resolved line is visibly provisional: the ingredient is a
+  // closest match, not a certainty, until the cook confirms it.
+  return { kind: 'swap', original: raw, substituted, from: rule.from, to: rule.to, ...(r.method === 'fuzzy' ? { provisional: true as const } : {}) };
 };
 
 /** Map raw lines through cook swaps (the shopping list's transform). Identity
@@ -124,7 +126,7 @@ export const substituteLines = (
   lines: string[],
   rules: readonly CookSubstitution[],
   vocab: Vocabulary,
-  opts: { overlay?: OverlayLookup } = {},
+  opts: ResolveOptions = {},
 ): string[] => (rules.length === 0 ? lines : lines.map((raw) => substituteLine(raw, rules, vocab, opts)?.substituted ?? raw));
 
 const curatedCache = new WeakMap<Vocabulary, CuratedSubstitution[]>();
@@ -159,12 +161,13 @@ export const curatedSubstitutions = (vocab: Vocabulary): CuratedSubstitution[] =
  * else a curated suggestion when one resolves, else nothing. */
 export const lineSubstitution = (
   raw: string,
-  opts: { rules: readonly CookSubstitution[]; curated: readonly CuratedSubstitution[]; vocab: Vocabulary; overlay?: OverlayLookup },
+  opts: { rules: readonly CookSubstitution[]; curated: readonly CuratedSubstitution[]; vocab: Vocabulary } & ResolveOptions,
 ): LineSubstitution | null => {
-  const swap = substituteLine(raw, opts.rules, opts.vocab, { overlay: opts.overlay });
+  const resolveOpts: ResolveOptions = { ...(opts.overlay !== undefined ? { overlay: opts.overlay } : {}), ...(opts.fuzzy !== undefined ? { fuzzy: opts.fuzzy } : {}) };
+  const swap = substituteLine(raw, opts.rules, opts.vocab, resolveOpts);
   if (swap !== null) return swap;
   if (opts.curated.length === 0) return null;
-  const r = resolveIngredient(raw, opts.vocab, { overlay: opts.overlay });
+  const r = resolveIngredient(raw, opts.vocab, resolveOpts);
   if (r.method === 'unmatched') return null;
   const c =
     opts.curated.find((x) => x.from.variety !== undefined && matchesScope(r, x.from.key, x.from.variety)) ??

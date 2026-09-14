@@ -2953,6 +2953,9 @@ table.ref.pairs td.eq {
   opacity: 0.7;
   cursor: pointer;
 }
+.ingredient-provisional .ingredient-sub {
+  font-style: italic;
+}
 .ingredient-correct-form {
   display: inline-flex;
   flex-wrap: wrap;

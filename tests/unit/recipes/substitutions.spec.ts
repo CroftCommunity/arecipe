@@ -133,3 +133,13 @@ describe('cook rules reach lines the overlay resolves (Phase 6)', () => {
     expect(substituteLine('30 g freeze-dried strawberries', rules, vocab, { overlay })?.substituted).toBe('30 g raspberries');
   });
 });
+
+describe('swaps on fuzzy-resolved lines are provisional (M4)', () => {
+  it('applies with fuzzy on, marked provisional; without fuzzy it does not apply', () => {
+    const rules = [rule('turmeric', 'curcumin powder')];
+    expect(substituteLine('1 tsp tumeric', rules, vocab)).toBeNull();
+    const swap = substituteLine('1 tsp tumeric', rules, vocab, { fuzzy: true });
+    expect(swap).toMatchObject({ kind: 'swap', substituted: '1 tsp curcumin powder', provisional: true });
+    expect(substituteLine('1 tsp turmeric', rules, vocab, { fuzzy: true })?.provisional).toBeUndefined();
+  });
+});

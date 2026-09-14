@@ -1,0 +1,1126 @@
+{
+ "_comment": "Judged sample for the closed-set fuzzy tier (plans/2026-08-12-1 M4). 160 real unmatched names from the 2026-09-14 census (the arecipe account's 4,041 recipes), 40 per score band, chosen every k-th by name so the sample is reproducible, each with the matcher's pick at the time and a SEMANTIC verdict: right = the pick names the same ingredient a cook would accept for search and swaps; wrong = a different ingredient (a dish, a derived product, an opposite, the other half of an 'or'). PROVENANCE: verdicts were assigned by the AI session that built the tier, reading each pair; spot-check them — a disputed verdict is a one-line edit here. The suite asserts precision by band, so the shipped threshold is justified by these numbers rather than chosen.",
+ "judgedAt": "2026-09-14",
+ "rows": [
+  {
+   "name": "½ cup feta cheese",
+   "pick": "feta",
+   "score": 0.856,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "any blue cheese",
+   "pick": "blue cheese",
+   "score": 0.856,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "beef rib-eye steak",
+   "pick": "beef ribeye steak",
+   "score": 0.857,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "black pepper )",
+   "pick": "black pepper",
+   "score": 1.0,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "buttermilk )",
+   "pick": "buttermilk",
+   "score": 1,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "can chicken broth",
+   "pick": "chicken broth",
+   "score": 0.874,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "can tomato paste",
+   "pick": "tomato paste",
+   "score": 0.866,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "chat masala",
+   "pick": "chaat masala",
+   "score": 0.87,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "chilis",
+   "pick": "chillis",
+   "score": 0.857,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "chipotle hot sauce",
+   "pick": "smoky chipotle hot sauce",
+   "score": 0.866,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "chocolate milk",
+   "pick": "milk chocolate",
+   "score": 0.929,
+   "band": 0.85,
+   "verdict": "wrong"
+  },
+  {
+   "name": "confectioners’ sugar",
+   "pick": "confectioners sugar",
+   "score": 1.0,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "corn tortillas )",
+   "pick": "corn tortilla",
+   "score": 0.889,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "crawfish",
+   "pick": "crayfish",
+   "score": 0.875,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "cup flour",
+   "pick": "flour",
+   "score": 1,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "dried black eyed pea",
+   "pick": "black-eyed pea",
+   "score": 0.855,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "each) semisweet chocolate",
+   "pick": "semisweet chocolate",
+   "score": 0.89,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "filet salmon",
+   "pick": "salmon filet",
+   "score": 0.917,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "florets cauliflower",
+   "pick": "cauliflower floret",
+   "score": 0.878,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "garlic clove",
+   "pick": "clove garlic",
+   "score": 0.917,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "gelatine",
+   "pick": "gelatin",
+   "score": 0.875,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "grapeseed oil",
+   "pick": "rapeseed oil",
+   "score": 0.881,
+   "band": 0.85,
+   "verdict": "wrong"
+  },
+  {
+   "name": "gruyêre cheese",
+   "pick": "gruyère cheese",
+   "score": 1,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "hamburger bun per burger",
+   "pick": "hamburger bun",
+   "score": 0.899,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "hot/boiling water",
+   "pick": "boiling water",
+   "score": 0.874,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "iodised salt",
+   "pick": "non-iodised salt",
+   "score": 0.866,
+   "band": 0.85,
+   "verdict": "wrong"
+  },
+  {
+   "name": "mayonnaise )",
+   "pick": "mayonnaise",
+   "score": 1,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "milk or half and half",
+   "pick": "half-and-half",
+   "score": 0.851,
+   "band": 0.85,
+   "verdict": "wrong"
+  },
+  {
+   "name": "mustard seed oil",
+   "pick": "mustard seed",
+   "score": 0.866,
+   "band": 0.85,
+   "verdict": "wrong"
+  },
+  {
+   "name": "nutritional yeast",
+   "pick": "nutritional yeast flake",
+   "score": 0.86,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "orange juice )",
+   "pick": "orange juice",
+   "score": 1.0,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "p tomato paste",
+   "pick": "tomato paste",
+   "score": 0.926,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "pack shiitake mushroom",
+   "pick": "shiitake mushroom",
+   "score": 0.879,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "parmiggiano reggiano",
+   "pick": "parmesan",
+   "score": 0.949,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "part cultured buttermilk",
+   "pick": "cultured buttermilk",
+   "score": 0.89,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "parts confectioner's sugar",
+   "pick": "confectioner's sugar",
+   "score": 0.877,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "refined sugar",
+   "pick": "unrefined sugar",
+   "score": 0.859,
+   "band": 0.85,
+   "verdict": "wrong"
+  },
+  {
+   "name": "sauce espagnole",
+   "pick": "espagnole sauce",
+   "score": 0.933,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "seasoned dry bread crumb",
+   "pick": "seasoned bread crumb",
+   "score": 0.867,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "shaved parmiggiano-reggiano cheese",
+   "pick": "parmigiano-reggiano cheese",
+   "score": 0.879,
+   "band": 0.85,
+   "verdict": "right"
+  },
+  {
+   "name": "15g butter",
+   "pick": "butter",
+   "score": 0.775,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "anko filling",
+   "pick": "filling",
+   "score": 0.764,
+   "band": 0.75,
+   "verdict": "wrong"
+  },
+  {
+   "name": "bay scallop",
+   "pick": "scallop",
+   "score": 0.798,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "bittersweet/plain chocolate",
+   "pick": "bittersweet chocolate",
+   "score": 0.84,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "bulghur wheat",
+   "pick": "bulgur wheat",
+   "score": 0.801,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "can of chipotle chiles in adobo sauce",
+   "pick": "chipotle chiles in adobo",
+   "score": 0.826,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "cayenne pepper sauce",
+   "pick": "cayenne pepper",
+   "score": 0.837,
+   "band": 0.75,
+   "verdict": "wrong"
+  },
+  {
+   "name": "chicken stock powder",
+   "pick": "chicken broth",
+   "score": 0.806,
+   "band": 0.75,
+   "verdict": "wrong"
+  },
+  {
+   "name": "chocolate icing",
+   "pick": "chocolate",
+   "score": 0.775,
+   "band": 0.75,
+   "verdict": "wrong"
+  },
+  {
+   "name": "coriander stem",
+   "pick": "coriander",
+   "score": 0.802,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "creamy peanut",
+   "pick": "creamy peanut butter",
+   "score": 0.806,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "deciliters cultured buttermilk",
+   "pick": "cultured buttermilk",
+   "score": 0.811,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "duck stock",
+   "pick": "stock",
+   "score": 0.775,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "flourless cooking spray",
+   "pick": "cooking spray",
+   "score": 0.752,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "g/14 oz chicken breast",
+   "pick": "chicken breast",
+   "score": 0.798,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "green/spring onion",
+   "pick": "scallion",
+   "score": 0.816,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "habanero chilli",
+   "pick": "habanero chile",
+   "score": 0.828,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "hickory chip",
+   "pick": "hickory",
+   "score": 0.764,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "kashkaval",
+   "pick": "kashkaval cheese",
+   "score": 0.75,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "lobster butter",
+   "pick": "butter",
+   "score": 0.77,
+   "band": 0.75,
+   "verdict": "wrong"
+  },
+  {
+   "name": "marshmallow fluff",
+   "pick": "marshmallow",
+   "score": 0.804,
+   "band": 0.75,
+   "verdict": "wrong"
+  },
+  {
+   "name": "mung bean sprout",
+   "pick": "bean sprout",
+   "score": 0.829,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "non-iodized salt",
+   "pick": "non-iodised salt",
+   "score": 0.812,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "or less lemon juice",
+   "pick": "lemon juice",
+   "score": 0.79,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "panko bread crumb",
+   "pick": "panko breadcrumb",
+   "score": 0.849,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "pecorino cheese",
+   "pick": "pecorino romano cheese",
+   "score": 0.843,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "pineapple ring",
+   "pick": "pineapple",
+   "score": 0.802,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "pre-made tomato sauce",
+   "pick": "tomato sauce",
+   "score": 0.756,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "real lemon juice",
+   "pick": "lemon juice",
+   "score": 0.829,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "rice cooker cups long grain rice",
+   "pick": "rice",
+   "score": 0.776,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "sachets baking powder",
+   "pick": "baking powder",
+   "score": 0.787,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "seasoning powder",
+   "pick": "seasoning",
+   "score": 0.75,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "shots espresso",
+   "pick": "espresso",
+   "score": 0.756,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "spaghetti noodle",
+   "pick": "spaghetti",
+   "score": 0.75,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "squirt lemon juice",
+   "pick": "lemon juice",
+   "score": 0.782,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "sun-dried tomatoes in oil",
+   "pick": "sun-dried tomato",
+   "score": 0.75,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "tbsp wheat flour",
+   "pick": "wheat flour",
+   "score": 0.829,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "tinned corned beef",
+   "pick": "corned beef",
+   "score": 0.836,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "turmeric root",
+   "pick": "turmeric",
+   "score": 0.784,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "vanilla pod/bean",
+   "pick": "vanilla bean",
+   "score": 0.794,
+   "band": 0.75,
+   "verdict": "right"
+  },
+  {
+   "name": "\"yam style\" sweet potato",
+   "pick": "sweet potato",
+   "score": 0.739,
+   "band": 0.65,
+   "verdict": "right"
+  },
+  {
+   "name": "anchovy liquor",
+   "pick": "anchovy",
+   "score": 0.707,
+   "band": 0.65,
+   "verdict": "wrong"
+  },
+  {
+   "name": "baking apple",
+   "pick": "cooking apple",
+   "score": 0.721,
+   "band": 0.65,
+   "verdict": "right"
+  },
+  {
+   "name": "beef with bone",
+   "pick": "beef bone",
+   "score": 0.713,
+   "band": 0.65,
+   "verdict": "wrong"
+  },
+  {
+   "name": "bowl of lettuce",
+   "pick": "lettuce",
+   "score": 0.683,
+   "band": 0.65,
+   "verdict": "right"
+  },
+  {
+   "name": "buttercream frosting",
+   "pick": "buttercream",
+   "score": 0.742,
+   "band": 0.65,
+   "verdict": "right"
+  },
+  {
+   "name": "cherry beer",
+   "pick": "cherry",
+   "score": 0.739,
+   "band": 0.65,
+   "verdict": "wrong"
+  },
+  {
+   "name": "chocolate ice cream",
+   "pick": "chocolate",
+   "score": 0.688,
+   "band": 0.65,
+   "verdict": "wrong"
+  },
+  {
+   "name": "cocoyam paste",
+   "pick": "cocoyam",
+   "score": 0.734,
+   "band": 0.65,
+   "verdict": "wrong"
+  },
+  {
+   "name": "crabmeat",
+   "pick": "crab meat",
+   "score": 0.707,
+   "band": 0.65,
+   "verdict": "right"
+  },
+  {
+   "name": "date syrup",
+   "pick": "chocolate syrup",
+   "score": 0.653,
+   "band": 0.65,
+   "verdict": "wrong"
+  },
+  {
+   "name": "dried paprika chile pepper",
+   "pick": "chile pepper",
+   "score": 0.679,
+   "band": 0.65,
+   "verdict": "right"
+  },
+  {
+   "name": "filtered water",
+   "pick": "water",
+   "score": 0.671,
+   "band": 0.65,
+   "verdict": "right"
+  },
+  {
+   "name": "fried chicken",
+   "pick": "chicken",
+   "score": 0.734,
+   "band": 0.65,
+   "verdict": "wrong"
+  },
+  {
+   "name": "garlic chutney",
+   "pick": "garlic",
+   "score": 0.655,
+   "band": 0.65,
+   "verdict": "wrong"
+  },
+  {
+   "name": "grape leaf",
+   "pick": "grape",
+   "score": 0.707,
+   "band": 0.65,
+   "verdict": "wrong"
+  },
+  {
+   "name": "hellman's mayonnaise )",
+   "pick": "mayonnaise",
+   "score": 0.707,
+   "band": 0.65,
+   "verdict": "right"
+  },
+  {
+   "name": "instant millet couscous",
+   "pick": "couscous",
+   "score": 0.667,
+   "band": 0.65,
+   "verdict": "right"
+  },
+  {
+   "name": "knob of ginger",
+   "pick": "ginger",
+   "score": 0.655,
+   "band": 0.65,
+   "verdict": "right"
+  },
+  {
+   "name": "liquid or paste food coloring",
+   "pick": "food coloring",
+   "score": 0.67,
+   "band": 0.65,
+   "verdict": "right"
+  },
+  {
+   "name": "malt beer",
+   "pick": "beer",
+   "score": 0.667,
+   "band": 0.65,
+   "verdict": "right"
+  },
+  {
+   "name": "mi-cuit tomatoes or 1 tube of tomato paste",
+   "pick": "tomato paste",
+   "score": 0.681,
+   "band": 0.65,
+   "verdict": "wrong"
+  },
+  {
+   "name": "no-salt-added tomato paste",
+   "pick": "tomato paste",
+   "score": 0.679,
+   "band": 0.65,
+   "verdict": "right"
+  },
+  {
+   "name": "onion seed",
+   "pick": "onion",
+   "score": 0.707,
+   "band": 0.65,
+   "verdict": "wrong"
+  },
+  {
+   "name": "palm fruit",
+   "pick": "fruit",
+   "score": 0.707,
+   "band": 0.65,
+   "verdict": "wrong"
+  },
+  {
+   "name": "pectin",
+   "pick": "pecan",
+   "score": 0.667,
+   "band": 0.65,
+   "verdict": "wrong"
+  },
+  {
+   "name": "plam fruit",
+   "pick": "fruit",
+   "score": 0.707,
+   "band": 0.65,
+   "verdict": "wrong"
+  },
+  {
+   "name": "pure lard",
+   "pick": "lard",
+   "score": 0.667,
+   "band": 0.65,
+   "verdict": "right"
+  },
+  {
+   "name": "redskin potato",
+   "pick": "potato",
+   "score": 0.655,
+   "band": 0.65,
+   "verdict": "right"
+  },
+  {
+   "name": "robust red wine",
+   "pick": "red wine",
+   "score": 0.73,
+   "band": 0.65,
+   "verdict": "right"
+  },
+  {
+   "name": "sautéed mushroom",
+   "pick": "mushroom",
+   "score": 0.707,
+   "band": 0.65,
+   "verdict": "right"
+  },
+  {
+   "name": "shots of hot sauce",
+   "pick": "hot sauce",
+   "score": 0.745,
+   "band": 0.65,
+   "verdict": "right"
+  },
+  {
+   "name": "skin-on coho salmon fillet",
+   "pick": "salmon fillet",
+   "score": 0.734,
+   "band": 0.65,
+   "verdict": "right"
+  },
+  {
+   "name": "soy flour",
+   "pick": "flour",
+   "score": 0.745,
+   "band": 0.65,
+   "verdict": "wrong"
+  },
+  {
+   "name": "stewing chicken",
+   "pick": "chicken wing",
+   "score": 0.745,
+   "band": 0.65,
+   "verdict": "wrong"
+  },
+  {
+   "name": "szechuan peppercorn",
+   "pick": "peppercorn",
+   "score": 0.725,
+   "band": 0.65,
+   "verdict": "wrong"
+  },
+  {
+   "name": "thai bird chili",
+   "pick": "bird chile",
+   "score": 0.653,
+   "band": 0.65,
+   "verdict": "right"
+  },
+  {
+   "name": "to large tomato",
+   "pick": "tomato",
+   "score": 0.749,
+   "band": 0.65,
+   "verdict": "right"
+  },
+  {
+   "name": "unpitted large green spanish olive",
+   "pick": "olive",
+   "score": 0.66,
+   "band": 0.65,
+   "verdict": "right"
+  },
+  {
+   "name": "vegetable confetti",
+   "pick": "vegetable",
+   "score": 0.707,
+   "band": 0.65,
+   "verdict": "wrong"
+  },
+  {
+   "name": "\"chicken and herb\" seasoning",
+   "pick": "seasoning",
+   "score": 0.588,
+   "band": 0.55,
+   "verdict": "right"
+  },
+  {
+   "name": "african pear",
+   "pick": "pear",
+   "score": 0.577,
+   "band": 0.55,
+   "verdict": "wrong"
+  },
+  {
+   "name": "annatto paste",
+   "pick": "tomato paste",
+   "score": 0.56,
+   "band": 0.55,
+   "verdict": "wrong"
+  },
+  {
+   "name": "bamboo skewer",
+   "pick": "bamboo shoot",
+   "score": 0.56,
+   "band": 0.55,
+   "verdict": "wrong"
+  },
+  {
+   "name": "bird's eye chillis",
+   "pick": "chillis",
+   "score": 0.624,
+   "band": 0.55,
+   "verdict": "right"
+  },
+  {
+   "name": "branches fresh parsley",
+   "pick": "parsley",
+   "score": 0.564,
+   "band": 0.55,
+   "verdict": "right"
+  },
+  {
+   "name": "can of sliced mushroom",
+   "pick": "mushroom",
+   "score": 0.603,
+   "band": 0.55,
+   "verdict": "right"
+  },
+  {
+   "name": "chiles de arbol",
+   "pick": "rbol chile",
+   "score": 0.572,
+   "band": 0.55,
+   "verdict": "right"
+  },
+  {
+   "name": "cod/haddock/monkfish fillet",
+   "pick": "fish fillet",
+   "score": 0.587,
+   "band": 0.55,
+   "verdict": "right"
+  },
+  {
+   "name": "crisp rice cereal",
+   "pick": "puffed rice cereal",
+   "score": 0.629,
+   "band": 0.55,
+   "verdict": "right"
+  },
+  {
+   "name": "dehydrated garlic",
+   "pick": "dehydrated onion",
+   "score": 0.606,
+   "band": 0.55,
+   "verdict": "wrong"
+  },
+  {
+   "name": "dry winemaker's yeast as well as yeast nutrient",
+   "pick": "yeast",
+   "score": 0.563,
+   "band": 0.55,
+   "verdict": "right"
+  },
+  {
+   "name": "finely-ground pure cannabis",
+   "pick": "nut",
+   "score": 0.607,
+   "band": 0.55,
+   "verdict": "wrong"
+  },
+  {
+   "name": "for white wine: 1 pinch nutmeg",
+   "pick": "white wine",
+   "score": 0.587,
+   "band": 0.55,
+   "verdict": "wrong"
+  },
+  {
+   "name": "ginger-green chilli paste",
+   "pick": "ginger paste",
+   "score": 0.635,
+   "band": 0.55,
+   "verdict": "wrong"
+  },
+  {
+   "name": "green piri-piri chilli-pepper",
+   "pick": "chilli pepper",
+   "score": 0.622,
+   "band": 0.55,
+   "verdict": "right"
+  },
+  {
+   "name": "hazelnut creme anglaise",
+   "pick": "hazelnut",
+   "score": 0.59,
+   "band": 0.55,
+   "verdict": "wrong"
+  },
+  {
+   "name": "hungarian paprika",
+   "pick": "paprika",
+   "score": 0.642,
+   "band": 0.55,
+   "verdict": "right"
+  },
+  {
+   "name": "katis of pork",
+   "pick": "pork",
+   "score": 0.555,
+   "band": 0.55,
+   "verdict": "right"
+  },
+  {
+   "name": "limewater",
+   "pick": "water",
+   "score": 0.596,
+   "band": 0.55,
+   "verdict": "wrong"
+  },
+  {
+   "name": "mbongo spice",
+   "pick": "spice",
+   "score": 0.645,
+   "band": 0.55,
+   "verdict": "wrong"
+  },
+  {
+   "name": "milk-flavored margarine",
+   "pick": "margarine",
+   "score": 0.626,
+   "band": 0.55,
+   "verdict": "right"
+  },
+  {
+   "name": "muscovado sugar",
+   "pick": "sugar",
+   "score": 0.577,
+   "band": 0.55,
+   "verdict": "right"
+  },
+  {
+   "name": "onion chutney",
+   "pick": "onion",
+   "score": 0.62,
+   "band": 0.55,
+   "verdict": "wrong"
+  },
+  {
+   "name": "palm nut",
+   "pick": "nut",
+   "score": 0.612,
+   "band": 0.55,
+   "verdict": "wrong"
+  },
+  {
+   "name": "pastry dough recipe",
+   "pick": "shortcrust pastry dough",
+   "score": 0.574,
+   "band": 0.55,
+   "verdict": "right"
+  },
+  {
+   "name": "pieces of chicken",
+   "pick": "chicken",
+   "score": 0.642,
+   "band": 0.55,
+   "verdict": "right"
+  },
+  {
+   "name": "porridge rice",
+   "pick": "rice",
+   "score": 0.555,
+   "band": 0.55,
+   "verdict": "right"
+  },
+  {
+   "name": "purple basil",
+   "pick": "basil",
+   "score": 0.645,
+   "band": 0.55,
+   "verdict": "right"
+  },
+  {
+   "name": "redcurrant jam",
+   "pick": "currant",
+   "score": 0.606,
+   "band": 0.55,
+   "verdict": "wrong"
+  },
+  {
+   "name": "rose",
+   "pick": "rose water",
+   "score": 0.632,
+   "band": 0.55,
+   "verdict": "wrong"
+  },
+  {
+   "name": "selection of wild mushroom",
+   "pick": "mushroom",
+   "score": 0.555,
+   "band": 0.55,
+   "verdict": "right"
+  },
+  {
+   "name": "slices of chicken",
+   "pick": "chicken",
+   "score": 0.642,
+   "band": 0.55,
+   "verdict": "right"
+  },
+  {
+   "name": "soy lecithin powder",
+   "pick": "powder",
+   "score": 0.562,
+   "band": 0.55,
+   "verdict": "wrong"
+  },
+  {
+   "name": "streaky bacon",
+   "pick": "bacon",
+   "score": 0.62,
+   "band": 0.55,
+   "verdict": "right"
+  },
+  {
+   "name": "tandoori powder",
+   "pick": "powder",
+   "score": 0.632,
+   "band": 0.55,
+   "verdict": "wrong"
+  },
+  {
+   "name": "thin chicken cutlet",
+   "pick": "chicken",
+   "score": 0.577,
+   "band": 0.55,
+   "verdict": "right"
+  },
+  {
+   "name": "tortillas in bit",
+   "pick": "tortilla",
+   "score": 0.619,
+   "band": 0.55,
+   "verdict": "right"
+  },
+  {
+   "name": "vanilla and/or cinnamon",
+   "pick": "cinnamon",
+   "score": 0.59,
+   "band": 0.55,
+   "verdict": "wrong"
+  },
+  {
+   "name": "volumes milk",
+   "pick": "milk",
+   "score": 0.577,
+   "band": 0.55,
+   "verdict": "right"
+  }
+ ]
+}

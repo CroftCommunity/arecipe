@@ -338,6 +338,21 @@ describe('renderRecipeDetail', () => {
     expect(items[1]?.querySelector('[data-testid=ingredient-correct]')).not.toBeNull();
   });
 
+  it('a fuzzy-resolved line shows its closest match as the "?" itself, prefilled — confirming makes it known', () => {
+    const store = createIngredientCorrections({ storage: memStorage() });
+    const e = entry({ value: { ...fixture.value, ingredients: ['1 tsp tumeric'] } });
+    const el = renderRecipeDetail(e, { corrections: store });
+    const btn = el.querySelector<HTMLButtonElement>('[data-testid=ingredient-correct]')!;
+    expect(btn.dataset['suggested']).toBe('turmeric');
+    expect(btn.textContent).toContain('turmeric');
+    btn.click();
+    const input = el.querySelector<HTMLInputElement>('[data-testid=ingredient-correct-key]')!;
+    expect(input.value).toBe('turmeric');
+    el.querySelector<HTMLButtonElement>('[data-testid=ingredient-correct-confirm]')!.click();
+    expect(store.lookup('tumeric')).toBe('turmeric');
+    expect(el.querySelector('[data-testid=ingredient-correct]')).toBeNull();
+  });
+
   it('no corrections store, no affordance (Browse cards and tests render without one)', () => {
     const e = entry({ value: { ...fixture.value, ingredients: ['30 g freeze-dried strawberries'] } });
     expect(renderRecipeDetail(e).querySelector('[data-testid=ingredient-correct]')).toBeNull();
