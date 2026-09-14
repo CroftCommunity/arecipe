@@ -26,7 +26,7 @@
   {
    "name": "black pepper )",
    "pick": "black pepper",
-   "score": 1.0,
+   "score": 1,
    "band": 0.85,
    "verdict": "right"
   },
@@ -60,10 +60,11 @@
   },
   {
    "name": "chilis",
-   "pick": "chillis",
-   "score": 0.857,
+   "pick": "chile",
+   "score": 1,
    "band": 0.85,
-   "verdict": "right"
+   "verdict": "right",
+   "note": "pick changed in the 2026-09-14 review pass: was chillis"
   },
   {
    "name": "chipotle hot sauce",
@@ -82,14 +83,14 @@
   {
    "name": "confectioners’ sugar",
    "pick": "confectioners sugar",
-   "score": 1.0,
+   "score": 1,
    "band": 0.85,
    "verdict": "right"
   },
   {
    "name": "corn tortillas )",
    "pick": "corn tortilla",
-   "score": 0.889,
+   "score": 0.944,
    "band": 0.85,
    "verdict": "right"
   },
@@ -103,7 +104,7 @@
   {
    "name": "cup flour",
    "pick": "flour",
-   "score": 1,
+   "score": 0.745,
    "band": 0.85,
    "verdict": "right"
   },
@@ -123,24 +124,27 @@
   },
   {
    "name": "filet salmon",
-   "pick": "salmon filet",
+   "pick": "salmon fillet",
    "score": 0.917,
    "band": 0.85,
-   "verdict": "right"
+   "verdict": "right",
+   "note": "pick changed in the 2026-09-14 review pass: was salmon filet"
   },
   {
    "name": "florets cauliflower",
-   "pick": "cauliflower floret",
-   "score": 0.878,
+   "pick": "cauliflower",
+   "score": 0.79,
    "band": 0.85,
-   "verdict": "right"
+   "verdict": "right",
+   "note": "pick changed in the 2026-09-14 review pass: was cauliflower floret"
   },
   {
    "name": "garlic clove",
-   "pick": "clove garlic",
-   "score": 0.917,
+   "pick": "garlic",
+   "score": 1,
    "band": 0.85,
-   "verdict": "right"
+   "verdict": "right",
+   "note": "pick changed in the 2026-09-14 review pass: was clove garlic"
   },
   {
    "name": "gelatine",
@@ -152,16 +156,17 @@
   {
    "name": "grapeseed oil",
    "pick": "rapeseed oil",
-   "score": 0.881,
+   "score": 0.944,
    "band": 0.85,
    "verdict": "wrong"
   },
   {
    "name": "gruyêre cheese",
-   "pick": "gruyère cheese",
+   "pick": "gruyère",
    "score": 1,
    "band": 0.85,
-   "verdict": "right"
+   "verdict": "right",
+   "note": "pick changed in the 2026-09-14 review pass: was gruyère cheese"
   },
   {
    "name": "hamburger bun per burger",
@@ -179,10 +184,11 @@
   },
   {
    "name": "iodised salt",
-   "pick": "non-iodised salt",
-   "score": 0.866,
+   "pick": "salt",
+   "score": 0.577,
    "band": 0.85,
-   "verdict": "wrong"
+   "verdict": "right",
+   "note": "pick changed in the 2026-09-14 review pass: was non-iodised salt"
   },
   {
    "name": "mayonnaise )",
@@ -215,7 +221,7 @@
   {
    "name": "orange juice )",
    "pick": "orange juice",
-   "score": 1.0,
+   "score": 1,
    "band": 0.85,
    "verdict": "right"
   },
@@ -236,7 +242,7 @@
   {
    "name": "parmiggiano reggiano",
    "pick": "parmesan",
-   "score": 0.949,
+   "score": 0.955,
    "band": 0.85,
    "verdict": "right"
   },
@@ -249,17 +255,19 @@
   },
   {
    "name": "parts confectioner's sugar",
-   "pick": "confectioner's sugar",
+   "pick": "confectioners sugar",
    "score": 0.877,
    "band": 0.85,
-   "verdict": "right"
+   "verdict": "right",
+   "note": "pick changed in the 2026-09-14 review pass: was confectioner's sugar"
   },
   {
    "name": "refined sugar",
-   "pick": "unrefined sugar",
-   "score": 0.859,
+   "pick": "sugar",
+   "score": 0.62,
    "band": 0.85,
-   "verdict": "wrong"
+   "verdict": "right",
+   "note": "pick changed in the 2026-09-14 review pass: was unrefined sugar"
   },
   {
    "name": "sauce espagnole",
@@ -291,10 +299,11 @@
   },
   {
    "name": "anko filling",
-   "pick": "filling",
-   "score": 0.764,
+   "pick": "cheese filling",
+   "score": 0.54,
    "band": 0.75,
-   "verdict": "wrong"
+   "verdict": "wrong",
+   "note": "pick changed in the 2026-09-14 review pass: was filling"
   },
   {
    "name": "bay scallop",
@@ -305,15 +314,16 @@
   },
   {
    "name": "bittersweet/plain chocolate",
-   "pick": "bittersweet chocolate",
-   "score": 0.84,
+   "pick": "chocolate",
+   "score": 0.577,
    "band": 0.75,
-   "verdict": "right"
+   "verdict": "right",
+   "note": "pick changed in the 2026-09-14 review pass: was bittersweet chocolate"
   },
   {
    "name": "bulghur wheat",
    "pick": "bulgur wheat",
-   "score": 0.801,
+   "score": 0.929,
    "band": 0.75,
    "verdict": "right"
   },
@@ -354,10 +364,11 @@
   },
   {
    "name": "creamy peanut",
-   "pick": "creamy peanut butter",
-   "score": 0.806,
+   "pick": "peanut",
+   "score": 0.679,
    "band": 0.75,
-   "verdict": "right"
+   "verdict": "right",
+   "note": "pick changed in the 2026-09-14 review pass: was creamy peanut butter"
   },
   {
    "name": "deciliters cultured buttermilk",
@@ -439,7 +450,7 @@
   {
    "name": "non-iodized salt",
    "pick": "non-iodised salt",
-   "score": 0.812,
+   "score": 0.813,
    "band": 0.75,
    "verdict": "right"
   },
@@ -459,10 +470,11 @@
   },
   {
    "name": "pecorino cheese",
-   "pick": "pecorino romano cheese",
+   "pick": "pecorino romano",
    "score": 0.843,
    "band": 0.75,
-   "verdict": "right"
+   "verdict": "right",
+   "note": "pick changed in the 2026-09-14 review pass: was pecorino romano cheese"
   },
   {
    "name": "pineapple ring",
@@ -536,10 +548,11 @@
   },
   {
    "name": "tbsp wheat flour",
-   "pick": "wheat flour",
+   "pick": "flour",
    "score": 0.829,
    "band": 0.75,
-   "verdict": "right"
+   "verdict": "right",
+   "note": "pick changed in the 2026-09-14 review pass: was wheat flour"
   },
   {
    "name": "tinned corned beef",
@@ -739,10 +752,11 @@
   },
   {
    "name": "pectin",
-   "pick": "pecan",
-   "score": 0.667,
+   "pick": null,
+   "score": 0,
    "band": 0.65,
-   "verdict": "wrong"
+   "verdict": "wrong",
+   "note": "no pick after the 2026-09-14 review pass"
   },
   {
    "name": "plam fruit",
@@ -802,10 +816,11 @@
   },
   {
    "name": "stewing chicken",
-   "pick": "chicken wing",
-   "score": 0.745,
+   "pick": "chicken",
+   "score": 1,
    "band": 0.65,
-   "verdict": "wrong"
+   "verdict": "right",
+   "note": "pick changed in the 2026-09-14 review pass: was chicken wing"
   },
   {
    "name": "szechuan peppercorn",
@@ -830,17 +845,19 @@
   },
   {
    "name": "unpitted large green spanish olive",
-   "pick": "olive",
-   "score": 0.66,
+   "pick": null,
+   "score": 0,
    "band": 0.65,
-   "verdict": "right"
+   "verdict": "right",
+   "note": "no pick after the 2026-09-14 review pass"
   },
   {
    "name": "vegetable confetti",
-   "pick": "vegetable",
-   "score": 0.707,
+   "pick": "vegetable oil",
+   "score": 0.588,
    "band": 0.65,
-   "verdict": "wrong"
+   "verdict": "wrong",
+   "note": "pick changed in the 2026-09-14 review pass: was vegetable"
   },
   {
    "name": "\"chicken and herb\" seasoning",
@@ -872,10 +889,11 @@
   },
   {
    "name": "bird's eye chillis",
-   "pick": "chillis",
+   "pick": "chile",
    "score": 0.624,
    "band": 0.55,
-   "verdict": "right"
+   "verdict": "right",
+   "note": "pick changed in the 2026-09-14 review pass: was chillis"
   },
   {
    "name": "branches fresh parsley",
@@ -928,10 +946,11 @@
   },
   {
    "name": "finely-ground pure cannabis",
-   "pick": "nut",
-   "score": 0.607,
+   "pick": "cannabis",
+   "score": 1,
    "band": 0.55,
-   "verdict": "wrong"
+   "verdict": "right",
+   "note": "pick changed in the 2026-09-14 review pass: was nut"
   },
   {
    "name": "for white wine: 1 pinch nutmeg",
@@ -949,10 +968,11 @@
   },
   {
    "name": "green piri-piri chilli-pepper",
-   "pick": "chilli pepper",
+   "pick": "chile pepper",
    "score": 0.622,
    "band": 0.55,
-   "verdict": "right"
+   "verdict": "right",
+   "note": "pick changed in the 2026-09-14 review pass: was chilli pepper"
   },
   {
    "name": "hazelnut creme anglaise",
@@ -1075,10 +1095,11 @@
   },
   {
    "name": "soy lecithin powder",
-   "pick": "powder",
-   "score": 0.562,
+   "pick": "cumin powder",
+   "score": 0.53,
    "band": 0.55,
-   "verdict": "wrong"
+   "verdict": "wrong",
+   "note": "pick changed in the 2026-09-14 review pass: was powder"
   },
   {
    "name": "streaky bacon",
@@ -1089,10 +1110,11 @@
   },
   {
    "name": "tandoori powder",
-   "pick": "powder",
-   "score": 0.632,
+   "pick": "coriander",
+   "score": 0.577,
    "band": 0.55,
-   "verdict": "wrong"
+   "verdict": "wrong",
+   "note": "pick changed in the 2026-09-14 review pass: was powder"
   },
   {
    "name": "thin chicken cutlet",
@@ -1122,5 +1144,6 @@
    "band": 0.55,
    "verdict": "right"
   }
- ]
+ ],
+ "rejudged": "2026-09-14: picks re-scored after the vocabulary review pass; changed picks re-judged (see each row's note)"
 }

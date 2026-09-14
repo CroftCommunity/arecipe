@@ -15,7 +15,7 @@ descriptor-aware substitutions.
 | Phase | Outcome | Commit | Note |
 |-------|---------|--------|------|
 | 0 Discovery | ✅ 2026-09-09 | | `runs/ingredient-normalization/PHASE0-FINDINGS.md` — corpus is 4,113 records / 35,274 lines (14× the plan's premise); #87: reuse shell, discard engine — **owner decision pending** |
-| 1 Vocabulary build tool (M1) | ✅ 2026-09-09 (review open) | | `scripts/build-ingredientkeys.mjs` over the census fixture → `src/recipes/ingredientkeys.json` (1,052 keys) + `runs/ingredient-normalization/REVIEW.md`; `_meta.reviewed` flips true when the owner has read the report |
+| 1 Vocabulary build tool (M1) | ✅ 2026-09-09; **reviewed 2026-09-14** | | `scripts/build-ingredientkeys.mjs` over the census fixture → `src/recipes/ingredientkeys.json` (1,052 keys) + `runs/ingredient-normalization/REVIEW.md`; `_meta.reviewed` flips true when the owner has read the report |
 | 2 Matcher pure core (M1 exit) | ✅ 2026-09-09 | | `src/recipes/ingredient-key.ts`: head-phrase split → count-unit strip → descriptor peel → most-specific-first lookup; coverage **82.4%** by line weight, floor 75% pinned in `ingredient-key-coverage.spec.ts` |
 | 3 Search by ingredient (M2) | ✅ 2026-09-09 | | `ingredientKeys` indexed beside raw text (boost 3) + whole-query canonicalization as an OR branch, so both directions reach; build-cost band pinned (< 3 s at 4k, measured ~0.4 s) |
 | 4 Substitution engine (M2 exit) | ✅ 2026-09-09 | | `src/recipes/substitutions.ts`: cook rules keyed (+variety scope) rewrite lines; the 7 reference rows are suggestions; #87's shell reused, its regex engine discarded |
@@ -24,7 +24,7 @@ descriptor-aware substitutions.
 | 6 Correction overlay (M3 exit) | ✅ 2026-09-09 | | `ingredient-aliases-local.ts` (device-local, keyed on the unmatched name); resolver method `overlay` first; "?" affordance on the recipe page picks an existing key; Settings exports the seed-alias block |
 | GATE | decision 2026-09-14 | | Owner chose to build M4 ahead of overlay telemetry; the gate's evidence question (does the alias table suffice?) stays open and is re-asked at the M4 exit — see § DECISION GATE |
 | 7 Vocab embeddings asset (M4) | ✅ 2026-09-14 (as lexical) | | No embeddings asset: the closed set is the vocabulary's keys + aliases, trigram-indexed at runtime in memory (`ingredient-fuzzy.ts`) — the MiniLM path is blocked by the CSP gate (no `wasm-unsafe-eval`) and a 23 MB model |
-| 8 Runtime fuzzy tier (M4 exit) | ✅ 2026-09-14 | | Closed-set, thresholded (0.75), labeled `fuzzy` with score; last after every deterministic path; provisional swaps; the “≈ closest match?” confirm flows to the overlay. Coverage 86.7% → **89.1%**; precision 90%/85% in the bands ≥ threshold, 55% just below — battle-tested on the corpus (`FUZZY-EVAL.md`) |
+| 8 Runtime fuzzy tier (M4 exit) | ✅ 2026-09-14 | | Closed-set, thresholded (0.75), labeled `fuzzy` with score; last after every deterministic path; provisional swaps; the “≈ closest match?” confirm flows to the overlay. Coverage 87.9% → **89.9%** after the review pass; precision 90%/87% in the bands ≥ threshold, 61% just below — battle-tested on the corpus (`FUZZY-EVAL.md`) |
 | 9 PDS alias records | ✅ 2026-09-14 | | Re-planned and built: `plans/2026-09-14-plan-community-ingredient-aliases.md` — `app.arecipe.ingredientAlias` records, adopt-first publish / reconciling pull on the Account page, build-time candidates from trusted accounts (`--aliases-from`) |
 
 ## Problem Statement
@@ -167,6 +167,20 @@ commit the reviewed map.
 - TDD on the proposal logic (grouping, alias folding) with census fixtures.
 - **Human review checkpoint before commit** — the single quality gate, as with
   dishkeys. Groups reviewed, not rubber-stamped.
+
+**Reviewed (2026-09-14).** The human-review checkpoint ran as an AI review pass
+with the owner spot-checking the taste calls: an analysis over the shipped keys
+found 29 carrying a measure/count word, a digit or punctuation (`frac12`, `lime
+juice )`, `cloves garlic`), 100 near-duplicate pairs (chile/chili/chilli/chilly,
+yogurt/yoghurt, jalapeno/jalapeño, semi-sweet/semisweet), and 24 generic
+single-word keys. Verdicts went into the seed — `dropKeys` (generic fragments:
+powder, filling, topping, dressing, juice, rub; the count word `clove` alone;
+`vegetable`), spelling merges as `seedAliases`, chicken-type and grain words as
+descriptors — and into the resolver where the cause was a line shape (HTML
+entities, stray parens, a descriptor before a count word, a slash alternative,
+the parser's own last-word fold). 1,021 → 937 keys with deterministic coverage
+87.9%; the judged fuzzy sample was re-scored and its changed picks re-judged.
+`_meta.reviewed` is true with `reviewedBy` naming the pass.
 
 **As built (2026-09-09).** The tool lives in `scripts/`, not `spike/import/`,
 because its grouping logic IS the runtime resolver's `canonicalHead`
@@ -351,10 +365,10 @@ exports, removes.
 
 **Re-asked at the M4 exit (2026-09-14), with the evidence the gate wanted:** the
 tier costs nothing (no dependency, no CSP change, ~3 KB, ~1 ms per unmatched
-line) and adds 830 lines of coverage at 90%–85% precision, every one of them
+line) and adds ~700 lines of coverage at 90%–87% precision, every one of them
 labeled and one tap from a confirmation. Kept. The question the gate asked about
 the *embedding* tier — is a 23 MB model and a CSP relaxation warranted? — is
-answered no for now: the remaining 3859 unmatched lines are mostly
+answered no for now: the remaining ~3,570 unmatched lines are mostly
 narrative, dish names and non-ingredients (see `FUZZY-EVAL.md` § still unmatched),
 which no similarity measure should resolve. Revisit only if the overlay's
 export shows cooks correcting the same *semantic* misses repeatedly.
@@ -413,10 +427,10 @@ swap on such a line is visibly provisional (italic, "⇄ ≈") until confirmed.
 **Battle-tested on the corpus** (`scripts/eval-fuzzy.mjs` →
 `runs/ingredient-normalization/FUZZY-EVAL.md`; floors pinned in
 `tests/unit/recipes/ingredient-fuzzy-corpus.spec.ts`): coverage by line weight
-86.7% deterministic → **89.1%** with the tier; on a judged sample of 160 real
+87.9% deterministic → **89.9%** with the tier (numbers after the 2026-09-14 review pass); on a judged sample of 160 real
 unmatched names (`tests/fixtures/ingredients/fuzzy-judged.json`, 40 per band,
 semantic right/wrong — judged by the building session, spot-check it),
-precision is 90% at ≥0.85 and 85% at 0.75–0.85, falling to 55% in the band
+precision is 90% at ≥0.85 and 87% at 0.75–0.85, falling to 61% in the band
 just below the threshold — the cut is earned by the data, not chosen. Recall
 over realistic perturbations of the 300 most-used known lines (a swapped letter
 pair, a dropped letter, a stray unit, trailing prep) is ≥ 80% on every kind,

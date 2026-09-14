@@ -38,6 +38,9 @@ export type ProposeOptions = {
    * accounts. Each attaches as an alias of its key WHEN that key exists —
    * a community alias never creates a key; an unknown key is reported. */
   communityAliases?: readonly { name: string; key: string }[];
+  /** Review verdicts: heads that must never ship as keys (a generic fragment
+   * like "powder", a category like "filling"); their lines fall to the tail. */
+  dropKeys?: readonly string[];
 };
 
 type Group = { lines: number; aliases: string[]; variants: Map<string, number> };
@@ -125,9 +128,11 @@ export const proposeVocabulary = (rows: readonly (readonly [string, number])[], 
   const keys: Record<string, ProposalKey> = {};
   const vocabKeys: Record<string, { aliases: string[] }> = {};
   const tail: { head: string; lines: number }[] = [];
+  const dropped = new Set(opts.dropKeys ?? []);
   for (const [head, g] of sorted) {
     // Seeded keys are hand-curated: the floor is for the census, not for them.
-    if (g.lines < opts.minLines && seedKeys[head] === undefined) {
+    // Dropped keys are review verdicts: never shipped, whatever their count.
+    if (dropped.has(head) || (g.lines < opts.minLines && seedKeys[head] === undefined)) {
       tail.push({ head, lines: g.lines });
       continue;
     }

@@ -92,6 +92,12 @@ describe('proposeVocabulary', () => {
     expect(p.community).toEqual({ attached: 1, unknownKey: [{ name: 'quux', key: 'no-such-key' }] });
   });
 
+  it('a dropped key (seed `dropKeys`) never ships, whatever its count — its lines fall to the tail', () => {
+    const p = proposeVocabulary([['1 tbsp powder', 9], ['2 cups flour', 3]], { taxonomy, minLines: 1, dropKeys: ['powder'] });
+    expect(p.keys['powder']).toBeUndefined();
+    expect(p.tail.find((t) => t.head === 'powder')).toEqual({ head: 'powder', lines: 9 });
+  });
+
   it('a seeded key is hand-curated: it survives the line floor', () => {
     const p = proposeVocabulary(rows, { taxonomy, minLines: 5, seedKeys: ['dashi'] });
     expect(p.keys['dashi']).toMatchObject({ lines: 1 });
