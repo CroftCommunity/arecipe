@@ -229,6 +229,10 @@ const renderIngredientAliasSync = (agent: Agent, resolvePds: () => Promise<strin
   const pull = el('button', 'button', 'Pull from account') as HTMLButtonElement;
   pull.type = 'button';
   pull.dataset['testid'] = 'corrections-pull';
+  // Two lines, never one: the counts repaint after every action, and must not
+  // clobber the action's own result ("Pulled 1") — the live harness caught it.
+  const counts = el('p', 'status');
+  counts.dataset['testid'] = 'corrections-sync-counts';
   const status = el('p', 'status');
   status.dataset['testid'] = 'corrections-sync-status';
   const refresh = (): void => {
@@ -236,7 +240,7 @@ const renderIngredientAliasSync = (agent: Agent, resolvePds: () => Promise<strin
     const pending = all.filter((c) => c.publishedRkey === undefined).length;
     publish.textContent = pending === 0 ? 'Published' : `Publish ${pending} to your account`;
     publish.disabled = pending === 0;
-    status.textContent = `${all.length} on this device, ${all.length - pending} on your account.`;
+    counts.textContent = `${all.length} on this device, ${all.length - pending} on your account.`;
   };
   const target = async (): Promise<{ pds: string; did: string }> => {
     const did = agent.did;
@@ -273,7 +277,7 @@ const renderIngredientAliasSync = (agent: Agent, resolvePds: () => Promise<strin
     refresh();
   });
   row.append(publish, pull);
-  block.append(row, status);
+  block.append(row, counts, status);
   refresh();
   return block;
 };

@@ -20,7 +20,8 @@ const listAliases = async (): Promise<{ name: string; key: string }[]> => {
   const body = (await (await fetch(url)).json()) as { records?: { value?: { name?: unknown; key?: unknown } }[] };
   return (body.records ?? [])
     .map((r) => r.value)
-    .filter((v): v is { name: string; key: string } => typeof v?.name === 'string' && typeof v?.key === 'string');
+    .filter((v): v is { name: string; key: string } => typeof v?.name === 'string' && typeof v?.key === 'string')
+    .map((v) => ({ name: v.name, key: v.key }));
 };
 
 test.describe('@live ingredient aliases', () => {
@@ -29,12 +30,12 @@ test.describe('@live ingredient aliases', () => {
   test.afterEach(async () => purgeCollection(INGREDIENT_ALIAS_COLLECTION, { handle: HANDLE, appPassword: APP_PASSWORD }));
 
   test('publish a device correction as a record, pull it back onto a cleared device', async ({ page, baseURL }) => {
-    await page.addInitScript(() => {
-      try {
-        localStorage.setItem('ingredient-corrections', JSON.stringify([{ name: 'freeze-dried strawberry', key: 'strawberry', confirmedAt: '2026-09-14T00:00:00Z' }]));
-      } catch {
-        /* private mode */
-      }
+    test.setTimeout(180_000);
+    // Seed ONCE (not addInitScript, which would re-plant it on every load and
+    // defeat the "cleared device" step below).
+    await page.goto('/');
+    await page.evaluate(() => {
+      localStorage.setItem('ingredient-corrections', JSON.stringify([{ name: 'freeze-dried strawberry', key: 'strawberry', confirmedAt: '2026-09-14T00:00:00Z' }]));
     });
     await signIn(page, { handle: HANDLE, password: PASSWORD, origin: baseURL ?? 'http://127.0.0.1:4173' });
     const block = page.getByTestId('ingredient-alias-sync');
@@ -47,9 +48,10 @@ test.describe('@live ingredient aliases', () => {
     // A cleared device pulls it back.
     await page.evaluate(() => localStorage.removeItem('ingredient-corrections'));
     await page.reload();
-    await expect(page.getByTestId('corrections-sync-status')).toContainText('0 on this device');
+    await expect(page.getByTestId('corrections-sync-counts')).toContainText('0 on this device');
     await page.getByTestId('corrections-pull').click();
     await expect(page.getByTestId('corrections-sync-status')).toContainText('Pulled 1', { timeout: 30_000 });
+    await expect(page.getByTestId('corrections-sync-counts')).toContainText('1 on this device, 1 on your account');
     const local = await page.evaluate(() => localStorage.getItem('ingredient-corrections'));
     expect(local).toContain('"freeze-dried strawberry"');
     expect(local).toContain('"strawberry"');
