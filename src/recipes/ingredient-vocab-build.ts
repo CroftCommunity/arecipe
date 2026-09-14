@@ -16,6 +16,8 @@ export type ProposalKey = {
 export type Proposal = {
   vocabulary: Vocabulary;
   keys: Record<string, ProposalKey>;
+  /** Phase 9: what became of the community aliases handed in. */
+  community: { attached: number; unknownKey: { name: string; key: string }[] };
   /** Heads under the line floor — not keys; the "is this X?" backlog. */
   tail: { head: string; lines: number }[];
   coverage: { lines: number; matched: number; share: number };
@@ -32,6 +34,10 @@ export type ProposeOptions = {
   /** Descriptor-bearing forms that are their own ingredient, not a variety
    * ("sweet potato" is not a potato variety): claimed whole, before peeling. */
   seedKeys?: readonly string[];
+  /** Phase 9: app.arecipe.ingredientAlias records pulled from trusted
+   * accounts. Each attaches as an alias of its key WHEN that key exists —
+   * a community alias never creates a key; an unknown key is reported. */
+  communityAliases?: readonly { name: string; key: string }[];
 };
 
 type Group = { lines: number; aliases: string[]; variants: Map<string, number> };
@@ -132,6 +138,19 @@ export const proposeVocabulary = (rows: readonly (readonly [string, number])[], 
     vocabKeys[head] = { aliases: [...g.aliases] };
   }
 
+  const community: Proposal['community'] = { attached: 0, unknownKey: [] };
+  for (const alias of opts.communityAliases ?? []) {
+    const target = vocabKeys[alias.key];
+    if (target === undefined) {
+      community.unknownKey.push({ name: alias.name, key: alias.key });
+      continue;
+    }
+    if (!target.aliases.includes(alias.name) && alias.name !== alias.key) {
+      target.aliases.push(alias.name);
+      keys[alias.key]!.aliases.push(alias.name);
+    }
+    community.attached += 1;
+  }
   const vocabulary: Vocabulary = { descriptors: opts.taxonomy, keys: vocabKeys };
   let lines = 0;
   let matched = 0;
@@ -139,5 +158,5 @@ export const proposeVocabulary = (rows: readonly (readonly [string, number])[], 
     lines += count;
     if (resolveIngredient(raw, vocabulary).method !== 'unmatched') matched += count;
   }
-  return { vocabulary, keys, tail, coverage: { lines, matched, share: lines === 0 ? 0 : matched / lines } };
+  return { vocabulary, keys, tail, community, coverage: { lines, matched, share: lines === 0 ? 0 : matched / lines } };
 };

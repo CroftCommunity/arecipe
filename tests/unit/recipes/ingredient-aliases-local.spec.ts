@@ -61,6 +61,18 @@ describe('createIngredientCorrections', () => {
     expect(createIngredientCorrections({ storage: mem({ 'ingredient-corrections': '{nope' }) }).all()).toEqual([]);
   });
 
+  it('carries a published marker per name (Phase 9): stamped, persisted, cleared on re-confirm of a different key', () => {
+    const storage = mem();
+    const c = createIngredientCorrections({ storage, now: () => 't' });
+    c.confirm('kombu broth', 'dashi');
+    c.markPublished('kombu broth', 'rk1');
+    expect(createIngredientCorrections({ storage }).all()[0]?.publishedRkey).toBe('rk1');
+    c.markPublished('nobody', 'rk2'); // absent name: no-op, nothing added
+    expect(c.all()).toHaveLength(1);
+    c.confirm('kombu broth', 'stock'); // the meaning changed: the old record no longer says this
+    expect(c.all()[0]?.publishedRkey).toBeUndefined();
+  });
+
   it('exports the seed-alias block: names grouped under their key, sorted, ready to paste into the seed', () => {
     const c = createIngredientCorrections({ storage: mem(), now: () => 't' });
     c.confirm('kombu broth', 'dashi');

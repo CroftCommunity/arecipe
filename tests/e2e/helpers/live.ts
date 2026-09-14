@@ -115,6 +115,10 @@ export const signIn = async (
   opts: { handle: string; password: string; origin: string },
 ): Promise<void> => {
   await page.goto('/signin.html');
+  // The sign-in page is the provider pattern (DESIGN.md § Sign in): the handle
+  // field lives behind "Another provider" and is hidden until that is opened.
+  // Stale since the 2026-09 redesign — every @live spec failed on this wait.
+  await page.getByTestId('provider-other').click();
   await page.getByTestId('handle-input').fill(opts.handle);
   await page.getByTestId('oauth-signin').click();
   await page.waitForURL(/bsky\.social/, { timeout: 30_000 });
