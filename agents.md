@@ -128,6 +128,15 @@ offered as good manners for any agent that works with recipes.
   malformed JSON-LD block on a page should never sink the other blocks.
 - **Take the facts.** Ingredients, quantities, times, temperatures, yields,
   and the functional sequence of steps are the data you are after.
+- **Write each ingredient as one line.** Quantity, unit, ingredient, then any
+  preparation after a comma: `2 cloves garlic, minced`, `1 tsp smoked paprika`,
+  `500 g bread flour`. arecipe reads every line to work out which ingredient it
+  names (it keys lines to a canonical vocabulary of about a thousand
+  ingredients, which is what powers search by ingredient and a cook's
+  substitutions). A line shaped that way resolves; a narrative line (“the rest
+  of the flour from earlier, sifted twice”) does not, and simply gets no swaps
+  and no extra search reach. Keep parentheticals for conversions
+  (`1 cup (240 ml) milk`), not for the ingredient itself.
 - **Re-express the instructions in your own functional language.** arecipe's
   importer deliberately does not extract a source's `description` prose —
   that is the site's expressive text — and descriptions are authored fresh
@@ -184,7 +193,9 @@ consumes. Three requests get you from a handle to full recipe data:
 ```
 
 Every record's `value` carries the required fields `name`, `text`,
-`ingredients[]`, `instructions[]`, `createdAt`, and `updatedAt`, plus
+`ingredients[]` (free-text lines — arecipe resolves them to canonical
+ingredients client-side at read time; nothing about that is stored on the
+record), `instructions[]`, `createdAt`, and `updatedAt`, plus
 optional fields like `attribution`, image embeds, times, yield, category,
 and cuisine. Read them open-world: tolerate and preserve fields you don't
 recognize (arecipe itself layers extension fields such as `dishKey`,

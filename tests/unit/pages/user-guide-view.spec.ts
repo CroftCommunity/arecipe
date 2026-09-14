@@ -58,6 +58,7 @@ describe('renderUserGuide', () => {
       'guide-entry-filters',
       'guide-entry-cookbook',
       'guide-entry-open-recipe',
+      'guide-entry-substitutions',
       'guide-entry-focus',
       'guide-entry-reference',
       'guide-entry-funfacts',

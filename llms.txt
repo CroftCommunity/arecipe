@@ -15,6 +15,7 @@ and describes the extraction practices this project follows itself.
 - [Agent guide (canonical)](https://arecipe.app/agents.md): how to extract, normalize, attribute, and share recipes properly, and how to read arecipe's public records the way the protocol intends.
 - [Agent guide (HTML mirror)](https://arecipe.app/agents.html): the same guide, generated from the canonical Markdown for human readers.
 - [Lexicon and NSID registry](https://github.com/CroftCommunity/arecipe/blob/main/docs/LEXICONS.md): every AT Protocol record type arecipe creates or consumes, with field-level notes.
+- [Ingredient vocabulary](https://github.com/CroftCommunity/arecipe/blob/main/plans/2026-08-12-1-plan-ingredient-normalization-and-substitutions.md): how arecipe keys free-text ingredient lines to about a thousand canonical ingredients at read time (search by ingredient, substitutions), and the line shape that resolves best: quantity, unit, ingredient, then preparation after a comma.
 
 ## Data access
 

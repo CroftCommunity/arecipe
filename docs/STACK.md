@@ -57,7 +57,20 @@ stand up and babysit is out of scope by design (see `PHILOSOPHY.md` §4, commitm
   gzipped, zero-dependency; BM25 ranking, per-field boosts, prefix + fuzzy. Heavier
   engines (SQLite FTS5 WASM, Orama) were rejected for this bounded (hundreds–low-
   thousands) corpus. Sub-100ms at this scale; revisit a Web Worker / persisted
-  index only if the corpus reaches tens of thousands.
+  index only if the corpus reaches tens of thousands. (2026-09: the corpus is
+  ~4,100 records; the index builds lazily on the first query in ~0.4 s, and
+  now carries one extra field — the canonical ingredient keys each record's
+  lines resolve to — so search reaches through synonyms both ways.)
+
+- **Ingredient identity: a shipped canonical vocabulary + a pure resolver —
+  DECIDED 2026-09** (`src/recipes/ingredient-key.ts`, `ingredientkeys.json`,
+  ~9 KB gzipped, rides the normal bundle). Deterministic layers only: head-phrase
+  split → count-unit strip → descriptor peel (variety / prep / quality) →
+  most-specific-first key/alias lookup, with a device-local correction overlay
+  consulted first. Powers search by ingredient and substitutions. A closed-set
+  embedding fallback (quantized MiniLM in a worker) is designed but gated on
+  overlay telemetry, not built. Plan:
+  `plans/2026-08-12-1-plan-ingredient-normalization-and-substitutions.md`.
 
 - **Frontend framework: DECIDED — none (vanilla HTML5+CSS+TS).** Build tooling:
   esbuild + Vitest + Playwright, confirmed by the Phase 0 toolchain spike. See §7.

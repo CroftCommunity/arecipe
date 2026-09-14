@@ -125,7 +125,9 @@ const browseEntry: GuideEntry = {
       p(
         'The search box reaches inside the recipes: type “feta” and you’ll get ',
         'every recipe that lists it in the ingredients, not just ones with it in ',
-        'the title — close-enough spellings work too. Tiles and Details are two ',
+        'the title — close-enough spellings work too, and so do other names for ',
+        'the same thing: “scallion” finds recipes that say green onions, ',
+        '“garbanzo” finds chickpeas. Tiles and Details are two ',
         'views of the same feed; tap any card to open the recipe. When a cook ',
         'has published several versions of one dish, they collapse into a ',
         'single card with a “versions” badge that opens a side-by-side compare. ',
@@ -257,6 +259,57 @@ const openRecipeEntry: GuideEntry = {
         'gets a rust “ALTERED?” stamp instead of a quiet pass. You’ll likely ',
         'never see one — but that’s the machinery that makes a shared link ',
         'trustworthy.',
+      ),
+    );
+  },
+};
+
+const substitutionsEntry: GuideEntry = {
+  testid: 'guide-entry-substitutions',
+  title: 'Swaps, suggestions, and teaching arecipe an ingredient',
+  toc: 'Swaps',
+  build: (entry) => {
+    entry.append(
+      p(
+        'arecipe knows about a thousand ingredients by name, and it reads each ',
+        'line of a recipe to work out which one it means — “2 cloves garlic, ',
+        'minced” is garlic, “1 tsp smoked paprika” is paprika, the smoked kind. ',
+        'That’s what lets Browse match a recipe however the cook phrased it, ',
+        'and it’s what swaps are built on.',
+      ),
+      p(
+        strong('Your swaps. ', ''),
+        'On the ',
+        link('./account.html', 'Account'),
+        ' page, under Substitutions ⇄, say what you’d rather use: ground ',
+        'hamburger → ground turkey, milk → oat milk. A swap follows the ',
+        'ingredient, not the spelling: “flour” swaps “2 cups flour” but leaves ',
+        '“bread flour” alone, and “smoked paprika → chipotle” touches only the ',
+        'smoked kind. Then on any recipe, tick ',
+        strong('Apply ⇄', ''),
+        ' above the ingredients: matched lines show the original struck through ',
+        'with your swap beside it, amounts and prep kept. Tick “Always apply” on ',
+        'Account and every recipe opens that way. Your shopping list swaps them ',
+        'in without asking.',
+      ),
+      p(
+        strong('Suggestions. ', ''),
+        'With Apply ⇄ on, lines the little open book has a classic stand-in for ',
+        'get one beside them — “⇄ or: 2 tablespoons flour” for a tablespoon of ',
+        'cornstarch. They’re suggestions, not swaps: nothing is struck through, ',
+        'and nothing is scaled for you.',
+      ),
+      p(
+        strong('Teaching it an ingredient. ', ''),
+        'When a recipe lists something arecipe doesn’t recognise, a small ',
+        strong('?', ''),
+        ' sits beside the line. Tap it, pick what the ingredient is from the ',
+        'list of ones it knows, and confirm. From then on, on this device, that ',
+        'line is understood — swaps apply to it and Browse matches it. ',
+        link('./settings.html', 'Settings'),
+        ' keeps the list of what you’ve taught it, with a copy button so you can ',
+        'send them in for everyone. If you type a name it doesn’t know, it says ',
+        'so rather than storing a rule that could never work.',
       ),
     );
   },
@@ -495,8 +548,11 @@ const shoppingEntry: GuideEntry = {
         'imperial amounts are never converted into each other, a line the ',
         'parser can’t confidently combine is flagged (⚑) or kept verbatim ',
         'under “As listed”, and a recipe whose ingredients can’t be fetched is ',
-        'named rather than silently dropped. Copy the list or download it as a ',
-        'file and take it to the shop.',
+        'named rather than silently dropped. Any swaps you set on Account ',
+        '(ground hamburger → ground turkey, say) are applied here without ',
+        'asking, before the amounts are summed, so you shop for what you ',
+        'actually want. Copy the list or download it as a file and take it ',
+        'to the shop.',
       ),
     );
   },
@@ -520,6 +576,7 @@ export const GUIDE_PHRASINGS: Record<string, string[]> = {
     'what is the browse feed',
     'how do I find recipes without an account',
     'how do I search recipes',
+    'how do I search for recipes by ingredient',
     'how do I export what the feed is showing',
   ],
   'guide-entry-add-cook': [
@@ -589,6 +646,14 @@ export const GUIDE_PHRASINGS: Record<string, string[]> = {
     'how do I combine ingredients into one list',
     'how do I make a shopping list for a whole week',
   ],
+  'guide-entry-substitutions': [
+    'how do I swap an ingredient for one I prefer',
+    'how do I substitute ground beef with ground turkey everywhere',
+    'what does the apply arrows button do on a recipe',
+    'what is the question mark next to an ingredient',
+    'arecipe does not recognise an ingredient in my recipe',
+    'what can I use instead of cornstarch',
+  ],
 };
 
 /** Ordered guide entries: the Bluesky explainer leads, then Browse-to-Meals in
@@ -600,6 +665,7 @@ export const GUIDE_ENTRIES: GuideEntry[] = [
   filtersEntry,
   cookbookEntry,
   openRecipeEntry,
+  substitutionsEntry,
   focusEntry,
   referenceEntry,
   funFactsEntry,

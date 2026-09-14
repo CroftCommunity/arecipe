@@ -179,7 +179,12 @@ teardown), so **don't assume it fired**. After merging or closing a PR you
 deployed a preview for, confirm and remove it:
 
 - **Dispatch the teardown** (preferred): dispatch `preview.yml` against `main`
-  with `inputs: { pr: "<N>", teardown: true }`.
+  with `inputs: { pr: "<N>", teardown: true }`. **One at a time, and wait for
+  it.** The workflow's `gh-pages` concurrency group cancels an in-progress run
+  when a new one starts, so three teardowns dispatched back-to-back leave two
+  cancelled and two previews still live (observed 2026-09-09: PRs #87/#98/#99
+  dispatched together, only one torn down). Dispatch, `gh run watch`, then the
+  next.
 - **Manual:** `bash scripts/pages-deploy.sh pr-preview/pr-<N> --remove "remove preview PR #<N>"`
   (a "no changes to publish" result means it was already gone — that's success).
 - **Confirm:** `curl -sI https://arecipe.app/pr-preview/pr-<N>/` → `404`, base
