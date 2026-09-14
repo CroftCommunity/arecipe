@@ -89,8 +89,18 @@ describe('substituteLine — a cook rule rewrites the matched head, keeping quan
 describe('curated substitutions from the reference chart', () => {
   it('every reference row resolves to a key — the chart and the vocabulary agree', () => {
     const curated = curatedSubstitutions(vocab);
-    expect(curated.length).toBe(7);
+    expect(curated.filter((c) => c.source === 'reference').length).toBe(7);
     for (const c of curated) expect(vocab.keys[c.from.key]).toBeDefined();
+  });
+
+  it('the mined corpus alternatives ride beside the chart, labeled by source with their line weight', () => {
+    const corpus = curatedSubstitutions(vocab).filter((c) => c.source === 'corpus');
+    expect(corpus.length).toBeGreaterThan(20);
+    for (const c of corpus) {
+      expect(c.lines).toBeGreaterThanOrEqual(3);
+      expect(vocab.keys[c.use]).toBeDefined(); // a mined "use" is itself a key
+    }
+    expect(lineSubstitution('2 tbsp butter', { rules: [], curated: corpus, vocab })).toMatchObject({ kind: 'suggestion', source: 'corpus' });
   });
 
   it('suggests beside a line, without rewriting it, and a cook swap wins over a suggestion', () => {
@@ -100,6 +110,7 @@ describe('curated substitutions from the reference chart', () => {
       original: '1 tablespoon cornstarch',
       forAmount: '1 tablespoon cornstarch (for thickening)',
       use: '2 tablespoons flour',
+      source: 'reference',
     });
     expect(lineSubstitution('1 cup milk', { rules: [rule('milk', 'oat milk')], curated, vocab })?.kind).toBe('swap');
     expect(lineSubstitution('1 cup quuxwater', { rules: [], curated, vocab })).toBeNull();

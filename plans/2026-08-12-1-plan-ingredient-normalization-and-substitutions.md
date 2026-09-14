@@ -19,9 +19,10 @@ descriptor-aware substitutions.
 | 2 Matcher pure core (M1 exit) | ✅ 2026-09-09 | | `src/recipes/ingredient-key.ts`: head-phrase split → count-unit strip → descriptor peel → most-specific-first lookup; coverage **82.4%** by line weight, floor 75% pinned in `ingredient-key-coverage.spec.ts` |
 | 3 Search by ingredient (M2) | ✅ 2026-09-09 | | `ingredientKeys` indexed beside raw text (boost 3) + whole-query canonicalization as an OR branch, so both directions reach; build-cost band pinned (< 3 s at 4k, measured ~0.4 s) |
 | 4 Substitution engine (M2 exit) | ✅ 2026-09-09 | | `src/recipes/substitutions.ts`: cook rules keyed (+variety scope) rewrite lines; the 7 reference rows are suggestions; #87's shell reused, its regex engine discarded |
-| 5 Compound-line split | ⏳ | | "salt and pepper", "juice of 1 lemon" |
+| 5 Compound-line split | ✅ 2026-09-14 | | `resolveLine`: derived forms ("juice of 1 lemon" → lemon juice), coordination without a quantity ("salt and pepper" → two parts), alternatives ("broth or water" → primary + fallbacks, shared-noun borrow); whole-first, never two guesses. Coverage 82.5% → **85.9%** |
+| 5b Mined alternatives | ✅ 2026-09-14 | | `scripts/mine-alternatives.mjs` → `substitutions-mined.json`: 58 "X or Y" pairs (≥3 lines) as corpus-sourced suggestions beside the 7 reference rows |
 | 6 Correction overlay (M3 exit) | ✅ 2026-09-09 | | `ingredient-aliases-local.ts` (device-local, keyed on the unmatched name); resolver method `overlay` first; "?" affordance on the recipe page picks an existing key; Settings exports the seed-alias block |
-| GATE | ⏳ | | Proceed to M4 only if overlay telemetry demands it |
+| GATE | decision 2026-09-14 | | Owner chose to build M4 ahead of overlay telemetry; the gate's evidence question (does the alias table suffice?) stays open and is re-asked at the M4 exit — see § DECISION GATE |
 | 7 Vocab embeddings asset (M4) | ⏳ | | Build-time vectors, static asset |
 | 8 Runtime fuzzy tier (M4 exit) | ⏳ | | Worker + quantized MiniLM, closed-set, labeled |
 | 9 PDS alias records | roadmap | | Community corrections; re-plan before execution |
@@ -271,6 +272,39 @@ first). Two kinds of rule, one lookup through the resolver:
   ("salt and pepper") and derived-form phrasings ("juice of 1 lemon", "zest
   of…"). Conservative list from Phase 0 frequencies; unsplittable lines resolve
   unmatched rather than wrongly. TDD from census examples.
+
+**As built (2026-09-14).** In the resolver, not the parser (the shopping-list
+parser's contract stays untouched). `resolveLine(raw)` returns `{ parts,
+joiner? }`; `resolveIngredient` is its first part. Order: the WHOLE head is
+tried first (a known compound like a seeded "sweet and sour sauce" is never
+split); only an unmatched head is examined for a coordinator. `and` splits only
+when the line has NO quantity (a quantity binds one ingredient: "2 cups flour
+and sugar" stays one unknown head); `or` splits always, the first piece is what
+the author uses and the rest are their alternatives; a one-word first piece
+borrows the tail of a multi-word second when that names a key ("chicken or
+vegetable broth" → chicken broth, vegetable broth; "butter or olive oil"
+borrows nothing). A line none of whose pieces resolve stays unmatched as a
+whole. Derived forms rewrite before the split: "juice of 1 lemon" → "lemon
+juice", "grated zest of 1 orange" → "orange zest". Consumers: search indexes
+every resolved part; the "?" affordance treats a line with any resolved part as
+known; swaps apply to the primary. **The build tool groups by the same parts**
+(`lineHeads`), which removed 57 compound keys the first vocabulary had grown
+("butter or margarine", "salt and pepper", …) — those were why the census's
+"or" lines had looked unsplittable. Coverage by line weight went 82.5% → 85.9%.
+
+### Phase 5b — Mined alternatives (added 2026-09-14)
+
+The corpus's "X or Y" lines are substitutions real cooks wrote, keyed to real
+recipes — a far larger seed than the reference chart's seven rows. `src/recipes/
+alternatives-mine.ts` (pure, TDD) pairs each "or" line's primary with every
+later resolved part, summed by line weight, directed as written;
+`scripts/mine-alternatives.mjs` writes pairs over a floor (3 lines) to
+`src/recipes/substitutions-mined.json` and a review report
+(`runs/ingredient-normalization/ALTERNATIVES.md`). `curatedSubstitutions` merges
+them beside the reference rows, labeled `source: 'corpus'` with their weight;
+the recipe page shows "⇄ or: margarine" with the title "65 recipes list margarine
+as an alternative to butter". Generated, never hand-edited: a wrong pair is a
+vocabulary problem (two things folded into one key), fixed in the seed.
 
 ## Milestone M3 — Correction knowledge base
 

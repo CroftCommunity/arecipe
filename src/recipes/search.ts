@@ -14,7 +14,7 @@ import type { CachedRecipe } from './cache.js';
 import { recipeMetaOf } from './meta.js';
 import { dishKeyOf, funFactsOf, versionLabelOf } from './model.js';
 import { recipeFacets } from '../pages/browse-state.js';
-import { resolveIngredient, type OverlayLookup } from './ingredient-key.js';
+import { resolveIngredient, resolveLine, type OverlayLookup } from './ingredient-key.js';
 import { INGREDIENT_VOCABULARY } from './ingredient-vocabulary.js';
 
 /** A trimmed string, or '' for anything non-string. Never throws. */
@@ -71,8 +71,10 @@ const ingredientKeysOf = (v: unknown, overlay: OverlayLookup | undefined): strin
   const keys: string[] = [];
   for (const line of v) {
     if (typeof line !== 'string') continue;
-    const r = resolveIngredient(line, INGREDIENT_VOCABULARY, { overlay });
-    if (r.method !== 'unmatched' && !keys.includes(r.key)) keys.push(r.key);
+    // Phase 5: a coordinated or alternative line contributes every resolved part.
+    for (const r of resolveLine(line, INGREDIENT_VOCABULARY, { overlay }).parts) {
+      if (r.method !== 'unmatched' && !keys.includes(r.key)) keys.push(r.key);
+    }
   }
   return keys.join(' ');
 };

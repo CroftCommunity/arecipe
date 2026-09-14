@@ -251,10 +251,12 @@ describe('renderRecipeDetail', () => {
     entry({ value: { ...fixture.value, ingredients: ['1 lb ground hamburger', '2 cups quuxwater'] } });
   const subs = [{ from: 'ground hamburger', fromKey: 'ground beef', to: 'ground turkey' }];
 
-  it('shows no ⇄ substitution toggle when no configured substitution matches', () => {
-    expect(renderRecipeDetail(subEntry()).querySelector('[data-testid=apply-substitutions]')).toBeNull();
+  it('shows no ⇄ substitution toggle when no rule swaps and no suggestion resolves', () => {
+    // Lines the vocabulary does not know: nothing can swap or suggest.
+    const bare = (): CachedRecipe => entry({ value: { ...fixture.value, ingredients: ['1 lb quuxmeat', '2 cups quuxwater'] } });
+    expect(renderRecipeDetail(bare()).querySelector('[data-testid=apply-substitutions]')).toBeNull();
     // configured but non-matching → still no toggle (never a no-op control)
-    const el = renderRecipeDetail(subEntry(), { substitutions: [{ from: 'saffron', fromKey: 'saffron', to: 'turmeric' }] });
+    const el = renderRecipeDetail(bare(), { substitutions: [{ from: 'saffron', fromKey: 'saffron', to: 'turmeric' }] });
     expect(el.querySelector('[data-testid=apply-substitutions]')).toBeNull();
   });
 
@@ -326,6 +328,14 @@ describe('renderRecipeDetail', () => {
     el.querySelector<HTMLButtonElement>('[data-testid=ingredient-correct-confirm]')!.click();
     expect(store.lookup('freeze-dried strawberry')).toBe('strawberry');
     expect(el.querySelector('[data-testid=ingredient-correct]')).toBeNull();
+  });
+
+  it('a compound line whose parts resolve ("Salt and pepper") carries no "?"', () => {
+    const e = entry({ value: { ...fixture.value, ingredients: ['Salt and pepper to taste', 'quux and quuux'] } });
+    const el = renderRecipeDetail(e, { corrections: createIngredientCorrections({ storage: memStorage() }) });
+    const items = el.querySelectorAll('[data-testid=recipe-ingredients] li');
+    expect(items[0]?.querySelector('[data-testid=ingredient-correct]')).toBeNull();
+    expect(items[1]?.querySelector('[data-testid=ingredient-correct]')).not.toBeNull();
   });
 
   it('no corrections store, no affordance (Browse cards and tests render without one)', () => {

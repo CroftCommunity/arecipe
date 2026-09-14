@@ -3,7 +3,7 @@
 // returns; a human reviews before it is committed. It groups lines with the
 // SAME canonicalHead the runtime resolver uses, so a proposal can never drift
 // from how the app will read a line. Everything is counted by line weight.
-import { canonicalHead, resolveIngredient, type DescriptorTaxonomy, type Vocabulary } from './ingredient-key.js';
+import { canonicalHead, lineHeads, resolveIngredient, type DescriptorTaxonomy, type SplitHead, type Vocabulary } from './ingredient-key.js';
 
 export type ProposalKey = {
   lines: number;
@@ -73,15 +73,25 @@ export const proposeVocabulary = (rows: readonly (readonly [string, number])[], 
   const seedVocab: Vocabulary = { descriptors: opts.taxonomy, keys: seedKeys };
   for (const [key, entry] of Object.entries(seedKeys)) group(key).aliases.push(...entry.aliases);
 
-  for (const [raw, count] of rows) {
-    const split = canonicalHead(raw, opts.taxonomy);
-    if (split === null) continue;
+  const groupHead = (raw: string, split: SplitHead, count: number): void => {
     const seeded = resolveIngredient(raw, seedVocab);
     const g = group(seeded.method === 'unmatched' ? split.head : seeded.key);
     g.lines += count;
     const full = seeded.method === 'unmatched' ? split.full : [...seeded.variety, seeded.head].join(' ');
     const own = seeded.method === 'unmatched' ? split.head : seeded.key;
     if (full !== own) g.variants.set(full, (g.variants.get(full) ?? 0) + count);
+  };
+  for (const [raw, count] of rows) {
+    // Phase 5: a coordinated line ("salt and pepper", "butter or margarine")
+    // is grouped by its PARTS — unless the seed knows the whole as one thing.
+    const seededWhole = resolveIngredient(raw, seedVocab);
+    const { heads } = lineHeads(raw, opts.taxonomy);
+    if (heads.length === 0) continue;
+    if (heads.length === 1 || seededWhole.method !== 'unmatched') {
+      groupHead(raw, heads[0]!, count);
+      continue;
+    }
+    for (const h of heads) groupHead(h.full, h, count);
   }
 
   // Hyphen/space near-misses: the rarer spelling becomes an alias of the commoner.

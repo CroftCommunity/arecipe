@@ -9,6 +9,7 @@ import {
   canonicalHead,
   headPhrase,
   resolveIngredient,
+  resolveLine,
   type Vocabulary,
 } from '../../../src/recipes/ingredient-key.js';
 
@@ -158,5 +159,71 @@ describe('resolveIngredient — the device-local overlay (Phase 6) comes first',
 
   it('without an overlay nothing changes', () => {
     expect(resolveIngredient('4 cups dashi stock', v)).toMatchObject({ method: 'unmatched' });
+  });
+});
+
+describe('Phase 5 — compound lines: derived forms, coordination, alternatives', () => {
+  const v: Vocabulary = {
+    ...vocab,
+    keys: {
+      ...vocab.keys,
+      'lemon juice': { aliases: [] },
+      'lemon zest': { aliases: [] },
+      'lime juice': { aliases: [] },
+      'orange zest': { aliases: [] },
+      water: { aliases: [] },
+      'vegetable broth': { aliases: ['vegetable stock'] },
+      cilantro: { aliases: [] },
+    },
+  };
+
+  it('"juice of 1 lemon" is lemon juice; "zest of" likewise — the derived form names the ingredient', () => {
+    expect(resolveIngredient('Juice of 1 lemon', v)).toMatchObject({ method: 'exact', key: 'lemon juice' });
+    expect(resolveIngredient('Freshly squeezed juice of 2 lemons', v)).toMatchObject({ method: 'exact', key: 'lemon juice' });
+    expect(resolveIngredient('Juice of half a lemon', v)).toMatchObject({ method: 'exact', key: 'lemon juice' });
+    expect(resolveIngredient('Grated zest of 1 orange', v)).toMatchObject({ method: 'exact', key: 'orange zest' });
+    expect(resolveIngredient('Zest of 1 lemon, finely grated', v)).toMatchObject({ method: 'exact', key: 'lemon zest' });
+  });
+
+  it('"salt and pepper" is two ingredients: resolveLine splits them, resolveIngredient answers the first', () => {
+    const line = resolveLine('Salt and pepper to taste', v);
+    expect(line.joiner).toBe('and');
+    expect(line.parts.map((p) => (p.method === 'unmatched' ? null : p.key))).toEqual(['salt', 'pepper']);
+    expect(resolveIngredient('Salt and pepper to taste', v)).toMatchObject({ method: 'exact', key: 'salt' });
+  });
+
+  it('a line WITH a quantity is never split on "and" — "2 cups flour and sugar" is one unresolved thing', () => {
+    const line = resolveLine('2 cups flour and sugar', v);
+    expect(line.joiner).toBeUndefined();
+    expect(line.parts).toHaveLength(1);
+    expect(line.parts[0]).toMatchObject({ method: 'unmatched', name: 'flour and sugar' });
+  });
+
+  it('"X or Y": the first is what the author uses, the rest are alternatives', () => {
+    const line = resolveLine('2 cups vegetable broth or water', v);
+    expect(line.joiner).toBe('or');
+    expect(line.parts.map((p) => (p.method === 'unmatched' ? null : p.key))).toEqual(['vegetable broth', 'water']);
+    expect(resolveIngredient('2 cups vegetable broth or water', v)).toMatchObject({ method: 'exact', key: 'vegetable broth' });
+    expect(resolveLine('Fresh cilantro or parsley, chopped, for garnish', v).parts.map((p) => (p.method === 'unmatched' ? null : p.key))).toEqual(['cilantro', 'parsley']);
+  });
+
+  it('"chicken or vegetable broth" shares its noun: the first part borrows the tail when that names a key', () => {
+    const v3: Vocabulary = { ...v, keys: { ...v.keys, 'chicken broth': { aliases: [] }, chicken: { aliases: [] }, 'olive oil': { aliases: [] } } };
+    expect(resolveLine('2 cups chicken or vegetable broth', v3).parts.map((p) => (p.method === 'unmatched' ? null : p.key))).toEqual(['chicken broth', 'vegetable broth']);
+    // …but never when the borrowed phrase is not a thing: "butter or olive oil" stays butter + olive oil
+    expect(resolveLine('2 tbsp butter or olive oil', v3).parts.map((p) => (p.method === 'unmatched' ? null : p.key))).toEqual(['butter', 'olive oil']);
+  });
+
+  it('a whole compound head the vocabulary knows is never split', () => {
+    const v2: Vocabulary = { ...v, keys: { ...v.keys, 'sweet and sour sauce': { aliases: [] } } };
+    const line = resolveLine('2 tbsp sweet and sour sauce', v2);
+    expect(line.joiner).toBeUndefined();
+    expect(line.parts).toEqual([expect.objectContaining({ method: 'exact', key: 'sweet and sour sauce' })]);
+  });
+
+  it('when no part resolves, the line stays unmatched as a whole — never split into two guesses', () => {
+    const line = resolveLine('quux and quuux', v);
+    expect(line.joiner).toBeUndefined();
+    expect(line.parts).toEqual([{ method: 'unmatched', name: 'quux and quuux', head: 'quux and quuux' }]);
   });
 });

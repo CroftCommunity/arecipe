@@ -85,3 +85,9 @@ describe('search reaches lines the overlay resolves (Phase 6)', () => {
     expect(names(createRecipeSearch(feed2, { overlay }).query('dashi'))).toContain('Clear Soup');
   });
 });
+
+describe('compound lines (Phase 5) contribute every resolved part', () => {
+  it('"Salt and pepper" carries both keys; "broth or water" carries both', () => {
+    expect(searchDocOf(cached('x', ['Salt and pepper to taste', '2 cups vegetable broth or water'], 'k')).ingredientKeys).toBe('salt pepper vegetable broth water');
+  });
+});
