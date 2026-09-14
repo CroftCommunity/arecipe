@@ -20,11 +20,12 @@
     "breadcrumb": [
       "User guide"
     ],
-    "text": "Browse is the front page, and it needs no account: a feed of recipes read straight from cooks’ own accounts. Out of the box it shows the starter pack — a few cooks we curate to keep the shelf stocked — plus any cooks you’ve added yourself. (You can turn starter cooks off one by one in Settings .) Browse, signed out — the feed is yours before you have an account. The search box reaches inside the recipes: type “feta” and you’ll get every recipe that lists it in the ingredients, not just ones with it in the title — close-enough spellings work too. Tiles and Details are two views of the same feed; tap any card to open the recipe. When a cook has published several versions of one dish, they collapse into a single card with a “versions” badge that opens a side-by-side compare. The ↑ button exports whatever the feed is currently showing to a file.",
+    "text": "Browse is the front page, and it needs no account: a feed of recipes read straight from cooks’ own accounts. Out of the box it shows the starter pack — a few cooks we curate to keep the shelf stocked — plus any cooks you’ve added yourself. (You can turn starter cooks off one by one in Settings .) Browse, signed out — the feed is yours before you have an account. The search box reaches inside the recipes: type “feta” and you’ll get every recipe that lists it in the ingredients, not just ones with it in the title — close-enough spellings work too, and so do other names for the same thing: “scallion” finds recipes that say green onions, “garbanzo” finds chickpeas. Tiles and Details are two views of the same feed; tap any card to open the recipe. When a cook has published several versions of one dish, they collapse into a single card with a “versions” badge that opens a side-by-side compare. The ↑ button exports whatever the feed is currently showing to a file.",
     "phrasings": [
       "what is the browse feed",
       "how do I find recipes without an account",
       "how do I search recipes",
+      "how do I search for recipes by ingredient",
       "how do I export what the feed is showing"
     ]
   },
@@ -82,6 +83,22 @@
       "what does the altered stamp on a recipe mean",
       "how do I know a shared recipe is authentic",
       "how do I send a recipe to a friend"
+    ]
+  },
+  {
+    "anchor": "guide-entry-substitutions",
+    "title": "Swaps, suggestions, and teaching arecipe an ingredient",
+    "breadcrumb": [
+      "User guide"
+    ],
+    "text": "arecipe knows about a thousand ingredients by name, and it reads each line of a recipe to work out which one it means — “2 cloves garlic, minced” is garlic, “1 tsp smoked paprika” is paprika, the smoked kind. That’s what lets Browse match a recipe however the cook phrased it, and it’s what swaps are built on. Your swaps. On the Account page, under Substitutions ⇄, say what you’d rather use: ground hamburger → ground turkey, milk → oat milk. A swap follows the ingredient, not the spelling: “flour” swaps “2 cups flour” but leaves “bread flour” alone, and “smoked paprika → chipotle” touches only the smoked kind. Then on any recipe, tick Apply ⇄ above the ingredients: matched lines show the original struck through with your swap beside it, amounts and prep kept. Tick “Always apply” on Account and every recipe opens that way. Your shopping list swaps them in without asking. Suggestions. With Apply ⇄ on, lines the little open book has a classic stand-in for get one beside them — “⇄ or: 2 tablespoons flour” for a tablespoon of cornstarch. They’re suggestions, not swaps: nothing is struck through, and nothing is scaled for you. Teaching it an ingredient. When a recipe lists something arecipe doesn’t recognise, a small ? sits beside the line. Tap it, pick what the ingredient is from the list of ones it knows, and confirm. From then on, on this device, that line is understood — swaps apply to it and Browse matches it. Settings keeps the list of what you’ve taught it, with a copy button so you can send them in for everyone. If you type a name it doesn’t know, it says so rather than storing a rule that could never work.",
+    "phrasings": [
+      "how do I swap an ingredient for one I prefer",
+      "how do I substitute ground beef with ground turkey everywhere",
+      "what does the apply arrows button do on a recipe",
+      "what is the question mark next to an ingredient",
+      "arecipe does not recognise an ingredient in my recipe",
+      "what can I use instead of cornstarch"
     ]
   },
   {
@@ -184,7 +201,7 @@
     "breadcrumb": [
       "User guide"
     ],
-    "text": "The 🛒 button — on your planner and on any shared plan — turns scheduled meals into a shopping list. Pick the range (dates on a dated plan, week numbers otherwise) and read it two ways: By recipe , each recipe’s ingredients as written, with amounts scaled when a recipe is scheduled twice; or Combined , everything rolled into one list with quantities summed. The Combined view — one list for the week, quantities summed. The aggregation is deliberately cautious: it never guesses. Metric and imperial amounts are never converted into each other, a line the parser can’t confidently combine is flagged (⚑) or kept verbatim under “As listed”, and a recipe whose ingredients can’t be fetched is named rather than silently dropped. Copy the list or download it as a file and take it to the shop.",
+    "text": "The 🛒 button — on your planner and on any shared plan — turns scheduled meals into a shopping list. Pick the range (dates on a dated plan, week numbers otherwise) and read it two ways: By recipe , each recipe’s ingredients as written, with amounts scaled when a recipe is scheduled twice; or Combined , everything rolled into one list with quantities summed. The Combined view — one list for the week, quantities summed. The aggregation is deliberately cautious: it never guesses. Metric and imperial amounts are never converted into each other, a line the parser can’t confidently combine is flagged (⚑) or kept verbatim under “As listed”, and a recipe whose ingredients can’t be fetched is named rather than silently dropped. Any swaps you set on Account (ground hamburger → ground turkey, say) are applied here without asking, before the amounts are summed, so you shop for what you actually want. Copy the list or download it as a file and take it to the shop.",
     "phrasings": [
       "how do I get a grocery list from my meals",
       "how do I combine ingredients into one list",
