@@ -46,7 +46,7 @@ test('Settings offers the user guide right at the top, before any section', asyn
   // "At the top" means before the first settings section in document order.
   const isAbove = await page.evaluate(() => {
     const link = document.querySelector('[data-testid=settings-user-guide-top]');
-    const firstSection = document.querySelector('[data-testid=build-facts]');
+    const firstSection = document.querySelector('[data-testid=updates]');
     if (link === null || firstSection === null) return false;
     return (
       (link.compareDocumentPosition(firstSection) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0

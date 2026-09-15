@@ -54,7 +54,7 @@ const PAGES: { name: string; path: string; ready: string }[] = [
   { name: 'timers', path: '/timers.html', ready: '[data-testid=timer-start]' },
   { name: 'plan', path: '/plan.html', ready: '[data-testid=builder]' },
   { name: 'menu', path: '/meals.html', ready: '[data-testid=published-plans]' },
-  { name: 'settings', path: '/settings.html', ready: '[data-testid=build-facts]' },
+  { name: 'settings', path: '/settings.html', ready: '[data-testid=release-pointer]' },
   { name: 'account', path: '/account.html', ready: '[data-testid=account-signed-out]' },
   { name: 'signin', path: '/signin.html', ready: '[data-testid=provider-other]' },
   { name: 'editor', path: '/editor.html', ready: '[data-testid=editor-name]' },
@@ -155,4 +155,19 @@ test('tap target ≥44px on a phone (Meals reset)', async ({ page }) => {
   const box = await reset.boundingBox();
   expect(box, 'reset-plan has a box').not.toBeNull();
   expect(box!.height, 'reset-plan tap height').toBeGreaterThanOrEqual(44);
+});
+
+// Signed releases: the Release & version panel's controls (both toggles + the
+// migrated check-updates button) must be comfortable taps on a phone. The
+// panel is device-local, so it renders signed-out — no auth needed.
+test('tap targets ≥44px on a phone (Release & version panel)', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 780 });
+  await page.goto('/account.html');
+  await page.getByTestId('release-panel').waitFor({ timeout: 15_000 });
+  for (const id of ['version-pin', 'require-verified', 'check-updates']) {
+    const box = await page.getByTestId(id).boundingBox();
+    expect(box, `${id} has a box`).not.toBeNull();
+    expect(box!.height, `${id} tap height`).toBeGreaterThanOrEqual(44);
+    expect(box!.x + box!.width, `${id} fits the viewport`).toBeLessThanOrEqual(360);
+  }
 });

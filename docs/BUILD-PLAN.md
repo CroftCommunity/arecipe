@@ -38,7 +38,7 @@ records, before writing anything.
   a DPoP-bound token pair. Read scope only.
 
 - Layer 2 (read-only): fetch and render `exchange.recipe.recipe` and
-  `exchange.recipe.collection` from a real PDS. No `fyi.recipe.*` writes yet.
+  `exchange.recipe.collection` from a real PDS. No `app.arecipe.*` writes yet.
 
 - Layer 4 (subset): IndexedDB cache with CID + `verified` tagging; non-extractable
   DPoP key in WebCrypto.
@@ -64,7 +64,7 @@ coordination.
 
 - Recipe versioning via `strongRef` (AT-URI primary, CID mismatch indicator).
 
-- Drafts: two-tier (IndexedDB + `fyi.recipe.draft` sync) so eviction cannot lose work.
+- Drafts: two-tier (IndexedDB + `app.arecipe.draft` sync) so eviction cannot lose work.
 
 - Auth persistence default (plaintext + OS lock) and cross-tab coordination
   (`BroadcastChannel` + `navigator.locks`).
@@ -79,10 +79,10 @@ it, recover a draft after simulated storage eviction.
 Goal: the small-group experience — friends, comments, cooked/saved signals, and
 client-derived moderation.
 
-- Layer 7: `fyi.recipe.friend` (app-scoped follow, primary for non-Bluesky users) +
+- Layer 7: `app.arecipe.friend` (app-scoped follow, primary for non-Bluesky users) +
   optional `app.bsky.graph.follow` inheritance; interaction-weighted affinity.
 
-- `fyi.recipe.comment`, `interaction.cooked`, `interaction.saved`.
+- `app.arecipe.comment`, `interaction.cooked`, `interaction.saved`.
 
 - Layer 6 data flow: Jetstream live tail with polling fallback; unsigned→verified
   promotion; rate-limit handling.
@@ -103,12 +103,20 @@ fallback.
 
 Goal: the signed-delivery machinery must exist before any public exposure.
 
+> **Staged increment shipped 2026-07-16** (`plans/2026-07-16-4-plan-signed-releases.md`):
+> the release-manifest format + CI signing with an INTERIM key (GitHub Actions
+> secret, not the offline ceremony key), the client warn/enforce tier
+> (verified/unsigned/invalid states, install-only-verified default, version
+> pin), and `docs/RELEASE-SIGNING.md`. Everything below not covered by that
+> increment — offline key ceremony, PDS publication, status canary, per-file
+> refuse-mode, multi-origin — remains open Phase-3 work.
+
 - Offline Ed25519 key ceremony (air-gapped generation, one-way transfer).
 
 - Release manifest (monotonic version, per-file SHA-256, pubkey fingerprint, canary
-  URI, signature) published at origin + as `fyi.recipe.release`.
+  URI, signature) published at origin + as `app.arecipe.release`.
 
-- Signed status canary `fyi.recipe.status`, service-worker update flow that verifies
+- Signed status canary `app.arecipe.status`, service-worker update flow that verifies
   manifest agreement (origin vs PDS), signature against pinned pubkey, canary status,
   monotonic version, and per-file hashes before install.
 
