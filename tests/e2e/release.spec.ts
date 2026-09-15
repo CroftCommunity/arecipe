@@ -189,6 +189,9 @@ test.describe('version pin (acceptance 4)', () => {
     const toggle = page.getByTestId('require-verified').locator('input');
     await expect(toggle).toBeChecked({ timeout: 15_000 });
     await toggle.uncheck();
+    // Wait for the SAVED state, not the click — the write is async IDB and a
+    // reload can otherwise outrun it.
+    await expect(page.getByTestId('require-status')).toHaveText(/^off/);
     await page.reload();
     await expect(page.getByTestId('require-verified').locator('input')).not.toBeChecked({
       timeout: 15_000,

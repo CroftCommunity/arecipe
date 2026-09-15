@@ -57,7 +57,9 @@ const main = async (): Promise<void> => {
   // Build facts + the update check moved to Account → "Release & version"
   // (signed releases D7) — Settings keeps this pointer plus the storage line.
   const updates = section('Updates & storage', 'updates');
-  const pointer = el('p', 'status');
+  // A plain paragraph, not `.status`: the dimmed status idiom fails the axe
+  // contrast floor once a link sits inside it (a11y gate, both themes).
+  const pointer = el('p');
   pointer.dataset['testid'] = 'release-pointer';
   const pointerLink = el('a', 'friend-link', 'Account → Release & version') as HTMLAnchorElement;
   pointerLink.href = './account.html';

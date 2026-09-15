@@ -4,6 +4,15 @@ Executed on branch `claude/signed-releases-v2-2yifm4`, one commit per part
 boundary, gate green at each. Plan: `plans/2026-07-16-4-plan-signed-releases.md`
 (Status + outcome table there). SUPERSEDES v1 (unexecuted).
 
+**2026-09-14 — rebased onto main** as `claude/signed-releases` (the original
+branch was archived to the `archive/signed-releases-v2-2yifm4` tag on
+2026-08-07). Conflicts were in `build.mjs` (snapshot + changelog emission had
+landed), `ci.yml` (the snapshot step), `sw.ts` (main's snapshot purge left a
+`pinnedBuildIds` hook for exactly this pin — now fed from the release
+config), Settings (main's "This build" section + guide/changelog links vs.
+the D7 migration) and LEXICONS. The merge decisions and the rebased gate
+numbers are recorded in the plan's Status block.
+
 ## What shipped
 
 - **Pipeline:** every build emits `release-manifest.json` (buildNumber =

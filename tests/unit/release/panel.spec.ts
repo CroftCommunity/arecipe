@@ -212,4 +212,26 @@ describe('install-only-verified toggle (D5)', () => {
     expect((await config.load()).requireVerified).toBe(false);
     expect(notified).toBeGreaterThan(0);
   });
+
+  it('a status line reflects the SAVED choice, not the click — so a reload cannot outrun the write', async () => {
+    const config = freshConfig();
+    let release: () => void = () => {};
+    const gate = new Promise<void>((r) => (release = r));
+    const slowSave: ReleaseConfigStore = {
+      ...config,
+      save: (patch) => gate.then(() => config.save(patch)),
+    };
+    const panel = await mount(deps({ config: slowSave }));
+    expect(text(panel, 'require-status')).toMatch(/on/i);
+    expect(text(panel, 'require-status')).toMatch(/last verified version/i);
+    const toggle = panel.querySelector<HTMLInputElement>('[data-testid=require-verified] input');
+    toggle?.click();
+    await settle();
+    // The write is still in flight: the line still says ON.
+    expect(text(panel, 'require-status')).toMatch(/^on/i);
+    release();
+    for (let i = 0; i < 5; i++) await settle();
+    expect(text(panel, 'require-status')).toMatch(/^off/i);
+    expect(text(panel, 'require-status')).toMatch(/warn/i);
+  });
 });

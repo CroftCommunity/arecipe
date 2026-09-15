@@ -135,11 +135,26 @@ export const renderReleasePanel = (deps: ReleasePanelDeps): HTMLElement => {
     requireBox,
     el('span', undefined, 'Install only verified updates (stay on the last verified version otherwise)'),
   );
+  // The status line reflects the SAVED choice, never the click: the write is
+  // an async IDB transaction, and a user (or a test) who navigates away right
+  // after the click would otherwise have no way to tell whether it landed.
+  const requireStatus = el('p', 'status');
+  requireStatus.dataset['testid'] = 'require-status';
+  const reflectRequire = (requireVerified: boolean): void => {
+    requireBox.checked = requireVerified;
+    requireStatus.textContent = requireVerified
+      ? 'on — if an update fails verification, this install stays on its last verified version'
+      : 'off — updates are offered even if unverified (warn only)';
+  };
   requireBox.addEventListener('change', () => {
-    void deps.config.save({ requireVerified: requireBox.checked }).then(deps.notifyConfigChanged);
+    void (async () => {
+      const next = await deps.config.save({ requireVerified: requireBox.checked });
+      reflectRequire(next.requireVerified);
+      deps.notifyConfigChanged();
+    })();
   });
 
-  section.append(pinRow, pinStatus, requireRow, localNote);
+  section.append(pinRow, pinStatus, requireRow, requireStatus, localNote);
 
   // --- Check for updates (migrated from Settings; testids preserved) --------
   const checkButton = el('button', 'button', 'Check for updates') as HTMLButtonElement;
@@ -193,7 +208,7 @@ export const renderReleasePanel = (deps: ReleasePanelDeps): HTMLElement => {
 
   void (async () => {
     reflectPin((await deps.config.load()).lockedVersion);
-    requireBox.checked = (await deps.config.load()).requireVerified;
+    reflectRequire((await deps.config.load()).requireVerified);
     await Promise.all([refreshState(), loadRunning(), loadFacts()]);
   })();
 

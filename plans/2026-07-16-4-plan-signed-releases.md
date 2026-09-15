@@ -7,6 +7,21 @@ unsigned self-checks) · 195 hermetic e2e. Bundle-split guard intact (Browse
 ships zero auth code; the whole `src/release/` graph is auth-free). Owner's
 one-time step remains: install `ARECIPE_SIGNING_SEED` + commit the pubkey —
 checklist in `docs/RELEASE-SIGNING.md`.
+**Rebased onto main 2026-09-14** (branch `claude/signed-releases`, restored
+from the `archive/signed-releases-v2-2yifm4` tag after the 2026-08-07
+branch cleanup; 134 main commits between base and tip). Merge decisions made
+in the rebase, all gate-proven: the SW's snapshot purge (RUN-BUNDLE-PRECACHE
+D5) now takes its "pinned build ids" from the release config — the locked
+AND the last-verified version — so a pinned install never loses its own
+snapshot, exactly the hook main left for this feature; Settings' "This build"
+section (main) is superseded by the D7 migration, and its changelog link
+moved beside the release pointer under "Updates & storage" (the pointer is a
+plain paragraph — the dimmed `.status` idiom fails main's axe contrast gate
+with a link inside); `__SNAPSHOT_BUILD__` and `__RELEASE_PUBKEY__` are both
+page defines. Gate on the rebased tip: lint · typecheck · 1290 unit · build
+(signed + unsigned self-checks) · 328 hermetic e2e; the install-only-verified
+toggle gained a saved-state status line (`require-status`) because the e2e
+reload could outrun its async IDB write under full-suite load.
 
 A staged, honest increment of BUILD-PLAN Phase 3's signed-delivery design
 (RUN-SIGNED-RELEASES v2; supersedes the unexecuted v1). Part 1: every normal
