@@ -1,0 +1,5 @@
+
+=== E4 an in-scope unknown-path page unregisters the root worker
+{"engine":"chromium","version":"149.0.7827.55","foreign_page":{"servedBy":"network","controller":"http://127.0.0.1:51574/sw.js","regs":["/"],"caches":["rt-v1"]},"wipe":{"unregistered":[true],"cachesDeleted":[true]},"next_launch":{"servedBy":"network","controller":null,"regsBeforeReregister":1}}
+{"engine":"firefox","version":"151.0","foreign_page":{"servedBy":"network","controller":null,"regs":["/"],"caches":["rt-v1"]},"wipe":{"unregistered":[true],"cachesDeleted":[true]},"next_launch":{"servedBy":"network","controller":null,"regsBeforeReregister":1}}
+{"engine":"webkit","version":"26.5","foreign_page":{"servedBy":"network","controller":"http://127.0.0.1:51581/sw.js","regs":["/","/pr-preview/pr-999/"],"caches":["rt-v1"]},"wipe":{"unregistered":[true],"cachesDeleted":[true]},"next_launch":{"servedBy":"network","controller":null,"regsBeforeReregister":1}}

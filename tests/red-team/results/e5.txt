@@ -1,0 +1,5 @@
+
+=== E5 Service-Worker: script header lets the origin split bytes
+{"engine":"chromium","version":"149.0.7827.55","page_fetch_sees":"// sw.js v1","browser_installed":{"waiting":"sw.js:installed","waitingVersion":"HOSTILE","events":["updatefound:sw.js"]},"sw_script_requests":[{"swHeader":"script","cache":"max-age=0"},{"swHeader":null,"cache":"no-cache"},{"swHeader":"script","cache":"max-age=0"}]}
+{"engine":"firefox","version":"151.0","page_fetch_sees":"// sw.js v1","browser_installed":{"waiting":"sw.js:installed","waitingVersion":"HOSTILE","events":["updatefound:sw.js"]},"sw_script_requests":[{"swHeader":"script","cache":"no-cache"},{"swHeader":null,"cache":"no-cache"},{"swHeader":"script","cache":"max-age=0"}]}
+{"engine":"webkit","version":"26.5","page_fetch_sees":"// sw.js v1","browser_installed":{"waiting":"sw.js:installed","waitingVersion":"HOSTILE","events":["updatefound:sw.js"]},"sw_script_requests":[{"swHeader":"script","cache":"max-age=0"},{"swHeader":null,"cache":"no-cache"},{"swHeader":"script","cache":"max-age=0"}]}
