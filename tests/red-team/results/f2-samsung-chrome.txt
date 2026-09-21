@@ -1,0 +1,12 @@
+21:40:27 backgrounded 30 s
+args: [-p, com.android.chrome, -c, android.intent.category.LAUNCHER, 1]
+ arg: "-p"
+ arg: "com.android.chrome"
+ arg: "-c"
+ arg: "android.intent.category.LAUNCHER"
+ arg: "1"
+data="com.android.chrome"
+data="android.intent.category.LAUNCHER"
+21:41:00 force-stopped
+21:41:03 watching for unsolicited fetches for 60 s
+{"device":"SM-S947U1 android 16","browser":"com.android.chrome","label":"samsung","activity":"com.android.chrome/com.google.android.apps.chrome.IntentDispatcher","browserVersion":"Chrome/152.0.7977.82","step1_first_launch":{"servedBy":"network","controllerVersion":"v1"},"step2_waiting":{"controllerVersion":"v1","waiting":"sw.js:installed","events":["updatefound:sw.js","controllerchange","updatefound:sw.js"]},"step3_after_background":{"servedBy":"network","controllerVersion":"v1","waiting":"sw.js:installed","active":"sw.js:activated","events":["updatefound:sw.js","controllerchange","updatefound:sw.js"]},"step4_after_kill_relaunch":{"servedBy":"v2","controllerVersion":"v2","waiting":null,"active":"sw.js:activated","events":[],"swFetchesDuringRelaunch":[]},"step5_unsolicited_fetches_while_closed":[]}

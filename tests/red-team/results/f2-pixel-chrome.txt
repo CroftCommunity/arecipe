@@ -1,0 +1,4 @@
+21:50:39 backgrounded 30 s
+21:51:14 force-stopped
+21:52:07 watching for unsolicited fetches for 60 s
+{"device":"Pixel 9 Pro android 17","browser":"com.android.chrome","label":"pixel","activity":"com.android.chrome/com.google.android.apps.chrome.IntentDispatcher","browserVersion":"Chrome/153.0.8010.48 via @chrome_devtools_remote","step1_first_launch":{"servedBy":"network","controllerVersion":"v1"},"step2_waiting":{"controllerVersion":"v1","waiting":"sw.js:installed","events":["updatefound:sw.js","controllerchange","updatefound:sw.js"]},"step3_after_background":{"servedBy":"network","controllerVersion":"v1","waiting":"sw.js:installed","active":"sw.js:activated","events":["updatefound:sw.js","controllerchange","updatefound:sw.js"]},"step4_after_kill_relaunch":{"servedBy":"v2","controllerVersion":"v2","waiting":null,"active":"sw.js:activated","events":[],"swFetchesDuringRelaunch":["script"]},"step5_unsolicited_fetches_while_closed":[]}
