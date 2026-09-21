@@ -2,7 +2,8 @@
 
 Date: 2026-09-14
 Status: **review complete; no production code changed.** Experiments live in
-`tests/red-team/` (README there; results in `tests/red-team/results/`).
+`tests/red-team/` (README there; results in `tests/red-team/results/`). **2026-09-21:**
+F2 device-verified on both testbed phones (three browser builds); see F2 and F14.
 Reviewed: `plans/2026-09-14-plan-verified-installs.md` (merged in #109),
 `plans/2026-07-16-4-plan-signed-releases.md` + `RUN-SIGNED-RELEASES-SUMMARY.md` (#107),
 `docs/RELEASE-SIGNING.md`, `src/sw.ts`, `src/sw-nav.ts`, `src/sw-register.ts`,
@@ -126,10 +127,19 @@ Classification: **design** = the plan's own logic; **platform** = the browser or
 - **Evidence.** `e1-restart-activates-waiting.mjs`, all three engines: step 3
   (navigate to another origin and back) → `servedBy: "v2"`; step 5 (persistent profile
   closed and relaunched with v3 waiting) → Chromium and WebKit `servedBy: "v3"` with
-  `events: []`; Firefox `controllerVersion: "v3"` (`results/e1.txt`). Device check that
-  would settle the phone case: install the PWA on the Samsung, swap the worker
-  server-side, launch once (see stop screen), swipe-kill, relaunch, read the served-by
-  stamp. The engine result predicts the phone result but does not replace it.
+  `events: []`; Firefox `controllerVersion: "v3"` (`results/e1.txt`).
+  **DEVICE-VERIFIED 2026-09-21** `[device done 2026-09-21: samsung chrome, samsung
+  internet, pixel chrome]` — `tests/red-team/device/f2-phone-restart.mjs` (DevTools over
+  adb) and `f2-phone-restart-beacon.mjs` (page-reported state), the harness origin reached
+  at `http://127.0.0.1:<port>` through `adb reverse`, `am force-stop` standing in for the
+  OS kill. Samsung SM-S947U1 (Android 16) in Chrome 152.0.7977.82 and in Samsung Internet
+  30.0.0.67, and Pixel 9 Pro (Android 17) in Chrome 153.0.8010.48: with v2 waiting,
+  thirty seconds backgrounded left v1 controlling and v2 waiting (step 3); a force-stop
+  and relaunch served the launch navigation from **v2** with an empty event list (step 4)
+  — on the Samsung's Chrome without a single worker fetch during the relaunch, i.e. the
+  waiting worker was promoted from storage (`results/f2-*.txt`). Not covered on a
+  phone: the installed (WebAPK) launch path, which needs a public https origin the
+  harness cannot provide; the mechanism is the browser process, which the WebAPK shares.
 - **Recommendation.** Reject should offer, as the default, to *wipe this install*
   (unregister, delete caches, clear the release config, sign out and revoke the session).
   D3's reason for not unregistering (re-registering fetches from the compromised origin)
@@ -366,7 +376,11 @@ Classification: **design** = the plan's own logic; **platform** = the browser or
   bfcache and did not activate the waiting worker while another controlled client
   existed; Chromium documents `ServiceWorkerVersionActivation` as a bfcache eviction
   reason, i.e. a bfcached page does not hold activation back. Untested.
-- Android process kill after backgrounding ≡ E1 step 5 by mechanism; needs the phone.
+- ~~Android process kill after backgrounding ≡ E1 step 5 by mechanism; needs the phone.~~
+  Closed 2026-09-21: verified on both phones and three browser builds (F2). The
+  hidden manifest-update load above remains the open Android item; sixty seconds of
+  watching the origin with the browser closed showed no unsolicited fetch on any of the
+  three, but the app was not installed, so that observation says nothing about it.
 - `form-action 'self'` is allowed by the CSP; a POST navigation to the origin is
   pass-through (`method !== 'GET'`). Same class as F3, one more entry point.
 
@@ -376,8 +390,8 @@ Classification: **design** = the plan's own logic; **platform** = the browser or
 
 | # | Assumption | Status | How |
 |---|---|---|---|
-| 1 | Update checks only on `register()`, 24 h navigation, push/sync | **Refuted as sufficient.** Those are the fetch triggers, but *activation* of an already-waiting worker also happens on last-client-close and on browser restart, with no fetch at all. | E1 steps 3, 5 (3 engines); spec *Try Activate*, *Handle User Agent Shutdown*. Untested: hidden manifest-update loads (F14). |
-| 2 | A waiting worker cannot activate while the old page is open | **Verified literally, refuted as a defence.** Navigate away → activates; restart → activates; bfcache inconclusive. | E1, E7. Phone check named in F2. |
+| 1 | Update checks only on `register()`, 24 h navigation, push/sync | **Refuted as sufficient.** Those are the fetch triggers, but *activation* of an already-waiting worker also happens on last-client-close and on browser restart, with no fetch at all. | E1 steps 3, 5 (3 engines); spec *Try Activate*, *Handle User Agent Shutdown*; **phones 2026-09-21** (F2). Untested: hidden manifest-update loads (F14). |
+| 2 | A waiting worker cannot activate while the old page is open | **Verified literally, refuted as a defence.** Navigate away → activates; restart → activates; a process kill on Android → activates (both phones, three builds); thirty seconds backgrounded → does not; bfcache inconclusive. | E1, E7; `device/f2-*` (F2). |
 | 3 | `register()` with a different URL updates the same registration, old worker keeps control until `skipWaiting` | **Verified**, all three engines; one registration; `updatefound` fires; same-URL re-register is a no-op. | E2 (`results/e2.txt`). |
 | 4 | `updatefound` reliably fires / `installing` observable at resolution | **Verified while the page is alive; refuted across restart** (events empty, worker already active). The gate today binds the origin manifest, not the installed bytes. | E1 step 5, E5; `sw-register.ts`. |
 | 5 | Offline launches cannot change the registration | **Verified by spec**; no fetch, no job. HTTP cache cannot pin a worker: the browser's worker fetch went out with `max-age=0`/`no-cache` in all three engines. A captive portal answering the worker fetch with HTML fails the spec's MIME check ("If this MIME type … is not a JavaScript MIME type, then: Invoke Reject Job Promise"). MITM on https = A. | E5 request log; spec *Update*. |
@@ -485,6 +499,7 @@ IWA sentence's silence on sign-in (F8) and on reach (A16).
 | E5 | `e5-service-worker-header-split.mjs` | Can the origin serve different worker bytes to the browser than to the page? | same |
 | E6 | `e6-real-dist-revalidate-poison.mjs` | Against the real `dist/`: revalidate poisoning, foreign-cache serving, pin persistence | same |
 | E7 | `e7-bfcache.mjs` | Does bfcache hold activation back? (inconclusive: page not restored from bfcache) | Chromium |
+| F2-phone | `device/f2-phone-restart.mjs`, `device/f2-phone-restart-beacon.mjs` | On a phone: does backgrounding activate a waiting worker; does an OS kill + relaunch? | Samsung SM-S947U1: Chrome 152, Samsung Internet 30; Pixel 9 Pro: Chrome 153 (2026-09-21) |
 
 Each engine version is the one Playwright 1.61.1 pins (`playwright-core/browsers.json`:
 chromium 1228, firefox 1532, webkit 2311). E3's result file contains each row twice

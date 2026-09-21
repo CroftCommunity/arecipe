@@ -1,0 +1,4 @@
+21:53:59 backgrounded 30 s
+21:54:32 force-stopped
+21:54:38 watching for unsolicited fetches for 60 s
+{"device":"SM-S947U1 android 16","browser":"com.sec.android.app.sbrowser 30.0.0.67","label":"samsung-internet","mode":"beacon","step1_first_launch":{"servedBy":"network","controllerVersion":"v1","waiting":null,"active":"sw.js:activated","events":["updatefound:sw.js","controllerchange"]},"step2_waiting":{"servedBy":"v1","controllerVersion":"v1","waiting":"sw.js:installed","active":"sw.js:activated","events":["updatefound:sw.js"]},"step3_after_background":{"servedBy":"v1","controllerVersion":"v1","waiting":"sw.js:installed","active":"sw.js:activated","events":["updatefound:sw.js"]},"step4_after_kill_relaunch":{"servedBy":"v2","controllerVersion":"v2","waiting":null,"active":"sw.js:activated","events":[],"swFetchesDuringRelaunch":["script"]},"step5_unsolicited_fetches_while_closed":[]}

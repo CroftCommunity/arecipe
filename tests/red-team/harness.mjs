@@ -35,6 +35,13 @@ const ask = (w, msg) => new Promise((res) => {
 rt.askController = (msg) => ask(navigator.serviceWorker.controller, msg);
 rt.askWaiting = (msg) => ask(rt.reg && rt.reg.waiting, msg);
 rt.register = (url) => navigator.serviceWorker.register(url).then((r) => { rt.reg = r; return r.scope; });
+// Beacon mode (phones without a DevTools socket): the page reports its own
+// state to the origin, and ?update=1 makes it call reg.update() itself.
+if (params.get('beacon') === '1') {
+  const post = async () => { try { await fetch('/report', { method: 'POST', body: JSON.stringify(await rt.state()) }); } catch {} };
+  rt.ready.then(() => { setTimeout(post, 1500); setInterval(post, 2000); });
+  if (params.get('update') === '1') rt.ready.then((reg) => setTimeout(() => reg.update(), 3000));
+}
 rt.state = async () => {
   await rt.ready.catch(() => {});
   const regs = await navigator.serviceWorker.getRegistrations();
@@ -91,6 +98,8 @@ export const startServer = async () => {
      * `Service-Worker: script` header (the browser's own update fetch). */
     hostileForSwHeader: null,
     log: [],
+    /** Beacon-mode reports, newest last: { at, state }. */
+    reports: [],
   };
   const server = http.createServer((req, res) => {
     const url = new URL(req.url, 'http://127.0.0.1');
@@ -111,6 +120,12 @@ export const startServer = async () => {
       return send(200, 'application/javascript', SW(version, name));
     }
     if (p === '/data.json') return send(200, 'application/json', '{"ok":true}');
+    if (p === '/report' && req.method === 'POST') {
+      let body = '';
+      req.on('data', (c) => (body += c));
+      req.on('end', () => { try { state.reports.push({ at: Date.now(), state: JSON.parse(body) }); } catch {} send(204, 'text/plain', ''); });
+      return;
+    }
     if (p === '/' || p.endsWith('.html')) return send(200, 'text/html; charset=utf-8', PAGE('network'));
     send(404, 'text/plain', 'nope');
   });
