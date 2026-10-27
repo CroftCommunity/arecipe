@@ -1,7 +1,7 @@
 # Promote Plan + Menu to top-level tabs; move Alchemy under Cookbook
 
 Date: 2026-07-23
-Status: proposed (supersedes the earlier sub-tab-switcher draft in this file's history)
+Status: shipped 2026-07-23 (`f6285df`) (supersedes the earlier sub-tab-switcher draft in this file's history)
 
 ## Problem statement
 

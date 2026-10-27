@@ -55,7 +55,7 @@ stalled the 2026-08-05 publish on a Bluesky rate limit (see
 `plans/2026-07-23-3-plan-wikibooks-corpus-enrichment.md`).
 
 **Where it currently lives.** The only populated copy is the worktree at
-`CroftC/worktrees/arecipe/wbsync`, which is deliberately kept on a **detached
+`CroftC/worktrees/wbsync/arecipe`, which is deliberately kept on a **detached
 HEAD** at a `main` commit rather than on a branch:
 
 - Its branch (`claude/wbsync-enrich`) was merged in #74 and deleted. The worktree

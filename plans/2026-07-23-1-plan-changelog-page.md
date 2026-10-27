@@ -1,7 +1,6 @@
 # Changelog page — a CI-generated, user-facing `/changelog` from commit trailers
 
-**Status:** Planned — not started. TDD, red-first per `CLAUDE.md`. Record the outcome + green-gate counts
-here when done.
+**Status:** ✅ Implemented 2026-07-23 (`464b8b8`, `efb4bd7`). TDD, red-first per `CLAUDE.md`.
 
 ## Problem
 

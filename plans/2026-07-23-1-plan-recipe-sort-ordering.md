@@ -1,6 +1,6 @@
 # Recipe sort ordering — a daily-mix default + a Sort symbol on the toolbar
 
-**Status:** 🚧 Planned 2026-07-23, from owner mobile screenshot feedback
+**Status:** ✅ Shipped (#47, `3ea53df`). Planned 2026-07-23, from owner mobile screenshot feedback
 (index.html @ ~390px). TDD-first, red → green.
 
 Two asks, one row:

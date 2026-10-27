@@ -1,6 +1,7 @@
 # Ingredient normalization + hybrid substitution engine
 
-**Status:** 📋 Planned (2026-08-12). Supersedes the direct-regex matching approach
+**Status:** ✅ M1–M4 + Phase 9 shipped 2026-09-09/14 (#97–#104, #106); open: owner
+spot-checks of the vocabulary review. Planned 2026-08-12. Supersedes the direct-regex matching approach
 in PR #87; that PR's UI surface may be reusable — Phase 0 decides.
 
 Mostly-deterministic hybrid: a build-time reviewed canonical ingredient
@@ -339,7 +340,7 @@ promotion.
 - Export: settings-adjacent "export ingredient corrections" producing the JSON
   block to paste into `ingredientkeys.json` aliases at next build review —
   the manual promotion path. (PDS-published community aliases = Phase 9,
-  roadmap.)
+  shipped in #104.)
 
 **As built (2026-09-09).** `src/recipes/ingredient-aliases-local.ts` mirrors the
 exclusions overlay: localStorage, defensive, empty leaves no key behind. One
@@ -440,7 +441,7 @@ deterministic coverage 85.9% → 86.7%). The suite also surfaced judged wrongs i
 the top bands that are VOCABULARY problems (junk keys like `clove garlic`,
 `non-iodised salt`, `powder`) — listed for the review, not patched in the matcher.
 
-## Phase 9 — PDS alias records (roadmap; re-plan before execution)
+## Phase 9 — PDS alias records (shipped 2026-09-14, #104; re-planned in `plans/2026-09-14-plan-community-ingredient-aliases.md`)
 
 Publish confirmed aliases as open-world records on the cook's PDS; build step
 harvests and aggregates across cooks with provenance; human review before any
