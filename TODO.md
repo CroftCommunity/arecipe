@@ -11,6 +11,13 @@ Actionable, not-yet-scheduled items. Feature deferrals with rationale live in
 `docs/BUILD-PLAN.md` § Deferred; this file is for tooling/QA follow-ups and
 loose ideas a later session can pick up.
 
+## Open
+
+- [ ] **`security / deps` is red: 1 blocking (in the npm tree — vite, vitest, happy-dom, zod, …
+  are the flagged packages; main's scheduled run went red 2026-10-26).** Triaged in the
+  workspace-wide advisory pass, croft-stack first: the handoff prompt is croft-stack
+  `TODO.md` § Open, "Advisory triage, workspace-wide" (filed 2026-10-27).
+
 ## Bugs
 
 - [x] **Loopback (local dev) sessions can't refresh their token except on
