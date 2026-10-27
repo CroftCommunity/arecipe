@@ -1,0 +1,1 @@
+var e="cookbook-show-export",s=(t={})=>{let o=t.storage??window.localStorage;return{showExport:()=>{try{return o.getItem(e)==="1"}catch{return!1}},setShowExport:r=>{try{r?o.setItem(e,"1"):o.removeItem(e)}catch{}}}};export{s as a};
