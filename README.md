@@ -32,9 +32,12 @@ Page-per-destination (no router): each top-level surface is its own document —
 `index.html` (Browse), `cookbook.html` (Cookbook — your own recipes plus a
 bounded reach: starter cooks + who you follow/your followers on Bluesky, and
 their recipes; `?did=<did>` is a shareable public view of anyone's cookbook.
-The legacy `friends.html` redirects here), `mine.html` (Alchemy — your drafting
-workspace; account-free; no longer hosts the login form), `meals.html` (Meals —
-a weekly meal planner: assign recipes to days, repeat weeks onto a calendar),
+The legacy `friends.html` redirects here), `plan.html` (Plan — the meal-plan
+builder: assign recipes to days), `meals.html` (Menu — your published meal plans
+and their calendar; owns the `?mealplan=` share links), `reference.html`
+(Reference — static kitchen charts) and `timers.html` (Timers), both desktop
+tabs that leave the mobile bottom bar, `mine.html` (Alchemy — your account-free
+drafting workspace, reached from Cookbook rather than a tab),
 `signin.html` (the dedicated
 sign-in page — "Choose your atmo provider", the workspace sign-in pattern from
 `croft-pwa/docs/DESIGN.md`: pick a provider or bring a handle; atproto OAuth, forwards to
